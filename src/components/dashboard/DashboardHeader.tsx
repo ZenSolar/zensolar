@@ -5,7 +5,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  isDemo?: boolean;
+}
+
+export function DashboardHeader({ isDemo = false }: DashboardHeaderProps) {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -30,24 +34,41 @@ export function DashboardHeader() {
           <h1 className="text-xl font-bold text-foreground">ZenSolar Dashboard</h1>
         </div>
         <div className="flex items-center gap-2">
-          {user?.email && (
-            <span className="text-sm text-muted-foreground hidden sm:block">
-              {user.email}
-            </span>
+          {isDemo ? (
+            <>
+              <span className="text-sm text-muted-foreground hidden sm:block">
+                Demo Mode
+              </span>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate('/auth')}
+              >
+                Sign Up
+              </Button>
+            </>
+          ) : (
+            <>
+              {user?.email && (
+                <span className="text-sm text-muted-foreground hidden sm:block">
+                  {user.email}
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4" />
+                )}
+                <span className="ml-2 hidden sm:inline">Log out</span>
+              </Button>
+            </>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            {isLoggingOut ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <LogOut className="h-4 w-4" />
-            )}
-            <span className="ml-2 hidden sm:inline">Log out</span>
-          </Button>
         </div>
       </div>
     </header>
