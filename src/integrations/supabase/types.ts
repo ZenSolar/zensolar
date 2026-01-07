@@ -20,9 +20,19 @@ export type Database = {
           created_at: string
           display_name: string | null
           enphase_connected: boolean | null
+          facebook_connected: boolean | null
+          facebook_handle: string | null
           id: string
+          instagram_connected: boolean | null
+          instagram_handle: string | null
+          linkedin_connected: boolean | null
+          linkedin_handle: string | null
           solaredge_connected: boolean | null
           tesla_connected: boolean | null
+          tiktok_connected: boolean | null
+          tiktok_handle: string | null
+          twitter_connected: boolean | null
+          twitter_handle: string | null
           updated_at: string
           user_id: string
           wallet_address: string | null
@@ -32,9 +42,19 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           enphase_connected?: boolean | null
+          facebook_connected?: boolean | null
+          facebook_handle?: string | null
           id?: string
+          instagram_connected?: boolean | null
+          instagram_handle?: string | null
+          linkedin_connected?: boolean | null
+          linkedin_handle?: string | null
           solaredge_connected?: boolean | null
           tesla_connected?: boolean | null
+          tiktok_connected?: boolean | null
+          tiktok_handle?: string | null
+          twitter_connected?: boolean | null
+          twitter_handle?: string | null
           updated_at?: string
           user_id: string
           wallet_address?: string | null
@@ -44,9 +64,19 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           enphase_connected?: boolean | null
+          facebook_connected?: boolean | null
+          facebook_handle?: string | null
           id?: string
+          instagram_connected?: boolean | null
+          instagram_handle?: string | null
+          linkedin_connected?: boolean | null
+          linkedin_handle?: string | null
           solaredge_connected?: boolean | null
           tesla_connected?: boolean | null
+          tiktok_connected?: boolean | null
+          tiktok_handle?: string | null
+          twitter_connected?: boolean | null
+          twitter_handle?: string | null
           updated_at?: string
           user_id?: string
           wallet_address?: string | null
