@@ -1,12 +1,53 @@
-import { Sun } from 'lucide-react';
+import { Sun, LogOut, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export function DashboardHeader() {
+  const { signOut, user } = useAuth();
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    const { error } = await signOut();
+    setIsLoggingOut(false);
+    
+    if (error) {
+      toast.error('Failed to log out');
+    } else {
+      navigate('/auth');
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="container flex h-14 items-center justify-center">
+      <div className="container flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Sun className="h-6 w-6 text-solar" />
           <h1 className="text-xl font-bold text-foreground">ZenSolar Dashboard</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          {user?.email && (
+            <span className="text-sm text-muted-foreground hidden sm:block">
+              {user.email}
+            </span>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LogOut className="h-4 w-4" />
+            )}
+            <span className="ml-2 hidden sm:inline">Log out</span>
+          </Button>
         </div>
       </div>
     </header>

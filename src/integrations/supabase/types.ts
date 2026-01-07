@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          enphase_connected: boolean | null
+          id: string
+          solaredge_connected: boolean | null
+          tesla_connected: boolean | null
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          enphase_connected?: boolean | null
+          id?: string
+          solaredge_connected?: boolean | null
+          tesla_connected?: boolean | null
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          enphase_connected?: boolean | null
+          id?: string
+          solaredge_connected?: boolean | null
+          tesla_connected?: boolean | null
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
