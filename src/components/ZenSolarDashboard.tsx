@@ -3,6 +3,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { ConnectAccounts } from './dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from './dashboard/ConnectSocialAccounts';
+import { ConnectWallet } from './dashboard/ConnectWallet';
 import { ActivityMetrics } from './dashboard/ActivityMetrics';
 import { RewardActions } from './dashboard/RewardActions';
 import { Loader2 } from 'lucide-react';
@@ -44,7 +45,11 @@ interface ZenSolarDashboardProps {
 
 export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { activityData, isLoading: dataLoading, refreshDashboard } = useDashboardData();
-  const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, connectEnergyAccount } = useProfile();
+  const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, connectEnergyAccount, updateProfile } = useProfile();
+
+  const handleConnectWallet = async (address: string) => {
+    await updateProfile({ wallet_address: address });
+  };
 
   const energyAccounts = [
     { service: 'tesla' as const, connected: profile?.tesla_connected ?? false, label: 'Tesla' },
@@ -120,6 +125,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       <DashboardHeader isDemo={isDemo} />
       
       <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+        <ConnectWallet
+          walletAddress={profile?.wallet_address ?? null}
+          onConnect={handleConnectWallet}
+          isDemo={isDemo}
+        />
+
         <ConnectAccounts 
           accounts={energyAccounts} 
           onConnect={handleConnectEnergy} 
