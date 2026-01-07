@@ -1,9 +1,10 @@
-import { Sun, LogOut, Loader2 } from 'lucide-react';
+import { LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import zenLogo from '@/assets/zen-logo.png';
 
 interface DashboardHeaderProps {
   isDemo?: boolean;
@@ -29,9 +30,9 @@ export function DashboardHeader({ isDemo = false }: DashboardHeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <Sun className="h-6 w-6 text-solar" />
-          <h1 className="text-xl font-bold text-foreground">ZenSolar Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <img src={zenLogo} alt="ZenSolar" className="h-8" />
+          <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
         </div>
         <div className="flex items-center gap-2">
           {isDemo ? (
