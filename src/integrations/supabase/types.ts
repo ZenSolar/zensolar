@@ -25,6 +25,7 @@ export type Database = {
           id: string
           instagram_connected: boolean | null
           instagram_handle: string | null
+          is_admin: boolean | null
           linkedin_connected: boolean | null
           linkedin_handle: string | null
           solaredge_connected: boolean | null
@@ -47,6 +48,7 @@ export type Database = {
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null
+          is_admin?: boolean | null
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
           solaredge_connected?: boolean | null
@@ -69,6 +71,7 @@ export type Database = {
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null
+          is_admin?: boolean | null
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
           solaredge_connected?: boolean | null
