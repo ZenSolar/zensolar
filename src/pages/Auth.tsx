@@ -217,6 +217,19 @@ export default function Auth() {
               </form>
             </TabsContent>
           </Tabs>
+          
+          <div className="mt-6 pt-4 border-t border-border">
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={() => navigate('/demo')}
+            >
+              Try Demo Mode
+            </Button>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Explore the app without creating an account
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
