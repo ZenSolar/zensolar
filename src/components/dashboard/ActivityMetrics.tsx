@@ -21,14 +21,6 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
       
       <div className="grid gap-3">
         <MetricCard
-          icon={Leaf}
-          label="CO2 Offset"
-          value={data.co2OffsetPounds}
-          unit="lbs"
-          colorClass="bg-eco"
-        />
-        
-        <MetricCard
           icon={Sun}
           label="Solar Energy Produced"
           value={data.solarEnergyProduced}
@@ -58,6 +50,14 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           value={data.evCharging}
           unit="kWh"
           colorClass="bg-accent"
+        />
+        
+        <MetricCard
+          icon={Leaf}
+          label="CO2 Offset"
+          value={data.co2OffsetPounds}
+          unit="lbs"
+          colorClass="bg-eco"
         />
         
         <MetricCard
