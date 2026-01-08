@@ -44,18 +44,15 @@ interface ZenSolarDashboardProps {
 }
 
 export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
-  const { activityData, isLoading: dataLoading, refreshDashboard } = useDashboardData();
-  const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, connectEnergyAccount, updateProfile } = useProfile();
+  const { activityData, isLoading: dataLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts } = useDashboardData();
+  const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile } = useProfile();
 
   const handleConnectWallet = async (address: string) => {
     await updateProfile({ wallet_address: address });
   };
 
-  const energyAccounts = [
-    { service: 'tesla' as const, connected: profile?.tesla_connected ?? false, label: 'Tesla' },
-    { service: 'enphase' as const, connected: profile?.enphase_connected ?? false, label: 'Enphase' },
-    { service: 'solaredge' as const, connected: profile?.solaredge_connected ?? false, label: 'SolarEdge' },
-  ];
+  // Use connectedAccounts from useDashboardData which syncs with profile
+  const energyAccounts = connectedAccounts;
 
   const socialAccounts = [
     { 
@@ -101,7 +98,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   ];
 
   const handleConnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge') => {
-    connectEnergyAccount(service);
+    connectAccount(service);
+  };
+
+  const handleDisconnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge') => {
+    disconnectAccount(service);
   };
 
   const handleConnectSocial = async (id: string, handle: string) => {
@@ -133,7 +134,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <ConnectAccounts 
           accounts={energyAccounts} 
-          onConnect={handleConnectEnergy} 
+          onConnect={handleConnectEnergy}
+          onDisconnect={handleDisconnectEnergy}
         />
         
         <ConnectSocialAccounts

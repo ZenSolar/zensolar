@@ -135,8 +135,18 @@ export function useDashboardData() {
         acc.service === service ? { ...acc, connected: true } : acc
       )
     );
-    // Update local state
     setProfileConnections(prev => prev ? { ...prev, [`${service}_connected`]: true } : null);
+  }, []);
+
+  const disconnectAccount = useCallback((service: ConnectedAccount['service']) => {
+    setConnectedAccounts(prev => 
+      prev.map(acc => 
+        acc.service === service ? { ...acc, connected: false } : acc
+      )
+    );
+    setProfileConnections(prev => prev ? { ...prev, [`${service}_connected`]: false } : null);
+    // Reset activity data when disconnecting
+    setActivityData(defaultActivityData);
   }, []);
 
   return {
@@ -144,6 +154,7 @@ export function useDashboardData() {
     connectedAccounts,
     isLoading,
     connectAccount,
+    disconnectAccount,
     refreshDashboard,
   };
 }
