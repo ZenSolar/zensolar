@@ -7,6 +7,7 @@ import { ConnectWallet } from './dashboard/ConnectWallet';
 import { ActivityMetrics } from './dashboard/ActivityMetrics';
 import { RewardActions } from './dashboard/RewardActions';
 import { Loader2 } from 'lucide-react';
+import zenLogo from '@/assets/zen-logo.png';
 
 // Simple SVG icons for social platforms
 const FacebookIcon = () => (
@@ -126,6 +127,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       {isDemo && <DashboardHeader isDemo={isDemo} />}
       
       <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+        {/* Dashboard Header with Logo */}
+        <div className="flex items-center gap-3 pb-2">
+          <img src={zenLogo} alt="ZenSolar" className="h-10 w-10 object-contain" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">ZenSolar Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Earn from clean energy</p>
+          </div>
+        </div>
         <ConnectWallet
           walletAddress={profile?.wallet_address ?? null}
           onConnect={handleConnectWallet}
