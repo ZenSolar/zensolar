@@ -58,11 +58,24 @@ Deno.serve(async (req) => {
     if (action === "get-auth-url") {
       const { redirectUri, state } = body;
       
+      // Scopes based on Tesla Developer Portal configuration
+      // Profile Information, Vehicle Information, Vehicle Charging Management, 
+      // Energy Product Information, Energy Product Commands, Vehicle Specs
+      const scopes = [
+        "openid",
+        "offline_access", 
+        "user_data",
+        "vehicle_device_data",
+        "vehicle_charging_cmds",
+        "energy_device_data",
+        "energy_cmds"
+      ].join(" ");
+      
       const authUrl = new URL(TESLA_AUTH_URL);
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set("client_id", clientId);
       authUrl.searchParams.set("redirect_uri", redirectUri);
-      authUrl.searchParams.set("scope", "openid offline_access user_data vehicle_device_data vehicle_cmds vehicle_charging_cmds energy_device_data energy_cmds");
+      authUrl.searchParams.set("scope", scopes);
       authUrl.searchParams.set("state", state);
 
       return new Response(JSON.stringify({ authUrl: authUrl.toString() }), {
