@@ -186,27 +186,35 @@ Deno.serve(async (req) => {
               `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/site_info`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
-            
+
             let startDate = "2020-01-01"; // Default fallback
             if (siteInfoResponse.ok) {
               const siteInfo = await siteInfoResponse.json();
               if (siteInfo.response?.installation_date) {
-                startDate = siteInfo.response.installation_date.split('T')[0];
+                startDate = String(siteInfo.response.installation_date).split("T")[0];
               }
             }
-            
-            const endDate = new Date().toISOString().split('T')[0];
+
+            const endDate = new Date().toISOString().split("T")[0];
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Chicago";
-            
+
+            // Tesla energy history expects RFC3339 timestamps (must include a "T")
+            const startDateTime = new Date(`${startDate}T00:00:00`).toISOString();
+            const endDateTime = new Date(`${endDate}T23:59:59`).toISOString();
+
             const historyResponse = await fetch(
-              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${startDate}&end_date=${endDate}&period=month&time_zone=${encodeURIComponent(timezone)}`,
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=month&time_zone=${encodeURIComponent(timezone)}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
-            
+
             if (historyResponse.ok) {
               const historyData = await historyResponse.json();
               const timeSeries = historyData.response?.time_series || [];
-              
+
+              if (timeSeries.length > 0) {
+                console.log(`Sample history period for site ${site.id}:`, JSON.stringify(timeSeries[0]));
+              }
+
               // Sum up all monthly data for lifetime totals
               for (const period of timeSeries) {
                 lifetimeSolar += (period.solar_energy_exported || 0);
@@ -270,25 +278,43 @@ Deno.serve(async (req) => {
         
         if (chargingHistoryResponse.ok) {
           const chargingData = await chargingHistoryResponse.json();
-          const sessions = chargingData.data || [];
-          
+          console.log("Charging history response keys:", JSON.stringify(Object.keys(chargingData || {})));
+
+          const sessions = chargingData.data || chargingData.results || chargingData.response || [];
+
           // Log first session to see actual field names
-          if (sessions.length > 0) {
+          if (Array.isArray(sessions) && sessions.length > 0) {
             console.log("Sample charging session:", JSON.stringify(sessions[0]));
           }
-          
-          // Sum up all charging energy from history
-          // Try multiple possible field names from Tesla API
-          for (const session of sessions) {
-            const energyKwh = session.chargeEnergyAdded 
+
+          // Sum up all charging energy from history (kWh)
+          for (const session of (Array.isArray(sessions) ? sessions : [])) {
+            // Some sessions expose kWh directly; others only expose billing "fees" with kWh usage
+            const directKwh = session.chargeEnergyAdded 
               || session.charge_energy_added 
               || session.energy_added 
-              || session.energyAdded 
-              || 0;
-            totalChargingKwh += energyKwh;
+              || session.energyAdded;
+
+            let kwhFromFees = 0;
+            if (Array.isArray(session.fees)) {
+              for (const fee of session.fees) {
+                const isChargingFee = String(fee.feeType || '').toUpperCase() === 'CHARGING';
+                const isKwh = String(fee.uom || '').toLowerCase() === 'kwh';
+                if (isChargingFee && isKwh) {
+                  kwhFromFees += Number(fee.usageBase || 0);
+                  kwhFromFees += Number(fee.usageTier1 || 0);
+                  kwhFromFees += Number(fee.usageTier2 || 0);
+                  kwhFromFees += Number(fee.usageTier3 || 0);
+                  kwhFromFees += Number(fee.usageTier4 || 0);
+                }
+              }
+            }
+
+            totalChargingKwh += Number(directKwh || kwhFromFees || 0);
           }
-          console.log(`Charging history: ${sessions.length} sessions, total kWh: ${totalChargingKwh}`);
-          
+
+          console.log(`Charging history: ${(Array.isArray(sessions) ? sessions.length : 0)} sessions, total kWh: ${totalChargingKwh}`);
+
           // Get baseline from first vehicle's baseline data
           baselineChargingKwh = vehicleDevices[0]?.baseline?.total_charge_energy_added_kwh || 0;
         } else {
