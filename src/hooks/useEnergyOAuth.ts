@@ -16,8 +16,8 @@ export function useEnergyOAuth() {
       const state = crypto.randomUUID();
       sessionStorage.setItem('tesla_oauth_state', state);
 
-      const response = await supabase.functions.invoke('tesla-auth?action=get-auth-url', {
-        body: { redirectUri: REDIRECT_URI, state },
+      const response = await supabase.functions.invoke('tesla-auth', {
+        body: { redirectUri: REDIRECT_URI, state, action: 'get-auth-url' },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
@@ -41,8 +41,8 @@ export function useEnergyOAuth() {
         return null;
       }
 
-      const response = await supabase.functions.invoke('enphase-auth?action=get-auth-url', {
-        body: {},
+      const response = await supabase.functions.invoke('enphase-auth', {
+        body: { action: 'get-auth-url' },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
@@ -71,8 +71,8 @@ export function useEnergyOAuth() {
         return false;
       }
 
-      const response = await supabase.functions.invoke('tesla-auth?action=exchange-code', {
-        body: { code, redirectUri: REDIRECT_URI },
+      const response = await supabase.functions.invoke('tesla-auth', {
+        body: { code, redirectUri: REDIRECT_URI, action: 'exchange-code' },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
@@ -97,8 +97,8 @@ export function useEnergyOAuth() {
         return false;
       }
 
-      const response = await supabase.functions.invoke('enphase-auth?action=exchange-code', {
-        body: { code },
+      const response = await supabase.functions.invoke('enphase-auth', {
+        body: { code, action: 'exchange-code' },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
