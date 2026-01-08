@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowLeft, Users, RefreshCw } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import zenLogo from '@/assets/zen-logo.png';
 
 interface ProfileWithEmail {
@@ -37,6 +39,11 @@ export default function Admin() {
   const [profiles, setProfiles] = useState<ProfileWithEmail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Tesla registration state
+  const [teslaRegDomain, setTeslaRegDomain] = useState('');
+  const [teslaRegStatus, setTeslaRegStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [teslaRegMessage, setTeslaRegMessage] = useState('');
 
   const fetchProfiles = async () => {
     // For now, fetch all profiles using a service role or admin access
@@ -72,6 +79,102 @@ export default function Admin() {
     await fetchProfiles();
     setIsRefreshing(false);
     toast.success('Data refreshed');
+  };
+
+  const handleTeslaRegistration = async () => {
+    if (!teslaRegDomain) {
+      toast.error('Please enter your app domain');
+      return;
+    }
+
+    setTeslaRegStatus('loading');
+    setTeslaRegMessage('Getting partner token...');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      // Step 1: Get partner token
+      const tokenResponse = await supabase.functions.invoke('tesla-register', {
+        body: { action: 'get-partner-token' },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (tokenResponse.error || !tokenResponse.data?.success) {
+        throw new Error(tokenResponse.data?.error || tokenResponse.error?.message || 'Failed to get partner token');
+      }
+
+      const partnerToken = tokenResponse.data.partnerToken;
+      setTeslaRegMessage('Registering with Tesla Fleet API...');
+
+      // Step 2: Register with Tesla
+      const registerResponse = await supabase.functions.invoke('tesla-register', {
+        body: { action: 'register', partnerToken, domain: teslaRegDomain },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (registerResponse.error || !registerResponse.data?.success) {
+        throw new Error(registerResponse.data?.error || registerResponse.error?.message || 'Registration failed');
+      }
+
+      setTeslaRegStatus('success');
+      setTeslaRegMessage('Successfully registered with Tesla Fleet API!');
+      toast.success('Tesla Fleet API registration complete!');
+    } catch (error) {
+      console.error('Tesla registration error:', error);
+      setTeslaRegStatus('error');
+      setTeslaRegMessage(error instanceof Error ? error.message : 'Registration failed');
+      toast.error('Tesla registration failed');
+    }
+  };
+
+  const handleCheckRegistration = async () => {
+    if (!teslaRegDomain) {
+      toast.error('Please enter your app domain');
+      return;
+    }
+
+    setTeslaRegStatus('loading');
+    setTeslaRegMessage('Checking registration status...');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      // Get partner token first
+      const tokenResponse = await supabase.functions.invoke('tesla-register', {
+        body: { action: 'get-partner-token' },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (tokenResponse.error || !tokenResponse.data?.success) {
+        throw new Error(tokenResponse.data?.error || 'Failed to get partner token');
+      }
+
+      // Check registration
+      const checkResponse = await supabase.functions.invoke('tesla-register', {
+        body: { action: 'check-registration', partnerToken: tokenResponse.data.partnerToken, domain: teslaRegDomain },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (checkResponse.data?.registered) {
+        setTeslaRegStatus('success');
+        setTeslaRegMessage('Domain is registered with Tesla Fleet API');
+        toast.success('Domain is registered!');
+      } else {
+        setTeslaRegStatus('error');
+        setTeslaRegMessage('Domain is NOT registered with Tesla Fleet API');
+        toast.error('Domain not registered');
+      }
+    } catch (error) {
+      console.error('Check registration error:', error);
+      setTeslaRegStatus('error');
+      setTeslaRegMessage(error instanceof Error ? error.message : 'Check failed');
+    }
   };
 
   const formatAddress = (address: string | null) => {
@@ -124,6 +227,81 @@ export default function Admin() {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+        {/* Tesla Fleet API Registration */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Tesla Fleet API Registration</CardTitle>
+            </div>
+            <CardDescription>
+              Register your app with Tesla's Fleet API to enable device discovery. This is a one-time setup.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="tesla-domain">App Domain</Label>
+              <Input
+                id="tesla-domain"
+                placeholder="e.g., zen.solar or your-app.lovableproject.com"
+                value={teslaRegDomain}
+                onChange={(e) => setTeslaRegDomain(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the domain configured in your Tesla Developer Portal's "Allowed Origins"
+              </p>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleTeslaRegistration} 
+                disabled={teslaRegStatus === 'loading' || !teslaRegDomain}
+              >
+                {teslaRegStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Zap className="h-4 w-4 mr-2" />
+                )}
+                Register with Tesla
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleCheckRegistration} 
+                disabled={teslaRegStatus === 'loading' || !teslaRegDomain}
+              >
+                Check Status
+              </Button>
+            </div>
+            
+            {teslaRegMessage && (
+              <div className={`flex items-center gap-2 p-3 rounded-md ${
+                teslaRegStatus === 'success' ? 'bg-green-500/10 text-green-600' :
+                teslaRegStatus === 'error' ? 'bg-destructive/10 text-destructive' :
+                'bg-muted text-muted-foreground'
+              }`}>
+                {teslaRegStatus === 'success' && <CheckCircle2 className="h-4 w-4" />}
+                {teslaRegStatus === 'error' && <XCircle className="h-4 w-4" />}
+                {teslaRegStatus === 'loading' && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span className="text-sm">{teslaRegMessage}</span>
+              </div>
+            )}
+            
+            <div className="p-3 bg-muted/50 rounded-md">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 mt-0.5 text-amber-500" />
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p><strong>Important:</strong> Before registering, ensure you have:</p>
+                  <ol className="list-decimal list-inside space-y-0.5">
+                    <li>Added <code>openid</code> and <code>offline_access</code> scopes in Tesla Developer Portal</li>
+                    <li>Set your redirect URL to: <code>{window.location.origin}/oauth/callback</code></li>
+                    <li>The domain entered above matches your "Allowed Origins" in Tesla</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Users className="h-6 w-6 text-primary" />
