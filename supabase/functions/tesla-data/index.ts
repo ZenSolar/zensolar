@@ -138,33 +138,36 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get user's claimed devices
+    // Get user's claimed devices with baseline data
     const { data: claimedDevices } = await supabaseClient
       .from("connected_devices")
-      .select("device_id, device_type, device_metadata")
+      .select("device_id, device_type, device_metadata, baseline_data, last_minted_at")
       .eq("user_id", user.id)
       .eq("provider", "tesla");
 
     const energySiteIds = claimedDevices
       ?.filter(d => d.device_type === "solar" || d.device_type === "powerwall")
-      .map(d => d.device_id) || [];
+      .map(d => ({ id: d.device_id, baseline: d.baseline_data || {}, last_minted_at: d.last_minted_at })) || [];
 
-    const vehicleIds = claimedDevices
+    const vehicleDevices = claimedDevices
       ?.filter(d => d.device_type === "vehicle")
-      .map(d => d.device_id) || [];
+      .map(d => ({ id: d.device_id, baseline: d.baseline_data || {}, last_minted_at: d.last_minted_at })) || [];
 
     let totalSolarProduction = 0;
     let totalBatteryDischarge = 0;
     let totalEvMiles = 0;
+    let pendingSolarProduction = 0;
+    let pendingBatteryDischarge = 0;
+    let pendingEvMiles = 0;
     const energySitesData: any[] = [];
     const vehiclesData: any[] = [];
 
     // Fetch energy site data
-    for (const siteId of energySiteIds) {
+    for (const site of energySiteIds) {
       try {
         // Get live status
         const liveResponse = await fetch(
-          `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/live_status`,
+          `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/live_status`,
           { headers: { "Authorization": `Bearer ${accessToken}` } }
         );
 
@@ -172,40 +175,68 @@ Deno.serve(async (req) => {
           const liveData = await liveResponse.json();
           const response = liveData.response || {};
           
+          // Get lifetime totals from calendar history
+          let lifetimeSolar = 0;
+          let lifetimeBatteryDischarge = 0;
+          
+          try {
+            const historyResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&period=lifetime`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+            
+            if (historyResponse.ok) {
+              const historyData = await historyResponse.json();
+              const histResponse = historyData.response || {};
+              lifetimeSolar = (histResponse.total_solar_energy_exported || 0) + (histResponse.total_solar_energy_consumed || 0);
+              lifetimeBatteryDischarge = histResponse.total_battery_energy_exported || 0;
+              console.log(`Site ${site.id} lifetime:`, JSON.stringify({ lifetimeSolar, lifetimeBatteryDischarge }));
+            }
+          } catch (histError) {
+            console.error(`Error fetching history for site ${site.id}:`, histError);
+          }
+          
+          // Calculate pending (since last mint or initial connection)
+          const baselineSolar = site.baseline?.total_solar_produced_wh || 0;
+          const baselineBattery = site.baseline?.total_energy_discharged_wh || 0;
+          
+          const pendingSolar = Math.max(0, lifetimeSolar - baselineSolar);
+          const pendingBattery = Math.max(0, lifetimeBatteryDischarge - baselineBattery);
+          
           energySitesData.push({
-            site_id: siteId,
+            site_id: site.id,
             solar_power: response.solar_power || 0,
             battery_power: response.battery_power || 0,
             grid_power: response.grid_power || 0,
             load_power: response.load_power || 0,
+            lifetime_solar_wh: lifetimeSolar,
+            lifetime_battery_discharge_wh: lifetimeBatteryDischarge,
+            pending_solar_wh: pendingSolar,
+            pending_battery_discharge_wh: pendingBattery,
           });
 
-          console.log(`Site ${siteId} live data:`, JSON.stringify(response));
+          console.log(`Site ${site.id} live data:`, JSON.stringify(response));
 
-          // Accumulate production
-          if (response.solar_power > 0) {
-            totalSolarProduction += response.solar_power;
-          }
-          // Tesla: positive battery_power = discharging (power flowing to home)
-          // negative battery_power = charging (power flowing into battery)
-          if (response.battery_power > 0) {
-            totalBatteryDischarge += response.battery_power;
-          }
+          // Accumulate totals
+          totalSolarProduction += lifetimeSolar;
+          totalBatteryDischarge += lifetimeBatteryDischarge;
+          pendingSolarProduction += pendingSolar;
+          pendingBatteryDischarge += pendingBattery;
         } else if (liveResponse.status === 429) {
-          console.warn("Tesla API rate limited for site:", siteId);
+          console.warn("Tesla API rate limited for site:", site.id);
         } else {
-          console.error(`Failed to fetch site ${siteId}:`, await liveResponse.text());
+          console.error(`Failed to fetch site ${site.id}:`, await liveResponse.text());
         }
       } catch (error) {
-        console.error(`Error fetching site ${siteId}:`, error);
+        console.error(`Error fetching site ${site.id}:`, error);
       }
     }
 
     // Fetch vehicle data
-    for (const vin of vehicleIds) {
+    for (const vehicle of vehicleDevices) {
       try {
         const vehicleResponse = await fetch(
-          `${TESLA_API_BASE}/api/1/vehicles/${vin}/vehicle_data?endpoints=vehicle_state;drive_state;charge_state`,
+          `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state;drive_state;charge_state`,
           { headers: { "Authorization": `Bearer ${accessToken}` } }
         );
 
@@ -216,55 +247,62 @@ Deno.serve(async (req) => {
           const chargeState = response.charge_state || {};
           const vehicleState = response.vehicle_state || {};
           
-          console.log(`Vehicle ${vin} data:`, JSON.stringify({
-            odometer: vehicleState.odometer,
+          const currentOdometer = vehicleState.odometer || 0;
+          const baselineOdometer = vehicle.baseline?.odometer || 0;
+          const pendingMiles = Math.max(0, currentOdometer - baselineOdometer);
+          
+          console.log(`Vehicle ${vehicle.id} data:`, JSON.stringify({
+            odometer: currentOdometer,
+            baseline_odometer: baselineOdometer,
+            pending_miles: pendingMiles,
             battery_level: chargeState.battery_level,
             charging_state: chargeState.charging_state,
-            charge_energy_added: chargeState.charge_energy_added,
-            charge_rate: chargeState.charge_rate,
           }));
           
           vehiclesData.push({
-            vin,
-            odometer: vehicleState.odometer || 0,
+            vin: vehicle.id,
+            odometer: currentOdometer,
+            pending_miles: pendingMiles,
             battery_level: chargeState.battery_level || 0,
             charging_state: chargeState.charging_state || "Unknown",
-            charge_energy_added: chargeState.charge_energy_added || 0, // kWh added in current session
-            charge_rate: chargeState.charge_rate || 0, // miles per hour
-            charger_power: chargeState.charger_power || 0, // kW
+            charge_energy_added: chargeState.charge_energy_added || 0,
+            charge_rate: chargeState.charge_rate || 0,
+            charger_power: chargeState.charger_power || 0,
           });
 
-          totalEvMiles += vehicleState.odometer || 0;
+          totalEvMiles += currentOdometer;
+          pendingEvMiles += pendingMiles;
         } else if (vehicleResponse.status === 429) {
-          console.warn("Tesla API rate limited for vehicle:", vin);
+          console.warn("Tesla API rate limited for vehicle:", vehicle.id);
         } else if (vehicleResponse.status === 408) {
-          // Vehicle is sleeping - this is normal, try to wake or use cached data
-          console.log(`Vehicle ${vin} is asleep`);
-          vehiclesData.push({ vin, status: "asleep", odometer: 0 });
+          console.log(`Vehicle ${vehicle.id} is asleep`);
+          vehiclesData.push({ vin: vehicle.id, status: "asleep", odometer: 0, pending_miles: 0 });
         } else {
           const errorText = await vehicleResponse.text();
-          console.error(`Failed to fetch vehicle ${vin} (${vehicleResponse.status}):`, errorText);
+          console.error(`Failed to fetch vehicle ${vehicle.id} (${vehicleResponse.status}):`, errorText);
         }
       } catch (error) {
-        console.error(`Error fetching vehicle ${vin}:`, error);
+        console.error(`Error fetching vehicle ${vehicle.id}:`, error);
       }
     }
 
-    // Store production data for rewards calculation
-    if (totalSolarProduction > 0 || totalBatteryDischarge > 0) {
+    // Store production data for rewards calculation (using pending amounts)
+    if (pendingSolarProduction > 0 || pendingBatteryDischarge > 0) {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
       
       for (const site of energySitesData) {
-        await supabaseClient
-          .from("energy_production")
-          .upsert({
-            user_id: user.id,
-            device_id: site.site_id,
-            provider: "tesla",
-            production_wh: site.solar_power || 0,
-            recorded_at: recordedAt,
-          }, { onConflict: "device_id,provider,recorded_at" });
+        if (site.pending_solar_wh > 0 || site.pending_battery_discharge_wh > 0) {
+          await supabaseClient
+            .from("energy_production")
+            .upsert({
+              user_id: user.id,
+              device_id: site.site_id,
+              provider: "tesla",
+              production_wh: site.pending_solar_wh || 0,
+              recorded_at: recordedAt,
+            }, { onConflict: "device_id,provider,recorded_at" });
+        }
       }
     }
 
@@ -272,9 +310,14 @@ Deno.serve(async (req) => {
       energy_sites: energySitesData,
       vehicles: vehiclesData,
       totals: {
-        solar_production_w: totalSolarProduction,
-        battery_discharge_w: totalBatteryDischarge,
+        // Lifetime totals
+        solar_production_wh: totalSolarProduction,
+        battery_discharge_wh: totalBatteryDischarge,
         ev_miles: totalEvMiles,
+        // Pending (since last mint)
+        pending_solar_wh: pendingSolarProduction,
+        pending_battery_discharge_wh: pendingBatteryDischarge,
+        pending_ev_miles: pendingEvMiles,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
