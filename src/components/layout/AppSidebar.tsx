@@ -4,9 +4,9 @@ import {
   Settings, 
   User, 
   HelpCircle,
-  LogOut,
-  Sun
+  LogOut
 } from "lucide-react";
+import zenLogo from "@/assets/zen-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -51,9 +51,7 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo/Brand */}
         <div className="p-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary">
-            <Sun className="h-5 w-5 text-white" />
-          </div>
+          <img src={zenLogo} alt="ZenSolar" className="h-10 w-10 object-contain" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-bold text-lg text-sidebar-foreground">ZenSolar</span>
