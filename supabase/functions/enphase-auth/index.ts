@@ -51,30 +51,37 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Generate OAuth URL for user to authorize
+    // Generate OAuth URL for user to authorize (uses Enphase default redirect)
     if (action === "get-auth-url") {
-      const { redirectUri } = await req.json();
+      // Enphase requires using their default redirect URI for apps without public endpoints
+      const enphaseDefaultRedirect = "https://api.enphaseenergy.com/oauth/redirect_uri";
       
       const authUrl = new URL(ENPHASE_AUTH_URL);
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set("client_id", clientId);
-      authUrl.searchParams.set("redirect_uri", redirectUri);
+      authUrl.searchParams.set("redirect_uri", enphaseDefaultRedirect);
 
-      return new Response(JSON.stringify({ authUrl: authUrl.toString() }), {
+      return new Response(JSON.stringify({ 
+        authUrl: authUrl.toString(),
+        useManualCode: true // Indicates user must manually copy the code
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     // Exchange authorization code for tokens
     if (action === "exchange-code") {
-      const { code, redirectUri } = await req.json();
+      const { code } = await req.json();
+      
+      // Must use the same redirect URI that was used for authorization
+      const enphaseDefaultRedirect = "https://api.enphaseenergy.com/oauth/redirect_uri";
 
       // Create Basic auth header: base64(client_id:client_secret)
       const credentials = btoa(`${clientId}:${clientSecret}`);
 
       const tokenUrl = new URL(ENPHASE_TOKEN_URL);
       tokenUrl.searchParams.set("grant_type", "authorization_code");
-      tokenUrl.searchParams.set("redirect_uri", redirectUri);
+      tokenUrl.searchParams.set("redirect_uri", enphaseDefaultRedirect);
       tokenUrl.searchParams.set("code", code);
 
       const tokenResponse = await fetch(tokenUrl.toString(), {
