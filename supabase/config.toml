@@ -1,1 +1,10 @@
 project_id = "fcptrpgqkjffgeddajwl"
+
+[functions.tesla-auth]
+verify_jwt = false
+
+[functions.enphase-auth]
+verify_jwt = false
+
+[functions.enphase-data]
+verify_jwt = false

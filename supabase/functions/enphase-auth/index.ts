@@ -101,6 +101,31 @@ Deno.serve(async (req) => {
       }
 
       const tokens = await tokenResponse.json();
+      console.log("Enphase tokens received:", { 
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        expiresIn: tokens.expires_in
+      });
+
+      // Store tokens in database
+      const expiresAt = tokens.expires_in 
+        ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
+        : null;
+
+      const { error: tokenError } = await supabaseClient
+        .from("energy_tokens")
+        .upsert({
+          user_id: user.id,
+          provider: "enphase",
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token || null,
+          expires_at: expiresAt,
+          extra_data: { system_id: tokens.system_id || null }
+        }, { onConflict: "user_id,provider" });
+
+      if (tokenError) {
+        console.error("Failed to store tokens:", tokenError);
+      }
 
       // Update user profile to mark Enphase as connected
       const { error: updateError } = await supabaseClient
@@ -112,7 +137,6 @@ Deno.serve(async (req) => {
         console.error("Failed to update profile:", updateError);
       }
 
-      // In production, store tokens securely (encrypted in database)
       return new Response(JSON.stringify({ 
         success: true, 
         message: "Enphase account connected successfully",
