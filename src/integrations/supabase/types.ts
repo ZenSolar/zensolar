@@ -53,6 +53,39 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_production: {
+        Row: {
+          consumption_wh: number | null
+          created_at: string
+          device_id: string
+          id: string
+          production_wh: number
+          provider: string
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          consumption_wh?: number | null
+          created_at?: string
+          device_id: string
+          id?: string
+          production_wh?: number
+          provider: string
+          recorded_at: string
+          user_id: string
+        }
+        Update: {
+          consumption_wh?: number | null
+          created_at?: string
+          device_id?: string
+          id?: string
+          production_wh?: number
+          provider?: string
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       energy_tokens: {
         Row: {
           access_token: string
@@ -158,6 +191,42 @@ export type Database = {
           updated_at?: string
           user_id?: string
           wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      user_rewards: {
+        Row: {
+          calculated_at: string
+          claimed: boolean
+          claimed_at: string | null
+          created_at: string
+          energy_wh_basis: number
+          id: string
+          reward_type: string
+          tokens_earned: number
+          user_id: string
+        }
+        Insert: {
+          calculated_at?: string
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          energy_wh_basis?: number
+          id?: string
+          reward_type?: string
+          tokens_earned?: number
+          user_id: string
+        }
+        Update: {
+          calculated_at?: string
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          energy_wh_basis?: number
+          id?: string
+          reward_type?: string
+          tokens_earned?: number
+          user_id?: string
         }
         Relationships: []
       }
