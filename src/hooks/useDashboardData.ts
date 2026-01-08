@@ -69,10 +69,11 @@ export function useDashboardData() {
 
       if (response.error) {
         console.error('Enphase data error:', response.error);
-        // Check if it's a rate limit error
         const errorMessage = response.error.message || '';
         if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests') || errorMessage.includes('Usage limit exceeded')) {
           toast.error('Enphase API rate limit reached. Please try again later.');
+        } else if (errorMessage.includes('needsReauth') || errorMessage.includes('Token expired')) {
+          toast.error('Enphase connection expired. Please reconnect your account.');
         }
         return null;
       }
@@ -84,39 +85,102 @@ export function useDashboardData() {
     }
   }, []);
 
+  const fetchTeslaData = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
+      const response = await supabase.functions.invoke('tesla-data', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        console.error('Tesla data error:', response.error);
+        const errorMessage = response.error.message || '';
+        if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
+          toast.error('Tesla API rate limit reached. Please try again later.');
+        } else if (errorMessage.includes('needsReauth') || errorMessage.includes('Token expired')) {
+          toast.error('Tesla connection expired. Please reconnect your account.');
+        }
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch Tesla data:', error);
+      return null;
+    }
+  }, []);
+
+  const fetchRewardsData = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
+      const response = await supabase.functions.invoke('calculate-rewards', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        console.error('Rewards calculation error:', response.error);
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch rewards data:', error);
+      return null;
+    }
+  }, []);
+
   const refreshDashboard = useCallback(async () => {
     setIsLoading(true);
     
     try {
       let solarEnergy = 0;
+      let evMiles = 0;
+      let batteryDischarge = 0;
 
-      // Fetch Enphase data if connected
-      if (profileConnections?.enphase_connected) {
-        const enphaseData = await fetchEnphaseData();
-        if (enphaseData?.summary) {
-          // Convert Wh to kWh
-          solarEnergy = (enphaseData.summary.energy_lifetime || 0) / 1000;
-        } else if (enphaseData?.energy) {
-          solarEnergy = (enphaseData.energy.production?.[0] || 0) / 1000;
-        }
+      // Fetch data in parallel
+      const [enphaseData, teslaData, rewardsData] = await Promise.all([
+        profileConnections?.enphase_connected ? fetchEnphaseData() : null,
+        profileConnections?.tesla_connected ? fetchTeslaData() : null,
+        fetchRewardsData(),
+      ]);
+
+      // Process Enphase data
+      if (enphaseData?.summary) {
+        solarEnergy += (enphaseData.summary.energy_today || 0) / 1000; // Wh to kWh
       }
 
-      // TODO: Fetch Tesla data when connected
+      // Process Tesla data
+      if (teslaData?.totals) {
+        solarEnergy += (teslaData.totals.solar_production_w || 0) / 1000;
+        batteryDischarge = (teslaData.totals.battery_discharge_w || 0) / 1000;
+        evMiles = teslaData.totals.ev_miles || 0;
+      }
+
+      // Get rewards data
+      const tokensEarned = rewardsData?.total_tokens_earned || Math.floor(solarEnergy * 10);
+      const earnedNFTs = rewardsData?.earned_nfts || [];
 
       const newData: ActivityData = {
         solarEnergyProduced: solarEnergy,
-        evMilesDriven: 0, // Will come from Tesla
-        batteryStorageDischarged: 0,
+        evMilesDriven: evMiles,
+        batteryStorageDischarged: batteryDischarge,
         evCharging: 0,
-        tokensEarned: Math.floor(solarEnergy), // Simple calculation
-        nftsEarned: [],
-        co2OffsetPounds: 0,
+        tokensEarned,
+        nftsEarned: earnedNFTs,
+        co2OffsetPounds: rewardsData?.co2_offset_lbs || 0,
       };
       
-      newData.co2OffsetPounds = calculateCO2Offset(newData);
+      if (!rewardsData?.co2_offset_lbs) {
+        newData.co2OffsetPounds = calculateCO2Offset(newData);
+      }
+      
       setActivityData(newData);
       
-      if (solarEnergy > 0) {
+      if (solarEnergy > 0 || tokensEarned > 0) {
         toast.success('Dashboard updated with real data!');
       }
     } catch (error) {
@@ -125,7 +189,7 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profileConnections, fetchEnphaseData]);
+  }, [profileConnections, fetchEnphaseData, fetchTeslaData, fetchRewardsData]);
 
   // Auto-refresh when connections change
   useEffect(() => {
@@ -150,7 +214,6 @@ export function useDashboardData() {
       )
     );
     setProfileConnections(prev => prev ? { ...prev, [`${service}_connected`]: false } : null);
-    // Reset activity data when disconnecting
     setActivityData(defaultActivityData);
   }, []);
 

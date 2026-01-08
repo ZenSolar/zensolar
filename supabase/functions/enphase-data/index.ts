@@ -6,6 +6,62 @@ const corsHeaders = {
 };
 
 const ENPHASE_API_BASE = "https://api.enphaseenergy.com/api/v4";
+const ENPHASE_TOKEN_URL = "https://api.enphaseenergy.com/oauth/token";
+
+// Helper to refresh Enphase token
+async function refreshEnphaseToken(
+  supabaseClient: any,
+  userId: string,
+  refreshToken: string
+): Promise<string | null> {
+  const clientId = Deno.env.get("ENPHASE_CLIENT_ID");
+  const clientSecret = Deno.env.get("ENPHASE_CLIENT_SECRET");
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    console.error("Missing Enphase credentials for refresh");
+    return null;
+  }
+
+  try {
+    const credentials = btoa(`${clientId}:${clientSecret}`);
+    const tokenUrl = new URL(ENPHASE_TOKEN_URL);
+    tokenUrl.searchParams.set("grant_type", "refresh_token");
+    tokenUrl.searchParams.set("refresh_token", refreshToken);
+
+    const tokenResponse = await fetch(tokenUrl.toString(), {
+      method: "POST",
+      headers: { "Authorization": `Basic ${credentials}` },
+    });
+
+    if (!tokenResponse.ok) {
+      console.error("Enphase token refresh failed:", await tokenResponse.text());
+      return null;
+    }
+
+    const tokens = await tokenResponse.json();
+    const expiresAt = tokens.expires_in
+      ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
+      : null;
+
+    // Update tokens in database
+    await supabaseClient
+      .from("energy_tokens")
+      .update({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token || refreshToken,
+        expires_at: expiresAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId)
+      .eq("provider", "enphase");
+
+    console.log("Enphase token refreshed successfully");
+    return tokens.access_token;
+  } catch (error) {
+    console.error("Enphase token refresh error:", error);
+    return null;
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -61,7 +117,33 @@ Deno.serve(async (req) => {
       });
     }
 
-    const accessToken = tokenData.access_token;
+    let accessToken = tokenData.access_token;
+
+    // Check if token is expired and refresh if needed
+    if (tokenData.expires_at) {
+      const expiresAt = new Date(tokenData.expires_at);
+      const now = new Date();
+      // Refresh if expired or expiring in next 5 minutes
+      if (expiresAt.getTime() - now.getTime() < 5 * 60 * 1000) {
+        console.log("Enphase token expired or expiring soon, refreshing...");
+        const newToken = await refreshEnphaseToken(
+          supabaseClient,
+          user.id,
+          tokenData.refresh_token
+        );
+        if (newToken) {
+          accessToken = newToken;
+        } else {
+          return new Response(JSON.stringify({ 
+            error: "Token expired", 
+            needsReauth: true 
+          }), {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
 
     // First, get list of systems
     const systemsResponse = await fetch(`${ENPHASE_API_BASE}/systems?key=${apiKey}`, {
@@ -128,6 +210,23 @@ Deno.serve(async (req) => {
       console.log("Enphase energy data:", JSON.stringify(energyData));
     } else {
       console.error("Failed to fetch energy:", await energyResponse.text());
+    }
+
+    // Store production data for rewards calculation
+    const productionWh = summaryData?.energy_today || 0;
+    if (productionWh > 0) {
+      const now = new Date();
+      const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
+      
+      await supabaseClient
+        .from("energy_production")
+        .upsert({
+          user_id: user.id,
+          device_id: String(systemId),
+          provider: "enphase",
+          production_wh: productionWh,
+          recorded_at: recordedAt,
+        }, { onConflict: "device_id,provider,recorded_at" });
     }
 
     return new Response(JSON.stringify({

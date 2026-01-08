@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.claim-devices]
 verify_jwt = false
+
+[functions.tesla-data]
+verify_jwt = false
+
+[functions.calculate-rewards]
+verify_jwt = false
