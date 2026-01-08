@@ -6,15 +6,20 @@ const REDIRECT_URI = `${window.location.origin}/oauth/callback`;
 
 export function useEnergyOAuth() {
   const startTeslaOAuth = useCallback(async () => {
+    // Tesla blocks rendering auth pages in iframes; open a new tab early (before awaits)
+    // so browsers treat it as user-initiated.
+    const popup = window.open('', '_blank');
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Please log in first');
+        popup?.close();
         return;
       }
 
       const state = crypto.randomUUID();
-      sessionStorage.setItem('tesla_oauth_state', state);
+      localStorage.setItem('tesla_oauth_state', state);
 
       const response = await supabase.functions.invoke('tesla-auth', {
         body: { redirectUri: REDIRECT_URI, state, action: 'get-auth-url' },
@@ -26,8 +31,14 @@ export function useEnergyOAuth() {
       }
 
       const { authUrl } = response.data;
-      window.location.href = authUrl;
+
+      if (popup) {
+        popup.location.href = authUrl;
+      } else {
+        window.location.href = authUrl;
+      }
     } catch (error) {
+      popup?.close();
       console.error('Tesla OAuth error:', error);
       toast.error('Failed to start Tesla authorization');
     }
