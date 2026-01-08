@@ -272,16 +272,28 @@ Deno.serve(async (req) => {
           const chargingData = await chargingHistoryResponse.json();
           const sessions = chargingData.data || [];
           
+          // Log first session to see actual field names
+          if (sessions.length > 0) {
+            console.log("Sample charging session:", JSON.stringify(sessions[0]));
+          }
+          
           // Sum up all charging energy from history
+          // Try multiple possible field names from Tesla API
           for (const session of sessions) {
-            totalChargingKwh += session.charge_energy_added || 0;
+            const energyKwh = session.chargeEnergyAdded 
+              || session.charge_energy_added 
+              || session.energy_added 
+              || session.energyAdded 
+              || 0;
+            totalChargingKwh += energyKwh;
           }
           console.log(`Charging history: ${sessions.length} sessions, total kWh: ${totalChargingKwh}`);
           
           // Get baseline from first vehicle's baseline data
           baselineChargingKwh = vehicleDevices[0]?.baseline?.total_charge_energy_added_kwh || 0;
         } else {
-          console.warn("Failed to fetch charging history:", await chargingHistoryResponse.text());
+          const errorText = await chargingHistoryResponse.text();
+          console.error("Failed to fetch charging history:", chargingHistoryResponse.status, errorText);
         }
       } catch (error) {
         console.error("Error fetching charging history:", error);
