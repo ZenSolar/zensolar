@@ -176,21 +176,45 @@ Deno.serve(async (req) => {
           const response = liveData.response || {};
           
           // Get lifetime totals from calendar history
+          // Need to use a date range from installation to now
           let lifetimeSolar = 0;
           let lifetimeBatteryDischarge = 0;
           
           try {
+            // Get site info for installation date
+            const siteInfoResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/site_info`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+            
+            let startDate = "2020-01-01"; // Default fallback
+            if (siteInfoResponse.ok) {
+              const siteInfo = await siteInfoResponse.json();
+              if (siteInfo.response?.installation_date) {
+                startDate = siteInfo.response.installation_date.split('T')[0];
+              }
+            }
+            
+            const endDate = new Date().toISOString().split('T')[0];
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Chicago";
+            
             const historyResponse = await fetch(
-              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&period=lifetime`,
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${startDate}&end_date=${endDate}&period=month&time_zone=${encodeURIComponent(timezone)}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
             
             if (historyResponse.ok) {
               const historyData = await historyResponse.json();
-              const histResponse = historyData.response || {};
-              lifetimeSolar = (histResponse.total_solar_energy_exported || 0) + (histResponse.total_solar_energy_consumed || 0);
-              lifetimeBatteryDischarge = histResponse.total_battery_energy_exported || 0;
-              console.log(`Site ${site.id} lifetime:`, JSON.stringify({ lifetimeSolar, lifetimeBatteryDischarge }));
+              const timeSeries = historyData.response?.time_series || [];
+              
+              // Sum up all monthly data for lifetime totals
+              for (const period of timeSeries) {
+                lifetimeSolar += (period.solar_energy_exported || 0);
+                lifetimeBatteryDischarge += (period.battery_energy_exported || 0);
+              }
+              console.log(`Site ${site.id} lifetime from history:`, JSON.stringify({ lifetimeSolar, lifetimeBatteryDischarge, periods: timeSeries.length }));
+            } else {
+              console.error(`Failed to fetch history for site ${site.id}:`, await historyResponse.text());
             }
           } catch (histError) {
             console.error(`Error fetching history for site ${site.id}:`, histError);

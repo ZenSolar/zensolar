@@ -148,16 +148,16 @@ export function useDashboardData() {
         fetchRewardsData(),
       ]);
 
-      // Process Enphase data
-      if (enphaseData?.summary) {
-        solarEnergy += (enphaseData.summary.energy_today || 0) / 1000; // Wh to kWh
+      // Process Enphase data - use lifetime energy
+      if (enphaseData?.totals) {
+        solarEnergy += (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
       }
 
-      // Process Tesla data
+      // Process Tesla data - use pending amounts (since last mint)
       if (teslaData?.totals) {
-        solarEnergy += (teslaData.totals.solar_production_w || 0) / 1000;
-        batteryDischarge = (teslaData.totals.battery_discharge_w || 0) / 1000;
-        evMiles = teslaData.totals.ev_miles || 0;
+        solarEnergy += (teslaData.totals.pending_solar_wh || 0) / 1000;
+        batteryDischarge = (teslaData.totals.pending_battery_discharge_wh || 0) / 1000;
+        evMiles = teslaData.totals.pending_ev_miles || 0;
       }
 
       // Get rewards data
