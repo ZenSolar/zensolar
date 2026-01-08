@@ -229,10 +229,17 @@ Deno.serve(async (req) => {
         }, { onConflict: "device_id,provider,recorded_at" });
     }
 
+    // Return lifetime energy from summary (in Wh)
+    const lifetimeEnergyWh = summaryData?.energy_lifetime || 0;
+    
     return new Response(JSON.stringify({
       system: systemsData.systems[0],
       summary: summaryData,
       energy: energyData,
+      totals: {
+        lifetime_solar_wh: lifetimeEnergyWh,
+        energy_today_wh: summaryData?.energy_today || 0,
+      },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
