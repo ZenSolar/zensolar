@@ -180,12 +180,16 @@ Deno.serve(async (req) => {
             load_power: response.load_power || 0,
           });
 
-          // Accumulate production (convert W to Wh assuming 1 hour sample)
+          console.log(`Site ${siteId} live data:`, JSON.stringify(response));
+
+          // Accumulate production
           if (response.solar_power > 0) {
             totalSolarProduction += response.solar_power;
           }
-          if (response.battery_power < 0) {
-            totalBatteryDischarge += Math.abs(response.battery_power);
+          // Tesla: positive battery_power = discharging (power flowing to home)
+          // negative battery_power = charging (power flowing into battery)
+          if (response.battery_power > 0) {
+            totalBatteryDischarge += response.battery_power;
           }
         } else if (liveResponse.status === 429) {
           console.warn("Tesla API rate limited for site:", siteId);
@@ -209,21 +213,37 @@ Deno.serve(async (req) => {
           const vehicleData = await vehicleResponse.json();
           const response = vehicleData.response || {};
           
+          const chargeState = response.charge_state || {};
+          const vehicleState = response.vehicle_state || {};
+          
+          console.log(`Vehicle ${vin} data:`, JSON.stringify({
+            odometer: vehicleState.odometer,
+            battery_level: chargeState.battery_level,
+            charging_state: chargeState.charging_state,
+            charge_energy_added: chargeState.charge_energy_added,
+            charge_rate: chargeState.charge_rate,
+          }));
+          
           vehiclesData.push({
             vin,
-            odometer: response.vehicle_state?.odometer || 0,
-            battery_level: response.charge_state?.battery_level || 0,
-            charging_state: response.charge_state?.charging_state || "Unknown",
+            odometer: vehicleState.odometer || 0,
+            battery_level: chargeState.battery_level || 0,
+            charging_state: chargeState.charging_state || "Unknown",
+            charge_energy_added: chargeState.charge_energy_added || 0, // kWh added in current session
+            charge_rate: chargeState.charge_rate || 0, // miles per hour
+            charger_power: chargeState.charger_power || 0, // kW
           });
 
-          totalEvMiles += response.vehicle_state?.odometer || 0;
+          totalEvMiles += vehicleState.odometer || 0;
         } else if (vehicleResponse.status === 429) {
           console.warn("Tesla API rate limited for vehicle:", vin);
         } else if (vehicleResponse.status === 408) {
-          // Vehicle is sleeping - this is normal
-          vehiclesData.push({ vin, status: "asleep" });
+          // Vehicle is sleeping - this is normal, try to wake or use cached data
+          console.log(`Vehicle ${vin} is asleep`);
+          vehiclesData.push({ vin, status: "asleep", odometer: 0 });
         } else {
-          console.error(`Failed to fetch vehicle ${vin}:`, await vehicleResponse.text());
+          const errorText = await vehicleResponse.text();
+          console.error(`Failed to fetch vehicle ${vin} (${vehicleResponse.status}):`, errorText);
         }
       } catch (error) {
         console.error(`Error fetching vehicle ${vin}:`, error);
