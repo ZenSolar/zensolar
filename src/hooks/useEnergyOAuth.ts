@@ -27,8 +27,9 @@ export function useEnergyOAuth() {
 
       const { authUrl } = response.data;
       
-      // Redirect current window to Tesla auth (not popup)
-      window.location.href = authUrl;
+      // Tesla blocks iframes - must open in new window
+      window.open(authUrl, '_blank', 'noopener,noreferrer');
+      toast.info('Complete Tesla login in the new window, then return here');
     } catch (error) {
       console.error('Tesla OAuth error:', error);
       toast.error('Failed to start Tesla authorization');
