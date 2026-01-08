@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.enphase-data]
 verify_jwt = false
+
+[functions.tesla-devices]
+verify_jwt = false
+
+[functions.enphase-devices]
+verify_jwt = false
+
+[functions.claim-devices]
+verify_jwt = false

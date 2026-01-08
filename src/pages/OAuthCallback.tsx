@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
+import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
 import { Loader2 } from 'lucide-react';
 
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { exchangeTeslaCode, exchangeEnphaseCode } = useEnergyOAuth();
-  const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
+  const [status, setStatus] = useState<'processing' | 'success' | 'error' | 'device-selection'>('processing');
+  const [deviceProvider, setDeviceProvider] = useState<'tesla' | 'enphase'>('tesla');
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -32,8 +34,14 @@ export default function OAuthCallback() {
       if (state && savedState === state) {
         sessionStorage.removeItem('tesla_oauth_state');
         const success = await exchangeTeslaCode(code);
-        setStatus(success ? 'success' : 'error');
-        setTimeout(() => navigate('/'), 1500);
+        if (success) {
+          // Show device selection after successful auth
+          setDeviceProvider('tesla');
+          setStatus('device-selection');
+        } else {
+          setStatus('error');
+          setTimeout(() => navigate('/'), 1500);
+        }
         return;
       }
 
@@ -42,8 +50,14 @@ export default function OAuthCallback() {
       if (enphaseOAuthPending) {
         sessionStorage.removeItem('enphase_oauth_pending');
         const success = await exchangeEnphaseCode(code);
-        setStatus(success ? 'success' : 'error');
-        setTimeout(() => navigate('/'), 1500);
+        if (success) {
+          // Show device selection after successful auth
+          setDeviceProvider('enphase');
+          setStatus('device-selection');
+        } else {
+          setStatus('error');
+          setTimeout(() => navigate('/'), 1500);
+        }
         return;
       }
 
@@ -54,6 +68,16 @@ export default function OAuthCallback() {
 
     handleCallback();
   }, [searchParams, navigate, exchangeTeslaCode, exchangeEnphaseCode]);
+
+  const handleDeviceSelectionComplete = () => {
+    navigate('/');
+  };
+
+  const handleDeviceSelectionClose = (open: boolean) => {
+    if (!open) {
+      navigate('/');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -69,6 +93,17 @@ export default function OAuthCallback() {
         )}
         {status === 'error' && (
           <p className="text-destructive font-medium">Connection failed. Redirecting...</p>
+        )}
+        {status === 'device-selection' && (
+          <>
+            <p className="text-muted-foreground mb-4">Authorization successful! Now select your devices...</p>
+            <DeviceSelectionDialog
+              open={true}
+              onOpenChange={handleDeviceSelectionClose}
+              provider={deviceProvider}
+              onComplete={handleDeviceSelectionComplete}
+            />
+          </>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ConnectedAccount } from '@/types/dashboard';
 import { ConnectAccountButton } from './ConnectAccountButton';
 import { EnphaseCodeDialog } from './EnphaseCodeDialog';
+import { DeviceSelectionDialog } from './DeviceSelectionDialog';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -15,6 +16,8 @@ interface ConnectAccountsProps {
 export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAccountsProps) {
   const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode } = useEnergyOAuth();
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
+  const [deviceSelectionOpen, setDeviceSelectionOpen] = useState(false);
+  const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
 
   const handleConnect = async (service: ConnectedAccount['service']) => {
     if (service === 'tesla') {
@@ -45,6 +48,13 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
         .eq('user_id', user.id)
         .eq('provider', service);
 
+      // Delete connected devices
+      await supabase
+        .from('connected_devices')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('provider', service);
+
       // Update profile to mark as disconnected
       await supabase
         .from('profiles')
@@ -62,9 +72,21 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
   const handleEnphaseCodeSubmit = async (code: string): Promise<boolean> => {
     const success = await exchangeEnphaseCode(code);
     if (success) {
-      onConnect('enphase');
+      // After successful auth, show device selection
+      setDeviceSelectionProvider('enphase');
+      setDeviceSelectionOpen(true);
     }
     return success;
+  };
+
+  const handleDeviceSelectionComplete = () => {
+    onConnect(deviceSelectionProvider);
+  };
+
+  // Check for Tesla OAuth callback and show device selection
+  const openTeslaDeviceSelection = () => {
+    setDeviceSelectionProvider('tesla');
+    setDeviceSelectionOpen(true);
   };
 
   const connectedAccounts = accounts.filter(acc => acc.connected);
@@ -113,6 +135,13 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
         open={enphaseDialogOpen}
         onOpenChange={setEnphaseDialogOpen}
         onSubmit={handleEnphaseCodeSubmit}
+      />
+
+      <DeviceSelectionDialog
+        open={deviceSelectionOpen}
+        onOpenChange={setDeviceSelectionOpen}
+        provider={deviceSelectionProvider}
+        onComplete={handleDeviceSelectionComplete}
       />
     </>
   );
