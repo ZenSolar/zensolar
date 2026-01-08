@@ -140,6 +140,7 @@ export function useDashboardData() {
       let solarEnergy = 0;
       let evMiles = 0;
       let batteryDischarge = 0;
+      let evChargingKwh = 0;
 
       // Fetch data in parallel
       const [enphaseData, teslaData, rewardsData] = await Promise.all([
@@ -158,6 +159,7 @@ export function useDashboardData() {
         solarEnergy += (teslaData.totals.pending_solar_wh || 0) / 1000;
         batteryDischarge = (teslaData.totals.pending_battery_discharge_wh || 0) / 1000;
         evMiles = teslaData.totals.pending_ev_miles || 0;
+        evChargingKwh = teslaData.totals.pending_ev_charging_kwh || 0;
       }
 
       // Get rewards data
@@ -168,7 +170,7 @@ export function useDashboardData() {
         solarEnergyProduced: solarEnergy,
         evMilesDriven: evMiles,
         batteryStorageDischarged: batteryDischarge,
-        evCharging: 0,
+        evCharging: evChargingKwh,
         tokensEarned,
         nftsEarned: earnedNFTs,
         co2OffsetPounds: rewardsData?.co2_offset_lbs || 0,
