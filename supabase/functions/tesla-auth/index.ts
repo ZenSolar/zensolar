@@ -78,6 +78,12 @@ Deno.serve(async (req) => {
       authUrl.searchParams.set("scope", scopes);
       authUrl.searchParams.set("state", state);
 
+      // Force Tesla to show the login screen (do not auto-use an existing Tesla session)
+      authUrl.searchParams.set("prompt", "login");
+      // Ensure Tesla prompts for any missing scopes and requires the full set we request
+      authUrl.searchParams.set("prompt_missing_scopes", "true");
+      authUrl.searchParams.set("require_requested_scopes", "true");
+
       return new Response(JSON.stringify({ authUrl: authUrl.toString() }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
