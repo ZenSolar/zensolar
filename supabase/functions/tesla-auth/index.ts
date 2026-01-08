@@ -39,21 +39,24 @@ Deno.serve(async (req) => {
       });
     }
 
-    const url = new URL(req.url);
-    const action = url.searchParams.get("action");
     const clientId = Deno.env.get("TESLA_CLIENT_ID");
     const clientSecret = Deno.env.get("TESLA_CLIENT_SECRET");
 
     if (!clientId || !clientSecret) {
+      console.error("Tesla credentials missing");
       return new Response(JSON.stringify({ error: "Tesla credentials not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    const body = await req.json();
+    const action = body.action;
+    console.log("Tesla auth action:", action);
+
     // Generate OAuth URL for user to authorize
     if (action === "get-auth-url") {
-      const { redirectUri, state } = await req.json();
+      const { redirectUri, state } = body;
       
       const authUrl = new URL(TESLA_AUTH_URL);
       authUrl.searchParams.set("response_type", "code");
@@ -69,7 +72,7 @@ Deno.serve(async (req) => {
 
     // Exchange authorization code for tokens
     if (action === "exchange-code") {
-      const { code, redirectUri } = await req.json();
+      const { code, redirectUri } = body;
 
       const tokenResponse = await fetch(TESLA_TOKEN_URL, {
         method: "POST",
@@ -134,7 +137,7 @@ Deno.serve(async (req) => {
 
     // Refresh access token
     if (action === "refresh-token") {
-      const { refreshToken } = await req.json();
+      const { refreshToken } = body;
 
       const tokenResponse = await fetch(TESLA_TOKEN_URL, {
         method: "POST",

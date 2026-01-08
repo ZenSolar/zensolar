@@ -38,18 +38,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    const url = new URL(req.url);
-    const action = url.searchParams.get("action");
     const clientId = Deno.env.get("ENPHASE_CLIENT_ID");
     const clientSecret = Deno.env.get("ENPHASE_CLIENT_SECRET");
     const apiKey = Deno.env.get("ENPHASE_API_KEY");
 
     if (!clientId || !clientSecret) {
+      console.error("Enphase credentials missing");
       return new Response(JSON.stringify({ error: "Enphase credentials not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const body = await req.json();
+    const action = body.action;
+    console.log("Enphase auth action:", action);
 
     // Generate OAuth URL for user to authorize (uses Enphase default redirect)
     if (action === "get-auth-url") {
@@ -71,7 +74,7 @@ Deno.serve(async (req) => {
 
     // Exchange authorization code for tokens
     if (action === "exchange-code") {
-      const { code } = await req.json();
+      const { code } = body;
       
       // Must use the same redirect URI that was used for authorization
       const enphaseDefaultRedirect = "https://api.enphaseenergy.com/oauth/redirect_uri";
@@ -147,7 +150,7 @@ Deno.serve(async (req) => {
 
     // Refresh access token
     if (action === "refresh-token") {
-      const { refreshToken } = await req.json();
+      const { refreshToken } = body;
       const credentials = btoa(`${clientId}:${clientSecret}`);
 
       const tokenUrl = new URL(ENPHASE_TOKEN_URL);
