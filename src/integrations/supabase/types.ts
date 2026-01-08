@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      connected_devices: {
+        Row: {
+          claimed_at: string
+          created_at: string
+          device_id: string
+          device_metadata: Json | null
+          device_name: string | null
+          device_type: string
+          id: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          created_at?: string
+          device_id: string
+          device_metadata?: Json | null
+          device_name?: string | null
+          device_type: string
+          id?: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          created_at?: string
+          device_id?: string
+          device_metadata?: Json | null
+          device_name?: string | null
+          device_type?: string
+          id?: string
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       energy_tokens: {
         Row: {
           access_token: string
@@ -128,6 +167,14 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_device_claimed: {
+        Args: {
+          _current_user_id?: string
+          _device_id: string
+          _provider: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

@@ -96,23 +96,37 @@ Deno.serve(async (req) => {
       }
 
       const tokens = await tokenResponse.json();
+      console.log("Tesla tokens received:", { 
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        expiresIn: tokens.expires_in
+      });
 
-      // Update user profile to mark Tesla as connected
-      const { error: updateError } = await supabaseClient
-        .from("profiles")
-        .update({ tesla_connected: true })
-        .eq("user_id", user.id);
+      // Store tokens in database
+      const expiresAt = tokens.expires_in 
+        ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
+        : null;
 
-      if (updateError) {
-        console.error("Failed to update profile:", updateError);
+      const { error: tokenStoreError } = await supabaseClient
+        .from("energy_tokens")
+        .upsert({
+          user_id: user.id,
+          provider: "tesla",
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token || null,
+          expires_at: expiresAt,
+          extra_data: null
+        }, { onConflict: "user_id,provider" });
+
+      if (tokenStoreError) {
+        console.error("Failed to store Tesla tokens:", tokenStoreError);
       }
 
-      // In production, store tokens securely (encrypted in database)
-      // For now, we just mark as connected and return success
+      // Note: Don't mark tesla_connected here - that happens when devices are claimed
       return new Response(JSON.stringify({ 
         success: true, 
-        message: "Tesla account connected successfully",
-        // Don't expose tokens to client - store them server-side
+        message: "Tesla authorization successful - please select your devices",
+        needsDeviceSelection: true,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
