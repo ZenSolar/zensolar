@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ActivityData, ConnectedAccount, calculateCO2Offset } from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
-import { useProfile } from './useProfile';
 import { toast } from 'sonner';
 
 const defaultActivityData: ActivityData = {
@@ -14,26 +13,50 @@ const defaultActivityData: ActivityData = {
   co2OffsetPounds: 0,
 };
 
+interface ProfileConnections {
+  tesla_connected: boolean;
+  enphase_connected: boolean;
+  solaredge_connected: boolean;
+}
+
 export function useDashboardData() {
-  const { profile, isLoading: profileLoading } = useProfile();
   const [activityData, setActivityData] = useState<ActivityData>(defaultActivityData);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([
     { service: 'tesla', connected: false, label: 'Tesla' },
     { service: 'enphase', connected: false, label: 'Enphase' },
     { service: 'solaredge', connected: false, label: 'SolarEdge' },
   ]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(null);
 
-  // Update connected accounts from profile
+  // Fetch profile connections separately
   useEffect(() => {
-    if (profile) {
-      setConnectedAccounts([
-        { service: 'tesla', connected: profile.tesla_connected || false, label: 'Tesla' },
-        { service: 'enphase', connected: profile.enphase_connected || false, label: 'Enphase' },
-        { service: 'solaredge', connected: profile.solaredge_connected || false, label: 'SolarEdge' },
-      ]);
-    }
-  }, [profile]);
+    const fetchConnections = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tesla_connected, enphase_connected, solaredge_connected')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile) {
+        setProfileConnections(profile);
+        setConnectedAccounts([
+          { service: 'tesla', connected: profile.tesla_connected || false, label: 'Tesla' },
+          { service: 'enphase', connected: profile.enphase_connected || false, label: 'Enphase' },
+          { service: 'solaredge', connected: profile.solaredge_connected || false, label: 'SolarEdge' },
+        ]);
+      }
+      setIsLoading(false);
+    };
+
+    fetchConnections();
+  }, []);
 
   const fetchEnphaseData = useCallback(async () => {
     try {
@@ -63,7 +86,7 @@ export function useDashboardData() {
       let solarEnergy = 0;
 
       // Fetch Enphase data if connected
-      if (profile?.enphase_connected) {
+      if (profileConnections?.enphase_connected) {
         const enphaseData = await fetchEnphaseData();
         if (enphaseData?.summary) {
           // Convert Wh to kWh
@@ -97,14 +120,14 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profile, fetchEnphaseData]);
+  }, [profileConnections, fetchEnphaseData]);
 
-  // Auto-refresh when profile changes and has connected accounts
+  // Auto-refresh when connections change
   useEffect(() => {
-    if (profile?.enphase_connected || profile?.tesla_connected) {
+    if (profileConnections?.enphase_connected || profileConnections?.tesla_connected) {
       refreshDashboard();
     }
-  }, [profile?.enphase_connected, profile?.tesla_connected, refreshDashboard]);
+  }, [profileConnections?.enphase_connected, profileConnections?.tesla_connected, refreshDashboard]);
 
   const connectAccount = useCallback((service: ConnectedAccount['service']) => {
     setConnectedAccounts(prev => 
@@ -112,12 +135,14 @@ export function useDashboardData() {
         acc.service === service ? { ...acc, connected: true } : acc
       )
     );
+    // Update local state
+    setProfileConnections(prev => prev ? { ...prev, [`${service}_connected`]: true } : null);
   }, []);
 
   return {
     activityData,
     connectedAccounts,
-    isLoading: isLoading || profileLoading,
+    isLoading,
     connectAccount,
     refreshDashboard,
   };
