@@ -38,13 +38,11 @@ export function useEnergyOAuth() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Please log in first');
-        return;
+        return null;
       }
 
-      sessionStorage.setItem('enphase_oauth_pending', 'true');
-
       const response = await supabase.functions.invoke('enphase-auth', {
-        body: { redirectUri: REDIRECT_URI },
+        body: {},
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
@@ -52,11 +50,16 @@ export function useEnergyOAuth() {
         throw new Error(response.error.message || 'Failed to get auth URL');
       }
 
-      const { authUrl } = response.data;
-      window.location.href = authUrl;
+      const { authUrl, useManualCode } = response.data;
+      
+      // Open Enphase auth in new window - user will copy code manually
+      window.open(authUrl, '_blank', 'width=600,height=700');
+      
+      return { useManualCode: true };
     } catch (error) {
       console.error('Enphase OAuth error:', error);
       toast.error('Failed to start Enphase authorization');
+      return null;
     }
   }, []);
 
@@ -95,7 +98,7 @@ export function useEnergyOAuth() {
       }
 
       const response = await supabase.functions.invoke('enphase-auth', {
-        body: { code, redirectUri: REDIRECT_URI },
+        body: { code },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
