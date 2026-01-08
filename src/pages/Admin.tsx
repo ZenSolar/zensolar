@@ -81,8 +81,19 @@ export default function Admin() {
     toast.success('Data refreshed');
   };
 
+  const normalizeTeslaDomain = (value: string) => {
+    return value
+      .replace(/^https?:\/\//, '')
+      .split('/')[0]
+      .toLowerCase()
+      .trim();
+  };
+
   const handleTeslaRegistration = async () => {
-    if (!teslaRegDomain) {
+    const domain = normalizeTeslaDomain(teslaRegDomain);
+    setTeslaRegDomain(domain);
+
+    if (!domain) {
       toast.error('Please enter your app domain');
       return;
     }
@@ -111,7 +122,7 @@ export default function Admin() {
 
       // Step 2: Register with Tesla
       const registerResponse = await supabase.functions.invoke('tesla-register', {
-        body: { action: 'register', partnerToken, domain: teslaRegDomain },
+        body: { action: 'register', partnerToken, domain },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
@@ -131,7 +142,10 @@ export default function Admin() {
   };
 
   const handleCheckRegistration = async () => {
-    if (!teslaRegDomain) {
+    const domain = normalizeTeslaDomain(teslaRegDomain);
+    setTeslaRegDomain(domain);
+
+    if (!domain) {
       toast.error('Please enter your app domain');
       return;
     }
@@ -157,7 +171,7 @@ export default function Admin() {
 
       // Check registration
       const checkResponse = await supabase.functions.invoke('tesla-register', {
-        body: { action: 'check-registration', partnerToken: tokenResponse.data.partnerToken, domain: teslaRegDomain },
+        body: { action: 'check-registration', partnerToken: tokenResponse.data.partnerToken, domain },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
