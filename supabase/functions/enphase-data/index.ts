@@ -63,6 +63,9 @@ async function refreshEnphaseToken(
   }
 }
 
+// Cache duration in minutes - Enphase Watt plan has very limited API calls
+const CACHE_DURATION_MINUTES = 15;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -101,7 +104,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get user's Enphase tokens
+    // Get user's Enphase tokens with cached data
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from("energy_tokens")
       .select("*")
@@ -115,6 +118,27 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Check if we have cached data that's still fresh
+    const extraData = tokenData.extra_data as Record<string, unknown> || {};
+    const cachedData = extraData.cached_response as Record<string, unknown> | undefined;
+    const cachedAt = extraData.cached_at as string | undefined;
+    
+    if (cachedData && cachedAt) {
+      const cacheAge = Date.now() - new Date(cachedAt).getTime();
+      const cacheMaxAge = CACHE_DURATION_MINUTES * 60 * 1000;
+      
+      if (cacheAge < cacheMaxAge) {
+        console.log(`Returning cached Enphase data (${Math.round(cacheAge / 1000)}s old)`);
+        return new Response(JSON.stringify({
+          ...cachedData,
+          cached: true,
+          cache_age_seconds: Math.round(cacheAge / 1000),
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     let accessToken = tokenData.access_token;
@@ -155,6 +179,20 @@ Deno.serve(async (req) => {
     if (!systemsResponse.ok) {
       const errorText = await systemsResponse.text();
       console.error("Failed to fetch Enphase systems:", errorText);
+      
+      // If rate limited, return cached data if available
+      if (systemsResponse.status === 429 && cachedData) {
+        console.log("Rate limited, returning stale cached data");
+        return new Response(JSON.stringify({
+          ...cachedData,
+          cached: true,
+          stale: true,
+          rate_limited: true,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
       return new Response(JSON.stringify({ error: "Failed to fetch systems", details: errorText }), {
         status: systemsResponse.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -232,7 +270,7 @@ Deno.serve(async (req) => {
     // Return lifetime energy from summary (in Wh)
     const lifetimeEnergyWh = summaryData?.energy_lifetime || 0;
     
-    return new Response(JSON.stringify({
+    const responseData = {
       system: systemsData.systems[0],
       summary: summaryData,
       energy: energyData,
@@ -240,6 +278,27 @@ Deno.serve(async (req) => {
         lifetime_solar_wh: lifetimeEnergyWh,
         energy_today_wh: summaryData?.energy_today || 0,
       },
+    };
+    
+    // Cache the response for future requests
+    await supabaseClient
+      .from("energy_tokens")
+      .update({
+        extra_data: {
+          ...extraData,
+          cached_response: responseData,
+          cached_at: new Date().toISOString(),
+        },
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id)
+      .eq("provider", "enphase");
+    
+    console.log("Cached Enphase data for future requests");
+    
+    return new Response(JSON.stringify({
+      ...responseData,
+      cached: false,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
