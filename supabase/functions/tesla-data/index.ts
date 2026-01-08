@@ -264,30 +264,43 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Fetch charging history for EV charging kWh totals
+    // Fetch charging history for EV charging kWh totals - paginate through all results
     let totalChargingKwh = 0;
     let baselineChargingKwh = 0;
+    let totalSessions = 0;
     
     if (vehicleDevices.length > 0) {
       try {
-        // Get charging history from the dedicated endpoint
-        const chargingHistoryResponse = await fetch(
-          `${TESLA_API_BASE}/api/1/dx/charging/history`,
-          { headers: { "Authorization": `Bearer ${accessToken}` } }
-        );
+        let offset = 0;
+        const pageSize = 50; // Request more per page
+        let hasMore = true;
+        let loggedSample = false;
         
-        if (chargingHistoryResponse.ok) {
-          const chargingData = await chargingHistoryResponse.json();
-          console.log("Charging history response keys:", JSON.stringify(Object.keys(chargingData || {})));
-
-          const sessions = chargingData.data || chargingData.results || chargingData.response || [];
-
-          // Log first session to see actual field names
-          if (Array.isArray(sessions) && sessions.length > 0) {
-            console.log("Sample charging session:", JSON.stringify(sessions[0]));
+        while (hasMore) {
+          const chargingHistoryResponse = await fetch(
+            `${TESLA_API_BASE}/api/1/dx/charging/history?pageSize=${pageSize}&pageNo=${Math.floor(offset / pageSize) + 1}`,
+            { headers: { "Authorization": `Bearer ${accessToken}` } }
+          );
+          
+          if (!chargingHistoryResponse.ok) {
+            const errorText = await chargingHistoryResponse.text();
+            console.error("Failed to fetch charging history:", chargingHistoryResponse.status, errorText);
+            break;
           }
-
-          // Sum up all charging energy from history (kWh)
+          
+          const chargingData = await chargingHistoryResponse.json();
+          const sessions = chargingData.data || chargingData.results || chargingData.response || [];
+          const totalResults = chargingData.totalResults || 0;
+          
+          if (!loggedSample) {
+            console.log(`Charging history: totalResults=${totalResults}, pageSize=${pageSize}`);
+            if (Array.isArray(sessions) && sessions.length > 0) {
+              console.log("Sample charging session:", JSON.stringify(sessions[0]));
+            }
+            loggedSample = true;
+          }
+          
+          // Sum up all charging energy from this page (kWh)
           for (const session of (Array.isArray(sessions) ? sessions : [])) {
             // Some sessions expose kWh directly; others only expose billing "fees" with kWh usage
             const directKwh = session.chargeEnergyAdded 
@@ -311,16 +324,24 @@ Deno.serve(async (req) => {
             }
 
             totalChargingKwh += Number(directKwh || kwhFromFees || 0);
+            totalSessions++;
           }
-
-          console.log(`Charging history: ${(Array.isArray(sessions) ? sessions.length : 0)} sessions, total kWh: ${totalChargingKwh}`);
-
-          // Get baseline from first vehicle's baseline data
-          baselineChargingKwh = vehicleDevices[0]?.baseline?.total_charge_energy_added_kwh || 0;
-        } else {
-          const errorText = await chargingHistoryResponse.text();
-          console.error("Failed to fetch charging history:", chargingHistoryResponse.status, errorText);
+          
+          // Check if we have more pages
+          offset += sessions.length;
+          hasMore = Array.isArray(sessions) && sessions.length > 0 && offset < totalResults;
+          
+          // Safety limit to prevent infinite loops
+          if (offset > 10000) {
+            console.warn("Charging history pagination limit reached");
+            break;
+          }
         }
+        
+        console.log(`Charging history complete: ${totalSessions} sessions, total kWh: ${totalChargingKwh}`);
+        
+        // Get baseline from first vehicle's baseline data
+        baselineChargingKwh = vehicleDevices[0]?.baseline?.total_charge_energy_added_kwh || 0;
       } catch (error) {
         console.error("Error fetching charging history:", error);
       }
