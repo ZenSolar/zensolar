@@ -154,12 +154,15 @@ export function useDashboardData() {
         solarEnergy += (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
       }
 
-      // Process Tesla data - use pending amounts (since last mint)
+      // Process Tesla data - use lifetime values (pending can be 0 if vehicle asleep)
       if (teslaData?.totals) {
-        solarEnergy += (teslaData.totals.pending_solar_wh || 0) / 1000;
-        batteryDischarge = (teslaData.totals.pending_battery_discharge_wh || 0) / 1000;
-        evMiles = teslaData.totals.pending_ev_miles || 0;
-        evChargingKwh = teslaData.totals.pending_ev_charging_kwh || 0;
+        // Use lifetime solar/battery from Tesla, Enphase already has lifetime solar
+        solarEnergy += (teslaData.totals.solar_production_wh || 0) / 1000;
+        batteryDischarge = (teslaData.totals.battery_discharge_wh || 0) / 1000;
+        // Use lifetime EV data since pending may be 0 when vehicle is asleep
+        evMiles = teslaData.totals.ev_miles || 0;
+        evChargingKwh = teslaData.totals.ev_charging_kwh || 0;
+        console.log('Tesla totals:', teslaData.totals);
       }
 
       // Get rewards data
