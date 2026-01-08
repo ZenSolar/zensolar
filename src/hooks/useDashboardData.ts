@@ -69,6 +69,11 @@ export function useDashboardData() {
 
       if (response.error) {
         console.error('Enphase data error:', response.error);
+        // Check if it's a rate limit error
+        const errorMessage = response.error.message || '';
+        if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests') || errorMessage.includes('Usage limit exceeded')) {
+          toast.error('Enphase API rate limit reached. Please try again later.');
+        }
         return null;
       }
 
