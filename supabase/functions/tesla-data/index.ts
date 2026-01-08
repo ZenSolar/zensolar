@@ -156,6 +156,7 @@ Deno.serve(async (req) => {
     let totalSolarProduction = 0;
     let totalBatteryDischarge = 0;
     let totalEvMiles = 0;
+    let totalHomeChargingWh = 0;
     let pendingSolarProduction = 0;
     let pendingBatteryDischarge = 0;
     let pendingEvMiles = 0;
@@ -179,6 +180,7 @@ Deno.serve(async (req) => {
           // Need to use a date range from installation to now
           let lifetimeSolar = 0;
           let lifetimeBatteryDischarge = 0;
+          let wallConnectorChargingWh = 0;
           
           try {
             // Get site info for installation date
@@ -202,6 +204,7 @@ Deno.serve(async (req) => {
             const startDateTime = new Date(`${startDate}T00:00:00`).toISOString();
             const endDateTime = new Date(`${endDate}T23:59:59`).toISOString();
 
+            // Fetch energy history for solar and battery
             const historyResponse = await fetch(
               `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=month&time_zone=${encodeURIComponent(timezone)}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
@@ -216,13 +219,41 @@ Deno.serve(async (req) => {
               }
 
               // Sum up all monthly data for lifetime totals
+              // Use consumer_energy_imported_from_battery for actual home usage from battery
               for (const period of timeSeries) {
                 lifetimeSolar += (period.solar_energy_exported || 0);
-                lifetimeBatteryDischarge += (period.battery_energy_exported || 0);
+                lifetimeBatteryDischarge += (period.consumer_energy_imported_from_battery || period.battery_energy_exported || 0);
               }
               console.log(`Site ${site.id} lifetime from history:`, JSON.stringify({ lifetimeSolar, lifetimeBatteryDischarge, periods: timeSeries.length }));
             } else {
               console.error(`Failed to fetch history for site ${site.id}:`, await historyResponse.text());
+            }
+            
+            // Fetch Wall Connector charging history (home EV charging)
+            try {
+              const wallConnectorResponse = await fetch(
+                `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/telemetry_history?kind=charge&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&time_zone=${encodeURIComponent(timezone)}`,
+                { headers: { "Authorization": `Bearer ${accessToken}` } }
+              );
+              
+              if (wallConnectorResponse.ok) {
+                const wallConnectorData = await wallConnectorResponse.json();
+                const chargeSeries = wallConnectorData.response?.time_series || wallConnectorData.response?.data || [];
+                
+                if (chargeSeries.length > 0) {
+                  console.log(`Sample wall connector charge for site ${site.id}:`, JSON.stringify(chargeSeries[0]));
+                }
+                
+                // Sum up all wall connector charging (values are in Wh)
+                for (const charge of chargeSeries) {
+                  wallConnectorChargingWh += (charge.energy_charged || charge.charge_energy_added || charge.energy || 0);
+                }
+                console.log(`Site ${site.id} wall connector charging: ${wallConnectorChargingWh} Wh (${chargeSeries.length} records)`);
+              } else {
+                console.log(`Wall connector history not available for site ${site.id}:`, wallConnectorResponse.status);
+              }
+            } catch (wcError) {
+              console.log(`Wall connector history error for site ${site.id}:`, wcError);
             }
           } catch (histError) {
             console.error(`Error fetching history for site ${site.id}:`, histError);
@@ -243,6 +274,7 @@ Deno.serve(async (req) => {
             load_power: response.load_power || 0,
             lifetime_solar_wh: lifetimeSolar,
             lifetime_battery_discharge_wh: lifetimeBatteryDischarge,
+            wall_connector_charging_wh: wallConnectorChargingWh,
             pending_solar_wh: pendingSolar,
             pending_battery_discharge_wh: pendingBattery,
           });
@@ -252,6 +284,7 @@ Deno.serve(async (req) => {
           // Accumulate totals
           totalSolarProduction += lifetimeSolar;
           totalBatteryDischarge += lifetimeBatteryDischarge;
+          totalHomeChargingWh += wallConnectorChargingWh;
           pendingSolarProduction += pendingSolar;
           pendingBatteryDischarge += pendingBattery;
         } else if (liveResponse.status === 429) {
@@ -433,6 +466,10 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Total EV charging = Supercharger sessions + Home (Wall Connector) charging
+    const totalEvChargingKwh = totalChargingKwh + (totalHomeChargingWh / 1000);
+    const pendingEvChargingKwh = Math.max(0, totalEvChargingKwh - baselineChargingKwh);
+
     return new Response(JSON.stringify({
       energy_sites: energySitesData,
       vehicles: vehiclesData,
@@ -441,12 +478,14 @@ Deno.serve(async (req) => {
         solar_production_wh: totalSolarProduction,
         battery_discharge_wh: totalBatteryDischarge,
         ev_miles: totalEvMiles,
-        ev_charging_kwh: totalChargingKwh,
+        ev_charging_kwh: totalEvChargingKwh,
+        home_charging_kwh: totalHomeChargingWh / 1000,
+        supercharger_kwh: totalChargingKwh,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,
         pending_ev_miles: pendingEvMiles,
-        pending_ev_charging_kwh: pendingChargingKwh,
+        pending_ev_charging_kwh: pendingEvChargingKwh,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
