@@ -256,6 +256,38 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Fetch charging history for EV charging kWh totals
+    let totalChargingKwh = 0;
+    let baselineChargingKwh = 0;
+    
+    if (vehicleDevices.length > 0) {
+      try {
+        // Get charging history from the dedicated endpoint
+        const chargingHistoryResponse = await fetch(
+          `${TESLA_API_BASE}/api/1/dx/charging/history`,
+          { headers: { "Authorization": `Bearer ${accessToken}` } }
+        );
+        
+        if (chargingHistoryResponse.ok) {
+          const chargingData = await chargingHistoryResponse.json();
+          const sessions = chargingData.data || [];
+          
+          // Sum up all charging energy from history
+          for (const session of sessions) {
+            totalChargingKwh += session.charge_energy_added || 0;
+          }
+          console.log(`Charging history: ${sessions.length} sessions, total kWh: ${totalChargingKwh}`);
+          
+          // Get baseline from first vehicle's baseline data
+          baselineChargingKwh = vehicleDevices[0]?.baseline?.total_charge_energy_added_kwh || 0;
+        } else {
+          console.warn("Failed to fetch charging history:", await chargingHistoryResponse.text());
+        }
+      } catch (error) {
+        console.error("Error fetching charging history:", error);
+      }
+    }
+
     // Fetch vehicle data
     for (const vehicle of vehicleDevices) {
       try {
@@ -263,6 +295,8 @@ Deno.serve(async (req) => {
           `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state;drive_state;charge_state`,
           { headers: { "Authorization": `Bearer ${accessToken}` } }
         );
+
+        const baselineOdometer = vehicle.baseline?.odometer || 0;
 
         if (vehicleResponse.ok) {
           const vehicleData = await vehicleResponse.json();
@@ -272,7 +306,6 @@ Deno.serve(async (req) => {
           const vehicleState = response.vehicle_state || {};
           
           const currentOdometer = vehicleState.odometer || 0;
-          const baselineOdometer = vehicle.baseline?.odometer || 0;
           const pendingMiles = Math.max(0, currentOdometer - baselineOdometer);
           
           console.log(`Vehicle ${vehicle.id} data:`, JSON.stringify({
@@ -299,8 +332,16 @@ Deno.serve(async (req) => {
         } else if (vehicleResponse.status === 429) {
           console.warn("Tesla API rate limited for vehicle:", vehicle.id);
         } else if (vehicleResponse.status === 408) {
-          console.log(`Vehicle ${vehicle.id} is asleep`);
-          vehiclesData.push({ vin: vehicle.id, status: "asleep", odometer: 0, pending_miles: 0 });
+          // Vehicle is asleep - use baseline odometer as current since we can't get live data
+          console.log(`Vehicle ${vehicle.id} is asleep, using baseline odometer: ${baselineOdometer}`);
+          vehiclesData.push({ 
+            vin: vehicle.id, 
+            status: "asleep", 
+            odometer: baselineOdometer, 
+            pending_miles: 0 // No new miles since we can't verify
+          });
+          totalEvMiles += baselineOdometer;
+          // Don't add pending miles since we can't confirm new driving
         } else {
           const errorText = await vehicleResponse.text();
           console.error(`Failed to fetch vehicle ${vehicle.id} (${vehicleResponse.status}):`, errorText);
@@ -309,6 +350,9 @@ Deno.serve(async (req) => {
         console.error(`Error fetching vehicle ${vehicle.id}:`, error);
       }
     }
+    
+    // Calculate pending charging kWh
+    const pendingChargingKwh = Math.max(0, totalChargingKwh - baselineChargingKwh);
 
     // Store production data for rewards calculation (using pending amounts)
     if (pendingSolarProduction > 0 || pendingBatteryDischarge > 0) {
@@ -338,10 +382,12 @@ Deno.serve(async (req) => {
         solar_production_wh: totalSolarProduction,
         battery_discharge_wh: totalBatteryDischarge,
         ev_miles: totalEvMiles,
+        ev_charging_kwh: totalChargingKwh,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,
         pending_ev_miles: pendingEvMiles,
+        pending_ev_charging_kwh: pendingChargingKwh,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
