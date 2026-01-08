@@ -9,6 +9,8 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   wallet_address: string | null;
+  created_at: string;
+  updated_at: string;
   tesla_connected: boolean;
   enphase_connected: boolean;
   solaredge_connected: boolean;
