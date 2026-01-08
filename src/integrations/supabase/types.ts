@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       connected_devices: {
         Row: {
+          baseline_data: Json | null
           claimed_at: string
           created_at: string
           device_id: string
@@ -23,11 +24,13 @@ export type Database = {
           device_name: string | null
           device_type: string
           id: string
+          last_minted_at: string | null
           provider: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          baseline_data?: Json | null
           claimed_at?: string
           created_at?: string
           device_id: string
@@ -35,11 +38,13 @@ export type Database = {
           device_name?: string | null
           device_type: string
           id?: string
+          last_minted_at?: string | null
           provider: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          baseline_data?: Json | null
           claimed_at?: string
           created_at?: string
           device_id?: string
@@ -47,6 +52,7 @@ export type Database = {
           device_name?: string | null
           device_type?: string
           id?: string
+          last_minted_at?: string | null
           provider?: string
           updated_at?: string
           user_id?: string

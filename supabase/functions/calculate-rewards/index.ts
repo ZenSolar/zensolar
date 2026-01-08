@@ -5,6 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
+
 // Reward rates - tokens per kWh
 const REWARD_RATES = {
   solar_production: 10, // 10 $ZSOLAR per kWh produced
@@ -174,6 +176,90 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Reset baselines on all connected devices to current lifetime values
+      // This ensures pending activity resets to 0 after minting
+      const { data: devices } = await supabaseClient
+        .from("connected_devices")
+        .select("id, device_id, device_type, provider, baseline_data")
+        .eq("user_id", user.id);
+
+      if (devices && devices.length > 0) {
+        const now = new Date().toISOString();
+        
+        // Get Tesla tokens if any Tesla devices exist
+        const teslaDevices = devices.filter(d => d.provider === "tesla");
+        if (teslaDevices.length > 0) {
+          const { data: tokenData } = await supabaseClient
+            .from("energy_tokens")
+            .select("access_token")
+            .eq("user_id", user.id)
+            .eq("provider", "tesla")
+            .single();
+          
+          const accessToken = tokenData?.access_token;
+          
+          if (accessToken) {
+            // Update baselines for each Tesla device with current lifetime values
+            for (const device of teslaDevices) {
+              try {
+                let newBaseline: Record<string, any> = { captured_at: now };
+                
+                if (device.device_type === "vehicle") {
+                  // Fetch current odometer
+                  const response = await fetch(
+                    `${TESLA_API_BASE}/api/1/vehicles/${device.device_id}/vehicle_data?endpoints=vehicle_state`,
+                    { headers: { "Authorization": `Bearer ${accessToken}` } }
+                  );
+                  
+                  if (response.ok) {
+                    const data = await response.json();
+                    newBaseline.odometer = data.response?.vehicle_state?.odometer || 0;
+                    console.log(`Updated vehicle ${device.device_id} baseline odometer: ${newBaseline.odometer}`);
+                  }
+                } else if (device.device_type === "powerwall" || device.device_type === "solar") {
+                  // Fetch current lifetime energy data
+                  const response = await fetch(
+                    `${TESLA_API_BASE}/api/1/energy_sites/${device.device_id}/calendar_history?kind=energy&period=lifetime`,
+                    { headers: { "Authorization": `Bearer ${accessToken}` } }
+                  );
+                  
+                  if (response.ok) {
+                    const data = await response.json();
+                    const histResponse = data.response || {};
+                    newBaseline.total_solar_produced_wh = (histResponse.total_solar_energy_exported || 0) + (histResponse.total_solar_energy_consumed || 0);
+                    newBaseline.total_energy_discharged_wh = histResponse.total_battery_energy_exported || 0;
+                    console.log(`Updated site ${device.device_id} baseline:`, JSON.stringify(newBaseline));
+                  }
+                }
+                
+                // Update the device with new baseline
+                await supabaseClient
+                  .from("connected_devices")
+                  .update({ 
+                    baseline_data: newBaseline, 
+                    last_minted_at: now 
+                  })
+                  .eq("id", device.id);
+                  
+              } catch (error) {
+                console.error(`Error updating baseline for device ${device.device_id}:`, error);
+              }
+            }
+          }
+        }
+        
+        // Update last_minted_at for non-Tesla devices
+        const nonTeslaDevices = devices.filter(d => d.provider !== "tesla");
+        if (nonTeslaDevices.length > 0) {
+          await supabaseClient
+            .from("connected_devices")
+            .update({ last_minted_at: now })
+            .in("id", nonTeslaDevices.map(d => d.id));
+        }
+        
+        console.log(`Reset baselines for ${devices.length} devices after minting`);
+      }
+
       // TODO: Here you would trigger the actual blockchain transfer
       // For now, we just mark them as claimed in the database
 
@@ -181,6 +267,7 @@ Deno.serve(async (req) => {
         success: true,
         tokens_claimed: totalToClaim,
         message: `Successfully claimed ${totalToClaim} $ZSOLAR tokens`,
+        baselines_reset: true,
         // transaction_hash: would be here after blockchain integration
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
