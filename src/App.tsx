@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Install from "./pages/Install";
 import Demo from "./pages/Demo";
 import Admin from "./pages/Admin";
+import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/install" element={<Install />} />
           <Route path="/demo" element={<Demo />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route 
             path="/admin" 
             element={
