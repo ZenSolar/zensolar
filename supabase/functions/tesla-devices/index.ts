@@ -69,18 +69,21 @@ Deno.serve(async (req) => {
       console.error("Failed to fetch vehicles:", await vehiclesResponse.text());
     }
 
-    // Fetch energy products (Powerwall, Solar)
-    const energyResponse = await fetch(`${TESLA_API_BASE}/api/1/energy_sites`, {
+    // Fetch energy products (Powerwall, Solar) using /products endpoint
+    const productsResponse = await fetch(`${TESLA_API_BASE}/api/1/products`, {
       headers: { "Authorization": `Bearer ${accessToken}` },
     });
 
     let energySites: any[] = [];
-    if (energyResponse.ok) {
-      const energyData = await energyResponse.json();
-      energySites = energyData.response || [];
-      console.log("Tesla energy sites:", JSON.stringify(energySites));
+    if (productsResponse.ok) {
+      const productsData = await productsResponse.json();
+      // Filter for energy sites (Powerwalls, Solar) - they have energy_site_id
+      energySites = (productsData.response || []).filter(
+        (p: any) => p.energy_site_id || p.resource_type
+      );
+      console.log("Tesla energy products:", JSON.stringify(energySites));
     } else {
-      console.error("Failed to fetch energy sites:", await energyResponse.text());
+      console.error("Failed to fetch products:", await productsResponse.text());
     }
 
     // Format devices for selection UI
