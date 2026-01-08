@@ -131,7 +131,14 @@ Deno.serve(async (req) => {
         });
       }
 
-      console.log("Registering with Tesla Fleet API for domain:", domain);
+      // Sanitize domain: remove https://, http://, paths, and ensure lowercase
+      const cleanDomain = domain
+        .replace(/^https?:\/\//, '')
+        .split('/')[0]
+        .toLowerCase()
+        .trim();
+
+      console.log("Registering with Tesla Fleet API for domain:", cleanDomain);
 
       const registerResponse = await fetch(`${TESLA_FLEET_API}/api/1/partner_accounts`, {
         method: "POST",
@@ -139,7 +146,7 @@ Deno.serve(async (req) => {
           "Authorization": `Bearer ${partnerToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ domain }),
+        body: JSON.stringify({ domain: cleanDomain }),
       });
 
       const registerResult = await registerResponse.text();
