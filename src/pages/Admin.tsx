@@ -240,15 +240,22 @@ export default function Admin() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="tesla-domain">App Domain</Label>
+              <Label htmlFor="tesla-domain">App Domain (without https://)</Label>
               <Input
                 id="tesla-domain"
-                placeholder="e.g., zen.solar or your-app.lovableproject.com"
+                placeholder="e.g., c0faa0dc-7beb-49f0-bf08-77c8c4973435.lovableproject.com"
                 value={teslaRegDomain}
-                onChange={(e) => setTeslaRegDomain(e.target.value)}
+                onChange={(e) => {
+                  // Auto-strip https://, http://, and paths
+                  let domain = e.target.value
+                    .replace(/^https?:\/\//, '')
+                    .split('/')[0]
+                    .toLowerCase();
+                  setTeslaRegDomain(domain);
+                }}
               />
               <p className="text-xs text-muted-foreground">
-                Enter the domain configured in your Tesla Developer Portal's "Allowed Origins"
+                Just the domain, no https:// or paths. Must match your Tesla Developer Portal's "Allowed Origins"
               </p>
             </div>
             
