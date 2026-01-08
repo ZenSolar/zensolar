@@ -30,9 +30,9 @@ export default function OAuthCallback() {
       }
 
       // Check if this is a Tesla callback (has state parameter)
-      const savedState = sessionStorage.getItem('tesla_oauth_state');
+      const savedState = localStorage.getItem('tesla_oauth_state');
       if (state && savedState === state) {
-        sessionStorage.removeItem('tesla_oauth_state');
+        localStorage.removeItem('tesla_oauth_state');
         const success = await exchangeTeslaCode(code);
         if (success) {
           // Show device selection after successful auth
