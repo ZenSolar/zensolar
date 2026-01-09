@@ -38,11 +38,16 @@ const secondaryNavItems = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
 
+  const handleNavClick = () => {
+    setOpenMobile(false);
+  };
+
   const handleLogout = async () => {
+    setOpenMobile(false);
     await supabase.auth.signOut();
     toast.success("Logged out successfully");
     navigate("/auth");
@@ -73,6 +78,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       end={item.url === "/"}
+                      onClick={handleNavClick}
                       className={({ isActive }) => 
                         isActive 
                           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
@@ -99,6 +105,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink 
                       to={item.url}
+                      onClick={handleNavClick}
                       className={({ isActive }) => 
                         isActive 
                           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
