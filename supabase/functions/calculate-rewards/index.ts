@@ -7,20 +7,21 @@ const corsHeaders = {
 
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 
-// Reward rates - tokens per kWh
+// Reward rates - 1 $ZSOLAR per unit
 const REWARD_RATES = {
-  solar_production: 10, // 10 $ZSOLAR per kWh produced
-  battery_discharge: 5,  // 5 $ZSOLAR per kWh discharged from battery
-  ev_efficiency: 2,      // 2 $ZSOLAR per efficient mile driven
+  solar_production: 1,    // 1 $ZSOLAR per kWh produced
+  battery_discharge: 1,   // 1 $ZSOLAR per kWh discharged from battery
+  ev_miles: 1,            // 1 $ZSOLAR per mile driven
+  ev_charging: 1,         // 1 $ZSOLAR per kWh charged
 };
 
-// NFT thresholds
+// NFT thresholds (based on total activity points)
 const NFT_THRESHOLDS = {
-  "Solar Pioneer": 100,      // 100 kWh produced
-  "Energy Saver": 500,       // 500 kWh produced
-  "Green Champion": 1000,    // 1000 kWh produced
-  "Solar Master": 5000,      // 5000 kWh produced
-  "Climate Hero": 10000,     // 10000 kWh produced
+  "Solar Pioneer": 100,      // 100 total activity
+  "Energy Saver": 500,       // 500 total activity
+  "Green Champion": 1000,    // 1000 total activity
+  "Solar Master": 5000,      // 5000 total activity
+  "Climate Hero": 10000,     // 10000 total activity
 };
 
 Deno.serve(async (req) => {
