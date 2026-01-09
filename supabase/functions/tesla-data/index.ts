@@ -209,9 +209,10 @@ Deno.serve(async (req) => {
             const endDate = new Date().toISOString().split("T")[0];
             const timezone = "America/Chicago"; // Use consistent timezone
 
-            // Tesla energy history expects RFC3339 timestamps
-            const startDateTime = `${startDate}T00:00:00`;
-            const endDateTime = `${endDate}T23:59:59`;
+            // Tesla energy history expects RFC3339 timestamps INCLUDING timezone offset
+            // Use Z (UTC) to satisfy the API parser (it rejects timestamps without an offset)
+            const startDateTime = `${startDate}T00:00:00Z`;
+            const endDateTime = `${endDate}T23:59:59Z`;
 
             // First try: Get self_consumption data which may have better battery metrics
             const selfConsumptionResponse = await fetch(
@@ -524,8 +525,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Total EV charging = Supercharger sessions + Home (Wall Connector) charging
-    const totalEvChargingKwh = totalChargingKwh + (totalHomeChargingWh / 1000);
+    // Total EV charging:
+    // - Measured: Supercharger sessions + (optional) Wall Connector telemetry
+    // - If Wall Connector telemetry is not available (common), estimate lifetime charging from miles.
+    const measuredEvChargingKwh = totalChargingKwh + (totalHomeChargingWh / 1000);
+    const estimatedEvChargingKwh = totalEvMiles * 0.27; // kWh per mile (simple avg)
+    const totalEvChargingKwh = totalHomeChargingWh > 0
+      ? measuredEvChargingKwh
+      : Math.max(measuredEvChargingKwh, estimatedEvChargingKwh);
+
     const pendingEvChargingKwh = Math.max(0, totalEvChargingKwh - baselineChargingKwh);
 
     return new Response(JSON.stringify({
