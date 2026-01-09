@@ -149,20 +149,29 @@ export function useDashboardData() {
         fetchRewardsData(),
       ]);
 
-      // Process Enphase data - use lifetime energy
+      // Solar source priority: Enphase > SolarEdge > Tesla
+      // If Enphase or SolarEdge is connected, use that for solar (NOT Tesla)
+      const hasDedicatedSolarProvider = profileConnections?.enphase_connected || profileConnections?.solaredge_connected;
+
+      // Process Enphase data - use lifetime energy for solar
       if (enphaseData?.totals) {
-        solarEnergy += (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
+        solarEnergy = (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
+        console.log('Enphase solar:', solarEnergy, 'kWh');
       }
 
-      // Process Tesla data - use lifetime values (pending can be 0 if vehicle asleep)
+      // Process Tesla data - EV miles, battery storage, EV charging
+      // Only use Tesla solar if NO dedicated solar provider is connected
       if (teslaData?.totals) {
-        // Use lifetime solar/battery from Tesla, Enphase already has lifetime solar
-        solarEnergy += (teslaData.totals.solar_production_wh || 0) / 1000;
+        // Tesla provides: EV miles, battery discharge, EV charging
         batteryDischarge = (teslaData.totals.battery_discharge_wh || 0) / 1000;
-        // Use lifetime EV data since pending may be 0 when vehicle is asleep
         evMiles = teslaData.totals.ev_miles || 0;
         evChargingKwh = teslaData.totals.ev_charging_kwh || 0;
-        console.log('Tesla totals:', teslaData.totals);
+        
+        // Only add Tesla solar if no Enphase/SolarEdge connected
+        if (!hasDedicatedSolarProvider) {
+          solarEnergy += (teslaData.totals.solar_production_wh || 0) / 1000;
+        }
+        console.log('Tesla data:', { batteryDischarge, evMiles, evChargingKwh, hasDedicatedSolarProvider });
       }
 
       // Get rewards data
