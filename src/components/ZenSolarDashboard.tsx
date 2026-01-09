@@ -129,9 +129,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
         {/* Dashboard Header with Logo */}
         <div className="flex flex-col items-center gap-3 pb-2 text-center">
-          <img src={zenLogo} alt="ZenSolar" className="h-20 w-auto object-contain" />
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            className="h-20 w-auto object-contain dark:brightness-110 dark:contrast-110" 
+          />
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              {profile?.display_name ? `Welcome, ${profile.display_name}` : 'Dashboard'}
+            </h1>
             <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFTs from your clean energy use.</p>
           </div>
         </div>
