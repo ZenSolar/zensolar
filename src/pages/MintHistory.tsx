@@ -66,16 +66,29 @@ export default function MintHistory() {
       // Get user profile to check connections
       const { data: profile } = await supabase
         .from('profiles')
-        .select('tesla_connected, enphase_connected')
+        .select('tesla_connected, enphase_connected, solaredge_connected')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
-      let pendingSolar = 0;
-      let pendingBattery = 0;
-      let pendingMiles = 0;
-      let pendingEvCharging = 0;
+      const hasDedicatedSolarProvider = !!(profile?.enphase_connected || profile?.solaredge_connected);
 
-      // Fetch Tesla pending data
+      let solarKwh = 0;
+      let batteryKwh = 0;
+      let evMiles = 0;
+      let evChargingKwh = 0;
+
+      // Mirror the same "Activity Data" sources as the dashboard
+      // Solar source priority: Enphase > SolarEdge > Tesla
+      if (profile?.enphase_connected) {
+        const response = await supabase.functions.invoke('enphase-data', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+
+        if (response.data?.totals) {
+          solarKwh = (response.data.totals.lifetime_solar_wh || 0) / 1000;
+        }
+      }
+
       if (profile?.tesla_connected) {
         const response = await supabase.functions.invoke('tesla-data', {
           headers: { Authorization: `Bearer ${session.access_token}` },
@@ -83,35 +96,28 @@ export default function MintHistory() {
 
         if (response.data?.totals) {
           const totals = response.data.totals;
-          pendingSolar += (totals.pending_solar_wh || 0) / 1000;
-          pendingBattery += (totals.pending_battery_discharge_wh || 0) / 1000;
-          pendingMiles += totals.pending_ev_miles || 0;
-          pendingEvCharging += totals.pending_ev_charging_kwh || 0;
+          batteryKwh = (totals.battery_discharge_wh || 0) / 1000;
+          evMiles = totals.ev_miles || 0;
+          evChargingKwh = totals.ev_charging_kwh || 0;
+
+          if (!hasDedicatedSolarProvider) {
+            solarKwh += (totals.solar_production_wh || 0) / 1000;
+          }
         }
       }
 
-      // Fetch Enphase pending data
-      if (profile?.enphase_connected) {
-        const response = await supabase.functions.invoke('enphase-data', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-
-        if (response.data?.totals) {
-          const totals = response.data.totals;
-          pendingSolar += (totals.pending_solar_wh || 0) / 1000;
-        }
-      }
-
-      // Calculate total tokens: 1 per mile, 1 per kWh of each type
-      const totalTokens = Math.floor(
-        pendingMiles + pendingSolar + pendingBattery + pendingEvCharging
-      );
+      // Tokens are awarded per whole unit
+      const totalTokens =
+        Math.floor(evMiles) +
+        Math.floor(solarKwh) +
+        Math.floor(batteryKwh) +
+        Math.floor(evChargingKwh);
 
       setPendingActivity({
-        solarKwh: pendingSolar,
-        batteryKwh: pendingBattery,
-        evMiles: pendingMiles,
-        evChargingKwh: pendingEvCharging,
+        solarKwh,
+        batteryKwh,
+        evMiles,
+        evChargingKwh,
         totalTokens,
       });
     } catch (error) {
@@ -188,7 +194,7 @@ export default function MintHistory() {
             <TrendingUp className="h-5 w-5 text-amber-600" />
             Pending Rewards
           </CardTitle>
-          <CardDescription>Activity since your last mint (ready to claim)</CardDescription>
+          <CardDescription>Mirrors the current Activity Data totals used to calculate rewards</CardDescription>
         </CardHeader>
         <CardContent>
           {isPendingLoading ? (
