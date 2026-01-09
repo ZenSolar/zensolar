@@ -17,6 +17,7 @@ import Tokenomics from "./pages/Tokenomics";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
+import MintHistory from "./pages/MintHistory";
 import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 
@@ -91,6 +92,16 @@ const App = () => (
                   <ProtectedRoute>
                     <AppLayout>
                       <Help />
+                    </AppLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/mint-history" 
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <MintHistory />
                     </AppLayout>
                   </ProtectedRoute>
                 } 

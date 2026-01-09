@@ -1,6 +1,7 @@
 import { 
   LayoutDashboard, 
   Coins, 
+  History,
   Settings, 
   User, 
   HelpCircle,
@@ -27,6 +28,7 @@ import {
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Tokenomics", url: "/tokenomics", icon: Coins },
+  { title: "Mint History", url: "/mint-history", icon: History },
 ];
 
 const secondaryNavItems = [
