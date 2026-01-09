@@ -176,12 +176,12 @@ export function useDashboardData() {
         evCharging: evChargingKwh,
         tokensEarned,
         nftsEarned: earnedNFTs,
-        co2OffsetPounds: rewardsData?.co2_offset_lbs || 0,
+        co2OffsetPounds: 0,
       };
-      
-      if (!rewardsData?.co2_offset_lbs) {
-        newData.co2OffsetPounds = calculateCO2Offset(newData);
-      }
+
+      // Always compute CO2 from the live dashboard metrics so it stays consistent with the UI
+      newData.co2OffsetPounds = calculateCO2Offset(newData);
+
       
       setActivityData(newData);
       
