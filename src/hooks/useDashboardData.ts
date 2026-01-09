@@ -174,8 +174,15 @@ export function useDashboardData() {
         console.log('Tesla data:', { batteryDischarge, evMiles, evChargingKwh, hasDedicatedSolarProvider });
       }
 
-      // Get rewards data
-      const tokensEarned = rewardsData?.total_tokens_earned || Math.floor(solarEnergy * 10);
+      // Calculate tokens: 1 token per mile, 1 per solar kWh, 1 per battery kWh, 1 per EV charging kWh
+      const calculatedTokens = Math.floor(
+        evMiles + 
+        solarEnergy + 
+        batteryDischarge + 
+        evChargingKwh
+      );
+      
+      const tokensEarned = calculatedTokens;
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
       const newData: ActivityData = {

@@ -58,27 +58,24 @@ Deno.serve(async (req) => {
     const action = url.searchParams.get("action") || "calculate";
 
     if (action === "calculate") {
-      // Get total production from energy_production table
-      const { data: productionData, error: prodError } = await supabaseClient
-        .from("energy_production")
-        .select("production_wh, consumption_wh, recorded_at")
+      // Get user's connected devices to calculate activity-based rewards
+      const { data: devices } = await supabaseClient
+        .from("connected_devices")
+        .select("device_id, device_type, provider, baseline_data")
         .eq("user_id", user.id);
 
-      if (prodError) {
-        console.error("Error fetching production data:", prodError);
-      }
+      let totalSolarKwh = 0;
+      let totalBatteryKwh = 0;
+      let totalEvMiles = 0;
+      let totalEvChargingKwh = 0;
 
-      // Calculate totals
-      const totalProductionWh = productionData?.reduce((sum, row) => sum + Number(row.production_wh || 0), 0) || 0;
-      const totalProductionKwh = totalProductionWh / 1000;
-
-      // Calculate tokens earned
-      const tokensFromProduction = Math.floor(totalProductionKwh * REWARD_RATES.solar_production);
-
+      // For now, we need to get the actual lifetime data from the tesla-data function
+      // The pending activity is stored in the dashboard - here we calculate based on claimed devices
+      
       // Get already claimed rewards
       const { data: claimedRewards } = await supabaseClient
         .from("user_rewards")
-        .select("tokens_earned")
+        .select("tokens_earned, reward_type, energy_wh_basis")
         .eq("user_id", user.id)
         .eq("claimed", true);
 
@@ -93,39 +90,31 @@ Deno.serve(async (req) => {
 
       const pendingTokens = unclaimedRewards?.reduce((sum, r) => sum + Number(r.tokens_earned), 0) || 0;
 
-      // Calculate new tokens to award (not yet in rewards table)
-      const totalTokensEarned = tokensFromProduction;
-      const newTokensToAward = Math.max(0, totalTokensEarned - totalClaimedTokens - pendingTokens);
+      // Calculate total activity for NFT thresholds
+      const totalActivity = totalClaimedTokens + pendingTokens;
 
-      // Create new reward entry if there are new tokens
-      if (newTokensToAward > 0) {
-        await supabaseClient
-          .from("user_rewards")
-          .insert({
-            user_id: user.id,
-            tokens_earned: newTokensToAward,
-            energy_wh_basis: totalProductionWh,
-            reward_type: "production",
-          });
-      }
-
-      // Check NFT eligibility
+      // Check NFT eligibility based on total tokens earned
       const earnedNFTs: string[] = [];
       for (const [nftName, threshold] of Object.entries(NFT_THRESHOLDS)) {
-        if (totalProductionKwh >= threshold) {
+        if (totalActivity >= threshold) {
           earnedNFTs.push(nftName);
         }
       }
 
-      // Calculate CO2 offset (0.92 lbs per kWh is US average)
-      const co2OffsetLbs = totalProductionKwh * 0.92;
+      // Calculate CO2 offset (0.92 lbs per kWh solar + 0.4 lbs per EV mile)
+      const co2OffsetLbs = (totalSolarKwh * 0.92) + (totalEvMiles * 0.4);
+
+      console.log("Rewards calculation:", {
+        totalClaimedTokens,
+        pendingTokens,
+        totalActivity,
+        earnedNFTs,
+      });
 
       return new Response(JSON.stringify({
-        total_production_kwh: totalProductionKwh,
-        total_tokens_earned: totalTokensEarned,
+        total_tokens_earned: totalActivity,
         tokens_claimed: totalClaimedTokens,
-        tokens_pending: pendingTokens + newTokensToAward,
-        new_tokens_awarded: newTokensToAward,
+        tokens_pending: pendingTokens,
         earned_nfts: earnedNFTs,
         co2_offset_lbs: co2OffsetLbs,
         reward_rates: REWARD_RATES,
