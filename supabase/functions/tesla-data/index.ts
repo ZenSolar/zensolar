@@ -177,13 +177,12 @@ Deno.serve(async (req) => {
           const response = liveData.response || {};
           
           // Get lifetime totals from calendar history
-          // Need to use a date range from installation to now
           let lifetimeSolar = 0;
           let lifetimeBatteryDischarge = 0;
           let wallConnectorChargingWh = 0;
           
           try {
-            // Get site info for installation date
+            // Get site info for installation date and lifetime stats
             const siteInfoResponse = await fetch(
               `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/site_info`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
@@ -192,39 +191,98 @@ Deno.serve(async (req) => {
             let startDate = "2020-01-01"; // Default fallback
             if (siteInfoResponse.ok) {
               const siteInfo = await siteInfoResponse.json();
-              if (siteInfo.response?.installation_date) {
-                startDate = String(siteInfo.response.installation_date).split("T")[0];
+              const siteResponse = siteInfo.response || {};
+              
+              if (siteResponse.installation_date) {
+                startDate = String(siteResponse.installation_date).split("T")[0];
+              }
+              
+              // Check for lifetime stats in site_info (some Tesla APIs provide this directly)
+              if (siteResponse.energy_left !== undefined) {
+                console.log(`Site ${site.id} site_info energy data:`, JSON.stringify({
+                  energy_left: siteResponse.energy_left,
+                  total_pack_energy: siteResponse.total_pack_energy,
+                }));
               }
             }
 
             const endDate = new Date().toISOString().split("T")[0];
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Chicago";
+            const timezone = "America/Chicago"; // Use consistent timezone
 
-            // Tesla energy history expects RFC3339 timestamps (must include a "T")
-            const startDateTime = new Date(`${startDate}T00:00:00`).toISOString();
-            const endDateTime = new Date(`${endDate}T23:59:59`).toISOString();
+            // Tesla energy history expects RFC3339 timestamps
+            const startDateTime = `${startDate}T00:00:00`;
+            const endDateTime = `${endDate}T23:59:59`;
 
-            // Fetch energy history for solar and battery
+            // First try: Get self_consumption data which may have better battery metrics
+            const selfConsumptionResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=self_consumption&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=lifetime&time_zone=${encodeURIComponent(timezone)}`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+
+            if (selfConsumptionResponse.ok) {
+              const scData = await selfConsumptionResponse.json();
+              console.log(`Site ${site.id} self_consumption response:`, JSON.stringify(scData.response || {}));
+              
+              const scResponse = scData.response || {};
+              // Self consumption endpoint may provide total_battery_discharge directly
+              if (scResponse.total_battery_discharge) {
+                lifetimeBatteryDischarge = scResponse.total_battery_discharge;
+              }
+              if (scResponse.total_solar) {
+                lifetimeSolar = scResponse.total_solar;
+              }
+            }
+
+            // Second: Get energy history for period-by-period data
             const historyResponse = await fetch(
-              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=month&time_zone=${encodeURIComponent(timezone)}`,
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=lifetime&time_zone=${encodeURIComponent(timezone)}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
 
             if (historyResponse.ok) {
               const historyData = await historyResponse.json();
-              const timeSeries = historyData.response?.time_series || [];
+              const historyResponse2 = historyData.response || {};
+              const timeSeries = historyResponse2.time_series || [];
 
-              if (timeSeries.length > 0) {
-                console.log(`Sample history period for site ${site.id}:`, JSON.stringify(timeSeries[0]));
+              // Check if lifetime totals are in the response directly
+              if (historyResponse2.total_home_usage !== undefined || historyResponse2.total_battery_discharge !== undefined) {
+                console.log(`Site ${site.id} lifetime totals from response:`, JSON.stringify({
+                  total_solar: historyResponse2.total_solar,
+                  total_battery_discharge: historyResponse2.total_battery_discharge,
+                  total_home_usage: historyResponse2.total_home_usage,
+                }));
+                
+                if (historyResponse2.total_solar && !lifetimeSolar) {
+                  lifetimeSolar = historyResponse2.total_solar;
+                }
+                if (historyResponse2.total_battery_discharge && !lifetimeBatteryDischarge) {
+                  lifetimeBatteryDischarge = historyResponse2.total_battery_discharge;
+                }
               }
 
-              // Sum up all monthly data for lifetime totals
-              // Use consumer_energy_imported_from_battery for actual home usage from battery
-              for (const period of timeSeries) {
-                lifetimeSolar += (period.solar_energy_exported || 0);
-                lifetimeBatteryDischarge += (period.consumer_energy_imported_from_battery || period.battery_energy_exported || 0);
+              // Fall back to summing periods if no lifetime totals
+              if (!lifetimeSolar || !lifetimeBatteryDischarge) {
+                if (timeSeries.length > 0) {
+                  console.log(`Site ${site.id} sample period:`, JSON.stringify(timeSeries[0]));
+                }
+
+                for (const period of timeSeries) {
+                  if (!lifetimeSolar) {
+                    lifetimeSolar += (period.solar_energy_exported || 0);
+                  }
+                  if (!lifetimeBatteryDischarge) {
+                    // Try multiple fields for battery discharge
+                    lifetimeBatteryDischarge += (
+                      period.consumer_energy_imported_from_battery || 
+                      period.battery_energy_exported || 
+                      period.total_battery_discharge ||
+                      0
+                    );
+                  }
+                }
               }
-              console.log(`Site ${site.id} lifetime from history:`, JSON.stringify({ lifetimeSolar, lifetimeBatteryDischarge, periods: timeSeries.length }));
+              
+              console.log(`Site ${site.id} lifetime totals:`, JSON.stringify({ lifetimeSolar, lifetimeBatteryDischarge }));
             } else {
               console.error(`Failed to fetch history for site ${site.id}:`, await historyResponse.text());
             }
