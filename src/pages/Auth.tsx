@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
-import zenLogoFull from '@/assets/zen-logo-full.jpeg';
+import zenLogo from '@/assets/zen-logo.png';
 import { z } from 'zod';
 import { toast } from 'sonner';
 
@@ -107,7 +107,7 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={zenLogoFull} alt="ZenSolar" className="h-24 object-contain" />
+            <img src={zenLogo} alt="ZenSolar" className="h-24 w-auto object-contain" />
           </div>
           <CardTitle>Welcome</CardTitle>
           <CardDescription>
