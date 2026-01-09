@@ -163,14 +163,14 @@ export default function MintHistory() {
         </CardContent>
       </Card>
 
-      {/* Reward History Table */}
+      {/* Pending Rewards Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-amber-600" />
-            Reward History
+            Pending Rewards
           </CardTitle>
-          <CardDescription>Calculated rewards from your energy production (pending mint)</CardDescription>
+          <CardDescription>Calculated rewards from your energy production (ready to mint)</CardDescription>
         </CardHeader>
         <CardContent>
           <RecordTable 
