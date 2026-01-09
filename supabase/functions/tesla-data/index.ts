@@ -207,36 +207,16 @@ Deno.serve(async (req) => {
             }
 
             const endDate = new Date().toISOString().split("T")[0];
-            const timezone = "America/Chicago"; // Use consistent timezone
+            const timezone = "America/Chicago"; // Central Time zone
 
-            // Tesla energy history expects RFC3339 timestamps INCLUDING timezone offset
-            // Use Z (UTC) to satisfy the API parser (it rejects timestamps without an offset)
-            const startDateTime = `${startDate}T00:00:00Z`;
-            const endDateTime = `${endDate}T23:59:59Z`;
+            // Use actual Central Time offset for RFC3339 timestamps
+            const startDateTime = `${startDate}T00:00:00-06:00`;
+            const endDateTime = `${endDate}T23:59:59-06:00`;
 
-            // First try: Get self_consumption data which may have better battery metrics
-            const selfConsumptionResponse = await fetch(
-              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=self_consumption&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=lifetime&time_zone=${encodeURIComponent(timezone)}`,
-              { headers: { "Authorization": `Bearer ${accessToken}` } }
-            );
-
-            if (selfConsumptionResponse.ok) {
-              const scData = await selfConsumptionResponse.json();
-              console.log(`Site ${site.id} self_consumption response:`, JSON.stringify(scData.response || {}));
-              
-              const scResponse = scData.response || {};
-              // Self consumption endpoint may provide total_battery_discharge directly
-              if (scResponse.total_battery_discharge) {
-                lifetimeBatteryDischarge = scResponse.total_battery_discharge;
-              }
-              if (scResponse.total_solar) {
-                lifetimeSolar = scResponse.total_solar;
-              }
-            }
-
-            // Second: Get energy history for period-by-period data
+            // Tesla API: period=day gives more granular data that we can sum for accurate lifetime totals
+            // Fetch by month over full lifetime for better data coverage
             const historyResponse = await fetch(
-              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=lifetime&time_zone=${encodeURIComponent(timezone)}`,
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=month&time_zone=${encodeURIComponent(timezone)}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
 
@@ -245,45 +225,28 @@ Deno.serve(async (req) => {
               const historyResponse2 = historyData.response || {};
               const timeSeries = historyResponse2.time_series || [];
 
-              // Check if lifetime totals are in the response directly
-              if (historyResponse2.total_home_usage !== undefined || historyResponse2.total_battery_discharge !== undefined) {
-                console.log(`Site ${site.id} lifetime totals from response:`, JSON.stringify({
-                  total_solar: historyResponse2.total_solar,
-                  total_battery_discharge: historyResponse2.total_battery_discharge,
-                  total_home_usage: historyResponse2.total_home_usage,
-                }));
+              console.log(`Site ${site.id} calendar_history months: ${timeSeries.length} periods`);
+
+              // Sum all periods for true lifetime totals
+              for (const period of timeSeries) {
+                // Solar production
+                lifetimeSolar += (period.solar_energy_exported || 0);
                 
-                if (historyResponse2.total_solar && !lifetimeSolar) {
-                  lifetimeSolar = historyResponse2.total_solar;
-                }
-                if (historyResponse2.total_battery_discharge && !lifetimeBatteryDischarge) {
-                  lifetimeBatteryDischarge = historyResponse2.total_battery_discharge;
-                }
+                // Battery discharge = energy that went from battery to home
+                // consumer_energy_imported_from_battery is energy used in home from battery
+                lifetimeBatteryDischarge += (period.consumer_energy_imported_from_battery || 0);
               }
 
-              // Fall back to summing periods if no lifetime totals
-              if (!lifetimeSolar || !lifetimeBatteryDischarge) {
-                if (timeSeries.length > 0) {
-                  console.log(`Site ${site.id} sample period:`, JSON.stringify(timeSeries[0]));
-                }
-
-                for (const period of timeSeries) {
-                  if (!lifetimeSolar) {
-                    lifetimeSolar += (period.solar_energy_exported || 0);
-                  }
-                  if (!lifetimeBatteryDischarge) {
-                    // Try multiple fields for battery discharge
-                    lifetimeBatteryDischarge += (
-                      period.consumer_energy_imported_from_battery || 
-                      period.battery_energy_exported || 
-                      period.total_battery_discharge ||
-                      0
-                    );
-                  }
-                }
+              if (timeSeries.length > 0) {
+                console.log(`Site ${site.id} first month sample:`, JSON.stringify(timeSeries[0]));
+                console.log(`Site ${site.id} last month sample:`, JSON.stringify(timeSeries[timeSeries.length - 1]));
               }
               
-              console.log(`Site ${site.id} lifetime totals:`, JSON.stringify({ lifetimeSolar, lifetimeBatteryDischarge }));
+              console.log(`Site ${site.id} lifetime totals (summed):`, JSON.stringify({ 
+                lifetimeSolar, 
+                lifetimeBatteryDischarge,
+                periodsCount: timeSeries.length 
+              }));
             } else {
               console.error(`Failed to fetch history for site ${site.id}:`, await historyResponse.text());
             }
