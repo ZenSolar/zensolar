@@ -232,9 +232,9 @@ Deno.serve(async (req) => {
                 // Solar production
                 lifetimeSolar += (period.solar_energy_exported || 0);
                 
-                // Battery discharge = energy that went from battery to home
-                // consumer_energy_imported_from_battery is energy used in home from battery
-                lifetimeBatteryDischarge += (period.consumer_energy_imported_from_battery || 0);
+                // Battery discharge = total energy that left the battery
+                // battery_energy_exported matches what the Tesla app shows as "Discharged"
+                lifetimeBatteryDischarge += (period.battery_energy_exported || 0);
               }
 
               if (timeSeries.length > 0) {
