@@ -11,6 +11,7 @@ import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, Alert
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import PushDiagnosticsCard from '@/components/admin/PushDiagnosticsCard';
 import zenLogo from '@/assets/zen-logo.png';
 
 interface ProfileWithEmail {
@@ -600,6 +601,8 @@ export default function Admin() {
             )}
           </CardContent>
         </Card>
+
+        <PushDiagnosticsCard />
 
         {/* Push Notification Test */}
         <Card className="border-primary/20">
