@@ -1,9 +1,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Bell, Shield, Smartphone, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Bell, Shield, Smartphone, Globe, Loader2 } from "lucide-react";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 export default function Settings() {
+  const { 
+    isSupported, 
+    isSubscribed, 
+    isLoading, 
+    permission, 
+    toggle 
+  } = usePushNotifications();
+
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Settings</h1>
@@ -18,6 +28,31 @@ export default function Settings() {
           <CardDescription>Manage how you receive updates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Push Notifications */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="push-notifications">Push Notifications</Label>
+              <p className="text-sm text-muted-foreground">
+                {!isSupported 
+                  ? "Not supported in this browser" 
+                  : permission === 'denied'
+                  ? "Blocked by browser - enable in settings"
+                  : "Receive instant alerts on your device"
+                }
+              </p>
+            </div>
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            ) : (
+              <Switch 
+                id="push-notifications" 
+                checked={isSubscribed}
+                onCheckedChange={toggle}
+                disabled={!isSupported || permission === 'denied'}
+              />
+            )}
+          </div>
+          
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="email-notifications">Email Notifications</Label>
