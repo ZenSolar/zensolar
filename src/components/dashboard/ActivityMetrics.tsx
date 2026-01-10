@@ -82,7 +82,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Zap}
-            label="Tesla Supercharger"
+            label="Tesla Supercharger kWh"
             value={data.teslaSuperchargerKwh}
             unit="kWh"
             colorClass="bg-accent"
@@ -90,7 +90,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Zap}
-            label="Home Charger"
+            label="Home Charger kWh"
             value={data.homeChargerKwh}
             unit="kWh"
             colorClass="bg-secondary"
