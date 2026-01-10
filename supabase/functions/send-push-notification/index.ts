@@ -349,30 +349,34 @@ Deno.serve(async (req) => {
 
     const authHeader = req.headers.get('Authorization');
     
-    if (!authHeader) {
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.error('Missing or invalid Authorization header');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // Create client with service role for database operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
+    // Use getClaims to validate the JWT token
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+    const { data: claimsData, error: authError } = await supabaseClient.auth.getClaims(token);
 
-    if (authError || !user) {
-      console.error('Auth validation failed:', authError?.message);
+    if (authError || !claimsData?.claims) {
+      console.error('Auth validation failed:', authError?.message || 'No claims');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Authenticated user: ${user.id}`);
+    const userId = claimsData.claims.sub as string;
+    console.log(`Authenticated user: ${userId}`);
 
     const body = await req.json();
     const { 
@@ -402,14 +406,14 @@ Deno.serve(async (req) => {
     }
 
     const { data: isAdmin } = await supabaseClient.rpc('has_role', {
-      _user_id: user.id,
+      _user_id: userId,
       _role: 'admin'
     });
 
     console.log(`User is admin: ${isAdmin}`);
 
     if (!isAdmin) {
-      const targetingSelf = targetUserIds.length === 1 && targetUserIds[0] === user.id;
+      const targetingSelf = targetUserIds.length === 1 && targetUserIds[0] === userId;
       if (!targetingSelf) {
         return new Response(
           JSON.stringify({ error: 'Unauthorized' }),
