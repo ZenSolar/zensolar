@@ -7,7 +7,8 @@ const defaultActivityData: ActivityData = {
   solarEnergyProduced: 0,
   evMilesDriven: 0,
   batteryStorageDischarged: 0,
-  evCharging: 0,
+  teslaSuperchargerKwh: 0,
+  homeChargerKwh: 0,
   tokensEarned: 0,
   nftsEarned: [],
   co2OffsetPounds: 0,
@@ -140,7 +141,8 @@ export function useDashboardData() {
       let solarEnergy = 0;
       let evMiles = 0;
       let batteryDischarge = 0;
-      let evChargingKwh = 0;
+      let superchargerKwh = 0;
+      let homeChargerKwh = 0;
 
       // Fetch data in parallel
       const [enphaseData, teslaData, rewardsData] = await Promise.all([
@@ -162,16 +164,18 @@ export function useDashboardData() {
       // Process Tesla data - EV miles, battery storage, EV charging
       // Only use Tesla solar if NO dedicated solar provider is connected
       if (teslaData?.totals) {
-        // Tesla provides: EV miles, battery discharge, EV charging
+        // Tesla provides: EV miles, battery discharge, supercharger charging
         batteryDischarge = (teslaData.totals.battery_discharge_wh || 0) / 1000;
         evMiles = teslaData.totals.ev_miles || 0;
-        evChargingKwh = teslaData.totals.ev_charging_kwh || 0;
+        superchargerKwh = teslaData.totals.supercharger_kwh || 0;
+        // Home charger data will come from wall connector integration later
+        homeChargerKwh = teslaData.totals.wall_connector_kwh || 0;
         
         // Only add Tesla solar if no Enphase/SolarEdge connected
         if (!hasDedicatedSolarProvider) {
           solarEnergy += (teslaData.totals.solar_production_wh || 0) / 1000;
         }
-        console.log('Tesla data:', { batteryDischarge, evMiles, evChargingKwh, hasDedicatedSolarProvider });
+        console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
       }
 
       // Tokens are awarded per whole unit
@@ -179,14 +183,16 @@ export function useDashboardData() {
         Math.floor(evMiles) +
         Math.floor(solarEnergy) +
         Math.floor(batteryDischarge) +
-        Math.floor(evChargingKwh);
+        Math.floor(superchargerKwh) +
+        Math.floor(homeChargerKwh);
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
       const newData: ActivityData = {
         solarEnergyProduced: solarEnergy,
         evMilesDriven: evMiles,
         batteryStorageDischarged: batteryDischarge,
-        evCharging: evChargingKwh,
+        teslaSuperchargerKwh: superchargerKwh,
+        homeChargerKwh: homeChargerKwh,
         tokensEarned,
         nftsEarned: earnedNFTs,
         co2OffsetPounds: 0,

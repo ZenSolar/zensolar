@@ -2,7 +2,8 @@ export interface ActivityData {
   solarEnergyProduced: number;
   evMilesDriven: number;
   batteryStorageDischarged: number;
-  evCharging: number;
+  teslaSuperchargerKwh: number;
+  homeChargerKwh: number;
   tokensEarned: number;
   nftsEarned: number[];
   co2OffsetPounds: number;
@@ -41,7 +42,9 @@ export function calculateCO2Offset(data: ActivityData): number {
   // avoided_gas = miles * (gas lbs/mile)
   // emitted_electricity = kWh_charged * (grid lbs/kWh)
   // net_avoided = max(0, avoided_gas - emitted_electricity)
-  const evKwhUsed = data.evCharging > 0 ? data.evCharging : data.evMilesDriven * EV_KWH_PER_MILE;
+  const evKwhUsed = (data.teslaSuperchargerKwh + data.homeChargerKwh) > 0 
+    ? (data.teslaSuperchargerKwh + data.homeChargerKwh) 
+    : data.evMilesDriven * EV_KWH_PER_MILE;
   const evGasBaselineLbs = data.evMilesDriven * CO2_LBS_PER_GAS_MILE;
   const evElectricityEmissionsLbs = evKwhUsed * EPA_CO2_LBS_PER_KWH;
   const evNetOffsetLbs = Math.max(0, evGasBaselineLbs - evElectricityEmissionsLbs);
