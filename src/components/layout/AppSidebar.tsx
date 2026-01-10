@@ -43,7 +43,10 @@ export function AppSidebar() {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
-  const { isAdmin } = useAdminCheck();
+  const { isAdmin, isChecking } = useAdminCheck();
+
+  // Debug logging
+  console.log('[AppSidebar] Admin check state:', { isAdmin, isChecking });
 
   const handleNavClick = () => {
     setOpenMobile(false);
