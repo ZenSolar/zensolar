@@ -21,19 +21,46 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
+// Detect iOS device
+const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
+// Detect if running as installed PWA
+const isStandalone = () => {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as any).standalone === true;
+};
+
 export function usePushNotifications() {
   const { user } = useAuth();
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
+  const [isPWAInstalled, setIsPWAInstalled] = useState(false);
 
   // Check if push notifications are supported
   useEffect(() => {
-    const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
-    setIsSupported(supported);
+    const iosDevice = isIOS();
+    const pwaInstalled = isStandalone();
     
-    if (supported) {
+    setIsIOSDevice(iosDevice);
+    setIsPWAInstalled(pwaInstalled);
+    
+    // On iOS, push is only supported when installed as PWA
+    const supported = 'serviceWorker' in navigator && 
+      'PushManager' in window && 
+      'Notification' in window;
+    
+    // iOS Safari doesn't support push unless installed as PWA
+    const effectivelySupported = iosDevice ? (supported && pwaInstalled) : supported;
+    
+    setIsSupported(effectivelySupported);
+    
+    if (effectivelySupported) {
       setPermission(Notification.permission);
     }
     
@@ -201,6 +228,8 @@ export function usePushNotifications() {
     isSubscribed,
     isLoading,
     permission,
+    isIOSDevice,
+    isPWAInstalled,
     subscribe,
     unsubscribe,
     toggle,
