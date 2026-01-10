@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { waitForServiceWorkerReady, getPushSubscription } from '@/lib/serviceWorker';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { Button } from '@/components/ui/button';
@@ -250,11 +251,8 @@ export default function Admin() {
       // Prefer targeting the *current browser's* subscription so we don't send to stale devices.
       let currentEndpoint: string | undefined;
       try {
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.ready;
-          const sub = await registration.pushManager.getSubscription();
-          currentEndpoint = sub?.endpoint;
-        }
+        const sub = await getPushSubscription(1500);
+        currentEndpoint = sub?.endpoint;
       } catch {
         // ignore (not supported / not subscribed)
       }
@@ -300,12 +298,12 @@ export default function Admin() {
     setClearSubsMessage('Clearing old subscriptions...');
 
     try {
-      // Get current device's endpoint
+      // Get current device's endpoint (don't hang forever in iOS PWA)
       let currentEndpoint: string | undefined;
       try {
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.ready;
-          const sub = await registration.pushManager.getSubscription();
+        const reg = await waitForServiceWorkerReady(1500);
+        if (reg) {
+          const sub = await reg.pushManager.getSubscription();
           currentEndpoint = sub?.endpoint;
         }
       } catch {
