@@ -414,14 +414,15 @@ Deno.serve(async (req) => {
     console.log(`Authenticated user: ${userId}`);
 
     const body = await req.json();
-    const { 
-      user_id, 
+    const {
+      user_id,
       user_ids,
-      title, 
-      body: messageBody, 
+      endpoint: targetEndpoint,
+      title,
+      body: messageBody,
       notification_type = 'system',
       data = {},
-      url 
+      url,
     } = body;
 
     if (!title || !messageBody) {
@@ -432,7 +433,7 @@ Deno.serve(async (req) => {
     }
 
     const targetUserIds = user_ids || (user_id ? [user_id] : []);
-    
+
     if (targetUserIds.length === 0) {
       return new Response(
         JSON.stringify({ error: 'user_id or user_ids required' }),
@@ -457,10 +458,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    const { data: subscriptions, error: subError } = await supabaseClient
+    let subQuery = supabaseClient
       .from('push_subscriptions')
       .select('*')
       .in('user_id', targetUserIds);
+
+    if (typeof targetEndpoint === 'string' && targetEndpoint.length > 0) {
+      console.log('[Push] Targeting specific endpoint (current device)');
+      subQuery = subQuery.eq('endpoint', targetEndpoint);
+    }
+
+    const { data: subscriptions, error: subError } = await subQuery;
 
     if (subError) {
       console.error('Error fetching subscriptions:', subError);

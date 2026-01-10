@@ -242,14 +242,26 @@ export default function Admin() {
     setPushTestMessage('Sending test notification...');
 
     try {
-      // Use supabase.functions.invoke which automatically includes auth headers
+      // Prefer targeting the *current browser's* subscription so we don't send to stale devices.
+      let currentEndpoint: string | undefined;
+      try {
+        if ('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.ready;
+          const sub = await registration.pushManager.getSubscription();
+          currentEndpoint = sub?.endpoint;
+        }
+      } catch {
+        // ignore (not supported / not subscribed)
+      }
+
       const response = await supabase.functions.invoke('send-push-notification', {
         body: {
           user_id: user?.id,
+          endpoint: currentEndpoint,
           title: '🌞 ZenSolar Test',
           body: 'Push notifications are working! Your solar rewards await.',
           notification_type: 'test',
-          url: '/'
+          url: '/',
         },
       });
 
@@ -260,11 +272,15 @@ export default function Admin() {
       const data = response.data;
       if (data.sent > 0) {
         setPushTestStatus('success');
-        setPushTestMessage(`Notification sent successfully to ${data.sent} device(s)!`);
+        setPushTestMessage(
+          currentEndpoint
+            ? 'Notification sent to this device.'
+            : `Notification sent successfully to ${data.sent} subscription(s)!`
+        );
         toast.success('Test notification sent!');
       } else {
         setPushTestStatus('error');
-        setPushTestMessage('No push subscriptions found. Make sure notifications are enabled in the app.');
+        setPushTestMessage('No push subscription found for this device. Enable notifications in the app first.');
       }
     } catch (error) {
       console.error('Push test error:', error);
