@@ -1,61 +1,62 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { create } from "https://deno.land/x/djwt@v3.0.1/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Base64 URL to Uint8Array
-function base64UrlToUint8Array(base64Url: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64Url.length % 4)) % 4);
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/') + padding;
-  const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+// Base64 URL decode
+function base64UrlDecode(str: string): Uint8Array {
+  const padding = '='.repeat((4 - (str.length % 4)) % 4);
+  const base64 = str.replace(/-/g, '+').replace(/_/g, '/') + padding;
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
   }
-  return outputArray;
+  return bytes;
 }
 
-// Create JWT for VAPID authentication
-async function createVapidJwt(audience: string, subject: string, privateKeyBase64: string): Promise<string> {
-  const header = { alg: 'ES256', typ: 'JWT' };
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
-    aud: audience,
-    exp: now + 12 * 60 * 60, // 12 hours
-    sub: subject,
+// Base64 URL encode
+function base64UrlEncode(input: ArrayBuffer | Uint8Array): string {
+  const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+// Import VAPID private key for signing
+async function importVapidPrivateKey(
+  publicKeyBase64: string,
+  privateKeyBase64: string
+): Promise<CryptoKey> {
+  const publicKeyBytes = base64UrlDecode(publicKeyBase64);
+  const privateKeyBytes = base64UrlDecode(privateKeyBase64);
+  
+  // Public key is 65 bytes: 0x04 || x (32 bytes) || y (32 bytes)
+  // Private key is 32 bytes: d
+  const x = base64UrlEncode(publicKeyBytes.slice(1, 33));
+  const y = base64UrlEncode(publicKeyBytes.slice(33, 65));
+  const d = base64UrlEncode(privateKeyBytes);
+
+  const jwk: JsonWebKey = {
+    kty: 'EC',
+    crv: 'P-256',
+    x,
+    y,
+    d,
   };
 
-  const encoder = new TextEncoder();
-  const headerB64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const payloadB64 = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const unsignedToken = `${headerB64}.${payloadB64}`;
-
-  // Import private key
-  const privateKeyBytes = base64UrlToUint8Array(privateKeyBase64);
-  const privateKey = await crypto.subtle.importKey(
-    'raw',
-    privateKeyBytes.buffer as ArrayBuffer,
+  return await crypto.subtle.importKey(
+    'jwk',
+    jwk,
     { name: 'ECDSA', namedCurve: 'P-256' },
     false,
     ['sign']
   );
-
-  // Sign the token
-  const signature = await crypto.subtle.sign(
-    { name: 'ECDSA', hash: 'SHA-256' },
-    privateKey,
-    encoder.encode(unsignedToken)
-  );
-
-  // Convert signature to URL-safe base64
-  const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-
-  return `${unsignedToken}.${signatureB64}`;
 }
 
 interface PushPayload {
@@ -70,8 +71,8 @@ interface PushPayload {
 
 async function sendPushToEndpoint(
   endpoint: string,
-  p256dh: string,
-  auth: string,
+  _p256dh: string,
+  _auth: string,
   payload: PushPayload,
   vapidPublicKey: string,
   vapidPrivateKey: string
@@ -80,35 +81,59 @@ async function sendPushToEndpoint(
     const url = new URL(endpoint);
     const audience = `${url.protocol}//${url.host}`;
     
-    // Create VAPID JWT
-    const jwt = await createVapidJwt(audience, 'mailto:notifications@zensolar.app', vapidPrivateKey);
+    console.log(`Creating VAPID JWT for audience: ${audience}`);
     
+    // Import the private key
+    const privateKey = await importVapidPrivateKey(vapidPublicKey, vapidPrivateKey);
+    
+    // Create JWT using djwt library
+    const now = Math.floor(Date.now() / 1000);
+    const jwt = await create(
+      { alg: 'ES256', typ: 'JWT' },
+      {
+        aud: audience,
+        exp: now + 12 * 60 * 60,
+        sub: 'mailto:notifications@zensolar.app',
+      },
+      privateKey
+    );
+    
+    console.log(`JWT created successfully`);
+
     // Prepare payload
-    const payloadBytes = new TextEncoder().encode(JSON.stringify(payload));
+    const payloadJson = JSON.stringify(payload);
     
-    // For simplicity, send unencrypted payload (most push services accept this for testing)
-    // In production, you'd want to encrypt using the p256dh and auth keys
+    // VAPID authorization header format
+    const authorizationHeader = `vapid t=${jwt}, k=${vapidPublicKey}`;
+    
+    console.log(`Sending to: ${endpoint.substring(0, 60)}...`);
+
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `vapid t=${jwt}, k=${vapidPublicKey}`,
-        'Content-Type': 'application/octet-stream',
-        'Content-Encoding': 'aes128gcm',
+        'Authorization': authorizationHeader,
+        'Content-Type': 'application/json',
         'TTL': '86400',
         'Urgency': 'normal',
       },
-      body: payloadBytes,
+      body: payloadJson,
     });
 
+    const responseText = await response.text();
+    console.log(`Push response: ${response.status} ${response.statusText}`);
+    if (responseText) {
+      console.log(`Response body: ${responseText.substring(0, 200)}`);
+    }
+
     if (response.status === 201 || response.status === 200) {
+      console.log('Push sent successfully!');
       return { success: true };
     } else if (response.status === 410) {
-      // Subscription expired
+      console.log('Subscription expired');
       return { success: false, error: 'subscription_expired' };
     } else {
-      const errorText = await response.text();
-      console.error(`Push failed: ${response.status} - ${errorText}`);
-      return { success: false, error: `${response.status}: ${errorText}` };
+      console.error(`Push failed: ${response.status} - ${responseText}`);
+      return { success: false, error: `${response.status}: ${responseText}` };
     }
   } catch (error) {
     console.error('Push send error:', error);
@@ -132,6 +157,8 @@ Deno.serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`VAPID keys loaded - public: ${vapidPublicKey.length} chars, private: ${vapidPrivateKey.length} chars`);
 
     const authHeader = req.headers.get('Authorization');
     
@@ -158,6 +185,8 @@ Deno.serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`Authenticated user: ${user.id}`);
 
     const body = await req.json();
     const { 
@@ -193,6 +222,8 @@ Deno.serve(async (req) => {
       _role: 'admin'
     });
 
+    console.log(`User is admin: ${isAdmin}`);
+
     // Non-admins can only send notifications to themselves
     if (!isAdmin) {
       const targetingSelf = targetUserIds.length === 1 && targetUserIds[0] === user.id;
@@ -218,7 +249,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`Sending push to ${subscriptions?.length || 0} subscriptions`);
+    console.log(`Found ${subscriptions?.length || 0} subscriptions for users: ${targetUserIds.join(', ')}`);
 
     const payload: PushPayload = {
       title,
@@ -234,6 +265,8 @@ Deno.serve(async (req) => {
     const expiredSubscriptions: string[] = [];
 
     for (const sub of subscriptions || []) {
+      console.log(`Processing subscription for user: ${sub.user_id}`);
+      
       const result = await sendPushToEndpoint(
         sub.endpoint,
         sub.p256dh,
@@ -285,7 +318,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Push notification error:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to send notification. Please try again.' }),
+      JSON.stringify({ error: `Failed to send notification: ${error instanceof Error ? error.message : 'Unknown error'}` }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
