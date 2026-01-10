@@ -64,15 +64,24 @@ self.addEventListener('push', (event) => {
   };
 
   // CRITICAL: Must use event.waitUntil with showNotification for iOS
-  event.waitUntil(
-    self.registration.showNotification(notificationData.title, options)
-      .then(() => {
-        console.log('[SW] Notification shown successfully');
-      })
-      .catch((error) => {
-        console.error('[SW] Error showing notification:', error);
-      })
-  );
+  event.waitUntil((async () => {
+    // Foreground fallback: notify any open app windows
+    try {
+      const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of clientList) {
+        client.postMessage({ type: 'PUSH_RECEIVED', payload: notificationData });
+      }
+    } catch (e) {
+      console.error('[SW] Error posting message to clients:', e);
+    }
+
+    try {
+      await self.registration.showNotification(notificationData.title, options);
+      console.log('[SW] Notification shown successfully');
+    } catch (error) {
+      console.error('[SW] Error showing notification:', error);
+    }
+  })());
 });
 
 // Handle notification clicks
