@@ -122,13 +122,10 @@ async function encryptPayload(
   // Encrypt the payload with AES-128-GCM
   const payloadBytes = encoder.encode(payload);
 
-  // RFC8291 (aes128gcm): plaintext = 2-byte padding length + padding + payload
-  // We send padLen=0 to minimize size.
-  const padLen = 0;
-  const plaintext = new Uint8Array(2 + padLen + payloadBytes.length);
-  plaintext[0] = 0;
-  plaintext[1] = padLen;
-  plaintext.set(payloadBytes, 2 + padLen);
+  // RFC8188 (aes128gcm): plaintext = data + padding delimiter + 0x00 padding.
+  // For a single-record message we can send minimal padding: just the delimiter.
+  // The *last* record delimiter MUST be 0x02.
+  const plaintext = concat(payloadBytes, new Uint8Array([2]));
 
   const aesKey = await crypto.subtle.importKey(
     'raw',
