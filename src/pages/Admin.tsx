@@ -416,20 +416,15 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur">
-        <div className="container flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <img src={zenLogo} alt="ZenSolar" className="h-8" />
-            <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
-          </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to App
-          </Button>
+      {/* Page Title */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center gap-3 mb-6">
+          <img src={zenLogo} alt="ZenSolar" className="h-8" />
+          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
         </div>
-      </header>
+      </div>
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto px-4 pb-6 space-y-6">
         {/* Tesla Fleet API Registration */}
         <Card className="border-primary/20">
           <CardHeader>
