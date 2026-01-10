@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildPushHTTPRequest } from "https://cdn.jsdelivr.net/npm/@pushforge/builder@1.1.2/dist/lib/main.js";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -188,7 +189,7 @@ async function encryptPayload(
   return { encrypted, serverPublicKey, salt };
 }
 
-// Create VAPID JWT
+// Create VAPID JWT (legacy - kept for reference)
 async function createVapidAuthHeader(
   audience: string,
   subject: string,
@@ -248,6 +249,44 @@ async function createVapidAuthHeader(
   return `${unsignedToken}.${signatureB64}`;
 }
 
+function getVapidPrivateJwk(vapidPublicKey: string, vapidPrivateKey: string): JsonWebKey {
+  const trimmed = (vapidPrivateKey ?? '').trim();
+
+  // If user stored a full JWK JSON in the secret, use it directly.
+  if (trimmed.startsWith('{')) {
+    try {
+      return JSON.parse(trimmed);
+    } catch (e) {
+      throw new Error('VAPID_PRIVATE_KEY looks like JSON but could not be parsed');
+    }
+  }
+
+  // Otherwise, assume base64url 32-byte private key, plus separate base64url 65-byte public key.
+  const publicKeyBytes = base64UrlDecode(vapidPublicKey);
+  const privateKeyBytes = base64UrlDecode(trimmed);
+
+  if (publicKeyBytes.length !== 65) {
+    throw new Error(`Invalid public key length: ${publicKeyBytes.length}, expected 65`);
+  }
+  if (privateKeyBytes.length !== 32) {
+    throw new Error(`Invalid private key length: ${privateKeyBytes.length}, expected 32`);
+  }
+
+  const x = base64UrlEncode(publicKeyBytes.slice(1, 33));
+  const y = base64UrlEncode(publicKeyBytes.slice(33, 65));
+  const d = base64UrlEncode(privateKeyBytes);
+
+  return {
+    alg: 'ES256',
+    kty: 'EC',
+    crv: 'P-256',
+    x,
+    y,
+    d,
+    ext: true,
+  };
+}
+
 interface PushPayload {
   title: string;
   body: string;
@@ -267,63 +306,59 @@ async function sendPushToEndpoint(
   vapidPrivateKey: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const url = new URL(endpoint);
-    const audience = `${url.protocol}//${url.host}`;
-    
-    // Log key details for debugging
-    console.log(`VAPID public key starts with: ${vapidPublicKey.substring(0, 20)}...`);
-    console.log(`Creating VAPID JWT for audience: ${audience}`);
-    
-    // Create VAPID JWT
-    const jwt = await createVapidAuthHeader(
-      audience,
-      'mailto:notifications@zensolar.app',
-      vapidPublicKey,
-      vapidPrivateKey
-    );
-    
-    // Encrypt payload
-    const payloadJson = JSON.stringify(payload);
-    console.log(`Encrypting payload: ${payloadJson.length} bytes`);
-    
-    const { encrypted } = await encryptPayload(payloadJson, p256dh, auth);
-    console.log(`Encrypted payload: ${encrypted.length} bytes`);
-    
-    // VAPID authorization header
-    const authorizationHeader = `vapid t=${jwt}, k=${vapidPublicKey}`;
-    
-    console.log(`Sending to: ${endpoint.substring(0, 60)}...`);
+    console.log(`[Push] Building request for endpoint: ${endpoint.substring(0, 60)}...`);
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': authorizationHeader,
-        'Content-Type': 'application/octet-stream',
-        'Content-Encoding': 'aes128gcm',
-        'TTL': '86400',
-        'Urgency': 'normal',
+    const privateJWK = getVapidPrivateJwk(vapidPublicKey, vapidPrivateKey);
+
+    const subscription = {
+      endpoint,
+      keys: { p256dh, auth },
+    };
+
+    const message = {
+      payload,
+      options: {
+        // Keep TTL low while debugging iOS delivery. (seconds)
+        ttl: 3600,
+        urgency: 'normal',
+        topic: payload.tag || 'zensolar',
       },
-      body: toArrayBuffer(encrypted),
+      adminContact: 'mailto:notifications@zensolar.app',
+    };
+
+    // PushForge handles payload encryption + VAPID headers correctly.
+    const { endpoint: pushEndpoint, headers, body } = await buildPushHTTPRequest({
+      privateJWK,
+      message,
+      subscription,
+    } as any);
+
+    console.log(`[Push] Sending POST to: ${pushEndpoint.substring(0, 60)}...`);
+
+    const response = await fetch(pushEndpoint, {
+      method: 'POST',
+      headers: headers as HeadersInit,
+      body,
     });
 
     const responseText = await response.text();
-    console.log(`Push response: ${response.status} ${response.statusText}`);
+    console.log(`[Push] Response: ${response.status} ${response.statusText}`);
     if (responseText) {
-      console.log(`Response body: ${responseText.substring(0, 200)}`);
+      console.log(`[Push] Body: ${responseText.substring(0, 200)}`);
     }
 
     if (response.status === 201 || response.status === 200) {
-      console.log('Push sent successfully!');
       return { success: true };
-    } else if (response.status === 410) {
-      console.log('Subscription expired');
-      return { success: false, error: 'subscription_expired' };
-    } else {
-      console.error(`Push failed: ${response.status} - ${responseText}`);
-      return { success: false, error: `${response.status}: ${responseText}` };
     }
+
+    if (response.status === 410 || response.status === 404) {
+      console.log('[Push] Subscription expired/invalid');
+      return { success: false, error: 'subscription_expired' };
+    }
+
+    return { success: false, error: `${response.status}: ${responseText}` };
   } catch (error) {
-    console.error('Push send error:', error);
+    console.error('[Push] send error:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
