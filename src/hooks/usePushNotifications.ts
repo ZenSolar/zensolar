@@ -33,8 +33,13 @@ const isStandalone = () => {
 // Cache for VAPID public key
 let cachedVapidKey: string | null = null;
 
-async function getVapidPublicKey(): Promise<string | null> {
-  if (cachedVapidKey) return cachedVapidKey;
+// Clear the VAPID key cache (useful when re-subscribing)
+export function clearVapidKeyCache() {
+  cachedVapidKey = null;
+}
+
+async function getVapidPublicKey(forceRefresh = false): Promise<string | null> {
+  if (cachedVapidKey && !forceRefresh) return cachedVapidKey;
   
   try {
     const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
@@ -142,8 +147,8 @@ export function usePushNotifications() {
     setIsLoading(true);
 
     try {
-      // Fetch VAPID public key from server
-      const vapidPublicKey = await getVapidPublicKey();
+      // Fetch VAPID public key from server (force refresh to ensure we have the latest key)
+      const vapidPublicKey = await getVapidPublicKey(true);
       
       if (!vapidPublicKey) {
         toast.error('Push notifications not configured');
