@@ -9,7 +9,7 @@ import {
   Shield,
   MessageSquarePlus
 } from "lucide-react";
-import zenLogo from "@/assets/zen-icon-transparent.png";
+import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -63,9 +63,7 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo/Brand */}
         <div className="p-4 flex items-center gap-3">
-          <div className="h-14 w-14 rounded-xl bg-sidebar-accent flex items-center justify-center flex-shrink-0">
-            <img src={zenLogo} alt="ZenSolar" className="h-11 w-11 object-contain" />
-          </div>
+          <img src={zenLogo} alt="ZenSolar" className="h-14 w-14 rounded-xl object-cover flex-shrink-0" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-bold text-lg text-sidebar-foreground">ZenSolar</span>
