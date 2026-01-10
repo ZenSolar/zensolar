@@ -50,6 +50,10 @@ export default function Admin() {
   // Push notification test state
   const [pushTestStatus, setPushTestStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [pushTestMessage, setPushTestMessage] = useState('');
+  
+  // Clear subscriptions state
+  const [clearSubsStatus, setClearSubsStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [clearSubsMessage, setClearSubsMessage] = useState('');
 
   const fetchProfiles = async () => {
     const { data, error } = await supabase
@@ -287,6 +291,66 @@ export default function Admin() {
       setPushTestStatus('error');
       setPushTestMessage(error instanceof Error ? error.message : 'Failed to send notification');
       toast.error('Failed to send test notification');
+    }
+  };
+
+  const handleClearOldSubscriptions = async () => {
+    setClearSubsStatus('loading');
+    setClearSubsMessage('Clearing old subscriptions...');
+
+    try {
+      // Get current device's endpoint
+      let currentEndpoint: string | undefined;
+      try {
+        if ('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.ready;
+          const sub = await registration.pushManager.getSubscription();
+          currentEndpoint = sub?.endpoint;
+        }
+      } catch {
+        // ignore
+      }
+
+      // Get all subscriptions for current user
+      const { data: subs, error: fetchError } = await supabase
+        .from('push_subscriptions')
+        .select('id, endpoint')
+        .eq('user_id', user?.id);
+
+      if (fetchError) throw fetchError;
+
+      if (!subs || subs.length === 0) {
+        setClearSubsStatus('success');
+        setClearSubsMessage('No subscriptions found.');
+        return;
+      }
+
+      // Delete all except current endpoint
+      const toDelete = currentEndpoint 
+        ? subs.filter(s => s.endpoint !== currentEndpoint).map(s => s.id)
+        : subs.map(s => s.id);
+
+      if (toDelete.length === 0) {
+        setClearSubsStatus('success');
+        setClearSubsMessage('No old subscriptions to clear.');
+        return;
+      }
+
+      const { error: deleteError } = await supabase
+        .from('push_subscriptions')
+        .delete()
+        .in('id', toDelete);
+
+      if (deleteError) throw deleteError;
+
+      setClearSubsStatus('success');
+      setClearSubsMessage(`Cleared ${toDelete.length} old subscription(s).`);
+      toast.success(`Cleared ${toDelete.length} old subscription(s)`);
+    } catch (error) {
+      console.error('Clear subscriptions error:', error);
+      setClearSubsStatus('error');
+      setClearSubsMessage(error instanceof Error ? error.message : 'Failed to clear subscriptions');
+      toast.error('Failed to clear old subscriptions');
     }
   };
 
@@ -549,17 +613,32 @@ export default function Admin() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button 
-              onClick={handleTestPushNotification} 
-              disabled={pushTestStatus === 'loading'}
-            >
-              {pushTestStatus === 'loading' ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Bell className="h-4 w-4 mr-2" />
-              )}
-              Send Test Notification
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                onClick={handleTestPushNotification} 
+                disabled={pushTestStatus === 'loading'}
+              >
+                {pushTestStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Bell className="h-4 w-4 mr-2" />
+                )}
+                Send Test Notification
+              </Button>
+              
+              <Button 
+                variant="outline"
+                onClick={handleClearOldSubscriptions} 
+                disabled={clearSubsStatus === 'loading'}
+              >
+                {clearSubsStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <XCircle className="h-4 w-4 mr-2" />
+                )}
+                Clear Old Subscriptions
+              </Button>
+            </div>
             
             {pushTestMessage && (
               <div className={`flex items-center gap-2 p-3 rounded-md ${
@@ -571,6 +650,19 @@ export default function Admin() {
                 {pushTestStatus === 'error' && <XCircle className="h-4 w-4" />}
                 {pushTestStatus === 'loading' && <Loader2 className="h-4 w-4 animate-spin" />}
                 <span className="text-sm">{pushTestMessage}</span>
+              </div>
+            )}
+            
+            {clearSubsMessage && (
+              <div className={`flex items-center gap-2 p-3 rounded-md ${
+                clearSubsStatus === 'success' ? 'bg-green-500/10 text-green-600' :
+                clearSubsStatus === 'error' ? 'bg-destructive/10 text-destructive' :
+                'bg-muted text-muted-foreground'
+              }`}>
+                {clearSubsStatus === 'success' && <CheckCircle2 className="h-4 w-4" />}
+                {clearSubsStatus === 'error' && <XCircle className="h-4 w-4" />}
+                {clearSubsStatus === 'loading' && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span className="text-sm">{clearSubsMessage}</span>
               </div>
             )}
           </CardContent>
