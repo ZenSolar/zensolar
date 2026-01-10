@@ -242,11 +242,7 @@ export default function Admin() {
     setPushTestMessage('Sending test notification...');
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-
+      // Use supabase.functions.invoke which automatically includes auth headers
       const response = await supabase.functions.invoke('send-push-notification', {
         body: {
           user_id: user?.id,
@@ -255,7 +251,6 @@ export default function Admin() {
           notification_type: 'test',
           url: '/'
         },
-        headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
       if (response.error) {
