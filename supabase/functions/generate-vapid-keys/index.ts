@@ -100,9 +100,8 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error generating VAPID keys:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: 'Failed to generate VAPID keys', details: message }),
+      JSON.stringify({ error: 'Failed to generate VAPID keys. Please try again.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
