@@ -270,6 +270,8 @@ async function sendPushToEndpoint(
     const url = new URL(endpoint);
     const audience = `${url.protocol}//${url.host}`;
     
+    // Log key details for debugging
+    console.log(`VAPID public key starts with: ${vapidPublicKey.substring(0, 20)}...`);
     console.log(`Creating VAPID JWT for audience: ${audience}`);
     
     // Create VAPID JWT
