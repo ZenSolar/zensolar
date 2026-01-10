@@ -3,14 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function Tokenomics() {
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+    <div className="container max-w-4xl mx-auto px-4 py-6 space-y-6">
       {/* Hero Section */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-token to-primary mx-auto">
           <Coins className="h-8 w-8 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-foreground">$ZSOLAR Tokenomics</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">$ZSOLAR Tokenomics</h1>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
           Understanding how ZenSolar rewards clean energy production and sustainable behavior through blockchain technology.
         </p>
       </div>
@@ -25,14 +25,14 @@ export default function Tokenomics() {
           <CardDescription>The foundation of the ZenSolar ecosystem</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
             <div className="rounded-lg border border-border bg-muted/30 p-4">
               <p className="text-sm text-muted-foreground">Token Symbol</p>
-              <p className="text-2xl font-bold text-foreground">$ZSOLAR</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">$ZSOLAR</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-4">
               <p className="text-sm text-muted-foreground">Network</p>
-              <p className="text-2xl font-bold text-foreground">Ethereum (Sepolia Testnet)</p>
+              <p className="text-lg sm:text-2xl font-bold text-foreground">Ethereum (Sepolia)</p>
             </div>
           </div>
           <p className="text-muted-foreground text-sm">
@@ -51,37 +51,37 @@ export default function Tokenomics() {
           <CardDescription>Multiple ways to earn $ZSOLAR tokens</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            <div className="flex gap-4 items-start p-4 rounded-lg border border-border">
+          <div className="grid gap-3">
+            <div className="flex gap-3 items-start p-3 sm:p-4 rounded-lg border border-border active:bg-muted/50 transition-ios">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-solar/20">
                 <Zap className="h-5 w-5 text-solar" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-medium text-foreground">Solar Energy Production</h3>
                 <p className="text-sm text-muted-foreground">
-                  Earn tokens based on the kWh of solar energy your system produces. More clean energy = more rewards.
+                  Earn tokens based on the kWh of solar energy your system produces.
                 </p>
               </div>
             </div>
-            <div className="flex gap-4 items-start p-4 rounded-lg border border-border">
+            <div className="flex gap-3 items-start p-3 sm:p-4 rounded-lg border border-border active:bg-muted/50 transition-ios">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-energy/20">
                 <TrendingUp className="h-5 w-5 text-energy" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-medium text-foreground">EV Charging & Miles</h3>
                 <p className="text-sm text-muted-foreground">
-                  Get rewarded for driving electric. Track your EV miles and charging to earn additional tokens.
+                  Get rewarded for driving electric. Track your EV miles and charging.
                 </p>
               </div>
             </div>
-            <div className="flex gap-4 items-start p-4 rounded-lg border border-border">
+            <div className="flex gap-3 items-start p-3 sm:p-4 rounded-lg border border-border active:bg-muted/50 transition-ios">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary/20">
                 <Users className="h-5 w-5 text-secondary" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-medium text-foreground">Social Engagement</h3>
                 <p className="text-sm text-muted-foreground">
-                  Share your clean energy journey on social media and earn bonus rewards for spreading awareness.
+                  Share your clean energy journey and earn bonus rewards.
                 </p>
               </div>
             </div>
@@ -100,22 +100,21 @@ export default function Tokenomics() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <p className="text-muted-foreground">
-              As you hit various clean energy milestones, you'll automatically receive NFTs that represent your achievements. 
-              These NFTs are minted directly to your connected MetaMask wallet.
+            <p className="text-muted-foreground text-sm">
+              As you hit various clean energy milestones, you'll automatically receive NFTs that represent your achievements.
             </p>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-primary/5 to-primary/10">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+              <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-primary/5 to-primary/10 active:scale-[0.98] transition-ios">
                 <div className="text-3xl mb-2">🌱</div>
                 <p className="font-medium text-foreground">Seedling</p>
                 <p className="text-xs text-muted-foreground">First 100 kWh produced</p>
               </div>
-              <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-secondary/5 to-secondary/10">
+              <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-secondary/5 to-secondary/10 active:scale-[0.98] transition-ios">
                 <div className="text-3xl mb-2">🌿</div>
                 <p className="font-medium text-foreground">Green Warrior</p>
                 <p className="text-xs text-muted-foreground">1,000 kWh milestone</p>
               </div>
-              <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-token/5 to-token/10">
+              <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-token/5 to-token/10 active:scale-[0.98] transition-ios">
                 <div className="text-3xl mb-2">☀️</div>
                 <p className="font-medium text-foreground">Solar Champion</p>
                 <p className="text-xs text-muted-foreground">10,000 kWh legend</p>
@@ -137,10 +136,9 @@ export default function Tokenomics() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             ZenSolar is currently in beta on the Sepolia testnet. Token distribution rates, NFT milestones, 
             and other tokenomics parameters may be adjusted based on community feedback before mainnet launch.
-            Your feedback helps shape the future of clean energy rewards!
           </p>
         </CardContent>
       </Card>

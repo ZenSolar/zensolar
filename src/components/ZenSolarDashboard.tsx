@@ -116,14 +116,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-[50vh] flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="bg-background">
+    <div className="bg-background min-h-full">
       {isDemo && <DashboardHeader isDemo={isDemo} />}
       
       <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
@@ -141,6 +141,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFTs from your clean energy use.</p>
           </div>
         </div>
+        
         <ConnectWallet
           walletAddress={profile?.wallet_address ?? null}
           onConnect={handleConnectWallet}

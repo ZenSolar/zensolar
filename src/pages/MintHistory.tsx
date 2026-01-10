@@ -155,32 +155,32 @@ export default function MintHistory() {
   const totalMinted = mintedRecords.reduce((sum, r) => sum + Number(r.tokens_earned), 0);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Minting History</h1>
-        <p className="text-muted-foreground">Track your token and NFT minting activity</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Minting History</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">Track your token and NFT minting activity</p>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Minted</CardDescription>
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <Coins className="h-5 w-5 text-primary" />
-              {totalMinted.toLocaleString()} $ZSOLAR
+            <CardTitle className="text-xl sm:text-2xl flex items-center gap-2">
+              <Coins className="h-5 w-5 text-primary shrink-0" />
+              <span className="truncate">{totalMinted.toLocaleString()} $ZSOLAR</span>
             </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Pending Rewards</CardDescription>
-            <CardTitle className="text-2xl flex items-center gap-2 text-amber-600">
-              <TrendingUp className="h-5 w-5" />
+            <CardTitle className="text-xl sm:text-2xl flex items-center gap-2 text-amber-600">
+              <TrendingUp className="h-5 w-5 shrink-0" />
               {isPendingLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                `${pendingActivity.totalTokens.toLocaleString()} $ZSOLAR`
+                <span className="truncate">{pendingActivity.totalTokens.toLocaleString()} $ZSOLAR</span>
               )}
             </CardTitle>
           </CardHeader>
@@ -194,7 +194,7 @@ export default function MintHistory() {
             <TrendingUp className="h-5 w-5 text-amber-600" />
             Pending Rewards
           </CardTitle>
-          <CardDescription>Mirrors the current Activity Data totals used to calculate rewards</CardDescription>
+          <CardDescription className="text-sm">Current activity totals used for reward calculation</CardDescription>
         </CardHeader>
         <CardContent>
           {isPendingLoading ? (
@@ -205,33 +205,33 @@ export default function MintHistory() {
             <div className="text-center py-8 text-muted-foreground">
               <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No pending rewards</p>
-              <p className="text-sm">Connect your energy accounts and use clean energy to start earning!</p>
+              <p className="text-sm">Connect your energy accounts to start earning!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
-                <Zap className="h-8 w-8 text-amber-500 mb-2" />
-                <span className="text-2xl font-bold">{pendingActivity.solarKwh.toFixed(1)}</span>
-                <span className="text-sm text-muted-foreground">Solar kWh</span>
-                <span className="text-xs text-primary">+{Math.floor(pendingActivity.solarKwh)} tokens</span>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col items-center p-3 sm:p-4 bg-muted/50 rounded-lg">
+                <Zap className="h-6 sm:h-8 w-6 sm:w-8 text-amber-500 mb-2" />
+                <span className="text-lg sm:text-2xl font-bold">{pendingActivity.solarKwh.toFixed(1)}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">Solar kWh</span>
+                <span className="text-xs text-primary">+{Math.floor(pendingActivity.solarKwh)}</span>
               </div>
-              <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
-                <Battery className="h-8 w-8 text-green-500 mb-2" />
-                <span className="text-2xl font-bold">{pendingActivity.batteryKwh.toFixed(1)}</span>
-                <span className="text-sm text-muted-foreground">Battery kWh</span>
-                <span className="text-xs text-primary">+{Math.floor(pendingActivity.batteryKwh)} tokens</span>
+              <div className="flex flex-col items-center p-3 sm:p-4 bg-muted/50 rounded-lg">
+                <Battery className="h-6 sm:h-8 w-6 sm:w-8 text-green-500 mb-2" />
+                <span className="text-lg sm:text-2xl font-bold">{pendingActivity.batteryKwh.toFixed(1)}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">Battery kWh</span>
+                <span className="text-xs text-primary">+{Math.floor(pendingActivity.batteryKwh)}</span>
               </div>
-              <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
-                <Car className="h-8 w-8 text-blue-500 mb-2" />
-                <span className="text-2xl font-bold">{pendingActivity.evMiles.toFixed(1)}</span>
-                <span className="text-sm text-muted-foreground">EV Miles</span>
-                <span className="text-xs text-primary">+{Math.floor(pendingActivity.evMiles)} tokens</span>
+              <div className="flex flex-col items-center p-3 sm:p-4 bg-muted/50 rounded-lg">
+                <Car className="h-6 sm:h-8 w-6 sm:w-8 text-blue-500 mb-2" />
+                <span className="text-lg sm:text-2xl font-bold">{pendingActivity.evMiles.toFixed(1)}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">EV Miles</span>
+                <span className="text-xs text-primary">+{Math.floor(pendingActivity.evMiles)}</span>
               </div>
-              <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
-                <PlugZap className="h-8 w-8 text-purple-500 mb-2" />
-                <span className="text-2xl font-bold">{pendingActivity.evChargingKwh.toFixed(1)}</span>
-                <span className="text-sm text-muted-foreground">EV Charging kWh</span>
-                <span className="text-xs text-primary">+{Math.floor(pendingActivity.evChargingKwh)} tokens</span>
+              <div className="flex flex-col items-center p-3 sm:p-4 bg-muted/50 rounded-lg">
+                <PlugZap className="h-6 sm:h-8 w-6 sm:w-8 text-purple-500 mb-2" />
+                <span className="text-lg sm:text-2xl font-bold">{pendingActivity.evChargingKwh.toFixed(1)}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">Charging kWh</span>
+                <span className="text-xs text-primary">+{Math.floor(pendingActivity.evChargingKwh)}</span>
               </div>
             </div>
           )}
@@ -256,39 +256,41 @@ export default function MintHistory() {
             <div className="text-center py-8 text-muted-foreground">
               <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No mints yet</p>
-              <p className="text-sm">Click 'MINT $ZSOLAR TOKENS' on the dashboard to claim your rewards!</p>
+              <p className="text-sm">Click 'MINT $ZSOLAR TOKENS' on the dashboard!</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date Minted</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mintedRecords.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getRewardTypeIcon(record.reward_type)}
-                        <span>{getRewardTypeLabel(record.reward_type)}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {record.tokens_earned.toLocaleString()} $ZSOLAR
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {record.claimed_at 
-                        ? format(new Date(record.claimed_at), 'MMM d, yyyy h:mm a')
-                        : format(new Date(record.created_at), 'MMM d, yyyy h:mm a')
-                      }
-                    </TableCell>
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead className="hidden sm:table-cell">Date Minted</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {mintedRecords.map((record) => (
+                    <TableRow key={record.id} className="touch-target">
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getRewardTypeIcon(record.reward_type)}
+                          <span className="text-sm">{getRewardTypeLabel(record.reward_type)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium text-sm">
+                        {record.tokens_earned.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm hidden sm:table-cell">
+                        {record.claimed_at 
+                          ? format(new Date(record.claimed_at), 'MMM d, yyyy')
+                          : format(new Date(record.created_at), 'MMM d, yyyy')
+                        }
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

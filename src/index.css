@@ -101,13 +101,64 @@
     @apply border-border;
   }
 
+  html {
+    /* iOS momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent pull-to-refresh in PWA */
+    overscroll-behavior-y: none;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
+    /* Prevent text selection highlighting on tap */
+    -webkit-tap-highlight-color: transparent;
+    /* Disable callout on long press */
+    -webkit-touch-callout: none;
+  }
+
+  /* Safe area support for iOS notch and home indicator */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .px-safe {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Combined safe area padding */
+  .p-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* iOS scroll container */
+  .scroll-ios {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
   }
 }
 
 @layer utilities {
   .text-gradient-solar {
     @apply bg-gradient-to-r from-[hsl(var(--solar))] via-[hsl(var(--accent))] to-[hsl(var(--secondary))] bg-clip-text text-transparent;
+  }
+
+  /* Touch-friendly tap targets (minimum 44x44) */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Smooth transitions for iOS */
+  .transition-ios {
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
   }
 }
