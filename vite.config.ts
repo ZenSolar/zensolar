@@ -14,6 +14,13 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
+      // IMPORTANT: We use a custom push Service Worker at /sw.js (public/sw.js).
+      // The PWA plugin must NOT auto-register or overwrite that file, otherwise
+      // iOS/Chrome may run a Workbox SW without a `push` handler -> Apple returns 201
+      // but no notification ever appears.
+      injectRegister: false,
+      // Generate a separate SW file so it never collides with public/sw.js
+      filename: "pwa-sw.js",
       registerType: "autoUpdate",
       includeAssets: [
         "favicon.ico",
