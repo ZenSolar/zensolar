@@ -31,7 +31,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Settings</h1>
 
       {/* Notifications */}
@@ -55,15 +55,15 @@ export default function Settings() {
           )}
           
           {/* Push Notifications */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
+          <div className="flex items-center justify-between gap-4 touch-target">
+            <div className="space-y-0.5 min-w-0 flex-1">
               <Label htmlFor="push-notifications">Push Notifications</Label>
               <p className="text-sm text-muted-foreground">
                 {getPushNotificationMessage()}
               </p>
             </div>
             {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground shrink-0" />
             ) : (
               <Switch 
                 id="push-notifications" 
@@ -74,21 +74,21 @@ export default function Settings() {
             )}
           </div>
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 touch-target">
             <div className="space-y-0.5">
               <Label htmlFor="email-notifications">Email Notifications</Label>
               <p className="text-sm text-muted-foreground">Receive updates about your earnings</p>
             </div>
             <Switch id="email-notifications" defaultChecked />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 touch-target">
             <div className="space-y-0.5">
               <Label htmlFor="milestone-alerts">Milestone Alerts</Label>
               <p className="text-sm text-muted-foreground">Get notified when you unlock NFTs</p>
             </div>
             <Switch id="milestone-alerts" defaultChecked />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 touch-target">
             <div className="space-y-0.5">
               <Label htmlFor="weekly-summary">Weekly Summary</Label>
               <p className="text-sm text-muted-foreground">Receive a weekly energy report</p>
@@ -108,14 +108,14 @@ export default function Settings() {
           <CardDescription>Control your data and visibility</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 touch-target">
             <div className="space-y-0.5">
               <Label htmlFor="public-profile">Public Profile</Label>
               <p className="text-sm text-muted-foreground">Allow others to see your achievements</p>
             </div>
             <Switch id="public-profile" />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 touch-target">
             <div className="space-y-0.5">
               <Label htmlFor="leaderboard">Show on Leaderboard</Label>
               <p className="text-sm text-muted-foreground">Appear in community rankings</p>
@@ -135,7 +135,7 @@ export default function Settings() {
           <CardDescription>Customize your experience</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 touch-target">
             <div className="space-y-0.5">
               <Label htmlFor="auto-refresh">Auto-refresh Data</Label>
               <p className="text-sm text-muted-foreground">Automatically update energy stats</p>

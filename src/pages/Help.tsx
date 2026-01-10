@@ -32,7 +32,7 @@ const faqs = [
 
 export default function Help() {
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
       <div className="text-center space-y-2">
         <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary/10 mx-auto">
           <HelpCircle className="h-6 w-6 text-primary" />
@@ -50,10 +50,10 @@ export default function Help() {
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
+                <AccordionTrigger className="text-left touch-target py-4">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+                <AccordionContent className="text-muted-foreground pb-4">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -63,7 +63,7 @@ export default function Help() {
       </Card>
 
       {/* Contact Options */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -73,7 +73,7 @@ export default function Help() {
             <CardDescription>Have a question not answered here?</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full touch-target">
               Contact Support
             </Button>
           </CardContent>
@@ -88,7 +88,7 @@ export default function Help() {
             <CardDescription>Read our detailed guides</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full touch-target">
               View Docs
               <ExternalLink className="ml-2 h-3 w-3" />
             </Button>
@@ -107,7 +107,7 @@ export default function Help() {
             As a beta tester, your feedback is invaluable. Share your thoughts on the tokenomics, 
             user experience, or any features you'd like to see.
           </p>
-          <Button>Share Feedback</Button>
+          <Button className="touch-target">Share Feedback</Button>
         </CardContent>
       </Card>
     </div>

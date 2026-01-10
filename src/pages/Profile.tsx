@@ -37,7 +37,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Profile</h1>
 
       {/* User Info Card */}
@@ -50,29 +50,29 @@ export default function Profile() {
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <CardTitle>{profile?.display_name ?? 'ZenSolar User'}</CardTitle>
-              <CardDescription className="flex items-center gap-1">
-                <Mail className="h-3 w-3" />
-                {user?.email}
+            <div className="min-w-0 flex-1">
+              <CardTitle className="truncate">{profile?.display_name ?? 'ZenSolar User'}</CardTitle>
+              <CardDescription className="flex items-center gap-1 truncate">
+                <Mail className="h-3 w-3 shrink-0" />
+                <span className="truncate">{user?.email}</span>
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-              <div>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 touch-target">
+              <Calendar className="h-5 w-5 text-muted-foreground shrink-0" />
+              <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">Member since</p>
-                <p className="text-sm font-medium">{profile?.created_at ? formatDate(profile.created_at) : 'N/A'}</p>
+                <p className="text-sm font-medium truncate">{profile?.created_at ? formatDate(profile.created_at) : 'N/A'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <Wallet className="h-5 w-5 text-muted-foreground" />
-              <div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 touch-target">
+              <Wallet className="h-5 w-5 text-muted-foreground shrink-0" />
+              <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">Wallet</p>
-                <p className="text-sm font-medium font-mono">
+                <p className="text-sm font-medium font-mono truncate">
                   {profile?.wallet_address 
                     ? `${profile.wallet_address.slice(0, 6)}...${profile.wallet_address.slice(-4)}`
                     : 'Not connected'}
@@ -90,21 +90,25 @@ export default function Profile() {
           <CardDescription>Your linked energy and social accounts</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground">Energy Providers</h4>
-            <div className="flex flex-wrap gap-2">
-              <ConnectionBadge label="Tesla" connected={profile?.tesla_connected} />
-              <ConnectionBadge label="Enphase" connected={profile?.enphase_connected} />
-              <ConnectionBadge label="SolarEdge" connected={profile?.solaredge_connected} />
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Energy Providers</h4>
+              <div className="flex flex-wrap gap-2">
+                <ConnectionBadge label="Tesla" connected={profile?.tesla_connected} />
+                <ConnectionBadge label="Enphase" connected={profile?.enphase_connected} />
+                <ConnectionBadge label="SolarEdge" connected={profile?.solaredge_connected} />
+              </div>
             </div>
             
-            <h4 className="text-sm font-medium text-muted-foreground mt-4">Social Accounts</h4>
-            <div className="flex flex-wrap gap-2">
-              <ConnectionBadge label="Facebook" connected={profile?.facebook_connected} />
-              <ConnectionBadge label="Instagram" connected={profile?.instagram_connected} />
-              <ConnectionBadge label="TikTok" connected={profile?.tiktok_connected} />
-              <ConnectionBadge label="X" connected={profile?.twitter_connected} />
-              <ConnectionBadge label="LinkedIn" connected={profile?.linkedin_connected} />
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Social Accounts</h4>
+              <div className="flex flex-wrap gap-2">
+                <ConnectionBadge label="Facebook" connected={profile?.facebook_connected} />
+                <ConnectionBadge label="Instagram" connected={profile?.instagram_connected} />
+                <ConnectionBadge label="TikTok" connected={profile?.tiktok_connected} />
+                <ConnectionBadge label="X" connected={profile?.twitter_connected} />
+                <ConnectionBadge label="LinkedIn" connected={profile?.linkedin_connected} />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -115,7 +119,7 @@ export default function Profile() {
 
 function ConnectionBadge({ label, connected }: { label: string; connected?: boolean | null }) {
   return (
-    <Badge variant={connected ? "default" : "secondary"} className="gap-1">
+    <Badge variant={connected ? "default" : "secondary"} className="gap-1 touch-target px-3 py-1.5">
       {connected ? (
         <CheckCircle2 className="h-3 w-3" />
       ) : (
