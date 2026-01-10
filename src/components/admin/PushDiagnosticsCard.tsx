@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { waitForServiceWorkerReady } from "@/lib/serviceWorker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -107,9 +108,11 @@ export default function PushDiagnosticsCard() {
         }));
 
         try {
-          const readyReg = await navigator.serviceWorker.ready;
-          const sub = await readyReg.pushManager.getSubscription();
-          subscriptionEndpoint = sub?.endpoint;
+          const readyReg = await waitForServiceWorkerReady(1500);
+          if (readyReg) {
+            const sub = await readyReg.pushManager.getSubscription();
+            subscriptionEndpoint = sub?.endpoint;
+          }
         } catch {
           // ignore
         }
@@ -192,9 +195,9 @@ export default function PushDiagnosticsCard() {
     }
 
     try {
-      const reg = await navigator.serviceWorker.ready;
-      if (!reg.active) {
-        toast.error("No active service worker");
+      const reg = await waitForServiceWorkerReady(1500);
+      if (!reg?.active) {
+        toast.error("Service worker not ready (try reopening the app)");
         return;
       }
       reg.active.postMessage({ type: "PING" });
@@ -223,7 +226,12 @@ export default function PushDiagnosticsCard() {
         return;
       }
 
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await waitForServiceWorkerReady(1500);
+      if (!reg) {
+        toast.error("Service worker not ready (try reopening the app)");
+        return;
+      }
+
       await reg.showNotification("ZenSolar Local Test", {
         body: "If you see this, iOS notifications are enabled for the app.",
         tag: "zensolar-local-test",
