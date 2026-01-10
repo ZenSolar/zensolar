@@ -10,11 +10,14 @@ export function useAdminCheck() {
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!user) {
+        console.log('[AdminCheck] No user, setting isAdmin=false');
         setIsAdmin(false);
         setIsChecking(false);
         return;
       }
 
+      console.log('[AdminCheck] Checking admin status for user:', user.id, user.email);
+      
       try {
         // Server-side admin check using the has_role RPC function
         const { data, error } = await supabase.rpc('has_role', {
@@ -22,14 +25,17 @@ export function useAdminCheck() {
           _role: 'admin'
         });
 
+        console.log('[AdminCheck] RPC result:', { data, error });
+
         if (error) {
-          console.error('Error checking admin status:', error);
+          console.error('[AdminCheck] Error checking admin status:', error);
           setIsAdmin(false);
         } else {
+          console.log('[AdminCheck] Setting isAdmin to:', data === true);
           setIsAdmin(data === true);
         }
       } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error('[AdminCheck] Exception checking admin status:', error);
         setIsAdmin(false);
       } finally {
         setIsChecking(false);
