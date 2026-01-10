@@ -121,10 +121,15 @@ async function encryptPayload(
   
   // Encrypt the payload with AES-128-GCM
   const payloadBytes = encoder.encode(payload);
-  
-  // Add padding delimiter (0x02 for final record)
-  const paddedPayload = concat(payloadBytes, new Uint8Array([2]));
-  
+
+  // RFC8291 (aes128gcm): plaintext = 2-byte padding length + padding + payload
+  // We send padLen=0 to minimize size.
+  const padLen = 0;
+  const plaintext = new Uint8Array(2 + padLen + payloadBytes.length);
+  plaintext[0] = 0;
+  plaintext[1] = padLen;
+  plaintext.set(payloadBytes, 2 + padLen);
+
   const aesKey = await crypto.subtle.importKey(
     'raw',
     toArrayBuffer(cek),
@@ -132,29 +137,71 @@ async function encryptPayload(
     false,
     ['encrypt']
   );
-  
+
   const encryptedBuffer = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv: toArrayBuffer(nonce) },
     aesKey,
-    toArrayBuffer(paddedPayload)
+    toArrayBuffer(plaintext)
   );
-  
+
   const encryptedPayload = new Uint8Array(encryptedBuffer);
-  
-  // Build aes128gcm header: salt (16) + rs (4) + idlen (1) + keyid (65)
+
+  // Build aes128gcm body: salt (16) + rs (4) + idlen (1) + keyid (65) + ciphertext
   const recordSize = new Uint8Array(4);
   new DataView(recordSize.buffer).setUint32(0, 4096, false);
-  
+
   const header = concat(
     salt,
     recordSize,
     new Uint8Array([65]),
     serverPublicKey
   );
-  
+
   const encrypted = concat(header, encryptedPayload);
-  
+
   return { encrypted, serverPublicKey, salt };
+}
+
+// Convert WebCrypto ECDSA signature to JOSE (r||s) 64-byte format.
+// WebCrypto commonly returns ASN.1 DER for ECDSA.
+function ecdsaSigToJose(sig: Uint8Array): Uint8Array {
+  if (sig.length === 64) return sig;
+
+  // DER format: 0x30 totalLen 0x02 rLen rBytes 0x02 sLen sBytes
+  let offset = 0;
+  const readByte = () => sig[offset++];
+
+  const seq = readByte();
+  if (seq !== 0x30) throw new Error('Invalid ECDSA DER signature (no sequence)');
+
+  // total length (short form is enough for ES256)
+  const seqLen = readByte();
+  if (seqLen + 2 !== sig.length) {
+    // some implementations may not match exactly; continue anyway
+  }
+
+  const int1 = readByte();
+  if (int1 !== 0x02) throw new Error('Invalid ECDSA DER signature (no r int)');
+  const rLen = readByte();
+  let r = sig.slice(offset, offset + rLen);
+  offset += rLen;
+
+  const int2 = readByte();
+  if (int2 !== 0x02) throw new Error('Invalid ECDSA DER signature (no s int)');
+  const sLen = readByte();
+  let s = sig.slice(offset, offset + sLen);
+
+  // Strip leading zeros if present
+  while (r.length > 32 && r[0] === 0x00) r = r.slice(1);
+  while (s.length > 32 && s[0] === 0x00) s = s.slice(1);
+
+  // Left pad to 32 bytes
+  const rOut = new Uint8Array(32);
+  const sOut = new Uint8Array(32);
+  rOut.set(r, 32 - r.length);
+  sOut.set(s, 32 - s.length);
+
+  return concat(rOut, sOut);
 }
 
 // Create VAPID JWT
@@ -166,7 +213,7 @@ async function createVapidJwt(
 ): Promise<string> {
   const publicKeyBytes = base64UrlDecode(publicKeyBase64);
   const privateKeyBytes = base64UrlDecode(privateKeyBase64);
-  
+
   const x = base64UrlEncode(publicKeyBytes.slice(1, 33));
   const y = base64UrlEncode(publicKeyBytes.slice(33, 65));
   const d = base64UrlEncode(privateKeyBytes);
@@ -206,22 +253,8 @@ async function createVapidJwt(
     new TextEncoder().encode(unsignedToken)
   );
 
-  // Convert DER signature to raw format (r || s, each 32 bytes)
-  const signature = new Uint8Array(signatureBuffer);
-  let r: Uint8Array, s: Uint8Array;
-  
-  if (signature.length === 64) {
-    // Already in raw format
-    r = signature.slice(0, 32);
-    s = signature.slice(32, 64);
-  } else {
-    // Parse DER format
-    r = signature.slice(0, 32);
-    s = signature.slice(32, 64);
-  }
-  
-  const rawSignature = concat(r, s);
-  const signatureB64 = base64UrlEncode(rawSignature);
+  const joseSig = ecdsaSigToJose(new Uint8Array(signatureBuffer));
+  const signatureB64 = base64UrlEncode(joseSig);
 
   return `${unsignedToken}.${signatureB64}`;
 }
