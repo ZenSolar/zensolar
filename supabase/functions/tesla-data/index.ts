@@ -209,52 +209,81 @@ Deno.serve(async (req) => {
             const endDate = new Date().toISOString().split("T")[0];
             const timezone = "America/Chicago"; // Central Time zone
 
-            // Use actual Central Time offset for RFC3339 timestamps
-            const startDateTime = `${startDate}T00:00:00-06:00`;
-            const endDateTime = `${endDate}T23:59:59-06:00`;
-
-            // Tesla API: period=day gives more granular data that we can sum for accurate lifetime totals
-            // Fetch by month over full lifetime for better data coverage
-            const historyResponse = await fetch(
-              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&period=month&time_zone=${encodeURIComponent(timezone)}`,
+            // Tesla API seems to limit results with period=month
+            // Fetch year-by-year with period=year to get actual lifetime totals
+            const startYear = parseInt(startDate.split("-")[0]);
+            const endYear = parseInt(endDate.split("-")[0]);
+            
+            console.log(`Site ${site.id} fetching history from ${startYear} to ${endYear}`);
+            
+            // First try period=lifetime which some versions of the API support
+            const lifetimeResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&period=lifetime&time_zone=${encodeURIComponent(timezone)}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
-
-            if (historyResponse.ok) {
-              const historyData = await historyResponse.json();
-              const historyResponse2 = historyData.response || {};
-              const timeSeries = historyResponse2.time_series || [];
-
-              console.log(`Site ${site.id} calendar_history months: ${timeSeries.length} periods`);
-
-              // Sum all periods for true lifetime totals
-              for (const period of timeSeries) {
-                // Solar production
-                lifetimeSolar += (period.solar_energy_exported || 0);
-                
-                // Battery discharge = total energy that left the battery
-                // battery_energy_exported matches what the Tesla app shows as "Discharged"
-                lifetimeBatteryDischarge += (period.battery_energy_exported || 0);
-              }
-
-              if (timeSeries.length > 0) {
-                console.log(`Site ${site.id} first month sample:`, JSON.stringify(timeSeries[0]));
-                console.log(`Site ${site.id} last month sample:`, JSON.stringify(timeSeries[timeSeries.length - 1]));
-              }
+            
+            if (lifetimeResponse.ok) {
+              const lifetimeData = await lifetimeResponse.json();
+              const lifetimeResp = lifetimeData.response || {};
+              const timeSeries = lifetimeResp.time_series || [];
               
-              console.log(`Site ${site.id} lifetime totals (summed):`, JSON.stringify({ 
+              if (timeSeries.length > 0) {
+                console.log(`Site ${site.id} lifetime period data:`, JSON.stringify(timeSeries[0]));
+                for (const period of timeSeries) {
+                  lifetimeSolar += (period.solar_energy_exported || 0);
+                  lifetimeBatteryDischarge += (period.battery_energy_exported || 0);
+                }
+              }
+              console.log(`Site ${site.id} lifetime totals from period=lifetime:`, JSON.stringify({ 
                 lifetimeSolar, 
-                lifetimeBatteryDischarge,
-                periodsCount: timeSeries.length 
+                lifetimeBatteryDischarge 
               }));
             } else {
-              console.error(`Failed to fetch history for site ${site.id}:`, await historyResponse.text());
+              console.log(`Site ${site.id} period=lifetime not supported, fetching year by year`);
+              
+              // Fetch each year separately to avoid API data truncation
+              for (let year = startYear; year <= endYear; year++) {
+                const yearStart = `${year}-01-01T00:00:00-06:00`;
+                const yearEnd = year === endYear 
+                  ? `${endDate}T23:59:59-06:00`
+                  : `${year}-12-31T23:59:59-06:00`;
+                
+                const historyResponse = await fetch(
+                  `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/calendar_history?kind=energy&start_date=${encodeURIComponent(yearStart)}&end_date=${encodeURIComponent(yearEnd)}&period=year&time_zone=${encodeURIComponent(timezone)}`,
+                  { headers: { "Authorization": `Bearer ${accessToken}` } }
+                );
+
+                if (historyResponse.ok) {
+                  const historyData = await historyResponse.json();
+                  const historyResp = historyData.response || {};
+                  const timeSeries = historyResp.time_series || [];
+
+                  for (const period of timeSeries) {
+                    lifetimeSolar += (period.solar_energy_exported || 0);
+                    lifetimeBatteryDischarge += (period.battery_energy_exported || 0);
+                  }
+                  
+                  if (timeSeries.length > 0) {
+                    console.log(`Site ${site.id} year ${year}:`, JSON.stringify(timeSeries[0]));
+                  }
+                } else {
+                  console.error(`Failed to fetch year ${year} for site ${site.id}:`, await historyResponse.text());
+                }
+              }
+              
+              console.log(`Site ${site.id} lifetime totals (year-by-year sum):`, JSON.stringify({ 
+                lifetimeSolar, 
+                lifetimeBatteryDischarge 
+              }));
             }
             
             // Fetch Wall Connector charging history (home EV charging)
+            // Use start and end from installation to now
+            const wcStartDateTime = `${startDate}T00:00:00-06:00`;
+            const wcEndDateTime = `${endDate}T23:59:59-06:00`;
             try {
               const wallConnectorResponse = await fetch(
-                `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/telemetry_history?kind=charge&start_date=${encodeURIComponent(startDateTime)}&end_date=${encodeURIComponent(endDateTime)}&time_zone=${encodeURIComponent(timezone)}`,
+                `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/telemetry_history?kind=charge&start_date=${encodeURIComponent(wcStartDateTime)}&end_date=${encodeURIComponent(wcEndDateTime)}&time_zone=${encodeURIComponent(timezone)}`,
                 { headers: { "Authorization": `Bearer ${accessToken}` } }
               );
               
