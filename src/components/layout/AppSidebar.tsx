@@ -6,7 +6,8 @@ import {
   User, 
   HelpCircle,
   LogOut,
-  Shield
+  Shield,
+  MessageSquarePlus
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -37,6 +38,7 @@ const secondaryNavItems = [
   { title: "Profile", url: "/profile", icon: User },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Help", url: "/help", icon: HelpCircle },
+  { title: "Feedback", url: "/feedback", icon: MessageSquarePlus },
 ];
 
 export function AppSidebar() {
