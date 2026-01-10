@@ -62,7 +62,7 @@ export default function PushDiagnosticsCard() {
   const [diag, setDiag] = useState<PushDiag | null>(null);
   const [lastPush, setLastPush] = useState<LastPushRecord | null>(null);
   const [lastPong, setLastPong] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start true for initial load
 
   const isSupported = useMemo(() => {
     return (
@@ -274,41 +274,62 @@ export default function PushDiagnosticsCard() {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={loadDiagnostics} disabled={loading}>
-            <RefreshCw className={"h-4 w-4 mr-2 " + (loading ? "animate-spin" : "")} />
+        {/* Action buttons - compact for mobile */}
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+          <Button variant="outline" size="sm" onClick={loadDiagnostics} disabled={loading}>
+            <RefreshCw className={"h-4 w-4 mr-1.5 " + (loading ? "animate-spin" : "")} />
             Refresh
           </Button>
-          <Button variant="outline" onClick={pingServiceWorker} disabled={loading}>
-            <Radio className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={pingServiceWorker} disabled={loading}>
+            <Radio className="h-4 w-4 mr-1.5" />
             Ping SW
           </Button>
-          <Button variant="outline" onClick={testLocalNotification} disabled={loading}>
-            <BellRing className="h-4 w-4 mr-2" />
-            Local notification
+          <Button variant="outline" size="sm" onClick={testLocalNotification} disabled={loading}>
+            <BellRing className="h-4 w-4 mr-1.5" />
+            Local
           </Button>
-          <Button variant="destructive" onClick={unregisterAll} disabled={loading}>
-            <Trash2 className="h-4 w-4 mr-2" />
-            Unregister SW + clear cache
+          <Button variant="destructive" size="sm" onClick={unregisterAll} disabled={loading}>
+            <Trash2 className="h-4 w-4 mr-1.5" />
+            Clear SW
           </Button>
         </div>
 
+        {/* Loading skeleton */}
+        {loading && !diag && (
+          <div className="space-y-3 animate-pulse">
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-6 w-24 bg-muted rounded-full" />
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-32 bg-muted rounded" />
+              <div className="h-4 w-full bg-muted rounded" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-40 bg-muted rounded" />
+              <div className="h-4 w-3/4 bg-muted rounded" />
+            </div>
+          </div>
+        )}
+
         {diag && (
           <div className="space-y-3 text-sm">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">permission: {diag.permission}</Badge>
-              <Badge variant="secondary">display: {diag.displayMode}</Badge>
-              <Badge variant={diag.hasServiceWorker ? "default" : "destructive"}>
-                serviceWorker: {diag.hasServiceWorker ? "yes" : "no"}
+            {/* Status badges - wrap nicely on mobile */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="secondary" className="text-xs">perm: {diag.permission}</Badge>
+              <Badge variant="secondary" className="text-xs">mode: {diag.displayMode}</Badge>
+              <Badge variant={diag.hasServiceWorker ? "default" : "destructive"} className="text-xs">
+                SW: {diag.hasServiceWorker ? "✓" : "✗"}
               </Badge>
-              <Badge variant={diag.hasPushManager ? "default" : "destructive"}>
-                pushManager: {diag.hasPushManager ? "yes" : "no"}
+              <Badge variant={diag.hasPushManager ? "default" : "destructive"} className="text-xs">
+                Push: {diag.hasPushManager ? "✓" : "✗"}
               </Badge>
-              <Badge variant={controllerOk ? "default" : "destructive"}>
-                controller: {controllerOk ? "sw.js" : "NOT sw.js"}
+              <Badge variant={controllerOk ? "default" : "destructive"} className="text-xs">
+                ctrl: {controllerOk ? "sw.js" : "✗"}
               </Badge>
-              <Badge variant={anyActiveOk ? "default" : "destructive"}>
-                registration: {anyActiveOk ? "sw.js" : "NOT sw.js"}
+              <Badge variant={anyActiveOk ? "default" : "destructive"} className="text-xs">
+                reg: {anyActiveOk ? "sw.js" : "✗"}
               </Badge>
             </div>
 

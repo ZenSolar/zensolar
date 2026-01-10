@@ -413,16 +413,18 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Page Title */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center gap-3 mb-6">
-          <img src={zenLogo} alt="ZenSolar" className="h-8" />
-          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+    <div className="min-h-screen bg-background pb-safe">
+      {/* Sticky Page Title for mobile */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center gap-3">
+            <img src={zenLogo} alt="ZenSolar" className="h-7 w-7" />
+            <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+          </div>
         </div>
       </div>
 
-      <main className="container mx-auto px-4 pb-6 space-y-6">
+      <main className="container mx-auto px-4 py-4 space-y-4">
         {/* Tesla Fleet API Registration */}
         <Card className="border-primary/20">
           <CardHeader>
