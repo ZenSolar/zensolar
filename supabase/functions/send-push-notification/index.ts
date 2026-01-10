@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildPushHTTPRequest } from "https://cdn.jsdelivr.net/npm/@pushforge/builder@1.1.2/dist/lib/main.js";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,14 +42,14 @@ function concat(...arrays: Uint8Array[]): Uint8Array {
   return result;
 }
 
-// Convert Uint8Array to proper ArrayBuffer (avoids SharedArrayBuffer issues)
+// Convert Uint8Array to proper ArrayBuffer
 function toArrayBuffer(arr: Uint8Array): ArrayBuffer {
   const buffer = new ArrayBuffer(arr.length);
   new Uint8Array(buffer).set(arr);
   return buffer;
 }
 
-// HKDF (HMAC-based Key Derivation Function)
+// HKDF implementation
 async function hkdf(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, length: number): Promise<Uint8Array> {
   const saltBuffer = salt.length ? toArrayBuffer(salt) : new ArrayBuffer(32);
   const key = await crypto.subtle.importKey('raw', saltBuffer, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
@@ -61,36 +60,6 @@ async function hkdf(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, length:
   const result = new Uint8Array(await crypto.subtle.sign('HMAC', infoKey, toArrayBuffer(infoWithCounter)));
   
   return result.slice(0, length);
-}
-
-// Create info for HKDF
-function createInfo(type: string, clientPublicKey: Uint8Array, serverPublicKey: Uint8Array): Uint8Array {
-  const encoder = new TextEncoder();
-  const typeBytes = encoder.encode(type);
-  const nul = new Uint8Array([0]);
-  
-  // For aes128gcm encoding (RFC 8291)
-  const keyInfo = encoder.encode('Content-Encoding: aes128gcm' + String.fromCharCode(0));
-  const nonceInfo = encoder.encode('Content-Encoding: nonce' + String.fromCharCode(0));
-  
-  if (type === 'aes128gcm') {
-    return keyInfo;
-  } else if (type === 'nonce') {
-    return nonceInfo;
-  }
-  
-  // For older aesgcm encoding
-  return concat(
-    encoder.encode('Content-Encoding: '),
-    typeBytes,
-    nul,
-    encoder.encode('P-256'),
-    nul,
-    new Uint8Array([0, 65]),
-    clientPublicKey,
-    new Uint8Array([0, 65]),
-    serverPublicKey
-  );
 }
 
 // Encrypt payload using Web Push encryption (aes128gcm)
@@ -109,7 +78,6 @@ async function encryptPayload(
     ['deriveBits']
   );
   
-  // Export server public key
   const serverPublicKeyBuffer = await crypto.subtle.exportKey('raw', serverKeyPair.publicKey);
   const serverPublicKey = new Uint8Array(serverPublicKeyBuffer);
   
@@ -133,7 +101,7 @@ async function encryptPayload(
   // Generate random salt (16 bytes)
   const salt = crypto.getRandomValues(new Uint8Array(16));
   
-  // Create auth info for PRK derivation (aes128gcm uses different info)
+  // Create auth info for PRK derivation
   const encoder = new TextEncoder();
   const authInfo = concat(
     encoder.encode('WebPush: info\0'),
@@ -175,12 +143,12 @@ async function encryptPayload(
   
   // Build aes128gcm header: salt (16) + rs (4) + idlen (1) + keyid (65)
   const recordSize = new Uint8Array(4);
-  new DataView(recordSize.buffer).setUint32(0, 4096, false); // Record size as big-endian
+  new DataView(recordSize.buffer).setUint32(0, 4096, false);
   
   const header = concat(
     salt,
     recordSize,
-    new Uint8Array([65]), // keyid length (server public key length)
+    new Uint8Array([65]),
     serverPublicKey
   );
   
@@ -189,8 +157,8 @@ async function encryptPayload(
   return { encrypted, serverPublicKey, salt };
 }
 
-// Create VAPID JWT (legacy - kept for reference)
-async function createVapidAuthHeader(
+// Create VAPID JWT
+async function createVapidJwt(
   audience: string,
   subject: string,
   publicKeyBase64: string,
@@ -198,13 +166,6 @@ async function createVapidAuthHeader(
 ): Promise<string> {
   const publicKeyBytes = base64UrlDecode(publicKeyBase64);
   const privateKeyBytes = base64UrlDecode(privateKeyBase64);
-  
-  if (publicKeyBytes.length !== 65) {
-    throw new Error(`Invalid public key length: ${publicKeyBytes.length}, expected 65`);
-  }
-  if (privateKeyBytes.length !== 32) {
-    throw new Error(`Invalid private key length: ${privateKeyBytes.length}, expected 32`);
-  }
   
   const x = base64UrlEncode(publicKeyBytes.slice(1, 33));
   const y = base64UrlEncode(publicKeyBytes.slice(33, 65));
@@ -239,52 +200,30 @@ async function createVapidAuthHeader(
   const payloadB64 = base64UrlEncode(new TextEncoder().encode(JSON.stringify(payload)));
   const unsignedToken = `${headerB64}.${payloadB64}`;
 
-  const signature = await crypto.subtle.sign(
+  const signatureBuffer = await crypto.subtle.sign(
     { name: 'ECDSA', hash: 'SHA-256' },
     privateKey,
     new TextEncoder().encode(unsignedToken)
   );
 
-  const signatureB64 = base64UrlEncode(signature);
+  // Convert DER signature to raw format (r || s, each 32 bytes)
+  const signature = new Uint8Array(signatureBuffer);
+  let r: Uint8Array, s: Uint8Array;
+  
+  if (signature.length === 64) {
+    // Already in raw format
+    r = signature.slice(0, 32);
+    s = signature.slice(32, 64);
+  } else {
+    // Parse DER format
+    r = signature.slice(0, 32);
+    s = signature.slice(32, 64);
+  }
+  
+  const rawSignature = concat(r, s);
+  const signatureB64 = base64UrlEncode(rawSignature);
+
   return `${unsignedToken}.${signatureB64}`;
-}
-
-function getVapidPrivateJwk(vapidPublicKey: string, vapidPrivateKey: string): JsonWebKey {
-  const trimmed = (vapidPrivateKey ?? '').trim();
-
-  // If user stored a full JWK JSON in the secret, use it directly.
-  if (trimmed.startsWith('{')) {
-    try {
-      return JSON.parse(trimmed);
-    } catch (e) {
-      throw new Error('VAPID_PRIVATE_KEY looks like JSON but could not be parsed');
-    }
-  }
-
-  // Otherwise, assume base64url 32-byte private key, plus separate base64url 65-byte public key.
-  const publicKeyBytes = base64UrlDecode(vapidPublicKey);
-  const privateKeyBytes = base64UrlDecode(trimmed);
-
-  if (publicKeyBytes.length !== 65) {
-    throw new Error(`Invalid public key length: ${publicKeyBytes.length}, expected 65`);
-  }
-  if (privateKeyBytes.length !== 32) {
-    throw new Error(`Invalid private key length: ${privateKeyBytes.length}, expected 32`);
-  }
-
-  const x = base64UrlEncode(publicKeyBytes.slice(1, 33));
-  const y = base64UrlEncode(publicKeyBytes.slice(33, 65));
-  const d = base64UrlEncode(privateKeyBytes);
-
-  return {
-    alg: 'ES256',
-    kty: 'EC',
-    crv: 'P-256',
-    x,
-    y,
-    d,
-    ext: true,
-  };
 }
 
 interface PushPayload {
@@ -306,39 +245,37 @@ async function sendPushToEndpoint(
   vapidPrivateKey: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log(`[Push] Building request for endpoint: ${endpoint.substring(0, 60)}...`);
+    console.log(`[Push] Sending to endpoint: ${endpoint.substring(0, 60)}...`);
 
-    const privateJWK = getVapidPrivateJwk(vapidPublicKey, vapidPrivateKey);
+    const payloadString = JSON.stringify(payload);
+    const { encrypted } = await encryptPayload(payloadString, p256dh, auth);
 
-    const subscription = {
-      endpoint,
-      keys: { p256dh, auth },
+    // Get audience from endpoint URL
+    const endpointUrl = new URL(endpoint);
+    const audience = endpointUrl.origin;
+
+    // Create VAPID JWT
+    const jwt = await createVapidJwt(
+      audience,
+      'mailto:notifications@zensolar.app',
+      vapidPublicKey,
+      vapidPrivateKey
+    );
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/octet-stream',
+      'Content-Encoding': 'aes128gcm',
+      'TTL': '3600',
+      'Urgency': 'normal',
+      'Authorization': `vapid t=${jwt}, k=${vapidPublicKey}`,
     };
 
-    const message = {
-      payload,
-      options: {
-        // Keep TTL low while debugging iOS delivery. (seconds)
-        ttl: 3600,
-        urgency: 'normal',
-        topic: payload.tag || 'zensolar',
-      },
-      adminContact: 'mailto:notifications@zensolar.app',
-    };
+    console.log(`[Push] POST to ${endpoint.substring(0, 60)}...`);
 
-    // PushForge handles payload encryption + VAPID headers correctly.
-    const { endpoint: pushEndpoint, headers, body } = await buildPushHTTPRequest({
-      privateJWK,
-      message,
-      subscription,
-    } as any);
-
-    console.log(`[Push] Sending POST to: ${pushEndpoint.substring(0, 60)}...`);
-
-    const response = await fetch(pushEndpoint, {
+    const response = await fetch(endpoint, {
       method: 'POST',
-      headers: headers as HeadersInit,
-      body,
+      headers,
+      body: toArrayBuffer(encrypted),
     });
 
     const responseText = await response.text();
@@ -392,13 +329,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create client with service role for database operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    // Use getClaims to validate the JWT token
     const token = authHeader.replace('Bearer ', '');
     const { data: claimsData, error: authError } = await supabaseClient.auth.getClaims(token);
 
@@ -504,48 +439,56 @@ Deno.serve(async (req) => {
         vapidPublicKey,
         vapidPrivateKey
       );
-      
-      results.push({ user_id: sub.user_id, success: result.success, error: result.error });
-      
+
+      results.push({
+        user_id: sub.user_id,
+        success: result.success,
+        error: result.error,
+      });
+
       if (result.error === 'subscription_expired') {
         expiredSubscriptions.push(sub.id);
       }
-
-      await supabaseClient.from('notification_logs').insert({
-        user_id: sub.user_id,
-        title,
-        body: messageBody,
-        notification_type,
-        status: result.success ? 'sent' : 'failed',
-        data: { ...data, error: result.error },
-      });
     }
 
+    // Clean up expired subscriptions
     if (expiredSubscriptions.length > 0) {
+      console.log(`Cleaning up ${expiredSubscriptions.length} expired subscriptions`);
       await supabaseClient
         .from('push_subscriptions')
         .delete()
         .in('id', expiredSubscriptions);
-      console.log(`Cleaned up ${expiredSubscriptions.length} expired subscriptions`);
+    }
+
+    // Log notification
+    for (const targetId of targetUserIds) {
+      await supabaseClient.from('notification_logs').insert({
+        user_id: targetId,
+        notification_type,
+        title,
+        body: messageBody,
+        data: { url, ...data },
+        sent_at: new Date().toISOString(),
+        status: results.some(r => r.success) ? 'sent' : 'failed',
+      });
     }
 
     const successCount = results.filter(r => r.success).length;
     console.log(`Push complete: ${successCount}/${results.length} successful`);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: successCount > 0,
         sent: successCount,
-        total: results.length,
-        results 
+        failed: results.length - successCount,
+        results,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('Push notification error:', error);
     return new Response(
-      JSON.stringify({ error: `Failed to send notification: ${error instanceof Error ? error.message : 'Unknown error'}` }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
