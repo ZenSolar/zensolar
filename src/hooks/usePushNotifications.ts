@@ -3,9 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
-// VAPID public key from environment
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
-
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
@@ -32,6 +29,32 @@ const isStandalone = () => {
   return window.matchMedia('(display-mode: standalone)').matches ||
     (window.navigator as any).standalone === true;
 };
+
+// Cache for VAPID public key
+let cachedVapidKey: string | null = null;
+
+async function getVapidPublicKey(): Promise<string | null> {
+  if (cachedVapidKey) return cachedVapidKey;
+  
+  try {
+    const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
+    
+    if (error) {
+      console.error('Error fetching VAPID key:', error);
+      return null;
+    }
+    
+    if (data?.publicKey) {
+      cachedVapidKey = data.publicKey;
+      return cachedVapidKey;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching VAPID key:', error);
+    return null;
+  }
+}
 
 export function usePushNotifications() {
   const { user } = useAuth();
@@ -82,7 +105,7 @@ export function usePushNotifications() {
           .select('id')
           .eq('user_id', user.id)
           .eq('endpoint', subscription.endpoint)
-          .single();
+          .maybeSingle();
         
         setIsSubscribed(!!data);
       } else {
@@ -116,14 +139,18 @@ export function usePushNotifications() {
       return false;
     }
 
-    if (!VAPID_PUBLIC_KEY) {
-      toast.error('Push notifications not configured');
-      return false;
-    }
-
     setIsLoading(true);
 
     try {
+      // Fetch VAPID public key from server
+      const vapidPublicKey = await getVapidPublicKey();
+      
+      if (!vapidPublicKey) {
+        toast.error('Push notifications not configured');
+        setIsLoading(false);
+        return false;
+      }
+
       // Request permission
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
@@ -138,7 +165,7 @@ export function usePushNotifications() {
       const registration = await registerServiceWorker();
 
       // Subscribe to push
-      const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey.buffer as ArrayBuffer
