@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,6 +43,11 @@ export default function Admin() {
   // Tesla registration state
   const [teslaRegDomain, setTeslaRegDomain] = useState('');
   const [teslaRegStatus, setTeslaRegStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  
+  // VAPID keys state
+  const [vapidKeys, setVapidKeys] = useState<{ publicKey: string; privateKey: string } | null>(null);
+  const [vapidStatus, setVapidStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [vapidMessage, setVapidMessage] = useState('');
   const [teslaRegMessage, setTeslaRegMessage] = useState('');
 
   const fetchProfiles = async () => {
@@ -191,6 +196,42 @@ export default function Admin() {
     }
   };
 
+  const handleGenerateVapidKeys = async () => {
+    setVapidStatus('loading');
+    setVapidMessage('Generating VAPID keys...');
+    setVapidKeys(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await supabase.functions.invoke('generate-vapid-keys', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error || !response.data?.success) {
+        throw new Error(response.data?.error || response.error?.message || 'Failed to generate keys');
+      }
+
+      setVapidKeys(response.data.keys);
+      setVapidStatus('success');
+      setVapidMessage('VAPID keys generated! Copy them and add as secrets.');
+      toast.success('VAPID keys generated successfully!');
+    } catch (error) {
+      console.error('VAPID generation error:', error);
+      setVapidStatus('error');
+      setVapidMessage(error instanceof Error ? error.message : 'Failed to generate keys');
+      toast.error('Failed to generate VAPID keys');
+    }
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copied to clipboard!`);
+  };
+
   const formatAddress = (address: string | null) => {
     if (!address) return '-';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -320,6 +361,96 @@ export default function Admin() {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* VAPID Key Generation */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Push Notification Keys (VAPID)</CardTitle>
+            </div>
+            <CardDescription>
+              Generate VAPID keys for web push notifications. After generating, add them as secrets in your backend.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={handleGenerateVapidKeys} 
+              disabled={vapidStatus === 'loading'}
+            >
+              {vapidStatus === 'loading' ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Key className="h-4 w-4 mr-2" />
+              )}
+              Generate VAPID Keys
+            </Button>
+            
+            {vapidMessage && (
+              <div className={`flex items-center gap-2 p-3 rounded-md ${
+                vapidStatus === 'success' ? 'bg-green-500/10 text-green-600' :
+                vapidStatus === 'error' ? 'bg-destructive/10 text-destructive' :
+                'bg-muted text-muted-foreground'
+              }`}>
+                {vapidStatus === 'success' && <CheckCircle2 className="h-4 w-4" />}
+                {vapidStatus === 'error' && <XCircle className="h-4 w-4" />}
+                {vapidStatus === 'loading' && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span className="text-sm">{vapidMessage}</span>
+              </div>
+            )}
+            
+            {vapidKeys && (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>VAPID_PUBLIC_KEY</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      readOnly 
+                      value={vapidKeys.publicKey} 
+                      className="font-mono text-xs"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => copyToClipboard(vapidKeys.publicKey, 'Public key')}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>VAPID_PRIVATE_KEY</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      readOnly 
+                      value={vapidKeys.privateKey} 
+                      className="font-mono text-xs"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => copyToClipboard(vapidKeys.privateKey, 'Private key')}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-muted/50 rounded-md">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 mt-0.5 text-amber-500" />
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Next step:</strong> Copy these keys and ask Lovable to add them as secrets named 
+                      <code className="mx-1 px-1 bg-muted rounded">VAPID_PUBLIC_KEY</code> and 
+                      <code className="mx-1 px-1 bg-muted rounded">VAPID_PRIVATE_KEY</code>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
