@@ -15,11 +15,19 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "robots.txt"],
+      includeAssets: [
+        "favicon.ico",
+        "robots.txt",
+        "apple-touch-icon.png",
+        "zs-icon-192.png",
+        "zs-icon-512.png",
+        "zs-icon-maskable-512.png",
+      ],
       manifest: {
         name: "ZenSolar",
         short_name: "ZenSolar",
-        description: "Earn blockchain rewards for sustainable energy actions. Track solar production, EV miles, and CO2 offsets.",
+        description:
+          "Earn blockchain rewards for sustainable energy actions. Track solar production, EV miles, and CO2 offsets.",
         theme_color: "#1e88e5",
         background_color: "#0f172a",
         display: "standalone",
@@ -28,24 +36,24 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         icons: [
           {
-            src: "/pwa-192x192.png",
+            src: "/zs-icon-192.png",
             sizes: "192x192",
             type: "image/png",
-            purpose: "any"
+            purpose: "any",
           },
           {
-            src: "/pwa-512x512.png",
+            src: "/zs-icon-512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any"
+            purpose: "any",
           },
           {
-            src: "/pwa-maskable-512x512.png",
+            src: "/zs-icon-maskable-512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "maskable"
-          }
-        ]
+            purpose: "maskable",
+          },
+        ],
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
