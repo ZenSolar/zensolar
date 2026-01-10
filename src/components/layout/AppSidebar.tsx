@@ -9,7 +9,7 @@ import {
   Shield,
   MessageSquarePlus
 } from "lucide-react";
-import zenLogo from "@/assets/zen-logo.png";
+import zenLogo from "@/assets/zen-icon-only.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
