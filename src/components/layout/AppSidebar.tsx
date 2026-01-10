@@ -128,6 +128,11 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Debug: Admin Status */}
+        <div className="px-4 py-2 text-xs text-muted-foreground border-t border-border">
+          Admin: {isChecking ? '⏳ checking...' : isAdmin ? '✅ yes' : '❌ no'}
+        </div>
+
         {/* Admin Navigation - Only visible to admins */}
         {isAdmin && (
           <SidebarGroup>
