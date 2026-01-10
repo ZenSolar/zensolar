@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy, ShieldX } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy, ShieldX, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,6 +46,10 @@ export default function Admin() {
   const [vapidStatus, setVapidStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [vapidMessage, setVapidMessage] = useState('');
   const [teslaRegMessage, setTeslaRegMessage] = useState('');
+  
+  // Push notification test state
+  const [pushTestStatus, setPushTestStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [pushTestMessage, setPushTestMessage] = useState('');
 
   const fetchProfiles = async () => {
     const { data, error } = await supabase
@@ -231,6 +235,48 @@ export default function Admin() {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard!`);
+  };
+
+  const handleTestPushNotification = async () => {
+    setPushTestStatus('loading');
+    setPushTestMessage('Sending test notification...');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await supabase.functions.invoke('send-push-notification', {
+        body: {
+          user_id: user?.id,
+          title: '🌞 ZenSolar Test',
+          body: 'Push notifications are working! Your solar rewards await.',
+          notification_type: 'test',
+          url: '/'
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to send notification');
+      }
+
+      const data = response.data;
+      if (data.sent > 0) {
+        setPushTestStatus('success');
+        setPushTestMessage(`Notification sent successfully to ${data.sent} device(s)!`);
+        toast.success('Test notification sent!');
+      } else {
+        setPushTestStatus('error');
+        setPushTestMessage('No push subscriptions found. Make sure notifications are enabled in the app.');
+      }
+    } catch (error) {
+      console.error('Push test error:', error);
+      setPushTestStatus('error');
+      setPushTestMessage(error instanceof Error ? error.message : 'Failed to send notification');
+      toast.error('Failed to send test notification');
+    }
   };
 
   const formatAddress = (address: string | null) => {
@@ -475,6 +521,45 @@ export default function Admin() {
                     </p>
                   </div>
                 </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Push Notification Test */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Test Push Notification</CardTitle>
+            </div>
+            <CardDescription>
+              Send a test notification to your own devices to verify push notifications are working.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={handleTestPushNotification} 
+              disabled={pushTestStatus === 'loading'}
+            >
+              {pushTestStatus === 'loading' ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Bell className="h-4 w-4 mr-2" />
+              )}
+              Send Test Notification
+            </Button>
+            
+            {pushTestMessage && (
+              <div className={`flex items-center gap-2 p-3 rounded-md ${
+                pushTestStatus === 'success' ? 'bg-green-500/10 text-green-600' :
+                pushTestStatus === 'error' ? 'bg-destructive/10 text-destructive' :
+                'bg-muted text-muted-foreground'
+              }`}>
+                {pushTestStatus === 'success' && <CheckCircle2 className="h-4 w-4" />}
+                {pushTestStatus === 'error' && <XCircle className="h-4 w-4" />}
+                {pushTestStatus === 'loading' && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span className="text-sm">{pushTestMessage}</span>
               </div>
             )}
           </CardContent>
