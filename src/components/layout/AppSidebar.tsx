@@ -63,7 +63,9 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo/Brand */}
         <div className="p-4 flex items-center gap-3">
-          <img src={zenLogo} alt="ZenSolar" className="h-10 w-10 object-contain" />
+          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-green-500/20 dark:from-primary/30 dark:to-green-500/30 flex items-center justify-center flex-shrink-0">
+            <img src={zenLogo} alt="ZenSolar" className="h-9 w-9 object-contain" />
+          </div>
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-bold text-lg text-sidebar-foreground">ZenSolar</span>
