@@ -65,21 +65,51 @@ self.addEventListener('push', (event) => {
 
   // CRITICAL: Must use event.waitUntil with showNotification for iOS
   event.waitUntil((async () => {
+    const receivedAt = Date.now();
+
     // Foreground fallback: notify any open app windows
     try {
       const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
       for (const client of clientList) {
-        client.postMessage({ type: 'PUSH_RECEIVED', payload: notificationData });
+        client.postMessage({ type: 'PUSH_RECEIVED', payload: notificationData, receivedAt });
       }
     } catch (e) {
       console.error('[SW] Error posting message to clients:', e);
     }
 
+    let shown = false;
+    let showError;
+
     try {
       await self.registration.showNotification(notificationData.title, options);
+      shown = true;
       console.log('[SW] Notification shown successfully');
     } catch (error) {
+      showError = error?.name ? `${error.name}: ${error.message || ''}` : String(error);
       console.error('[SW] Error showing notification:', error);
+    }
+
+    // Persist last push diagnostics so we can inspect later from the app UI
+    try {
+      const cache = await caches.open('zensolar-push-diag');
+      const record = {
+        at: receivedAt,
+        title: notificationData.title,
+        body: notificationData.body,
+        shown,
+        error: showError,
+        data: notificationData.data,
+      };
+      await cache.put('/__zensolar_last_push', new Response(JSON.stringify(record), {
+        headers: { 'Content-Type': 'application/json' },
+      }));
+
+      const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of clientList) {
+        client.postMessage({ type: 'PUSH_DIAG', record });
+      }
+    } catch (e) {
+      console.error('[SW] Error writing push diagnostics:', e);
     }
   })());
 });
@@ -114,4 +144,31 @@ self.addEventListener('notificationclick', (event) => {
 // Handle notification close
 self.addEventListener('notificationclose', (event) => {
   console.log('[SW] Notification closed');
+});
+
+// Diagnostics: allow the app to ping the active service worker and confirm which script is running
+self.addEventListener('message', async (event) => {
+  try {
+    if (event.data?.type !== 'PING') return;
+
+    const payload = {
+      type: 'PONG',
+      swVersion: '2',
+      scriptURL: self.location?.href,
+      at: Date.now(),
+    };
+
+    // Reply to the sender if possible, otherwise broadcast
+    if (event.source && 'postMessage' in event.source) {
+      event.source.postMessage(payload);
+      return;
+    }
+
+    const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of clientList) {
+      client.postMessage(payload);
+    }
+  } catch (e) {
+    console.error('[SW] Error handling PING:', e);
+  }
 });

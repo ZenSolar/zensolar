@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Bug, RefreshCw, Trash2 } from "lucide-react";
+import { Bug, RefreshCw, Trash2, BellRing, Radio } from "lucide-react";
 
 type SwRegistrationInfo = {
   scope: string;
@@ -23,13 +23,44 @@ type PushDiag = {
   userAgent: string;
 };
 
+type LastPushRecord = {
+  at: number;
+  title?: string;
+  body?: string;
+  shown?: boolean;
+  error?: string;
+  data?: unknown;
+};
+
 function safePrefix(str: string | undefined, n = 64) {
   if (!str) return undefined;
   return str.length <= n ? str : `${str.slice(0, n)}…`;
 }
 
+function isOurExpectedSw(scriptURL: string | undefined) {
+  if (!scriptURL) return false;
+  // Our custom push SW lives at /sw.js
+  return scriptURL.includes("/sw.js");
+}
+
+async function readLastPushFromCache(): Promise<LastPushRecord | null> {
+  if (!("caches" in window)) return null;
+  try {
+    const cache = await caches.open("zensolar-push-diag");
+    const res = await cache.match("/__zensolar_last_push");
+    if (!res) return null;
+    const json = (await res.json()) as LastPushRecord;
+    if (!json?.at) return null;
+    return json;
+  } catch {
+    return null;
+  }
+}
+
 export default function PushDiagnosticsCard() {
   const [diag, setDiag] = useState<PushDiag | null>(null);
+  const [lastPush, setLastPush] = useState<LastPushRecord | null>(null);
+  const [lastPong, setLastPong] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const isSupported = useMemo(() => {
@@ -94,6 +125,8 @@ export default function PushDiagnosticsCard() {
         displayMode,
         userAgent: navigator.userAgent,
       });
+
+      setLastPush(await readLastPushFromCache());
     } catch (e) {
       console.error("[PushDiagnostics] load failed", e);
       toast.error("Failed to load push diagnostics");
@@ -105,6 +138,26 @@ export default function PushDiagnosticsCard() {
   useEffect(() => {
     void loadDiagnostics();
   }, [loadDiagnostics]);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+
+      if (data.type === "PONG") {
+        setLastPong(data);
+      }
+
+      if (data.type === "PUSH_DIAG" && data.record) {
+        setLastPush(data.record);
+      }
+    };
+
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", onMessage);
+  }, []);
 
   const unregisterAll = useCallback(async () => {
     if (!("serviceWorker" in navigator)) {
@@ -132,6 +185,57 @@ export default function PushDiagnosticsCard() {
     }
   }, []);
 
+  const pingServiceWorker = useCallback(async () => {
+    if (!("serviceWorker" in navigator)) {
+      toast.error("Service worker not available");
+      return;
+    }
+
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if (!reg.active) {
+        toast.error("No active service worker");
+        return;
+      }
+      reg.active.postMessage({ type: "PING" });
+      toast.success("Pinged service worker");
+    } catch (e) {
+      console.error("[PushDiagnostics] ping failed", e);
+      toast.error("Failed to ping service worker");
+    }
+  }, []);
+
+  const testLocalNotification = useCallback(async () => {
+    if (!("Notification" in window)) {
+      toast.error("Notifications not supported");
+      return;
+    }
+
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") {
+        toast.error("Notification permission not granted");
+        return;
+      }
+
+      if (!("serviceWorker" in navigator)) {
+        toast.error("Service worker not available");
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification("ZenSolar Local Test", {
+        body: "If you see this, iOS notifications are enabled for the app.",
+        tag: "zensolar-local-test",
+      });
+
+      toast.success("Local notification requested");
+    } catch (e) {
+      console.error("[PushDiagnostics] local notification failed", e);
+      toast.error("Local notification failed");
+    }
+  }, []);
+
   if (!isSupported) {
     return (
       <Card>
@@ -140,13 +244,14 @@ export default function PushDiagnosticsCard() {
             <Bug className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">Push Diagnostics</CardTitle>
           </div>
-          <CardDescription>
-            Push APIs arent available in this environment.
-          </CardDescription>
+          <CardDescription>Push APIs aren't available in this environment.</CardDescription>
         </CardHeader>
       </Card>
     );
   }
+
+  const controllerOk = isOurExpectedSw(diag?.controllerScriptURL);
+  const anyActiveOk = (diag?.registrations ?? []).some((r) => isOurExpectedSw(r.activeScriptURL));
 
   return (
     <Card className="border-primary/20">
@@ -156,7 +261,7 @@ export default function PushDiagnosticsCard() {
           <CardTitle className="text-lg">Push Diagnostics</CardTitle>
         </div>
         <CardDescription>
-          Confirms which service worker is active and which push subscription this device is using.
+          Confirms which service worker is active, whether it is our custom <code>/sw.js</code>, and whether the device is actually receiving pushes.
         </CardDescription>
       </CardHeader>
 
@@ -164,7 +269,15 @@ export default function PushDiagnosticsCard() {
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={loadDiagnostics} disabled={loading}>
             <RefreshCw className={"h-4 w-4 mr-2 " + (loading ? "animate-spin" : "")} />
-            Refresh diagnostics
+            Refresh
+          </Button>
+          <Button variant="outline" onClick={pingServiceWorker} disabled={loading}>
+            <Radio className="h-4 w-4 mr-2" />
+            Ping SW
+          </Button>
+          <Button variant="outline" onClick={testLocalNotification} disabled={loading}>
+            <BellRing className="h-4 w-4 mr-2" />
+            Local notification
           </Button>
           <Button variant="destructive" onClick={unregisterAll} disabled={loading}>
             <Trash2 className="h-4 w-4 mr-2" />
@@ -183,13 +296,17 @@ export default function PushDiagnosticsCard() {
               <Badge variant={diag.hasPushManager ? "default" : "destructive"}>
                 pushManager: {diag.hasPushManager ? "yes" : "no"}
               </Badge>
+              <Badge variant={controllerOk ? "default" : "destructive"}>
+                controller: {controllerOk ? "sw.js" : "NOT sw.js"}
+              </Badge>
+              <Badge variant={anyActiveOk ? "default" : "destructive"}>
+                registration: {anyActiveOk ? "sw.js" : "NOT sw.js"}
+              </Badge>
             </div>
 
             <div className="space-y-1">
               <div className="text-muted-foreground">Controller script</div>
-              <div className="font-mono text-xs break-all">
-                {diag.controllerScriptURL ?? "(none)"}
-              </div>
+              <div className="font-mono text-xs break-all">{diag.controllerScriptURL ?? "(none)"}</div>
             </div>
 
             <div className="space-y-1">
@@ -197,6 +314,20 @@ export default function PushDiagnosticsCard() {
               <div className="font-mono text-xs break-all">
                 {diag.subscriptionEndpoint ? safePrefix(diag.subscriptionEndpoint, 120) : "(none)"}
               </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-muted-foreground">Last push received by SW</div>
+              <div className="font-mono text-xs break-all">
+                {lastPush
+                  ? `${new Date(lastPush.at).toISOString()} | shown=${String(lastPush.shown)} | ${safePrefix(lastPush.error, 160) ?? "ok"}`
+                  : "(no record yet)"}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-muted-foreground">Last SW pong</div>
+              <div className="font-mono text-xs break-all">{lastPong ? JSON.stringify(lastPong) : "(none)"}</div>
             </div>
 
             <div className="space-y-2">
