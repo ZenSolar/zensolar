@@ -517,16 +517,32 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Total EV charging:
-    // - Measured: Supercharger sessions + (optional) Wall Connector telemetry
-    // - If Wall Connector telemetry is not available (common), estimate lifetime charging from miles.
-    const measuredEvChargingKwh = totalChargingKwh + (totalHomeChargingWh / 1000);
-    const estimatedEvChargingKwh = totalEvMiles * 0.27; // kWh per mile (simple avg)
-    const totalEvChargingKwh = totalHomeChargingWh > 0
-      ? measuredEvChargingKwh
-      : Math.max(measuredEvChargingKwh, estimatedEvChargingKwh);
+    // Total EV charging calculation:
+    // Tesla API only provides Supercharger billing data, not home/third-party charger data.
+    // We estimate total charging from miles driven × efficiency, then derive home charging.
+    const EV_EFFICIENCY_KWH_PER_MILE = 0.27; // Average Tesla efficiency
+    
+    // Supercharger kWh is measured from billing history
+    const superchargerKwh = totalChargingKwh;
+    
+    // Tesla Wall Connector data (if available)
+    const teslaWallConnectorKwh = totalHomeChargingWh / 1000;
+    
+    // Estimate total lifetime charging from miles driven
+    const estimatedTotalChargingKwh = totalEvMiles * EV_EFFICIENCY_KWH_PER_MILE;
+    
+    // Home charging = Total estimated - Supercharger (includes ChargePoint, other L2 chargers)
+    // If Tesla Wall Connector data is available, use it; otherwise estimate
+    const homeChargingKwh = teslaWallConnectorKwh > 0 
+      ? teslaWallConnectorKwh 
+      : Math.max(0, estimatedTotalChargingKwh - superchargerKwh);
+    
+    // Total = Supercharger + Home (either measured or estimated)
+    const totalEvChargingKwh = superchargerKwh + homeChargingKwh;
 
     const pendingEvChargingKwh = Math.max(0, totalEvChargingKwh - baselineChargingKwh);
+    
+    console.log(`EV Charging breakdown: Supercharger=${superchargerKwh.toFixed(1)} kWh, Home (estimated)=${homeChargingKwh.toFixed(1)} kWh, Total=${totalEvChargingKwh.toFixed(1)} kWh`);
 
     return new Response(JSON.stringify({
       energy_sites: energySitesData,
@@ -537,8 +553,8 @@ Deno.serve(async (req) => {
         battery_discharge_wh: totalBatteryDischarge,
         ev_miles: totalEvMiles,
         ev_charging_kwh: totalEvChargingKwh,
-        home_charging_kwh: totalHomeChargingWh / 1000,
-        supercharger_kwh: totalChargingKwh,
+        home_charging_kwh: homeChargingKwh,
+        supercharger_kwh: superchargerKwh,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,
