@@ -193,7 +193,7 @@ Deno.serve(async (req) => {
         });
       }
       
-      return new Response(JSON.stringify({ error: "Failed to fetch systems", details: errorText }), {
+      return new Response(JSON.stringify({ error: "Failed to fetch systems. Please try again." }), {
         status: systemsResponse.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -305,8 +305,7 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error("Enphase data error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: "Failed to fetch energy data. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

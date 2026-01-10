@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
         console.error("Tesla token exchange failed:", errorText);
-        return new Response(JSON.stringify({ error: "Token exchange failed", details: errorText }), {
+        return new Response(JSON.stringify({ error: "Token exchange failed. Please try again." }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -189,8 +189,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error("Tesla auth error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

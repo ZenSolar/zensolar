@@ -39,14 +39,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check if user is admin
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("is_admin")
-      .eq("user_id", user.id)
-      .single();
+    // Check if user is admin using the has_role function
+    const { data: isAdminUser, error: adminError } = await supabaseClient.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
 
-    if (!profile?.is_admin) {
+    if (adminError || !isAdminUser) {
       return new Response(JSON.stringify({ error: "Admin access required" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -90,8 +89,7 @@ Deno.serve(async (req) => {
         const errorText = await tokenResponse.text();
         console.error("Partner token request failed:", errorText);
         return new Response(JSON.stringify({ 
-          error: "Failed to get partner token", 
-          details: errorText 
+          error: "Failed to get partner token. Please check your Tesla credentials."
         }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -153,9 +151,9 @@ Deno.serve(async (req) => {
       console.log("Registration response:", registerResponse.status, registerResult);
 
       if (!registerResponse.ok) {
+        console.error("Registration failed:", registerResult);
         return new Response(JSON.stringify({ 
-          error: "Registration failed", 
-          details: registerResult,
+          error: "Registration failed. Please check your domain and Tesla configuration.",
           status: registerResponse.status
         }), {
           status: registerResponse.status,
@@ -212,8 +210,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error("Tesla register error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

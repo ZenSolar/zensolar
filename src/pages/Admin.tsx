@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy, ShieldX } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,13 +29,9 @@ interface ProfileWithEmail {
   created_at: string;
 }
 
-// Admin user IDs - add your user ID here
-const ADMIN_USER_IDS = [
-  // Add admin user IDs here
-];
-
 export default function Admin() {
   const { user, isLoading: authLoading } = useAuth();
+  const { isAdmin, isChecking: adminChecking } = useAdminCheck();
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<ProfileWithEmail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,8 +48,6 @@ export default function Admin() {
   const [teslaRegMessage, setTeslaRegMessage] = useState('');
 
   const fetchProfiles = async () => {
-    // For now, fetch all profiles using a service role or admin access
-    // In production, you'd want to add proper admin RLS policies
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -68,16 +63,22 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (!authLoading) {
+    if (!authLoading && !adminChecking) {
       if (!user) {
         navigate('/auth');
+        return;
+      }
+      
+      if (!isAdmin) {
+        // Non-admin users should not access this page
+        setIsLoading(false);
         return;
       }
       
       setIsLoading(true);
       fetchProfiles().finally(() => setIsLoading(false));
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, adminChecking, isAdmin, navigate]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -258,10 +259,35 @@ export default function Admin() {
     return count;
   };
 
-  if (authLoading || isLoading) {
+  if (authLoading || adminChecking || isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show access denied for non-admins
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <ShieldX className="h-16 w-16 text-destructive" />
+            </div>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              You don't have permission to access the admin dashboard.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Button onClick={() => navigate('/')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
