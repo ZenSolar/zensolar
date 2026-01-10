@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { waitForServiceWorkerReady, getPushSubscription } from '@/lib/serviceWorker';
+import { waitForServiceWorkerReady } from '@/lib/serviceWorker';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { Button } from '@/components/ui/button';
@@ -243,19 +243,85 @@ export default function Admin() {
     toast.success(`${label} copied to clipboard!`);
   };
 
+  // Helper to ensure we have a valid push subscription for THIS device
+  const ensurePushSubscription = async (): Promise<string | null> => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+      throw new Error('Push notifications not supported in this browser');
+    }
+
+    // Request permission if not granted
+    if (Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        throw new Error('Notification permission denied');
+      }
+    } else if (Notification.permission === 'denied') {
+      throw new Error('Notifications blocked. Enable in browser/iOS settings.');
+    }
+
+    // Register our custom SW (idempotent if already registered)
+    const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    // Wait for it to be active
+    await navigator.serviceWorker.ready;
+
+    // Check existing subscription
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      // Fetch VAPID public key
+      const { data: vapidData, error: vapidError } = await supabase.functions.invoke('get-vapid-public-key');
+      if (vapidError || !vapidData?.publicKey) {
+        throw new Error('Push notifications not configured on server');
+      }
+
+      // Convert VAPID key
+      const padding = '='.repeat((4 - (vapidData.publicKey.length % 4)) % 4);
+      const base64 = (vapidData.publicKey + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const applicationServerKey = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        applicationServerKey[i] = rawData.charCodeAt(i);
+      }
+
+      // Subscribe
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
+      });
+    }
+
+    const subJson = subscription.toJSON();
+    if (!subJson.endpoint || !subJson.keys) {
+      throw new Error('Invalid push subscription');
+    }
+
+    // Upsert to database (ensure it's fresh)
+    const { error: dbError } = await supabase.from('push_subscriptions').upsert({
+      user_id: user?.id,
+      endpoint: subJson.endpoint,
+      p256dh: subJson.keys.p256dh,
+      auth: subJson.keys.auth,
+      platform: 'web',
+      device_info: { userAgent: navigator.userAgent, language: navigator.language },
+    }, { onConflict: 'endpoint' });
+
+    if (dbError) {
+      console.error('Failed to save subscription:', dbError);
+      // Continue anyway - the subscription exists locally
+    }
+
+    return subJson.endpoint;
+  };
+
   const handleTestPushNotification = async () => {
     setPushTestStatus('loading');
-    setPushTestMessage('Sending test notification...');
+    setPushTestMessage('Ensuring subscription...');
 
     try {
-      // Prefer targeting the *current browser's* subscription so we don't send to stale devices.
-      let currentEndpoint: string | undefined;
-      try {
-        const sub = await getPushSubscription(1500);
-        currentEndpoint = sub?.endpoint;
-      } catch {
-        // ignore (not supported / not subscribed)
-      }
+      // Ensure we have a valid, fresh subscription for THIS device
+      const currentEndpoint = await ensurePushSubscription();
+      
+      setPushTestMessage('Sending notification...');
 
       const response = await supabase.functions.invoke('send-push-notification', {
         body: {
@@ -275,21 +341,17 @@ export default function Admin() {
       const data = response.data;
       if (data.sent > 0) {
         setPushTestStatus('success');
-        setPushTestMessage(
-          currentEndpoint
-            ? 'Notification sent to this device.'
-            : `Notification sent successfully to ${data.sent} subscription(s)!`
-        );
+        setPushTestMessage('Notification sent to this device!');
         toast.success('Test notification sent!');
       } else {
         setPushTestStatus('error');
-        setPushTestMessage('No push subscription found for this device. Enable notifications in the app first.');
+        setPushTestMessage('Push sent but no matching subscription found.');
       }
     } catch (error) {
       console.error('Push test error:', error);
       setPushTestStatus('error');
       setPushTestMessage(error instanceof Error ? error.message : 'Failed to send notification');
-      toast.error('Failed to send test notification');
+      toast.error(error instanceof Error ? error.message : 'Failed to send test notification');
     }
   };
 
