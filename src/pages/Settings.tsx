@@ -11,8 +11,24 @@ export default function Settings() {
     isSubscribed, 
     isLoading, 
     permission, 
+    isIOSDevice,
+    isPWAInstalled,
     toggle 
   } = usePushNotifications();
+
+  // Generate helpful message based on device/browser state
+  const getPushNotificationMessage = () => {
+    if (isIOSDevice && !isPWAInstalled) {
+      return "Install the app to your home screen first";
+    }
+    if (!isSupported) {
+      return "Not supported in this browser";
+    }
+    if (permission === 'denied') {
+      return "Blocked by browser - enable in settings";
+    }
+    return "Receive instant alerts on your device";
+  };
 
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
@@ -28,17 +44,22 @@ export default function Settings() {
           <CardDescription>Manage how you receive updates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* iOS PWA Install Prompt */}
+          {isIOSDevice && !isPWAInstalled && (
+            <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mb-4">
+              <p className="text-sm font-medium text-primary mb-1">📱 Install App for Push Notifications</p>
+              <p className="text-xs text-muted-foreground">
+                Tap the Share button <span className="inline-block">⬆️</span> then "Add to Home Screen" to enable push notifications on iOS.
+              </p>
+            </div>
+          )}
+          
           {/* Push Notifications */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="push-notifications">Push Notifications</Label>
               <p className="text-sm text-muted-foreground">
-                {!isSupported 
-                  ? "Not supported in this browser" 
-                  : permission === 'denied'
-                  ? "Blocked by browser - enable in settings"
-                  : "Receive instant alerts on your device"
-                }
+                {getPushNotificationMessage()}
               </p>
             </div>
             {isLoading ? (
