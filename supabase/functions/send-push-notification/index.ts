@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { create } from "https://deno.land/x/djwt@v3.0.1/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,8 +7,13 @@ const corsHeaders = {
 
 // Base64 URL decode
 function base64UrlDecode(str: string): Uint8Array {
-  const padding = '='.repeat((4 - (str.length % 4)) % 4);
-  const base64 = str.replace(/-/g, '+').replace(/_/g, '/') + padding;
+  // Replace URL-safe characters with standard base64 characters
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  // Add padding if needed
+  const padding = base64.length % 4;
+  if (padding) {
+    base64 += '='.repeat(4 - padding);
+  }
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
@@ -28,16 +32,29 @@ function base64UrlEncode(input: ArrayBuffer | Uint8Array): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-// Import VAPID private key for signing
-async function importVapidPrivateKey(
+// Import VAPID keys and create JWT
+async function createVapidAuthHeader(
+  audience: string,
+  subject: string,
   publicKeyBase64: string,
   privateKeyBase64: string
-): Promise<CryptoKey> {
+): Promise<string> {
+  // Decode the raw keys
   const publicKeyBytes = base64UrlDecode(publicKeyBase64);
   const privateKeyBytes = base64UrlDecode(privateKeyBase64);
   
+  console.log(`Key sizes: public=${publicKeyBytes.length}, private=${privateKeyBytes.length}`);
+  
   // Public key is 65 bytes: 0x04 || x (32 bytes) || y (32 bytes)
   // Private key is 32 bytes: d
+  if (publicKeyBytes.length !== 65) {
+    throw new Error(`Invalid public key length: ${publicKeyBytes.length}, expected 65`);
+  }
+  if (privateKeyBytes.length !== 32) {
+    throw new Error(`Invalid private key length: ${privateKeyBytes.length}, expected 32`);
+  }
+  
+  // Create JWK for the key pair
   const x = base64UrlEncode(publicKeyBytes.slice(1, 33));
   const y = base64UrlEncode(publicKeyBytes.slice(33, 65));
   const d = base64UrlEncode(privateKeyBytes);
@@ -48,15 +65,45 @@ async function importVapidPrivateKey(
     x,
     y,
     d,
+    ext: true,
   };
 
-  return await crypto.subtle.importKey(
+  // Import the private key for signing
+  const privateKey = await crypto.subtle.importKey(
     'jwk',
     jwk,
     { name: 'ECDSA', namedCurve: 'P-256' },
     false,
     ['sign']
   );
+
+  // Create JWT header and payload
+  const header = { typ: 'JWT', alg: 'ES256' };
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    aud: audience,
+    exp: now + 12 * 60 * 60,
+    sub: subject,
+  };
+
+  const headerB64 = base64UrlEncode(new TextEncoder().encode(JSON.stringify(header)));
+  const payloadB64 = base64UrlEncode(new TextEncoder().encode(JSON.stringify(payload)));
+  const unsignedToken = `${headerB64}.${payloadB64}`;
+
+  // Sign the token using ECDSA with SHA-256
+  const signature = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' },
+    privateKey,
+    new TextEncoder().encode(unsignedToken)
+  );
+
+  // The signature is already in IEEE P1363 format (r || s, 64 bytes) which is what we need
+  const signatureB64 = base64UrlEncode(signature);
+  
+  const jwt = `${unsignedToken}.${signatureB64}`;
+  console.log(`JWT created: ${jwt.length} chars, signature: ${signatureB64.length} chars`);
+  
+  return jwt;
 }
 
 interface PushPayload {
@@ -83,27 +130,18 @@ async function sendPushToEndpoint(
     
     console.log(`Creating VAPID JWT for audience: ${audience}`);
     
-    // Import the private key
-    const privateKey = await importVapidPrivateKey(vapidPublicKey, vapidPrivateKey);
-    
-    // Create JWT using djwt library
-    const now = Math.floor(Date.now() / 1000);
-    const jwt = await create(
-      { alg: 'ES256', typ: 'JWT' },
-      {
-        aud: audience,
-        exp: now + 12 * 60 * 60,
-        sub: 'mailto:notifications@zensolar.app',
-      },
-      privateKey
+    // Create VAPID JWT
+    const jwt = await createVapidAuthHeader(
+      audience,
+      'mailto:notifications@zensolar.app',
+      vapidPublicKey,
+      vapidPrivateKey
     );
     
-    console.log(`JWT created successfully`);
-
     // Prepare payload
     const payloadJson = JSON.stringify(payload);
     
-    // VAPID authorization header format
+    // VAPID authorization header format: vapid t=<jwt>, k=<public-key>
     const authorizationHeader = `vapid t=${jwt}, k=${vapidPublicKey}`;
     
     console.log(`Sending to: ${endpoint.substring(0, 60)}...`);
