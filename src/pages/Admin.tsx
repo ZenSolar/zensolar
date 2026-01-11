@@ -246,6 +246,21 @@ export default function Admin() {
     toast.success(`${label} copied to clipboard!`);
   };
 
+  // Stable per-device id so publishing updates doesn't create endless duplicate subscriptions
+  const getOrCreateDeviceId = () => {
+    const key = 'zensolar_device_id';
+    try {
+      const existing = window.localStorage.getItem(key);
+      if (existing) return existing;
+
+      const id = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+      window.localStorage.setItem(key, id);
+      return id;
+    } catch {
+      return 'unknown-device';
+    }
+  };
+
   // Helper to ensure we have a valid push subscription for THIS device
   const ensurePushSubscription = async (): Promise<string | null> => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
@@ -261,6 +276,12 @@ export default function Admin() {
     } else if (Notification.permission === 'denied') {
       throw new Error('Notifications blocked. Enable in browser/iOS settings.');
     }
+
+    if (!user?.id) {
+      throw new Error('Not authenticated');
+    }
+
+    const deviceId = getOrCreateDeviceId();
 
     // Register our custom SW (idempotent if already registered)
     const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
@@ -300,17 +321,38 @@ export default function Admin() {
 
     // Upsert to database (ensure it's fresh)
     const { error: dbError } = await supabase.from('push_subscriptions').upsert({
-      user_id: user?.id,
+      user_id: user.id,
       endpoint: subJson.endpoint,
       p256dh: subJson.keys.p256dh,
       auth: subJson.keys.auth,
       platform: 'web',
-      device_info: { userAgent: navigator.userAgent, language: navigator.language },
+      device_info: {
+        deviceId,
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+      },
     }, { onConflict: 'endpoint' });
 
     if (dbError) {
       console.error('Failed to save subscription:', dbError);
       // Continue anyway - the subscription exists locally
+    }
+
+    // Auto-cleanup older subscriptions for this same device (common after publishes / iOS SW updates)
+    try {
+      const { error: cleanupError } = await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('platform', 'web')
+        .eq('device_info->>deviceId', deviceId)
+        .neq('endpoint', subJson.endpoint);
+
+      if (cleanupError) {
+        console.warn('Failed to cleanup old subscriptions for this device:', cleanupError);
+      }
+    } catch (e) {
+      console.warn('Subscription cleanup failed:', e);
     }
 
     return subJson.endpoint;
