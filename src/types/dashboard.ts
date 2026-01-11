@@ -11,7 +11,7 @@ export interface ActivityData {
 }
 
 export interface ConnectedAccount {
-  service: 'tesla' | 'enphase' | 'solaredge';
+  service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
   connected: boolean;
   label: string;
 }

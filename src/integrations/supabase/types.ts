@@ -257,6 +257,7 @@ export type Database = {
           twitter_handle: string | null
           updated_at: string
           user_id: string
+          wallbox_connected: boolean | null
           wallet_address: string | null
         }
         Insert: {
@@ -282,6 +283,7 @@ export type Database = {
           twitter_handle?: string | null
           updated_at?: string
           user_id: string
+          wallbox_connected?: boolean | null
           wallet_address?: string | null
         }
         Update: {
@@ -307,6 +309,7 @@ export type Database = {
           twitter_handle?: string | null
           updated_at?: string
           user_id?: string
+          wallbox_connected?: boolean | null
           wallet_address?: string | null
         }
         Relationships: [
