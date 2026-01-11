@@ -50,7 +50,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { activityData, isLoading: dataLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts } = useDashboardData();
   const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile } = useProfile();
   
-  const { pullDistance, isRefreshing, containerRef } = usePullToRefresh({
+  const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
   });
 
@@ -137,7 +137,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       
       <PullToRefreshIndicator 
         pullDistance={pullDistance} 
-        isRefreshing={isRefreshing} 
+        isRefreshing={isRefreshing}
+        isReady={isReady}
       />
       
       <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
