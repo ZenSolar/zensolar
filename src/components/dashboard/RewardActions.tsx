@@ -23,15 +23,12 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
 
   const handleMint = async (type: 'token' | 'nft') => {
     setIsMinting(true);
-    // Simulate minting delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const mockTxHash = '0x0659b521e8bc84fc802dcd688e19a380e17a50f562976b0ec493631cf5dc5882';
+    // Simulate brief loading
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     setMintDialog({
       open: true,
       type,
-      txHash: type === 'nft' ? mockTxHash : undefined,
     });
     setIsMinting(false);
   };
@@ -86,25 +83,22 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
       <Dialog open={mintDialog.open} onOpenChange={(open) => setMintDialog({ ...mintDialog, open })}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-secondary">Success</DialogTitle>
-            <DialogDescription className="pt-2">
-              {mintDialog.type === 'token' ? (
-                'Tokens minted to your MetaMask on Sepolia!'
-              ) : (
-                <>
-                  NFT minted to your MetaMask on Sepolia!
-                  {mintDialog.txHash && (
-                    <span className="mt-2 block break-all text-xs text-muted-foreground">
-                      TX: {mintDialog.txHash}
-                    </span>
-                  )}
-                </>
-              )}
+            <DialogTitle className="text-primary">🚀 Coming Soon!</DialogTitle>
+            <DialogDescription className="pt-2 space-y-2">
+              <p className="text-base">
+                {mintDialog.type === 'token' 
+                  ? 'Testnet blockchain integration for $ZSOLAR token minting is launching soon!'
+                  : 'Testnet blockchain integration for ZenSolar NFT minting is launching soon!'
+                }
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Keep earning rewards — you'll be among the first to mint when we go live! 🌟
+              </p>
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end">
             <Button onClick={() => setMintDialog({ open: false, type: null })}>
-              OK
+              Got it!
             </Button>
           </div>
         </DialogContent>

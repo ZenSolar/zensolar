@@ -49,6 +49,9 @@ export default function Referrals() {
         </p>
       </div>
 
+      {/* Share Your Code - Now at the top */}
+      <ReferralCard />
+
       {/* Stats Cards */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
@@ -93,9 +96,6 @@ export default function Referrals() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Share Your Code */}
-      <ReferralCard />
 
       {/* How It Works */}
       <Card>
