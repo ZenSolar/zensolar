@@ -5,6 +5,7 @@ interface UsePullToRefreshOptions {
   onRefresh: () => Promise<void> | void;
   threshold?: number;
   maxPull?: number;
+  activationDelay?: number;
 }
 
 interface UsePullToRefreshReturn {
@@ -12,46 +13,69 @@ interface UsePullToRefreshReturn {
   isRefreshing: boolean;
   isPulling: boolean;
   isReady: boolean;
+  isActive: boolean;
   containerRef: React.RefObject<HTMLDivElement>;
 }
 
 export function usePullToRefresh({
   onRefresh,
-  threshold = 80,
-  maxPull = 120,
+  threshold = 100,
+  maxPull = 150,
+  activationDelay = 50,
 }: UsePullToRefreshOptions): UsePullToRefreshReturn {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef(0);
+  const startTime = useRef(0);
   const currentY = useRef(0);
   const hasTriggeredThresholdHaptic = useRef(false);
+  const initialScrollTop = useRef(0);
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     const container = containerRef.current;
     if (!container || isRefreshing) return;
     
-    // Only enable pull-to-refresh when at the top of the scroll container
-    if (container.scrollTop <= 0) {
+    initialScrollTop.current = container.scrollTop;
+    
+    // Only enable pull-to-refresh when completely at the top
+    if (container.scrollTop === 0) {
       startY.current = e.touches[0].clientY;
+      startTime.current = Date.now();
       setIsPulling(true);
+      setIsActive(false);
       hasTriggeredThresholdHaptic.current = false;
     }
   }, [isRefreshing]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isPulling || isRefreshing) return;
+    const container = containerRef.current;
+    if (!isPulling || isRefreshing || !container) return;
+    
+    // If user scrolled away from top, cancel pull-to-refresh
+    if (container.scrollTop > 0) {
+      setIsPulling(false);
+      setPullDistance(0);
+      setIsReady(false);
+      setIsActive(false);
+      return;
+    }
     
     currentY.current = e.touches[0].clientY;
     const diff = currentY.current - startY.current;
+    const elapsed = Date.now() - startTime.current;
     
-    if (diff > 0) {
-      // Apply resistance effect - gets harder to pull as you go further
-      const resistance = Math.max(0.3, 0.6 - (diff / maxPull) * 0.3);
-      const distance = Math.min(diff * resistance, maxPull);
-      setPullDistance(distance);
+    // Only activate after a small delay and with downward motion
+    if (diff > 10 && elapsed > activationDelay) {
+      setIsActive(true);
+      
+      // Apply stronger resistance - requires more intentional pull
+      const resistance = Math.max(0.25, 0.5 - (diff / maxPull) * 0.25);
+      const distance = Math.min((diff - 10) * resistance, maxPull);
+      setPullDistance(Math.max(0, distance));
       
       // Track ready state and trigger haptic when crossing threshold
       const nowReady = distance >= threshold;
@@ -63,17 +87,18 @@ export function usePullToRefresh({
         }
       }
       
-      // Prevent default scrolling while pulling
+      // Prevent default scrolling while actively pulling
       if (distance > 0) {
         e.preventDefault();
       }
     }
-  }, [isPulling, isRefreshing, maxPull, threshold, isReady]);
+  }, [isPulling, isRefreshing, maxPull, threshold, isReady, activationDelay]);
 
   const handleTouchEnd = useCallback(async () => {
     if (!isPulling) return;
     
     setIsPulling(false);
+    setIsActive(false);
     
     if (pullDistance >= threshold && !isRefreshing) {
       // Strong haptic on refresh trigger
@@ -116,6 +141,7 @@ export function usePullToRefresh({
     isRefreshing,
     isPulling,
     isReady,
+    isActive,
     containerRef,
   };
 }
