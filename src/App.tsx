@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import Install from "./pages/Install";
 import Demo from "./pages/Demo";
 import Admin from "./pages/Admin";
+import AdminEvApiReference from "./pages/AdminEvApiReference";
 import Tokenomics from "./pages/Tokenomics";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -77,6 +78,16 @@ const App = () => {
                   <ProtectedRoute>
                     <AppLayout>
                       <Admin />
+                    </AppLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/ev-api-reference" 
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <AdminEvApiReference />
                     </AppLayout>
                   </ProtectedRoute>
                 } 

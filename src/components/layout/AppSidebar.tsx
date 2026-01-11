@@ -10,7 +10,8 @@ import {
   MessageSquarePlus,
   Bell,
   Users,
-  ShoppingBag
+  ShoppingBag,
+  Car
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -153,6 +154,22 @@ export function AppSidebar() {
                     >
                       <Shield className="h-4 w-4" />
                       <span>Admin Panel</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="EV API Reference">
+                    <NavLink 
+                      to="/admin/ev-api-reference"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <Car className="h-4 w-4" />
+                      <span>EV API Reference</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
