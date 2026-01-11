@@ -164,7 +164,8 @@ const Sidebar = React.forwardRef<
           }
           side={side}
         >
-          <div className="flex h-full w-full flex-col">{children}</div>
+          {/* pt-safe ensures content clears iOS notch/status bar */}
+          <div className="flex h-full w-full flex-col pt-[env(safe-area-inset-top,0px)]">{children}</div>
         </SheetContent>
       </Sheet>
     );

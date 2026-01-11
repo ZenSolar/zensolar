@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X, ChevronLeft } from "lucide-react";
 
-const TOOLTIP_STORAGE_KEY = "zen-menu-tooltip-dismissed";
+const TOOLTIP_STORAGE_KEY = "zen-menu-tooltip-dismissed-v2";
 const MENU_TRIGGER_ID = "zen-sidebar-trigger";
 
 export function MenuTooltip() {
