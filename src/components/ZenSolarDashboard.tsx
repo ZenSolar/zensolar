@@ -1,11 +1,13 @@
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { ConnectAccounts } from './dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from './dashboard/ConnectSocialAccounts';
 import { ConnectWallet } from './dashboard/ConnectWallet';
 import { ActivityMetrics } from './dashboard/ActivityMetrics';
 import { RewardActions } from './dashboard/RewardActions';
+import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { Loader2 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
 
@@ -47,6 +49,10 @@ interface ZenSolarDashboardProps {
 export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { activityData, isLoading: dataLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts } = useDashboardData();
   const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile } = useProfile();
+  
+  const { pullDistance, isRefreshing, containerRef } = usePullToRefresh({
+    onRefresh: refreshDashboard,
+  });
 
   const handleConnectWallet = async (address: string) => {
     await updateProfile({ wallet_address: address });
@@ -123,8 +129,16 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   }
 
   return (
-    <div className="bg-background min-h-full">
+    <div 
+      ref={containerRef}
+      className="bg-background min-h-full overflow-auto"
+    >
       {isDemo && <DashboardHeader isDemo={isDemo} />}
+      
+      <PullToRefreshIndicator 
+        pullDistance={pullDistance} 
+        isRefreshing={isRefreshing} 
+      />
       
       <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
         {/* Dashboard Header with Logo */}
