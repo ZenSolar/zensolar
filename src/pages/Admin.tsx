@@ -521,7 +521,7 @@ export default function Admin() {
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            <img src={zenLogo} alt="ZenSolar" className="h-7 w-7" />
+            <img src={zenLogo} alt="ZenSolar" className="h-10 w-10 rounded-lg object-cover" />
             <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
           </div>
         </div>
