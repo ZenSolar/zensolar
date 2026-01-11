@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, MessageCircle, FileText, ExternalLink } from "lucide-react";
+import { HelpCircle, MessageCircle, FileText, ExternalLink, Mail } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const faqs = [
   {
@@ -31,6 +33,21 @@ const faqs = [
 ];
 
 export default function Help() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleContactSupport = () => {
+    window.location.href = "mailto:support@zen.solar?subject=ZenSolar%20Support%20Request";
+  };
+
+  const handleViewDocs = () => {
+    window.open("https://zen.solar/docs", "_blank");
+  };
+
+  const handleShareFeedback = () => {
+    navigate("/feedback");
+  };
+
   return (
     <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
       <div className="text-center space-y-2">
@@ -73,7 +90,12 @@ export default function Help() {
             <CardDescription>Have a question not answered here?</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full touch-target">
+            <Button 
+              variant="outline" 
+              className="w-full touch-target"
+              onClick={handleContactSupport}
+            >
+              <Mail className="mr-2 h-4 w-4" />
               Contact Support
             </Button>
           </CardContent>
@@ -88,7 +110,11 @@ export default function Help() {
             <CardDescription>Read our detailed guides</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full touch-target">
+            <Button 
+              variant="outline" 
+              className="w-full touch-target"
+              onClick={handleViewDocs}
+            >
               View Docs
               <ExternalLink className="ml-2 h-3 w-3" />
             </Button>
@@ -107,7 +133,9 @@ export default function Help() {
             As a beta tester, your feedback is invaluable. Share your thoughts on the tokenomics, 
             user experience, or any features you'd like to see.
           </p>
-          <Button className="touch-target">Share Feedback</Button>
+          <Button className="touch-target" onClick={handleShareFeedback}>
+            Share Feedback
+          </Button>
         </CardContent>
       </Card>
     </div>
