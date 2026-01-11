@@ -1,9 +1,16 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet, sepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
+import {
+  metaMaskWallet,
+  coinbaseWallet,
+  walletConnectWallet,
+  trustWallet,
+  rainbowWallet,
+  phantomWallet,
+} from '@rainbow-me/rainbowkit/wallets';
 
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
-// This enables WalletConnect for mobile wallets and desktop extensions
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id';
 
 export const config = getDefaultConfig({
@@ -14,6 +21,24 @@ export const config = getDefaultConfig({
     [mainnet.id]: http(),
     [sepolia.id]: http(),
   },
+  wallets: [
+    {
+      groupName: 'Recommended',
+      wallets: [
+        metaMaskWallet,
+        coinbaseWallet,
+        trustWallet,
+      ],
+    },
+    {
+      groupName: 'Other Wallets',
+      wallets: [
+        walletConnectWallet,
+        rainbowWallet,
+        phantomWallet,
+      ],
+    },
+  ],
   ssr: false,
 });
 
