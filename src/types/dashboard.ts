@@ -5,6 +5,7 @@ export interface ActivityData {
   teslaSuperchargerKwh: number;
   homeChargerKwh: number;
   tokensEarned: number;
+  referralTokens: number;
   nftsEarned: number[];
   co2OffsetPounds: number;
 }
