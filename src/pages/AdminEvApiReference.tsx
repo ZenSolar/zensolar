@@ -284,6 +284,16 @@ const chargingNetworks: ChargingNetworkInfo[] = [
     link: 'https://new.abb.com/ev-charging',
   },
   {
+    network: 'Schneider Electric EVlink',
+    chargerTypes: 'L2 + DCFC',
+    stationsUs: 'Commercial/Fleet',
+    apiAccess: 'partner',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'EcoStruxure EV Charging Expert for load management. OCPP 1.6/2.0 compliant. External API via Schneider Exchange platform. Data access through CPO systems.',
+    link: 'https://www.se.com/ww/en/work/solutions/for-business/automotive-and-emobility/emobility.jsp',
+  },
+  {
     network: 'Powerly',
     chargerTypes: 'L2 + DCFC',
     stationsUs: 'Platform/Aggregator',
