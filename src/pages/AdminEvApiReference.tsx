@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, ArrowLeft, ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging } from 'lucide-react';
+import { Loader2, ArrowLeft, ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging, Sun, Battery } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
 
 interface EvApiInfo {
@@ -345,6 +345,267 @@ const chargingNetworks: ChargingNetworkInfo[] = [
   },
 ];
 
+interface SolarBatteryApiInfo {
+  company: string;
+  products: string;
+  category: 'inverter' | 'battery' | 'both' | 'installer';
+  apiType: string;
+  apiAccess: 'public' | 'partner' | 'none' | 'unofficial';
+  productionData: 'yes' | 'no' | 'limited' | 'n/a';
+  batteryData: 'yes' | 'no' | 'limited' | 'n/a';
+  notes: string;
+  link?: string;
+}
+
+const solarBatteryApis: SolarBatteryApiInfo[] = [
+  // Already Integrated
+  {
+    company: 'Enphase',
+    products: 'IQ Microinverters, IQ Batteries',
+    category: 'both',
+    apiType: 'Official (Enlighten API v4)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Already integrated. Device-level data for microinverters and batteries. Production, consumption, storage kWh.',
+    link: 'https://developer-v4.enphase.com/',
+  },
+  {
+    company: 'SolarEdge',
+    products: 'Inverters, StorEdge Batteries',
+    category: 'both',
+    apiType: 'Official (Monitoring API)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Already integrated. Site energy data, power flow, battery state. Modbus for local access.',
+    link: 'https://developers.solaredge.com/',
+  },
+  {
+    company: 'Tesla',
+    products: 'Powerwall, Solar Roof',
+    category: 'both',
+    apiType: 'Official (Fleet API)',
+    apiAccess: 'partner',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Already integrated. Energy endpoints for Powerwall data. Local API also available via pypowerwall.',
+    link: 'https://developer.tesla.com/docs/fleet-api/endpoints/energy',
+  },
+  // Inverter Manufacturers
+  {
+    company: 'SMA',
+    products: 'Sunny Boy, Sunny Tripower, Core1',
+    category: 'inverter',
+    apiType: 'Official (Sunny Portal API)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'limited',
+    notes: 'Developer portal with REST APIs. Rate limits apply from July 2025. On-site integration docs available.',
+    link: 'https://developer.sma.de/sma-apis',
+  },
+  {
+    company: 'Fronius',
+    products: 'Primo, Symo, Gen24',
+    category: 'inverter',
+    apiType: 'Official (Solar API JSON)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Local API on inverters + Solar.web cloud API. Real-time and historical data. Well documented.',
+    link: 'https://www.fronius.com/en/solar-energy/installers-partners/products/all-products/system-monitoring/open-interfaces/fronius-solar-api-json-',
+  },
+  {
+    company: 'Huawei',
+    products: 'SUN2000 Inverters, LUNA Batteries',
+    category: 'both',
+    apiType: 'Official (FusionSolar API)',
+    apiAccess: 'partner',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'iSolarCloud Northbound Interface. Requires partner account. Full production and storage data.',
+    link: 'https://github.com/guillaumeblanc/pyhfs',
+  },
+  {
+    company: 'GoodWe',
+    products: 'ES, EM, ET Series Inverters',
+    category: 'both',
+    apiType: 'Official (SEMS Portal API)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Public API documented by GoodWe. Regional servers available (CN, US, Global). Full monitoring data.',
+    link: 'https://community.goodwe.com/static/images/2024-08-20597794.pdf',
+  },
+  {
+    company: 'Growatt',
+    products: 'MIN, MIC, MOD Inverters',
+    category: 'both',
+    apiType: 'Official (OpenAPI)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Documented public API with regional endpoints. Plant management, metrics, settings access.',
+    link: 'https://openapi.growatt.com/',
+  },
+  {
+    company: 'Sungrow',
+    products: 'SG Inverters, SBR Batteries',
+    category: 'both',
+    apiType: 'Official (iSolarCloud API)',
+    apiAccess: 'partner',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'iSolarCloud API platform. Partner registration required. Full plant and device data.',
+    link: 'https://github.com/jsanchezdelvillar/Sungrow-API',
+  },
+  {
+    company: 'Sol-Ark',
+    products: '12K, 15K Hybrid Inverters',
+    category: 'both',
+    apiType: 'Unofficial (Modbus/SunSynk)',
+    apiAccess: 'unofficial',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Local Modbus access or via SunSynk cloud API. Community libraries available. Full system data.',
+    link: 'https://github.com/judasgutenberg/solarkmonitor',
+  },
+  // Battery Manufacturers
+  {
+    company: 'EcoFlow',
+    products: 'DELTA Pro, PowerStream, PowerOcean',
+    category: 'battery',
+    apiType: 'Official (IoT API)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Developer platform with full documentation. REST API for all products including PowerStream micro-inverter.',
+    link: 'https://developer.ecoflow.com/us/document/introduction',
+  },
+  {
+    company: 'Anker SOLIX',
+    products: 'Solarbank, F3800, SOLIX C800',
+    category: 'battery',
+    apiType: 'Unofficial (Cloud API)',
+    apiAccess: 'unofficial',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Community Python library available. Device status, schedules, power data. No official API.',
+    link: 'https://github.com/thomluther/anker-solix-api',
+  },
+  {
+    company: 'FranklinWH',
+    products: 'aPower, aGate Controller',
+    category: 'battery',
+    apiType: 'Unofficial (Cloud API)',
+    apiAccess: 'unofficial',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Community Go/Python libraries. Full system telemetry. Official integration via Texture HQ in development.',
+    link: 'https://github.com/tinkerator/benwh',
+  },
+  {
+    company: 'Sonnen',
+    products: 'sonnenBatterie, ecoLinx',
+    category: 'battery',
+    apiType: 'Official (Local API v2)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Local REST API with auth token. Full battery status, power flow, control capabilities.',
+    link: 'https://jlunz.github.io/homeassistant/',
+  },
+  {
+    company: 'Generac',
+    products: 'PWRcell, PWRcell 2',
+    category: 'battery',
+    apiType: 'Unofficial (PWRview/SunSpec)',
+    apiAccess: 'unofficial',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Local SunSpec Modbus access. PWRview cloud via reverse-engineering. No official public API.',
+    link: 'https://github.com/edalquist/pwrcell_sunspec',
+  },
+  {
+    company: 'Bluetti',
+    products: 'AC200, EP500, EP600',
+    category: 'battery',
+    apiType: 'Official (Bluetooth) + Unofficial',
+    apiAccess: 'unofficial',
+    productionData: 'limited',
+    batteryData: 'yes',
+    notes: 'Official Bluetooth library. MQTT interface for local monitoring. Home Assistant integration available.',
+    link: 'https://github.com/bluetti-official/bluetti-home-assistant',
+  },
+  {
+    company: 'Panasonic',
+    products: 'EverVolt Battery System',
+    category: 'battery',
+    apiType: 'None',
+    apiAccess: 'none',
+    productionData: 'no',
+    batteryData: 'no',
+    notes: 'App-only monitoring. No known public or unofficial API. Data locked in EverVolt app.',
+    link: 'https://na.panasonic.com/us/energy-solutions/battery-storage/evervolt-battery-storage-system',
+  },
+  {
+    company: 'LG Energy (RESU)',
+    products: 'RESU 10H, RESU 16H Prime',
+    category: 'battery',
+    apiType: 'None (via inverter)',
+    apiAccess: 'none',
+    productionData: 'n/a',
+    batteryData: 'limited',
+    notes: 'No direct API. Battery data accessed via connected inverter (SolarEdge, SMA, etc.).',
+    link: 'https://www.lgessbattery.com/',
+  },
+  // Solar Installers
+  {
+    company: 'Sunrun',
+    products: 'Brightbox, Solar Systems',
+    category: 'installer',
+    apiType: 'Official (Customer OnDemand)',
+    apiAccess: 'partner',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Customer API for telemetry data. Requires API key onboarding. OpenAPI spec available.',
+    link: 'https://docs.customer-api.sunrun.com/',
+  },
+  {
+    company: 'SunPower (Maxeon)',
+    products: 'Equinox, SunVault',
+    category: 'installer',
+    apiType: 'Official (ONE API)',
+    apiAccess: 'partner',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'SunPower ONE API released 2024. Requires partner agreement. PVS local access also available.',
+    link: 'https://github.com/smcneece/ha-esunpower',
+  },
+  {
+    company: 'Palmetto',
+    products: 'Solar + Storage Systems',
+    category: 'installer',
+    apiType: 'Official (Energy Intelligence API)',
+    apiAccess: 'public',
+    productionData: 'yes',
+    batteryData: 'yes',
+    notes: 'Open developer API. Full energy profiles, production estimates, consumption data. Sandbox available.',
+    link: 'https://ei.docs.palmetto.com/',
+  },
+  {
+    company: 'Vivint Solar (now Sunrun)',
+    products: 'Solar Systems',
+    category: 'installer',
+    apiType: 'Unofficial',
+    apiAccess: 'unofficial',
+    productionData: 'limited',
+    batteryData: 'n/a',
+    notes: 'Legacy systems. Community extraction tools. Being migrated to Sunrun platform.',
+    link: 'https://github.com/abjordan/SolarMon',
+  },
+];
+
 interface SmartcarFeature {
   feature: string;
   allBrands: boolean;
@@ -428,14 +689,18 @@ export default function AdminEvApiReference() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
             <img src={zenLogo} alt="ZenSolar" className="h-7 w-7" />
-            <h1 className="text-xl font-bold text-foreground">EV & Charging API Reference</h1>
+            <h1 className="text-xl font-bold text-foreground">Energy & EV API Reference</h1>
           </div>
         </div>
       </div>
 
       <main className="container mx-auto px-4 py-6 space-y-8">
-        <Tabs defaultValue="manufacturers" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <Tabs defaultValue="solar" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 max-w-2xl">
+            <TabsTrigger value="solar" className="flex items-center gap-2">
+              <Sun className="h-4 w-4" />
+              Solar & Battery
+            </TabsTrigger>
             <TabsTrigger value="manufacturers" className="flex items-center gap-2">
               <Car className="h-4 w-4" />
               EV Manufacturers
@@ -445,6 +710,144 @@ export default function AdminEvApiReference() {
               Charging Networks
             </TabsTrigger>
           </TabsList>
+
+          {/* Solar & Battery Tab */}
+          <TabsContent value="solar" className="space-y-8 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sun className="h-5 w-5" />
+                  Solar Inverter & Battery API Comparison
+                </CardTitle>
+                <CardDescription>
+                  Reference guide for integrating with solar inverters, home batteries, and solar installer platforms.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Company</TableHead>
+                        <TableHead>Products</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>API Access</TableHead>
+                        <TableHead className="text-center">Production</TableHead>
+                        <TableHead className="text-center">Battery</TableHead>
+                        <TableHead>Notes</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {solarBatteryApis.map((api) => (
+                        <TableRow key={api.company}>
+                          <TableCell className="font-medium">{api.company}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground max-w-[150px]">{api.products}</TableCell>
+                          <TableCell>
+                            <Badge variant={
+                              api.category === 'both' ? 'default' : 
+                              api.category === 'inverter' ? 'secondary' : 
+                              api.category === 'battery' ? 'outline' : 'destructive'
+                            }>
+                              {api.category === 'both' ? 'Inverter + Battery' : 
+                               api.category === 'inverter' ? 'Inverter' : 
+                               api.category === 'battery' ? 'Battery' : 'Installer'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <ApiAccessBadge access={api.apiAccess} />
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {api.productionData === 'n/a' ? (
+                              <span className="text-muted-foreground">-</span>
+                            ) : (
+                              <StatusIcon status={api.productionData} />
+                            )}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {api.batteryData === 'n/a' ? (
+                              <span className="text-muted-foreground">-</span>
+                            ) : (
+                              <StatusIcon status={api.batteryData} />
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm max-w-xs">{api.notes}</TableCell>
+                          <TableCell>
+                            {api.link && (
+                              <Button variant="ghost" size="sm" asChild>
+                                <a href={api.link} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Solar/Battery Recommendations */}
+            <Card className="border-primary/50 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  Good Fit for ZenSolar App
+                </CardTitle>
+                <CardDescription>
+                  APIs recommended for integration based on market share, data quality, and ease of access
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg border bg-background">
+                    <h4 className="font-medium text-green-600 dark:text-green-400 mb-2">✅ Highly Recommended</h4>
+                    <ul className="text-sm space-y-2">
+                      <li><strong>SMA</strong> - Official developer portal, public REST APIs, huge installed base. Well documented.</li>
+                      <li><strong>Fronius</strong> - Excellent local + cloud APIs. Strong in residential/commercial. Great docs.</li>
+                      <li><strong>EcoFlow</strong> - Official IoT developer platform. Growing rapidly in portable/home storage.</li>
+                      <li><strong>GoodWe</strong> - Public API with good documentation. Popular in Europe and growing in US.</li>
+                      <li><strong>Growatt</strong> - Documented public OpenAPI. Regional servers. Budget-friendly installs.</li>
+                      <li><strong>Palmetto</strong> - Open developer API with sandbox. Great for installer integration.</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 rounded-lg border bg-background">
+                    <h4 className="font-medium text-yellow-600 dark:text-yellow-400 mb-2">⚠️ Worth Exploring</h4>
+                    <ul className="text-sm space-y-2">
+                      <li><strong>Huawei FusionSolar</strong> - Partner API. Huge global market share but requires onboarding.</li>
+                      <li><strong>Sungrow</strong> - iSolarCloud API. Major manufacturer, partner access required.</li>
+                      <li><strong>Sonnen</strong> - Local API v2 is well documented. Premium battery market.</li>
+                      <li><strong>Anker SOLIX</strong> - Unofficial but stable community API. Growing balcony solar market.</li>
+                      <li><strong>FranklinWH</strong> - Community libraries available. Growing premium battery market.</li>
+                      <li><strong>Sunrun</strong> - Customer OnDemand API. Largest US residential installer.</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="p-4 rounded-lg border bg-background">
+                  <h4 className="font-medium text-red-600 dark:text-red-400 mb-2">❌ Not Recommended (Currently)</h4>
+                  <ul className="text-sm space-y-2">
+                    <li><strong>Panasonic EverVolt</strong> - No API. Data locked in proprietary app.</li>
+                    <li><strong>LG RESU</strong> - No direct API. Must access via connected inverter.</li>
+                    <li><strong>Generac PWRcell</strong> - No official API. Reverse-engineering required.</li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50 border">
+                  <h4 className="font-medium mb-2">📋 Strategic Recommendation</h4>
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Priority 1:</strong> Add <strong>SMA</strong> and <strong>Fronius</strong> - they cover a significant portion of the residential solar market and have excellent public APIs.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <strong>Priority 2:</strong> Add <strong>EcoFlow</strong> for the growing portable/home battery market, and <strong>GoodWe/Growatt</strong> for budget-conscious installations.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <strong>Priority 3:</strong> Pursue partner agreements with <strong>Huawei</strong> and <strong>Sungrow</strong> for international expansion, and <strong>Sunrun</strong> for US market coverage.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* EV Manufacturers Tab */}
           <TabsContent value="manufacturers" className="space-y-8 mt-6">
