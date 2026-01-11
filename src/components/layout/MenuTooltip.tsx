@@ -31,7 +31,7 @@ export function MenuTooltip() {
       <div className="absolute -left-2 top-3 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-primary" />
       
       {/* Tooltip bubble */}
-      <div className="bg-primary text-primary-foreground px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 max-w-[180px]">
+      <div className="bg-primary text-primary-foreground px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 max-w-[180px] animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
         <span className="text-sm font-medium">Tap here for menu</span>
         <button
           onClick={handleDismiss}
