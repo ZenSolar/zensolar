@@ -1,8 +1,8 @@
-import { Button } from '@/components/ui/button';
-import { Wallet, Check, Loader2, LogOut } from 'lucide-react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { Wallet } from 'lucide-react';
 
 interface ConnectWalletProps {
   walletAddress: string | null;
@@ -11,9 +11,7 @@ interface ConnectWalletProps {
 }
 
 export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: ConnectWalletProps) {
-  const { address, isConnected, isConnecting } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { address, isConnected } = useAccount();
 
   // Sync wallet address to profile when connected
   useEffect(() => {
@@ -26,59 +24,17 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
     }
   }, [isConnected, address, walletAddress, onConnect]);
 
-  const handleConnect = (connectorIndex: number) => {
-    if (isDemo) {
-      toast.info('Wallet connection is disabled in demo mode');
-      return;
-    }
-    
-    const connector = connectors[connectorIndex];
-    if (connector) {
-      connect({ connector }, {
-        onError: (error) => {
-          console.error('Wallet connection error:', error);
-          if (error.message.includes('rejected')) {
-            toast.error('Connection rejected. Please approve in your wallet.');
-          } else {
-            toast.error('Failed to connect wallet. Please try again.');
-          }
-        }
-      });
-    }
-  };
-
-  const handleDisconnect = () => {
-    disconnect();
-    toast.info('Wallet disconnected');
-  };
-
-  const formatAddress = (addr: string) => {
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
-
-  const isLoading = isConnecting || isPending;
-
-  if (isConnected && address) {
+  if (isDemo) {
     return (
-      <div className="rounded-lg border border-secondary bg-secondary/10 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/20">
-              <Check className="h-5 w-5 text-secondary" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">Wallet Connected</p>
-              <p className="text-xs text-muted-foreground font-mono">{formatAddress(address)}</p>
-            </div>
+      <div className="rounded-lg border border-border bg-card p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+            <Wallet className="h-5 w-5 text-primary" />
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDisconnect}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <div>
+            <p className="text-sm font-medium text-foreground">Connect Wallet</p>
+            <p className="text-xs text-muted-foreground">Disabled in demo mode</p>
+          </div>
         </div>
       </div>
     );
@@ -92,32 +48,103 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
         </div>
         <div>
           <p className="text-sm font-medium text-foreground">Connect Wallet</p>
-          <p className="text-xs text-muted-foreground">Link your wallet to earn rewards</p>
+          <p className="text-xs text-muted-foreground">
+            {isConnected ? 'Manage your wallet connection' : 'Link your wallet to earn rewards'}
+          </p>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        {connectors.map((connector, index) => (
-          <Button
-            key={connector.uid}
-            onClick={() => handleConnect(index)}
-            disabled={isLoading}
-            className="w-full"
-            variant={index === 0 ? "default" : "outline"}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Connecting...
-              </>
-            ) : (
-              <>
-                <Wallet className="mr-2 h-4 w-4" />
-                {connector.name}
-              </>
-            )}
-          </Button>
-        ))}
-      </div>
+      
+      {/* RainbowKit's ConnectButton handles everything */}
+      <ConnectButton.Custom>
+        {({
+          account,
+          chain,
+          openAccountModal,
+          openChainModal,
+          openConnectModal,
+          mounted,
+        }) => {
+          const ready = mounted;
+          const connected = ready && account && chain;
+
+          return (
+            <div
+              {...(!ready && {
+                'aria-hidden': true,
+                style: {
+                  opacity: 0,
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                },
+              })}
+            >
+              {(() => {
+                if (!connected) {
+                  return (
+                    <button
+                      onClick={openConnectModal}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      <Wallet className="h-4 w-4" />
+                      Connect Wallet
+                    </button>
+                  );
+                }
+
+                if (chain.unsupported) {
+                  return (
+                    <button
+                      onClick={openChainModal}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors"
+                    >
+                      Wrong Network - Click to Switch
+                    </button>
+                  );
+                }
+
+                return (
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={openChainModal}
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary/50 rounded-lg text-sm hover:bg-secondary/70 transition-colors"
+                    >
+                      {chain.hasIcon && chain.iconUrl && (
+                        <img
+                          alt={chain.name ?? 'Chain icon'}
+                          src={chain.iconUrl}
+                          className="h-4 w-4 rounded-full"
+                        />
+                      )}
+                      {chain.name}
+                    </button>
+                    <button
+                      onClick={openAccountModal}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors"
+                    >
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
+                        ✓
+                      </div>
+                      {account.displayName}
+                      {account.displayBalance && (
+                        <span className="text-muted-foreground text-sm">
+                          ({account.displayBalance})
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          );
+        }}
+      </ConnectButton.Custom>
+
+      {/* Wallet recommendation */}
+      {!isConnected && (
+        <p className="mt-3 text-xs text-muted-foreground text-center">
+          💡 <strong>Recommended:</strong> MetaMask for best testnet support
+        </p>
+      )}
     </div>
   );
 }

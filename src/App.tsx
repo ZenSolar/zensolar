@@ -2,11 +2,9 @@ import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { WagmiProvider } from 'wagmi';
-import { config } from '@/lib/wagmi';
+import { Web3Provider } from "@/components/providers/Web3Provider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -34,8 +32,6 @@ import Notifications from "./pages/Notifications";
 import Referrals from "./pages/Referrals";
 import Store from "./pages/Store";
 
-const queryClient = new QueryClient();
-
 const App = () => {
   // Foreground fallback: if a push arrives while the app is open, show an in-app toast.
   useEffect(() => {
@@ -57,165 +53,162 @@ const App = () => {
   }, []);
 
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TooltipProvider>
-            <ErrorBoundary>
-              <BotProtection blockBots>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/auth" element={<Auth />} />
-                <Route path="/install" element={<Install />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/oauth/callback" element={<OAuthCallback />} />
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Admin />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/ev-api-reference" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <AdminEvApiReference />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Index />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/tokenomics" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Tokenomics />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Profile />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/settings" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Settings />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/help" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Help />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/mint-history" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <MintHistory />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/notifications" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Notifications />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/referrals" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Referrals />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/about" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <About />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/feedback" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Feedback />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/store" 
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Store />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } 
-              />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </BrowserRouter>
-              </BotProtection>
-            </ErrorBoundary>
-          </TooltipProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <Web3Provider>
+        <TooltipProvider>
+          <ErrorBoundary>
+            <BotProtection blockBots>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="/demo" element={<Demo />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/oauth/callback" element={<OAuthCallback />} />
+                  <Route 
+                    path="/admin" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Admin />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/ev-api-reference" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <AdminEvApiReference />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Index />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/tokenomics" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Tokenomics />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/profile" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Profile />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/settings" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Settings />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/help" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Help />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/mint-history" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <MintHistory />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/notifications" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Notifications />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/referrals" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Referrals />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/about" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <About />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/feedback" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Feedback />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/store" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Store />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </BotProtection>
+          </ErrorBoundary>
+        </TooltipProvider>
+      </Web3Provider>
+    </ThemeProvider>
   );
 };
 
 export default App;
-
