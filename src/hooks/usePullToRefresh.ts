@@ -55,12 +55,20 @@ export function usePullToRefresh({
     }
   }, [isPulling, isRefreshing, maxPull]);
 
+  const triggerHaptic = useCallback(() => {
+    // Vibration API for haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(15);
+    }
+  }, []);
+
   const handleTouchEnd = useCallback(async () => {
     if (!isPulling) return;
     
     setIsPulling(false);
     
     if (pullDistance >= threshold && !isRefreshing) {
+      triggerHaptic();
       setIsRefreshing(true);
       try {
         await onRefresh();
