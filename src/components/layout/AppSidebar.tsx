@@ -69,8 +69,8 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        {/* Logo/Brand */}
-        <div className="p-4 flex items-center gap-3">
+        {/* Logo/Brand - pt-safe pushes content below iOS notch/status bar */}
+        <div className="p-4 pt-safe flex items-center gap-3">
           <img src={zenLogo} alt="ZenSolar" className="h-14 w-14 rounded-xl object-cover flex-shrink-0" />
           {!collapsed && (
             <div className="flex flex-col">
