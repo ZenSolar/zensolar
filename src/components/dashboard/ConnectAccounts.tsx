@@ -3,6 +3,7 @@ import { ConnectedAccount } from '@/types/dashboard';
 import { ConnectAccountButton } from './ConnectAccountButton';
 import { EnphaseCodeDialog } from './EnphaseCodeDialog';
 import { SolarEdgeConnectDialog } from './SolarEdgeConnectDialog';
+import { WallboxConnectDialog } from './WallboxConnectDialog';
 import { DeviceSelectionDialog } from './DeviceSelectionDialog';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,9 +16,10 @@ interface ConnectAccountsProps {
 }
 
 export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAccountsProps) {
-  const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge } = useEnergyOAuth();
+  const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge, connectWallbox } = useEnergyOAuth();
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
   const [solarEdgeDialogOpen, setSolarEdgeDialogOpen] = useState(false);
+  const [wallboxDialogOpen, setWallboxDialogOpen] = useState(false);
   const [deviceSelectionOpen, setDeviceSelectionOpen] = useState(false);
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
 
@@ -31,6 +33,8 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
       }
     } else if (service === 'solaredge') {
       setSolarEdgeDialogOpen(true);
+    } else if (service === 'wallbox') {
+      setWallboxDialogOpen(true);
     } else {
       toast.info('Integration coming soon!');
       onConnect(service);
@@ -87,6 +91,14 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
     const success = await connectSolarEdge(apiKey, siteId);
     if (success) {
       onConnect('solaredge');
+    }
+    return success;
+  };
+
+  const handleWallboxSubmit = async (email: string, password: string): Promise<boolean> => {
+    const success = await connectWallbox(email, password);
+    if (success) {
+      onConnect('wallbox');
     }
     return success;
   };
@@ -153,6 +165,12 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
         open={solarEdgeDialogOpen}
         onOpenChange={setSolarEdgeDialogOpen}
         onSubmit={handleSolarEdgeSubmit}
+      />
+
+      <WallboxConnectDialog
+        open={wallboxDialogOpen}
+        onOpenChange={setWallboxDialogOpen}
+        onSubmit={handleWallboxSubmit}
       />
 
       <DeviceSelectionDialog

@@ -19,6 +19,7 @@ interface ProfileConnections {
   tesla_connected: boolean;
   enphase_connected: boolean;
   solaredge_connected: boolean;
+  wallbox_connected: boolean;
 }
 
 export function useDashboardData() {
@@ -27,6 +28,7 @@ export function useDashboardData() {
     { service: 'tesla', connected: false, label: 'Tesla' },
     { service: 'enphase', connected: false, label: 'Enphase' },
     { service: 'solaredge', connected: false, label: 'SolarEdge' },
+    { service: 'wallbox', connected: false, label: 'Wallbox' },
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(null);
@@ -42,7 +44,7 @@ export function useDashboardData() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('tesla_connected, enphase_connected, solaredge_connected')
+        .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
         .eq('user_id', user.id)
         .single();
 
@@ -52,6 +54,7 @@ export function useDashboardData() {
           { service: 'tesla', connected: profile.tesla_connected || false, label: 'Tesla' },
           { service: 'enphase', connected: profile.enphase_connected || false, label: 'Enphase' },
           { service: 'solaredge', connected: profile.solaredge_connected || false, label: 'SolarEdge' },
+          { service: 'wallbox', connected: profile.wallbox_connected || false, label: 'Wallbox' },
         ]);
       }
       setIsLoading(false);
@@ -139,6 +142,31 @@ export function useDashboardData() {
     }
   }, []);
 
+  const fetchWallboxData = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
+      const response = await supabase.functions.invoke('wallbox-data', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        console.error('Wallbox data error:', response.error);
+        const errorMessage = response.error.message || '';
+        if (errorMessage.includes('needsReauth') || errorMessage.includes('Token expired')) {
+          toast.error('Wallbox connection expired. Please reconnect your account.');
+        }
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch Wallbox data:', error);
+      return null;
+    }
+  }, []);
+
   const fetchRewardsData = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -193,10 +221,11 @@ export function useDashboardData() {
       let homeChargerKwh = 0;
 
       // Fetch data in parallel
-      const [enphaseData, solarEdgeData, teslaData, rewardsData, referralTokens] = await Promise.all([
+      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens] = await Promise.all([
         profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         profileConnections?.tesla_connected ? fetchTeslaData() : null,
+        profileConnections?.wallbox_connected ? fetchWallboxData() : null,
         fetchRewardsData(),
         fetchReferralTokens(),
       ]);
@@ -235,6 +264,12 @@ export function useDashboardData() {
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
       }
 
+      // Process Wallbox data - home charger kWh
+      if (wallboxData?.totals) {
+        homeChargerKwh += wallboxData.totals.home_charger_kwh || 0;
+        console.log('Wallbox data:', { homeChargerKwh: wallboxData.totals.home_charger_kwh });
+      }
+
       // Tokens are awarded per whole unit
       const tokensEarned =
         Math.floor(evMiles) +
@@ -271,14 +306,14 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchRewardsData, fetchReferralTokens]);
+  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens]);
 
   // Auto-refresh when connections change
   useEffect(() => {
-    if (profileConnections?.enphase_connected || profileConnections?.solaredge_connected || profileConnections?.tesla_connected) {
+    if (profileConnections?.enphase_connected || profileConnections?.solaredge_connected || profileConnections?.tesla_connected || profileConnections?.wallbox_connected) {
       refreshDashboard();
     }
-  }, [profileConnections?.enphase_connected, profileConnections?.solaredge_connected, profileConnections?.tesla_connected, refreshDashboard]);
+  }, [profileConnections?.enphase_connected, profileConnections?.solaredge_connected, profileConnections?.tesla_connected, profileConnections?.wallbox_connected, refreshDashboard]);
 
   const connectAccount = useCallback((service: ConnectedAccount['service']) => {
     setConnectedAccounts(prev => 

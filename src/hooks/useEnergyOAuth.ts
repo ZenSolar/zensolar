@@ -158,11 +158,49 @@ export function useEnergyOAuth() {
     }
   }, []);
 
+  const connectWallbox = useCallback(async (email: string, password: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please log in first');
+        return false;
+      }
+
+      const response = await supabase.functions.invoke('wallbox-auth', {
+        body: { 
+          action: 'authenticate',
+          email,
+          password,
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        const errorMessage = response.error.message || 'Failed to connect Wallbox';
+        toast.error(errorMessage);
+        return false;
+      }
+
+      if (response.data?.error) {
+        toast.error(response.data.error);
+        return false;
+      }
+
+      toast.success('Wallbox account connected successfully!');
+      return true;
+    } catch (error) {
+      console.error('Wallbox connection error:', error);
+      toast.error('Failed to connect Wallbox account');
+      return false;
+    }
+  }, []);
+
   return {
     startTeslaOAuth,
     startEnphaseOAuth,
     exchangeTeslaCode,
     exchangeEnphaseCode,
     connectSolarEdge,
+    connectWallbox,
   };
 }
