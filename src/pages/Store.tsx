@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { calculateCO2Offset } from "@/types/dashboard";
 
 // Import branded merchandise images
 import merchTshirt from "@/assets/merch-tshirt.jpg";
@@ -123,7 +125,127 @@ export default function Store() {
     open: false,
     item: null,
   });
-  const userTokenBalance = 3250; // This would come from user's actual balance
+  const [userTokenBalance, setUserTokenBalance] = useState<number>(0);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
+
+  // Fetch real token balance from user's activity data
+  const fetchTokenBalance = useCallback(async () => {
+    setIsLoadingBalance(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsLoadingBalance(false);
+        return;
+      }
+
+      // Fetch profile connections
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
+        .eq('user_id', user.id)
+        .single();
+
+      let solarEnergy = 0;
+      let evMiles = 0;
+      let batteryDischarge = 0;
+      let superchargerKwh = 0;
+      let homeChargerKwh = 0;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setIsLoadingBalance(false);
+        return;
+      }
+
+      // Fetch data from connected services in parallel
+      const fetchPromises = [];
+      
+      if (profile?.enphase_connected) {
+        fetchPromises.push(
+          supabase.functions.invoke('enphase-data', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).then(res => ({ type: 'enphase', data: res.data })).catch(() => null)
+        );
+      }
+      if (profile?.solaredge_connected) {
+        fetchPromises.push(
+          supabase.functions.invoke('solaredge-data', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).then(res => ({ type: 'solaredge', data: res.data })).catch(() => null)
+        );
+      }
+      if (profile?.tesla_connected) {
+        fetchPromises.push(
+          supabase.functions.invoke('tesla-data', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).then(res => ({ type: 'tesla', data: res.data })).catch(() => null)
+        );
+      }
+      if (profile?.wallbox_connected) {
+        fetchPromises.push(
+          supabase.functions.invoke('wallbox-data', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).then(res => ({ type: 'wallbox', data: res.data })).catch(() => null)
+        );
+      }
+
+      // Fetch referral tokens
+      const referralPromise = supabase
+        .from('referrals')
+        .select('tokens_rewarded')
+        .eq('referrer_id', user.id);
+
+      const results = await Promise.all([...fetchPromises, referralPromise]);
+      
+      // Process referral data (last result)
+      const referralResult = results.pop() as any;
+      const referralTokens = referralResult.data?.reduce((sum: number, r: any) => sum + Number(r.tokens_rewarded), 0) || 0;
+
+      const hasDedicatedSolarProvider = profile?.enphase_connected || profile?.solaredge_connected;
+
+      // Process each result
+      for (const result of results) {
+        if (!result || !result.data) continue;
+        
+        const { type, data } = result as { type: string; data: any };
+        
+        if (type === 'enphase' && data?.totals) {
+          solarEnergy = (data.totals.lifetime_solar_wh || 0) / 1000;
+        } else if (type === 'solaredge' && data?.totals && !profile?.enphase_connected) {
+          solarEnergy = (data.totals.lifetime_solar_wh || 0) / 1000;
+        } else if (type === 'tesla' && data?.totals) {
+          batteryDischarge = (data.totals.battery_discharge_wh || 0) / 1000;
+          evMiles = data.totals.ev_miles || 0;
+          superchargerKwh = data.totals.supercharger_kwh || 0;
+          homeChargerKwh = data.totals.wall_connector_kwh || 0;
+          if (!hasDedicatedSolarProvider) {
+            solarEnergy += (data.totals.solar_production_wh || 0) / 1000;
+          }
+        } else if (type === 'wallbox' && data?.totals) {
+          homeChargerKwh += data.totals.home_charger_kwh || 0;
+        }
+      }
+
+      // Calculate tokens (1 token per whole unit)
+      const tokensEarned =
+        Math.floor(evMiles) +
+        Math.floor(solarEnergy) +
+        Math.floor(batteryDischarge) +
+        Math.floor(superchargerKwh) +
+        Math.floor(homeChargerKwh) +
+        referralTokens;
+
+      setUserTokenBalance(tokensEarned);
+    } catch (error) {
+      console.error('Failed to fetch token balance:', error);
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTokenBalance();
+  }, [fetchTokenBalance]);
 
   const filteredItems = activeTab === "all" 
     ? storeItems 
@@ -158,15 +280,22 @@ export default function Store() {
       {/* Balance Card */}
       <Card className="mb-8 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
         <CardContent className="flex items-center justify-between py-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-primary/20">
-              <Zap className="h-6 w-6 text-primary" />
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/20">
+                <Zap className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Your Balance</p>
+                {isLoadingBalance ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="text-muted-foreground">Loading...</span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold">{userTokenBalance.toLocaleString()} $ZSOLAR</p>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Your Balance</p>
-              <p className="text-2xl font-bold">{userTokenBalance.toLocaleString()} $ZSOLAR</p>
-            </div>
-          </div>
           <Button variant="outline" className="gap-2">
             <Gift className="h-4 w-4" />
             Earn More
