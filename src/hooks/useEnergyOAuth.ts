@@ -121,10 +121,48 @@ export function useEnergyOAuth() {
     }
   }, []);
 
+  const connectSolarEdge = useCallback(async (apiKey: string, siteId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please log in first');
+        return false;
+      }
+
+      const response = await supabase.functions.invoke('solaredge-auth', {
+        body: { 
+          action: 'validate-and-store',
+          apiKey,
+          siteId,
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        const errorMessage = response.error.message || 'Failed to connect SolarEdge';
+        toast.error(errorMessage);
+        return false;
+      }
+
+      if (response.data?.error) {
+        toast.error(response.data.error);
+        return false;
+      }
+
+      toast.success(`SolarEdge connected: ${response.data?.site?.name || 'Your solar site'}`);
+      return true;
+    } catch (error) {
+      console.error('SolarEdge connection error:', error);
+      toast.error('Failed to connect SolarEdge account');
+      return false;
+    }
+  }, []);
+
   return {
     startTeslaOAuth,
     startEnphaseOAuth,
     exchangeTeslaCode,
     exchangeEnphaseCode,
+    connectSolarEdge,
   };
 }

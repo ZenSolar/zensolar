@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ConnectedAccount } from '@/types/dashboard';
 import { ConnectAccountButton } from './ConnectAccountButton';
 import { EnphaseCodeDialog } from './EnphaseCodeDialog';
+import { SolarEdgeConnectDialog } from './SolarEdgeConnectDialog';
 import { DeviceSelectionDialog } from './DeviceSelectionDialog';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,8 +15,9 @@ interface ConnectAccountsProps {
 }
 
 export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAccountsProps) {
-  const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode } = useEnergyOAuth();
+  const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge } = useEnergyOAuth();
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
+  const [solarEdgeDialogOpen, setSolarEdgeDialogOpen] = useState(false);
   const [deviceSelectionOpen, setDeviceSelectionOpen] = useState(false);
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
 
@@ -27,8 +29,10 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
       if (result?.useManualCode) {
         setEnphaseDialogOpen(true);
       }
+    } else if (service === 'solaredge') {
+      setSolarEdgeDialogOpen(true);
     } else {
-      toast.info('SolarEdge integration coming soon!');
+      toast.info('Integration coming soon!');
       onConnect(service);
     }
   };
@@ -75,6 +79,14 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
       // After successful auth, show device selection
       setDeviceSelectionProvider('enphase');
       setDeviceSelectionOpen(true);
+    }
+    return success;
+  };
+
+  const handleSolarEdgeSubmit = async (apiKey: string, siteId: string): Promise<boolean> => {
+    const success = await connectSolarEdge(apiKey, siteId);
+    if (success) {
+      onConnect('solaredge');
     }
     return success;
   };
@@ -135,6 +147,12 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
         open={enphaseDialogOpen}
         onOpenChange={setEnphaseDialogOpen}
         onSubmit={handleEnphaseCodeSubmit}
+      />
+
+      <SolarEdgeConnectDialog
+        open={solarEdgeDialogOpen}
+        onOpenChange={setSolarEdgeDialogOpen}
+        onSubmit={handleSolarEdgeSubmit}
       />
 
       <DeviceSelectionDialog

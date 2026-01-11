@@ -87,6 +87,31 @@ export function useDashboardData() {
     }
   }, []);
 
+  const fetchSolarEdgeData = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
+      const response = await supabase.functions.invoke('solaredge-data', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        console.error('SolarEdge data error:', response.error);
+        const errorMessage = response.error.message || '';
+        if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
+          toast.error('SolarEdge API rate limit reached. Please try again later.');
+        }
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch SolarEdge data:', error);
+      return null;
+    }
+  }, []);
+
   const fetchTeslaData = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -168,8 +193,9 @@ export function useDashboardData() {
       let homeChargerKwh = 0;
 
       // Fetch data in parallel
-      const [enphaseData, teslaData, rewardsData, referralTokens] = await Promise.all([
+      const [enphaseData, solarEdgeData, teslaData, rewardsData, referralTokens] = await Promise.all([
         profileConnections?.enphase_connected ? fetchEnphaseData() : null,
+        profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         profileConnections?.tesla_connected ? fetchTeslaData() : null,
         fetchRewardsData(),
         fetchReferralTokens(),
@@ -183,6 +209,13 @@ export function useDashboardData() {
       if (enphaseData?.totals) {
         solarEnergy = (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
         console.log('Enphase solar:', solarEnergy, 'kWh');
+      }
+
+      // Process SolarEdge data - use lifetime energy for solar
+      if (solarEdgeData?.totals && !enphaseData?.totals) {
+        // Only use SolarEdge if Enphase not available (Enphase takes priority)
+        solarEnergy = (solarEdgeData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
+        console.log('SolarEdge solar:', solarEnergy, 'kWh');
       }
 
       // Process Tesla data - EV miles, battery storage, EV charging
@@ -238,14 +271,14 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profileConnections, fetchEnphaseData, fetchTeslaData, fetchRewardsData, fetchReferralTokens]);
+  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchRewardsData, fetchReferralTokens]);
 
   // Auto-refresh when connections change
   useEffect(() => {
-    if (profileConnections?.enphase_connected || profileConnections?.tesla_connected) {
+    if (profileConnections?.enphase_connected || profileConnections?.solaredge_connected || profileConnections?.tesla_connected) {
       refreshDashboard();
     }
-  }, [profileConnections?.enphase_connected, profileConnections?.tesla_connected, refreshDashboard]);
+  }, [profileConnections?.enphase_connected, profileConnections?.solaredge_connected, profileConnections?.tesla_connected, refreshDashboard]);
 
   const connectAccount = useCallback((service: ConnectedAccount['service']) => {
     setConnectedAccounts(prev => 

@@ -35,3 +35,9 @@ verify_jwt = false
 
 [functions.get-vapid-public-key]
 verify_jwt = false
+
+[functions.solaredge-auth]
+verify_jwt = false
+
+[functions.solaredge-data]
+verify_jwt = false
