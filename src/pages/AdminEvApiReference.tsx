@@ -214,6 +214,86 @@ const chargingNetworks: ChargingNetworkInfo[] = [
     link: 'https://semaconnect.com/',
   },
   {
+    network: 'Kempower',
+    chargerTypes: 'DCFC (50-400kW)',
+    stationsUs: 'Growing (EU-focused)',
+    apiAccess: 'public',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'ChargEye REST API with full developer docs. Transactions API provides session data with kWh. OCPP 2.0.1 certified.',
+    link: 'https://docs.kempower.io/',
+  },
+  {
+    network: 'Autel Energy',
+    chargerTypes: 'L2 + DCFC',
+    stationsUs: 'Growing',
+    apiAccess: 'partner',
+    sessionData: 'limited',
+    kwhHistory: 'limited',
+    notes: 'OCPP 2.0.1 certified CSMS. Integrates with third-party platforms like AMPECO. No direct public API for drivers.',
+    link: 'https://autelenergy.com/',
+  },
+  {
+    network: 'EV Connect',
+    chargerTypes: 'L2 + DCFC',
+    stationsUs: 'CPO Platform',
+    apiAccess: 'partner',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'White-label API platform for CPOs. Full session data access for platform integrators. Partner onboarding required.',
+    link: 'https://www.evconnect.com/api-platform',
+  },
+  {
+    network: 'PowerFlex',
+    chargerTypes: 'L2 + DCFC',
+    stationsUs: 'Enterprise/Fleet',
+    apiAccess: 'partner',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'Enterprise API integration available. Adaptive charging networks. Full session analytics for fleet customers.',
+    link: 'https://www.powerflex.com/',
+  },
+  {
+    network: 'Enel X / JuiceBox',
+    chargerTypes: 'L2 (Home/Commercial)',
+    stationsUs: 'Home Chargers',
+    apiAccess: 'unofficial',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'Unofficial JuiceNet API available via community libraries. Provides device status, session data, kWh consumption.',
+    link: 'https://github.com/ketsugi/node-juicenet',
+  },
+  {
+    network: 'Siemens DepotFinity',
+    chargerTypes: 'DCFC (Fleet/Depot)',
+    stationsUs: 'Fleet Depots',
+    apiAccess: 'public',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'Developer portal with Charger Status and Control APIs. Focused on fleet/depot charging. Full session data available.',
+    link: 'https://developer.siemens.com/depotfinity/overview.html',
+  },
+  {
+    network: 'ABB Terra',
+    chargerTypes: 'DCFC (50-350kW)',
+    stationsUs: 'Commercial/Fleet',
+    apiAccess: 'partner',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'OCPP compliant. Integrates with third-party CSMS platforms. Data access via CPO management systems.',
+    link: 'https://new.abb.com/ev-charging',
+  },
+  {
+    network: 'Powerly',
+    chargerTypes: 'L2 + DCFC',
+    stationsUs: 'Platform/Aggregator',
+    apiAccess: 'public',
+    sessionData: 'yes',
+    kwhHistory: 'yes',
+    notes: 'Open EV Charging API platform. REST API for sessions, kWh data. Developer portal with documentation.',
+    link: 'https://powerly.app/developers',
+  },
+  {
     network: 'ChargeLab',
     chargerTypes: 'L2 + DCFC',
     stationsUs: 'CPO Platform',
@@ -594,9 +674,36 @@ export default function AdminEvApiReference() {
                       <p className="font-medium">Full Session + kWh Data Available</p>
                       <ul className="text-sm text-muted-foreground mt-1 space-y-1">
                         <li>• <strong>Tesla Supercharger</strong> - Already integrated via Fleet API for Tesla vehicles</li>
-                        <li>• <strong>Shell Recharge</strong> - Public developer portal with EV Charge Sessions API</li>
+                        <li>• <strong>Kempower ChargEye</strong> - Public REST API with full developer docs and Transactions API</li>
+                        <li>• <strong>Powerly</strong> - Open API platform with session data and kWh history</li>
                         <li>• <strong>ChargeLab</strong> - Open developer program with REST API</li>
-                        <li>• <strong>ChargePoint</strong> - Partner API with full analytics (requires partnership)</li>
+                        <li>• <strong>Siemens DepotFinity</strong> - Developer portal for fleet/depot charging</li>
+                        <li>• <strong>Shell Recharge</strong> - Public developer portal with EV Charge Sessions API</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <Badge className="bg-blue-500 mt-0.5">Partner APIs</Badge>
+                    <div>
+                      <p className="font-medium">Requires Partnership/Integration Agreement</p>
+                      <ul className="text-sm text-muted-foreground mt-1 space-y-1">
+                        <li>• <strong>ChargePoint</strong> - Partner API with full analytics (largest US network)</li>
+                        <li>• <strong>EV Connect</strong> - White-label API platform for CPOs</li>
+                        <li>• <strong>PowerFlex</strong> - Enterprise API for fleet/adaptive charging</li>
+                        <li>• <strong>FLO</strong> - Fleet/CPO API via partnership agreement</li>
+                        <li>• <strong>ABB Terra</strong> - OCPP compliant, data via CPO management systems</li>
+                        <li>• <strong>Autel Energy</strong> - OCPP 2.0.1 CSMS, integrates with third-party platforms</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                    <Badge className="bg-purple-500 mt-0.5">Unofficial</Badge>
+                    <div>
+                      <p className="font-medium">Community/Reverse-Engineered APIs</p>
+                      <ul className="text-sm text-muted-foreground mt-1 space-y-1">
+                        <li>• <strong>Enel X / JuiceBox</strong> - Unofficial JuiceNet API for home chargers with kWh data</li>
                       </ul>
                     </div>
                   </div>
@@ -634,6 +741,63 @@ export default function AdminEvApiReference() {
                   <p className="text-sm text-muted-foreground">
                     <strong>Future opportunity:</strong> As OCPI (Open Charge Point Interface) becomes more adopted, 
                     more networks may offer standardized data access.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ZenSolar Fit Recommendations */}
+            <Card className="border-primary/50 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  Good Fit for ZenSolar App
+                </CardTitle>
+                <CardDescription>
+                  APIs recommended for integration based on data availability, ease of access, and user value
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg border bg-background">
+                    <h4 className="font-medium text-green-600 dark:text-green-400 mb-2">✅ Highly Recommended</h4>
+                    <ul className="text-sm space-y-2">
+                      <li><strong>Kempower ChargEye</strong> - Public API, well-documented, full session data with kWh. OCPP 2.0.1 certified. Growing presence.</li>
+                      <li><strong>Powerly</strong> - Open API platform with developer portal. Good documentation and session data access.</li>
+                      <li><strong>ChargeLab</strong> - Public developer program. REST API for session/kWh data. Good for CPO integration.</li>
+                      <li><strong>Enel X JuiceBox</strong> - Unofficial but stable API. Great for home charging data which complements solar production.</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 rounded-lg border bg-background">
+                    <h4 className="font-medium text-yellow-600 dark:text-yellow-400 mb-2">⚠️ Worth Exploring</h4>
+                    <ul className="text-sm space-y-2">
+                      <li><strong>Shell Recharge</strong> - Good API but requires partner onboarding. Worth pursuing if user demand exists.</li>
+                      <li><strong>EV Connect</strong> - White-label platform. Could enable integration with multiple CPOs at once.</li>
+                      <li><strong>Siemens DepotFinity</strong> - Great for fleet users. Public API with good docs.</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="p-4 rounded-lg border bg-background">
+                  <h4 className="font-medium text-red-600 dark:text-red-400 mb-2">❌ Not Recommended (Currently)</h4>
+                  <ul className="text-sm space-y-2">
+                    <li><strong>Electrify America, EVgo, Blink</strong> - No public APIs. Cannot integrate without major partnership agreements.</li>
+                    <li><strong>ChargePoint</strong> - Partner-only API with complex onboarding. Large network but high barrier to entry.</li>
+                    <li><strong>Autel, ABB</strong> - Hardware manufacturers without direct driver APIs. Data flows through CPO platforms.</li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50 border">
+                  <h4 className="font-medium mb-2">📋 Strategic Recommendation</h4>
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Primary approach:</strong> Focus on pulling EV charging data from <strong>vehicle APIs</strong> (Tesla already done, add Hyundai/Kia next) 
+                    rather than charging networks. Vehicle APIs capture ALL charging sessions regardless of network used.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <strong>Secondary approach:</strong> Add <strong>home charger integrations</strong> (JuiceBox, Wallbox already started) since these directly 
+                    complement solar production data and show self-consumption patterns.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <strong>Future consideration:</strong> Monitor <strong>Kempower</strong> and <strong>Powerly</strong> adoption in US market. If they gain traction, 
+                    their open APIs would be valuable additions.
                   </p>
                 </div>
               </CardContent>
