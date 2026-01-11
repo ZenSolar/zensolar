@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FeedbackCard } from '@/components/admin/FeedbackCard';
+import { SupportRequestsTab } from '@/components/admin/SupportRequestsTab';
 import zenLogo from '@/assets/zen-logo.png';
 
 interface ProfileWithEmail {
@@ -817,6 +818,9 @@ export default function Admin() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Support Requests */}
+        <SupportRequestsTab />
 
         {/* Beta Feedback */}
         <FeedbackCard />

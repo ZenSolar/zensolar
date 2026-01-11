@@ -1,9 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, MessageCircle, FileText, ExternalLink, Mail } from "lucide-react";
+import { HelpCircle, FileText, ExternalLink, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { SupportRequestForm } from "@/components/help/SupportRequestForm";
 
 const faqs = [
   {
@@ -34,11 +34,6 @@ const faqs = [
 
 export default function Help() {
   const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const handleContactSupport = () => {
-    window.location.href = "mailto:support@zen.solar?subject=ZenSolar%20Support%20Request";
-  };
 
   const handleViewDocs = () => {
     window.open("https://zen.solar/docs", "_blank");
@@ -90,14 +85,7 @@ export default function Help() {
             <CardDescription>Have a question not answered here?</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button 
-              variant="outline" 
-              className="w-full touch-target"
-              onClick={handleContactSupport}
-            >
-              <Mail className="mr-2 h-4 w-4" />
-              Contact Support
-            </Button>
+            <SupportRequestForm />
           </CardContent>
         </Card>
 
