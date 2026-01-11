@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -90,7 +91,7 @@ export default function Auth() {
       }
     } else {
       toast.success('Account created! Welcome to ZenSolar.');
-      navigate('/');
+      navigate('/onboarding');
     }
   };
 
@@ -312,6 +313,20 @@ export default function Auth() {
               </Button>
               <p className="text-xs text-slate-500 text-center mt-2">
                 Explore the app without creating an account
+              </p>
+            </div>
+            
+            {/* Legal links footer */}
+            <div className="mt-6 pt-4 border-t border-white/10 text-center">
+              <p className="text-xs text-slate-500">
+                By signing up, you agree to our{' '}
+                <Link to="/terms" className="text-primary hover:text-primary/80 underline underline-offset-2">
+                  Terms of Service
+                </Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="text-primary hover:text-primary/80 underline underline-offset-2">
+                  Privacy Policy
+                </Link>
               </p>
             </div>
           </CardContent>
