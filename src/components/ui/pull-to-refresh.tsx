@@ -1,5 +1,6 @@
-import { Loader2, ArrowDown, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 interface PullToRefreshIndicatorProps {
   pullDistance: number;
@@ -18,6 +19,18 @@ export function PullToRefreshIndicator({
 }: PullToRefreshIndicatorProps) {
   const progress = Math.min(pullDistance / threshold, 1);
   const showIndicator = (pullDistance > 0 && isActive) || isRefreshing;
+  const [isBouncing, setIsBouncing] = useState(false);
+  const [wasReady, setWasReady] = useState(false);
+
+  // Trigger bounce animation when crossing threshold
+  useEffect(() => {
+    if (isReady && !wasReady && !isRefreshing) {
+      setIsBouncing(true);
+      const timer = setTimeout(() => setIsBouncing(false), 300);
+      return () => clearTimeout(timer);
+    }
+    setWasReady(isReady);
+  }, [isReady, wasReady, isRefreshing]);
 
   if (!showIndicator) return null;
 
@@ -36,7 +49,8 @@ export function PullToRefreshIndicator({
             ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' 
             : isReady 
               ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' 
-              : 'bg-muted/80 text-muted-foreground border border-border/50'
+              : 'bg-muted/80 text-muted-foreground border border-border/50',
+          isBouncing && 'animate-bounce-once'
         )}
         style={{
           width: 44 + progress * 4,
