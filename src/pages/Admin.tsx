@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FeedbackCard } from '@/components/admin/FeedbackCard';
 import { SupportRequestsTab } from '@/components/admin/SupportRequestsTab';
+import { NotificationTemplatesTab } from '@/components/admin/NotificationTemplatesTab';
 import zenLogo from '@/assets/zen-logo.png';
 
 interface ProfileWithEmail {
@@ -821,6 +822,22 @@ export default function Admin() {
 
         {/* Support Requests */}
         <SupportRequestsTab />
+
+        {/* Notification Templates */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Push Notification Templates</CardTitle>
+            </div>
+            <CardDescription>
+              Manage and customize push notification templates for referral rewards, milestones, and system messages.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NotificationTemplatesTab />
+          </CardContent>
+        </Card>
 
         {/* Beta Feedback */}
         <FeedbackCard />

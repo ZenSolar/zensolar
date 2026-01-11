@@ -28,6 +28,7 @@ import Onboarding from "./pages/Onboarding";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import About from "./pages/About";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -134,6 +135,16 @@ const App = () => {
                   <ProtectedRoute>
                     <AppLayout>
                       <MintHistory />
+                    </AppLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/notifications" 
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Notifications />
                     </AppLayout>
                   </ProtectedRoute>
                 } 
