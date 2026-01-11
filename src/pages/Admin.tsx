@@ -16,7 +16,7 @@ import { FeedbackCard } from '@/components/admin/FeedbackCard';
 import { SupportRequestsTab } from '@/components/admin/SupportRequestsTab';
 import { NotificationTemplatesTab } from '@/components/admin/NotificationTemplatesTab';
 import { AdminSkeleton } from '@/components/ui/loading-skeleton';
-import zenLogo from '@/assets/zen-logo.png';
+import zenIconOnly from '@/assets/zen-icon-only.png';
 
 interface ProfileWithEmail {
   id: string;
@@ -521,7 +521,7 @@ export default function Admin() {
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            <img src={zenLogo} alt="ZenSolar" className="h-10 w-10 rounded-lg object-cover" />
+            <img src={zenIconOnly} alt="ZenSolar" className="h-8 w-8 object-contain" />
             <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
           </div>
         </div>
