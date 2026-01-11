@@ -8,7 +8,8 @@ import {
   LogOut,
   Shield,
   MessageSquarePlus,
-  Bell
+  Bell,
+  Users
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -33,6 +34,7 @@ const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Tokenomics", url: "/tokenomics", icon: Coins },
   { title: "Mint History", url: "/mint-history", icon: History },
+  { title: "Referrals", url: "/referrals", icon: Users },
   { title: "Notifications", url: "/notifications", icon: Bell },
 ];
 
