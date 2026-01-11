@@ -197,6 +197,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_templates: {
+        Row: {
+          body_template: string
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          template_key: string
+          title_template: string
+          updated_at: string
+        }
+        Insert: {
+          body_template: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          template_key: string
+          title_template: string
+          updated_at?: string
+        }
+        Update: {
+          body_template?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          template_key?: string
+          title_template?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

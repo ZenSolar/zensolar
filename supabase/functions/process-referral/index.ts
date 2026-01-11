@@ -303,6 +303,36 @@ async function sendPushToEndpoint(
   }
 }
 
+// Fetch notification template and replace variables
+async function getNotificationTemplate(
+  supabase: any,
+  templateKey: string,
+  variables: Record<string, string>
+): Promise<{ title: string; body: string } | null> {
+  const { data: template, error } = await supabase
+    .from("notification_templates")
+    .select("title_template, body_template, is_active")
+    .eq("template_key", templateKey)
+    .single();
+
+  if (error || !template || !template.is_active) {
+    console.log(`Template ${templateKey} not found or inactive`);
+    return null;
+  }
+
+  let title = template.title_template;
+  let body = template.body_template;
+
+  // Replace variables in templates
+  for (const [key, value] of Object.entries(variables)) {
+    const regex = new RegExp(`{{${key}}}`, "g");
+    title = title.replace(regex, value);
+    body = body.replace(regex, value);
+  }
+
+  return { title, body };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -404,14 +434,21 @@ serve(async (req) => {
 
     console.log(`Referral processed: ${referrer.user_id} referred ${user.id}`);
 
-    // Send push notification to the referrer (don't await - fire and forget)
-    sendPushNotification(
-      supabase,
-      referrer.user_id,
-      "🎉 Referral Reward!",
-      `${referredName} just joined using your referral code! You earned 1,000 $ZSOLAR tokens.`,
-      "referral"
-    ).catch(err => console.error("Push notification error:", err));
+    // Get the notification template and send push notification
+    const template = await getNotificationTemplate(supabase, "referral_reward", {
+      tokens: "1,000",
+      name: referredName,
+    });
+
+    if (template) {
+      sendPushNotification(
+        supabase,
+        referrer.user_id,
+        template.title,
+        template.body,
+        "referral"
+      ).catch(err => console.error("Push notification error:", err));
+    }
 
     return new Response(
       JSON.stringify({
