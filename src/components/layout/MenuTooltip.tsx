@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, ChevronLeft } from "lucide-react";
 
 const TOOLTIP_STORAGE_KEY = "zen-menu-tooltip-dismissed";
 
@@ -13,7 +13,7 @@ export function MenuTooltip() {
       // Small delay to let the page render first
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, 500);
+      }, 800);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -26,19 +26,20 @@ export function MenuTooltip() {
   if (!isVisible) return null;
 
   return (
-    <div className="absolute left-12 top-2 z-[60] animate-in fade-in slide-in-from-left-2 duration-300">
+    <div className="fixed left-14 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] animate-in fade-in slide-in-from-left-2 duration-300">
       {/* Arrow pointing to the menu icon */}
-      <div className="absolute -left-2 top-3 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-primary" />
+      <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-primary" />
       
       {/* Tooltip bubble */}
-      <div className="bg-primary text-primary-foreground px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 max-w-[180px] animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
-        <span className="text-sm font-medium">Tap here for menu</span>
+      <div className="bg-primary text-primary-foreground pl-3 pr-2 py-2 rounded-xl shadow-lg flex items-center gap-2 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
+        <ChevronLeft className="h-4 w-4 flex-shrink-0 animate-[bounce_1s_ease-in-out_infinite]" style={{ animationDirection: 'alternate' }} />
+        <span className="text-sm font-medium whitespace-nowrap">Tap for menu</span>
         <button
           onClick={handleDismiss}
-          className="p-0.5 hover:bg-primary-foreground/20 rounded transition-colors flex-shrink-0"
+          className="p-1 hover:bg-primary-foreground/20 rounded-full transition-colors flex-shrink-0 ml-1"
           aria-label="Dismiss tooltip"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="h-4 w-4" />
         </button>
       </div>
     </div>
