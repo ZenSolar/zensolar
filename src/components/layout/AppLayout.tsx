@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { ThemeToggle } from "./ThemeToggle";
+import { MenuTooltip } from "./MenuTooltip";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,8 +14,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         <AppSidebar />
         <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
           {/* Sticky header with safe area */}
-          <header className="h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex items-center justify-between px-4 pt-safe">
+          <header className="h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex items-center justify-between px-4 pt-safe relative">
             <SidebarTrigger className="text-foreground touch-target" />
+            <MenuTooltip />
             <ThemeToggle />
           </header>
           {/* Main content with smooth scrolling */}
