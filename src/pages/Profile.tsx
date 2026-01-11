@@ -3,8 +3,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Wallet, Calendar, CheckCircle2, XCircle } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { User, Mail, Wallet, Calendar, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { ReferralCard } from "@/components/dashboard/ReferralCard";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -39,6 +39,9 @@ export default function Profile() {
   return (
     <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Profile</h1>
+
+      {/* Referral Program Card */}
+      <ReferralCard />
 
       {/* User Info Card */}
       <Card>

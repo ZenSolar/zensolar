@@ -10,6 +10,7 @@ const defaultActivityData: ActivityData = {
   teslaSuperchargerKwh: 0,
   homeChargerKwh: 0,
   tokensEarned: 0,
+  referralTokens: 0,
   nftsEarned: [],
   co2OffsetPounds: 0,
 };
@@ -134,6 +135,28 @@ export function useDashboardData() {
     }
   }, []);
 
+  const fetchReferralTokens = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+
+      const { data, error } = await supabase
+        .from('referrals')
+        .select('tokens_rewarded')
+        .eq('referrer_id', user.id);
+
+      if (error) {
+        console.error('Referrals fetch error:', error);
+        return 0;
+      }
+
+      return data?.reduce((sum, r) => sum + Number(r.tokens_rewarded), 0) || 0;
+    } catch (error) {
+      console.error('Failed to fetch referral tokens:', error);
+      return 0;
+    }
+  }, []);
+
   const refreshDashboard = useCallback(async () => {
     setIsLoading(true);
     
@@ -145,10 +168,11 @@ export function useDashboardData() {
       let homeChargerKwh = 0;
 
       // Fetch data in parallel
-      const [enphaseData, teslaData, rewardsData] = await Promise.all([
+      const [enphaseData, teslaData, rewardsData, referralTokens] = await Promise.all([
         profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         profileConnections?.tesla_connected ? fetchTeslaData() : null,
         fetchRewardsData(),
+        fetchReferralTokens(),
       ]);
 
       // Solar source priority: Enphase > SolarEdge > Tesla
@@ -194,6 +218,7 @@ export function useDashboardData() {
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh: homeChargerKwh,
         tokensEarned,
+        referralTokens,
         nftsEarned: earnedNFTs,
         co2OffsetPounds: 0,
       };
@@ -213,7 +238,7 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profileConnections, fetchEnphaseData, fetchTeslaData, fetchRewardsData]);
+  }, [profileConnections, fetchEnphaseData, fetchTeslaData, fetchRewardsData, fetchReferralTokens]);
 
   // Auto-refresh when connections change
   useEffect(() => {

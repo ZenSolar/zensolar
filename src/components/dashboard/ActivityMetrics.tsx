@@ -7,7 +7,8 @@ import {
   Zap, 
   Coins, 
   Award,
-  Leaf
+  Leaf,
+  Users
 } from 'lucide-react';
 
 interface ActivityMetricsProps {
@@ -28,6 +29,14 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
             value={data.tokensEarned}
             unit="$ZSOLAR"
             colorClass="bg-token"
+          />
+          
+          <MetricCard
+            icon={Users}
+            label="Referral Tokens"
+            value={data.referralTokens}
+            unit="$ZSOLAR"
+            colorClass="bg-accent"
           />
           
           <MetricCard

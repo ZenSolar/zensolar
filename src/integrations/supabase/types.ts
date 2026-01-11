@@ -211,6 +211,8 @@ export type Database = {
           is_admin: boolean | null
           linkedin_connected: boolean | null
           linkedin_handle: string | null
+          referral_code: string | null
+          referred_by: string | null
           solaredge_connected: boolean | null
           tesla_connected: boolean | null
           tiktok_connected: boolean | null
@@ -234,6 +236,8 @@ export type Database = {
           is_admin?: boolean | null
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           solaredge_connected?: boolean | null
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
@@ -257,6 +261,8 @@ export type Database = {
           is_admin?: boolean | null
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           solaredge_connected?: boolean | null
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
@@ -267,7 +273,15 @@ export type Database = {
           user_id?: string
           wallet_address?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
@@ -304,6 +318,45 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+          tokens_rewarded: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+          tokens_rewarded?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          tokens_rewarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       support_requests: {
         Row: {
@@ -419,6 +472,7 @@ export type Database = {
         }
         Returns: Json
       }
+      lookup_referral_code: { Args: { code: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
