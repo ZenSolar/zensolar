@@ -10,6 +10,7 @@ import { Loader2, Eye, EyeOff, Sun, Zap, Leaf, ArrowLeft } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -104,7 +105,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await signUp(signupEmail, signupPassword, signupDisplayName, referralCode || undefined);
+    const { data, error } = await signUp(signupEmail, signupPassword, signupDisplayName, referralCode || undefined);
     setIsLoading(false);
 
     if (error) {
@@ -115,6 +116,23 @@ export default function Auth() {
       }
     } else {
       toast.success('Account created! Welcome to ZenSolar.');
+      
+      // Process referral if a code was provided
+      if (referralCode && data?.session) {
+        try {
+          const { error: refError } = await supabase.functions.invoke('process-referral', {
+            body: { referral_code: referralCode },
+          });
+          if (refError) {
+            console.error('Referral processing error:', refError);
+          } else {
+            toast.success('Referral bonus applied! You earned 1,000 $ZSOLAR.');
+          }
+        } catch (err) {
+          console.error('Failed to process referral:', err);
+        }
+      }
+      
       navigate('/onboarding');
     }
   };
