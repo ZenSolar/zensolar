@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock } from "lucide-react";
+import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// Import branded merchandise images
+import merchTshirt from "@/assets/merch-tshirt.jpg";
+import merchHoodie from "@/assets/merch-hoodie.jpg";
+import merchCap from "@/assets/merch-cap.jpg";
 
 interface StoreItem {
   id: string;
@@ -51,35 +62,35 @@ const storeItems: StoreItem[] = [
     icon: Battery,
     inStock: true,
   },
-  // Merch
+  // Merch - Using branded ZenSolar images
   {
     id: "4",
     name: "ZenSolar T-Shirt",
     description: "100% organic cotton tee with ZenSolar logo",
     price: 500,
     category: "merch",
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop",
+    image: merchTshirt,
     icon: Shirt,
     inStock: true,
   },
   {
     id: "5",
     name: "ZenSolar Hoodie",
-    description: "Premium eco-friendly hoodie",
+    description: "Premium eco-friendly hoodie with embroidered logo",
     price: 1200,
     category: "merch",
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=300&fit=crop",
+    image: merchHoodie,
     icon: Shirt,
     inStock: true,
     featured: true,
   },
   {
     id: "6",
-    name: "Solar Cap",
+    name: "ZenSolar Cap",
     description: "Adjustable cap with embroidered sun logo",
     price: 350,
     category: "merch",
-    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=300&fit=crop",
+    image: merchCap,
     icon: Sun,
     inStock: false,
   },
@@ -108,6 +119,10 @@ const storeItems: StoreItem[] = [
 
 export default function Store() {
   const [activeTab, setActiveTab] = useState("all");
+  const [redeemDialog, setRedeemDialog] = useState<{ open: boolean; item: StoreItem | null }>({
+    open: false,
+    item: null,
+  });
   const userTokenBalance = 3250; // This would come from user's actual balance
 
   const filteredItems = activeTab === "all" 
@@ -116,16 +131,13 @@ export default function Store() {
 
   const handleRedeem = (item: StoreItem) => {
     if (!item.inStock) {
-      toast.error("This item is currently out of stock");
       return;
     }
     if (userTokenBalance < item.price) {
-      toast.error("Insufficient $ZSOLAR balance");
       return;
     }
-    toast.success(`Redemption request submitted for ${item.name}!`, {
-      description: "We'll notify you when your order is processed.",
-    });
+    // Show the exciting coming soon dialog
+    setRedeemDialog({ open: true, item });
   };
 
   return (
@@ -246,6 +258,65 @@ export default function Store() {
           We're adding new products regularly. Keep earning $ZSOLAR to unlock exclusive rewards.
         </p>
       </div>
+
+      {/* Coming Soon Redemption Dialog */}
+      <Dialog open={redeemDialog.open} onOpenChange={(open) => setRedeemDialog({ ...redeemDialog, open })}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-primary">
+              <Rocket className="h-5 w-5" />
+              🎉 Blockchain Store Coming Soon!
+            </DialogTitle>
+            <DialogDescription className="pt-4 space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <Sparkles className="h-8 w-8 text-primary flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-foreground">
+                    {redeemDialog.item?.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {redeemDialog.item?.price.toLocaleString()} $ZSOLAR
+                  </p>
+                </div>
+              </div>
+              
+              <p className="text-base">
+                Get ready for something <span className="font-semibold text-primary">revolutionary</span>! 
+                Our blockchain-powered store is launching soon, allowing you to purchase exclusive 
+                ZenSolar merchandise and products directly on the Ethereum network.
+              </p>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">✨</span>
+                  <span>Seamless crypto payments with $ZSOLAR tokens</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">🔐</span>
+                  <span>Secure, transparent blockchain transactions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">🎁</span>
+                  <span>Exclusive NFT receipts for every purchase</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">🌱</span>
+                  <span>Eco-friendly products shipped worldwide</span>
+                </div>
+              </div>
+              
+              <p className="text-sm text-muted-foreground pt-2">
+                Keep earning $ZSOLAR tokens — you'll be among the first to shop when we go live! 🚀
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={() => setRedeemDialog({ open: false, item: null })}>
+              Got it!
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
