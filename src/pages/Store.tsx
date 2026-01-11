@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateCO2Offset } from "@/types/dashboard";
+import { StoreSkeleton } from "@/components/ui/loading-skeleton";
 
 // Import branded merchandise images
 import merchTshirt from "@/assets/merch-tshirt.jpg";
@@ -127,6 +128,7 @@ export default function Store() {
   });
   const [userTokenBalance, setUserTokenBalance] = useState<number>(0);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Fetch real token balance from user's activity data
   const fetchTokenBalance = useCallback(async () => {
@@ -240,12 +242,18 @@ export default function Store() {
       console.error('Failed to fetch token balance:', error);
     } finally {
       setIsLoadingBalance(false);
+      setIsInitialLoad(false);
     }
   }, []);
 
   useEffect(() => {
     fetchTokenBalance();
   }, [fetchTokenBalance]);
+
+  // Show skeleton on initial page load
+  if (isInitialLoad) {
+    return <StoreSkeleton />;
+  }
 
   const filteredItems = activeTab === "all" 
     ? storeItems 

@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { FeedbackCard } from '@/components/admin/FeedbackCard';
 import { SupportRequestsTab } from '@/components/admin/SupportRequestsTab';
 import { NotificationTemplatesTab } from '@/components/admin/NotificationTemplatesTab';
+import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenLogo from '@/assets/zen-logo.png';
 
 interface ProfileWithEmail {
@@ -444,11 +445,7 @@ export default function Admin() {
   };
 
   if (authLoading || adminChecking || isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminSkeleton />;
   }
 
   // Show access denied for non-admins
