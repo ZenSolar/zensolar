@@ -87,8 +87,8 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
             <DialogDescription className="pt-2 space-y-2">
               <p className="text-base">
                 {mintDialog.type === 'token' 
-                  ? 'Testnet blockchain integration for $ZSOLAR token minting is launching soon!'
-                  : 'Testnet blockchain integration for ZenSolar NFT minting is launching soon!'
+                  ? 'Ethereum Testnet blockchain integration for $ZSOLAR token minting is launching soon!'
+                  : 'Ethereum Testnet blockchain integration for ZenSolar NFT minting is launching soon!'
                 }
               </p>
               <p className="text-sm text-muted-foreground">
