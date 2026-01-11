@@ -9,6 +9,7 @@ import { WagmiProvider } from 'wagmi';
 import { config } from '@/lib/wagmi';
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { toast } from "sonner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -23,6 +24,10 @@ import MintHistory from "./pages/MintHistory";
 import Feedback from "./pages/Feedback";
 import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
+import Onboarding from "./pages/Onboarding";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -51,14 +56,18 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/demo" element={<Demo />} />
-              <Route path="/oauth/callback" element={<OAuthCallback />} />
+            <ErrorBoundary>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/install" element={<Install />} />
+                <Route path="/demo" element={<Demo />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/oauth/callback" element={<OAuthCallback />} />
               <Route 
                 path="/admin" 
                 element={
@@ -130,6 +139,16 @@ const App = () => {
                 } 
               />
               <Route 
+                path="/about" 
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <About />
+                    </AppLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
                 path="/feedback" 
                 element={
                   <ProtectedRoute>
@@ -143,6 +162,7 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
             </BrowserRouter>
+            </ErrorBoundary>
           </TooltipProvider>
         </ThemeProvider>
       </QueryClientProvider>
