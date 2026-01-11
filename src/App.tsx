@@ -10,6 +10,7 @@ import { config } from '@/lib/wagmi';
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { BotProtection } from "@/components/BotProtection";
 import { toast } from "sonner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -61,11 +62,12 @@ const App = () => {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
             <ErrorBoundary>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                <Route path="/auth" element={<Auth />} />
+              <BotProtection blockBots>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/auth" element={<Auth />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/onboarding" element={<Onboarding />} />
@@ -202,10 +204,11 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            </BrowserRouter>
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </BotProtection>
             </ErrorBoundary>
           </TooltipProvider>
         </ThemeProvider>
