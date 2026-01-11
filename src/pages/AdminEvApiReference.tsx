@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, ArrowLeft, ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging, Sun, Battery } from 'lucide-react';
+import { ApiReferenceSkeleton } from '@/components/ui/loading-skeleton';
 import zenLogo from '@/assets/zen-logo.png';
 
 interface EvApiInfo {
@@ -651,11 +652,7 @@ export default function AdminEvApiReference() {
   const navigate = useNavigate();
 
   if (authLoading || adminChecking) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <ApiReferenceSkeleton />;
   }
 
   if (!isAdmin) {
