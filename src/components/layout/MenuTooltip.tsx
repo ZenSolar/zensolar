@@ -11,12 +11,22 @@ export function MenuTooltip() {
     const dismissed = localStorage.getItem(TOOLTIP_STORAGE_KEY);
     if (!dismissed) {
       // Small delay to let the page render first
-      const timer = setTimeout(() => {
+      const showTimer = setTimeout(() => {
         setIsVisible(true);
       }, 800);
-      return () => clearTimeout(timer);
+      return () => clearTimeout(showTimer);
     }
   }, []);
+
+  // Auto-dismiss after 6 seconds
+  useEffect(() => {
+    if (isVisible) {
+      const autoDismissTimer = setTimeout(() => {
+        handleDismiss();
+      }, 6000);
+      return () => clearTimeout(autoDismissTimer);
+    }
+  }, [isVisible]);
 
   const handleDismiss = () => {
     setIsVisible(false);
