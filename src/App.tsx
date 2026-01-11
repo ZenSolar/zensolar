@@ -30,6 +30,7 @@ import Privacy from "./pages/Privacy";
 import About from "./pages/About";
 import Notifications from "./pages/Notifications";
 import Referrals from "./pages/Referrals";
+import Store from "./pages/Store";
 
 const queryClient = new QueryClient();
 
@@ -176,6 +177,16 @@ const App = () => {
                   <ProtectedRoute>
                     <AppLayout>
                       <Feedback />
+                    </AppLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/store" 
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Store />
                     </AppLayout>
                   </ProtectedRoute>
                 } 
