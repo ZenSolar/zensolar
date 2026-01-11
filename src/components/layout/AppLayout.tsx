@@ -13,8 +13,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="min-h-screen min-h-[100dvh] flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
-          {/* Sticky header with safe area */}
-          <header className="h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex items-center justify-between px-4 pt-safe">
+          {/* Sticky header with safe area - min-h ensures content fits below notch */}
+          <header className="min-h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex items-center justify-between px-4 pt-safe pb-2">
             <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" />
             <ThemeToggle />
           </header>
