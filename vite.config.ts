@@ -31,8 +31,8 @@ export default defineConfig(({ mode }) => ({
         "zs-icon-maskable-512.png",
       ],
       manifest: {
-        name: "ZenSolar",
-        short_name: "ZenSolar",
+        name: "$ZSOLAR",
+        short_name: "$ZSOLAR",
         description:
           "Earn blockchain rewards for sustainable energy actions. Track solar production, EV miles, and CO2 offsets.",
         theme_color: "#1e88e5",
