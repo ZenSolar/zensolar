@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.wallbox-data]
 verify_jwt = false
+
+[functions.notify-new-user]
+verify_jwt = false
