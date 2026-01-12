@@ -1,9 +1,39 @@
-import { Coins, Zap, Award, TrendingUp, Lock, Users } from "lucide-react";
+import { Coins, Zap, Award, TrendingUp, Lock, Users, Rocket, Bell } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function Tokenomics() {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-6 space-y-6">
+      {/* Coming Soon Announcement */}
+      <Card className="border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-token/5 to-secondary/10 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
+              <Bell className="h-3 w-3 mr-1" />
+              Beta Update
+            </Badge>
+          </div>
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Rocket className="h-5 w-5 text-primary" />
+            Full Tokenomics Plan Coming Soon!
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-muted-foreground text-sm">
+            We're finalizing the complete $ZSOLAR tokenomics—including token supply, distribution schedule, 
+            staking rewards, governance rights, and mainnet launch details. Stay tuned for the full reveal!
+          </p>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">📊 Token Distribution</span>
+            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">🎯 Staking Rewards</span>
+            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">🗳️ Governance</span>
+            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">🚀 Mainnet Launch</span>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Hero Section */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-token to-primary mx-auto">
