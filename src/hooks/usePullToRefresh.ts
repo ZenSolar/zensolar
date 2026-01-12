@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { triggerLightTap } from '@/hooks/useHaptics';
+import { triggerLightTap, triggerMediumTap, triggerSuccess } from '@/hooks/useHaptics';
 
 interface UsePullToRefreshOptions {
   onRefresh: () => Promise<void> | void;
@@ -101,18 +101,14 @@ export function usePullToRefresh({
     setIsActive(false);
     
     if (pullDistance >= threshold && !isRefreshing) {
-      // Strong haptic on refresh trigger
-      if ('vibrate' in navigator) {
-        navigator.vibrate([15, 30, 15]);
-      }
+      // Medium haptic on refresh trigger
+      triggerMediumTap();
       setIsRefreshing(true);
       try {
         await onRefresh();
       } finally {
-        // Success haptic
-        if ('vibrate' in navigator) {
-          navigator.vibrate(10);
-        }
+        // Success haptic when done
+        triggerSuccess();
         setIsRefreshing(false);
       }
     }
