@@ -126,6 +126,26 @@ Deno.serve(async (req) => {
         console.error("Failed to update profile:", updateError);
       }
 
+      // Notify admins of the new account connection
+      try {
+        const notifyUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/notify-account-connected`;
+        await fetch(notifyUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            user_email: user.email,
+            provider: "wallbox",
+          }),
+        });
+        console.log("Sent Wallbox account connected notification to admins");
+      } catch (notifyError) {
+        console.error("Failed to send account connected notification:", notifyError);
+      }
+
       return new Response(JSON.stringify({ 
         success: true, 
         message: "Wallbox account connected successfully",
