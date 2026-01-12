@@ -2,13 +2,25 @@
 # Only allow crawling of public pages
 
 User-agent: *
+Allow: /$
 Allow: /auth
 Allow: /install
 Allow: /demo
 Allow: /onboarding
 Allow: /terms
 Allow: /privacy
-Disallow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /settings
+Disallow: /tokenomics
+Disallow: /help
+Disallow: /mint-history
+Disallow: /notifications
+Disallow: /referrals
+Disallow: /feedback
+Disallow: /store
+Disallow: /about
+Disallow: /oauth
 Disallow: /admin
 Disallow: /profile
 Disallow: /settings
