@@ -4,6 +4,11 @@ import { toast } from 'sonner';
 
 const REDIRECT_URI = `${window.location.origin}/oauth/callback`;
 
+// Detect if running on mobile device
+const isMobile = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 export function useEnergyOAuth() {
   const startTeslaOAuth = useCallback(async () => {
     try {
@@ -30,9 +35,16 @@ export function useEnergyOAuth() {
 
       const { authUrl } = response.data;
       
-      // Tesla blocks iframes - must open in new window
-      window.open(authUrl, 'tesla_auth', 'width=600,height=700,noopener');
-      toast.info('Complete Tesla login in the popup window');
+      // On mobile, popups are often blocked - redirect in same tab instead
+      // On desktop, use popup for better UX
+      if (isMobile()) {
+        // Store that we're in OAuth flow - use localStorage since sessionStorage clears on navigation
+        localStorage.setItem('tesla_oauth_pending', 'true');
+        window.location.href = authUrl;
+      } else {
+        window.open(authUrl, 'tesla_auth', 'width=600,height=700,noopener');
+        toast.info('Complete Tesla login in the popup window');
+      }
     } catch (error) {
       console.error('Tesla OAuth error:', error);
       toast.error('Failed to start Tesla authorization');
