@@ -22,13 +22,13 @@ export default function Tokenomics() {
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-muted-foreground text-sm">
-            We're finalizing the complete $ZSOLAR tokenomics—including token supply, distribution schedule, 
-            staking rewards, governance rights, and mainnet launch details. Stay tuned for the full reveal!
+            We're building an economic flywheel where your real energy data powers token minting. 
+            The complete tokenomics—including staking, halving schedule, and governance—will be revealed soon.
           </p>
           <div className="flex flex-wrap gap-2 text-xs">
-            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">📊 Token Distribution</span>
+            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">⚡ kWh-Based Minting</span>
             <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">🎯 Staking Rewards</span>
-            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">🗳️ Governance</span>
+            <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">📉 Halving Schedule</span>
             <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">🚀 Mainnet Launch</span>
           </div>
         </CardContent>
@@ -41,7 +41,7 @@ export default function Tokenomics() {
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">$ZSOLAR Tokenomics</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-          Understanding how ZenSolar rewards clean energy production and sustainable behavior through blockchain technology.
+          Turn your solar production and EV miles into real crypto rewards. $ZSOLAR is minted based on verified kWh data from your connected devices.
         </p>
       </div>
 
@@ -52,7 +52,7 @@ export default function Tokenomics() {
             <Coins className="h-5 w-5 text-token" />
             Token Overview
           </CardTitle>
-          <CardDescription>The foundation of the ZenSolar ecosystem</CardDescription>
+          <CardDescription>The currency that powers the clean energy economy</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
@@ -66,7 +66,7 @@ export default function Tokenomics() {
             </div>
           </div>
           <p className="text-muted-foreground text-sm">
-            Currently deployed on Sepolia testnet for beta testing. Mainnet launch details coming soon.
+            $ZSOLAR tokens are minted proportionally to your verified energy production. Currently on Sepolia testnet—mainnet launch coming soon.
           </p>
         </CardContent>
       </Card>
@@ -78,7 +78,7 @@ export default function Tokenomics() {
             <TrendingUp className="h-5 w-5 text-secondary" />
             How to Earn
           </CardTitle>
-          <CardDescription>Multiple ways to earn $ZSOLAR tokens</CardDescription>
+          <CardDescription>Your energy data becomes crypto rewards</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3">
@@ -89,7 +89,7 @@ export default function Tokenomics() {
               <div className="min-w-0">
                 <h3 className="font-medium text-foreground">Solar Energy Production</h3>
                 <p className="text-sm text-muted-foreground">
-                  Earn tokens based on the kWh of solar energy your system produces.
+                  Connect your inverter (Tesla, Enphase, SolarEdge) and mint tokens based on verified kWh output.
                 </p>
               </div>
             </div>
@@ -100,7 +100,7 @@ export default function Tokenomics() {
               <div className="min-w-0">
                 <h3 className="font-medium text-foreground">EV Charging & Miles</h3>
                 <p className="text-sm text-muted-foreground">
-                  Get rewarded for driving electric. Track your EV miles and charging.
+                  Link your Tesla or home charger to earn rewards for every electric mile driven.
                 </p>
               </div>
             </div>
@@ -109,9 +109,9 @@ export default function Tokenomics() {
                 <Users className="h-5 w-5 text-secondary" />
               </div>
               <div className="min-w-0">
-                <h3 className="font-medium text-foreground">Social Engagement</h3>
+                <h3 className="font-medium text-foreground">Referrals & Community</h3>
                 <p className="text-sm text-muted-foreground">
-                  Share your clean energy journey and earn bonus rewards.
+                  Invite friends and grow the ZenSolar community to unlock bonus token rewards.
                 </p>
               </div>
             </div>
@@ -126,18 +126,18 @@ export default function Tokenomics() {
             <Award className="h-5 w-5 text-primary" />
             NFT Milestones
           </CardTitle>
-          <CardDescription>Unlock unique NFTs by reaching activity milestones</CardDescription>
+          <CardDescription>Earn collectible NFTs as you hit energy milestones</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <p className="text-muted-foreground text-sm">
-              As you hit various clean energy milestones, you'll automatically receive NFTs that represent your achievements.
+              Hit real kWh milestones and automatically receive NFTs that prove your contribution to clean energy. These are your badges of sustainability.
             </p>
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
               <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-primary/5 to-primary/10 active:scale-[0.98] transition-ios">
                 <div className="text-3xl mb-2">🌱</div>
                 <p className="font-medium text-foreground">Seedling</p>
-                <p className="text-xs text-muted-foreground">First 100 kWh produced</p>
+                <p className="text-xs text-muted-foreground">100 kWh produced</p>
               </div>
               <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-secondary/5 to-secondary/10 active:scale-[0.98] transition-ios">
                 <div className="text-3xl mb-2">🌿</div>
@@ -151,7 +151,7 @@ export default function Tokenomics() {
               </div>
             </div>
             <p className="text-xs text-muted-foreground italic">
-              More milestones and NFT tiers coming soon based on community feedback.
+              Commercial tiers for businesses producing 100,000+ kWh coming soon.
             </p>
           </div>
         </CardContent>
@@ -167,8 +167,8 @@ export default function Tokenomics() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm">
-            ZenSolar is currently in beta on the Sepolia testnet. Token distribution rates, NFT milestones, 
-            and other tokenomics parameters may be adjusted based on community feedback before mainnet launch.
+            ZenSolar is in beta on the Sepolia testnet. We're refining the token-to-kWh ratio, staking mechanics, 
+            and halving schedule based on real user data before mainnet launch.
           </p>
         </CardContent>
       </Card>
