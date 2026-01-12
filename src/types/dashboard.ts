@@ -1,3 +1,11 @@
+export interface DeviceLabels {
+  vehicle?: string;       // e.g., "ZenX" for EV Miles Driven
+  powerwall?: string;     // e.g., "ZenCasa" for Battery Storage Discharged
+  wallConnector?: string; // e.g., "Tesla Wall Connector" or device name
+  homeCharger?: string;   // e.g., "Wallbox Pulsar" for Home Charger kWh
+  solar?: string;         // e.g., "PROJ-8098" for solar system name
+}
+
 export interface ActivityData {
   solarEnergyProduced: number;
   evMilesDriven: number;
@@ -8,6 +16,7 @@ export interface ActivityData {
   referralTokens: number;
   nftsEarned: number[];
   co2OffsetPounds: number;
+  deviceLabels?: DeviceLabels;
 }
 
 export interface ConnectedAccount {

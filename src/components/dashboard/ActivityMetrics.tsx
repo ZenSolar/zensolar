@@ -16,6 +16,23 @@ interface ActivityMetricsProps {
 }
 
 export function ActivityMetrics({ data }: ActivityMetricsProps) {
+  const labels = data.deviceLabels || {};
+  
+  // Build dynamic labels based on device names
+  const evLabel = labels.vehicle 
+    ? `${labels.vehicle} Miles Driven` 
+    : 'EV Miles Driven';
+  
+  const batteryLabel = labels.powerwall 
+    ? `${labels.powerwall} Discharged` 
+    : 'Battery Storage Discharged';
+  
+  const homeChargerLabel = labels.homeCharger 
+    ? `${labels.homeCharger} kWh` 
+    : labels.wallConnector
+      ? `${labels.wallConnector} kWh`
+      : 'Home Charger kWh';
+
   return (
     <div className="space-y-6">
       {/* Rewards Section - Tokens & NFTs */}
@@ -75,7 +92,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Car}
-            label="EV Miles Driven"
+            label={evLabel}
             value={data.evMilesDriven}
             unit="miles"
             colorClass="bg-energy"
@@ -83,7 +100,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Battery}
-            label="Battery Storage Discharged"
+            label={batteryLabel}
             value={data.batteryStorageDischarged}
             unit="kWh"
             colorClass="bg-secondary"
@@ -99,7 +116,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Zap}
-            label="Home Charger kWh"
+            label={homeChargerLabel}
             value={data.homeChargerKwh}
             unit="kWh"
             colorClass="bg-secondary"

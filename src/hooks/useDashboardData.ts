@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ActivityData, ConnectedAccount, calculateCO2Offset } from '@/types/dashboard';
+import { ActivityData, ConnectedAccount, calculateCO2Offset, DeviceLabels } from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -13,6 +13,7 @@ const defaultActivityData: ActivityData = {
   referralTokens: 0,
   nftsEarned: [],
   co2OffsetPounds: 0,
+  deviceLabels: undefined,
 };
 
 interface ProfileConnections {
@@ -210,6 +211,56 @@ export function useDashboardData() {
     }
   }, []);
 
+  const fetchDeviceLabels = useCallback(async (): Promise<DeviceLabels> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return {};
+
+      const { data: devices, error } = await supabase
+        .from('connected_devices')
+        .select('device_type, device_name, provider')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Device labels fetch error:', error);
+        return {};
+      }
+
+      const labels: DeviceLabels = {};
+
+      for (const device of devices || []) {
+        if (device.device_type === 'vehicle' && device.device_name) {
+          labels.vehicle = device.device_name;
+        } else if (device.device_type === 'powerwall' && device.device_name) {
+          labels.powerwall = device.device_name;
+        } else if (device.device_type === 'wall_connector' && device.device_name) {
+          labels.wallConnector = device.device_name;
+        } else if (device.device_type === 'charger' && device.provider === 'wallbox' && device.device_name) {
+          // Wallbox chargers
+          labels.homeCharger = device.device_name;
+        } else if (device.device_type === 'solar_system' && device.device_name) {
+          labels.solar = device.device_name;
+        } else if (device.device_type === 'solar' && device.device_name) {
+          // Tesla solar
+          labels.solar = device.device_name;
+        }
+      }
+
+      // Build home charger label from available sources
+      if (!labels.homeCharger) {
+        if (labels.wallConnector) {
+          labels.homeCharger = labels.wallConnector;
+        }
+      }
+
+      console.log('Device labels:', labels);
+      return labels;
+    } catch (error) {
+      console.error('Failed to fetch device labels:', error);
+      return {};
+    }
+  }, []);
+
   const refreshDashboard = useCallback(async () => {
     setIsLoading(true);
     
@@ -220,14 +271,15 @@ export function useDashboardData() {
       let superchargerKwh = 0;
       let homeChargerKwh = 0;
 
-      // Fetch data in parallel
-      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens] = await Promise.all([
+      // Fetch data in parallel (including device labels)
+      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels] = await Promise.all([
         profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         profileConnections?.tesla_connected ? fetchTeslaData() : null,
         profileConnections?.wallbox_connected ? fetchWallboxData() : null,
         fetchRewardsData(),
         fetchReferralTokens(),
+        fetchDeviceLabels(),
       ]);
 
       // Solar source priority: Enphase > SolarEdge > Tesla
@@ -289,6 +341,7 @@ export function useDashboardData() {
         referralTokens,
         nftsEarned: earnedNFTs,
         co2OffsetPounds: 0,
+        deviceLabels,
       };
 
       // Always compute CO2 from the live dashboard metrics so it stays consistent with the UI
@@ -306,7 +359,7 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens]);
+  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels]);
 
   // Auto-refresh when connections change
   useEffect(() => {
