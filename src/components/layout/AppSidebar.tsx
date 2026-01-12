@@ -45,7 +45,7 @@ const secondaryNavItems = [
   { title: "Profile", url: "/profile", icon: User },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "About", url: "/about", icon: HelpCircle },
-  { title: "Help", url: "/help", icon: HelpCircle },
+  { title: "Help", url: "/help", icon: MessageSquarePlus },
   { title: "Feedback", url: "/feedback", icon: MessageSquarePlus },
 ];
 
