@@ -24,7 +24,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
     : 'EV Miles Driven';
   
   const batteryLabel = labels.powerwall 
-    ? `${labels.powerwall} Discharged` 
+    ? `${labels.powerwall} Discharged kWh` 
     : 'Battery Storage Discharged';
   
   const homeChargerLabel = labels.homeCharger 
