@@ -33,6 +33,11 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
       ? `${labels.wallConnector} kWh`
       : 'Home Charger kWh';
 
+  // Build solar label from Enphase system name or default
+  const solarLabel = labels.solar 
+    ? `${labels.solar} Solar Energy Produced` 
+    : 'Solar Energy Produced';
+
   return (
     <div className="space-y-6">
       {/* Rewards Section - Tokens & NFTs */}
@@ -84,7 +89,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
         <div className="grid gap-3">
           <MetricCard
             icon={Sun}
-            label="Solar Energy Produced"
+            label={solarLabel}
             value={data.solarEnergyProduced}
             unit="kWh"
             colorClass="bg-solar"
