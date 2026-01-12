@@ -279,7 +279,7 @@ export default function Auth() {
                 ? "Enter your email to receive a reset link"
                 : mode === 'reset'
                 ? "Enter your new password"
-                : "Sign in to your account or create a new one"}
+                : "Sign in to earn $ZSOLAR tokens & NFT blockchain rewards"}
             </CardDescription>
           </CardHeader>
           <CardContent>
