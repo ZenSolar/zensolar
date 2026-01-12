@@ -10,14 +10,14 @@ const steps = [
   {
     id: 1,
     title: "Welcome to ZenSolar",
-    description: "Let's set up your account to start earning rewards for your clean energy.",
+    description: "Let's set up your account to start earning ZenSolar blockchain rewards.",
     icon: Sparkles,
     content: (
       <div className="space-y-4 text-center">
         <img src={zenLogo} alt="ZenSolar" width={168} height={80} className="h-20 mx-auto rounded-xl" />
         <p className="text-muted-foreground">
           ZenSolar tracks your solar production, EV miles, and sustainable actions 
-          to reward you with blockchain-verified tokens and NFTs.
+          to reward you with $ZSOLAR tokens and NFTs on the blockchain.
         </p>
         <div className="grid grid-cols-3 gap-3 pt-4">
           <div className="text-center p-3 rounded-lg bg-primary/5">
@@ -39,7 +39,7 @@ const steps = [
   {
     id: 2,
     title: "Connect Your Solar System",
-    description: "Link your solar provider to automatically track energy production.",
+    description: "Link your solar provider to automatically track production and earn blockchain rewards.",
     icon: Sun,
     content: (
       <div className="space-y-4">
@@ -73,7 +73,7 @@ const steps = [
   {
     id: 3,
     title: "Connect Your Wallet",
-    description: "Link a crypto wallet to receive your token rewards and NFTs.",
+    description: "Link a crypto wallet to receive your ZenSolar blockchain rewards.",
     icon: Wallet,
     content: (
       <div className="space-y-4">
@@ -117,7 +117,7 @@ const steps = [
           <h3 className="text-lg font-semibold">Welcome to ZenSolar!</h3>
           <p className="text-sm text-muted-foreground">
             Head to your Dashboard to connect your solar system and wallet. 
-            Once connected, you'll automatically start earning rewards.
+            Once connected, you'll automatically start earning ZenSolar blockchain rewards.
           </p>
         </div>
         <div className="bg-primary/5 rounded-lg p-4">
