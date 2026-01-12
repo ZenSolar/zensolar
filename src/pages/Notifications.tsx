@@ -162,6 +162,7 @@ export default function Notifications() {
                           size="icon"
                           className="opacity-0 group-hover:opacity-100 transition-opacity"
                           onClick={() => handleDelete(notification.id)}
+                          aria-label="Delete notification"
                         >
                           <Trash2 className="h-4 w-4 text-muted-foreground" />
                         </Button>
