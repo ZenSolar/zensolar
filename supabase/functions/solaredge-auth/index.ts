@@ -114,6 +114,26 @@ Deno.serve(async (req) => {
 
       console.log("SolarEdge credentials stored successfully for user:", user.id);
 
+      // Notify admins of the new account connection
+      try {
+        const notifyUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/notify-account-connected`;
+        await fetch(notifyUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            user_email: user.email,
+            provider: "solaredge",
+          }),
+        });
+        console.log("Sent SolarEdge account connected notification to admins");
+      } catch (notifyError) {
+        console.error("Failed to send account connected notification:", notifyError);
+      }
+
       return new Response(JSON.stringify({ 
         success: true,
         site: {

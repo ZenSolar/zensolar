@@ -251,6 +251,32 @@ Deno.serve(async (req) => {
       if (updateError) {
         console.error("Failed to update profile:", updateError);
       }
+
+      // Get user email for notification
+      const { data: authUser } = await supabaseClient.auth.admin.getUserById(user.id);
+      const userEmail = authUser?.user?.email || null;
+
+      // Notify admins of the new account connection
+      try {
+        const notifyUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/notify-account-connected`;
+        await fetch(notifyUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            user_email: userEmail,
+            provider,
+            device_count: results.claimed.length,
+          }),
+        });
+        console.log("Sent account connected notification to admins");
+      } catch (notifyError) {
+        console.error("Failed to send account connected notification:", notifyError);
+        // Don't fail the main operation if notification fails
+      }
     }
 
     const success = results.claimed.length > 0;
