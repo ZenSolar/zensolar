@@ -29,10 +29,13 @@ export default function OAuthCallback() {
         return;
       }
 
-      // Check if this is a Tesla callback (has state parameter)
+      // Check if this is a Tesla callback (has state parameter OR mobile pending flag)
       const savedState = localStorage.getItem('tesla_oauth_state');
-      if (state && savedState === state) {
+      const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
+      
+      if ((state && savedState === state) || teslaMobilePending) {
         localStorage.removeItem('tesla_oauth_state');
+        localStorage.removeItem('tesla_oauth_pending');
         const success = await exchangeTeslaCode(code);
         if (success) {
           // Show device selection after successful auth
