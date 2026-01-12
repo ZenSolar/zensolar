@@ -224,6 +224,7 @@ export function NotificationTemplatesTab() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setEditingTemplate(template)}
+                      aria-label="Edit template"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -231,6 +232,7 @@ export function NotificationTemplatesTab() {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteMutation.mutate(template.id)}
+                      aria-label="Delete template"
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

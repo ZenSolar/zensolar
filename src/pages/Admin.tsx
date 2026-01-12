@@ -661,6 +661,7 @@ export default function Admin() {
                       variant="outline" 
                       size="icon"
                       onClick={() => copyToClipboard(vapidKeys.publicKey, 'Public key')}
+                      aria-label="Copy public key"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -679,6 +680,7 @@ export default function Admin() {
                       variant="outline" 
                       size="icon"
                       onClick={() => copyToClipboard(vapidKeys.privateKey, 'Private key')}
+                      aria-label="Copy private key"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
