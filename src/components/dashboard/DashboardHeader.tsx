@@ -31,7 +31,7 @@ export function DashboardHeader({ isDemo = false }: DashboardHeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-3">
-          <img src={zenLogo} alt="ZenSolar" className="h-8" />
+          <img src={zenLogo} alt="ZenSolar" width={67} height={32} className="h-8" />
           <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
         </div>
         <div className="flex items-center gap-2">

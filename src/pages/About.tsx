@@ -42,6 +42,8 @@ export default function About() {
         <img 
           src={zenLogo} 
           alt="ZenSolar" 
+          width={160}
+          height={64}
           className="h-16 mx-auto rounded-lg"
         />
         <h1 className="text-3xl font-bold text-foreground">

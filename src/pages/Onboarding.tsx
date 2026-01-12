@@ -14,7 +14,7 @@ const steps = [
     icon: Sparkles,
     content: (
       <div className="space-y-4 text-center">
-        <img src={zenLogo} alt="ZenSolar" className="h-20 mx-auto rounded-xl" />
+        <img src={zenLogo} alt="ZenSolar" width={168} height={80} className="h-20 mx-auto rounded-xl" />
         <p className="text-muted-foreground">
           ZenSolar tracks your solar production, EV miles, and sustainable actions 
           to reward you with blockchain-verified tokens and NFTs.
