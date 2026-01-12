@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.notify-account-connected]
 verify_jwt = false
+
+[functions.sync-device-names]
+verify_jwt = false
