@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { Web3Provider } from "@/components/providers/Web3Provider";
+import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -54,7 +54,7 @@ const App = () => {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <Web3Provider>
+      <LazyWeb3Provider>
         <TooltipProvider>
           <ErrorBoundary>
             <BotProtection blockBots>
@@ -206,7 +206,7 @@ const App = () => {
             </BotProtection>
           </ErrorBoundary>
         </TooltipProvider>
-      </Web3Provider>
+      </LazyWeb3Provider>
     </ThemeProvider>
   );
 };

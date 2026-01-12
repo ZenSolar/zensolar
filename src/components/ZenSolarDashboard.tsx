@@ -147,6 +147,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
+            width={168}
+            height={80}
             className="h-20 w-auto object-contain dark:brightness-110 dark:contrast-110" 
           />
           <div>

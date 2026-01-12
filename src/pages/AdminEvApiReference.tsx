@@ -685,7 +685,7 @@ export default function AdminEvApiReference() {
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            <img src={zenLogo} alt="ZenSolar" className="h-7 w-7" />
+            <img src={zenLogo} alt="ZenSolar" width={28} height={28} className="h-7 w-7" />
             <h1 className="text-xl font-bold text-foreground">Energy & EV API Reference</h1>
           </div>
         </div>

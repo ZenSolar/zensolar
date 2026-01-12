@@ -225,6 +225,9 @@ export default function Auth() {
             <img 
               src={zenLogo} 
               alt="ZenSolar" 
+              width={270}
+              height={128}
+              fetchPriority="high"
               className="h-32 w-auto object-contain mx-auto relative z-10 drop-shadow-2xl" 
             />
           </div>
@@ -266,7 +269,7 @@ export default function Auth() {
           <CardHeader className="text-center pb-2">
             {/* Mobile logo */}
             <div className="flex justify-center mb-4 lg:hidden">
-              <img src={zenLogo} alt="ZenSolar" className="h-20 w-auto object-contain" />
+              <img src={zenLogo} alt="ZenSolar" width={168} height={80} fetchPriority="high" className="h-20 w-auto object-contain" />
             </div>
             <CardTitle className="text-2xl font-bold text-white">
               {mode === 'forgot' ? 'Reset Password' : mode === 'reset' ? 'New Password' : 'Welcome'}
