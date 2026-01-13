@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sun, Zap, Coins, Leaf, Users, Globe, ArrowRight } from "lucide-react";
+import { Sun, Zap, Coins, Leaf, Users, Globe, ArrowRight, Cpu } from "lucide-react";
 import { Link } from "react-router-dom";
 import zenLogo from "@/assets/zen-logo-full-new.jpeg";
 
@@ -68,21 +68,24 @@ export default function About() {
       </div>
 
       {/* Patent Pending Badge */}
-      <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border-primary/30">
-        <CardContent className="py-4">
-          <div className="flex items-center justify-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <span className="text-lg">⚡</span>
+      <Link to="/technology" className="block hover-scale">
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border-primary/30 hover:border-primary/50 transition-colors">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Cpu className="h-5 w-5 text-primary" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-foreground">Patent Pending Technology</p>
+                <p className="text-xs text-muted-foreground">
+                  System and Method for Tokenizing Sustainable Behaviors Using Blockchain
+                </p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-primary ml-2" />
             </div>
-            <div className="text-center">
-              <p className="text-sm font-semibold text-foreground">Patent Pending Technology</p>
-              <p className="text-xs text-muted-foreground">
-                System and Method for Tokenizing Sustainable Behaviors Using Blockchain
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </Link>
 
       {/* Mission */}
       <Card className="bg-gradient-to-br from-primary/5 to-eco/5 border-primary/20">
