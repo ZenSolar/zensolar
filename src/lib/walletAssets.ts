@@ -65,45 +65,45 @@ export async function promptAddZsolarNFT(tokenId: string): Promise<boolean> {
 }
 
 /**
- * Checks if the user is on the correct network (Sepolia for testnet)
+ * Checks if the user is on the correct network (Base Sepolia for testnet)
  * and prompts to switch if needed
  */
-export async function ensureSepoliaNetwork(): Promise<boolean> {
+export async function ensureBaseSepoliaNetwork(): Promise<boolean> {
   if (!window.ethereum) {
     return false;
   }
 
-  const SEPOLIA_CHAIN_ID = '0xaa36a7'; // 11155111 in hex
+  const BASE_SEPOLIA_CHAIN_ID = '0x14a34'; // 84532 in hex
 
   try {
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
     
-    if (chainId === SEPOLIA_CHAIN_ID) {
+    if (chainId === BASE_SEPOLIA_CHAIN_ID) {
       return true;
     }
 
-    // Try to switch to Sepolia
+    // Try to switch to Base Sepolia
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: SEPOLIA_CHAIN_ID }],
+        params: [{ chainId: BASE_SEPOLIA_CHAIN_ID }],
       });
       return true;
     } catch (switchError: any) {
-      // If Sepolia is not added to wallet, add it
+      // If Base Sepolia is not added to wallet, add it
       if (switchError.code === 4902) {
         await window.ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [{
-            chainId: SEPOLIA_CHAIN_ID,
-            chainName: 'Sepolia Testnet',
+            chainId: BASE_SEPOLIA_CHAIN_ID,
+            chainName: 'Base Sepolia',
             nativeCurrency: {
               name: 'Sepolia ETH',
               symbol: 'ETH',
               decimals: 18,
             },
-            rpcUrls: ['https://sepolia.infura.io/v3/'],
-            blockExplorerUrls: ['https://sepolia.etherscan.io'],
+            rpcUrls: ['https://sepolia.base.org'],
+            blockExplorerUrls: ['https://sepolia.basescan.org'],
           }],
         });
         return true;
