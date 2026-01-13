@@ -9,6 +9,7 @@ import { ActivityMetrics } from './dashboard/ActivityMetrics';
 import { RewardActions } from './dashboard/RewardActions';
 import { HowItWorks } from './dashboard/HowItWorks';
 import { RewardProgress } from './dashboard/RewardProgress';
+import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { Loader2 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
@@ -160,6 +161,20 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             <p className="text-sm text-muted-foreground">Connect your solar system and EV to mint $ZSOLAR tokens based on real kWh production.</p>
           </div>
         </div>
+        
+        {/* Getting Started Guide - show for new users */}
+        <GettingStartedGuide
+          energyConnected={energyAccounts.some(acc => acc.connected)}
+          walletConnected={!!profile?.wallet_address}
+          onConnectEnergy={() => {
+            // Scroll to energy accounts section
+            document.getElementById('connect-accounts')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onConnectWallet={() => {
+            // Scroll to wallet section
+            document.getElementById('connect-wallet')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
         
         {/* How It Works - only show if no energy accounts connected */}
         {!energyAccounts.some(acc => acc.connected) && <HowItWorks />}
