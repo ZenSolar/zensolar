@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.sync-device-names]
 verify_jwt = false
+
+[functions.send-reminder-notifications]
+verify_jwt = false
