@@ -1,9 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, ExternalLink } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useAccount, useSwitchChain } from 'wagmi';
-import { baseSepolia } from 'wagmi/chains';
-import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { promptAddZsolarToken, promptAddZsolarNFT } from '@/lib/walletAssets';
 
 interface RewardActionsProps {
   onRefresh: () => Promise<void>;
@@ -19,68 +15,20 @@ interface RewardActionsProps {
 }
 
 export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
-  const { isConnected, chain } = useAccount();
-  const { switchChain } = useSwitchChain();
-  
   const [mintDialog, setMintDialog] = useState<{ 
     open: boolean; 
     type: 'token' | 'nft' | null; 
-    success?: boolean;
   }>({
     open: false,
     type: null,
   });
-  const [isMinting, setIsMinting] = useState(false);
 
-  const handleMint = async (type: 'token' | 'nft') => {
-    // Check if wallet is connected
-    if (!isConnected) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
-
-    // Check if on Base Sepolia network
-    if (chain?.id !== baseSepolia.id) {
-      toast.info('Switching to Base Sepolia...');
-      try {
-        switchChain({ chainId: baseSepolia.id });
-        // Wait a moment for the switch
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (error) {
-        toast.error('Please switch to Base Sepolia to mint');
-        return;
-      }
-    }
-
-    setIsMinting(true);
-    
-    // Simulate minting process (will be replaced with actual contract call)
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Show success dialog with option to add token to wallet
+  const handleMint = (type: 'token' | 'nft') => {
+    // Show the exciting coming soon dialog immediately
     setMintDialog({
       open: true,
       type,
-      success: true,
     });
-    
-    setIsMinting(false);
-  };
-
-  const handleAddToWallet = async () => {
-    if (mintDialog.type === 'token') {
-      const added = await promptAddZsolarToken();
-      if (added) {
-        toast.success('$ZSOLAR token added to your wallet!');
-      }
-    } else if (mintDialog.type === 'nft') {
-      // In production, this would use the actual token ID from minting
-      const added = await promptAddZsolarNFT('1');
-      if (added) {
-        toast.success('ZenSolar NFT will appear in your wallet!');
-      }
-    }
-    setMintDialog({ open: false, type: null });
   };
 
   return (
@@ -88,29 +36,21 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
       <div className="space-y-3">
         <Button
           onClick={() => handleMint('token')}
-          disabled={isMinting || isLoading}
+          disabled={isLoading}
           className="w-full bg-primary hover:bg-primary/90"
           size="lg"
         >
-          {isMinting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Coins className="mr-2 h-4 w-4" />
-          )}
+          <Coins className="mr-2 h-4 w-4" />
           MINT $ZSOLAR TOKENS
         </Button>
 
         <Button
           onClick={() => handleMint('nft')}
-          disabled={isMinting || isLoading}
+          disabled={isLoading}
           className="w-full bg-primary hover:bg-primary/90"
           size="lg"
         >
-          {isMinting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Award className="mr-2 h-4 w-4" />
-          )}
+          <Award className="mr-2 h-4 w-4" />
           MINT ZENSOLAR NFT
         </Button>
 
@@ -133,44 +73,53 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
       <Dialog open={mintDialog.open} onOpenChange={(open) => setMintDialog({ ...mintDialog, open })}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-primary">
-              {mintDialog.success ? '🎉 Coming Soon!' : '🚀 Minting...'}
+            <DialogTitle className="text-primary text-xl">
+              🚀 Something Revolutionary is Coming!
             </DialogTitle>
-            <DialogDescription className="pt-2 space-y-3">
-              <p className="text-base">
-                {mintDialog.type === 'token' 
-                  ? 'Sepolia testnet integration for $ZSOLAR token minting is launching soon!'
-                  : 'Sepolia testnet integration for ZenSolar NFT minting is launching soon!'
-                }
+            <DialogDescription className="pt-3 space-y-4">
+              <p className="text-base font-medium text-foreground">
+                We're building the future of clean energy rewards!
               </p>
               <p className="text-sm text-muted-foreground">
-                When live, your {mintDialog.type === 'token' ? 'tokens' : 'NFTs'} will automatically appear in your wallet on Sepolia testnet. No manual steps required! 🌟
+                {mintDialog.type === 'token' 
+                  ? 'Soon you\'ll be able to mint $ZSOLAR tokens directly to your wallet based on your real solar production and EV data.'
+                  : 'Soon you\'ll be able to mint exclusive ZenSolar NFTs that prove your contribution to clean energy—all gas-free!'
+                }
               </p>
               
-              <div className="bg-secondary/50 rounded-lg p-3 text-sm">
-                <p className="font-medium mb-1">✨ Seamless Experience:</p>
-                <ul className="text-muted-foreground space-y-1 text-xs">
-                  <li>• Auto network switching to Sepolia</li>
-                  <li>• One-click token addition to wallet</li>
-                  <li>• No manual contract addresses needed</li>
+              <div className="bg-gradient-to-br from-primary/10 via-secondary/5 to-token/10 rounded-lg p-4 border border-primary/20">
+                <p className="font-semibold text-foreground mb-2">✨ What's Coming:</p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Gasless minting—we cover all transaction costs</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Real kWh data converted to blockchain rewards</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>ERC-20 tokens & ERC-721 NFTs on Base L2</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>One-click minting experience</span>
+                  </li>
                 </ul>
               </div>
+
+              <p className="text-xs text-muted-foreground italic text-center">
+                🌟 Stay connected—minting goes live on Base Sepolia testnet very soon!
+              </p>
             </DialogDescription>
           </DialogHeader>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-2">
             <Button 
-              variant="outline" 
               onClick={() => setMintDialog({ open: false, type: null })}
-              className="flex-1"
+              className="w-full"
             >
-              Close
-            </Button>
-            <Button 
-              onClick={handleAddToWallet}
-              className="flex-1"
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Add to Wallet
+              Got It!
             </Button>
           </div>
         </DialogContent>
