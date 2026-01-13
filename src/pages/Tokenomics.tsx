@@ -62,11 +62,15 @@ export default function Tokenomics() {
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-4">
               <p className="text-sm text-muted-foreground">Network</p>
-              <p className="text-lg sm:text-2xl font-bold text-foreground">Ethereum (Sepolia)</p>
+              <p className="text-lg sm:text-2xl font-bold text-foreground">Base Sepolia (L2)</p>
             </div>
           </div>
+          <div className="flex flex-wrap gap-2 text-xs mb-2">
+            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">ERC-20 Token</span>
+            <span className="px-2 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20">Gasless Minting</span>
+          </div>
           <p className="text-muted-foreground text-sm">
-            $ZSOLAR tokens are minted proportionally to your verified energy production. Currently on Sepolia testnet—mainnet launch coming soon.
+            $ZSOLAR tokens are minted proportionally to your verified energy production. Built on Base L2 for fast, low-cost transactions. Currently on Base Sepolia testnet—Base mainnet launch coming soon.
           </p>
         </CardContent>
       </Card>
@@ -130,9 +134,13 @@ export default function Tokenomics() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <p className="text-muted-foreground text-sm">
-              Hit real kWh milestones and automatically receive NFTs that prove your contribution to clean energy. These are your badges of sustainability.
-            </p>
+          <div className="flex flex-wrap gap-2 text-xs mb-3">
+            <span className="px-2 py-1 rounded-full bg-accent/10 text-accent border border-accent/20">ERC-721 NFTs</span>
+            <span className="px-2 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20">Free to Mint</span>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            Hit real kWh milestones and automatically receive NFTs that prove your contribution to clean energy. We cover all gas fees—minting is completely free for you.
+          </p>
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
               <div className="text-center p-4 rounded-lg border border-border bg-gradient-to-br from-primary/5 to-primary/10 active:scale-[0.98] transition-ios">
                 <div className="text-3xl mb-2">🌱</div>
@@ -167,8 +175,8 @@ export default function Tokenomics() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm">
-            ZenSolar is in beta on the Sepolia testnet. We're refining the token-to-kWh ratio, staking mechanics, 
-            and halving schedule based on real user data before mainnet launch.
+            ZenSolar is in beta on the Base Sepolia testnet. We're refining the token-to-kWh ratio, staking mechanics, 
+            and halving schedule based on real user data before Base mainnet launch. All minting is gasless—we cover transaction costs.
           </p>
         </CardContent>
       </Card>

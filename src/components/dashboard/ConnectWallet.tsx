@@ -168,7 +168,7 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
       {/* Wallet recommendation */}
       {!isConnected && (
         <p className="mt-3 text-xs text-muted-foreground text-center">
-          💡 Base Sepolia testnet will be added automatically
+          💡 Base Sepolia testnet (Beta) will be added automatically
         </p>
       )}
       
