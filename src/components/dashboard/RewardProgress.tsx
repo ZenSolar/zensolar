@@ -12,6 +12,9 @@ interface RewardProgressProps {
 const NFT_MILESTONES = [
   { id: 0, name: 'Welcome', kwhRequired: 0, description: 'Sign up reward', color: 'bg-amber-500' },
   { id: 1, name: 'First Harvest', kwhRequired: 500, description: '500 kWh generated', color: 'bg-emerald-500' },
+  { id: 2, name: 'Solar Pioneer', kwhRequired: 2500, description: '2,500 kWh generated', color: 'bg-blue-500' },
+  { id: 3, name: 'Green Champion', kwhRequired: 10000, description: '10,000 kWh generated', color: 'bg-purple-500' },
+  { id: 4, name: 'Energy Legend', kwhRequired: 50000, description: '50,000 kWh generated', color: 'bg-rose-500' },
 ];
 
 export function RewardProgress({ tokensEarned, nftsEarned, isNewUser = true }: RewardProgressProps) {

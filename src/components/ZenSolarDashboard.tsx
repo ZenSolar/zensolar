@@ -161,8 +161,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </div>
         </div>
         
-        {/* How It Works - explains the energy-to-token flow */}
-        <HowItWorks />
+        {/* How It Works - only show if no energy accounts connected */}
+        {!energyAccounts.some(acc => acc.connected) && <HowItWorks />}
 
         <ConnectWallet
           walletAddress={profile?.wallet_address ?? null}
