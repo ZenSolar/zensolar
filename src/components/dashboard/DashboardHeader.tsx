@@ -32,7 +32,10 @@ export function DashboardHeader({ isDemo = false }: DashboardHeaderProps) {
       <div className="container flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <img src={zenLogo} alt="ZenSolar" width={67} height={32} className="h-8" />
-          <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+            <span className="text-[10px] text-primary/70 font-medium hidden sm:block">✦ Patent Pending</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {isDemo ? (

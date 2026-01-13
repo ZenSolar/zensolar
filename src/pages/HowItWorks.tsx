@@ -10,6 +10,10 @@ export default function HowItWorks() {
         <p className="text-muted-foreground">
           Turn your clean energy production into blockchain rewards
         </p>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+          <span className="text-xs">✦</span>
+          <span className="text-xs font-medium text-primary">Patent Pending Technology</span>
+        </div>
       </div>
 
       {/* Quick Steps Overview */}
@@ -98,7 +102,7 @@ export default function HowItWorks() {
         </CardContent>
       </Card>
 
-      {/* NFT Milestones */}
+      {/* NFT Milestones - All 9 Residential Tiers */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">NFT Milestones</CardTitle>
@@ -111,37 +115,62 @@ export default function HowItWorks() {
               <p className="text-xs text-muted-foreground">Earned when you sign up for ZenSolar</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-            <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold">🌱</div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-lime-500/10 border border-lime-500/20">
+            <div className="w-10 h-10 rounded-full bg-lime-500 flex items-center justify-center text-white text-sm font-bold">🌱</div>
             <div>
               <p className="font-medium text-foreground">First Harvest</p>
               <p className="text-xs text-muted-foreground">Generate 500 kWh of clean energy</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold">🚀</div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold">☀️</div>
             <div>
               <p className="font-medium text-foreground">Solar Pioneer</p>
+              <p className="text-xs text-muted-foreground">Generate 1,000 kWh of clean energy</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-teal-500/10 border border-teal-500/20">
+            <div className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center text-white text-sm font-bold">🛡️</div>
+            <div>
+              <p className="font-medium text-foreground">Energy Guardian</p>
               <p className="text-xs text-muted-foreground">Generate 2,500 kWh of clean energy</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-            <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-bold">🏆</div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+            <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center text-white text-sm font-bold">⚔️</div>
             <div>
-              <p className="font-medium text-foreground">Green Champion</p>
+              <p className="font-medium text-foreground">Eco Warrior</p>
+              <p className="text-xs text-muted-foreground">Generate 5,000 kWh of clean energy</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold">💡</div>
+            <div>
+              <p className="font-medium text-foreground">Green Innovator</p>
               <p className="text-xs text-muted-foreground">Generate 10,000 kWh of clean energy</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
-            <div className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white text-sm font-bold">⚡</div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white text-sm font-bold">🏆</div>
             <div>
-              <p className="font-medium text-foreground">Energy Legend</p>
+              <p className="font-medium text-foreground">Sustainability Champion</p>
+              <p className="text-xs text-muted-foreground">Generate 25,000 kWh of clean energy</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+            <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-bold">🦸</div>
+            <div>
+              <p className="font-medium text-foreground">Renewable Hero</p>
               <p className="text-xs text-muted-foreground">Generate 50,000 kWh of clean energy</p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground text-center pt-2">
-            More milestones will be added as the platform grows!
-          </p>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
+            <div className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white text-sm font-bold">🧘</div>
+            <div>
+              <p className="font-medium text-foreground">Zen Master</p>
+              <p className="text-xs text-muted-foreground">Generate 100,000 kWh of clean energy</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

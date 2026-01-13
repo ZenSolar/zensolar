@@ -78,6 +78,7 @@ export function AppSidebar() {
             <div className="flex flex-col">
               <span className="font-bold text-lg text-sidebar-foreground">ZenSolar</span>
               <span className="text-xs text-sidebar-foreground/60">Earn blockchain rewards from clean energy use</span>
+              <span className="text-[10px] text-primary/80 font-medium mt-0.5">✦ Patent Pending Technology</span>
             </div>
           )}
         </div>
