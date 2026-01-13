@@ -135,7 +135,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   return (
     <div 
       ref={containerRef}
-      className="bg-background min-h-full overflow-auto"
+      className="bg-background min-h-full overflow-x-hidden overflow-y-auto w-full"
     >
       {isDemo && <DashboardHeader isDemo={isDemo} />}
       
@@ -145,7 +145,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         isReady={isReady}
       />
       
-      <AnimatedContainer className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+      <AnimatedContainer className="w-full max-w-lg mx-auto px-4 py-6 space-y-6 box-border">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[120px]">
           <img 
