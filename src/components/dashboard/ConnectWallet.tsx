@@ -1,8 +1,9 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi';
-import { useEffect } from 'react';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
+import { useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Wallet } from 'lucide-react';
+import { CHAIN_ID } from '@/lib/wagmi';
 
 interface ConnectWalletProps {
   walletAddress: string | null;
@@ -12,17 +13,34 @@ interface ConnectWalletProps {
 
 export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: ConnectWalletProps) {
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+
+  // Auto-switch to Base Sepolia when wallet connects on wrong network
+  const ensureCorrectNetwork = useCallback(async () => {
+    if (isConnected && chainId !== CHAIN_ID) {
+      toast.info('Switching to Base Sepolia...', { duration: 2000 });
+      try {
+        switchChain({ chainId: CHAIN_ID });
+      } catch (error) {
+        console.log('Network switch declined or failed');
+      }
+    }
+  }, [isConnected, chainId, switchChain]);
 
   // Sync wallet address to profile when connected
   useEffect(() => {
     if (isConnected && address && address !== walletAddress) {
+      // First ensure correct network, then save address
+      ensureCorrectNetwork();
+      
       onConnect(address).then(() => {
-        toast.success('Wallet connected successfully!');
+        toast.success('Wallet connected to Base Sepolia!');
       }).catch(() => {
         toast.error('Failed to save wallet address');
       });
     }
-  }, [isConnected, address, walletAddress, onConnect]);
+  }, [isConnected, address, walletAddress, onConnect, ensureCorrectNetwork]);
 
   if (isDemo) {
     return (
@@ -142,7 +160,7 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
       {/* Wallet recommendation */}
       {!isConnected && (
         <p className="mt-3 text-xs text-muted-foreground text-center">
-          💡 <strong>Recommended:</strong> MetaMask for best testnet support
+          💡 Base Sepolia network will be added automatically when you connect
         </p>
       )}
     </div>
