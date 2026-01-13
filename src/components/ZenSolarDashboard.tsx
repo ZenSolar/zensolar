@@ -11,6 +11,7 @@ import { HowItWorks } from './dashboard/HowItWorks';
 import { RewardProgress } from './dashboard/RewardProgress';
 import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
+import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Loader2 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
 
@@ -144,9 +145,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         isReady={isReady}
       />
       
-      <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+      <AnimatedContainer className="container max-w-lg mx-auto px-4 py-6 space-y-6">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
-        <div className="flex flex-col items-center gap-3 pb-2 text-center min-h-[120px]">
+        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[120px]">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
@@ -160,59 +161,73 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             </h1>
             <p className="text-sm text-muted-foreground">Connect your solar system and EV to mint $ZSOLAR tokens based on real kWh production.</p>
           </div>
-        </div>
+        </AnimatedItem>
         
         {/* Getting Started Guide - show for new users */}
-        <GettingStartedGuide
-          energyConnected={energyAccounts.some(acc => acc.connected)}
-          walletConnected={!!profile?.wallet_address}
-          onConnectEnergy={() => {
-            document.getElementById('connect-accounts')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          onConnectWallet={() => {
-            document.getElementById('connect-wallet')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        />
+        <AnimatedItem>
+          <GettingStartedGuide
+            energyConnected={energyAccounts.some(acc => acc.connected)}
+            walletConnected={!!profile?.wallet_address}
+            onConnectEnergy={() => {
+              document.getElementById('connect-accounts')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            onConnectWallet={() => {
+              document.getElementById('connect-wallet')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
+        </AnimatedItem>
         
         {/* How It Works - only show if no energy accounts connected */}
-        {!energyAccounts.some(acc => acc.connected) && <HowItWorks />}
+        {!energyAccounts.some(acc => acc.connected) && (
+          <AnimatedItem>
+            <HowItWorks />
+          </AnimatedItem>
+        )}
 
-        <div id="connect-wallet">
+        <AnimatedItem id="connect-wallet">
           <ConnectWallet
             walletAddress={profile?.wallet_address ?? null}
             onConnect={handleConnectWallet}
             isDemo={isDemo}
           />
-        </div>
+        </AnimatedItem>
 
-        <div id="connect-accounts">
+        <AnimatedItem id="connect-accounts">
           <ConnectAccounts 
             accounts={energyAccounts} 
             onConnect={handleConnectEnergy}
             onDisconnect={handleDisconnectEnergy}
           />
-        </div>
+        </AnimatedItem>
         
-        <ConnectSocialAccounts
-          accounts={socialAccounts}
-          onConnect={handleConnectSocial}
-          onDisconnect={handleDisconnectSocial}
-        />
+        <AnimatedItem>
+          <ConnectSocialAccounts
+            accounts={socialAccounts}
+            onConnect={handleConnectSocial}
+            onDisconnect={handleDisconnectSocial}
+          />
+        </AnimatedItem>
         
         {/* NFT Milestones - Beta */}
-        <RewardProgress
-          tokensEarned={activityData.tokensEarned}
-          nftsEarned={activityData.nftsEarned}
-          isNewUser={true}
-        />
+        <AnimatedItem>
+          <RewardProgress
+            tokensEarned={activityData.tokensEarned}
+            nftsEarned={activityData.nftsEarned}
+            isNewUser={true}
+          />
+        </AnimatedItem>
 
-        <ActivityMetrics data={activityData} />
+        <AnimatedItem>
+          <ActivityMetrics data={activityData} />
+        </AnimatedItem>
         
-        <RewardActions 
-          onRefresh={refreshDashboard} 
-          isLoading={dataLoading} 
-        />
-      </div>
+        <AnimatedItem>
+          <RewardActions 
+            onRefresh={refreshDashboard} 
+            isLoading={dataLoading} 
+          />
+        </AnimatedItem>
+      </AnimatedContainer>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HowItWorks as HowItWorksSteps } from '@/components/dashboard/HowItWorks';
-import { Coins, Image, Wallet, Shield, Sparkles, TrendingUp } from 'lucide-react';
+import { Coins, Image, Wallet, Shield, Sparkles, TrendingUp, Cpu, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function HowItWorks() {
   return (
@@ -10,10 +11,14 @@ export default function HowItWorks() {
         <p className="text-muted-foreground">
           Turn your clean energy production into blockchain rewards
         </p>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-          <span className="text-xs">✦</span>
+        <Link 
+          to="/technology" 
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+        >
+          <Cpu className="h-3 w-3 text-primary" />
           <span className="text-xs font-medium text-primary">Patent Pending Technology</span>
-        </div>
+          <ArrowRight className="h-3 w-3 text-primary" />
+        </Link>
       </div>
 
       {/* Quick Steps Overview */}
