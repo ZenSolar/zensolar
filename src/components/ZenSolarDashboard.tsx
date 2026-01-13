@@ -7,8 +7,7 @@ import { ConnectSocialAccounts } from './dashboard/ConnectSocialAccounts';
 import { ConnectWallet } from './dashboard/ConnectWallet';
 import { ActivityMetrics } from './dashboard/ActivityMetrics';
 import { RewardActions } from './dashboard/RewardActions';
-import { QuickStartChecklist } from './dashboard/QuickStartChecklist';
-import { RewardProgress } from './dashboard/RewardProgress';
+import { HowItWorks } from './dashboard/HowItWorks';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { Loader2 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
@@ -161,12 +160,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </div>
         </div>
         
-        {/* Quick Start Checklist - shows until all steps complete */}
-        <QuickStartChecklist
-          walletConnected={!!profile?.wallet_address}
-          energyAccountConnected={energyAccounts.some((a) => a.connected)}
-          socialAccountConnected={socialAccounts.some((a) => a.connected)}
-        />
+        {/* How It Works - explains the energy-to-token flow */}
+        <HowItWorks />
 
         <ConnectWallet
           walletAddress={profile?.wallet_address ?? null}
@@ -186,12 +181,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           onDisconnect={handleDisconnectSocial}
         />
         
-        {/* NFT Progress toward milestones */}
-        <RewardProgress
-          tokensEarned={activityData.tokensEarned}
-          nftsEarned={activityData.nftsEarned}
-        />
-
         <ActivityMetrics data={activityData} />
         
         <RewardActions 
