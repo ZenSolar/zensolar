@@ -19,11 +19,19 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
   // Auto-switch to Base Sepolia when wallet connects on wrong network
   const ensureCorrectNetwork = useCallback(async () => {
     if (isConnected && chainId !== CHAIN_ID) {
-      toast.info('Switching to Base Sepolia...', { duration: 2000 });
+      toast.info('Adding Base Sepolia network...', { duration: 3000 });
       try {
-        switchChain({ chainId: CHAIN_ID });
-      } catch (error) {
-        console.log('Network switch declined or failed');
+        // RainbowKit's switchChain will auto-add the chain if not present
+        await switchChain({ chainId: CHAIN_ID });
+        toast.success('Switched to Base Sepolia!');
+      } catch (error: any) {
+        console.error('Network switch error:', error);
+        // If auto-add fails, provide manual instructions
+        if (error?.code === 4902 || error?.message?.includes('Unrecognized chain')) {
+          toast.error('Please add Base Sepolia manually in your wallet', { duration: 5000 });
+        } else {
+          toast.error('Network switch declined - please switch manually');
+        }
       }
     }
   }, [isConnected, chainId, switchChain]);
@@ -160,8 +168,20 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
       {/* Wallet recommendation */}
       {!isConnected && (
         <p className="mt-3 text-xs text-muted-foreground text-center">
-          💡 Base Sepolia network will be added automatically when you connect
+          💡 Base Sepolia testnet will be added automatically
         </p>
+      )}
+      
+      {/* Manual add link if having trouble */}
+      {isConnected && chainId !== CHAIN_ID && (
+        <a
+          href="https://chainlist.org/chain/84532"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 block text-xs text-primary hover:underline text-center"
+        >
+          Having trouble? Add Base Sepolia manually via ChainList →
+        </a>
       )}
     </div>
   );
