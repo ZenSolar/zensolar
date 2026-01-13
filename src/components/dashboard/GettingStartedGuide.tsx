@@ -164,8 +164,10 @@ export function GettingStartedGuide({
   const [currentStep, setCurrentStep] = useState(0);
   const [dismissed, setDismissed] = useState(false);
 
-  // Don't show if both are connected or dismissed
-  if ((energyConnected && walletConnected) || dismissed) {
+  // Don't show if both are connected or dismissed - use display:none to prevent layout shift
+  const shouldHide = (energyConnected && walletConnected) || dismissed;
+
+  if (shouldHide) {
     return null;
   }
 

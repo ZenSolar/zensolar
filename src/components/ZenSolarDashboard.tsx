@@ -145,8 +145,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       />
       
       <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
-        {/* Dashboard Header with Logo */}
-        <div className="flex flex-col items-center gap-3 pb-2 text-center">
+        {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
+        <div className="flex flex-col items-center gap-3 pb-2 text-center min-h-[120px]">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
@@ -167,11 +167,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           energyConnected={energyAccounts.some(acc => acc.connected)}
           walletConnected={!!profile?.wallet_address}
           onConnectEnergy={() => {
-            // Scroll to energy accounts section
             document.getElementById('connect-accounts')?.scrollIntoView({ behavior: 'smooth' });
           }}
           onConnectWallet={() => {
-            // Scroll to wallet section
             document.getElementById('connect-wallet')?.scrollIntoView({ behavior: 'smooth' });
           }}
         />
@@ -179,17 +177,21 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* How It Works - only show if no energy accounts connected */}
         {!energyAccounts.some(acc => acc.connected) && <HowItWorks />}
 
-        <ConnectWallet
-          walletAddress={profile?.wallet_address ?? null}
-          onConnect={handleConnectWallet}
-          isDemo={isDemo}
-        />
+        <div id="connect-wallet">
+          <ConnectWallet
+            walletAddress={profile?.wallet_address ?? null}
+            onConnect={handleConnectWallet}
+            isDemo={isDemo}
+          />
+        </div>
 
-        <ConnectAccounts 
-          accounts={energyAccounts} 
-          onConnect={handleConnectEnergy}
-          onDisconnect={handleDisconnectEnergy}
-        />
+        <div id="connect-accounts">
+          <ConnectAccounts 
+            accounts={energyAccounts} 
+            onConnect={handleConnectEnergy}
+            onDisconnect={handleDisconnectEnergy}
+          />
+        </div>
         
         <ConnectSocialAccounts
           accounts={socialAccounts}

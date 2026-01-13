@@ -32,6 +32,7 @@ import Notifications from "./pages/Notifications";
 import Referrals from "./pages/Referrals";
 import Store from "./pages/Store";
 import HowItWorks from "./pages/HowItWorks";
+import Technology from "./pages/Technology";
 
 const App = () => {
   // Foreground fallback: if a push arrives while the app is open, show an in-app toast.
@@ -106,6 +107,16 @@ const App = () => {
                       <ProtectedRoute>
                         <AppLayout>
                           <HowItWorks />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/technology" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <Technology />
                         </AppLayout>
                       </ProtectedRoute>
                     } 
