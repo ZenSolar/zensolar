@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Coins, Award, RefreshCw, Loader2, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useAccount, useSwitchChain } from 'wagmi';
-import { sepolia } from 'wagmi/chains';
+import { baseSepolia } from 'wagmi/chains';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -39,15 +39,15 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
       return;
     }
 
-    // Check if on Sepolia network
-    if (chain?.id !== sepolia.id) {
-      toast.info('Switching to Sepolia testnet...');
+    // Check if on Base Sepolia network
+    if (chain?.id !== baseSepolia.id) {
+      toast.info('Switching to Base Sepolia...');
       try {
-        switchChain({ chainId: sepolia.id });
+        switchChain({ chainId: baseSepolia.id });
         // Wait a moment for the switch
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (error) {
-        toast.error('Please switch to Sepolia testnet to mint');
+        toast.error('Please switch to Base Sepolia to mint');
         return;
       }
     }
