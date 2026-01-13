@@ -41,7 +41,7 @@ export default function HowItWorks() {
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           <p>
-            <strong className="text-foreground">$ZSOLAR tokens</strong> are digital currency you earn by generating clean solar energy and charging your EV. Think of them like loyalty points, but stored securely on the blockchain.
+            <strong className="text-foreground">$ZSOLAR tokens</strong> are ERC-20 digital currency you earn by generating clean solar energy and charging your EV. Built on Base L2 for fast, low-cost transactions—and we cover all gas fees so minting is free for you.
           </p>
           <div className="grid gap-3">
             <div className="flex items-start gap-3">
@@ -79,7 +79,7 @@ export default function HowItWorks() {
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           <p>
-            <strong className="text-foreground">NFTs (Non-Fungible Tokens)</strong> are unique digital assets that prove you own something special. In ZenSolar, NFTs represent your clean energy achievements and milestones.
+            <strong className="text-foreground">NFTs (Non-Fungible Tokens)</strong> are unique ERC-721 digital assets on Base that prove you own something special. In ZenSolar, NFTs represent your clean energy achievements and milestones—and they're completely free to mint.
           </p>
           <div className="grid gap-3">
             <div className="flex items-start gap-3">
@@ -111,6 +111,7 @@ export default function HowItWorks() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">NFT Milestones</CardTitle>
+          <p className="text-xs text-muted-foreground">ERC-721 collection on Base • Gasless minting</p>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
