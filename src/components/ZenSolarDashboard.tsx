@@ -159,7 +159,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             <h1 className="text-2xl font-bold text-foreground">
               {profile?.display_name ? `Welcome, ${profile.display_name}` : 'Dashboard'}
             </h1>
-            <p className="text-sm text-muted-foreground">Connect your solar system and EV to mint $ZSOLAR tokens based on real kWh production.</p>
+            <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFT's from your clean energy use</p>
           </div>
         </AnimatedItem>
         
