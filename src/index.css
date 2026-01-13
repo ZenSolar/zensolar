@@ -106,6 +106,8 @@
     -webkit-overflow-scrolling: touch;
     /* Prevent pull-to-refresh in PWA */
     overscroll-behavior-y: none;
+    /* Prevent subtle horizontal drift on iOS/PWA */
+    overflow-x: hidden;
   }
 
   body {
@@ -114,8 +116,19 @@
     -webkit-tap-highlight-color: transparent;
     /* Disable callout on long press */
     -webkit-touch-callout: none;
+    /* Prevent subtle horizontal drift on iOS/PWA */
+    overflow-x: hidden;
   }
 
+  /* Ensure the app root never constrains/offsets the layout on mobile PWAs */
+  #root {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    overflow-x: hidden;
+  }
   /* Safe area support for iOS notch and home indicator */
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0px);

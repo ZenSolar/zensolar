@@ -108,6 +108,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     },
   ];
 
+  const firstName = profile?.display_name?.trim().split(/\s+/)[0];
+  const dashboardTitle = firstName ? `Welcome, ${firstName}` : 'Dashboard';
+
   const handleConnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge') => {
     connectAccount(service);
   };
@@ -145,7 +148,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         isReady={isReady}
       />
       
-      <AnimatedContainer className="w-full max-w-lg mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
+      <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[120px]">
           <img 
@@ -156,9 +159,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             className="h-20 w-auto object-contain dark:brightness-110 dark:contrast-110" 
           />
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {profile?.display_name ? `Welcome, ${profile.display_name}` : 'Dashboard'}
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
             <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFT's from your clean energy use</p>
           </div>
         </AnimatedItem>
