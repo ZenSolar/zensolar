@@ -8,6 +8,7 @@ import { ConnectWallet } from './dashboard/ConnectWallet';
 import { ActivityMetrics } from './dashboard/ActivityMetrics';
 import { RewardActions } from './dashboard/RewardActions';
 import { HowItWorks } from './dashboard/HowItWorks';
+import { RewardProgress } from './dashboard/RewardProgress';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { Loader2 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
@@ -181,6 +182,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           onDisconnect={handleDisconnectSocial}
         />
         
+        {/* NFT Milestones - Beta */}
+        <RewardProgress
+          tokensEarned={activityData.tokensEarned}
+          nftsEarned={activityData.nftsEarned}
+          isNewUser={true}
+        />
+
         <ActivityMetrics data={activityData} />
         
         <RewardActions 

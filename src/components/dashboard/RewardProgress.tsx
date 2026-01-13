@@ -1,80 +1,76 @@
-import { Award, TrendingUp } from 'lucide-react';
+import { Award, TrendingUp, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 interface RewardProgressProps {
   tokensEarned: number;
   nftsEarned: number[];
+  isNewUser?: boolean;
 }
 
 const NFT_MILESTONES = [
-  { name: 'Seedling', tokensRequired: 100, color: 'bg-emerald-500' },
-  { name: 'Sprout', tokensRequired: 500, color: 'bg-green-500' },
-  { name: 'Sapling', tokensRequired: 1000, color: 'bg-teal-500' },
-  { name: 'Tree', tokensRequired: 5000, color: 'bg-cyan-500' },
-  { name: 'Forest', tokensRequired: 10000, color: 'bg-primary' },
+  { id: 0, name: 'Welcome', kwhRequired: 0, description: 'Sign up reward', color: 'bg-amber-500' },
+  { id: 1, name: 'First Harvest', kwhRequired: 500, description: '500 kWh generated', color: 'bg-emerald-500' },
 ];
 
-// Map NFT IDs to milestone names
-const getNftNames = (nftIds: number[]): string[] => {
-  return nftIds.map((id) => NFT_MILESTONES[id]?.name).filter(Boolean) as string[];
-};
-
-export function RewardProgress({ tokensEarned, nftsEarned }: RewardProgressProps) {
-  const earnedNames = getNftNames(nftsEarned);
+export function RewardProgress({ tokensEarned, nftsEarned, isNewUser = true }: RewardProgressProps) {
+  // Calculate total kWh from tokens (assuming 1 token per kWh for now)
+  const totalKwh = tokensEarned;
   
+  // Check which NFTs are earned
+  const earnedMilestones = NFT_MILESTONES.filter((m) => {
+    if (m.id === 0) return isNewUser; // Welcome NFT earned on signup
+    return totalKwh >= m.kwhRequired;
+  });
+
   // Find next milestone
   const nextMilestone = NFT_MILESTONES.find(
-    (m) => !earnedNames.includes(m.name) && tokensEarned < m.tokensRequired
+    (m) => m.id !== 0 && totalKwh < m.kwhRequired
   );
 
-  // Find previous milestone for progress calculation
-  const currentMilestoneIndex = nextMilestone
-    ? NFT_MILESTONES.indexOf(nextMilestone)
-    : NFT_MILESTONES.length;
-  const previousThreshold =
-    currentMilestoneIndex > 0
-      ? NFT_MILESTONES[currentMilestoneIndex - 1].tokensRequired
-      : 0;
-
+  // Calculate progress to next milestone
+  const previousThreshold = 0;
   const progress = nextMilestone
-    ? ((tokensEarned - previousThreshold) /
-        (nextMilestone.tokensRequired - previousThreshold)) *
-      100
+    ? (totalKwh / nextMilestone.kwhRequired) * 100
     : 100;
 
-  const tokensNeeded = nextMilestone
-    ? nextMilestone.tokensRequired - tokensEarned
+  const kwhNeeded = nextMilestone
+    ? nextMilestone.kwhRequired - totalKwh
     : 0;
 
   return (
     <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
       <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-accent" />
-          <CardTitle className="text-base font-semibold">
-            NFT Progress
-          </CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-accent" />
+            <CardTitle className="text-base font-semibold">
+              NFT Milestones
+            </CardTitle>
+          </div>
+          <Badge variant="secondary" className="text-xs gap-1">
+            <Sparkles className="h-3 w-3" />
+            Beta
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Earned NFTs */}
-        {earnedNames.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {earnedNames.map((nft) => {
-              const milestone = NFT_MILESTONES.find((m) => m.name === nft);
-              return (
+        {earnedMilestones.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground font-medium">Earned</p>
+            <div className="flex flex-wrap gap-2">
+              {earnedMilestones.map((milestone) => (
                 <div
-                  key={nft}
-                  className={`px-3 py-1 rounded-full text-xs font-medium text-white ${
-                    milestone?.color || 'bg-primary'
-                  }`}
+                  key={milestone.id}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium text-white ${milestone.color}`}
                 >
                   <Award className="h-3 w-3 inline mr-1" />
-                  {nft}
+                  {milestone.name}
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
 
@@ -86,34 +82,34 @@ export function RewardProgress({ tokensEarned, nftsEarned }: RewardProgressProps
                 Next: <strong className="text-foreground">{nextMilestone.name}</strong>
               </span>
               <span className="text-muted-foreground">
-                {tokensEarned.toLocaleString()} / {nextMilestone.tokensRequired.toLocaleString()}
+                {totalKwh.toLocaleString()} / {nextMilestone.kwhRequired.toLocaleString()} kWh
               </span>
             </div>
             <Progress value={Math.min(progress, 100)} className="h-3" />
             <p className="text-xs text-muted-foreground text-center">
-              Earn <strong>{tokensNeeded.toLocaleString()} more $ZSOLAR</strong> to unlock {nextMilestone.name} NFT
+              Generate <strong>{kwhNeeded.toLocaleString()} more kWh</strong> to unlock {nextMilestone.name} NFT
             </p>
           </div>
         )}
 
-        {!nextMilestone && (
+        {!nextMilestone && earnedMilestones.length === NFT_MILESTONES.length && (
           <p className="text-sm text-center text-muted-foreground">
             🎉 You've earned all available NFTs!
           </p>
         )}
 
         {/* Milestone roadmap */}
-        <div className="flex justify-between items-center pt-2">
+        <div className="flex justify-around items-center pt-2">
           {NFT_MILESTONES.map((milestone, index) => {
-            const earned = earnedNames.includes(milestone.name);
-            const isNext = milestone.name === nextMilestone?.name;
+            const earned = earnedMilestones.some((m) => m.id === milestone.id);
+            const isNext = milestone.id === nextMilestone?.id;
             return (
               <div
-                key={milestone.name}
+                key={milestone.id}
                 className="flex flex-col items-center gap-1"
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
                     earned
                       ? `${milestone.color} text-white`
                       : isNext
@@ -123,13 +119,20 @@ export function RewardProgress({ tokensEarned, nftsEarned }: RewardProgressProps
                 >
                   {earned ? '✓' : index + 1}
                 </div>
-                <span className="text-[10px] text-muted-foreground hidden sm:block">
+                <span className="text-[10px] text-muted-foreground text-center max-w-[60px]">
                   {milestone.name}
+                </span>
+                <span className="text-[9px] text-muted-foreground/70">
+                  {milestone.id === 0 ? 'Signup' : `${milestone.kwhRequired} kWh`}
                 </span>
               </div>
             );
           })}
         </div>
+
+        <p className="text-[10px] text-muted-foreground/60 text-center pt-1">
+          More milestones coming soon as the platform grows
+        </p>
       </CardContent>
     </Card>
   );
