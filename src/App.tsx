@@ -31,6 +31,7 @@ import About from "./pages/About";
 import Notifications from "./pages/Notifications";
 import Referrals from "./pages/Referrals";
 import Store from "./pages/Store";
+import HowItWorks from "./pages/HowItWorks";
 
 const App = () => {
   // Foreground fallback: if a push arrives while the app is open, show an in-app toast.
@@ -100,7 +101,17 @@ const App = () => {
                     } 
                   />
                   <Route 
-                    path="/tokenomics" 
+                    path="/how-it-works" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <HowItWorks />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/tokenomics"
                     element={
                       <ProtectedRoute>
                         <AppLayout>

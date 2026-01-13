@@ -11,7 +11,8 @@ import {
   Bell,
   Users,
   ShoppingBag,
-  Car
+  Car,
+  BookOpen
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ import {
 
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "How It Works", url: "/how-it-works", icon: BookOpen },
   { title: "Store", url: "/store", icon: ShoppingBag },
   { title: "Tokenomics", url: "/tokenomics", icon: Coins },
   { title: "Mint History", url: "/mint-history", icon: History },
