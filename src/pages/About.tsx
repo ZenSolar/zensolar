@@ -67,6 +67,23 @@ export default function About() {
         ))}
       </div>
 
+      {/* Patent Pending Badge */}
+      <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border-primary/30">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-lg">⚡</span>
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-foreground">Patent Pending Technology</p>
+              <p className="text-xs text-muted-foreground">
+                System and Method for Tokenizing Sustainable Behaviors Using Blockchain
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Mission */}
       <Card className="bg-gradient-to-br from-primary/5 to-eco/5 border-primary/20">
         <CardHeader>
