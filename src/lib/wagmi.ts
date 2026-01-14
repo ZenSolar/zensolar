@@ -2,12 +2,13 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { baseSepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import {
-  walletConnectWallet,
+  metaMaskWallet,
   coinbaseWallet,
+  walletConnectWallet,
+  injectedWallet,
   trustWallet,
   rainbowWallet,
   phantomWallet,
-  injectedWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
@@ -24,16 +25,19 @@ export const config = getDefaultConfig({
     {
       groupName: 'Recommended',
       wallets: [
-        // WalletConnect first - works on mobile with QR code to connect MetaMask mobile app
-        walletConnectWallet,
-        // Injected wallet for browser extensions (MetaMask, etc.)
-        injectedWallet,
+        // MetaMask first (extension on desktop, deep-link on mobile)
+        metaMaskWallet,
+        // Coinbase second
         coinbaseWallet,
+        // WalletConnect QR for connecting MetaMask Mobile (and other mobile wallets)
+        walletConnectWallet,
       ],
     },
     {
       groupName: 'Other Wallets',
       wallets: [
+        // Generic injected wallets (Brave, etc.)
+        injectedWallet,
         trustWallet,
         rainbowWallet,
         phantomWallet,
