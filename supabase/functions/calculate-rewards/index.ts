@@ -16,54 +16,55 @@ const REWARD_RATES = {
 };
 
 // NFT thresholds - must match frontend src/lib/nftMilestones.ts
+// Using Tesla-inspired naming convention
 const SOLAR_THRESHOLDS = [
-  { name: "Welcome", threshold: 0 },
-  { name: "First Harvest", threshold: 500 },
-  { name: "Solar Pioneer", threshold: 1000 },
-  { name: "Energy Guardian", threshold: 2500 },
-  { name: "Eco Warrior", threshold: 5000 },
-  { name: "Green Innovator", threshold: 10000 },
-  { name: "Sustainability Champion", threshold: 25000 },
-  { name: "Renewable Hero", threshold: 50000 },
-  { name: "Solar Zen Master", threshold: 100000 },
+  { name: "Genesis", threshold: 0 },
+  { name: "Sunlink", threshold: 500 },
+  { name: "Photon", threshold: 1000 },
+  { name: "Rayfield", threshold: 2500 },
+  { name: "Solarflare", threshold: 5000 },
+  { name: "Heliogen", threshold: 10000 },
+  { name: "Sunvault", threshold: 25000 },
+  { name: "Gigasol", threshold: 50000 },
+  { name: "Starpower", threshold: 100000 },
 ];
 
 const EV_MILES_THRESHOLDS = [
-  { name: "First Drive", threshold: 100 },
-  { name: "Road Tripper", threshold: 500 },
-  { name: "Highway Hero", threshold: 1000 },
-  { name: "Cross Country", threshold: 5000 },
-  { name: "Electric Explorer", threshold: 10000 },
-  { name: "Mile Master", threshold: 25000 },
-  { name: "EV Legend", threshold: 50000 },
+  { name: "Ignition", threshold: 100 },
+  { name: "Cruiser", threshold: 500 },
+  { name: "Autobahn", threshold: 1000 },
+  { name: "Hyperlane", threshold: 5000 },
+  { name: "Roadster", threshold: 10000 },
+  { name: "Plaid", threshold: 25000 },
+  { name: "Ludicrous", threshold: 50000 },
 ];
 
 const EV_CHARGING_THRESHOLDS = [
-  { name: "First Charge", threshold: 100 },
-  { name: "Charging Champion", threshold: 500 },
-  { name: "Power Player", threshold: 1000 },
-  { name: "Energy Enthusiast", threshold: 2500 },
-  { name: "Charging Pro", threshold: 5000 },
-  { name: "Megawatt Master", threshold: 10000 },
+  { name: "Spark", threshold: 100 },
+  { name: "Supercharger", threshold: 500 },
+  { name: "Megavolt", threshold: 1000 },
+  { name: "Amperage", threshold: 2500 },
+  { name: "Destination", threshold: 5000 },
+  { name: "Gigawatt", threshold: 10000 },
 ];
 
 const BATTERY_THRESHOLDS = [
-  { name: "Grid Guardian", threshold: 500 },
-  { name: "Power Backup Pro", threshold: 1000 },
-  { name: "Storage Specialist", threshold: 2500 },
-  { name: "Energy Reserve Hero", threshold: 5000 },
-  { name: "Battery Boss", threshold: 10000 },
-  { name: "Powerwall Prodigy", threshold: 25000 },
+  { name: "Powerwall", threshold: 500 },
+  { name: "Gridlink", threshold: 1000 },
+  { name: "Megapack", threshold: 2500 },
+  { name: "Reservoir", threshold: 5000 },
+  { name: "Dynamo", threshold: 10000 },
+  { name: "Gigabank", threshold: 25000 },
 ];
 
 const COMBO_THRESHOLDS = [
-  { name: "Dual Achiever", categoriesRequired: 2 },
-  { name: "Triple Threat", categoriesRequired: 3 },
-  { name: "Quad Champion", categoriesRequired: 4 },
-  { name: "Rising Star", totalNftsRequired: 5 },
-  { name: "Sustainability Legend", totalNftsRequired: 10 },
-  { name: "Category Master", categoriesMaxed: 1 },
-  { name: "Ultimate Zen Master", categoriesMaxed: 4 },
+  { name: "Duality", categoriesRequired: 2 },
+  { name: "Trifecta", categoriesRequired: 3 },
+  { name: "Quadrant", categoriesRequired: 4 },
+  { name: "Constellation", totalNftsRequired: 5 },
+  { name: "Ecosystem", totalNftsRequired: 10 },
+  { name: "Apex", categoriesMaxed: 1 },
+  { name: "Zenith", categoriesMaxed: 4 },
 ];
 
 function calculateEarnedForCategory(
@@ -87,8 +88,8 @@ function calculateComboNFTs(
 ): string[] {
   const combos: string[] = [];
   
-  // Count categories with at least one earned NFT (excluding welcome)
-  const solarCount = solarEarned.filter(n => n !== "Welcome").length;
+  // Count categories with at least one earned NFT (excluding welcome/Genesis)
+  const solarCount = solarEarned.filter(n => n !== "Genesis").length;
   const categoriesWithNFTs = [
     solarCount > 0,
     evMilesEarned.length > 0,
@@ -96,7 +97,7 @@ function calculateComboNFTs(
     batteryEarned.length > 0,
   ].filter(Boolean).length;
   
-  // Total NFTs earned (excluding welcome)
+  // Total NFTs earned (excluding welcome/Genesis)
   const totalNFTs = solarCount + evMilesEarned.length + evChargingEarned.length + batteryEarned.length;
   
   // Check if category is maxed out
@@ -106,14 +107,14 @@ function calculateComboNFTs(
   const batteryMaxed = batteryEarned.length === BATTERY_THRESHOLDS.length;
   const categoriesMaxed = [solarMaxed, evMilesMaxed, evChargingMaxed, batteryMaxed].filter(Boolean).length;
   
-  // Award combo milestones
-  if (categoriesWithNFTs >= 2) combos.push("Dual Achiever");
-  if (categoriesWithNFTs >= 3) combos.push("Triple Threat");
-  if (categoriesWithNFTs >= 4) combos.push("Quad Champion");
-  if (totalNFTs >= 5) combos.push("Rising Star");
-  if (totalNFTs >= 10) combos.push("Sustainability Legend");
-  if (categoriesMaxed >= 1) combos.push("Category Master");
-  if (categoriesMaxed >= 4) combos.push("Ultimate Zen Master");
+  // Award combo milestones with new Tesla-inspired names
+  if (categoriesWithNFTs >= 2) combos.push("Duality");
+  if (categoriesWithNFTs >= 3) combos.push("Trifecta");
+  if (categoriesWithNFTs >= 4) combos.push("Quadrant");
+  if (totalNFTs >= 5) combos.push("Constellation");
+  if (totalNFTs >= 10) combos.push("Ecosystem");
+  if (categoriesMaxed >= 1) combos.push("Apex");
+  if (categoriesMaxed >= 4) combos.push("Zenith");
   
   return combos;
 }
