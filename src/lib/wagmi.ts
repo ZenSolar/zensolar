@@ -2,7 +2,7 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { baseSepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import {
-  metaMaskWallet,
+  injectedWallet,
   coinbaseWallet,
   walletConnectWallet,
   trustWallet,
@@ -24,7 +24,9 @@ export const config = getDefaultConfig({
     {
       groupName: 'Recommended',
       wallets: [
-        metaMaskWallet,
+        // Use injectedWallet instead of metaMaskWallet to avoid MetaMask SDK email login
+        // This uses the browser extension directly
+        injectedWallet,
         coinbaseWallet,
         trustWallet,
       ],
