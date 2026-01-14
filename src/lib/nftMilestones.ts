@@ -77,6 +77,17 @@ export const EV_MILES_MILESTONES: NFTMilestone[] = [
   { id: 'ev_10', name: 'Legend', threshold: 200000, description: '200,000 miles driven', color: 'bg-purple-800', icon: 'sparkles' },
 ];
 
+// Celebratory combo milestones (across categories)
+export const COMBO_MILESTONES: NFTMilestone[] = [
+  { id: 'combo_1', name: 'Duality', threshold: 2, description: 'Earn NFT in 2 categories', color: 'bg-gradient-to-r from-amber-500 to-orange-500', icon: 'target' },
+  { id: 'combo_2', name: 'Trifecta', threshold: 3, description: 'Earn NFT in 3 categories', color: 'bg-gradient-to-r from-orange-500 to-red-500', icon: 'flame' },
+  { id: 'combo_3', name: 'Quadrant', threshold: 4, description: 'Earn NFT in all 4 categories', color: 'bg-gradient-to-r from-red-500 to-purple-500', icon: 'diamond' },
+  { id: 'combo_4', name: 'Constellation', threshold: 5, description: 'Earn 5 total NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: 'star' },
+  { id: 'combo_5', name: 'Ecosystem', threshold: 10, description: 'Earn 10 total NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: 'globe' },
+  { id: 'combo_6', name: 'Apex', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: 'trophy' },
+  { id: 'combo_7', name: 'Zenith', threshold: 4, description: 'Max out all categories', color: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500', icon: 'crown' },
+];
+
 // All categories for UI display
 export const NFT_CATEGORIES: NFTCategory[] = [
   { id: 'solar', name: 'Solar Production', unit: 'kWh', milestones: SOLAR_MILESTONES },
@@ -106,6 +117,50 @@ export function getNextMilestone(
   return milestones.find((m) => value < m.threshold) || null;
 }
 
+// Calculate combo achievements
+export function calculateComboAchievements(
+  solarEarned: NFTMilestone[],
+  evMilesEarned: NFTMilestone[],
+  evChargingEarned: NFTMilestone[],
+  batteryEarned: NFTMilestone[]
+): NFTMilestone[] {
+  const combos: NFTMilestone[] = [];
+  
+  // Count categories with at least one earned NFT
+  const categoriesWithNFTs = [
+    solarEarned.length > 0,
+    evMilesEarned.length > 0,
+    evChargingEarned.length > 0,
+    batteryEarned.length > 0,
+  ].filter(Boolean).length;
+  
+  // Total NFTs earned
+  const totalNFTs = 
+    solarEarned.length +
+    evMilesEarned.length +
+    evChargingEarned.length +
+    batteryEarned.length;
+  
+  // Check if category is maxed out
+  const solarMaxed = solarEarned.length === SOLAR_MILESTONES.length;
+  const evMilesMaxed = evMilesEarned.length === EV_MILES_MILESTONES.length;
+  const evChargingMaxed = evChargingEarned.length === EV_CHARGING_MILESTONES.length;
+  const batteryMaxed = batteryEarned.length === BATTERY_MILESTONES.length;
+  
+  const categoriesMaxed = [solarMaxed, evMilesMaxed, evChargingMaxed, batteryMaxed].filter(Boolean).length;
+  
+  // Award combo milestones
+  if (categoriesWithNFTs >= 2) combos.push(COMBO_MILESTONES[0]); // Duality
+  if (categoriesWithNFTs >= 3) combos.push(COMBO_MILESTONES[1]); // Trifecta
+  if (categoriesWithNFTs >= 4) combos.push(COMBO_MILESTONES[2]); // Quadrant
+  if (totalNFTs >= 5) combos.push(COMBO_MILESTONES[3]); // Constellation
+  if (totalNFTs >= 10) combos.push(COMBO_MILESTONES[4]); // Ecosystem
+  if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[5]); // Apex
+  if (categoriesMaxed >= 4) combos.push(COMBO_MILESTONES[6]); // Zenith
+  
+  return combos;
+}
+
 // Export all NFT names for backend matching
 export function getAllEarnedNFTNames(
   solarKwh: number,
@@ -126,6 +181,7 @@ export function getAllEarnedNFTNames(
   const batteryEarned = calculateEarnedMilestones(batteryKwh, BATTERY_MILESTONES);
   const evChargingEarned = calculateEarnedMilestones(evChargingKwh, EV_CHARGING_MILESTONES);
   const evMilesEarned = calculateEarnedMilestones(evMiles, EV_MILES_MILESTONES);
+  const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
   
   return [
     ...earned,
@@ -133,6 +189,7 @@ export function getAllEarnedNFTNames(
     ...batteryEarned.map(m => m.name),
     ...evChargingEarned.map(m => m.name),
     ...evMilesEarned.map(m => m.name),
+    ...comboEarned.map(m => m.name),
   ];
 }
 
@@ -142,5 +199,6 @@ export function getTotalNftCount(): number {
     SOLAR_MILESTONES.length +
     BATTERY_MILESTONES.length +
     EV_CHARGING_MILESTONES.length +
-    EV_MILES_MILESTONES.length;
+    EV_MILES_MILESTONES.length +
+    COMBO_MILESTONES.length;
 }

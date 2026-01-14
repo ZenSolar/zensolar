@@ -1,8 +1,8 @@
 // NFT Artwork mapping - maps milestone IDs to their generated images
-// Updated: January 14, 2026 - Aligned with final_milestones.docx
+// Updated: January 14, 2026 - All 41 NFTs now have artwork
 
 // Welcome NFT
-import welcomeNft from '@/assets/nft/solar-genesis.png'; // Reusing genesis as welcome
+import welcomeNft from '@/assets/nft/solar-genesis.png';
 
 // Solar NFTs (8 tiers)
 import solarSunlink from '@/assets/nft/solar-sunlink.png';
@@ -21,8 +21,7 @@ import batteryMegapack from '@/assets/nft/battery-megapack.png';
 import batteryReservoir from '@/assets/nft/battery-reservoir.png';
 import batteryDynamo from '@/assets/nft/battery-dynamo.png';
 import batteryGigabank from '@/assets/nft/battery-gigabank.png';
-// Note: battery_7 (Ultrabank) needs artwork - using gigabank as placeholder
-import batteryUltrabank from '@/assets/nft/battery-gigabank.png';
+import batteryUltrabank from '@/assets/nft/battery-ultrabank.png';
 
 // EV Charging NFTs (8 tiers)
 import chargeSpark from '@/assets/nft/charge-spark.png';
@@ -31,9 +30,8 @@ import chargeMegavolt from '@/assets/nft/charge-megavolt.png';
 import chargeAmperage from '@/assets/nft/charge-amperage.png';
 import chargeDestination from '@/assets/nft/charge-destination.png';
 import chargeGigawatt from '@/assets/nft/charge-gigawatt.png';
-// Note: charge_7 (Megawatt) and charge_8 (Terawatt) need artwork - using placeholders
-import chargeMegawatt from '@/assets/nft/charge-gigawatt.png';
-import chargeTerawatt from '@/assets/nft/charge-gigawatt.png';
+import chargeMegawatt from '@/assets/nft/charge-megawatt.png';
+import chargeTerawatt from '@/assets/nft/charge-terawatt.png';
 
 // EV Miles NFTs (10 tiers)
 import evIgnition from '@/assets/nft/ev-ignition.png';
@@ -43,10 +41,18 @@ import evHyperlane from '@/assets/nft/ev-hyperlane.png';
 import evRoadster from '@/assets/nft/ev-roadster.png';
 import evPlaid from '@/assets/nft/ev-plaid.png';
 import evLudicrous from '@/assets/nft/ev-ludicrous.png';
-// Note: ev_8, ev_9, ev_10 need artwork - using placeholders
-import evCenturion from '@/assets/nft/ev-ludicrous.png';
-import evVoyager from '@/assets/nft/ev-ludicrous.png';
-import evLegend from '@/assets/nft/ev-ludicrous.png';
+import evCenturion from '@/assets/nft/ev-centurion.png';
+import evVoyager from '@/assets/nft/ev-voyager.png';
+import evLegend from '@/assets/nft/ev-legend.png';
+
+// Combo NFTs (7 tiers)
+import comboDuality from '@/assets/nft/combo-duality.png';
+import comboTrifecta from '@/assets/nft/combo-trifecta.png';
+import comboQuadrant from '@/assets/nft/combo-quadrant.png';
+import comboConstellation from '@/assets/nft/combo-constellation.png';
+import comboEcosystem from '@/assets/nft/combo-ecosystem.png';
+import comboApex from '@/assets/nft/combo-apex.png';
+import comboZenith from '@/assets/nft/combo-zenith.png';
 
 // Map milestone IDs to their artwork
 export const NFT_ARTWORK: Record<string, string> = {
@@ -93,6 +99,15 @@ export const NFT_ARTWORK: Record<string, string> = {
   ev_8: evCenturion,
   ev_9: evVoyager,
   ev_10: evLegend,
+  
+  // Combos (7 tiers)
+  combo_1: comboDuality,
+  combo_2: comboTrifecta,
+  combo_3: comboQuadrant,
+  combo_4: comboConstellation,
+  combo_5: comboEcosystem,
+  combo_6: comboApex,
+  combo_7: comboZenith,
 };
 
 // Get artwork for a milestone ID
