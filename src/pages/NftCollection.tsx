@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   TrendingUp,
   Target,
-  X
+  X,
+  Crown
 } from 'lucide-react';
 import {
   SOLAR_MILESTONES,
@@ -35,6 +36,7 @@ import {
 } from '@/lib/nftMilestones';
 import { NFTBadge } from '@/components/ui/nft-badge';
 import { getNftArtwork } from '@/lib/nftArtwork';
+import { useConfetti } from '@/hooks/useConfetti';
 
 function MilestoneCard({ 
   milestone, 
@@ -150,44 +152,98 @@ function MilestoneCard({
 
 function ComboMilestoneCard({ 
   milestone, 
-  isEarned 
+  isEarned,
+  onViewArtwork
 }: { 
   milestone: NFTMilestone; 
   isEarned: boolean;
+  onViewArtwork: (milestone: NFTMilestone) => void;
 }) {
+  const artwork = getNftArtwork(milestone.id);
+  
+  // Determine rarity tier based on milestone
+  const getRarityTier = (id: string) => {
+    if (id === 'combo_7') return { label: 'GODLIKE', class: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-black' };
+    if (id === 'combo_6') return { label: 'SUPREME', class: 'bg-gradient-to-r from-rose-500 to-orange-500 text-white' };
+    if (id === 'combo_5') return { label: 'TRANSCENDENT', class: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white' };
+    if (id === 'combo_4') return { label: 'MYTHIC', class: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' };
+    if (id === 'combo_3') return { label: 'LEGENDARY', class: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' };
+    if (id === 'combo_2') return { label: 'ELITE', class: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' };
+    return { label: 'PREMIUM', class: 'bg-gradient-to-r from-slate-600 to-slate-700 text-white' };
+  };
+  
+  const rarity = getRarityTier(milestone.id);
+  
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className={`relative rounded-xl border p-4 transition-all duration-300 ${
+      className={`relative rounded-xl border overflow-hidden transition-all duration-300 ${
         isEarned 
-          ? `${milestone.color} border-transparent shadow-xl text-white` 
+          ? 'border-primary/50 shadow-2xl shadow-primary/20' 
           : 'bg-muted/30 border-border/50 opacity-60'
       }`}
     >
-      <div className="flex items-center gap-3">
-        <NFTBadge 
-          milestoneId={milestone.id} 
-          size="md" 
-          isEarned={isEarned}
-          color={isEarned ? 'bg-white/20' : 'bg-muted'}
-          showGlow={false}
-        />
-        <div className="flex-1">
-          <h3 className={`font-semibold text-sm ${isEarned ? 'text-white' : 'text-muted-foreground'}`}>
-            {milestone.name}
-          </h3>
-          <p className={`text-xs ${isEarned ? 'text-white/80' : 'text-muted-foreground'}`}>
-            {milestone.description}
-          </p>
+      {/* Artwork Section */}
+      {artwork && (
+        <div 
+          className={`relative w-full aspect-[2/1] cursor-pointer group ${!isEarned && 'grayscale opacity-60'}`}
+          onClick={() => onViewArtwork(milestone)}
+        >
+          <img 
+            src={artwork} 
+            alt={milestone.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+            <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-sm font-medium">
+              View NFT
+            </span>
+          </div>
+          
+          {/* Rarity Badge */}
+          <div className="absolute top-3 left-3">
+            <Badge className={`${rarity.class} gap-1 text-[10px] font-bold px-2 py-0.5 shadow-lg`}>
+              <Crown className="h-3 w-3" />
+              {rarity.label}
+            </Badge>
+          </div>
+          
+          {/* Status Badge */}
+          <div className="absolute top-3 right-3">
+            {isEarned ? (
+              <Badge className="bg-primary text-primary-foreground gap-1 text-[10px]">
+                <CheckCircle2 className="h-3 w-3" />
+                Earned
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="gap-1 opacity-80 text-[10px]">
+                <Lock className="h-3 w-3" />
+                Locked
+              </Badge>
+            )}
+          </div>
+          
+          {/* Name overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <h3 className="font-bold text-white text-lg drop-shadow-lg">
+              {milestone.name}
+            </h3>
+            <p className="text-white/80 text-xs">
+              {milestone.description}
+            </p>
+          </div>
         </div>
-        {isEarned ? (
-          <CheckCircle2 className="h-5 w-5 text-white" />
-        ) : (
-          <Lock className="h-5 w-5 text-muted-foreground/50" />
-        )}
-      </div>
+      )}
+      
+      {/* Glow effect for earned combos */}
+      {isEarned && (
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 via-transparent to-primary/20 animate-pulse" />
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -283,6 +339,9 @@ export default function NftCollection() {
   const { activityData, isLoading } = useDashboardData();
   const [selectedNft, setSelectedNft] = useState<NFTMilestone | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [celebratedNfts, setCelebratedNfts] = useState<Set<string>>(new Set());
+  const { triggerCelebration, triggerGoldBurst } = useConfetti();
+  const prevEarnedRef = useRef<Set<string>>(new Set());
 
   // Calculate all earned milestones
   const solarKwh = activityData.solarEnergyProduced;
@@ -301,17 +360,57 @@ export default function NftCollection() {
   const totalAvailable = SOLAR_MILESTONES.length + EV_MILES_MILESTONES.length + EV_CHARGING_MILESTONES.length + BATTERY_MILESTONES.length + COMBO_MILESTONES.length;
 
   const comboEarnedIds = new Set(comboEarned.map(m => m.id));
+  
+  // Get all current earned IDs
+  const allEarned = [...solarEarned, ...evMilesEarned, ...evChargingEarned, ...batteryEarned, ...comboEarned];
+  const currentEarnedIds = new Set(allEarned.map(m => m.id));
+
+  // Check for newly earned NFTs and trigger celebration
+  useEffect(() => {
+    const storedCelebrated = localStorage.getItem('celebratedNfts');
+    if (storedCelebrated) {
+      setCelebratedNfts(new Set(JSON.parse(storedCelebrated)));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Find newly earned NFTs that haven't been celebrated
+    const newlyEarned = allEarned.filter(m => !celebratedNfts.has(m.id));
+    
+    if (newlyEarned.length > 0 && !isLoading) {
+      // Trigger celebration for new NFTs
+      const isCombo = newlyEarned.some(m => m.id.startsWith('combo_'));
+      if (isCombo) {
+        triggerGoldBurst();
+        setTimeout(() => triggerCelebration(), 300);
+      } else {
+        triggerCelebration();
+      }
+      
+      // Mark these as celebrated
+      const updatedCelebrated = new Set([...celebratedNfts, ...newlyEarned.map(m => m.id)]);
+      setCelebratedNfts(updatedCelebrated);
+      localStorage.setItem('celebratedNfts', JSON.stringify([...updatedCelebrated]));
+    }
+  }, [currentEarnedIds.size, isLoading]);
 
   // Get earned state for selected NFT
   const getIsEarned = (milestone: NFTMilestone | null): boolean => {
     if (!milestone) return false;
-    const allEarned = [...solarEarned, ...evMilesEarned, ...evChargingEarned, ...batteryEarned, ...comboEarned];
     return allEarned.some(m => m.id === milestone.id);
   };
 
   const handleViewArtwork = (milestone: NFTMilestone) => {
     setSelectedNft(milestone);
     setDialogOpen(true);
+    
+    // If it's earned, trigger a small celebration
+    if (getIsEarned(milestone)) {
+      const isCombo = milestone.id.startsWith('combo_');
+      if (isCombo) {
+        setTimeout(() => triggerGoldBurst(), 200);
+      }
+    }
   };
 
   if (isLoading) {
@@ -596,12 +695,13 @@ export default function NftCollection() {
               </div>
 
               {/* Combo Grid */}
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 gap-4">
                 {COMBO_MILESTONES.map((milestone) => (
                   <ComboMilestoneCard
                     key={milestone.id}
                     milestone={milestone}
                     isEarned={comboEarnedIds.has(milestone.id)}
+                    onViewArtwork={handleViewArtwork}
                   />
                 ))}
               </div>
