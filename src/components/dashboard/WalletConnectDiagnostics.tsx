@@ -1,11 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Loader2, Copy, Check } from 'lucide-react';
+import { hardResetWalletStorage, getWalletStorageStats } from '@/lib/walletStorage';
 
 export type WalletDiagEvents = {
   connectButtonTap?: number;
   deepLinkMetaMaskTap?: number;
   deepLinkCoinbaseTap?: number;
   deepLinkTrustTap?: number;
+  deepLinkRainbowTap?: number;
   disconnectTap?: number;
   resetTap?: number;
   walletConnectedDetected?: number;
@@ -46,27 +49,53 @@ export function WalletConnectDiagnostics({
   events,
   onReset,
 }: WalletConnectDiagnosticsProps) {
-  const storageInfo = useMemo(() => {
-    if (typeof window === 'undefined') return null;
+  const [isResetting, setIsResetting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [lastResetResult, setLastResetResult] = useState<{
+    localStorage: number;
+    sessionStorage: number;
+    indexedDB: number;
+  } | null>(null);
 
+  const storageStats = useMemo(() => {
+    return getWalletStorageStats();
+  }, [events.resetTap, lastResetResult]);
+
+  const handleHardReset = async () => {
+    setIsResetting(true);
     try {
-      const keys = Object.keys(window.localStorage ?? {});
-      const match = (k: string) =>
-        /^wagmi/i.test(k) ||
-        /^rk-/i.test(k) ||
-        /^wc@2:/i.test(k) ||
-        /walletconnect/i.test(k);
-
-      const matchedKeys = keys.filter(match);
-      return {
-        total: keys.length,
-        matched: matchedKeys.length,
-        sample: matchedKeys.slice(0, 6),
-      };
-    } catch {
-      return null;
+      const result = await hardResetWalletStorage();
+      setLastResetResult(result);
+      await onReset();
+    } finally {
+      setIsResetting(false);
     }
-  }, [events.resetTap]);
+  };
+
+  const handleCopyDiagnostics = async () => {
+    const diagnostics = {
+      device: { isMobile, isStandalone },
+      walletState: { 
+        wagmiConnected: isConnected, 
+        wagmiAddress, 
+        chainId, 
+        profileWallet: profileWalletAddress 
+      },
+      events,
+      storage: storageStats,
+      lastSaveError,
+      userAgent,
+      timestamp: new Date().toISOString(),
+    };
+    
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(diagnostics, null, 2));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      console.error('Failed to copy diagnostics');
+    }
+  };
 
   return (
     <details className="mt-3 rounded-md border border-border bg-muted/30 p-3">
@@ -95,9 +124,10 @@ export function WalletConnectDiagnostics({
           <p className="text-muted-foreground">Last taps</p>
           <div className="mt-1 grid grid-cols-1 gap-1 sm:grid-cols-2">
             <p>Connect: <span className="font-mono">{formatTs(events.connectButtonTap)}</span></p>
-            <p>MetaMask link: <span className="font-mono">{formatTs(events.deepLinkMetaMaskTap)}</span></p>
-            <p>Coinbase link: <span className="font-mono">{formatTs(events.deepLinkCoinbaseTap)}</span></p>
-            <p>Trust link: <span className="font-mono">{formatTs(events.deepLinkTrustTap)}</span></p>
+            <p>MetaMask: <span className="font-mono">{formatTs(events.deepLinkMetaMaskTap)}</span></p>
+            <p>Coinbase: <span className="font-mono">{formatTs(events.deepLinkCoinbaseTap)}</span></p>
+            <p>Trust: <span className="font-mono">{formatTs(events.deepLinkTrustTap)}</span></p>
+            <p>Rainbow: <span className="font-mono">{formatTs(events.deepLinkRainbowTap)}</span></p>
             <p>Disconnect: <span className="font-mono">{formatTs(events.disconnectTap)}</span></p>
             <p>Reset: <span className="font-mono">{formatTs(events.resetTap)}</span></p>
             <p>Detected connect: <span className="font-mono">{formatTs(events.walletConnectedDetected)}</span></p>
@@ -106,32 +136,58 @@ export function WalletConnectDiagnostics({
         </div>
 
         {lastSaveError && (
-          <div className="rounded-md border border-border bg-background p-2 text-xs">
-            <p className="text-muted-foreground">Last save error</p>
+          <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs">
+            <p className="text-destructive font-medium">Last save error</p>
             <p className="mt-1 font-mono break-all">{lastSaveError}</p>
           </div>
         )}
 
-        {storageInfo && (
-          <div className="rounded-md border border-border bg-background p-2 text-xs">
-            <p className="text-muted-foreground">Storage</p>
-            <p className="mt-1">
-              localStorage keys: <span className="font-mono">{storageInfo.total}</span> • wallet-related: <span className="font-mono">{storageInfo.matched}</span>
+        <div className="rounded-md border border-border bg-background p-2 text-xs">
+          <p className="text-muted-foreground">Storage (wallet-related keys)</p>
+          <p className="mt-1">
+            localStorage: <span className="font-mono">{storageStats.totalLocalStorage}</span> • 
+            sessionStorage: <span className="font-mono">{storageStats.totalSessionStorage}</span>
+          </p>
+          {storageStats.localStorageKeys.length > 0 && (
+            <p className="mt-1 font-mono break-all text-[10px]">
+              {storageStats.localStorageKeys.slice(0, 5).join(', ')}
+              {storageStats.localStorageKeys.length > 5 && ` +${storageStats.localStorageKeys.length - 5} more`}
             </p>
-            {storageInfo.sample.length > 0 && (
-              <p className="mt-1 font-mono break-all">sample: {storageInfo.sample.join(', ')}</p>
-            )}
-          </div>
-        )}
+          )}
+          {lastResetResult && (
+            <p className="mt-2 text-green-600 dark:text-green-400">
+              Last reset cleared: {lastResetResult.localStorage} local, {lastResetResult.sessionStorage} session, {lastResetResult.indexedDB} IndexedDB
+            </p>
+          )}
+        </div>
 
         <div className="rounded-md border border-border bg-background p-2 text-xs">
           <p className="text-muted-foreground">User agent</p>
-          <p className="mt-1 font-mono break-all">{userAgent || '—'}</p>
+          <p className="mt-1 font-mono break-all text-[10px]">{userAgent || '—'}</p>
         </div>
 
-        <Button variant="destructive" size="sm" className="w-full" onClick={() => void onReset()}>
-          Reset wallet connection (clear cache + saved wallet)
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1 text-xs"
+            onClick={handleCopyDiagnostics}
+          >
+            {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+            {copied ? 'Copied!' : 'Copy diagnostics'}
+          </Button>
+          
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            className="flex-1 text-xs" 
+            onClick={handleHardReset}
+            disabled={isResetting}
+          >
+            {isResetting && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+            Hard reset (all caches)
+          </Button>
+        </div>
       </div>
     </details>
   );
