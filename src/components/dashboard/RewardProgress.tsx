@@ -18,6 +18,7 @@ import {
   calculateComboAchievements,
   type NFTMilestone,
 } from '@/lib/nftMilestones';
+import { NFTBadge, NFTBadgeInline } from '@/components/ui/nft-badge';
 
 interface RewardProgressProps {
   tokensEarned: number;
@@ -82,10 +83,13 @@ function CategoryProgress({
                 key={milestone.id}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-medium text-white whitespace-nowrap flex items-center gap-1 ${milestone.color}`}
               >
-                <span>{milestone.icon}</span>
-                {milestone.name}
+                <NFTBadgeInline
+                  milestoneId={milestone.id}
+                  name={milestone.name}
+                  color={milestone.color}
+                  isEarned={true}
+                />
               </motion.div>
             ))}
           </div>
@@ -97,8 +101,8 @@ function CategoryProgress({
       {nextMilestone ? (
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">
-              Next: <strong className="text-foreground">{nextMilestone.icon} {nextMilestone.name}</strong>
+            <span className="text-muted-foreground flex items-center gap-1.5">
+              Next: <NFTBadge milestoneId={nextMilestone.id} size="sm" color={nextMilestone.color} /> <strong className="text-foreground">{nextMilestone.name}</strong>
             </span>
             <span className="text-muted-foreground tabular-nums">
               {value.toLocaleString()} / {nextMilestone.threshold.toLocaleString()} {unit}
@@ -135,10 +139,14 @@ function ComboAchievements({ combos }: { combos: NFTMilestone[] }) {
             key={combo.id}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium text-white flex items-center gap-1.5 shadow-lg ${combo.color}`}
           >
-            <span className="text-sm">{combo.icon}</span>
-            {combo.name}
+            <NFTBadgeInline
+              milestoneId={combo.id}
+              name={combo.name}
+              color={combo.color}
+              isEarned={true}
+              className="shadow-lg"
+            />
           </motion.div>
         ))}
       </div>

@@ -30,6 +30,7 @@ import {
   calculateComboAchievements,
   type NFTMilestone,
 } from '@/lib/nftMilestones';
+import { NFTBadge } from '@/components/ui/nft-badge';
 
 function MilestoneCard({ 
   milestone, 
@@ -83,9 +84,13 @@ function MilestoneCard({
 
       {/* Icon and Name */}
       <div className="flex items-start gap-3 mb-3">
-        <div className={`text-3xl ${isEarned ? '' : 'grayscale opacity-50'}`}>
-          {milestone.icon}
-        </div>
+        <NFTBadge 
+          milestoneId={milestone.id} 
+          size="lg" 
+          isEarned={isEarned}
+          color={milestone.color}
+          showGlow={isEarned}
+        />
         <div className="flex-1 min-w-0">
           <h3 className={`font-semibold text-base ${isEarned ? 'text-foreground' : 'text-muted-foreground'}`}>
             {milestone.name}
@@ -149,9 +154,13 @@ function ComboMilestoneCard({
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className={`text-2xl ${isEarned ? '' : 'grayscale'}`}>
-          {milestone.icon}
-        </div>
+        <NFTBadge 
+          milestoneId={milestone.id} 
+          size="md" 
+          isEarned={isEarned}
+          color={isEarned ? 'bg-white/20' : 'bg-muted'}
+          showGlow={false}
+        />
         <div className="flex-1">
           <h3 className={`font-semibold text-sm ${isEarned ? 'text-white' : 'text-muted-foreground'}`}>
             {milestone.name}
@@ -219,8 +228,8 @@ function CategorySection({
           </div>
           {nextMilestone && (
             <div className="space-y-1">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Next: {nextMilestone.icon} {nextMilestone.name}</span>
+              <div className="flex justify-between items-center text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">Next: <NFTBadge milestoneId={nextMilestone.id} size="sm" color={nextMilestone.color} /> {nextMilestone.name}</span>
                 <span>{nextMilestone.threshold.toLocaleString()} {unit}</span>
               </div>
               <Progress 
