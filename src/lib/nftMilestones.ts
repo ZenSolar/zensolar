@@ -1,6 +1,6 @@
 // NFT Milestone definitions for all activity categories
 // These are the source of truth - frontend and backend both use these
-// Updated: January 14, 2026 - Aligned with final_milestones-2.docx
+// Updated: January 14, 2026 - Aligned with final_milestones-3.docx
 
 export interface NFTMilestone {
   id: string;
@@ -57,7 +57,7 @@ export const EV_CHARGING_MILESTONES: NFTMilestone[] = [
   { id: 'charge_2', name: 'Voltcharge', threshold: 500, description: '500 kWh charged', color: 'bg-yellow-500', icon: 'plug' },
   { id: 'charge_3', name: 'Kilovolt', threshold: 1000, description: '1,000 kWh charged', color: 'bg-orange-500', icon: 'battery-charging' },
   { id: 'charge_4', name: 'Ampforge', threshold: 1500, description: '1,500 kWh charged', color: 'bg-orange-600', icon: 'activity' },
-  { id: 'charge_5', name: 'Chargepoint', threshold: 2500, description: '2,500 kWh charged', color: 'bg-red-500', icon: 'target' },
+  { id: 'charge_5', name: 'Chargeon', threshold: 2500, description: '2,500 kWh charged', color: 'bg-red-500', icon: 'target' },
   { id: 'charge_6', name: 'Gigacharge', threshold: 5000, description: '5,000 kWh charged', color: 'bg-red-600', icon: 'circuit-board' },
   { id: 'charge_7', name: 'Megacharge', threshold: 10000, description: '10,000 kWh charged', color: 'bg-red-700', icon: 'gauge' },
   { id: 'charge_8', name: 'Teracharge', threshold: 25000, description: '25,000 kWh charged', color: 'bg-red-800', icon: 'sparkles' },
@@ -65,14 +65,14 @@ export const EV_CHARGING_MILESTONES: NFTMilestone[] = [
 
 // EV Miles Driven milestones (10 tiers: 100-200,000 miles)
 export const EV_MILES_MILESTONES: NFTMilestone[] = [
-  { id: 'ev_1', name: 'Sparkstart', threshold: 100, description: '100 miles driven', color: 'bg-sky-400', icon: 'zap' },
+  { id: 'ev_1', name: 'Ignitor', threshold: 100, description: '100 miles driven', color: 'bg-sky-400', icon: 'zap' },
   { id: 'ev_2', name: 'Velocity', threshold: 500, description: '500 miles driven', color: 'bg-sky-500', icon: 'car' },
   { id: 'ev_3', name: 'Autobahn', threshold: 1000, description: '1,000 miles driven', color: 'bg-blue-500', icon: 'route' },
   { id: 'ev_4', name: 'Hyperdrive', threshold: 5000, description: '5,000 miles driven', color: 'bg-blue-600', icon: 'map' },
   { id: 'ev_5', name: 'Electra', threshold: 10000, description: '10,000 miles driven', color: 'bg-indigo-500', icon: 'gauge' },
   { id: 'ev_6', name: 'Velocity Pro', threshold: 25000, description: '25,000 miles driven', color: 'bg-indigo-600', icon: 'activity' },
   { id: 'ev_7', name: 'Mach One', threshold: 50000, description: '50,000 miles driven', color: 'bg-violet-600', icon: 'crown' },
-  { id: 'ev_8', name: 'Centauri', threshold: 100000, description: '100,000 miles driven', color: 'bg-violet-700', icon: 'trophy' },
+  { id: 'ev_8', name: 'Centaurion', threshold: 100000, description: '100,000 miles driven', color: 'bg-violet-700', icon: 'trophy' },
   { id: 'ev_9', name: 'Voyager', threshold: 150000, description: '150,000 miles driven', color: 'bg-purple-700', icon: 'rocket' },
   { id: 'ev_10', name: 'Odyssey', threshold: 200000, description: '200,000 miles driven', color: 'bg-purple-800', icon: 'sparkles' },
 ];
@@ -81,13 +81,13 @@ export const EV_MILES_MILESTONES: NFTMilestone[] = [
 // Note: Only category NFTs count toward combos (not combo NFTs themselves)
 // Total category NFTs: 8 solar + 7 battery + 8 charging + 10 EV miles = 33
 export const COMBO_MILESTONES: NFTMilestone[] = [
-  { id: 'combo_1', name: 'Dual Pioneer', threshold: 2, description: 'Earn NFT in 2 categories', color: 'bg-gradient-to-r from-amber-500 to-orange-500', icon: 'target' },
-  { id: 'combo_2', name: 'Triple Trailblazer', threshold: 3, description: 'Earn NFT in 3 categories', color: 'bg-gradient-to-r from-orange-500 to-red-500', icon: 'flame' },
-  { id: 'combo_3', name: 'Quintessence', threshold: 5, description: 'Earn 5 category NFTs', color: 'bg-gradient-to-r from-red-500 to-purple-500', icon: 'diamond' },
-  { id: 'combo_4', name: 'Deca Driver', threshold: 10, description: 'Earn 10 category NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: 'star' },
-  { id: 'combo_5', name: 'Vigor Vanguard', threshold: 20, description: 'Earn 20 category NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: 'globe' },
-  { id: 'combo_6', name: 'Zenith Achiever', threshold: 30, description: 'Earn 30 category NFTs', color: 'bg-gradient-to-r from-purple-600 to-amber-500', icon: 'shield' },
-  { id: 'combo_7', name: 'Apex Master', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: 'trophy' },
+  { id: 'combo_1', name: 'Duality', threshold: 2, description: 'Earn NFT in 2 categories', color: 'bg-gradient-to-r from-amber-500 to-orange-500', icon: 'target' },
+  { id: 'combo_2', name: 'Trifecta', threshold: 3, description: 'Earn NFT in 3 categories', color: 'bg-gradient-to-r from-orange-500 to-red-500', icon: 'flame' },
+  { id: 'combo_3', name: 'Quadrant', threshold: 5, description: 'Earn 5 category NFTs', color: 'bg-gradient-to-r from-red-500 to-purple-500', icon: 'diamond' },
+  { id: 'combo_4', name: 'Constellation', threshold: 10, description: 'Earn 10 category NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: 'star' },
+  { id: 'combo_5', name: 'Cyber Echo', threshold: 20, description: 'Earn 20 category NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: 'globe' },
+  { id: 'combo_6', name: 'Zenith', threshold: 30, description: 'Earn 30 category NFTs', color: 'bg-gradient-to-r from-purple-600 to-amber-500', icon: 'shield' },
+  { id: 'combo_7', name: 'ZenMaster', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: 'trophy' },
   { id: 'combo_8', name: 'Total Eclipse', threshold: 4, description: 'Max out all categories', color: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500', icon: 'crown' },
 ];
 
@@ -153,13 +153,13 @@ export function calculateComboAchievements(
   const categoriesMaxed = [solarMaxed, evMilesMaxed, evChargingMaxed, batteryMaxed].filter(Boolean).length;
   
   // Award combo milestones (based on category NFTs only, not combos)
-  if (categoriesWithNFTs >= 2) combos.push(COMBO_MILESTONES[0]); // Dual Pioneer
-  if (categoriesWithNFTs >= 3) combos.push(COMBO_MILESTONES[1]); // Triple Trailblazer
-  if (totalCategoryNFTs >= 5) combos.push(COMBO_MILESTONES[2]); // Quintessence
-  if (totalCategoryNFTs >= 10) combos.push(COMBO_MILESTONES[3]); // Deca Driver
-  if (totalCategoryNFTs >= 20) combos.push(COMBO_MILESTONES[4]); // Vigor Vanguard
-  if (totalCategoryNFTs >= 30) combos.push(COMBO_MILESTONES[5]); // Zenith Achiever
-  if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[6]); // Apex Master
+  if (categoriesWithNFTs >= 2) combos.push(COMBO_MILESTONES[0]); // Duality
+  if (categoriesWithNFTs >= 3) combos.push(COMBO_MILESTONES[1]); // Trifecta
+  if (totalCategoryNFTs >= 5) combos.push(COMBO_MILESTONES[2]); // Quadrant
+  if (totalCategoryNFTs >= 10) combos.push(COMBO_MILESTONES[3]); // Constellation
+  if (totalCategoryNFTs >= 20) combos.push(COMBO_MILESTONES[4]); // Cyber Echo
+  if (totalCategoryNFTs >= 30) combos.push(COMBO_MILESTONES[5]); // Zenith
+  if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[6]); // ZenMaster
   if (categoriesMaxed >= 4) combos.push(COMBO_MILESTONES[7]); // Total Eclipse
   
   return combos;

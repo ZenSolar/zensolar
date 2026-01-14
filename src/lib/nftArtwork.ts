@@ -1,5 +1,5 @@
 // NFT Artwork mapping - maps milestone IDs to their generated images
-// Updated: January 14, 2026 - Aligned with final_milestones-2.docx (40 NFTs total)
+// Updated: January 14, 2026 - Aligned with final_milestones-3.docx (42 NFTs total)
 
 // Welcome NFT
 import welcomeNft from '@/assets/nft/solar-genesis.png';
