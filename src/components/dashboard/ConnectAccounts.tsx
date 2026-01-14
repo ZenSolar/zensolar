@@ -11,47 +11,6 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Check, ChevronDown, ChevronUp, Plus, Zap } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { cn } from '@/lib/utils';
-
-// Tesla "T" icon - simplified T shape that works at small sizes
-const TeslaIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
-    <path d="M16 7c-5.5 0-10.3 0.6-13 1.5L3 11c2.5-0.7 7-1.2 13-1.2s10.5 0.5 13 1.2l0-2.5C26.3 7.6 21.5 7 16 7zM16 12c-2.5 0-4.5 0.2-6 0.5v3c1.3-0.3 3.3-0.5 5-0.5h1v10h2V15h1c1.7 0 3.7 0.2 5 0.5v-3C22.5 12.2 18.5 12 16 12z"/>
-  </svg>
-);
-
-// Enphase "E" icon - stylized orange E
-const EnphaseIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
-    <rect x="8" y="6" width="16" height="3" rx="1"/>
-    <rect x="8" y="14.5" width="12" height="3" rx="1"/>
-    <rect x="8" y="23" width="16" height="3" rx="1"/>
-    <rect x="8" y="6" width="3" height="20" rx="1"/>
-  </svg>
-);
-
-// SolarEdge icon - sun with partial circle (edge)
-const SolarEdgeIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
-    <circle cx="16" cy="16" r="5"/>
-    <path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M7.5 24.5l2.8-2.8M21.7 10.3l2.8-2.8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
-  </svg>
-);
-
-// Wallbox icon - EV charging station
-const WallboxIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
-    <path d="M22 4H10c-1.1 0-2 .9-2 2v20c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-6 22c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm4-8H12v-2h8v2zm0-4H12V8h8v6z"/>
-  </svg>
-);
-
-// Map service to icon
-const providerIcons: Record<string, React.FC<{ className?: string }>> = {
-  tesla: TeslaIcon,
-  enphase: EnphaseIcon,
-  solaredge: SolarEdgeIcon,
-  wallbox: WallboxIcon,
-};
 
 interface ConnectAccountsProps {
   accounts: ConnectedAccount[];
@@ -228,20 +187,16 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
                       {connectedAccounts.length} connected
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {connectedAccounts.map((acc) => {
-                      const Icon = providerIcons[acc.service];
-                      return (
-                        <span 
-                          key={acc.service}
-                          className="inline-flex items-center gap-1 text-xs text-muted-foreground"
-                        >
-                          {Icon && <Icon className="text-secondary" />}
-                          <Check className="h-3 w-3 text-secondary" />
-                          {acc.label}
-                        </span>
-                      );
-                    })}
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {connectedAccounts.map((acc) => (
+                      <span 
+                        key={acc.service}
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground"
+                      >
+                        <Check className="h-3 w-3 text-secondary" />
+                        {acc.label}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
