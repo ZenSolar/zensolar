@@ -1,9 +1,11 @@
 import { Award, TrendingUp, Sparkles, ChevronRight, Trophy, Zap, Car, Battery, Sun } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   SOLAR_MILESTONES,
@@ -296,9 +298,19 @@ export function RewardProgress({
         {/* Combo Achievements */}
         <ComboAchievements combos={comboEarned} />
 
-        <p className="text-[10px] text-muted-foreground/60 text-center pt-1">
-          Earn NFTs across categories to unlock combo achievements! 🎯
-        </p>
+        {/* View Full Collection Link */}
+        <div className="pt-2 flex flex-col items-center gap-2">
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link to="/nft-collection">
+              <Award className="h-4 w-4" />
+              View Full Collection
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <p className="text-[10px] text-muted-foreground/60 text-center">
+            Earn NFTs across categories to unlock combo achievements! 🎯
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

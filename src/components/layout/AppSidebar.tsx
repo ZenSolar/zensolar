@@ -13,7 +13,8 @@ import {
   ShoppingBag,
   Car,
   BookOpen,
-  Cpu
+  Cpu,
+  Award
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -36,6 +37,7 @@ import {
 
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "NFT Collection", url: "/nft-collection", icon: Award },
   { title: "How It Works", url: "/how-it-works", icon: BookOpen },
   { title: "Technology", url: "/technology", icon: Cpu },
   { title: "Store", url: "/store", icon: ShoppingBag },
