@@ -47,7 +47,7 @@ const WALLETS = {
   minter: {
     name: 'Minter Wallet',
     description: 'Backend wallet that signs contract transactions',
-    address: '0x...TBD', // Update with your minter wallet public address
+    address: '0x70918Aa38d19BbBE0BD3e00C008442978c0e5cB1',
     role: 'ZenSolar Controller Owner',
   },
   treasury: {
