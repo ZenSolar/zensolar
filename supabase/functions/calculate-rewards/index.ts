@@ -15,10 +15,10 @@ const REWARD_RATES = {
   ev_charging: 1,         // 1 $ZSOLAR per kWh charged
 };
 
-// NFT thresholds - must match frontend src/lib/nftMilestones.ts
-// Using Tesla-inspired naming convention
+// NFT thresholds - aligned with final_milestones.docx (January 14, 2026)
+
+// Solar Energy Produced (8 tiers: 500-100,000 kWh)
 const SOLAR_THRESHOLDS = [
-  { name: "Genesis", threshold: 0 },
   { name: "Sunlink", threshold: 500 },
   { name: "Photon", threshold: 1000 },
   { name: "Rayfield", threshold: 2500 },
@@ -29,6 +29,30 @@ const SOLAR_THRESHOLDS = [
   { name: "Starpower", threshold: 100000 },
 ];
 
+// Battery Storage Discharged (7 tiers: 500-50,000 kWh)
+const BATTERY_THRESHOLDS = [
+  { name: "Powerwall", threshold: 500 },
+  { name: "Gridlink", threshold: 1000 },
+  { name: "Megapack", threshold: 2500 },
+  { name: "Reservoir", threshold: 5000 },
+  { name: "Dynamo", threshold: 10000 },
+  { name: "Gigabank", threshold: 25000 },
+  { name: "Ultrabank", threshold: 50000 },
+];
+
+// EV Charging - combined supercharger + home (8 tiers: 100-25,000 kWh)
+const EV_CHARGING_THRESHOLDS = [
+  { name: "Spark", threshold: 100 },
+  { name: "Supercharger", threshold: 500 },
+  { name: "Megavolt", threshold: 1000 },
+  { name: "Amperage", threshold: 1500 },
+  { name: "Destination", threshold: 2500 },
+  { name: "Gigawatt", threshold: 5000 },
+  { name: "Megawatt", threshold: 10000 },
+  { name: "Terawatt", threshold: 25000 },
+];
+
+// EV Miles Driven (10 tiers: 100-200,000 miles)
 const EV_MILES_THRESHOLDS = [
   { name: "Ignition", threshold: 100 },
   { name: "Cruiser", threshold: 500 },
@@ -37,86 +61,18 @@ const EV_MILES_THRESHOLDS = [
   { name: "Roadster", threshold: 10000 },
   { name: "Plaid", threshold: 25000 },
   { name: "Ludicrous", threshold: 50000 },
-];
-
-const EV_CHARGING_THRESHOLDS = [
-  { name: "Spark", threshold: 100 },
-  { name: "Supercharger", threshold: 500 },
-  { name: "Megavolt", threshold: 1000 },
-  { name: "Amperage", threshold: 2500 },
-  { name: "Destination", threshold: 5000 },
-  { name: "Gigawatt", threshold: 10000 },
-];
-
-const BATTERY_THRESHOLDS = [
-  { name: "Powerwall", threshold: 500 },
-  { name: "Gridlink", threshold: 1000 },
-  { name: "Megapack", threshold: 2500 },
-  { name: "Reservoir", threshold: 5000 },
-  { name: "Dynamo", threshold: 10000 },
-  { name: "Gigabank", threshold: 25000 },
-];
-
-const COMBO_THRESHOLDS = [
-  { name: "Duality", categoriesRequired: 2 },
-  { name: "Trifecta", categoriesRequired: 3 },
-  { name: "Quadrant", categoriesRequired: 4 },
-  { name: "Constellation", totalNftsRequired: 5 },
-  { name: "Ecosystem", totalNftsRequired: 10 },
-  { name: "Apex", categoriesMaxed: 1 },
-  { name: "Zenith", categoriesMaxed: 4 },
+  { name: "Centurion", threshold: 100000 },
+  { name: "Voyager", threshold: 150000 },
+  { name: "Legend", threshold: 200000 },
 ];
 
 function calculateEarnedForCategory(
   value: number,
-  thresholds: { name: string; threshold: number }[],
-  isWelcome: boolean = false
+  thresholds: { name: string; threshold: number }[]
 ): string[] {
   return thresholds
-    .filter((t) => {
-      if (t.threshold === 0) return isWelcome;
-      return value >= t.threshold;
-    })
+    .filter((t) => value >= t.threshold)
     .map((t) => t.name);
-}
-
-function calculateComboNFTs(
-  solarEarned: string[],
-  evMilesEarned: string[],
-  evChargingEarned: string[],
-  batteryEarned: string[]
-): string[] {
-  const combos: string[] = [];
-  
-  // Count categories with at least one earned NFT (excluding welcome/Genesis)
-  const solarCount = solarEarned.filter(n => n !== "Genesis").length;
-  const categoriesWithNFTs = [
-    solarCount > 0,
-    evMilesEarned.length > 0,
-    evChargingEarned.length > 0,
-    batteryEarned.length > 0,
-  ].filter(Boolean).length;
-  
-  // Total NFTs earned (excluding welcome/Genesis)
-  const totalNFTs = solarCount + evMilesEarned.length + evChargingEarned.length + batteryEarned.length;
-  
-  // Check if category is maxed out
-  const solarMaxed = solarEarned.length === SOLAR_THRESHOLDS.length;
-  const evMilesMaxed = evMilesEarned.length === EV_MILES_THRESHOLDS.length;
-  const evChargingMaxed = evChargingEarned.length === EV_CHARGING_THRESHOLDS.length;
-  const batteryMaxed = batteryEarned.length === BATTERY_THRESHOLDS.length;
-  const categoriesMaxed = [solarMaxed, evMilesMaxed, evChargingMaxed, batteryMaxed].filter(Boolean).length;
-  
-  // Award combo milestones with new Tesla-inspired names
-  if (categoriesWithNFTs >= 2) combos.push("Duality");
-  if (categoriesWithNFTs >= 3) combos.push("Trifecta");
-  if (categoriesWithNFTs >= 4) combos.push("Quadrant");
-  if (totalNFTs >= 5) combos.push("Constellation");
-  if (totalNFTs >= 10) combos.push("Ecosystem");
-  if (categoriesMaxed >= 1) combos.push("Apex");
-  if (categoriesMaxed >= 4) combos.push("Zenith");
-  
-  return combos;
 }
 
 Deno.serve(async (req) => {
@@ -164,9 +120,6 @@ Deno.serve(async (req) => {
       let totalEvMiles = 0;
       let totalEvChargingKwh = 0;
 
-      // For now, we need to get the actual lifetime data from the tesla-data function
-      // The pending activity is stored in the dashboard - here we calculate based on claimed devices
-      
       // Get already claimed rewards
       const { data: claimedRewards } = await supabaseClient
         .from("user_rewards")
@@ -185,53 +138,45 @@ Deno.serve(async (req) => {
 
       const pendingTokens = unclaimedRewards?.reduce((sum, r) => sum + Number(r.tokens_earned), 0) || 0;
 
-      // Calculate total activity for NFT thresholds
-      const totalActivity = totalClaimedTokens + pendingTokens;
-
       // Calculate NFTs for each category
-      const solarEarned = calculateEarnedForCategory(totalSolarKwh, SOLAR_THRESHOLDS, true);
-      const evMilesEarned = calculateEarnedForCategory(totalEvMiles, EV_MILES_THRESHOLDS);
-      const evChargingEarned = calculateEarnedForCategory(totalEvChargingKwh, EV_CHARGING_THRESHOLDS);
+      const solarEarned = calculateEarnedForCategory(totalSolarKwh, SOLAR_THRESHOLDS);
       const batteryEarned = calculateEarnedForCategory(totalBatteryKwh, BATTERY_THRESHOLDS);
+      const evChargingEarned = calculateEarnedForCategory(totalEvChargingKwh, EV_CHARGING_THRESHOLDS);
+      const evMilesEarned = calculateEarnedForCategory(totalEvMiles, EV_MILES_THRESHOLDS);
       
-      // Calculate combo achievements
-      const comboEarned = calculateComboNFTs(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
-      
-      // Combine all earned NFTs
+      // Welcome NFT is always earned for registered users
       const earnedNFTs = [
+        "Welcome", // Auto-minted on registration
         ...solarEarned,
-        ...evMilesEarned,
-        ...evChargingEarned,
         ...batteryEarned,
-        ...comboEarned,
+        ...evChargingEarned,
+        ...evMilesEarned,
       ];
 
-      // Calculate CO2 offset (0.92 lbs per kWh solar + 0.4 lbs per EV mile)
+      // Calculate CO2 offset (0.92 lbs per kWh solar + 0.4 lbs per EV mile) - display only, no NFTs
       const co2OffsetLbs = (totalSolarKwh * 0.92) + (totalEvMiles * 0.4);
 
       console.log("Rewards calculation:", {
         totalClaimedTokens,
         pendingTokens,
-        totalActivity,
         solarEarned: solarEarned.length,
-        evMilesEarned: evMilesEarned.length,
-        evChargingEarned: evChargingEarned.length,
         batteryEarned: batteryEarned.length,
-        comboEarned: comboEarned.length,
+        evChargingEarned: evChargingEarned.length,
+        evMilesEarned: evMilesEarned.length,
         earnedNFTs,
       });
 
       return new Response(JSON.stringify({
-        total_tokens_earned: totalActivity,
+        total_tokens_earned: totalClaimedTokens + pendingTokens,
         tokens_claimed: totalClaimedTokens,
         tokens_pending: pendingTokens,
         earned_nfts: earnedNFTs,
         nfts_by_category: {
+          welcome: ["Welcome"],
           solar: solarEarned,
-          ev_miles: evMilesEarned,
-          ev_charging: evChargingEarned,
           battery: batteryEarned,
-          combos: comboEarned,
+          ev_charging: evChargingEarned,
+          ev_miles: evMilesEarned,
         },
         co2_offset_lbs: co2OffsetLbs,
         reward_rates: REWARD_RATES,
@@ -284,7 +229,6 @@ Deno.serve(async (req) => {
       }
 
       // Reset baselines on all connected devices to current lifetime values
-      // This ensures pending activity resets to 0 after minting
       const { data: devices } = await supabaseClient
         .from("connected_devices")
         .select("id, device_id, device_type, provider, baseline_data")
@@ -367,15 +311,13 @@ Deno.serve(async (req) => {
         console.log(`Reset baselines for ${devices.length} devices after minting`);
       }
 
-      // TODO: Here you would trigger the actual blockchain transfer
-      // For now, we just mark them as claimed in the database
+      // TODO: Trigger blockchain minting here
 
       return new Response(JSON.stringify({
         success: true,
         tokens_claimed: totalToClaim,
         message: `Successfully claimed ${totalToClaim} $ZSOLAR tokens`,
         baselines_reset: true,
-        // transaction_hash: would be here after blockchain integration
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
