@@ -52,7 +52,7 @@ import comboQuadrant from '@/assets/nft/combo-quadrant.png';
 import comboConstellation from '@/assets/nft/combo-constellation.png';
 import comboEcosystem from '@/assets/nft/combo-ecosystem.png';
 import comboSovereign from '@/assets/nft/combo-sovereign.png';
-import comboTranscendent from '@/assets/nft/combo-transcendent.png';
+import comboMaster from '@/assets/nft/combo-master.png';
 import comboApex from '@/assets/nft/combo-apex.png';
 import comboZenith from '@/assets/nft/combo-zenith.png';
 
@@ -109,7 +109,7 @@ export const NFT_ARTWORK: Record<string, string> = {
   combo_4: comboConstellation,
   combo_5: comboEcosystem,
   combo_6: comboSovereign,
-  combo_7: comboTranscendent,
+  combo_7: comboMaster,
   combo_8: comboApex,
   combo_9: comboZenith,
 };

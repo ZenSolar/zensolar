@@ -2,7 +2,7 @@
 
 **Updated:** January 14, 2026  
 **Source:** final_milestones.docx  
-**Total NFTs:** 43
+**Total NFTs:** 42 (33 category + 9 combo)
 
 ---
 
@@ -15,7 +15,10 @@
 | Battery Discharge | 7 | kWh | |
 | EV Charging | 8 | kWh | Combined supercharger + home charger |
 | EV Miles Driven | 10 | miles | |
+| **Category Subtotal** | **33** | | Only these count toward combo requirements |
 | Combo Achievements | 9 | varies | Cross-category achievements |
+
+**Important:** Only category NFTs (33 total) count toward combo NFT requirements. Combo NFTs do not count toward earning other combos.
 
 **CO₂ Offset:** Display-only metric, no direct rewards or NFTs
 
@@ -96,15 +99,17 @@ Combined supercharger + home charger kWh
 
 ## Category 5: Combo Achievements (9 NFTs)
 
+**Important:** Only the 33 category NFTs count toward combo requirements. Combo NFTs do not count.
+
 | # | ID | Name | Condition | Description | Rarity Tier | Artwork File |
 |---|-----|------|-----------|-------------|-------------|--------------|
 | 1 | `combo_1` | Duality | 2 categories | Earn NFT in 2 categories | Premium | `combo-duality.png` |
 | 2 | `combo_2` | Trifecta | 3 categories | Earn NFT in 3 categories | Trifecta | `combo-trifecta.png` |
 | 3 | `combo_3` | Quadrant | 4 categories | Earn NFT in all 4 categories | Quadrant | `combo-quadrant.png` |
-| 4 | `combo_4` | Constellation | 5 total NFTs | Earn 5 total NFTs | Constellation | `combo-constellation.png` |
-| 5 | `combo_5` | Ecosystem | 10 total NFTs | Earn 10 total NFTs | Ecosystem | `combo-ecosystem.png` |
-| 6 | `combo_6` | Sovereign | 20 total NFTs | Earn 20 total NFTs | Sovereign | `combo-sovereign.png` |
-| 7 | `combo_7` | Transcendent | 30 total NFTs | Earn 30 total NFTs | Transcendent | `combo-transcendent.png` |
+| 4 | `combo_4` | Constellation | 5 category NFTs | Earn 5 category NFTs | Constellation | `combo-constellation.png` |
+| 5 | `combo_5` | Ecosystem | 10 category NFTs | Earn 10 category NFTs | Ecosystem | `combo-ecosystem.png` |
+| 6 | `combo_6` | Sovereign | 20 category NFTs | Earn 20 category NFTs | Sovereign | `combo-sovereign.png` |
+| 7 | `combo_7` | Master | 33 category NFTs | Earn all 33 category NFTs | Master (Ultimate) | `combo-master.png` |
 | 8 | `combo_8` | Apex | 1 maxed category | Max out any category | Apex | `combo-apex.png` |
 | 9 | `combo_9` | Zenith | 4 maxed categories | Max out all categories | Zenith (Ultimate) | `combo-zenith.png` |
 
@@ -114,8 +119,9 @@ Combined supercharger + home charger kWh
 // Categories with at least 1 NFT earned
 categoriesWithNFTs = count of categories where earned > 0
 
-// Total NFTs across all categories
-totalNFTs = solar + battery + evCharging + evMiles
+// Total CATEGORY NFTs only (combos don't count!)
+totalCategoryNFTs = solar + battery + evCharging + evMiles
+// Max possible: 8 + 7 + 8 + 10 = 33
 
 // Category maxed = earned all NFTs in that category
 solarMaxed = earned 8 solar NFTs
@@ -123,14 +129,14 @@ batteryMaxed = earned 7 battery NFTs
 evChargingMaxed = earned 8 EV charging NFTs
 evMilesMaxed = earned 10 EV miles NFTs
 
-// Combo Awards:
+// Combo Awards (based on category NFTs only):
 Duality → categoriesWithNFTs >= 2
 Trifecta → categoriesWithNFTs >= 3  
 Quadrant → categoriesWithNFTs >= 4
-Constellation → totalNFTs >= 5
-Ecosystem → totalNFTs >= 10
-Sovereign → totalNFTs >= 20
-Transcendent → totalNFTs >= 30
+Constellation → totalCategoryNFTs >= 5
+Ecosystem → totalCategoryNFTs >= 10
+Sovereign → totalCategoryNFTs >= 20
+Master → totalCategoryNFTs >= 33 (all category NFTs)
 Apex → any 1 category maxed
 Zenith → all 4 categories maxed
 ```
@@ -194,7 +200,7 @@ Zenith → all 4 categories maxed
 | 38 | `combo_4` | Constellation | Combo |
 | 39 | `combo_5` | Ecosystem | Combo |
 | 40 | `combo_6` | Sovereign | Combo |
-| 41 | `combo_7` | Transcendent | Combo |
+| 41 | `combo_7` | Master | Combo |
 | 42 | `combo_8` | Apex | Combo |
 | 43 | `combo_9` | Zenith | Combo |
 
@@ -252,6 +258,6 @@ All artwork is now complete! ✅
 2. **EV Miles** has higher thresholds to reflect real-world driving distances
 3. **EV Charging** combines supercharger and home charger kWh
 4. **CO₂ Offset** is display-only (no NFTs or direct rewards)
-5. **Combo NFTs** are earned based on cross-category achievements
+5. **Combo NFTs** are earned based on category NFTs only (combos don't count toward combos)
 6. All thresholds are **greater than or equal to** (>=) checks
 7. Each milestone cross mints one NFT per field
