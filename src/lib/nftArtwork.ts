@@ -45,12 +45,14 @@ import evCenturion from '@/assets/nft/ev-centurion.png';
 import evVoyager from '@/assets/nft/ev-voyager.png';
 import evLegend from '@/assets/nft/ev-legend.png';
 
-// Combo NFTs (7 tiers)
+// Combo NFTs (9 tiers)
 import comboDuality from '@/assets/nft/combo-duality.png';
 import comboTrifecta from '@/assets/nft/combo-trifecta.png';
 import comboQuadrant from '@/assets/nft/combo-quadrant.png';
 import comboConstellation from '@/assets/nft/combo-constellation.png';
 import comboEcosystem from '@/assets/nft/combo-ecosystem.png';
+import comboSovereign from '@/assets/nft/combo-sovereign.png';
+import comboTranscendent from '@/assets/nft/combo-transcendent.png';
 import comboApex from '@/assets/nft/combo-apex.png';
 import comboZenith from '@/assets/nft/combo-zenith.png';
 
@@ -100,14 +102,16 @@ export const NFT_ARTWORK: Record<string, string> = {
   ev_9: evVoyager,
   ev_10: evLegend,
   
-  // Combos (7 tiers)
+  // Combos (9 tiers)
   combo_1: comboDuality,
   combo_2: comboTrifecta,
   combo_3: comboQuadrant,
   combo_4: comboConstellation,
   combo_5: comboEcosystem,
-  combo_6: comboApex,
-  combo_7: comboZenith,
+  combo_6: comboSovereign,
+  combo_7: comboTranscendent,
+  combo_8: comboApex,
+  combo_9: comboZenith,
 };
 
 // Get artwork for a milestone ID
