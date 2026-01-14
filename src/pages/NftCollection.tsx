@@ -27,11 +27,9 @@ import {
   EV_MILES_MILESTONES,
   EV_CHARGING_MILESTONES,
   BATTERY_MILESTONES,
-  COMBO_MILESTONES,
   NFT_CATEGORIES,
   calculateEarnedMilestones,
   getNextMilestone,
-  calculateComboAchievements,
   type NFTMilestone,
 } from '@/lib/nftMilestones';
 import { NFTBadge } from '@/components/ui/nft-badge';
@@ -472,20 +470,17 @@ export default function NftCollection() {
   const evChargingKwh = activityData.teslaSuperchargerKwh + activityData.homeChargerKwh;
   const batteryKwh = activityData.batteryStorageDischarged;
 
-  const solarEarned = calculateEarnedMilestones(solarKwh, SOLAR_MILESTONES, true);
+  const solarEarned = calculateEarnedMilestones(solarKwh, SOLAR_MILESTONES);
   const evMilesEarned = calculateEarnedMilestones(evMiles, EV_MILES_MILESTONES);
   const evChargingEarned = calculateEarnedMilestones(evChargingKwh, EV_CHARGING_MILESTONES);
   const batteryEarned = calculateEarnedMilestones(batteryKwh, BATTERY_MILESTONES);
-  const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
 
-  // Total stats
-  const totalEarned = solarEarned.length + evMilesEarned.length + evChargingEarned.length + batteryEarned.length + comboEarned.length;
-  const totalAvailable = SOLAR_MILESTONES.length + EV_MILES_MILESTONES.length + EV_CHARGING_MILESTONES.length + BATTERY_MILESTONES.length + COMBO_MILESTONES.length;
-
-  const comboEarnedIds = new Set(comboEarned.map(m => m.id));
+  // Total stats (add 1 for welcome NFT)
+  const totalEarned = 1 + solarEarned.length + evMilesEarned.length + evChargingEarned.length + batteryEarned.length;
+  const totalAvailable = 1 + SOLAR_MILESTONES.length + EV_MILES_MILESTONES.length + EV_CHARGING_MILESTONES.length + BATTERY_MILESTONES.length;
   
   // Get all current earned IDs
-  const allEarned = [...solarEarned, ...evMilesEarned, ...evChargingEarned, ...batteryEarned, ...comboEarned];
+  const allEarned = [...solarEarned, ...evMilesEarned, ...evChargingEarned, ...batteryEarned];
   const currentEarnedIds = new Set(allEarned.map(m => m.id));
 
   // Check for newly earned NFTs and trigger celebration
