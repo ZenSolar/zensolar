@@ -1,0 +1,17 @@
+{
+  "name": "Rayforge",
+  "description": "2,500 kWh of solar energy generated. Forging rays into power!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/solar/rayforge.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Solar" },
+    { "trait_type": "Threshold", "value": 2500, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Token ID", "value": 3, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "solar_3" },
+    { "trait_type": "Tier", "value": 3, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Uncommon" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 2500, "display_type": "number" }
+  ]
+}

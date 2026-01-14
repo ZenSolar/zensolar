@@ -1,0 +1,17 @@
+{
+  "name": "Voyager",
+  "description": "150,000 electric miles driven. Voyaging across the electric frontier!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/ev/voyager.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "EV Miles" },
+    { "trait_type": "Threshold", "value": 150000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "miles" },
+    { "trait_type": "Token ID", "value": 32, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "ev_9" },
+    { "trait_type": "Tier", "value": 9, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Mythic" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 150000, "display_type": "number" }
+  ]
+}

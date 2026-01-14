@@ -1,0 +1,17 @@
+{
+  "name": "Chargeon",
+  "description": "2,500 kWh of EV charging. Champion of the charging station!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/charging/chargeon.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Charging" },
+    { "trait_type": "Threshold", "value": 2500, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Token ID", "value": 20, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "charge_5" },
+    { "trait_type": "Tier", "value": 5, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Rare" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 2500, "display_type": "number" }
+  ]
+}

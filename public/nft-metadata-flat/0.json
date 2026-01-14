@@ -1,0 +1,13 @@
+{
+  "name": "Welcome to ZenSolar",
+  "description": "Welcome to the ZenSolar ecosystem! This NFT marks your entry into the future of sustainable energy rewards. Non-redeemable commemorative token.",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/welcome.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Welcome" },
+    { "trait_type": "Token ID", "value": 0, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "welcome" },
+    { "trait_type": "Rarity", "value": "Genesis" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}
