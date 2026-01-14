@@ -1,7 +1,7 @@
 {
   "name": "Teracharge",
   "description": "25,000 kWh of EV charging. Terawatt charging legend!",
-  "image": "ipfs://REPLACE_WITH_CID/charging/teracharge.png",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/charging/teracharge.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Charging" },

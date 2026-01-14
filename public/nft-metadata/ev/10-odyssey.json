@@ -1,7 +1,7 @@
 {
   "name": "Odyssey",
   "description": "200,000 electric miles driven. An epic odyssey through sustainable transportation!",
-  "image": "ipfs://REPLACE_WITH_CID/ev/odyssey.png",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/ev/odyssey.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "EV Miles" },

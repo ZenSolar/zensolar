@@ -1,7 +1,7 @@
 {
   "name": "Photonic",
   "description": "1,000 kWh of solar energy generated. You're harnessing the power of the sun!",
-  "image": "ipfs://REPLACE_WITH_CID/solar/photonic.png",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/solar/photonic.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Solar" },

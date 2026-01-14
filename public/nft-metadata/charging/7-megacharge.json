@@ -1,7 +1,7 @@
 {
   "name": "Megacharge",
   "description": "10,000 kWh of EV charging. Megawatt-scale charging achieved!",
-  "image": "ipfs://REPLACE_WITH_CID/charging/megacharge.png",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/charging/megacharge.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Charging" },

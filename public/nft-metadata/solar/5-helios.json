@@ -1,7 +1,7 @@
 {
   "name": "Helios",
   "description": "10,000 kWh of solar energy generated. Named after the sun god, you radiate sustainable power!",
-  "image": "ipfs://REPLACE_WITH_CID/solar/helios.png",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/solar/helios.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Solar" },
