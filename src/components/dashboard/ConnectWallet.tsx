@@ -1,4 +1,4 @@
-import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
@@ -12,23 +12,21 @@ interface ConnectWalletProps {
 }
 
 export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: ConnectWalletProps) {
-  const { address, isConnected, isConnecting } = useAccount();
+  const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
-  const { connectModalOpen } = useConnectModal();
-  const hasNotifiedConnection = useRef(false);
+  const hasHandledConnection = useRef(false);
+  const prevConnectedRef = useRef(false);
 
   // Auto-switch to Base Sepolia when wallet connects on wrong network
   const ensureCorrectNetwork = useCallback(async () => {
     if (isConnected && chainId !== CHAIN_ID) {
       toast.info('Adding Base Sepolia network...', { duration: 3000 });
       try {
-        // RainbowKit's switchChain will auto-add the chain if not present
         await switchChain({ chainId: CHAIN_ID });
         toast.success('Switched to Base Sepolia!');
       } catch (error: any) {
         console.error('Network switch error:', error);
-        // If auto-add fails, provide manual instructions
         if (error?.code === 4902 || error?.message?.includes('Unrecognized chain')) {
           toast.error('Please add Base Sepolia manually in your wallet', { duration: 5000 });
         } else {
@@ -38,44 +36,40 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
     }
   }, [isConnected, chainId, switchChain]);
 
-  // Force close any modal overlays when wallet connects (mobile deep-link fix)
+  // Detect when wallet just connected (transition from disconnected to connected)
   useEffect(() => {
-    if (isConnected && address) {
-      // Close any open RainbowKit modals by clicking escape or clicking backdrop
-      const closeModals = () => {
-        // Try to close by dispatching escape key
-        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27 }));
-        
-        // Also try to click any modal backdrop
-        const backdrop = document.querySelector('[data-rk]')?.querySelector('[role="dialog"]')?.previousSibling;
-        if (backdrop && backdrop instanceof HTMLElement) {
-          backdrop.click();
-        }
-      };
+    const justConnected = isConnected && !prevConnectedRef.current;
+    prevConnectedRef.current = isConnected;
+
+    if (justConnected && address) {
+      console.log('[ConnectWallet] Wallet just connected:', address);
       
-      // Small delay to ensure state has propagated
-      setTimeout(closeModals, 100);
+      // Force close any RainbowKit modals
+      setTimeout(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      }, 200);
     }
   }, [isConnected, address]);
 
   // Sync wallet address to profile when connected
   useEffect(() => {
-    if (isConnected && address && address !== walletAddress && !hasNotifiedConnection.current) {
-      hasNotifiedConnection.current = true;
+    if (isConnected && address && address !== walletAddress && !hasHandledConnection.current) {
+      hasHandledConnection.current = true;
+      console.log('[ConnectWallet] Syncing wallet to profile:', address);
       
-      // First ensure correct network, then save address
       ensureCorrectNetwork();
       
       onConnect(address).then(() => {
-        toast.success('Wallet connected to Base Sepolia!');
-      }).catch(() => {
+        toast.success('Wallet connected successfully!');
+      }).catch((err) => {
+        console.error('[ConnectWallet] Failed to save wallet:', err);
         toast.error('Failed to save wallet address');
       });
     }
     
-    // Reset notification flag when disconnected
+    // Reset when disconnected
     if (!isConnected) {
-      hasNotifiedConnection.current = false;
+      hasHandledConnection.current = false;
     }
   }, [isConnected, address, walletAddress, onConnect, ensureCorrectNetwork]);
 
