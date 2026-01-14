@@ -1,11 +1,13 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useChainId, useSwitchChain, useDisconnect } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain, useDisconnect, useConnect } from 'wagmi';
 import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2 } from 'lucide-react';
+import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Loader2 } from 'lucide-react';
 import { CHAIN_ID } from '@/lib/wagmi';
 import { Button } from '@/components/ui/button';
 import { WalletConnectDiagnostics, type WalletDiagEvents } from './WalletConnectDiagnostics';
+import { WalletDeepLinks, getWalletConnectDeepLink, type WalletDeepLinkWalletId } from './WalletDeepLinks';
+import { hardResetWalletStorage } from '@/lib/walletStorage';
 
 interface ConnectWalletProps {
   walletAddress: string | null;
@@ -18,17 +20,37 @@ function normalizeAddress(addr?: string | null) {
   return (addr ?? '').toLowerCase();
 }
 
+function markForWallet(set: (key: keyof WalletDiagEvents) => void, wallet: WalletDeepLinkWalletId) {
+  switch (wallet) {
+    case 'metamask':
+      set('deepLinkMetaMaskTap');
+      break;
+    case 'coinbase':
+      set('deepLinkCoinbaseTap');
+      break;
+    case 'trust':
+      set('deepLinkTrustTap');
+      break;
+    case 'rainbow':
+      set('deepLinkRainbowTap');
+      break;
+  }
+}
+
 export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo = false }: ConnectWalletProps) {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { disconnect } = useDisconnect();
+  const { connectAsync, connectors } = useConnect();
 
   const hasHandledConnection = useRef(false);
   const prevConnectedRef = useRef(false);
 
   const [events, setEvents] = useState<WalletDiagEvents>({});
   const [lastSaveError, setLastSaveError] = useState<string | null>(null);
+  const [wcUri, setWcUri] = useState<string | undefined>(undefined);
+  const [isStartingWc, setIsStartingWc] = useState(false);
 
   const mark = useCallback((key: keyof WalletDiagEvents) => {
     setEvents((prev) => ({ ...prev, [key]: Date.now() }));
@@ -53,31 +75,15 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
     };
   }, []);
 
-  const deepLinks = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return {
-        metaMaskHref: '#',
-        coinbaseHref: '#',
-        trustHref: '#',
-      };
-    }
-
-    const href = window.location.href;
-    // MetaMask expects the dapp URL without protocol.
-    const dappUrl = href.replace(/^https?:\/\//, '');
-
-    return {
-      metaMaskHref: `https://metamask.app.link/dapp/${dappUrl}`,
-      coinbaseHref: `https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(href)}`,
-      trustHref: `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(href)}`,
-    };
-  }, []);
-
   const isWalletSaved = useMemo(() => {
     if (!address) return false;
     if (!walletAddress) return false;
     return normalizeAddress(address) === normalizeAddress(walletAddress);
   }, [address, walletAddress]);
+
+  useEffect(() => {
+    if (isConnected) setIsStartingWc(false);
+  }, [isConnected]);
 
   // Auto-switch to Base Sepolia when wallet connects on wrong network
   const ensureCorrectNetwork = useCallback(async () => {
@@ -97,6 +103,72 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
     }
   }, [isConnected, chainId, switchChain]);
 
+  const startWalletConnectDeepLink = useCallback(
+    async (wallet: WalletDeepLinkWalletId) => {
+      // This is the critical fix: we first start a WalletConnect pairing (to obtain a WC URI),
+      // then deep-link into the wallet with that URI so the session persists back to the PWA.
+      const wcConnector = connectors.find((c) => (c as any)?.id === 'walletConnect') ?? connectors.find((c) => (c as any)?.type === 'walletConnect');
+
+      if (!wcConnector) {
+        toast.error('WalletConnect is not available on this device.');
+        return;
+      }
+
+      setLastSaveError(null);
+      setIsStartingWc(true);
+
+      try {
+        const provider: any = await (wcConnector as any).getProvider?.();
+        if (!provider?.on) {
+          toast.error('WalletConnect provider not available.');
+          setIsStartingWc(false);
+          return;
+        }
+
+        let opened = false;
+        const handleUri = (uri: string) => {
+          if (opened) return;
+          opened = true;
+          setWcUri(uri);
+
+          const deepLink = getWalletConnectDeepLink(wallet, uri);
+          if (deepLink) {
+            // Give React a tick to flush state (diagnostics timestamps, etc.)
+            setTimeout(() => {
+              window.location.href = deepLink;
+            }, 50);
+          }
+        };
+
+        provider.on('display_uri', handleUri);
+
+        // Trigger pairing (do not await; the user will jump to the wallet app)
+        void connectAsync({ connector: wcConnector, chainId: CHAIN_ID }).catch((err) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          setLastSaveError(msg);
+          setIsStartingWc(false);
+        });
+
+        // Cleanup / safety timeout
+        setTimeout(() => {
+          try {
+            provider.off?.('display_uri', handleUri);
+          } catch {
+            // ignore
+          }
+          setIsStartingWc(false);
+        }, 30000);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setLastSaveError(msg);
+        setIsStartingWc(false);
+        toast.error('Failed to start WalletConnect.');
+        console.error('[ConnectWallet] WalletConnect start error:', err);
+      }
+    },
+    [connectAsync, connectors]
+  );
+
   // Detect connect/disconnect transitions (for diagnostics)
   useEffect(() => {
     const justConnected = isConnected && !prevConnectedRef.current;
@@ -110,7 +182,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
         console.log('[ConnectWallet] Wallet connected:', address);
       }
 
-      // Close any RainbowKit modals (without blocking the user gesture)
+      // Close any RainbowKit modals
       setTimeout(() => {
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       }, 200);
@@ -122,63 +194,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
       hasHandledConnection.current = false;
     }
   }, [isConnected, address, mark]);
-
-  // Sync wallet address to profile when connected
-  useEffect(() => {
-    if (isConnected && address && normalizeAddress(address) !== normalizeAddress(walletAddress) && !hasHandledConnection.current) {
-      hasHandledConnection.current = true;
-      setLastSaveError(null);
-
-      ensureCorrectNetwork();
-
-      onConnect(address)
-        .then(() => {
-          toast.success('Congratulations! Your wallet is now connected!', { duration: 5000 });
-        })
-        .catch((err) => {
-          const msg = err instanceof Error ? err.message : String(err);
-          console.error('[ConnectWallet] Failed to save wallet:', err);
-          setLastSaveError(msg);
-          hasHandledConnection.current = false; // allow retry
-          toast.error('Failed to save wallet address');
-        });
-    }
-
-    // Reset when disconnected
-    if (!isConnected) {
-      hasHandledConnection.current = false;
-    }
-  }, [isConnected, address, walletAddress, onConnect, ensureCorrectNetwork]);
-
-  const clearWalletStorage = useCallback(() => {
-    if (typeof window === 'undefined') return;
-
-    const patterns: RegExp[] = [/^wagmi/i, /^rk-/i, /^wc@2:/i, /walletconnect/i];
-
-    try {
-      const ls = window.localStorage;
-      const keys = Object.keys(ls ?? {});
-      for (const k of keys) {
-        if (patterns.some((p) => p.test(k))) {
-          ls.removeItem(k);
-        }
-      }
-    } catch {
-      // ignore
-    }
-
-    try {
-      const ss = window.sessionStorage;
-      const keys = Object.keys(ss ?? {});
-      for (const k of keys) {
-        if (patterns.some((p) => p.test(k))) {
-          ss.removeItem(k);
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
 
   const handleReset = useCallback(async () => {
     mark('resetTap');
@@ -197,14 +212,16 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
       console.error('[ConnectWallet] Failed to clear saved wallet:', err);
     }
 
-    clearWalletStorage();
+    await hardResetWalletStorage();
 
     // allow a clean retry
     hasHandledConnection.current = false;
     prevConnectedRef.current = false;
+    setWcUri(undefined);
 
     toast.success('Wallet state cleared. Try connecting again.');
-  }, [disconnect, onDisconnect, clearWalletStorage, mark]);
+  }, [disconnect, onDisconnect, mark]);
+
 
   // Handle disconnect (soft)
   const handleDisconnect = useCallback(async () => {
