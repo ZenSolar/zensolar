@@ -219,6 +219,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <RewardProgress
             tokensEarned={activityData.tokensEarned}
             solarKwh={activityData.solarEnergyProduced}
+            evMilesDriven={activityData.evMilesDriven}
+            evChargingKwh={activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
+            batteryDischargedKwh={activityData.batteryStorageDischarged}
             nftsEarned={activityData.nftsEarned}
             isNewUser={true}
           />

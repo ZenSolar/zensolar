@@ -15,18 +15,108 @@ const REWARD_RATES = {
   ev_charging: 1,         // 1 $ZSOLAR per kWh charged
 };
 
-// NFT thresholds (based on solar kWh produced) - must match frontend RewardProgress.tsx
-const NFT_THRESHOLDS = [
-  { name: "Welcome", kwhRequired: 0 },
-  { name: "First Harvest", kwhRequired: 500 },
-  { name: "Solar Pioneer", kwhRequired: 1000 },
-  { name: "Energy Guardian", kwhRequired: 2500 },
-  { name: "Eco Warrior", kwhRequired: 5000 },
-  { name: "Green Innovator", kwhRequired: 10000 },
-  { name: "Sustainability Champion", kwhRequired: 25000 },
-  { name: "Renewable Hero", kwhRequired: 50000 },
-  { name: "Zen Master", kwhRequired: 100000 },
+// NFT thresholds - must match frontend src/lib/nftMilestones.ts
+const SOLAR_THRESHOLDS = [
+  { name: "Welcome", threshold: 0 },
+  { name: "First Harvest", threshold: 500 },
+  { name: "Solar Pioneer", threshold: 1000 },
+  { name: "Energy Guardian", threshold: 2500 },
+  { name: "Eco Warrior", threshold: 5000 },
+  { name: "Green Innovator", threshold: 10000 },
+  { name: "Sustainability Champion", threshold: 25000 },
+  { name: "Renewable Hero", threshold: 50000 },
+  { name: "Solar Zen Master", threshold: 100000 },
 ];
+
+const EV_MILES_THRESHOLDS = [
+  { name: "First Drive", threshold: 100 },
+  { name: "Road Tripper", threshold: 500 },
+  { name: "Highway Hero", threshold: 1000 },
+  { name: "Cross Country", threshold: 5000 },
+  { name: "Electric Explorer", threshold: 10000 },
+  { name: "Mile Master", threshold: 25000 },
+  { name: "EV Legend", threshold: 50000 },
+];
+
+const EV_CHARGING_THRESHOLDS = [
+  { name: "First Charge", threshold: 100 },
+  { name: "Charging Champion", threshold: 500 },
+  { name: "Power Player", threshold: 1000 },
+  { name: "Energy Enthusiast", threshold: 2500 },
+  { name: "Charging Pro", threshold: 5000 },
+  { name: "Megawatt Master", threshold: 10000 },
+];
+
+const BATTERY_THRESHOLDS = [
+  { name: "Grid Guardian", threshold: 500 },
+  { name: "Power Backup Pro", threshold: 1000 },
+  { name: "Storage Specialist", threshold: 2500 },
+  { name: "Energy Reserve Hero", threshold: 5000 },
+  { name: "Battery Boss", threshold: 10000 },
+  { name: "Powerwall Prodigy", threshold: 25000 },
+];
+
+const COMBO_THRESHOLDS = [
+  { name: "Dual Achiever", categoriesRequired: 2 },
+  { name: "Triple Threat", categoriesRequired: 3 },
+  { name: "Quad Champion", categoriesRequired: 4 },
+  { name: "Rising Star", totalNftsRequired: 5 },
+  { name: "Sustainability Legend", totalNftsRequired: 10 },
+  { name: "Category Master", categoriesMaxed: 1 },
+  { name: "Ultimate Zen Master", categoriesMaxed: 4 },
+];
+
+function calculateEarnedForCategory(
+  value: number,
+  thresholds: { name: string; threshold: number }[],
+  isWelcome: boolean = false
+): string[] {
+  return thresholds
+    .filter((t) => {
+      if (t.threshold === 0) return isWelcome;
+      return value >= t.threshold;
+    })
+    .map((t) => t.name);
+}
+
+function calculateComboNFTs(
+  solarEarned: string[],
+  evMilesEarned: string[],
+  evChargingEarned: string[],
+  batteryEarned: string[]
+): string[] {
+  const combos: string[] = [];
+  
+  // Count categories with at least one earned NFT (excluding welcome)
+  const solarCount = solarEarned.filter(n => n !== "Welcome").length;
+  const categoriesWithNFTs = [
+    solarCount > 0,
+    evMilesEarned.length > 0,
+    evChargingEarned.length > 0,
+    batteryEarned.length > 0,
+  ].filter(Boolean).length;
+  
+  // Total NFTs earned (excluding welcome)
+  const totalNFTs = solarCount + evMilesEarned.length + evChargingEarned.length + batteryEarned.length;
+  
+  // Check if category is maxed out
+  const solarMaxed = solarEarned.length === SOLAR_THRESHOLDS.length;
+  const evMilesMaxed = evMilesEarned.length === EV_MILES_THRESHOLDS.length;
+  const evChargingMaxed = evChargingEarned.length === EV_CHARGING_THRESHOLDS.length;
+  const batteryMaxed = batteryEarned.length === BATTERY_THRESHOLDS.length;
+  const categoriesMaxed = [solarMaxed, evMilesMaxed, evChargingMaxed, batteryMaxed].filter(Boolean).length;
+  
+  // Award combo milestones
+  if (categoriesWithNFTs >= 2) combos.push("Dual Achiever");
+  if (categoriesWithNFTs >= 3) combos.push("Triple Threat");
+  if (categoriesWithNFTs >= 4) combos.push("Quad Champion");
+  if (totalNFTs >= 5) combos.push("Rising Star");
+  if (totalNFTs >= 10) combos.push("Sustainability Legend");
+  if (categoriesMaxed >= 1) combos.push("Category Master");
+  if (categoriesMaxed >= 4) combos.push("Ultimate Zen Master");
+  
+  return combos;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -97,20 +187,23 @@ Deno.serve(async (req) => {
       // Calculate total activity for NFT thresholds
       const totalActivity = totalClaimedTokens + pendingTokens;
 
-      // Check NFT eligibility based on solar kWh produced
-      // For now, use totalSolarKwh which is calculated from device data
-      // If no solar data, use a portion of totalActivity as estimate
-      const solarKwhForNFT = totalSolarKwh > 0 ? totalSolarKwh : 0;
+      // Calculate NFTs for each category
+      const solarEarned = calculateEarnedForCategory(totalSolarKwh, SOLAR_THRESHOLDS, true);
+      const evMilesEarned = calculateEarnedForCategory(totalEvMiles, EV_MILES_THRESHOLDS);
+      const evChargingEarned = calculateEarnedForCategory(totalEvChargingKwh, EV_CHARGING_THRESHOLDS);
+      const batteryEarned = calculateEarnedForCategory(totalBatteryKwh, BATTERY_THRESHOLDS);
       
-      const earnedNFTs: string[] = [];
-      for (const milestone of NFT_THRESHOLDS) {
-        // Welcome NFT is earned on signup (kwhRequired = 0)
-        if (milestone.kwhRequired === 0) {
-          earnedNFTs.push(milestone.name);
-        } else if (solarKwhForNFT >= milestone.kwhRequired) {
-          earnedNFTs.push(milestone.name);
-        }
-      }
+      // Calculate combo achievements
+      const comboEarned = calculateComboNFTs(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
+      
+      // Combine all earned NFTs
+      const earnedNFTs = [
+        ...solarEarned,
+        ...evMilesEarned,
+        ...evChargingEarned,
+        ...batteryEarned,
+        ...comboEarned,
+      ];
 
       // Calculate CO2 offset (0.92 lbs per kWh solar + 0.4 lbs per EV mile)
       const co2OffsetLbs = (totalSolarKwh * 0.92) + (totalEvMiles * 0.4);
@@ -119,6 +212,11 @@ Deno.serve(async (req) => {
         totalClaimedTokens,
         pendingTokens,
         totalActivity,
+        solarEarned: solarEarned.length,
+        evMilesEarned: evMilesEarned.length,
+        evChargingEarned: evChargingEarned.length,
+        batteryEarned: batteryEarned.length,
+        comboEarned: comboEarned.length,
         earnedNFTs,
       });
 
@@ -127,6 +225,13 @@ Deno.serve(async (req) => {
         tokens_claimed: totalClaimedTokens,
         tokens_pending: pendingTokens,
         earned_nfts: earnedNFTs,
+        nfts_by_category: {
+          solar: solarEarned,
+          ev_miles: evMilesEarned,
+          ev_charging: evChargingEarned,
+          battery: batteryEarned,
+          combos: comboEarned,
+        },
         co2_offset_lbs: co2OffsetLbs,
         reward_rates: REWARD_RATES,
       }), {
