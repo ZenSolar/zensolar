@@ -65,7 +65,7 @@ const WALLETS = {
   founder: {
     name: 'Founder Wallet',
     description: 'Initial allocation of 1.25B ZSOLAR (2.5%)',
-    address: '0x...TBD', // Update with founder address
+    address: '0xFA7E5575f5C988221fBBe4f8186cC6EE20143308',
     role: 'Initial Allocation',
   },
 };
