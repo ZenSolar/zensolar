@@ -63,30 +63,50 @@ function MilestoneCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ 
+        scale: 1.02,
+        y: -4,
+        transition: { duration: 0.2, ease: "easeOut" }
+      }}
+      whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className={`relative rounded-xl border overflow-hidden transition-all duration-300 ${
+      className={`relative rounded-xl border overflow-hidden transition-all duration-300 cursor-pointer group ${
         isEarned 
-          ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 shadow-lg shadow-primary/10' 
+          ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50' 
           : isNext
-          ? 'bg-accent/5 border-accent/30 ring-2 ring-accent/20'
-          : 'bg-muted/30 border-border/50 opacity-70'
+          ? 'bg-accent/5 border-accent/30 ring-2 ring-accent/20 hover:ring-accent/40 hover:shadow-lg'
+          : 'bg-muted/30 border-border/50 opacity-70 hover:opacity-90 hover:border-border'
       }`}
     >
+      {/* Animated glow effect for earned cards */}
+      {isEarned && (
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"
+          initial={false}
+        />
+      )}
+      
       {/* NFT Artwork */}
       {artwork && (
         <div 
-          className={`relative w-full aspect-square cursor-pointer group ${!isEarned && 'grayscale opacity-60'}`}
+          className={`relative w-full aspect-square overflow-hidden ${!isEarned && 'grayscale opacity-60'}`}
           onClick={() => onViewArtwork(milestone)}
         >
-          <img 
+          <motion.img 
             src={artwork} 
             alt={milestone.name}
             className="w-full h-full object-cover"
+            whileHover={{ scale: 1.08 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-            <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-sm font-medium">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+            <motion.span 
+              className="text-white text-sm font-medium px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-full"
+              initial={{ opacity: 0, y: 10 }}
+              whileHover={{ opacity: 1, y: 0 }}
+            >
               View NFT
-            </span>
+            </motion.span>
           </div>
           {/* Status Badge on image */}
           <div className="absolute top-2 right-2">
@@ -163,13 +183,13 @@ function ComboMilestoneCard({
   
   // Determine rarity tier based on milestone
   const getRarityTier = (id: string) => {
-    if (id === 'combo_7') return { label: 'GODLIKE', class: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-black' };
-    if (id === 'combo_6') return { label: 'SUPREME', class: 'bg-gradient-to-r from-rose-500 to-orange-500 text-white' };
-    if (id === 'combo_5') return { label: 'TRANSCENDENT', class: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white' };
-    if (id === 'combo_4') return { label: 'MYTHIC', class: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' };
-    if (id === 'combo_3') return { label: 'LEGENDARY', class: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' };
-    if (id === 'combo_2') return { label: 'ELITE', class: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' };
-    return { label: 'PREMIUM', class: 'bg-gradient-to-r from-slate-600 to-slate-700 text-white' };
+    if (id === 'combo_7') return { label: 'GODLIKE', class: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-black', glow: 'shadow-amber-500/50' };
+    if (id === 'combo_6') return { label: 'SUPREME', class: 'bg-gradient-to-r from-rose-500 to-orange-500 text-white', glow: 'shadow-rose-500/40' };
+    if (id === 'combo_5') return { label: 'TRANSCENDENT', class: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white', glow: 'shadow-emerald-500/40' };
+    if (id === 'combo_4') return { label: 'MYTHIC', class: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white', glow: 'shadow-purple-500/40' };
+    if (id === 'combo_3') return { label: 'LEGENDARY', class: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white', glow: 'shadow-indigo-500/40' };
+    if (id === 'combo_2') return { label: 'ELITE', class: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white', glow: 'shadow-cyan-500/40' };
+    return { label: 'PREMIUM', class: 'bg-gradient-to-r from-slate-600 to-slate-700 text-white', glow: 'shadow-slate-500/30' };
   };
   
   const rarity = getRarityTier(milestone.id);
@@ -178,30 +198,55 @@ function ComboMilestoneCard({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ 
+        scale: 1.02,
+        y: -6,
+        transition: { duration: 0.25, ease: "easeOut" }
+      }}
+      whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className={`relative rounded-xl border overflow-hidden transition-all duration-300 ${
+      className={`relative rounded-xl border overflow-hidden cursor-pointer group ${
         isEarned 
-          ? 'border-primary/50 shadow-2xl shadow-primary/20' 
-          : 'bg-muted/30 border-border/50 opacity-60'
+          ? `border-primary/50 shadow-2xl ${rarity.glow} hover:shadow-3xl` 
+          : 'bg-muted/30 border-border/50 opacity-60 hover:opacity-80'
       }`}
     >
+      {/* Animated border glow for earned combos */}
+      {isEarned && (
+        <motion.div 
+          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{
+            background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
+            backgroundSize: '200% 200%',
+          }}
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%'],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            repeatType: 'reverse',
+          }}
+        />
+      )}
+      
       {/* Artwork Section */}
       {artwork && (
         <div 
-          className={`relative w-full aspect-[2/1] cursor-pointer group ${!isEarned && 'grayscale opacity-60'}`}
+          className={`relative w-full aspect-[2/1] overflow-hidden ${!isEarned && 'grayscale opacity-60'}`}
           onClick={() => onViewArtwork(milestone)}
         >
-          <img 
+          <motion.img 
             src={artwork} 
             alt={milestone.name}
             className="w-full h-full object-cover"
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-            <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-sm font-medium">
-              View NFT
-            </span>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          />
           
           {/* Rarity Badge */}
           <div className="absolute top-3 left-3">
