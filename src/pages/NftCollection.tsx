@@ -745,95 +745,93 @@ export default function NftCollection() {
           </TabsTrigger>
         </TabsList>
 
-        <AnimatePresence mode="wait">
-          <TabsContent value="solar" className="mt-6">
-            <CategorySection
-              title="Solar Production"
-              icon={<Sun className="h-5 w-5 text-white" />}
-              description="Generate clean solar energy to earn these NFTs"
-              milestones={SOLAR_MILESTONES}
-              earnedMilestones={solarEarned}
-              currentValue={Math.floor(solarKwh)}
-              unit="kWh"
-              accentColor="bg-amber-500"
-              onViewArtwork={handleViewArtwork}
-            />
-          </TabsContent>
+        <TabsContent value="solar" className="mt-6">
+          <CategorySection
+            title="Solar Production"
+            icon={<Sun className="h-5 w-5 text-white" />}
+            description="Generate clean solar energy to earn these NFTs"
+            milestones={SOLAR_MILESTONES}
+            earnedMilestones={solarEarned}
+            currentValue={Math.floor(solarKwh)}
+            unit="kWh"
+            accentColor="bg-amber-500"
+            onViewArtwork={handleViewArtwork}
+          />
+        </TabsContent>
 
-          <TabsContent value="ev_miles" className="mt-6">
-            <CategorySection
-              title="EV Miles Driven"
-              icon={<Car className="h-5 w-5 text-white" />}
-              description="Drive electric to earn these milestones"
-              milestones={EV_MILES_MILESTONES}
-              earnedMilestones={evMilesEarned}
-              currentValue={Math.floor(evMiles)}
-              unit="miles"
-              accentColor="bg-blue-500"
-              onViewArtwork={handleViewArtwork}
-            />
-          </TabsContent>
+        <TabsContent value="ev_miles" className="mt-6">
+          <CategorySection
+            title="EV Miles Driven"
+            icon={<Car className="h-5 w-5 text-white" />}
+            description="Drive electric to earn these milestones"
+            milestones={EV_MILES_MILESTONES}
+            earnedMilestones={evMilesEarned}
+            currentValue={Math.floor(evMiles)}
+            unit="miles"
+            accentColor="bg-blue-500"
+            onViewArtwork={handleViewArtwork}
+          />
+        </TabsContent>
 
-          <TabsContent value="charging" className="mt-6">
-            <CategorySection
-              title="EV Charging"
-              icon={<Zap className="h-5 w-5 text-white" />}
-              description="Charge your EV to unlock these achievements"
-              milestones={EV_CHARGING_MILESTONES}
-              earnedMilestones={evChargingEarned}
-              currentValue={Math.floor(evChargingKwh)}
-              unit="kWh"
-              accentColor="bg-yellow-500"
-              onViewArtwork={handleViewArtwork}
-            />
-          </TabsContent>
+        <TabsContent value="charging" className="mt-6">
+          <CategorySection
+            title="EV Charging"
+            icon={<Zap className="h-5 w-5 text-white" />}
+            description="Charge your EV to unlock these achievements"
+            milestones={EV_CHARGING_MILESTONES}
+            earnedMilestones={evChargingEarned}
+            currentValue={Math.floor(evChargingKwh)}
+            unit="kWh"
+            accentColor="bg-yellow-500"
+            onViewArtwork={handleViewArtwork}
+          />
+        </TabsContent>
 
-          <TabsContent value="battery" className="mt-6">
-            <CategorySection
-              title="Battery Discharge"
-              icon={<Battery className="h-5 w-5 text-white" />}
-              description="Use your home battery storage to earn NFTs"
-              milestones={BATTERY_MILESTONES}
-              earnedMilestones={batteryEarned}
-              currentValue={Math.floor(batteryKwh)}
-              unit="kWh"
-              accentColor="bg-green-500"
-              onViewArtwork={handleViewArtwork}
-            />
-          </TabsContent>
+        <TabsContent value="battery" className="mt-6">
+          <CategorySection
+            title="Battery Discharge"
+            icon={<Battery className="h-5 w-5 text-white" />}
+            description="Use your home battery storage to earn NFTs"
+            milestones={BATTERY_MILESTONES}
+            earnedMilestones={batteryEarned}
+            currentValue={Math.floor(batteryKwh)}
+            unit="kWh"
+            accentColor="bg-green-500"
+            onViewArtwork={handleViewArtwork}
+          />
+        </TabsContent>
 
-          <TabsContent value="combos" className="mt-6">
-            <div className="space-y-4">
-              {/* Combo Header */}
-              <div className="flex items-center gap-3 pb-2 border-b border-border/50">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-amber-500 to-rose-500">
-                  <Trophy className="h-5 w-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="font-semibold text-lg">Combo Achievements</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Special NFTs for excelling across multiple categories
-                  </p>
-                </div>
-                <Badge variant="outline" className="text-xs">
-                  {comboEarned.length}/{COMBO_MILESTONES.length} Earned
-                </Badge>
+        <TabsContent value="combos" className="mt-6">
+          <div className="space-y-4">
+            {/* Combo Header */}
+            <div className="flex items-center gap-3 pb-2 border-b border-border/50">
+              <div className="p-2 rounded-lg bg-gradient-to-r from-amber-500 to-rose-500">
+                <Trophy className="h-5 w-5 text-white" />
               </div>
-
-              {/* Combo Grid */}
-              <div className="grid grid-cols-1 gap-4">
-                {COMBO_MILESTONES.map((milestone) => (
-                  <ComboMilestoneCard
-                    key={milestone.id}
-                    milestone={milestone}
-                    isEarned={comboEarnedIds.has(milestone.id)}
-                    onViewArtwork={handleViewArtwork}
-                  />
-                ))}
+              <div className="flex-1">
+                <h2 className="font-semibold text-lg">Combo Achievements</h2>
+                <p className="text-sm text-muted-foreground">
+                  Special NFTs for excelling across multiple categories
+                </p>
               </div>
+              <Badge variant="outline" className="text-xs">
+                {comboEarned.length}/{COMBO_MILESTONES.length} Earned
+              </Badge>
             </div>
-          </TabsContent>
-        </AnimatePresence>
+
+            {/* Combo Grid */}
+            <div className="grid grid-cols-1 gap-4">
+              {COMBO_MILESTONES.map((milestone) => (
+                <ComboMilestoneCard
+                  key={milestone.id}
+                  milestone={milestone}
+                  isEarned={comboEarnedIds.has(milestone.id)}
+                  onViewArtwork={handleViewArtwork}
+                />
+              ))}
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Info Footer */}
