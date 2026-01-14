@@ -1,0 +1,13 @@
+{
+  "name": "Total Eclipse",
+  "description": "Maxed out ALL categories. The ultimate ZenSolar achievement - a total eclipse of sustainable mastery!",
+  "image": "ipfs://REPLACE_WITH_CID/combo/total-eclipse.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "Max all categories" },
+    { "trait_type": "Tier", "value": 8, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Legendary Mythic" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}

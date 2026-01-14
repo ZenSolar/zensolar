@@ -1,0 +1,15 @@
+{
+  "name": "Sunspark",
+  "description": "500 kWh of solar energy generated. Your journey into sustainable energy production has begun!",
+  "image": "ipfs://REPLACE_WITH_CID/solar/sunspark.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Solar" },
+    { "trait_type": "Threshold", "value": 500, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Tier", "value": 1, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Common" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 500, "display_type": "number" }
+  ]
+}

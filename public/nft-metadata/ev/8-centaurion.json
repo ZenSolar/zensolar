@@ -1,0 +1,15 @@
+{
+  "name": "Centaurion",
+  "description": "100,000 electric miles driven. A centurion of the electric revolution!",
+  "image": "ipfs://REPLACE_WITH_CID/ev/centaurion.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "EV Miles" },
+    { "trait_type": "Threshold", "value": 100000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "miles" },
+    { "trait_type": "Tier", "value": 8, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Mythic" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 100000, "display_type": "number" }
+  ]
+}

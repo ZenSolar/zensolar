@@ -1,0 +1,13 @@
+{
+  "name": "ZenMaster",
+  "description": "Maxed out any category completely. True mastery of sustainable energy achieved!",
+  "image": "ipfs://REPLACE_WITH_CID/combo/zenmaster.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "Max any category" },
+    { "trait_type": "Tier", "value": 7, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Mythic" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}

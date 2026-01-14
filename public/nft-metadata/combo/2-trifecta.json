@@ -1,0 +1,13 @@
+{
+  "name": "Trifecta",
+  "description": "Earned NFTs in 3 different categories. Triple threat of sustainable energy!",
+  "image": "ipfs://REPLACE_WITH_CID/combo/trifecta.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "3 categories" },
+    { "trait_type": "Tier", "value": 2, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Epic" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}

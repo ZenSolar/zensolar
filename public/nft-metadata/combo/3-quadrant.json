@@ -1,0 +1,13 @@
+{
+  "name": "Quadrant",
+  "description": "Earned 5 category NFTs total. Mastering all quadrants of sustainability!",
+  "image": "ipfs://REPLACE_WITH_CID/combo/quadrant.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "5 total NFTs" },
+    { "trait_type": "Tier", "value": 3, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Epic" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}
