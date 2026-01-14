@@ -1,0 +1,13 @@
+{
+  "name": "Constellation",
+  "description": "Earned 10 category NFTs total. A constellation of sustainable achievements!",
+  "image": "ipfs://REPLACE_WITH_CID/combo/constellation.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "10 total NFTs" },
+    { "trait_type": "Tier", "value": 4, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Legendary" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}

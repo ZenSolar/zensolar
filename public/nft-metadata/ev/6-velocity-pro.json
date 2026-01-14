@@ -1,0 +1,15 @@
+{
+  "name": "Velocity Pro",
+  "description": "25,000 electric miles driven. Professional-grade velocity!",
+  "image": "ipfs://REPLACE_WITH_CID/ev/velocity-pro.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "EV Miles" },
+    { "trait_type": "Threshold", "value": 25000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "miles" },
+    { "trait_type": "Tier", "value": 6, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Epic" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 25000, "display_type": "number" }
+  ]
+}

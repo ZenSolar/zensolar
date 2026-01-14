@@ -1,0 +1,15 @@
+{
+  "name": "Starforge",
+  "description": "100,000 kWh of solar energy generated. You've forged your own star of sustainable energy!",
+  "image": "ipfs://REPLACE_WITH_CID/solar/starforge.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Solar" },
+    { "trait_type": "Threshold", "value": 100000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Tier", "value": 8, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Mythic" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 100000, "display_type": "number" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Cyber Echo",
+  "description": "Earned 20 category NFTs total. Your sustainable echo resonates across the ecosystem!",
+  "image": "ipfs://REPLACE_WITH_CID/combo/cyber-echo.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "20 total NFTs" },
+    { "trait_type": "Tier", "value": 5, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Legendary" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}

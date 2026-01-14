@@ -1,0 +1,15 @@
+{
+  "name": "Solaris",
+  "description": "5,000 kWh of solar energy generated. You're a true solar pioneer!",
+  "image": "ipfs://REPLACE_WITH_CID/solar/solaris.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Solar" },
+    { "trait_type": "Threshold", "value": 5000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Tier", "value": 4, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Uncommon" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 5000, "display_type": "number" }
+  ]
+}
