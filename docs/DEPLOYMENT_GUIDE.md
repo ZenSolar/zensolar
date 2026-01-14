@@ -6,6 +6,17 @@ This guide covers the complete deployment process for ZenSolar smart contracts o
 
 ---
 
+## IPFS CIDs (FINAL)
+
+| Asset | CID | Gateway URL |
+|-------|-----|-------------|
+| **NFT Images** | `bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy` | `ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/` |
+| **Metadata (Flat)** | `bafybeigickzokhzp2kifomf7bcagg6qkzxdpy6q3nzscsctxorljbrtq2e` | `ipfs://bafybeigickzokhzp2kifomf7bcagg6qkzxdpy6q3nzscsctxorljbrtq2e/` |
+
+**ZenSolarNFT baseURI**: `ipfs://bafybeigickzokhzp2kifomf7bcagg6qkzxdpy6q3nzscsctxorljbrtq2e/`
+
+---
+
 ## Pre-Deployment Checklist
 
 ### ✅ Wallet Addresses Configured
@@ -28,15 +39,18 @@ This guide covers the complete deployment process for ZenSolar smart contracts o
 | ZenSolarNFT (ERC-721) | `contracts/ZenSolarNFT.sol` | ✅ Ready |
 | ZenSolar Controller | `contracts/ZenSolar.sol` | ✅ Ready |
 
-### ✅ NFT Metadata Files
+### ✅ NFT Metadata Files (Flat Structure)
 
-42 JSON files created in `public/nft-metadata/`:
-- 1 Welcome NFT
-- 8 Solar milestones
-- 7 Battery milestones  
-- 8 Charging milestones
-- 10 EV Miles milestones
-- 8 Combo milestones
+42 JSON files uploaded to IPFS in flat format (`0.json` through `41.json`):
+
+| Token ID | Name | Category |
+|----------|------|----------|
+| 0 | Welcome | Welcome |
+| 1-8 | Sunspark → Starforge | Solar |
+| 9-15 | Voltbank → Gigavolt | Battery |
+| 16-23 | Ignite → Teracharge | Charging |
+| 24-33 | Ignitor → Odyssey | EV Miles |
+| 34-41 | Duality → Total Eclipse | Combo |
 
 ---
 
@@ -48,78 +62,7 @@ This guide covers the complete deployment process for ZenSolar smart contracts o
 
 ---
 
-## Step 2: Upload NFT Assets to IPFS
-
-### Option A: Using Pinata (Recommended)
-
-1. Go to [Pinata.cloud](https://pinata.cloud) and create account
-2. Click "Upload" → "Folder"
-3. Upload the NFT images from `src/assets/nft/` with this structure:
-
-```
-zensolar-nft/
-├── welcome.png
-├── solar/
-│   ├── sunspark.png
-│   ├── photonic.png
-│   ├── rayforge.png
-│   ├── solaris.png
-│   ├── helios.png
-│   ├── sunforge.png
-│   ├── gigasun.png
-│   └── starforge.png
-├── battery/
-│   ├── voltbank.png
-│   ├── gridpulse.png
-│   ├── megacell.png
-│   ├── reservex.png
-│   ├── dynamax.png
-│   ├── ultracell.png
-│   └── gigavolt.png
-├── charging/
-│   ├── ignite.png
-│   ├── voltcharge.png
-│   ├── kilovolt.png
-│   ├── ampforge.png
-│   ├── chargeon.png
-│   ├── gigacharge.png
-│   ├── megacharge.png
-│   └── teracharge.png
-├── ev/
-│   ├── ignitor.png
-│   ├── velocity.png
-│   ├── autobahn.png
-│   ├── hyperdrive.png
-│   ├── electra.png
-│   ├── velocity-pro.png
-│   ├── mach-one.png
-│   ├── centaurion.png
-│   ├── voyager.png
-│   └── odyssey.png
-└── combo/
-    ├── duality.png
-    ├── trifecta.png
-    ├── quadrant.png
-    ├── constellation.png
-    ├── cyber-echo.png
-    ├── zenith.png
-    ├── zenmaster.png
-    └── total-eclipse.png
-```
-
-4. Copy the CID (e.g., `QmXXXXXXX...`)
-5. Your image base URL: `ipfs://QmXXXXXXX/`
-
-### Step 2b: Update Metadata Files
-
-1. Open each JSON file in `public/nft-metadata/`
-2. Replace `REPLACE_WITH_CID` with your actual IPFS CID
-3. Upload the metadata folder to Pinata
-4. Copy the new CID - this is your `baseURI`
-
----
-
-## Step 3: Deploy Contracts
+## Step 2: Deploy Contracts in Remix
 
 ### Using Remix IDE
 
@@ -130,61 +73,60 @@ zensolar-nft/
 
 ### Deployment Order (CRITICAL!)
 
-#### 3.1 Deploy ZSOLAR Token First
+#### 2.1 Deploy ZSOLAR Token First
+
+**No constructor arguments required!**
 
 ```solidity
-// Constructor arguments:
-_founder: 0xFA7E5575f5C988221fBBe4f8186cC6EE20143308
-_initialOwner: 0x70918Aa38d19BbBE0BD3e00C008442978c0e5cB1  
-_treasury: 0xdF21d920A160119b350A7dDfa657abc77bB5cb40
+// ZSOLAR has no constructor parameters - just deploy it
 ```
 
-**Save the deployed address!**
+**Save the deployed address!** → `[ZSOLAR_ADDRESS]`
 
-#### 3.2 Deploy ZenSolarNFT Second
+#### 2.2 Deploy ZenSolarNFT Second
 
 ```solidity
 // Constructor argument:
-_baseURI: "ipfs://YOUR_METADATA_CID/"
+baseTokenURI_: "ipfs://bafybeigickzokhzp2kifomf7bcagg6qkzxdpy6q3nzscsctxorljbrtq2e/"
 ```
 
-**Save the deployed address!**
+⚠️ **IMPORTANT**: Include the trailing `/` in the baseURI!
 
-#### 3.3 Deploy ZenSolar Controller Third
+**Save the deployed address!** → `[NFT_ADDRESS]`
+
+#### 2.3 Deploy ZenSolar Controller Third
 
 ```solidity
 // Constructor arguments:
-_zSolarToken: [ZSOLAR address from step 3.1]
-_zenSolarNFT: [ZenSolarNFT address from step 3.2]
-_treasury: 0xdF21d920A160119b350A7dDfa657abc77bB5cb40
-_lpRewards: 0xBFDea915dC5C7bFa87b488E09F29B9D353970a64
+_token: [ZSOLAR_ADDRESS from step 2.1]
+_nft: [NFT_ADDRESS from step 2.2]
 ```
 
-**Save the deployed address!**
+**Save the deployed address!** → `[CONTROLLER_ADDRESS]`
 
 ---
 
-## Step 4: Transfer Ownership
+## Step 3: Set Minter Permissions (CRITICAL!)
 
-After all contracts are deployed:
+After deploying all contracts, the ZenSolar Controller needs permission to mint tokens and NFTs.
 
-### 4.1 Transfer ZSOLAR ownership to ZenSolar Controller
+### 3.1 On ZSOLAR Contract
 
-Call on ZSOLAR contract:
+Call `setMinter` function:
 ```solidity
-transferOwnership([ZenSolar Controller address])
+setMinter([CONTROLLER_ADDRESS])
 ```
 
-### 4.2 Transfer ZenSolarNFT ownership to ZenSolar Controller
+### 3.2 On ZenSolarNFT Contract
 
-Call on ZenSolarNFT contract:
+Call `transferOwnership` function:
 ```solidity
-transferOwnership([ZenSolar Controller address])
+transferOwnership([CONTROLLER_ADDRESS])
 ```
 
 ---
 
-## Step 5: Verify Contracts on BaseScan
+## Step 4: Verify Contracts on BaseScan
 
 1. Go to [BaseScan Sepolia](https://sepolia.basescan.org)
 2. Find each contract by address
@@ -197,54 +139,69 @@ transferOwnership([ZenSolar Controller address])
 
 ---
 
-## Step 6: Update Application Configuration
+## Step 5: Update Application Configuration
 
-Update `src/pages/AdminContracts.tsx` with deployed addresses:
+After deployment, share the addresses here and I'll update the app:
 
-```typescript
-const CONTRACTS = {
-  ZSOLAR: {
-    address: '0x...', // Your deployed ZSOLAR address
-  },
-  ZenSolarNFT: {
-    address: '0x...', // Your deployed ZenSolarNFT address
-  },
-  ZenSolar: {
-    address: '0x...', // Your deployed ZenSolar Controller address
-  },
-};
+```
+ZSOLAR Address: 0x...
+ZenSolarNFT Address: 0x...
+ZenSolar Controller Address: 0x...
 ```
 
 ---
 
-## Step 7: Test Minting
+## Step 6: Test Minting
 
-### 7.1 Register a Test User
+### 6.1 Register a Test User
 
 Call on ZenSolar Controller:
 ```solidity
 registerUser(testUserAddress)
 ```
 
-This mints the Welcome NFT.
+This mints:
+- Welcome NFT (Token ID 0) → deposited to user's wallet
+- User can view at: `ipfs://bafybeigickzokhzp2kifomf7bcagg6qkzxdpy6q3nzscsctxorljbrtq2e/0.json`
 
-### 7.2 Mint Test Rewards
+### 6.2 Mint Test Rewards
 
 Call on ZenSolar Controller:
 ```solidity
 mintRewards(
   testUserAddress,
-  1000,  // solarDeltaKwh (should trigger Sunspark NFT at 500)
+  1000,  // solarDeltaKwh (triggers Sunspark NFT at 500)
   0,     // evMilesDelta
   0,     // batteryDeltaKwh
   0      // chargingDeltaKwh
 )
 ```
 
-### 7.3 Verify on BaseScan
+This mints:
+- ZSOLAR tokens → deposited to user's wallet
+- Sunspark NFT (Token ID 1) → deposited to user's wallet
 
-- Check ZSOLAR balance of test user
-- Check NFT ownership on ZenSolarNFT contract
+### 6.3 Verify Results
+
+- Check ZSOLAR balance on BaseScan
+- Check NFT ownership: `ownerOf(0)` and `ownerOf(1)` should return user address
+- View NFT metadata: `tokenURI(1)` returns `ipfs://bafybeigickzokhzp2kifomf7bcagg6qkzxdpy6q3nzscsctxorljbrtq2e/1.json`
+
+---
+
+## Token ID Quick Reference
+
+| Token ID | NFT Name | Trigger |
+|----------|----------|---------|
+| 0 | Welcome | `registerUser()` |
+| 1 | Sunspark | 500 kWh solar |
+| 2 | Photonic | 1,000 kWh solar |
+| 9 | Voltbank | 500 kWh battery |
+| 16 | Ignite | 100 kWh charging |
+| 24 | Ignitor | 100 EV miles |
+| 34 | Duality | NFTs in 2 categories |
+
+See `docs/NFT_FLAT_TOKEN_MAPPING.md` for complete reference.
 
 ---
 
@@ -270,13 +227,51 @@ mintRewards(
 
 ## Post-Deployment Checklist
 
-- [ ] All 3 contracts deployed
-- [ ] ZSOLAR ownership transferred to ZenSolar Controller
-- [ ] ZenSolarNFT ownership transferred to ZenSolar Controller
-- [ ] Contracts verified on BaseScan
-- [ ] Test mint successful
+- [ ] ZSOLAR deployed
+- [ ] ZenSolarNFT deployed with correct baseURI
+- [ ] ZenSolar Controller deployed
+- [ ] `setMinter()` called on ZSOLAR
+- [ ] `transferOwnership()` called on ZenSolarNFT
+- [ ] All contracts verified on BaseScan
+- [ ] Test registration successful (Welcome NFT minted)
+- [ ] Test rewards successful (tokens + NFT minted)
 - [ ] App configuration updated with contract addresses
-- [ ] NFT metadata accessible via IPFS gateway
+
+---
+
+## How Tokens & NFTs Flow to Users
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    USER ACTIVITY                             │
+│         (Solar production, EV miles, charging, etc.)        │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              BACKEND (Edge Function)                         │
+│   1. Fetches energy data from Tesla/Enphase/etc.            │
+│   2. Calculates deltas since last mint                       │
+│   3. Calls ZenSolar.mintRewards()                           │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│            ZENSOLAR CONTROLLER CONTRACT                      │
+│   1. Mints ZSOLAR tokens to user wallet (97% to user)       │
+│   2. Checks milestone thresholds                             │
+│   3. Mints NFTs for reached milestones to user wallet       │
+│   4. Distributes: 1% LP, 1% Treasury, 1% Burn               │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  USER'S WALLET                               │
+│   ✅ ZSOLAR tokens deposited directly                        │
+│   ✅ NFTs deposited directly (visible in wallet/OpenSea)    │
+│   ✅ User can redeem NFTs for additional ZSOLAR             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -286,12 +281,12 @@ mintRewards(
 - Check total supply hasn't exceeded 50B tokens
 
 ### "Not owner" error
-- Ensure ZenSolar Controller owns the token contracts
-- Only owner can call mint functions
+- Ensure `setMinter()` was called on ZSOLAR
+- Ensure `transferOwnership()` was called on ZenSolarNFT
 
 ### NFT images not showing
-- Verify IPFS CID is correct
-- Try alternative gateway: `https://gateway.pinata.cloud/ipfs/YOUR_CID/`
+- Verify IPFS gateway is working: `https://gateway.pinata.cloud/ipfs/bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/welcome.png`
+- Try alternative: `https://ipfs.io/ipfs/...`
 
 ### Transaction failing
 - Ensure minter wallet has enough ETH
