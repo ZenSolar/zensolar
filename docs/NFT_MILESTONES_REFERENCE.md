@@ -2,7 +2,7 @@
 
 **Updated:** January 14, 2026  
 **Source:** final_milestones.docx  
-**Total NFTs:** 41
+**Total NFTs:** 43
 
 ---
 
@@ -15,7 +15,7 @@
 | Battery Discharge | 7 | kWh | |
 | EV Charging | 8 | kWh | Combined supercharger + home charger |
 | EV Miles Driven | 10 | miles | |
-| Combo Achievements | 7 | varies | Cross-category achievements |
+| Combo Achievements | 9 | varies | Cross-category achievements |
 
 **CO₂ Offset:** Display-only metric, no direct rewards or NFTs
 
@@ -56,7 +56,7 @@
 | 4 | `battery_4` | Reservoir | 5,000 kWh | 5,000 kWh discharged | `battery-reservoir.png` |
 | 5 | `battery_5` | Dynamo | 10,000 kWh | 10,000 kWh discharged | `battery-dynamo.png` |
 | 6 | `battery_6` | Gigabank | 25,000 kWh | 25,000 kWh discharged | `battery-gigabank.png` |
-| 7 | `battery_7` | Ultrabank | 50,000 kWh | 50,000 kWh discharged | `battery-ultrabank.png` ✅ |
+| 7 | `battery_7` | Ultrabank | 50,000 kWh | 50,000 kWh discharged | `battery-ultrabank.png` |
 
 ---
 
@@ -72,8 +72,8 @@ Combined supercharger + home charger kWh
 | 4 | `charge_4` | Amperage | 1,500 kWh | 1,500 kWh charged | `charge-amperage.png` |
 | 5 | `charge_5` | Destination | 2,500 kWh | 2,500 kWh charged | `charge-destination.png` |
 | 6 | `charge_6` | Gigawatt | 5,000 kWh | 5,000 kWh charged | `charge-gigawatt.png` |
-| 7 | `charge_7` | Megawatt | 10,000 kWh | 10,000 kWh charged | `charge-megawatt.png` ✅ |
-| 8 | `charge_8` | Terawatt | 25,000 kWh | 25,000 kWh charged | `charge-terawatt.png` ✅ |
+| 7 | `charge_7` | Megawatt | 10,000 kWh | 10,000 kWh charged | `charge-megawatt.png` |
+| 8 | `charge_8` | Terawatt | 25,000 kWh | 25,000 kWh charged | `charge-terawatt.png` |
 
 ---
 
@@ -88,13 +88,13 @@ Combined supercharger + home charger kWh
 | 5 | `ev_5` | Roadster | 10,000 miles | 10,000 miles driven | `ev-roadster.png` |
 | 6 | `ev_6` | Plaid | 25,000 miles | 25,000 miles driven | `ev-plaid.png` |
 | 7 | `ev_7` | Ludicrous | 50,000 miles | 50,000 miles driven | `ev-ludicrous.png` |
-| 8 | `ev_8` | Centurion | 100,000 miles | 100,000 miles driven | `ev-centurion.png` ✅ |
-| 9 | `ev_9` | Voyager | 150,000 miles | 150,000 miles driven | `ev-voyager.png` ✅ |
-| 10 | `ev_10` | Legend | 200,000 miles | 200,000 miles driven | `ev-legend.png` ✅ |
+| 8 | `ev_8` | Centurion | 100,000 miles | 100,000 miles driven | `ev-centurion.png` |
+| 9 | `ev_9` | Voyager | 150,000 miles | 150,000 miles driven | `ev-voyager.png` |
+| 10 | `ev_10` | Legend | 200,000 miles | 200,000 miles driven | `ev-legend.png` |
 
 ---
 
-## Category 5: Combo Achievements (7 NFTs)
+## Category 5: Combo Achievements (9 NFTs)
 
 | # | ID | Name | Condition | Description | Rarity Tier | Artwork File |
 |---|-----|------|-----------|-------------|-------------|--------------|
@@ -103,8 +103,10 @@ Combined supercharger + home charger kWh
 | 3 | `combo_3` | Quadrant | 4 categories | Earn NFT in all 4 categories | Quadrant | `combo-quadrant.png` |
 | 4 | `combo_4` | Constellation | 5 total NFTs | Earn 5 total NFTs | Constellation | `combo-constellation.png` |
 | 5 | `combo_5` | Ecosystem | 10 total NFTs | Earn 10 total NFTs | Ecosystem | `combo-ecosystem.png` |
-| 6 | `combo_6` | Apex | 1 maxed category | Max out any category | Apex | `combo-apex.png` |
-| 7 | `combo_7` | Zenith | 4 maxed categories | Max out all categories | Zenith (Ultimate) | `combo-zenith.png` |
+| 6 | `combo_6` | Sovereign | 20 total NFTs | Earn 20 total NFTs | Sovereign | `combo-sovereign.png` |
+| 7 | `combo_7` | Transcendent | 30 total NFTs | Earn 30 total NFTs | Transcendent | `combo-transcendent.png` |
+| 8 | `combo_8` | Apex | 1 maxed category | Max out any category | Apex | `combo-apex.png` |
+| 9 | `combo_9` | Zenith | 4 maxed categories | Max out all categories | Zenith (Ultimate) | `combo-zenith.png` |
 
 ### Combo Achievement Logic
 
@@ -127,6 +129,8 @@ Trifecta → categoriesWithNFTs >= 3
 Quadrant → categoriesWithNFTs >= 4
 Constellation → totalNFTs >= 5
 Ecosystem → totalNFTs >= 10
+Sovereign → totalNFTs >= 20
+Transcendent → totalNFTs >= 30
 Apex → any 1 category maxed
 Zenith → all 4 categories maxed
 ```
@@ -144,7 +148,7 @@ Zenith → all 4 categories maxed
 | 10-16 | Battery Discharge |
 | 17-24 | EV Charging |
 | 25-34 | EV Miles Driven |
-| 35-41 | Combo Achievements |
+| 35-43 | Combo Achievements |
 
 ### Complete Token ID Mapping
 
@@ -189,8 +193,10 @@ Zenith → all 4 categories maxed
 | 37 | `combo_3` | Quadrant | Combo |
 | 38 | `combo_4` | Constellation | Combo |
 | 39 | `combo_5` | Ecosystem | Combo |
-| 40 | `combo_6` | Apex | Combo |
-| 41 | `combo_7` | Zenith | Combo |
+| 40 | `combo_6` | Sovereign | Combo |
+| 41 | `combo_7` | Transcendent | Combo |
+| 42 | `combo_8` | Apex | Combo |
+| 43 | `combo_9` | Zenith | Combo |
 
 ---
 
@@ -234,7 +240,7 @@ Suggested format for NFT metadata:
 
 All artwork files are stored in: `src/assets/nft/`
 
-**Total: 41 PNG files at 1024x1024 resolution**
+**Total: 43 PNG files at 1024x1024 resolution**
 
 All artwork is now complete! ✅
 

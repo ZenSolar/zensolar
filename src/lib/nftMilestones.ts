@@ -84,8 +84,10 @@ export const COMBO_MILESTONES: NFTMilestone[] = [
   { id: 'combo_3', name: 'Quadrant', threshold: 4, description: 'Earn NFT in all 4 categories', color: 'bg-gradient-to-r from-red-500 to-purple-500', icon: 'diamond' },
   { id: 'combo_4', name: 'Constellation', threshold: 5, description: 'Earn 5 total NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: 'star' },
   { id: 'combo_5', name: 'Ecosystem', threshold: 10, description: 'Earn 10 total NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: 'globe' },
-  { id: 'combo_6', name: 'Apex', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: 'trophy' },
-  { id: 'combo_7', name: 'Zenith', threshold: 4, description: 'Max out all categories', color: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500', icon: 'crown' },
+  { id: 'combo_6', name: 'Sovereign', threshold: 20, description: 'Earn 20 total NFTs', color: 'bg-gradient-to-r from-purple-600 to-amber-500', icon: 'shield' },
+  { id: 'combo_7', name: 'Transcendent', threshold: 30, description: 'Earn 30 total NFTs', color: 'bg-gradient-to-r from-slate-200 via-amber-300 to-slate-200', icon: 'infinity' },
+  { id: 'combo_8', name: 'Apex', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: 'trophy' },
+  { id: 'combo_9', name: 'Zenith', threshold: 4, description: 'Max out all categories', color: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500', icon: 'crown' },
 ];
 
 // All categories for UI display
@@ -155,8 +157,10 @@ export function calculateComboAchievements(
   if (categoriesWithNFTs >= 4) combos.push(COMBO_MILESTONES[2]); // Quadrant
   if (totalNFTs >= 5) combos.push(COMBO_MILESTONES[3]); // Constellation
   if (totalNFTs >= 10) combos.push(COMBO_MILESTONES[4]); // Ecosystem
-  if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[5]); // Apex
-  if (categoriesMaxed >= 4) combos.push(COMBO_MILESTONES[6]); // Zenith
+  if (totalNFTs >= 20) combos.push(COMBO_MILESTONES[5]); // Sovereign
+  if (totalNFTs >= 30) combos.push(COMBO_MILESTONES[6]); // Transcendent
+  if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[7]); // Apex
+  if (categoriesMaxed >= 4) combos.push(COMBO_MILESTONES[8]); // Zenith
   
   return combos;
 }
