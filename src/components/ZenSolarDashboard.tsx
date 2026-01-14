@@ -52,7 +52,7 @@ interface ZenSolarDashboardProps {
 
 export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { activityData, isLoading: dataLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts } = useDashboardData();
-  const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile } = useProfile();
+  const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
@@ -60,6 +60,10 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
   const handleConnectWallet = async (address: string) => {
     await updateProfile({ wallet_address: address });
+  };
+
+  const handleDisconnectWallet = async () => {
+    await disconnectWallet();
   };
 
   // Use connectedAccounts from useDashboardData which syncs with profile
@@ -189,6 +193,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <ConnectWallet
             walletAddress={profile?.wallet_address ?? null}
             onConnect={handleConnectWallet}
+            onDisconnect={handleDisconnectWallet}
             isDemo={isDemo}
           />
         </AnimatedItem>
