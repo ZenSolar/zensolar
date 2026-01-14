@@ -10,8 +10,10 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <!-- Preload critical assets for faster paint -->
-    <link rel="preload" as="image" href="/src/assets/zen-logo.png" fetchpriority="high" />
+    <link rel="preload" as="image" href="/src/assets/zen-logo.webp" fetchpriority="high" type="image/webp" />
     <link rel="modulepreload" href="/src/main.tsx" />
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fcptrpgqkjffgeddajwl.supabase.co" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=14" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=14" />
     <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon.png?v=14" />

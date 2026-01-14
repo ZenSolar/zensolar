@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, ArrowLeft, ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging, Sun, Battery } from 'lucide-react';
 import { ApiReferenceSkeleton } from '@/components/ui/loading-skeleton';
-import zenLogo from '@/assets/zen-logo.png';
+import zenLogo from '@/assets/zen-logo.webp';
 
 interface EvApiInfo {
   manufacturer: string;

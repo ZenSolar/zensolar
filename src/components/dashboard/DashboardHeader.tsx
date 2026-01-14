@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import zenLogo from '@/assets/zen-logo.png';
+import zenLogo from '@/assets/zen-logo.webp';
 
 interface DashboardHeaderProps {
   isDemo?: boolean;
