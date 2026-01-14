@@ -120,6 +120,11 @@ export function useProfile() {
     return { error };
   }, [updateProfile]);
 
+  const disconnectWallet = useCallback(async () => {
+    const { error } = await updateProfile({ wallet_address: null });
+    return { error };
+  }, [updateProfile]);
+
   return {
     profile,
     isLoading,
@@ -127,6 +132,7 @@ export function useProfile() {
     connectSocialAccount,
     disconnectSocialAccount,
     connectEnergyAccount,
+    disconnectWallet,
     refetch: fetchProfile,
   };
 }
