@@ -169,7 +169,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
     [connectAsync, connectors]
   );
 
-  // Detect connect/disconnect transitions (for diagnostics)
+  // Detect connect/disconnect transitions and auto-save to profile
   useEffect(() => {
     const justConnected = isConnected && !prevConnectedRef.current;
     const justDisconnected = !isConnected && prevConnectedRef.current;
@@ -186,6 +186,26 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
       setTimeout(() => {
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       }, 200);
+
+      // Auto-save wallet to profile if not already saved
+      if (address && !hasHandledConnection.current) {
+        const alreadySaved = normalizeAddress(address) === normalizeAddress(walletAddress);
+        if (!alreadySaved) {
+          hasHandledConnection.current = true;
+          console.log('[ConnectWallet] Auto-linking wallet to profile...');
+          onConnect(address)
+            .then(() => {
+              toast.success('Wallet linked to your profile!');
+            })
+            .catch((err) => {
+              console.error('[ConnectWallet] Auto-link failed:', err);
+              const msg = err instanceof Error ? err.message : String(err);
+              setLastSaveError(msg);
+              // Reset so user can retry manually
+              hasHandledConnection.current = false;
+            });
+        }
+      }
     }
 
     if (justDisconnected) {
@@ -193,7 +213,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
       console.log('[ConnectWallet] Wallet disconnected');
       hasHandledConnection.current = false;
     }
-  }, [isConnected, address, mark]);
+  }, [isConnected, address, mark, walletAddress, onConnect]);
 
   const handleReset = useCallback(async () => {
     mark('resetTap');
