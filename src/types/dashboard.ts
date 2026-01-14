@@ -14,7 +14,7 @@ export interface ActivityData {
   homeChargerKwh: number;
   tokensEarned: number;
   referralTokens: number;
-  nftsEarned: number[];
+  nftsEarned: string[];
   co2OffsetPounds: number;
   deviceLabels?: DeviceLabels;
 }

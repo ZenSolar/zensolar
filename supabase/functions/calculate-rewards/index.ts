@@ -15,14 +15,18 @@ const REWARD_RATES = {
   ev_charging: 1,         // 1 $ZSOLAR per kWh charged
 };
 
-// NFT thresholds (based on total activity points)
-const NFT_THRESHOLDS = {
-  "Solar Pioneer": 100,      // 100 total activity
-  "Energy Saver": 500,       // 500 total activity
-  "Green Champion": 1000,    // 1000 total activity
-  "Solar Master": 5000,      // 5000 total activity
-  "Climate Hero": 10000,     // 10000 total activity
-};
+// NFT thresholds (based on solar kWh produced) - must match frontend RewardProgress.tsx
+const NFT_THRESHOLDS = [
+  { name: "Welcome", kwhRequired: 0 },
+  { name: "First Harvest", kwhRequired: 500 },
+  { name: "Solar Pioneer", kwhRequired: 1000 },
+  { name: "Energy Guardian", kwhRequired: 2500 },
+  { name: "Eco Warrior", kwhRequired: 5000 },
+  { name: "Green Innovator", kwhRequired: 10000 },
+  { name: "Sustainability Champion", kwhRequired: 25000 },
+  { name: "Renewable Hero", kwhRequired: 50000 },
+  { name: "Zen Master", kwhRequired: 100000 },
+];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -93,11 +97,18 @@ Deno.serve(async (req) => {
       // Calculate total activity for NFT thresholds
       const totalActivity = totalClaimedTokens + pendingTokens;
 
-      // Check NFT eligibility based on total tokens earned
+      // Check NFT eligibility based on solar kWh produced
+      // For now, use totalSolarKwh which is calculated from device data
+      // If no solar data, use a portion of totalActivity as estimate
+      const solarKwhForNFT = totalSolarKwh > 0 ? totalSolarKwh : 0;
+      
       const earnedNFTs: string[] = [];
-      for (const [nftName, threshold] of Object.entries(NFT_THRESHOLDS)) {
-        if (totalActivity >= threshold) {
-          earnedNFTs.push(nftName);
+      for (const milestone of NFT_THRESHOLDS) {
+        // Welcome NFT is earned on signup (kwhRequired = 0)
+        if (milestone.kwhRequired === 0) {
+          earnedNFTs.push(milestone.name);
+        } else if (solarKwhForNFT >= milestone.kwhRequired) {
+          earnedNFTs.push(milestone.name);
         }
       }
 
