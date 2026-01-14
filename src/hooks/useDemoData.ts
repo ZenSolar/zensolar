@@ -1,22 +1,32 @@
 import { useState, useCallback } from 'react';
 import { ActivityData, ConnectedAccount, calculateCO2Offset } from '@/types/dashboard';
+import { getAllEarnedNFTNames } from '@/lib/nftMilestones';
 
 // Demo data based on real user KPIs - substantial values showing active usage
+// Values chosen to demonstrate realistic achievements across all categories
+const DEMO_SOLAR_KWH = 12847;      // Earns: Sunspark, Photonic, Rayforge, Solaris, Helios
+const DEMO_EV_MILES = 24532;       // Earns: Ignitor, Velocity, Autobahn, Hyperdrive, Electra
+const DEMO_BATTERY_KWH = 3218;     // Earns: Voltbank, Gridpulse, Megacell
+const DEMO_CHARGING_KWH = 5019;    // Combined supercharger + home = Ignite thru Gigacharge
+
+// Calculate NFTs earned based on actual milestone thresholds
+const demoNftsEarned = getAllEarnedNFTNames(
+  DEMO_SOLAR_KWH,
+  DEMO_BATTERY_KWH,
+  DEMO_CHARGING_KWH,
+  DEMO_EV_MILES,
+  true // isRegisteredUser - includes Welcome NFT
+);
+
 const demoActivityData: ActivityData = {
-  solarEnergyProduced: 12847, // ~13 MWh lifetime solar production
-  evMilesDriven: 24532, // ~24.5k EV miles
-  batteryStorageDischarged: 3218, // ~3.2 MWh battery discharge
-  teslaSuperchargerKwh: 892, // Supercharger usage
-  homeChargerKwh: 4127, // Home charging
-  tokensEarned: 45616, // Total tokens earned
-  referralTokens: 2500, // Bonus from referrals
-  nftsEarned: [
-    'Solar Genesis', 'Sunlink Pioneer', 'Photon Harvester', 'Rayfield Master',
-    'EV Ignition', 'Road Cruiser', 'Autobahn Elite',
-    'Spark Starter', 'Supercharger Pro', 'Megavolt Master',
-    'Powerwall Guardian', 'Gridlink Hero',
-    'Duality Achiever', 'Trifecta Champion'
-  ],
+  solarEnergyProduced: DEMO_SOLAR_KWH,
+  evMilesDriven: DEMO_EV_MILES,
+  batteryStorageDischarged: DEMO_BATTERY_KWH,
+  teslaSuperchargerKwh: 892,
+  homeChargerKwh: 4127,
+  tokensEarned: 45616,
+  referralTokens: 2500,
+  nftsEarned: demoNftsEarned,
   co2OffsetPounds: 0,
   deviceLabels: {
     vehicle: 'Model Y Long Range',
