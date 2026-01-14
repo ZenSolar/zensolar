@@ -574,9 +574,12 @@ export default function NftCollection() {
 
       {/* Page Header */}
       <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Award className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">NFT Collection</h1>
+        <div className="flex flex-col items-center justify-center gap-1 mb-4">
+          <div className="flex items-center justify-center gap-2">
+            <Award className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">NFT Collection</h1>
+          </div>
+          <span className="text-xs text-muted-foreground tracking-wide uppercase">(beta)</span>
         </div>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           Earn unique NFTs by reaching milestones in solar production, EV driving, charging, and battery usage. 
