@@ -59,7 +59,7 @@ const WALLETS = {
   lpRewards: {
     name: 'LP Rewards Wallet',
     description: 'Receives 1% of mints for liquidity providers',
-    address: '0x...TBD', // Update with LP rewards address
+    address: '0xBFDea915dC5C7bFa87b488E09F29B9D353970a64',
     role: 'LP Distribution',
   },
   founder: {
