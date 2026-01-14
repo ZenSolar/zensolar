@@ -33,6 +33,7 @@ import Referrals from "./pages/Referrals";
 import Store from "./pages/Store";
 import HowItWorks from "./pages/HowItWorks";
 import Technology from "./pages/Technology";
+import NftCollection from "./pages/NftCollection";
 
 const App = () => {
   // Foreground fallback: if a push arrives while the app is open, show an in-app toast.
@@ -217,6 +218,16 @@ const App = () => {
                       <ProtectedRoute>
                         <AppLayout>
                           <Store />
+                        </AppLayout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/nft-collection" 
+                    element={
+                      <ProtectedRoute>
+                        <AppLayout>
+                          <NftCollection />
                         </AppLayout>
                       </ProtectedRoute>
                     } 
