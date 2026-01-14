@@ -9,8 +9,22 @@ import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronDown, ChevronUp, Plus, Zap } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Zap } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
+// Import brand logos
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+
+// Map service to logo
+const providerLogos: Record<string, string> = {
+  tesla: teslaLogo,
+  enphase: enphaseLogo,
+  solaredge: solaredgeLogo,
+  wallbox: wallboxLogo,
+};
 
 interface ConnectAccountsProps {
   accounts: ConnectedAccount[];
@@ -187,15 +201,20 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
                       {connectedAccounts.length} connected
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2 mt-1">
+                  <div className="flex flex-wrap items-center gap-3 mt-1.5">
                     {connectedAccounts.map((acc) => (
-                      <span 
+                      <div 
                         key={acc.service}
-                        className="inline-flex items-center gap-1 text-xs text-muted-foreground"
+                        className="inline-flex items-center gap-1.5 bg-secondary/10 rounded-full px-2 py-0.5"
                       >
+                        <img 
+                          src={providerLogos[acc.service]} 
+                          alt={acc.label}
+                          className="h-4 w-4 object-contain rounded-sm"
+                        />
+                        <span className="text-xs font-medium text-foreground">{acc.label}</span>
                         <Check className="h-3 w-3 text-secondary" />
-                        {acc.label}
-                      </span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -246,10 +265,14 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
                         key={account.service}
                         variant="outline"
                         size="sm"
-                        className="justify-start gap-2"
+                        className="justify-start gap-2 h-10"
                         onClick={() => handleConnect(account.service)}
                       >
-                        <Plus className="h-4 w-4" />
+                        <img 
+                          src={providerLogos[account.service]} 
+                          alt={account.label}
+                          className="h-4 w-4 object-contain rounded-sm"
+                        />
                         {account.label}
                       </Button>
                     ))}
