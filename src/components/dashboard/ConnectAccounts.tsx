@@ -9,33 +9,40 @@ import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronDown, ChevronUp, Plus, Zap, Sun, Battery, Plug } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Plus, Zap } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
-// Tesla "T" icon
+// Tesla "T" icon - simplified T shape that works at small sizes
 const TeslaIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 278.7 36.3" className={cn("h-3 w-auto", className)} fill="currentColor">
-    <path d="M139.3 14.5c6-3.5 9.7-5 17.3-5.7 0-2.7-.4-4.5-1-5.4-6.9.4-12.8 1.7-20.3 6.1V3.4h-6.8v6c-7.5-4.4-13.4-5.7-20.3-6.1-.6.9-1 2.7-1 5.4 7.6.7 11.3 2.2 17.3 5.7l-17.3 10v5.2l20.3-11.8v19.4h6.8V17.8l20.3 11.8v-5.2l-17.3-10z"/>
-    <path d="M.1 8.7h25.8v6.3H16v21.3H9.9V15H0l.1-6.3zm271.1 0h-25.8v6.3h9.9v21.3h6.1V15h9.9l-.1-6.3zM50.9 27.7V8.7H57v19c0 2.4 1.6 3.5 4.1 3.5h15.5c2.5 0 4.1-1.1 4.1-3.5v-19h6.1v19c0 5.4-4 8.6-10.2 8.6H61.1c-6.2 0-10.2-3.2-10.2-8.6zm147.2 0V8.7h6.1v19c0 2.4 1.6 3.5 4.1 3.5h15.5c2.5 0 4.1-1.1 4.1-3.5v-19h6.1v19c0 5.4-4 8.6-10.2 8.6h-15.5c-6.2 0-10.2-3.2-10.2-8.6zM96.9 8.7h26.4c6.2 0 10.2 3.2 10.2 8.6v4.1c0 5.4-4 8.6-10.2 8.6h-20.3v6.3h-6.1V8.7zm6.1 15h20.3c2.5 0 4.1-1.1 4.1-3.5v-2.8c0-2.4-1.6-3.5-4.1-3.5h-20.3v9.8zm74.3-15v6.3h-25.8v4.8h19.7v6.3h-19.7v5h25.8v6.3h-31.9V8.7h31.9z"/>
+  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
+    <path d="M16 7c-5.5 0-10.3 0.6-13 1.5L3 11c2.5-0.7 7-1.2 13-1.2s10.5 0.5 13 1.2l0-2.5C26.3 7.6 21.5 7 16 7zM16 12c-2.5 0-4.5 0.2-6 0.5v3c1.3-0.3 3.3-0.5 5-0.5h1v10h2V15h1c1.7 0 3.7 0.2 5 0.5v-3C22.5 12.2 18.5 12 16 12z"/>
   </svg>
 );
 
-// Enphase sun/solar icon
+// Enphase "E" icon - stylized orange E
 const EnphaseIcon = ({ className }: { className?: string }) => (
-  <Sun className={cn("h-3 w-3", className)} />
+  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
+    <rect x="8" y="6" width="16" height="3" rx="1"/>
+    <rect x="8" y="14.5" width="12" height="3" rx="1"/>
+    <rect x="8" y="23" width="16" height="3" rx="1"/>
+    <rect x="8" y="6" width="3" height="20" rx="1"/>
+  </svg>
 );
 
-// SolarEdge icon (stylized sun with edge)
+// SolarEdge icon - sun with partial circle (edge)
 const SolarEdgeIcon = ({ className }: { className?: string }) => (
-  <div className={cn("h-3 w-3 relative", className)}>
-    <Sun className="h-full w-full" />
-  </div>
+  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
+    <circle cx="16" cy="16" r="5"/>
+    <path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M7.5 24.5l2.8-2.8M21.7 10.3l2.8-2.8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+  </svg>
 );
 
-// Wallbox icon (charging plug)
+// Wallbox icon - EV charging station
 const WallboxIcon = ({ className }: { className?: string }) => (
-  <Plug className={cn("h-3 w-3", className)} />
+  <svg viewBox="0 0 32 32" className={cn("h-4 w-4", className)} fill="currentColor">
+    <path d="M22 4H10c-1.1 0-2 .9-2 2v20c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-6 22c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm4-8H12v-2h8v2zm0-4H12V8h8v6z"/>
+  </svg>
 );
 
 // Map service to icon
