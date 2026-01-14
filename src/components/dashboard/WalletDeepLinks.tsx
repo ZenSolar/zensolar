@@ -1,24 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Smartphone } from 'lucide-react';
 
+export type WalletDeepLinkWalletId = 'metamask' | 'coinbase' | 'trust' | 'rainbow';
+
 interface WalletDeepLinksProps {
-  onDeepLinkTap: (wallet: string) => void;
+  onSelect: (wallet: WalletDeepLinkWalletId) => void;
+  disabled?: boolean;
   wcUri?: string;
 }
 
 /**
- * Generate WalletConnect deep link URI for a specific wallet
+ * Generate a wallet deep link.
+ * - When wcUri is provided, we deep-link into the wallet's WalletConnect handler (recommended for iOS PWA)
+ * - Otherwise we fall back to opening the dapp inside the wallet browser (less reliable for “return + connected”)
  */
-function getWalletConnectDeepLink(wallet: string, wcUri?: string): string | null {
-  // Get the current page URL without protocol for return navigation
-  const dappUrl = typeof window !== 'undefined' 
-    ? window.location.href.replace(/^https?:\/\//, '')
-    : '';
-  
-  // If we have a WalletConnect URI, use it for proper session persistence
+export function getWalletConnectDeepLink(wallet: WalletDeepLinkWalletId, wcUri?: string): string | null {
+  const dappUrl = typeof window !== 'undefined' ? window.location.href.replace(/^https?:\/\//, '') : '';
+
   if (wcUri) {
     const encodedUri = encodeURIComponent(wcUri);
-    
     switch (wallet) {
       case 'metamask':
         return `metamask://wc?uri=${encodedUri}`;
@@ -32,8 +32,8 @@ function getWalletConnectDeepLink(wallet: string, wcUri?: string): string | null
         return null;
     }
   }
-  
-  // Fallback: Use dapp deep links (less reliable for PWA)
+
+  // Fallback: open the dapp inside the wallet browser
   switch (wallet) {
     case 'metamask':
       return `https://metamask.app.link/dapp/${dappUrl}`;
@@ -48,55 +48,45 @@ function getWalletConnectDeepLink(wallet: string, wcUri?: string): string | null
   }
 }
 
-export function WalletDeepLinks({ onDeepLinkTap, wcUri }: WalletDeepLinksProps) {
-  const handleTap = (wallet: string) => {
-    onDeepLinkTap(wallet);
-    
-    const deepLink = getWalletConnectDeepLink(wallet, wcUri);
-    if (deepLink) {
-      // Small delay to ensure event is recorded
-      setTimeout(() => {
-        window.location.href = deepLink;
-      }, 100);
-    }
-  };
-
-  const wallets = [
-    { id: 'metamask', name: 'MetaMask', color: 'bg-orange-500 hover:bg-orange-600' },
-    { id: 'coinbase', name: 'Coinbase', color: 'bg-blue-600 hover:bg-blue-700' },
-    { id: 'trust', name: 'Trust', color: 'bg-blue-400 hover:bg-blue-500' },
-    { id: 'rainbow', name: 'Rainbow', color: 'bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 hover:opacity-90' },
+export function WalletDeepLinks({ onSelect, disabled, wcUri }: WalletDeepLinksProps) {
+  const wallets: { id: WalletDeepLinkWalletId; name: string }[] = [
+    { id: 'metamask', name: 'MetaMask' },
+    { id: 'coinbase', name: 'Coinbase' },
+    { id: 'trust', name: 'Trust' },
+    { id: 'rainbow', name: 'Rainbow' },
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Smartphone className="h-3 w-3" />
-        <span>Open in wallet app:</span>
+        <span>Open in wallet app</span>
+        {wcUri ? <span className="text-[10px]">(WalletConnect)</span> : null}
       </div>
-      
+
       <div className="grid grid-cols-2 gap-2">
-        {wallets.map(wallet => (
+        {wallets.map((w) => (
           <Button
-            key={wallet.id}
-            variant="outline"
+            key={w.id}
+            type="button"
+            variant="secondary"
             size="sm"
-            className={`${wallet.color} text-white border-0 text-xs`}
-            onClick={() => handleTap(wallet.id)}
+            className="text-xs"
+            disabled={disabled}
+            onClick={() => onSelect(w.id)}
           >
             <ExternalLink className="h-3 w-3 mr-1" />
-            {wallet.name}
+            {w.name}
           </Button>
         ))}
       </div>
-      
-      {wcUri && (
-        <p className="text-[10px] text-muted-foreground text-center">
-          Using WalletConnect for persistent connection
+
+      {!wcUri ? (
+        <p className="text-[10px] text-muted-foreground">
+          Tip: iOS PWA is most reliable when using WalletConnect (not “open in wallet browser”).
         </p>
-      )}
+      ) : null}
     </div>
   );
 }
 
-export { getWalletConnectDeepLink };
