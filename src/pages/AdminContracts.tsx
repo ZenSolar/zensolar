@@ -28,9 +28,10 @@ import {
   FileText,
   Settings,
   Shield,
-  CircleDot,
   Square,
-  Play
+  Play,
+  Wallet,
+  Key
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -40,6 +41,34 @@ import {
   EV_MILES_MILESTONES,
   COMBO_MILESTONES 
 } from '@/lib/nftMilestones';
+
+// Wallet addresses (update after setup)
+const WALLETS = {
+  minter: {
+    name: 'Minter Wallet',
+    description: 'Backend wallet that signs contract transactions',
+    address: '0x...TBD', // Update with your minter wallet public address
+    role: 'ZenSolar Controller Owner',
+  },
+  treasury: {
+    name: 'Treasury Wallet',
+    description: 'Receives 1% of mints + 3.5% of transfers',
+    address: '0x...TBD', // Update with treasury address
+    role: 'Fee Recipient',
+  },
+  lpRewards: {
+    name: 'LP Rewards Wallet',
+    description: 'Receives 1% of mints for liquidity providers',
+    address: '0x...TBD', // Update with LP rewards address
+    role: 'LP Distribution',
+  },
+  founder: {
+    name: 'Founder Wallet',
+    description: 'Initial allocation of 1.25B ZSOLAR (2.5%)',
+    address: '0x...TBD', // Update with founder address
+    role: 'Initial Allocation',
+  },
+};
 
 // Contract addresses (placeholder - update when deployed)
 const CONTRACTS = {
@@ -228,6 +257,66 @@ export default function AdminContracts() {
               </Card>
             ))}
           </div>
+
+          {/* Wallets Section */}
+          <Card className="border-primary/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wallet className="h-5 w-5 text-primary" />
+                Key Wallets
+              </CardTitle>
+              <CardDescription>Wallet addresses used in contract deployment and operations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 md:grid-cols-2">
+                {Object.entries(WALLETS).map(([key, wallet]) => (
+                  <div key={key} className={`p-4 rounded-lg border ${key === 'minter' ? 'border-primary/50 bg-primary/5' : 'bg-muted/30'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {key === 'minter' ? (
+                          <Key className="h-4 w-4 text-primary" />
+                        ) : (
+                          <Wallet className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <p className="font-medium">{wallet.name}</p>
+                      </div>
+                      <Badge variant={key === 'minter' ? 'default' : 'outline'} className="text-xs">
+                        {wallet.role}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">{wallet.description}</p>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 text-xs bg-background px-2 py-1 rounded truncate border">
+                        {wallet.address}
+                      </code>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7"
+                        onClick={() => copyAddress(wallet.address, wallet.name)}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-yellow-600">Important: Minter Wallet Setup</p>
+                    <ul className="text-xs text-muted-foreground mt-1 space-y-1 list-disc list-inside">
+                      <li>The <code className="bg-muted px-1 rounded">MINTER_PRIVATE_KEY</code> secret is already configured</li>
+                      <li>Update the public address above after generating the wallet</li>
+                      <li>Fund with Base Sepolia ETH before deploying contracts</li>
+                      <li>This wallet must deploy ZenSolar to become its owner</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
