@@ -68,6 +68,24 @@ const WALLETS = {
     address: '0xFA7E5575f5C988221fBBe4f8186cC6EE20143308',
     role: 'Initial Allocation',
   },
+  cofounder1: {
+    name: 'Co-Founder 1 Wallet',
+    description: 'Reserved allocation for future co-founder',
+    address: '0x...TBD',
+    role: 'Co-Founder Allocation',
+  },
+  cofounder2: {
+    name: 'Co-Founder 2 Wallet',
+    description: 'Reserved allocation for future co-founder',
+    address: '0x...TBD',
+    role: 'Co-Founder Allocation',
+  },
+  cofounder3: {
+    name: 'Co-Founder 3 Wallet',
+    description: 'Reserved allocation for future co-founder',
+    address: '0x...TBD',
+    role: 'Co-Founder Allocation',
+  },
 };
 
 // Contract addresses (placeholder - update when deployed)
