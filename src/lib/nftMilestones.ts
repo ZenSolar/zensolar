@@ -1,5 +1,6 @@
 // NFT Milestone definitions for all activity categories
 // These are the source of truth - frontend and backend both use these
+// Names inspired by Tesla's sharp, futuristic branding
 
 export interface NFTMilestone {
   id: string;
@@ -7,7 +8,7 @@ export interface NFTMilestone {
   threshold: number;
   description: string;
   color: string;
-  icon: string; // emoji for visual flair
+  icon: string; // Lucide icon name for reference
 }
 
 export interface NFTCategory {
@@ -19,57 +20,57 @@ export interface NFTCategory {
 
 // Solar Energy Production milestones
 export const SOLAR_MILESTONES: NFTMilestone[] = [
-  { id: 'solar_welcome', name: 'Welcome', threshold: 0, description: 'Sign up reward', color: 'bg-amber-500', icon: '🌟' },
-  { id: 'solar_1', name: 'First Harvest', threshold: 500, description: '500 kWh generated', color: 'bg-lime-500', icon: '🌱' },
-  { id: 'solar_2', name: 'Solar Pioneer', threshold: 1000, description: '1,000 kWh generated', color: 'bg-emerald-500', icon: '☀️' },
-  { id: 'solar_3', name: 'Energy Guardian', threshold: 2500, description: '2,500 kWh generated', color: 'bg-teal-500', icon: '🛡️' },
-  { id: 'solar_4', name: 'Eco Warrior', threshold: 5000, description: '5,000 kWh generated', color: 'bg-cyan-500', icon: '⚔️' },
-  { id: 'solar_5', name: 'Green Innovator', threshold: 10000, description: '10,000 kWh generated', color: 'bg-blue-500', icon: '💡' },
-  { id: 'solar_6', name: 'Sustainability Champion', threshold: 25000, description: '25,000 kWh generated', color: 'bg-indigo-500', icon: '🏆' },
-  { id: 'solar_7', name: 'Renewable Hero', threshold: 50000, description: '50,000 kWh generated', color: 'bg-purple-500', icon: '🦸' },
-  { id: 'solar_8', name: 'Solar Zen Master', threshold: 100000, description: '100,000 kWh generated', color: 'bg-rose-500', icon: '🧘' },
+  { id: 'solar_welcome', name: 'Genesis', threshold: 0, description: 'Welcome to the grid', color: 'bg-amber-500', icon: 'star' },
+  { id: 'solar_1', name: 'Sunlink', threshold: 500, description: '500 kWh generated', color: 'bg-lime-500', icon: 'sun' },
+  { id: 'solar_2', name: 'Photon', threshold: 1000, description: '1,000 kWh generated', color: 'bg-emerald-500', icon: 'zap' },
+  { id: 'solar_3', name: 'Rayfield', threshold: 2500, description: '2,500 kWh generated', color: 'bg-teal-500', icon: 'shield' },
+  { id: 'solar_4', name: 'Solarflare', threshold: 5000, description: '5,000 kWh generated', color: 'bg-cyan-500', icon: 'flame' },
+  { id: 'solar_5', name: 'Heliogen', threshold: 10000, description: '10,000 kWh generated', color: 'bg-blue-500', icon: 'lightbulb' },
+  { id: 'solar_6', name: 'Sunvault', threshold: 25000, description: '25,000 kWh generated', color: 'bg-indigo-500', icon: 'package' },
+  { id: 'solar_7', name: 'Gigasol', threshold: 50000, description: '50,000 kWh generated', color: 'bg-purple-500', icon: 'circuit-board' },
+  { id: 'solar_8', name: 'Starpower', threshold: 100000, description: '100,000 kWh generated', color: 'bg-rose-500', icon: 'sparkles' },
 ];
 
 // EV Miles Driven milestones
 export const EV_MILES_MILESTONES: NFTMilestone[] = [
-  { id: 'ev_1', name: 'First Drive', threshold: 100, description: '100 miles driven', color: 'bg-sky-400', icon: '🚗' },
-  { id: 'ev_2', name: 'Road Tripper', threshold: 500, description: '500 miles driven', color: 'bg-sky-500', icon: '🛣️' },
-  { id: 'ev_3', name: 'Highway Hero', threshold: 1000, description: '1,000 miles driven', color: 'bg-blue-500', icon: '🦸' },
-  { id: 'ev_4', name: 'Cross Country', threshold: 5000, description: '5,000 miles driven', color: 'bg-blue-600', icon: '🗺️' },
-  { id: 'ev_5', name: 'Electric Explorer', threshold: 10000, description: '10,000 miles driven', color: 'bg-indigo-500', icon: '🧭' },
-  { id: 'ev_6', name: 'Mile Master', threshold: 25000, description: '25,000 miles driven', color: 'bg-indigo-600', icon: '👑' },
-  { id: 'ev_7', name: 'EV Legend', threshold: 50000, description: '50,000 miles driven', color: 'bg-violet-600', icon: '🏅' },
+  { id: 'ev_1', name: 'Ignition', threshold: 100, description: '100 miles driven', color: 'bg-sky-400', icon: 'zap' },
+  { id: 'ev_2', name: 'Cruiser', threshold: 500, description: '500 miles driven', color: 'bg-sky-500', icon: 'car' },
+  { id: 'ev_3', name: 'Autobahn', threshold: 1000, description: '1,000 miles driven', color: 'bg-blue-500', icon: 'route' },
+  { id: 'ev_4', name: 'Hyperlane', threshold: 5000, description: '5,000 miles driven', color: 'bg-blue-600', icon: 'map' },
+  { id: 'ev_5', name: 'Roadster', threshold: 10000, description: '10,000 miles driven', color: 'bg-indigo-500', icon: 'gauge' },
+  { id: 'ev_6', name: 'Plaid', threshold: 25000, description: '25,000 miles driven', color: 'bg-indigo-600', icon: 'activity' },
+  { id: 'ev_7', name: 'Ludicrous', threshold: 50000, description: '50,000 miles driven', color: 'bg-violet-600', icon: 'crown' },
 ];
 
 // EV Charging kWh milestones
 export const EV_CHARGING_MILESTONES: NFTMilestone[] = [
-  { id: 'charge_1', name: 'First Charge', threshold: 100, description: '100 kWh charged', color: 'bg-yellow-400', icon: '🔌' },
-  { id: 'charge_2', name: 'Charging Champion', threshold: 500, description: '500 kWh charged', color: 'bg-yellow-500', icon: '⚡' },
-  { id: 'charge_3', name: 'Power Player', threshold: 1000, description: '1,000 kWh charged', color: 'bg-orange-500', icon: '🎮' },
-  { id: 'charge_4', name: 'Energy Enthusiast', threshold: 2500, description: '2,500 kWh charged', color: 'bg-orange-600', icon: '🔋' },
-  { id: 'charge_5', name: 'Charging Pro', threshold: 5000, description: '5,000 kWh charged', color: 'bg-red-500', icon: '💪' },
-  { id: 'charge_6', name: 'Megawatt Master', threshold: 10000, description: '10,000 kWh charged', color: 'bg-red-600', icon: '⚡' },
+  { id: 'charge_1', name: 'Spark', threshold: 100, description: '100 kWh charged', color: 'bg-yellow-400', icon: 'zap' },
+  { id: 'charge_2', name: 'Supercharger', threshold: 500, description: '500 kWh charged', color: 'bg-yellow-500', icon: 'plug' },
+  { id: 'charge_3', name: 'Megavolt', threshold: 1000, description: '1,000 kWh charged', color: 'bg-orange-500', icon: 'battery-charging' },
+  { id: 'charge_4', name: 'Amperage', threshold: 2500, description: '2,500 kWh charged', color: 'bg-orange-600', icon: 'activity' },
+  { id: 'charge_5', name: 'Destination', threshold: 5000, description: '5,000 kWh charged', color: 'bg-red-500', icon: 'target' },
+  { id: 'charge_6', name: 'Gigawatt', threshold: 10000, description: '10,000 kWh charged', color: 'bg-red-600', icon: 'circuit-board' },
 ];
 
 // Battery Storage Discharge kWh milestones
 export const BATTERY_MILESTONES: NFTMilestone[] = [
-  { id: 'battery_1', name: 'Grid Guardian', threshold: 500, description: '500 kWh discharged', color: 'bg-green-400', icon: '🔋' },
-  { id: 'battery_2', name: 'Power Backup Pro', threshold: 1000, description: '1,000 kWh discharged', color: 'bg-green-500', icon: '🏠' },
-  { id: 'battery_3', name: 'Storage Specialist', threshold: 2500, description: '2,500 kWh discharged', color: 'bg-emerald-500', icon: '📦' },
-  { id: 'battery_4', name: 'Energy Reserve Hero', threshold: 5000, description: '5,000 kWh discharged', color: 'bg-emerald-600', icon: '🦸' },
-  { id: 'battery_5', name: 'Battery Boss', threshold: 10000, description: '10,000 kWh discharged', color: 'bg-teal-600', icon: '👔' },
-  { id: 'battery_6', name: 'Powerwall Prodigy', threshold: 25000, description: '25,000 kWh discharged', color: 'bg-cyan-700', icon: '🧠' },
+  { id: 'battery_1', name: 'Powerwall', threshold: 500, description: '500 kWh discharged', color: 'bg-green-400', icon: 'battery' },
+  { id: 'battery_2', name: 'Gridlink', threshold: 1000, description: '1,000 kWh discharged', color: 'bg-green-500', icon: 'home' },
+  { id: 'battery_3', name: 'Megapack', threshold: 2500, description: '2,500 kWh discharged', color: 'bg-emerald-500', icon: 'package' },
+  { id: 'battery_4', name: 'Reservoir', threshold: 5000, description: '5,000 kWh discharged', color: 'bg-emerald-600', icon: 'shield' },
+  { id: 'battery_5', name: 'Dynamo', threshold: 10000, description: '10,000 kWh discharged', color: 'bg-teal-600', icon: 'gauge' },
+  { id: 'battery_6', name: 'Gigabank', threshold: 25000, description: '25,000 kWh discharged', color: 'bg-cyan-700', icon: 'circuit-board' },
 ];
 
 // Celebratory combo milestones (across categories)
 export const COMBO_MILESTONES: NFTMilestone[] = [
-  { id: 'combo_1', name: 'Dual Achiever', threshold: 2, description: 'Earn NFT in 2 categories', color: 'bg-gradient-to-r from-amber-500 to-orange-500', icon: '✌️' },
-  { id: 'combo_2', name: 'Triple Threat', threshold: 3, description: 'Earn NFT in 3 categories', color: 'bg-gradient-to-r from-orange-500 to-red-500', icon: '🔥' },
-  { id: 'combo_3', name: 'Quad Champion', threshold: 4, description: 'Earn NFT in all 4 categories', color: 'bg-gradient-to-r from-red-500 to-purple-500', icon: '💎' },
-  { id: 'combo_4', name: 'Rising Star', threshold: 5, description: 'Earn 5 total NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: '⭐' },
-  { id: 'combo_5', name: 'Sustainability Legend', threshold: 10, description: 'Earn 10 total NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: '🌍' },
-  { id: 'combo_6', name: 'Category Master', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: '🏆' },
-  { id: 'combo_7', name: 'Ultimate Zen Master', threshold: 4, description: 'Max out all categories', color: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500', icon: '🧘✨' },
+  { id: 'combo_1', name: 'Duality', threshold: 2, description: 'Earn NFT in 2 categories', color: 'bg-gradient-to-r from-amber-500 to-orange-500', icon: 'target' },
+  { id: 'combo_2', name: 'Trifecta', threshold: 3, description: 'Earn NFT in 3 categories', color: 'bg-gradient-to-r from-orange-500 to-red-500', icon: 'flame' },
+  { id: 'combo_3', name: 'Quadrant', threshold: 4, description: 'Earn NFT in all 4 categories', color: 'bg-gradient-to-r from-red-500 to-purple-500', icon: 'diamond' },
+  { id: 'combo_4', name: 'Constellation', threshold: 5, description: 'Earn 5 total NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: 'star' },
+  { id: 'combo_5', name: 'Ecosystem', threshold: 10, description: 'Earn 10 total NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: 'globe' },
+  { id: 'combo_6', name: 'Apex', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: 'trophy' },
+  { id: 'combo_7', name: 'Zenith', threshold: 4, description: 'Max out all categories', color: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500', icon: 'crown' },
 ];
 
 // All categories for UI display
@@ -133,13 +134,13 @@ export function calculateComboAchievements(
   const categoriesMaxed = [solarMaxed, evMilesMaxed, evChargingMaxed, batteryMaxed].filter(Boolean).length;
   
   // Award combo milestones
-  if (categoriesWithNFTs >= 2) combos.push(COMBO_MILESTONES[0]); // Dual Achiever
-  if (categoriesWithNFTs >= 3) combos.push(COMBO_MILESTONES[1]); // Triple Threat
-  if (categoriesWithNFTs >= 4) combos.push(COMBO_MILESTONES[2]); // Quad Champion
-  if (totalNFTs >= 5) combos.push(COMBO_MILESTONES[3]); // Rising Star
-  if (totalNFTs >= 10) combos.push(COMBO_MILESTONES[4]); // Sustainability Legend
-  if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[5]); // Category Master
-  if (categoriesMaxed >= 4) combos.push(COMBO_MILESTONES[6]); // Ultimate Zen Master
+  if (categoriesWithNFTs >= 2) combos.push(COMBO_MILESTONES[0]); // Duality
+  if (categoriesWithNFTs >= 3) combos.push(COMBO_MILESTONES[1]); // Trifecta
+  if (categoriesWithNFTs >= 4) combos.push(COMBO_MILESTONES[2]); // Quadrant
+  if (totalNFTs >= 5) combos.push(COMBO_MILESTONES[3]); // Constellation
+  if (totalNFTs >= 10) combos.push(COMBO_MILESTONES[4]); // Ecosystem
+  if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[5]); // Apex
+  if (categoriesMaxed >= 4) combos.push(COMBO_MILESTONES[6]); // Zenith
   
   return combos;
 }
