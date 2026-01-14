@@ -11,19 +11,6 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   build: {
-    // Optimize chunk splitting for better caching
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Vendor chunks - split heavy dependencies
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['framer-motion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
-          'vendor-web3': ['wagmi', 'viem', '@rainbow-me/rainbowkit'],
-          'vendor-metamask': ['@metamask/sdk'],
-          'vendor-query': ['@tanstack/react-query'],
-        },
-      },
-    },
     // Target modern browsers for smaller bundles
     target: 'es2020',
     // Minify aggressively
