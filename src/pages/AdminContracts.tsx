@@ -53,7 +53,7 @@ const WALLETS = {
   treasury: {
     name: 'Treasury Wallet',
     description: 'Receives 1% of mints + 3.5% of transfers',
-    address: '0x...TBD', // Update with treasury address
+    address: '0xdF21d920A160119b350A7dDfa657abc77bB5cb40',
     role: 'Fee Recipient',
   },
   lpRewards: {
