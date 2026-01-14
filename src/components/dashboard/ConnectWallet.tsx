@@ -2,7 +2,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useChainId, useSwitchChain, useDisconnect, useConnect } from 'wagmi';
 import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Loader2 } from 'lucide-react';
+import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2 } from 'lucide-react';
 import { CHAIN_ID } from '@/lib/wagmi';
 import { Button } from '@/components/ui/button';
 import { WalletConnectDiagnostics, type WalletDiagEvents } from './WalletConnectDiagnostics';
@@ -298,10 +298,10 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
           <div className="mb-3 rounded-md border border-border bg-muted/30 p-3 text-xs">
             <p className="text-foreground font-medium flex items-center gap-2">
               <Link2 className="h-4 w-4" />
-              Your wallet is connected, but it hasn’t been saved to your profile yet.
+              Your wallet is connected, but it hasn't been saved to your profile yet.
             </p>
             <p className="mt-1 text-muted-foreground">
-              This is the most common reason the “Disconnect Wallet” button appears to be missing.
+              This is the most common reason the "Disconnect Wallet" button appears to be missing.
             </p>
             <div className="mt-2 flex flex-col gap-2">
               <Button type="button" variant="secondary" size="sm" className="w-full" onClick={() => void handleSaveWallet()}>
@@ -426,41 +426,14 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
                 </button>
 
                 {device.showDeepLinks && (
-                  <div className="grid grid-cols-1 gap-2">
-                    <Button
-                      asChild
-                      variant="secondary"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => mark('deepLinkMetaMaskTap')}
-                    >
-                      <a href={deepLinks.metaMaskHref}>Open in MetaMask</a>
-                    </Button>
-
-                    <Button
-                      asChild
-                      variant="secondary"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => mark('deepLinkCoinbaseTap')}
-                    >
-                      <a href={deepLinks.coinbaseHref}>Open in Coinbase Wallet</a>
-                    </Button>
-
-                    <Button
-                      asChild
-                      variant="secondary"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => mark('deepLinkTrustTap')}
-                    >
-                      <a href={deepLinks.trustHref}>Open in Trust Wallet</a>
-                    </Button>
-
-                    <p className="text-xs text-muted-foreground text-center">
-                      If the wallet list buttons don’t respond in PWA mode, open the app inside a wallet browser.
-                    </p>
-                  </div>
+                  <WalletDeepLinks
+                    wcUri={wcUri}
+                    disabled={isStartingWc}
+                    onSelect={(wallet) => {
+                      markForWallet(mark, wallet);
+                      startWalletConnectDeepLink(wallet);
+                    }}
+                  />
                 )}
               </div>
             );
