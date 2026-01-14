@@ -78,14 +78,16 @@ export const EV_MILES_MILESTONES: NFTMilestone[] = [
 ];
 
 // Celebratory combo milestones (across categories)
+// Note: Only category NFTs count toward combos (not combo NFTs themselves)
+// Total category NFTs: 8 solar + 7 battery + 8 charging + 10 EV miles = 33
 export const COMBO_MILESTONES: NFTMilestone[] = [
   { id: 'combo_1', name: 'Duality', threshold: 2, description: 'Earn NFT in 2 categories', color: 'bg-gradient-to-r from-amber-500 to-orange-500', icon: 'target' },
   { id: 'combo_2', name: 'Trifecta', threshold: 3, description: 'Earn NFT in 3 categories', color: 'bg-gradient-to-r from-orange-500 to-red-500', icon: 'flame' },
   { id: 'combo_3', name: 'Quadrant', threshold: 4, description: 'Earn NFT in all 4 categories', color: 'bg-gradient-to-r from-red-500 to-purple-500', icon: 'diamond' },
-  { id: 'combo_4', name: 'Constellation', threshold: 5, description: 'Earn 5 total NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: 'star' },
-  { id: 'combo_5', name: 'Ecosystem', threshold: 10, description: 'Earn 10 total NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: 'globe' },
-  { id: 'combo_6', name: 'Sovereign', threshold: 20, description: 'Earn 20 total NFTs', color: 'bg-gradient-to-r from-purple-600 to-amber-500', icon: 'shield' },
-  { id: 'combo_7', name: 'Transcendent', threshold: 30, description: 'Earn 30 total NFTs', color: 'bg-gradient-to-r from-slate-200 via-amber-300 to-slate-200', icon: 'infinity' },
+  { id: 'combo_4', name: 'Constellation', threshold: 5, description: 'Earn 5 category NFTs', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: 'star' },
+  { id: 'combo_5', name: 'Ecosystem', threshold: 10, description: 'Earn 10 category NFTs', color: 'bg-gradient-to-r from-pink-500 to-rose-500', icon: 'globe' },
+  { id: 'combo_6', name: 'Sovereign', threshold: 20, description: 'Earn 20 category NFTs', color: 'bg-gradient-to-r from-purple-600 to-amber-500', icon: 'shield' },
+  { id: 'combo_7', name: 'Master', threshold: 33, description: 'Earn all 33 category NFTs', color: 'bg-gradient-to-r from-slate-200 via-amber-300 to-slate-200', icon: 'gem' },
   { id: 'combo_8', name: 'Apex', threshold: 1, description: 'Max out any category', color: 'bg-gradient-to-r from-rose-500 to-amber-500', icon: 'trophy' },
   { id: 'combo_9', name: 'Zenith', threshold: 4, description: 'Max out all categories', color: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500', icon: 'crown' },
 ];
@@ -136,8 +138,8 @@ export function calculateComboAchievements(
     batteryEarned.length > 0,
   ].filter(Boolean).length;
   
-  // Total NFTs earned
-  const totalNFTs = 
+  // Total category NFTs earned (combos don't count toward combo requirements)
+  const totalCategoryNFTs = 
     solarEarned.length +
     evMilesEarned.length +
     evChargingEarned.length +
@@ -151,14 +153,14 @@ export function calculateComboAchievements(
   
   const categoriesMaxed = [solarMaxed, evMilesMaxed, evChargingMaxed, batteryMaxed].filter(Boolean).length;
   
-  // Award combo milestones
+  // Award combo milestones (based on category NFTs only, not combos)
   if (categoriesWithNFTs >= 2) combos.push(COMBO_MILESTONES[0]); // Duality
   if (categoriesWithNFTs >= 3) combos.push(COMBO_MILESTONES[1]); // Trifecta
   if (categoriesWithNFTs >= 4) combos.push(COMBO_MILESTONES[2]); // Quadrant
-  if (totalNFTs >= 5) combos.push(COMBO_MILESTONES[3]); // Constellation
-  if (totalNFTs >= 10) combos.push(COMBO_MILESTONES[4]); // Ecosystem
-  if (totalNFTs >= 20) combos.push(COMBO_MILESTONES[5]); // Sovereign
-  if (totalNFTs >= 30) combos.push(COMBO_MILESTONES[6]); // Transcendent
+  if (totalCategoryNFTs >= 5) combos.push(COMBO_MILESTONES[3]); // Constellation
+  if (totalCategoryNFTs >= 10) combos.push(COMBO_MILESTONES[4]); // Ecosystem
+  if (totalCategoryNFTs >= 20) combos.push(COMBO_MILESTONES[5]); // Sovereign
+  if (totalCategoryNFTs >= 33) combos.push(COMBO_MILESTONES[6]); // Master (all 33 category NFTs)
   if (categoriesMaxed >= 1) combos.push(COMBO_MILESTONES[7]); // Apex
   if (categoriesMaxed >= 4) combos.push(COMBO_MILESTONES[8]); // Zenith
   
