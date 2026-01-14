@@ -62,9 +62,12 @@ const CONTRACTS = {
   },
 };
 
-// Smart contract milestone arrays (from ZenSolar.sol)
-const CONTRACT_ENERGY_MILESTONES = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
-const CONTRACT_EV_MILES_MILESTONES = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000];
+// Smart contract milestone arrays (matching app definitions)
+// NOTE: Update ZenSolar.sol to use these arrays
+const CONTRACT_SOLAR_MILESTONES = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]; // 8 tiers
+const CONTRACT_BATTERY_MILESTONES = [500, 1000, 2500, 5000, 10000, 25000, 50000]; // 7 tiers
+const CONTRACT_CHARGING_MILESTONES = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000]; // 8 tiers
+const CONTRACT_EV_MILES_MILESTONES = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000]; // 10 tiers
 
 // Tokenomics from contracts
 const TOKENOMICS = {
@@ -120,15 +123,15 @@ export default function AdminContracts() {
 
   const solarComparison = compareArrays(
     SOLAR_MILESTONES.map(m => m.threshold),
-    CONTRACT_ENERGY_MILESTONES
+    CONTRACT_SOLAR_MILESTONES
   );
   const batteryComparison = compareArrays(
     BATTERY_MILESTONES.map(m => m.threshold),
-    CONTRACT_ENERGY_MILESTONES
+    CONTRACT_BATTERY_MILESTONES
   );
   const chargingComparison = compareArrays(
     EV_CHARGING_MILESTONES.map(m => m.threshold),
-    CONTRACT_ENERGY_MILESTONES
+    CONTRACT_CHARGING_MILESTONES
   );
   const evMilesComparison = compareArrays(
     EV_MILES_MILESTONES.map(m => m.threshold),
