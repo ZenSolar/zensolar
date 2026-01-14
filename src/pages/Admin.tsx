@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy, ShieldX, Bell, Send } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy, ShieldX, Bell, Send, FileCode2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -566,6 +566,18 @@ export default function Admin() {
       </div>
 
       <main className="container mx-auto px-4 py-4 space-y-4 overflow-x-hidden">
+        {/* Quick Links */}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate('/admin/contracts')}>
+            <FileCode2 className="h-4 w-4 mr-2" />
+            Smart Contracts
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/admin/ev-api-reference')}>
+            <Zap className="h-4 w-4 mr-2" />
+            EV API Reference
+          </Button>
+        </div>
+
         {/* Tesla Fleet API Registration */}
         <Card className="border-primary/20">
           <CardHeader>

@@ -22,6 +22,7 @@ const Demo = lazy(() => import("./pages/Demo"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboard").then(m => ({ default: m.DemoDashboard })));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminContracts = lazy(() => import("./pages/AdminContracts"));
 const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -122,6 +123,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminEvApiReference />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/contracts" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminContracts />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
