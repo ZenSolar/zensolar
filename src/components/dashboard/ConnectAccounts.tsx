@@ -9,8 +9,42 @@ import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronDown, ChevronUp, Plus, Zap } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Plus, Zap, Sun, Battery, Plug } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
+
+// Tesla "T" icon
+const TeslaIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 278.7 36.3" className={cn("h-3 w-auto", className)} fill="currentColor">
+    <path d="M139.3 14.5c6-3.5 9.7-5 17.3-5.7 0-2.7-.4-4.5-1-5.4-6.9.4-12.8 1.7-20.3 6.1V3.4h-6.8v6c-7.5-4.4-13.4-5.7-20.3-6.1-.6.9-1 2.7-1 5.4 7.6.7 11.3 2.2 17.3 5.7l-17.3 10v5.2l20.3-11.8v19.4h6.8V17.8l20.3 11.8v-5.2l-17.3-10z"/>
+    <path d="M.1 8.7h25.8v6.3H16v21.3H9.9V15H0l.1-6.3zm271.1 0h-25.8v6.3h9.9v21.3h6.1V15h9.9l-.1-6.3zM50.9 27.7V8.7H57v19c0 2.4 1.6 3.5 4.1 3.5h15.5c2.5 0 4.1-1.1 4.1-3.5v-19h6.1v19c0 5.4-4 8.6-10.2 8.6H61.1c-6.2 0-10.2-3.2-10.2-8.6zm147.2 0V8.7h6.1v19c0 2.4 1.6 3.5 4.1 3.5h15.5c2.5 0 4.1-1.1 4.1-3.5v-19h6.1v19c0 5.4-4 8.6-10.2 8.6h-15.5c-6.2 0-10.2-3.2-10.2-8.6zM96.9 8.7h26.4c6.2 0 10.2 3.2 10.2 8.6v4.1c0 5.4-4 8.6-10.2 8.6h-20.3v6.3h-6.1V8.7zm6.1 15h20.3c2.5 0 4.1-1.1 4.1-3.5v-2.8c0-2.4-1.6-3.5-4.1-3.5h-20.3v9.8zm74.3-15v6.3h-25.8v4.8h19.7v6.3h-19.7v5h25.8v6.3h-31.9V8.7h31.9z"/>
+  </svg>
+);
+
+// Enphase sun/solar icon
+const EnphaseIcon = ({ className }: { className?: string }) => (
+  <Sun className={cn("h-3 w-3", className)} />
+);
+
+// SolarEdge icon (stylized sun with edge)
+const SolarEdgeIcon = ({ className }: { className?: string }) => (
+  <div className={cn("h-3 w-3 relative", className)}>
+    <Sun className="h-full w-full" />
+  </div>
+);
+
+// Wallbox icon (charging plug)
+const WallboxIcon = ({ className }: { className?: string }) => (
+  <Plug className={cn("h-3 w-3", className)} />
+);
+
+// Map service to icon
+const providerIcons: Record<string, React.FC<{ className?: string }>> = {
+  tesla: TeslaIcon,
+  enphase: EnphaseIcon,
+  solaredge: SolarEdgeIcon,
+  wallbox: WallboxIcon,
+};
 
 interface ConnectAccountsProps {
   accounts: ConnectedAccount[];
@@ -188,15 +222,19 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {connectedAccounts.map((acc) => (
-                      <span 
-                        key={acc.service}
-                        className="inline-flex items-center gap-1 text-xs text-muted-foreground"
-                      >
-                        <Check className="h-3 w-3 text-secondary" />
-                        {acc.label}
-                      </span>
-                    ))}
+                    {connectedAccounts.map((acc) => {
+                      const Icon = providerIcons[acc.service];
+                      return (
+                        <span 
+                          key={acc.service}
+                          className="inline-flex items-center gap-1 text-xs text-muted-foreground"
+                        >
+                          {Icon && <Icon className="text-secondary" />}
+                          <Check className="h-3 w-3 text-secondary" />
+                          {acc.label}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
