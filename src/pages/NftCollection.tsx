@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Award, 
@@ -16,7 +18,8 @@ import {
   Lock,
   CheckCircle2,
   TrendingUp,
-  Target
+  Target,
+  X
 } from 'lucide-react';
 import {
   SOLAR_MILESTONES,
@@ -31,30 +34,35 @@ import {
   type NFTMilestone,
 } from '@/lib/nftMilestones';
 import { NFTBadge } from '@/components/ui/nft-badge';
+import { getNftArtwork } from '@/lib/nftArtwork';
 
 function MilestoneCard({ 
   milestone, 
   isEarned, 
   currentValue,
   unit,
-  isNext
+  isNext,
+  onViewArtwork
 }: { 
   milestone: NFTMilestone; 
   isEarned: boolean;
   currentValue: number;
   unit: string;
   isNext: boolean;
+  onViewArtwork: (milestone: NFTMilestone) => void;
 }) {
   const progress = milestone.threshold > 0 
     ? Math.min((currentValue / milestone.threshold) * 100, 100)
     : 100;
+  
+  const artwork = getNftArtwork(milestone.id);
   
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`relative rounded-xl border p-4 transition-all duration-300 ${
+      className={`relative rounded-xl border overflow-hidden transition-all duration-300 ${
         isEarned 
           ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 shadow-lg shadow-primary/10' 
           : isNext
@@ -62,75 +70,80 @@ function MilestoneCard({
           : 'bg-muted/30 border-border/50 opacity-70'
       }`}
     >
-      {/* Status Badge */}
-      <div className="absolute top-3 right-3">
-        {isEarned ? (
-          <Badge className="bg-primary text-primary-foreground gap-1">
-            <CheckCircle2 className="h-3 w-3" />
-            Earned
-          </Badge>
-        ) : isNext ? (
-          <Badge variant="outline" className="gap-1 border-accent text-accent">
-            <Target className="h-3 w-3" />
-            Next
-          </Badge>
-        ) : (
-          <Badge variant="secondary" className="gap-1 opacity-60">
-            <Lock className="h-3 w-3" />
-            Locked
-          </Badge>
-        )}
-      </div>
-
-      {/* Icon and Name */}
-      <div className="flex items-start gap-3 mb-3">
-        <NFTBadge 
-          milestoneId={milestone.id} 
-          size="lg" 
-          isEarned={isEarned}
-          color={milestone.color}
-          showGlow={isEarned}
-        />
-        <div className="flex-1 min-w-0">
-          <h3 className={`font-semibold text-base ${isEarned ? 'text-foreground' : 'text-muted-foreground'}`}>
-            {milestone.name}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {milestone.description}
-          </p>
-        </div>
-      </div>
-
-      {/* Progress */}
-      {milestone.threshold > 0 && (
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Progress</span>
-            <span className={isEarned ? 'text-primary font-medium' : 'text-muted-foreground'}>
-              {currentValue.toLocaleString()} / {milestone.threshold.toLocaleString()} {unit}
+      {/* NFT Artwork */}
+      {artwork && (
+        <div 
+          className={`relative w-full aspect-square cursor-pointer group ${!isEarned && 'grayscale opacity-60'}`}
+          onClick={() => onViewArtwork(milestone)}
+        >
+          <img 
+            src={artwork} 
+            alt={milestone.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+            <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-sm font-medium">
+              View NFT
             </span>
           </div>
-          <Progress 
-            value={progress} 
-            className={`h-2 ${isEarned ? '' : 'opacity-60'}`}
-          />
-          {!isEarned && milestone.threshold > currentValue && (
-            <p className="text-[11px] text-muted-foreground text-center">
-              {(milestone.threshold - currentValue).toLocaleString()} {unit} remaining
-            </p>
-          )}
+          {/* Status Badge on image */}
+          <div className="absolute top-2 right-2">
+            {isEarned ? (
+              <Badge className="bg-primary text-primary-foreground gap-1 text-[10px]">
+                <CheckCircle2 className="h-3 w-3" />
+                Earned
+              </Badge>
+            ) : isNext ? (
+              <Badge variant="outline" className="gap-1 border-accent text-accent bg-background/80 text-[10px]">
+                <Target className="h-3 w-3" />
+                Next
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="gap-1 opacity-80 text-[10px]">
+                <Lock className="h-3 w-3" />
+                Locked
+              </Badge>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Threshold Badge */}
-      {milestone.threshold > 0 && (
-        <div className="mt-3 flex justify-center">
-          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium ${milestone.color} text-white`}>
-            <Award className="h-3 w-3" />
-            {milestone.threshold.toLocaleString()} {unit}
-          </span>
+      <div className="p-4">
+        {/* Name and Description */}
+        <div className="flex items-start gap-2 mb-3">
+          <NFTBadge 
+            milestoneId={milestone.id} 
+            size="md" 
+            isEarned={isEarned}
+            color={milestone.color}
+            showGlow={isEarned}
+          />
+          <div className="flex-1 min-w-0">
+            <h3 className={`font-semibold text-sm ${isEarned ? 'text-foreground' : 'text-muted-foreground'}`}>
+              {milestone.name}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {milestone.description}
+            </p>
+          </div>
         </div>
-      )}
+
+        {/* Progress */}
+        {milestone.threshold > 0 && (
+          <div className="space-y-1">
+            <div className="flex justify-between text-[10px]">
+              <span className="text-muted-foreground">Progress</span>
+              <span className={isEarned ? 'text-primary font-medium' : 'text-muted-foreground'}>
+                {currentValue.toLocaleString()} / {milestone.threshold.toLocaleString()} {unit}
+              </span>
+            </div>
+            <Progress 
+              value={progress} 
+              className={`h-1.5 ${isEarned ? '' : 'opacity-60'}`}
+            />
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
