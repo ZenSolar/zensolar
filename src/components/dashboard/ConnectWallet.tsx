@@ -1,6 +1,6 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { Wallet } from 'lucide-react';
 import { CHAIN_ID } from '@/lib/wagmi';
@@ -12,9 +12,11 @@ interface ConnectWalletProps {
 }
 
 export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: ConnectWalletProps) {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, isConnecting } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
+  const { connectModalOpen } = useConnectModal();
+  const hasNotifiedConnection = useRef(false);
 
   // Auto-switch to Base Sepolia when wallet connects on wrong network
   const ensureCorrectNetwork = useCallback(async () => {
@@ -36,9 +38,31 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
     }
   }, [isConnected, chainId, switchChain]);
 
+  // Force close any modal overlays when wallet connects (mobile deep-link fix)
+  useEffect(() => {
+    if (isConnected && address) {
+      // Close any open RainbowKit modals by clicking escape or clicking backdrop
+      const closeModals = () => {
+        // Try to close by dispatching escape key
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27 }));
+        
+        // Also try to click any modal backdrop
+        const backdrop = document.querySelector('[data-rk]')?.querySelector('[role="dialog"]')?.previousSibling;
+        if (backdrop && backdrop instanceof HTMLElement) {
+          backdrop.click();
+        }
+      };
+      
+      // Small delay to ensure state has propagated
+      setTimeout(closeModals, 100);
+    }
+  }, [isConnected, address]);
+
   // Sync wallet address to profile when connected
   useEffect(() => {
-    if (isConnected && address && address !== walletAddress) {
+    if (isConnected && address && address !== walletAddress && !hasNotifiedConnection.current) {
+      hasNotifiedConnection.current = true;
+      
       // First ensure correct network, then save address
       ensureCorrectNetwork();
       
@@ -47,6 +71,11 @@ export function ConnectWallet({ walletAddress, onConnect, isDemo = false }: Conn
       }).catch(() => {
         toast.error('Failed to save wallet address');
       });
+    }
+    
+    // Reset notification flag when disconnected
+    if (!isConnected) {
+      hasNotifiedConnection.current = false;
     }
   }, [isConnected, address, walletAddress, onConnect, ensureCorrectNetwork]);
 
