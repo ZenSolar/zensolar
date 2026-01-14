@@ -64,7 +64,9 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Award}
             label="NFTs Earned"
-            value={`${data.nftsEarned.length} (${data.nftsEarned.join(', ')})`}
+            value={data.nftsEarned.length > 0 
+              ? `${data.nftsEarned.length} (${data.nftsEarned.join(', ')})` 
+              : 'None yet'}
             colorClass="bg-primary"
           />
         </div>

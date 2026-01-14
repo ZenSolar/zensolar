@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 
 interface RewardProgressProps {
   tokensEarned: number;
-  nftsEarned: number[];
+  solarKwh: number; // Actual solar kWh for milestone calculation
+  nftsEarned: string[];
   isNewUser?: boolean;
 }
 
@@ -21,11 +22,11 @@ const NFT_MILESTONES = [
   { id: 8, name: 'Zen Master', kwhRequired: 100000, description: '100,000 kWh generated', color: 'bg-rose-500' },
 ];
 
-export function RewardProgress({ tokensEarned, nftsEarned, isNewUser = true }: RewardProgressProps) {
-  // Calculate total kWh from tokens (assuming 1 token per kWh for now)
-  const totalKwh = tokensEarned;
+export function RewardProgress({ tokensEarned, solarKwh, nftsEarned, isNewUser = true }: RewardProgressProps) {
+  // Use actual solar kWh for milestone calculation (not total tokens which includes EV miles, etc.)
+  const totalKwh = Math.floor(solarKwh);
   
-  // Check which NFTs are earned
+  // Check which NFTs are earned based on solar production
   const earnedMilestones = NFT_MILESTONES.filter((m) => {
     if (m.id === 0) return isNewUser; // Welcome NFT earned on signup
     return totalKwh >= m.kwhRequired;

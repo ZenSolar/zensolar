@@ -218,6 +218,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         <AnimatedItem>
           <RewardProgress
             tokensEarned={activityData.tokensEarned}
+            solarKwh={activityData.solarEnergyProduced}
             nftsEarned={activityData.nftsEarned}
             isNewUser={true}
           />
