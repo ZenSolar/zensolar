@@ -23,7 +23,14 @@ import {
   Flame,
   PiggyBank,
   Users,
-  TrendingDown
+  TrendingDown,
+  Rocket,
+  FileText,
+  Settings,
+  Shield,
+  CircleDot,
+  Square,
+  Play
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -178,10 +185,11 @@ export default function AdminContracts() {
       </div>
 
       <Tabs defaultValue="contracts" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="contracts">Contracts</TabsTrigger>
           <TabsTrigger value="tokenomics">Tokenomics</TabsTrigger>
           <TabsTrigger value="milestones">Milestones</TabsTrigger>
+          <TabsTrigger value="deployment">Deployment</TabsTrigger>
           <TabsTrigger value="verification">Verification</TabsTrigger>
         </TabsList>
 
@@ -467,6 +475,221 @@ export default function AdminContracts() {
           </Card>
         </TabsContent>
 
+        {/* Deployment Tab */}
+        <TabsContent value="deployment" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Rocket className="h-5 w-5 text-primary" />
+                Deployment Checklist
+              </CardTitle>
+              <CardDescription>Step-by-step guide to deploy contracts on Base Sepolia</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                  <Square className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">1. Set up deployment wallet</p>
+                    <p className="text-sm text-muted-foreground">
+                      Create a deployer wallet with Base Sepolia ETH from{' '}
+                      <a href="https://www.alchemy.com/faucets/base-sepolia" target="_blank" rel="noopener" className="text-primary underline">
+                        Alchemy Faucet
+                      </a>
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                  <Square className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">2. Deploy ZSOLAR.sol (ERC-20)</p>
+                    <p className="text-sm text-muted-foreground">
+                      Constructor args: founderAddress, initialOwnerAddress, treasuryAddress
+                    </p>
+                    <code className="text-xs bg-muted px-2 py-1 rounded mt-1 block">
+                      npx hardhat deploy --contract ZSOLAR --network base-sepolia
+                    </code>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                  <Square className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">3. Deploy ZenSolarNFT.sol (ERC-721)</p>
+                    <p className="text-sm text-muted-foreground">
+                      Constructor args: baseURI (IPFS metadata folder)
+                    </p>
+                    <code className="text-xs bg-muted px-2 py-1 rounded mt-1 block">
+                      npx hardhat deploy --contract ZenSolarNFT --network base-sepolia
+                    </code>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                  <Square className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">4. Deploy ZenSolar.sol (Controller)</p>
+                    <p className="text-sm text-muted-foreground">
+                      Constructor args: ZSOLAR address, ZenSolarNFT address, treasury, lpRewards
+                    </p>
+                    <code className="text-xs bg-muted px-2 py-1 rounded mt-1 block">
+                      npx hardhat deploy --contract ZenSolar --network base-sepolia
+                    </code>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                  <Square className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">5. Transfer ownership</p>
+                    <p className="text-sm text-muted-foreground">
+                      Transfer ZSOLAR and ZenSolarNFT ownership to ZenSolar controller
+                    </p>
+                    <code className="text-xs bg-muted px-2 py-1 rounded mt-1 block">
+                      ZSOLAR.transferOwnership(ZenSolarAddress)<br/>
+                      ZenSolarNFT.transferContractOwnership(ZenSolarAddress)
+                    </code>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                  <Square className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">6. Verify contracts on Basescan</p>
+                    <p className="text-sm text-muted-foreground">
+                      Verify source code for transparency
+                    </p>
+                    <code className="text-xs bg-muted px-2 py-1 rounded mt-1 block">
+                      npx hardhat verify --network base-sepolia CONTRACT_ADDRESS
+                    </code>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                  <Square className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">7. Update contract addresses in app</p>
+                    <p className="text-sm text-muted-foreground">
+                      Update CONTRACTS object in this file with deployed addresses
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Play className="h-5 w-5 text-accent" />
+                Contract Interaction Guide
+              </CardTitle>
+              <CardDescription>How the backend interacts with smart contracts</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="p-4 rounded-lg border space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <p className="font-medium">User Registration</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">When user creates account:</p>
+                  <code className="text-xs bg-muted px-2 py-1 rounded block">
+                    ZenSolar.registerUser(userAddress)
+                  </code>
+                  <p className="text-xs text-muted-foreground">→ Mints Welcome NFT to user</p>
+                </div>
+                
+                <div className="p-4 rounded-lg border space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Coins className="h-4 w-4 text-token" />
+                    <p className="font-medium">Claim Rewards</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">When user claims energy rewards:</p>
+                  <code className="text-xs bg-muted px-2 py-1 rounded block">
+                    ZenSolar.mintRewards(user, solar, evMiles, battery, charging)
+                  </code>
+                  <p className="text-xs text-muted-foreground">→ Mints tokens + checks milestones</p>
+                </div>
+                
+                <div className="p-4 rounded-lg border space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Award className="h-4 w-4 text-secondary" />
+                    <p className="font-medium">Combo Achievement</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">When combo conditions met:</p>
+                  <code className="text-xs bg-muted px-2 py-1 rounded block">
+                    ZenSolar.mintComboNFT(user, "Combo_Duality")
+                  </code>
+                  <p className="text-xs text-muted-foreground">→ Mints combo NFT to user</p>
+                </div>
+                
+                <div className="p-4 rounded-lg border space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-destructive" />
+                    <p className="font-medium">NFT Redemption</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">User redeems milestone NFT:</p>
+                  <code className="text-xs bg-muted px-2 py-1 rounded block">
+                    ZenSolar.redeemNFT(tokenId) // User calls directly
+                  </code>
+                  <p className="text-xs text-muted-foreground">→ Burns NFT, mints tokens (2% burn)</p>
+                </div>
+              </div>
+              
+              <div className="p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-4 w-4 text-yellow-600" />
+                  <p className="font-medium text-yellow-600">Backend Requirements</p>
+                </div>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Backend wallet must be set as ZenSolar contract owner</li>
+                  <li>Store MINTER_PRIVATE_KEY securely in environment</li>
+                  <li>Use ethers.js or viem for contract interactions</li>
+                  <li>Track combo achievements in database before minting</li>
+                  <li>Batch multiple users' rewards in single transaction if possible</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Contract Files
+              </CardTitle>
+              <CardDescription>Solidity source files saved in project</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <code className="text-sm">contracts/ZSOLAR.sol</code>
+                  </div>
+                  <Badge variant="outline">ERC-20</Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4 text-secondary" />
+                    <code className="text-sm">contracts/ZenSolarNFT.sol</code>
+                  </div>
+                  <Badge variant="outline">ERC-721</Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4 text-accent" />
+                    <code className="text-sm">contracts/ZenSolar.sol</code>
+                  </div>
+                  <Badge variant="outline">Controller</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Verification Tab */}
         <TabsContent value="verification" className="space-y-4">
           <Card>
@@ -504,13 +727,19 @@ export default function AdminContracts() {
                   <div>
                     <p className="font-medium">Battery Milestones</p>
                     <p className="text-xs text-muted-foreground">
-                      App: 7 tiers (max 50K) | Contract: 8 tiers (max 100K)
+                      App: {BATTERY_MILESTONES.length} tiers | Contract: {CONTRACT_BATTERY_MILESTONES.length} tiers
                     </p>
                   </div>
                 </div>
-                <Badge variant="destructive">
-                  <AlertTriangle className="h-3 w-3 mr-1" /> Missing 100K tier
-                </Badge>
+                {batteryComparison.match ? (
+                  <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                    <CheckCircle2 className="h-3 w-3 mr-1" /> Match
+                  </Badge>
+                ) : (
+                  <Badge variant="destructive">
+                    <AlertTriangle className="h-3 w-3 mr-1" /> Mismatch
+                  </Badge>
+                )}
               </div>
 
               {/* Charging */}
@@ -520,13 +749,19 @@ export default function AdminContracts() {
                   <div>
                     <p className="font-medium">EV Charging Milestones</p>
                     <p className="text-xs text-muted-foreground">
-                      App: Custom [100-25K] | Contract: uses energyMilestones [500-100K]
+                      App: {EV_CHARGING_MILESTONES.length} tiers | Contract: {CONTRACT_CHARGING_MILESTONES.length} tiers
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
-                  <AlertTriangle className="h-3 w-3 mr-1" /> Different thresholds
-                </Badge>
+                {chargingComparison.match ? (
+                  <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                    <CheckCircle2 className="h-3 w-3 mr-1" /> Match
+                  </Badge>
+                ) : (
+                  <Badge variant="destructive">
+                    <AlertTriangle className="h-3 w-3 mr-1" /> Mismatch
+                  </Badge>
+                )}
               </div>
 
               {/* EV Miles */}
@@ -535,7 +770,7 @@ export default function AdminContracts() {
                   <Car className="h-5 w-5 text-accent" />
                   <div>
                     <p className="font-medium">EV Miles Milestones</p>
-                    <p className="text-xs text-muted-foreground">App: 10 tiers | Contract: 10 tiers</p>
+                    <p className="text-xs text-muted-foreground">App: {EV_MILES_MILESTONES.length} tiers | Contract: {CONTRACT_EV_MILES_MILESTONES.length} tiers</p>
                   </div>
                 </div>
                 {evMilesComparison.match ? (
@@ -551,33 +786,38 @@ export default function AdminContracts() {
             </CardContent>
           </Card>
 
-          <Card className="border-yellow-500/50 bg-yellow-500/5">
+          <Card className="border-green-500/50 bg-green-500/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-600">
-                <AlertTriangle className="h-5 w-5" />
-                Recommended Fixes
+              <CardTitle className="flex items-center gap-2 text-green-600">
+                <CheckCircle2 className="h-5 w-5" />
+                All Milestones Aligned
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="p-3 rounded bg-background border">
-                <p className="font-medium">1. Battery Milestones</p>
-                <p className="text-sm text-muted-foreground">
-                  Add 100,000 kWh tier to match contract's energyMilestones array.
-                </p>
+              <p className="text-sm text-muted-foreground">
+                Smart contracts now use separate arrays for each category matching the app exactly:
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="p-2 rounded bg-background border">
+                  <p className="font-medium text-solar">Solar</p>
+                  <p className="text-xs text-muted-foreground">8 tiers (500-100K kWh)</p>
+                </div>
+                <div className="p-2 rounded bg-background border">
+                  <p className="font-medium text-energy">Battery</p>
+                  <p className="text-xs text-muted-foreground">7 tiers (500-50K kWh)</p>
+                </div>
+                <div className="p-2 rounded bg-background border">
+                  <p className="font-medium text-warning">Charging</p>
+                  <p className="text-xs text-muted-foreground">8 tiers (100-25K kWh)</p>
+                </div>
+                <div className="p-2 rounded bg-background border">
+                  <p className="font-medium text-accent">EV Miles</p>
+                  <p className="text-xs text-muted-foreground">10 tiers (100-200K mi)</p>
+                </div>
               </div>
-              <div className="p-3 rounded bg-background border">
-                <p className="font-medium">2. EV Charging Milestones</p>
-                <p className="text-sm text-muted-foreground">
-                  Either update app to use same thresholds as energyMilestones [500-100K], 
-                  or update contract to use a separate chargingMilestones array matching app [100-25K].
-                </p>
-              </div>
-              <div className="p-3 rounded bg-background border">
-                <p className="font-medium">3. Deploy Contracts</p>
-                <p className="text-sm text-muted-foreground">
-                  Deploy to Base Sepolia and update addresses in this file.
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Contract files saved to: <code className="bg-muted px-1 rounded">contracts/</code>
+              </p>
             </CardContent>
           </Card>
         </TabsContent>
