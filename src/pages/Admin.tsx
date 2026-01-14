@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy, ShieldX, Bell } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, RefreshCw, Zap, CheckCircle2, XCircle, AlertCircle, Key, Copy, ShieldX, Bell, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,6 +55,10 @@ export default function Admin() {
   // Push notification test state
   const [pushTestStatus, setPushTestStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [pushTestMessage, setPushTestMessage] = useState('');
+  
+  // Send reminder state
+  const [reminderStatus, setReminderStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [reminderMessage, setReminderMessage] = useState('');
   
   // Clear subscriptions state
   const [clearSubsStatus, setClearSubsStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -400,6 +404,40 @@ export default function Admin() {
     }
   };
 
+  const handleSendReminderNotifications = async () => {
+    setReminderStatus('loading');
+    setReminderMessage('Checking for users to notify...');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await supabase.functions.invoke('send-reminder-notifications', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to send reminders');
+      }
+
+      const data = response.data;
+      setReminderStatus('success');
+      if (data.notified > 0) {
+        setReminderMessage(`Sent ${data.notified} reminder notification(s)`);
+        toast.success(`Sent ${data.notified} reminder(s)!`);
+      } else {
+        setReminderMessage(data.message || 'No users needed reminders');
+      }
+    } catch (error) {
+      console.error('Send reminder error:', error);
+      setReminderStatus('error');
+      setReminderMessage(error instanceof Error ? error.message : 'Failed to send reminders');
+      toast.error('Failed to send reminders');
+    }
+  };
+
   const handleClearOldSubscriptions = async () => {
     setClearSubsStatus('loading');
     setClearSubsMessage('Clearing old subscriptions...');
@@ -516,7 +554,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-safe">
+    <div className="min-h-screen bg-background pb-safe overflow-x-hidden">
       {/* Sticky Page Title for mobile */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-3">
@@ -527,7 +565,7 @@ export default function Admin() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-4 space-y-4">
+      <main className="container mx-auto px-4 py-4 space-y-4 overflow-x-hidden">
         {/* Tesla Fleet API Registration */}
         <Card className="border-primary/20">
           <CardHeader>
@@ -728,6 +766,19 @@ export default function Admin() {
               </Button>
               
               <Button 
+                variant="secondary"
+                onClick={handleSendReminderNotifications} 
+                disabled={reminderStatus === 'loading'}
+              >
+                {reminderStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4 mr-2" />
+                )}
+                Send 24h Reminders Now
+              </Button>
+              
+              <Button 
                 variant="outline"
                 onClick={handleClearOldSubscriptions} 
                 disabled={clearSubsStatus === 'loading'}
@@ -740,6 +791,19 @@ export default function Admin() {
                 Clear Old Subscriptions
               </Button>
             </div>
+            
+            {reminderMessage && (
+              <div className={`flex items-center gap-2 p-3 rounded-md ${
+                reminderStatus === 'success' ? 'bg-green-500/10 text-green-600' :
+                reminderStatus === 'error' ? 'bg-destructive/10 text-destructive' :
+                'bg-muted text-muted-foreground'
+              }`}>
+                {reminderStatus === 'success' && <CheckCircle2 className="h-4 w-4" />}
+                {reminderStatus === 'error' && <XCircle className="h-4 w-4" />}
+                {reminderStatus === 'loading' && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span className="text-sm">{reminderMessage}</span>
+              </div>
+            )}
             
             {pushTestMessage && (
               <div className={`flex items-center gap-2 p-3 rounded-md ${
