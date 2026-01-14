@@ -1,60 +1,59 @@
 // NFT Artwork mapping - maps milestone IDs to their generated images
-// Updated: January 14, 2026 - All 41 NFTs now have artwork
+// Updated: January 14, 2026 - Aligned with final_milestones-2.docx (40 NFTs total)
 
 // Welcome NFT
 import welcomeNft from '@/assets/nft/solar-genesis.png';
 
 // Solar NFTs (8 tiers)
-import solarSunlink from '@/assets/nft/solar-sunlink.png';
-import solarPhoton from '@/assets/nft/solar-photon.png';
-import solarRayfield from '@/assets/nft/solar-rayfield.png';
-import solarSolarflare from '@/assets/nft/solar-solarflare.png';
-import solarHeliogen from '@/assets/nft/solar-heliogen.png';
-import solarSunvault from '@/assets/nft/solar-sunvault.png';
-import solarGigasol from '@/assets/nft/solar-gigasol.png';
-import solarStarpower from '@/assets/nft/solar-starpower.png';
+import solarSunspark from '@/assets/nft/solar-sunlink.png';
+import solarPhotonic from '@/assets/nft/solar-photon.png';
+import solarRayforge from '@/assets/nft/solar-rayfield.png';
+import solarSolaris from '@/assets/nft/solar-solarflare.png';
+import solarHelios from '@/assets/nft/solar-heliogen.png';
+import solarSunforge from '@/assets/nft/solar-sunvault.png';
+import solarGigasun from '@/assets/nft/solar-gigasol.png';
+import solarStarforge from '@/assets/nft/solar-starpower.png';
 
 // Battery NFTs (7 tiers)
-import batteryPowerwall from '@/assets/nft/battery-powerwall.png';
-import batteryGridlink from '@/assets/nft/battery-gridlink.png';
-import batteryMegapack from '@/assets/nft/battery-megapack.png';
-import batteryReservoir from '@/assets/nft/battery-reservoir.png';
-import batteryDynamo from '@/assets/nft/battery-dynamo.png';
-import batteryGigabank from '@/assets/nft/battery-gigabank.png';
-import batteryUltrabank from '@/assets/nft/battery-ultrabank.png';
+import batteryVoltbank from '@/assets/nft/battery-powerwall.png';
+import batteryGridpulse from '@/assets/nft/battery-gridlink.png';
+import batteryMegacell from '@/assets/nft/battery-megapack.png';
+import batteryReservex from '@/assets/nft/battery-reservoir.png';
+import batteryDynamax from '@/assets/nft/battery-dynamo.png';
+import batteryUltracell from '@/assets/nft/battery-gigabank.png';
+import batteryGigavolt from '@/assets/nft/battery-ultrabank.png';
 
 // EV Charging NFTs (8 tiers)
-import chargeSpark from '@/assets/nft/charge-spark.png';
-import chargeSupercharger from '@/assets/nft/charge-supercharger.png';
-import chargeMegavolt from '@/assets/nft/charge-megavolt.png';
-import chargeAmperage from '@/assets/nft/charge-amperage.png';
-import chargeDestination from '@/assets/nft/charge-destination.png';
-import chargeGigawatt from '@/assets/nft/charge-gigawatt.png';
-import chargeMegawatt from '@/assets/nft/charge-megawatt.png';
-import chargeTerawatt from '@/assets/nft/charge-terawatt.png';
+import chargeIgnite from '@/assets/nft/charge-spark.png';
+import chargeVoltcharge from '@/assets/nft/charge-supercharger.png';
+import chargeKilovolt from '@/assets/nft/charge-megavolt.png';
+import chargeAmpforge from '@/assets/nft/charge-amperage.png';
+import chargeChargepoint from '@/assets/nft/charge-destination.png';
+import chargeGigacharge from '@/assets/nft/charge-gigawatt.png';
+import chargeMegacharge from '@/assets/nft/charge-megawatt.png';
+import chargeTeracharge from '@/assets/nft/charge-terawatt.png';
 
 // EV Miles NFTs (10 tiers)
-import evIgnition from '@/assets/nft/ev-ignition.png';
-import evCruiser from '@/assets/nft/ev-cruiser.png';
+import evSparkstart from '@/assets/nft/ev-ignition.png';
+import evVelocity from '@/assets/nft/ev-cruiser.png';
 import evAutobahn from '@/assets/nft/ev-autobahn.png';
-import evHyperlane from '@/assets/nft/ev-hyperlane.png';
-import evRoadster from '@/assets/nft/ev-roadster.png';
-import evPlaid from '@/assets/nft/ev-plaid.png';
-import evLudicrous from '@/assets/nft/ev-ludicrous.png';
-import evCenturion from '@/assets/nft/ev-centurion.png';
+import evHyperdrive from '@/assets/nft/ev-hyperlane.png';
+import evElectra from '@/assets/nft/ev-roadster.png';
+import evVelocityPro from '@/assets/nft/ev-plaid.png';
+import evMachOne from '@/assets/nft/ev-ludicrous.png';
+import evCentauri from '@/assets/nft/ev-centurion.png';
 import evVoyager from '@/assets/nft/ev-voyager.png';
-import evLegend from '@/assets/nft/ev-legend.png';
+import evOdyssey from '@/assets/nft/ev-legend.png';
 
-// Combo NFTs (9 tiers)
-import comboDuality from '@/assets/nft/combo-duality.png';
-import comboTrifecta from '@/assets/nft/combo-trifecta.png';
-import comboQuadrant from '@/assets/nft/combo-quadrant.png';
-import comboConstellation from '@/assets/nft/combo-constellation.png';
-import comboEcosystem from '@/assets/nft/combo-ecosystem.png';
-import comboSovereign from '@/assets/nft/combo-sovereign.png';
-import comboMaster from '@/assets/nft/combo-master.png';
-import comboApex from '@/assets/nft/combo-apex.png';
-import comboZenith from '@/assets/nft/combo-zenith.png';
+// Combo NFTs (8 tiers)
+import comboDualPioneer from '@/assets/nft/combo-duality.png';
+import comboTripleTrailblazer from '@/assets/nft/combo-trifecta.png';
+import comboQuintessence from '@/assets/nft/combo-quadrant.png';
+import comboDecaDriver from '@/assets/nft/combo-constellation.png';
+import comboVigorVanguard from '@/assets/nft/combo-ecosystem.png';
+import comboZenithAchiever from '@/assets/nft/combo-sovereign.png';
+import comboApexMaster from '@/assets/nft/combo-master.png';
+import comboTotalEclipse from '@/assets/nft/combo-apex.png';
 
 // Map milestone IDs to their artwork
 export const NFT_ARTWORK: Record<string, string> = {
@@ -62,56 +61,55 @@ export const NFT_ARTWORK: Record<string, string> = {
   welcome: welcomeNft,
   
   // Solar (8 tiers)
-  solar_1: solarSunlink,
-  solar_2: solarPhoton,
-  solar_3: solarRayfield,
-  solar_4: solarSolarflare,
-  solar_5: solarHeliogen,
-  solar_6: solarSunvault,
-  solar_7: solarGigasol,
-  solar_8: solarStarpower,
+  solar_1: solarSunspark,
+  solar_2: solarPhotonic,
+  solar_3: solarRayforge,
+  solar_4: solarSolaris,
+  solar_5: solarHelios,
+  solar_6: solarSunforge,
+  solar_7: solarGigasun,
+  solar_8: solarStarforge,
   
   // Battery (7 tiers)
-  battery_1: batteryPowerwall,
-  battery_2: batteryGridlink,
-  battery_3: batteryMegapack,
-  battery_4: batteryReservoir,
-  battery_5: batteryDynamo,
-  battery_6: batteryGigabank,
-  battery_7: batteryUltrabank,
+  battery_1: batteryVoltbank,
+  battery_2: batteryGridpulse,
+  battery_3: batteryMegacell,
+  battery_4: batteryReservex,
+  battery_5: batteryDynamax,
+  battery_6: batteryUltracell,
+  battery_7: batteryGigavolt,
   
   // EV Charging (8 tiers)
-  charge_1: chargeSpark,
-  charge_2: chargeSupercharger,
-  charge_3: chargeMegavolt,
-  charge_4: chargeAmperage,
-  charge_5: chargeDestination,
-  charge_6: chargeGigawatt,
-  charge_7: chargeMegawatt,
-  charge_8: chargeTerawatt,
+  charge_1: chargeIgnite,
+  charge_2: chargeVoltcharge,
+  charge_3: chargeKilovolt,
+  charge_4: chargeAmpforge,
+  charge_5: chargeChargepoint,
+  charge_6: chargeGigacharge,
+  charge_7: chargeMegacharge,
+  charge_8: chargeTeracharge,
   
   // EV Miles (10 tiers)
-  ev_1: evIgnition,
-  ev_2: evCruiser,
+  ev_1: evSparkstart,
+  ev_2: evVelocity,
   ev_3: evAutobahn,
-  ev_4: evHyperlane,
-  ev_5: evRoadster,
-  ev_6: evPlaid,
-  ev_7: evLudicrous,
-  ev_8: evCenturion,
+  ev_4: evHyperdrive,
+  ev_5: evElectra,
+  ev_6: evVelocityPro,
+  ev_7: evMachOne,
+  ev_8: evCentauri,
   ev_9: evVoyager,
-  ev_10: evLegend,
+  ev_10: evOdyssey,
   
-  // Combos (9 tiers)
-  combo_1: comboDuality,
-  combo_2: comboTrifecta,
-  combo_3: comboQuadrant,
-  combo_4: comboConstellation,
-  combo_5: comboEcosystem,
-  combo_6: comboSovereign,
-  combo_7: comboMaster,
-  combo_8: comboApex,
-  combo_9: comboZenith,
+  // Combos (8 tiers)
+  combo_1: comboDualPioneer,
+  combo_2: comboTripleTrailblazer,
+  combo_3: comboQuintessence,
+  combo_4: comboDecaDriver,
+  combo_5: comboVigorVanguard,
+  combo_6: comboZenithAchiever,
+  combo_7: comboApexMaster,
+  combo_8: comboTotalEclipse,
 };
 
 // Get artwork for a milestone ID
