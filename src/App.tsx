@@ -19,6 +19,8 @@ import Index from "./pages/Index";
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
 const Demo = lazy(() => import("./pages/Demo"));
+const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
+const DemoDashboard = lazy(() => import("./components/demo/DemoDashboard").then(m => ({ default: m.DemoDashboard })));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
@@ -82,7 +84,24 @@ const App = () => {
                   <Routes>
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/install" element={<Install />} />
-                    <Route path="/demo" element={<Demo />} />
+                    
+                    {/* Demo routes with full sidebar */}
+                    <Route path="/demo" element={<DemoLayout />}>
+                      <Route index element={<DemoDashboard />} />
+                      <Route path="nft-collection" element={<NftCollection />} />
+                      <Route path="how-it-works" element={<HowItWorks />} />
+                      <Route path="technology" element={<Technology />} />
+                      <Route path="store" element={<Store />} />
+                      <Route path="tokenomics" element={<Tokenomics />} />
+                      <Route path="mint-history" element={<MintHistory />} />
+                      <Route path="referrals" element={<Referrals />} />
+                      <Route path="notifications" element={<Notifications />} />
+                      <Route path="profile" element={<Profile />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="about" element={<About />} />
+                      <Route path="help" element={<Help />} />
+                      <Route path="feedback" element={<Feedback />} />
+                    </Route>
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
