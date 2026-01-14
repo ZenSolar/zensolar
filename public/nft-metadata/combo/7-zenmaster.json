@@ -1,7 +1,7 @@
 {
   "name": "ZenMaster",
   "description": "Maxed out any category completely. True mastery of sustainable energy achieved!",
-  "image": "ipfs://REPLACE_WITH_CID/combo/zenmaster.png",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/combo/zenmaster.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Combo" },
