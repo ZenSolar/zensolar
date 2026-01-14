@@ -2,7 +2,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { config } from '@/lib/wagmi';
+import { config, CHAIN_ID } from '@/lib/wagmi';
 import { ReactNode } from 'react';
 import { useTheme } from 'next-themes';
 
@@ -27,7 +27,7 @@ function RainbowKitWrapper({ children }: { children: ReactNode }) {
         borderRadius: 'medium',
       })}
       modalSize="compact"
-      initialChain={11155111} // Start on Sepolia
+      initialChain={CHAIN_ID}
     >
       {children}
     </RainbowKitProvider>
