@@ -13,7 +13,7 @@ import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Loader2 } from 'lucide-react';
-import zenLogo from '@/assets/zen-logo.webp';
+import zenLogo from '@/assets/zen-logo.png';
 
 // Simple SVG icons for social platforms
 const FacebookIcon = () => (
