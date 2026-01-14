@@ -1,0 +1,17 @@
+{
+  "name": "Electra",
+  "description": "10,000 electric miles driven. Electra-powered and unstoppable!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/ev/electra.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "EV Miles" },
+    { "trait_type": "Threshold", "value": 10000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "miles" },
+    { "trait_type": "Token ID", "value": 28, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "ev_5" },
+    { "trait_type": "Tier", "value": 5, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Rare" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 10000, "display_type": "number" }
+  ]
+}

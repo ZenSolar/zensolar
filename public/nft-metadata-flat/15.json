@@ -1,0 +1,17 @@
+{
+  "name": "Gigavolt",
+  "description": "50,000 kWh of battery discharge. Gigavolt-level power mastery!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/battery/gigavolt.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Battery" },
+    { "trait_type": "Threshold", "value": 50000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Token ID", "value": 15, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "battery_7" },
+    { "trait_type": "Tier", "value": 7, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Legendary" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 50000, "display_type": "number" }
+  ]
+}

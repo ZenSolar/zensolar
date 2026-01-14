@@ -1,0 +1,15 @@
+{
+  "name": "Trifecta",
+  "description": "Earned NFTs in 3 different categories. Triple-threat sustainability master!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/combo/trifecta.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "3 categories" },
+    { "trait_type": "Token ID", "value": 35, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "combo_2" },
+    { "trait_type": "Tier", "value": 2, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Rare" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}

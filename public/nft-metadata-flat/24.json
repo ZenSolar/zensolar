@@ -1,0 +1,17 @@
+{
+  "name": "Ignitor",
+  "description": "100 electric miles driven. Your EV journey has begun!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/ev/ignitor.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "EV Miles" },
+    { "trait_type": "Threshold", "value": 100, "display_type": "number" },
+    { "trait_type": "Unit", "value": "miles" },
+    { "trait_type": "Token ID", "value": 24, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "ev_1" },
+    { "trait_type": "Tier", "value": 1, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Common" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 100, "display_type": "number" }
+  ]
+}

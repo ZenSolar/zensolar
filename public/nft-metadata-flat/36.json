@@ -1,0 +1,15 @@
+{
+  "name": "Quadrant",
+  "description": "Earned 5 category NFTs total. Quadrant-level achievement unlocked!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/combo/quadrant.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "5 total NFTs" },
+    { "trait_type": "Token ID", "value": 36, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "combo_3" },
+    { "trait_type": "Tier", "value": 3, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Rare" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}

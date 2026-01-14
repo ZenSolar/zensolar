@@ -1,0 +1,17 @@
+{
+  "name": "Voltbank",
+  "description": "500 kWh of battery discharge. Your energy bank is active!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/battery/voltbank.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Battery" },
+    { "trait_type": "Threshold", "value": 500, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Token ID", "value": 9, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "battery_1" },
+    { "trait_type": "Tier", "value": 1, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Common" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 500, "display_type": "number" }
+  ]
+}

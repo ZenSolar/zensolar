@@ -1,0 +1,17 @@
+{
+  "name": "Kilovolt",
+  "description": "1,000 kWh of EV charging. Kilovolt-level charging mastery!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/charging/kilovolt.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Charging" },
+    { "trait_type": "Threshold", "value": 1000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Token ID", "value": 18, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "charge_3" },
+    { "trait_type": "Tier", "value": 3, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Uncommon" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 1000, "display_type": "number" }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Teracharge",
+  "description": "25,000 kWh of EV charging. Terawatt charging legend!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/charging/teracharge.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Charging" },
+    { "trait_type": "Threshold", "value": 25000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Token ID", "value": 23, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "charge_8" },
+    { "trait_type": "Tier", "value": 8, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Mythic" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 25000, "display_type": "number" }
+  ]
+}

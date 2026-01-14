@@ -1,0 +1,15 @@
+{
+  "name": "Duality",
+  "description": "Earned NFTs in 2 different categories. Dual-powered sustainability champion!",
+  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/combo/duality.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
+  "attributes": [
+    { "trait_type": "Category", "value": "Combo" },
+    { "trait_type": "Requirement", "value": "2 categories" },
+    { "trait_type": "Token ID", "value": 34, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "combo_1" },
+    { "trait_type": "Tier", "value": 1, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Uncommon" },
+    { "trait_type": "Redeemable", "value": "No" }
+  ]
+}
