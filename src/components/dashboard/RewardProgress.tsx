@@ -12,8 +12,10 @@ import {
   EV_MILES_MILESTONES,
   EV_CHARGING_MILESTONES,
   BATTERY_MILESTONES,
+  COMBO_MILESTONES,
   calculateEarnedMilestones,
   getNextMilestone,
+  calculateComboAchievements,
   type NFTMilestone,
 } from '@/lib/nftMilestones';
 import { NFTBadge, NFTBadgeInline } from '@/components/ui/nft-badge';
@@ -167,6 +169,9 @@ export function RewardProgress({
   const evChargingEarned = calculateEarnedMilestones(evChargingKwh, EV_CHARGING_MILESTONES);
   const batteryEarned = calculateEarnedMilestones(batteryDischargedKwh, BATTERY_MILESTONES);
   
+  // Calculate combo achievements
+  const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
+  
   // Get next milestones
   const solarNext = getNextMilestone(solarKwh, SOLAR_MILESTONES);
   const evMilesNext = getNextMilestone(evMilesDriven, EV_MILES_MILESTONES);
@@ -174,7 +179,7 @@ export function RewardProgress({
   const batteryNext = getNextMilestone(batteryDischargedKwh, BATTERY_MILESTONES);
   
   // Total NFTs earned (add 1 for welcome NFT)
-  const totalEarned = 1 + solarEarned.length + evMilesEarned.length + evChargingEarned.length + batteryEarned.length;
+  const totalEarned = 1 + solarEarned.length + evMilesEarned.length + evChargingEarned.length + batteryEarned.length + comboEarned.length;
 
   return (
     <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-transparent overflow-hidden">
@@ -297,6 +302,9 @@ export function RewardProgress({
             </TabsContent>
           </AnimatePresence>
         </Tabs>
+        
+        {/* Combo Achievements */}
+        <ComboAchievements combos={comboEarned} />
 
         {/* View Full Collection Link */}
         <div className="pt-2 flex flex-col items-center gap-2">
@@ -308,7 +316,7 @@ export function RewardProgress({
             </Link>
           </Button>
           <p className="text-[10px] text-muted-foreground/60 text-center">
-            Track your progress and earn milestone NFTs! 🎯
+            Earn NFTs across categories to unlock combo achievements! 🎯
           </p>
         </div>
       </CardContent>
