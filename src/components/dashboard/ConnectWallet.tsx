@@ -217,15 +217,48 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
             >
               {(() => {
                 if (!connected) {
+                  const metaMaskHref = (() => {
+                    if (typeof window === 'undefined') return '#';
+                    const dappPath = `${window.location.host}${window.location.pathname}`;
+                    // MetaMask Mobile deep-link (opens the dapp inside MetaMask in-app browser)
+                    return `https://metamask.app.link/dapp/${dappPath}`;
+                  })();
+
+                  const isMobile =
+                    typeof navigator !== 'undefined' &&
+                    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                  const isStandalone = (() => {
+                    if (typeof window === 'undefined') return false;
+                    const iosStandalone = (navigator as any)?.standalone === true;
+                    const displayModeStandalone = window.matchMedia?.('(display-mode: standalone)')?.matches === true;
+                    return iosStandalone || displayModeStandalone;
+                  })();
+
+                  const showMetaMaskFallback = isMobile && isStandalone;
+
                   return (
-                    <button
-                      onClick={openConnectModal}
-                      type="button"
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
-                    >
-                      <Wallet className="h-4 w-4" />
-                      Connect Wallet
-                    </button>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={openConnectModal}
+                        type="button"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
+                      >
+                        <Wallet className="h-4 w-4" />
+                        Connect Wallet
+                      </button>
+
+                      {showMetaMaskFallback && (
+                        <>
+                          <Button asChild variant="secondary" size="sm" className="w-full">
+                            <a href={metaMaskHref}>Open MetaMask to Connect</a>
+                          </Button>
+                          <p className="text-xs text-muted-foreground text-center">
+                            If the wallet list buttons don’t respond, connect via MetaMask’s in-app browser.
+                          </p>
+                        </>
+                      )}
+                    </div>
                   );
                 }
 
