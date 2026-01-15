@@ -5,8 +5,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NFTDetailModal } from '@/components/nft/NFTDetailModal';
 import { 
   Award, 
   Trophy, 
@@ -19,7 +19,6 @@ import {
   CheckCircle2,
   TrendingUp,
   Target,
-  X,
   Crown
 } from 'lucide-react';
 import {
@@ -546,109 +545,13 @@ export default function NftCollection() {
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-6 space-y-8">
-      {/* NFT Artwork Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-background/95 backdrop-blur-xl">
-          {selectedNft && (
-            <>
-              {/* Large Artwork Display */}
-              <div className={`relative w-full aspect-square ${!getIsEarned(selectedNft) && 'grayscale opacity-70'}`}>
-                {getNftArtwork(selectedNft.id) ? (
-                  <img 
-                    src={getNftArtwork(selectedNft.id)!} 
-                    alt={selectedNft.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-muted">
-                    <NFTBadge 
-                      milestoneId={selectedNft.id} 
-                      size="xl" 
-                      isEarned={getIsEarned(selectedNft)}
-                      color={selectedNft.color}
-                      showGlow={getIsEarned(selectedNft)}
-                    />
-                  </div>
-                )}
-                
-                {/* Status Badge */}
-                <div className="absolute top-4 right-4">
-                  {getIsEarned(selectedNft) ? (
-                    <Badge className="bg-primary text-primary-foreground gap-1.5 px-3 py-1.5 text-sm">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Earned
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="gap-1.5 px-3 py-1.5 text-sm opacity-90">
-                      <Lock className="h-4 w-4" />
-                      Locked
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Close Button */}
-                <button 
-                  onClick={() => setDialogOpen(false)}
-                  className="absolute top-4 left-4 p-2 rounded-full bg-background/80 hover:bg-background transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {/* NFT Details */}
-              <div className="p-6 space-y-4">
-                <div className="flex items-start gap-4">
-                  <NFTBadge 
-                    milestoneId={selectedNft.id} 
-                    size="lg" 
-                    isEarned={getIsEarned(selectedNft)}
-                    color={selectedNft.color}
-                    showGlow={getIsEarned(selectedNft)}
-                  />
-                  <div className="flex-1">
-                    <h2 className="text-xl font-bold">{selectedNft.name}</h2>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {selectedNft.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Achievement Details */}
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Requirement</p>
-                    <p className="font-semibold">
-                      {selectedNft.threshold > 0 
-                        ? `${selectedNft.threshold.toLocaleString()}` 
-                        : 'Welcome NFT'}
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Rarity</p>
-                    <p className="font-semibold capitalize">
-                      {selectedNft.threshold === 0 ? 'Common' :
-                       selectedNft.threshold <= 100 ? 'Uncommon' :
-                       selectedNft.threshold <= 1000 ? 'Rare' :
-                       selectedNft.threshold <= 10000 ? 'Epic' : 'Legendary'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mint Status */}
-                {getIsEarned(selectedNft) && (
-                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
-                    <Sparkles className="h-5 w-5 text-primary mx-auto mb-2" />
-                    <p className="text-sm font-medium">Ready to Mint</p>
-                    <p className="text-xs text-muted-foreground">
-                      This NFT can be minted to your connected wallet
-                    </p>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* NFT Detail Modal */}
+      <NFTDetailModal
+        milestone={selectedNft}
+        isEarned={getIsEarned(selectedNft)}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
 
       {/* Page Header */}
       <div className="text-center space-y-2">
