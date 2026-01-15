@@ -36,6 +36,10 @@ interface UserDevice {
   device_type: string;
   device_name: string | null;
   provider: string;
+  baseline_data: {
+    odometer?: number;
+    total_charge_energy_added_kwh?: number;
+  } | null;
 }
 
 interface MintRecord {
@@ -54,6 +58,8 @@ interface UserKPIs {
   devices: UserDevice[];
   total_production_kwh: number;
   total_consumption_kwh: number;
+  total_ev_miles: number;
+  total_charging_kwh: number;
   total_tokens_earned: number;
   total_tokens_claimed: number;
   total_tokens_pending: number;
@@ -112,12 +118,33 @@ const CHARGING_THRESHOLDS = [
   { name: 'TeraCharge', threshold: 50000 },
 ];
 
-function calculateEarnedNFTs(productionKwh: number): string[] {
+interface EnergyData {
+  productionKwh: number;
+  evMiles: number;
+  chargingKwh: number;
+}
+
+function calculateEarnedNFTs(data: EnergyData): string[] {
   const earned: string[] = ['Welcome'];
   
+  // Solar NFTs
   SOLAR_THRESHOLDS.forEach(t => {
-    if (productionKwh >= t.threshold) {
-      earned.push(t.name);
+    if (data.productionKwh >= t.threshold) {
+      earned.push(`Solar: ${t.name}`);
+    }
+  });
+  
+  // EV Miles NFTs
+  EV_MILES_THRESHOLDS.forEach(t => {
+    if (data.evMiles >= t.threshold) {
+      earned.push(`EV: ${t.name}`);
+    }
+  });
+  
+  // Charging NFTs
+  CHARGING_THRESHOLDS.forEach(t => {
+    if (data.chargingKwh >= t.threshold) {
+      earned.push(`Charging: ${t.name}`);
     }
   });
   
@@ -282,6 +309,45 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
         <TableRow className="bg-muted/30 hover:bg-muted/30">
           <TableCell colSpan={10} className="p-0">
             <div className="p-4 space-y-4">
+              {/* Energy Activity Summary */}
+              {kpi && (kpi.total_ev_miles > 0 || kpi.total_charging_kwh > 0 || kpi.total_production_kwh > 0) && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-primary" />
+                    Energy Activity
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {kpi.total_production_kwh > 0 && (
+                      <div className="bg-background rounded-lg p-3 border">
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                          <Sun className="h-3 w-3" />
+                          Solar Production
+                        </div>
+                        <div className="font-semibold text-primary">{formatNumber(kpi.total_production_kwh)} kWh</div>
+                      </div>
+                    )}
+                    {kpi.total_ev_miles > 0 && (
+                      <div className="bg-background rounded-lg p-3 border">
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                          <Car className="h-3 w-3" />
+                          EV Miles Driven
+                        </div>
+                        <div className="font-semibold text-secondary">{formatNumber(kpi.total_ev_miles)} mi</div>
+                      </div>
+                    )}
+                    {kpi.total_charging_kwh > 0 && (
+                      <div className="bg-background rounded-lg p-3 border">
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                          <Plug className="h-3 w-3" />
+                          Charging Energy
+                        </div>
+                        <div className="font-semibold text-accent-foreground">{formatNumber(kpi.total_charging_kwh)} kWh</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               {/* Devices */}
               {kpi && kpi.devices.length > 0 && (
                 <div>
@@ -293,6 +359,7 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
                     {kpi.devices.map((device) => (
                       <Badge key={device.id} variant="outline" className="text-xs">
                         {device.provider}: {device.device_name || device.device_type}
+                        {device.baseline_data?.odometer && ` (${formatNumber(device.baseline_data.odometer)} mi)`}
                       </Badge>
                     ))}
                   </div>
@@ -421,7 +488,7 @@ export default function AdminUsers() {
     // Fetch push subscription status, devices, production, and rewards in parallel
     const [pushResult, devicesResult, productionResult, rewardsResult] = await Promise.all([
       supabase.from('push_subscriptions').select('user_id'),
-      supabase.from('connected_devices').select('id, user_id, provider, device_type, device_name'),
+      supabase.from('connected_devices').select('id, user_id, provider, device_type, device_name, baseline_data'),
       supabase.from('energy_production').select('user_id, production_wh, consumption_wh'),
       supabase.from('user_rewards').select('id, user_id, reward_type, tokens_earned, energy_wh_basis, claimed, claimed_at, created_at').order('created_at', { ascending: false }),
     ]);
@@ -446,6 +513,8 @@ export default function AdminUsers() {
         devices: [],
         total_production_kwh: 0,
         total_consumption_kwh: 0,
+        total_ev_miles: 0,
+        total_charging_kwh: 0,
         total_tokens_earned: 0,
         total_tokens_claimed: 0,
         total_tokens_pending: 0,
@@ -454,18 +523,33 @@ export default function AdminUsers() {
       });
     });
 
-    // Process devices per user
+    // Process devices per user (including EV data from baseline)
     if (!devicesResult.error && devicesResult.data) {
       devicesResult.data.forEach(device => {
         const existing = kpiMap.get(device.user_id);
         if (existing) {
           existing.device_count++;
+          
+          // Parse baseline_data for EV metrics
+          const baselineData = device.baseline_data as { odometer?: number; total_charge_energy_added_kwh?: number } | null;
+          
           existing.devices.push({
             id: device.id,
             device_type: device.device_type,
             device_name: device.device_name,
             provider: device.provider,
+            baseline_data: baselineData,
           });
+          
+          // Aggregate EV data from vehicle devices
+          if (device.device_type === 'vehicle' && baselineData) {
+            if (baselineData.odometer) {
+              existing.total_ev_miles += baselineData.odometer;
+            }
+            if (baselineData.total_charge_energy_added_kwh) {
+              existing.total_charging_kwh += baselineData.total_charge_energy_added_kwh;
+            }
+          }
         }
       });
     }
@@ -506,9 +590,13 @@ export default function AdminUsers() {
       });
     }
 
-    // Calculate NFTs earned based on production
+    // Calculate NFTs earned based on all energy data
     kpiMap.forEach((kpi) => {
-      kpi.nfts_earned = calculateEarnedNFTs(kpi.total_production_kwh);
+      kpi.nfts_earned = calculateEarnedNFTs({
+        productionKwh: kpi.total_production_kwh,
+        evMiles: kpi.total_ev_miles,
+        chargingKwh: kpi.total_charging_kwh,
+      });
     });
 
     setUserKPIs(kpiMap);
