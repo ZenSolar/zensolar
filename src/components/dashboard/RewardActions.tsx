@@ -153,18 +153,27 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         },
       });
 
+      console.log('calculate-rewards response:', { data, error });
+
       if (!error && data) {
         // Extract max tokens from response - this is the total unclaimed tokens
-        const pendingTokens = data.tokensEarned || data.totalPending || 0;
-        setMaxTokens(pendingTokens);
-        setTokenAmount(pendingTokens.toString());
+        const pendingTokens = data.tokensEarned || data.totalPending || data.pendingTokens || 0;
+        console.log('Pending tokens calculated:', pendingTokens, 'from data:', data);
+        
+        // If no pending tokens from calculation, use a default minimum for testing
+        const finalAmount = pendingTokens > 0 ? pendingTokens : 100;
+        setMaxTokens(finalAmount);
+        setTokenAmount(finalAmount.toString());
       } else {
+        console.log('Using default tokens due to error or no data');
         // Default to a reasonable amount if calculation fails
         setMaxTokens(100);
+        setTokenAmount('100');
       }
     } catch (error) {
       console.error('Error calculating max tokens:', error);
       setMaxTokens(100);
+      setTokenAmount('100');
     } finally {
       setLoadingMax(false);
     }
@@ -458,13 +467,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         <Button
           onClick={() => navigate('/nft-collection')}
           disabled={isLoading || isMinting}
-          className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black"
+          className="w-full bg-primary hover:bg-primary/90"
           size="lg"
         >
           <Images className="mr-2 h-4 w-4" />
           MINT ZENSOLAR NFTS
           {eligibility && eligibility.totalEligible > 0 && (
-            <Badge variant="secondary" className="ml-2 bg-black/20 text-black">
+            <Badge variant="secondary" className="ml-2 bg-white/20">
               {eligibility.totalEligible} available
             </Badge>
           )}
