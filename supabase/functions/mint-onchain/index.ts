@@ -34,13 +34,54 @@ const NFT_ABI = parseAbi([
   "function getOwnedTokens(address user) external view returns (uint256[])",
 ]);
 
+// NFT name mappings
+const NFT_NAMES: Record<number, string> = {
+  0: "Welcome",
+  1: "Sunspark", 2: "Photonic", 3: "Rayforge", 4: "Solaris", 5: "Helios", 6: "Sunforge", 7: "Gigasun", 8: "Starforge",
+  9: "Voltbank", 10: "Gridpulse", 11: "Megacell", 12: "Reservex", 13: "Dynamax", 14: "Ultracell", 15: "Gigavolt",
+  16: "Ignite", 17: "Voltcharge", 18: "Kilovolt", 19: "Ampforge", 20: "Chargeon", 21: "Gigacharge", 22: "Megacharge", 23: "Teracharge",
+  24: "Ignitor", 25: "Velocity", 26: "Autobahn", 27: "Hyperdrive", 28: "Electra", 29: "Velocity Pro", 30: "Mach One", 31: "Centaurion", 32: "Voyager", 33: "Odyssey",
+  34: "Duality", 35: "Trifecta", 36: "Quadrant", 37: "Constellation", 38: "Cyber Echo", 39: "Zenith", 40: "ZenMaster", 41: "Total Eclipse",
+};
+
+// Helper to record transaction in database
+async function recordTransaction(
+  supabaseClient: any,
+  userId: string,
+  txHash: string,
+  blockNumber: string,
+  action: string,
+  walletAddress: string,
+  tokensMinted: number = 0,
+  nftsMinted: number[] = [],
+  status: string = "confirmed"
+) {
+  try {
+    const nftNames = nftsMinted.map(id => NFT_NAMES[id] || `Token #${id}`);
+    
+    await supabaseClient.from("mint_transactions").insert({
+      user_id: userId,
+      tx_hash: txHash,
+      block_number: blockNumber,
+      action,
+      wallet_address: walletAddress,
+      tokens_minted: tokensMinted,
+      nfts_minted: nftsMinted,
+      nft_names: nftNames,
+      status,
+    });
+    console.log("Transaction recorded:", txHash);
+  } catch (error) {
+    console.error("Failed to record transaction:", error);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get minter private key from secrets
     const minterPrivateKey = Deno.env.get("MINTER_PRIVATE_KEY");
     if (!minterPrivateKey) {
       console.error("MINTER_PRIVATE_KEY not configured");
@@ -50,12 +91,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Ensure private key has 0x prefix
     const formattedPrivateKey = minterPrivateKey.startsWith("0x") 
       ? minterPrivateKey as `0x${string}`
       : `0x${minterPrivateKey}` as `0x${string}`;
 
-    // Create viem clients
     const account = privateKeyToAccount(formattedPrivateKey);
     
     const publicClient = createPublicClient({
@@ -71,7 +110,6 @@ Deno.serve(async (req) => {
 
     console.log("Minter wallet address:", account.address);
 
-    // Auth check
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -96,7 +134,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get request body
     const body = await req.json();
     const { action, walletAddress, tokenIds, comboTypes, solarDelta, evMilesDelta, batteryDelta, chargingDelta } = body;
 
@@ -107,7 +144,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Validate wallet address format
     if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
       return new Response(JSON.stringify({ error: "Invalid wallet address format" }), {
         status: 400,
@@ -117,11 +153,10 @@ Deno.serve(async (req) => {
 
     console.log(`Processing ${action} for user ${user.id}, wallet ${walletAddress}`);
 
-    // Check minter has enough ETH for gas
     const minterBalance = await publicClient.getBalance({ address: account.address });
     console.log("Minter ETH balance:", formatEther(minterBalance));
     
-    if (minterBalance < BigInt(1e15)) { // Less than 0.001 ETH
+    if (minterBalance < BigInt(1e15)) {
       return new Response(JSON.stringify({ 
         error: "Minter wallet needs more ETH for gas fees",
         minterBalance: formatEther(minterBalance)
@@ -133,7 +168,6 @@ Deno.serve(async (req) => {
 
     // Action: Register user (mint Welcome NFT)
     if (action === "register") {
-      // Check if user already has Welcome NFT
       const hasWelcome = await publicClient.readContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
@@ -151,7 +185,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Register user (mints Welcome NFT)
       console.log("Registering user and minting Welcome NFT...");
       const hash = await walletClient.writeContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
@@ -161,15 +194,29 @@ Deno.serve(async (req) => {
       });
 
       console.log("Register tx hash:", hash);
-
-      // Wait for confirmation
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       console.log("Register tx confirmed, status:", receipt.status);
+
+      // Record transaction
+      if (receipt.status === "success") {
+        await recordTransaction(
+          supabaseClient,
+          user.id,
+          hash,
+          receipt.blockNumber.toString(),
+          "register",
+          walletAddress,
+          0,
+          [0] // Welcome NFT token ID
+        );
+      }
 
       return new Response(JSON.stringify({
         success: receipt.status === "success",
         txHash: hash,
         blockNumber: receipt.blockNumber.toString(),
+        nftsMinted: [0],
+        nftNames: ["Welcome"],
         message: receipt.status === "success" 
           ? "Welcome NFT minted successfully!" 
           : "Transaction failed",
@@ -196,43 +243,70 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Get NFTs before minting to compare after
+      const nftsBefore = await publicClient.readContract({
+        address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+        abi: NFT_ABI,
+        functionName: "getOwnedTokens",
+        args: [walletAddress as `0x${string}`],
+      }) as bigint[];
+      const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
+
       console.log(`Minting rewards: solar=${solar}, evMiles=${evMiles}, battery=${battery}, charging=${charging}`);
 
       const hash = await walletClient.writeContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
         functionName: "mintRewards",
-        args: [
-          walletAddress as `0x${string}`,
-          solar,
-          evMiles,
-          battery,
-          charging,
-        ],
+        args: [walletAddress as `0x${string}`, solar, evMiles, battery, charging],
       });
 
       console.log("Mint rewards tx hash:", hash);
-
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       console.log("Mint rewards tx confirmed, status:", receipt.status);
 
-      // Calculate expected tokens (93% of total goes to user)
       const expectedTokens = Number(totalUnits) * 0.93;
+      let newNfts: number[] = [];
+
+      // Get NFTs after minting to see what was minted
+      if (receipt.status === "success") {
+        const nftsAfter = await publicClient.readContract({
+          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+          abi: NFT_ABI,
+          functionName: "getOwnedTokens",
+          args: [walletAddress as `0x${string}`],
+        }) as bigint[];
+        
+        newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
+        
+        await recordTransaction(
+          supabaseClient,
+          user.id,
+          hash,
+          receipt.blockNumber.toString(),
+          "mint-rewards",
+          walletAddress,
+          expectedTokens,
+          newNfts
+        );
+      }
 
       return new Response(JSON.stringify({
         success: receipt.status === "success",
         txHash: hash,
         blockNumber: receipt.blockNumber.toString(),
         tokensEstimate: expectedTokens,
+        nftsMinted: newNfts,
+        nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
         message: receipt.status === "success" 
-          ? `Minted ~${expectedTokens.toFixed(0)} $ZSOLAR tokens!` 
+          ? `Minted ~${expectedTokens.toFixed(0)} $ZSOLAR tokens${newNfts.length > 0 ? ` + ${newNfts.length} NFT(s)!` : '!'}` 
           : "Transaction failed",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-// Action: Mint combo NFTs
+    // Action: Mint combo NFTs
     if (action === "mint-combos") {
       if (!tokenIds || !Array.isArray(tokenIds) || tokenIds.length === 0) {
         return new Response(JSON.stringify({ error: "tokenIds array required" }), {
@@ -248,7 +322,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Validate token IDs are in combo range (34-41)
       const invalidIds = tokenIds.filter(id => id < 34 || id > 41);
       if (invalidIds.length > 0) {
         return new Response(JSON.stringify({ 
@@ -265,23 +338,33 @@ Deno.serve(async (req) => {
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
         functionName: "mintComboNFTBatch",
-        args: [
-          walletAddress as `0x${string}`,
-          tokenIds.map(id => BigInt(id)),
-          comboTypes,
-        ],
+        args: [walletAddress as `0x${string}`, tokenIds.map(id => BigInt(id)), comboTypes],
       });
 
       console.log("Mint combos tx hash:", hash);
-
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       console.log("Mint combos tx confirmed, status:", receipt.status);
+
+      if (receipt.status === "success") {
+        await recordTransaction(
+          supabaseClient,
+          user.id,
+          hash,
+          receipt.blockNumber.toString(),
+          "mint-combos",
+          walletAddress,
+          0,
+          tokenIds
+        );
+      }
 
       return new Response(JSON.stringify({
         success: receipt.status === "success",
         txHash: hash,
         blockNumber: receipt.blockNumber.toString(),
         mintedCount: tokenIds.length,
+        nftsMinted: tokenIds,
+        nftNames: tokenIds.map(id => NFT_NAMES[id] || `Token #${id}`),
         message: receipt.status === "success" 
           ? `Minted ${tokenIds.length} combo NFT(s)!` 
           : "Transaction failed",
@@ -292,7 +375,6 @@ Deno.serve(async (req) => {
 
     // Action: Check which NFTs user is eligible for
     if (action === "check-eligible") {
-      // Get user's on-chain stats
       const userStats = await publicClient.readContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
@@ -302,7 +384,6 @@ Deno.serve(async (req) => {
 
       const [solar, evMiles, battery, charging, hasWelcome] = userStats;
 
-      // Get owned NFTs
       const ownedNFTs = await publicClient.readContract({
         address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
         abi: NFT_ABI,
@@ -312,10 +393,8 @@ Deno.serve(async (req) => {
 
       const ownedSet = new Set(ownedNFTs.map(id => Number(id)));
 
-      // Calculate eligible NFTs based on cumulative stats
       const eligibleNFTs: { tokenId: number; category: string; name: string; threshold: number }[] = [];
       
-      // Solar milestones (token IDs 1-8)
       const solarThresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
       const solarNames = ["Sunspark", "Photonic", "Rayforge", "Solaris", "Helios", "Sunforge", "Gigasun", "Starforge"];
       for (let i = 0; i < solarThresholds.length; i++) {
@@ -325,7 +404,6 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Battery milestones (token IDs 9-15)
       const batteryThresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000];
       const batteryNames = ["Voltbank", "Gridpulse", "Megacell", "Reservex", "Dynamax", "Ultracell", "Gigavolt"];
       for (let i = 0; i < batteryThresholds.length; i++) {
@@ -335,7 +413,6 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Charging milestones (token IDs 16-23)
       const chargingThresholds = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000];
       const chargingNames = ["Ignite", "Voltcharge", "Kilovolt", "Ampforge", "Chargeon", "Gigacharge", "Megacharge", "Teracharge"];
       for (let i = 0; i < chargingThresholds.length; i++) {
@@ -345,7 +422,6 @@ Deno.serve(async (req) => {
         }
       }
 
-      // EV Miles milestones (token IDs 24-33)
       const evMilesThresholds = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000];
       const evMilesNames = ["Ignitor", "Velocity", "Autobahn", "Hyperdrive", "Electra", "Velocity Pro", "Mach One", "Centaurion", "Voyager", "Odyssey"];
       for (let i = 0; i < evMilesThresholds.length; i++) {
@@ -355,7 +431,6 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Check for combo eligibility
       const solarCount = solarThresholds.filter((t, i) => Number(solar) >= t && ownedSet.has(i + 1)).length;
       const batteryCount = batteryThresholds.filter((t, i) => Number(battery) >= t && ownedSet.has(i + 9)).length;
       const chargingCount = chargingThresholds.filter((t, i) => Number(charging) >= t && ownedSet.has(i + 16)).length;
@@ -398,38 +473,64 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Action: Mint all eligible milestone NFTs (triggers via mintRewards with 0 delta to force check)
-    // Note: The contract auto-mints milestone NFTs when mintRewards is called and thresholds are met.
-    // This action is for manually claiming any missed NFTs by re-triggering the check.
+    // Action: Claim milestone NFTs
     if (action === "claim-milestone-nfts") {
       console.log("Claiming eligible milestone NFTs for:", walletAddress);
 
-      // Call mintRewards with 0 deltas - this triggers the milestone check without adding new activity
-      // The contract will mint any NFTs the user is eligible for but doesn't have
+      const nftsBefore = await publicClient.readContract({
+        address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+        abi: NFT_ABI,
+        functionName: "getOwnedTokens",
+        args: [walletAddress as `0x${string}`],
+      }) as bigint[];
+      const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
+
       const hash = await walletClient.writeContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
         functionName: "mintRewards",
-        args: [
-          walletAddress as `0x${string}`,
-          BigInt(0),
-          BigInt(0),
-          BigInt(0),
-          BigInt(0),
-        ],
+        args: [walletAddress as `0x${string}`, BigInt(0), BigInt(0), BigInt(0), BigInt(0)],
       });
 
       console.log("Claim milestone NFTs tx hash:", hash);
-
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       console.log("Claim milestone NFTs tx confirmed, status:", receipt.status);
+
+      let newNfts: number[] = [];
+      if (receipt.status === "success") {
+        const nftsAfter = await publicClient.readContract({
+          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+          abi: NFT_ABI,
+          functionName: "getOwnedTokens",
+          args: [walletAddress as `0x${string}`],
+        }) as bigint[];
+        
+        newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
+
+        if (newNfts.length > 0) {
+          await recordTransaction(
+            supabaseClient,
+            user.id,
+            hash,
+            receipt.blockNumber.toString(),
+            "claim-milestone-nfts",
+            walletAddress,
+            0,
+            newNfts
+          );
+        }
+      }
 
       return new Response(JSON.stringify({
         success: receipt.status === "success",
         txHash: hash,
         blockNumber: receipt.blockNumber.toString(),
+        nftsMinted: newNfts,
+        nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
         message: receipt.status === "success" 
-          ? "Milestone NFTs claimed! Check your wallet." 
+          ? newNfts.length > 0 
+            ? `Claimed ${newNfts.length} milestone NFT(s)!`
+            : "No new NFTs to claim."
           : "Transaction failed",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -459,18 +560,21 @@ Deno.serve(async (req) => {
         }),
       ]);
 
+      const ownedIds = (ownedNFTs as bigint[]).map(id => Number(id));
+
       return new Response(JSON.stringify({
         walletAddress,
         hasWelcomeNFT: hasWelcome,
         zsolarBalance: formatEther(tokenBalance as bigint),
-        ownedNFTTokenIds: (ownedNFTs as bigint[]).map(id => Number(id)),
-        nftCount: (ownedNFTs as bigint[]).length,
+        ownedNFTTokenIds: ownedIds,
+        ownedNFTNames: ownedIds.map(id => NFT_NAMES[id] || `Token #${id}`),
+        nftCount: ownedIds.length,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({ 
       error: "Invalid action. Use: register, mint-rewards, mint-combos, claim-milestone-nfts, check-eligible, status" 
     }), {
       status: 400,
@@ -482,7 +586,6 @@ return new Response(JSON.stringify({
     
     const errorMessage = error instanceof Error ? error.message : String(error);
     
-    // Check for common errors
     if (errorMessage.includes("insufficient funds")) {
       return new Response(JSON.stringify({ 
         error: "Minter wallet needs more ETH for gas fees" 
