@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NFTDetailModal } from '@/components/nft/NFTDetailModal';
+import { BatchMintButton } from '@/components/nft/BatchMintButton';
 import { 
   Award, 
   Trophy, 
@@ -622,6 +623,14 @@ export default function NftCollection() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Batch Mint Button */}
+      <BatchMintButton 
+        earnedMilestones={[
+          { id: 'welcome', name: 'Welcome', description: 'Welcome NFT', threshold: 0, color: 'zinc', icon: 'award' },
+          ...allEarned
+        ]} 
+      />
 
       {/* Category Tabs */}
       <Tabs defaultValue="solar" className="w-full">
