@@ -17,6 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 interface RewardActionsProps {
   onRefresh: () => Promise<void>;
@@ -566,9 +567,35 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
+          <div className="space-y-6 py-4">
+            {/* Slider Control */}
+            {!loadingMax && maxTokens > 0 && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <Label>Select Amount</Label>
+                  <span className="text-sm font-semibold text-primary">
+                    {parseInt(tokenAmount || '0').toLocaleString()} $ZSOLAR
+                  </span>
+                </div>
+                <Slider
+                  value={[parseInt(tokenAmount) || 0]}
+                  onValueChange={(value) => setTokenAmount(value[0].toString())}
+                  max={maxTokens}
+                  min={1}
+                  step={Math.max(1, Math.floor(maxTokens / 100))}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>1</span>
+                  <span>{Math.floor(maxTokens / 2).toLocaleString()}</span>
+                  <span>{maxTokens.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Input Field */}
             <div className="space-y-2">
-              <Label htmlFor="tokenAmount">Token Amount</Label>
+              <Label htmlFor="tokenAmount">Or enter exact amount</Label>
               <div className="flex gap-2">
                 <Input
                   id="tokenAmount"
