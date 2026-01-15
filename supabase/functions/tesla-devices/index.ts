@@ -65,6 +65,30 @@ Deno.serve(async (req) => {
       const vehiclesData = await vehiclesResponse.json();
       vehicles = vehiclesData.response || [];
       console.log("Tesla vehicles:", JSON.stringify(vehicles));
+      
+      // For each vehicle that's online, try to fetch current odometer
+      for (let i = 0; i < vehicles.length; i++) {
+        const v = vehicles[i];
+        if (v.state === 'online') {
+          try {
+            const vehicleDataResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles/${v.vin}/vehicle_data?endpoints=vehicle_state`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+            
+            if (vehicleDataResponse.ok) {
+              const vehicleData = await vehicleDataResponse.json();
+              const odometer = vehicleData.response?.vehicle_state?.odometer;
+              if (odometer) {
+                vehicles[i].odometer = Math.round(odometer);
+                console.log(`Vehicle ${v.vin} odometer: ${vehicles[i].odometer}`);
+              }
+            }
+          } catch (odometerError) {
+            console.log(`Could not fetch odometer for ${v.vin}:`, odometerError);
+          }
+        }
+      }
     } else {
       console.error("Failed to fetch vehicles:", await vehiclesResponse.text());
     }
@@ -96,6 +120,7 @@ Deno.serve(async (req) => {
           vin: v.vin,
           model: v.vehicle_type,
           state: v.state,
+          odometer: v.odometer || null, // Will be populated if vehicle was online
         },
       })),
       ...energySites.map((s: any) => ({
