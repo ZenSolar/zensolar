@@ -344,7 +344,7 @@ export function useDashboardData() {
         console.log('Wallbox data:', { homeChargerKwh: wallboxData.totals.home_charger_kwh });
       }
 
-      // Total lifetime tokens (for display)
+      // Total lifetime tokens (calculated from all activity - 1:1 rate)
       const tokensEarned =
         Math.floor(evMiles) +
         Math.floor(solarEnergy) +
@@ -352,12 +352,13 @@ export function useDashboardData() {
         Math.floor(superchargerKwh) +
         Math.floor(homeChargerKwh);
       
-      // Pending tokens (available to mint) - from rewards API or calculated from pending values
-      const pendingTokens = rewardsData?.tokens_pending || 
-        Math.floor(pendingSolar) + 
-        Math.floor(pendingEvMiles) + 
-        Math.floor(pendingBattery) + 
-        Math.floor(pendingCharging);
+      // Claimed tokens (already minted to blockchain)
+      const claimedTokens = rewardsData?.tokens_claimed || 0;
+      
+      // Pending tokens = Lifetime - Claimed
+      // If user has never minted, pending should equal lifetime
+      // This ensures the 1:1 relationship is always maintained
+      const pendingTokens = tokensEarned - claimedTokens;
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
