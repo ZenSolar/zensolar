@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Action: Mint combo NFTs
+// Action: Mint combo NFTs
     if (action === "mint-combos") {
       if (!tokenIds || !Array.isArray(tokenIds) || tokenIds.length === 0) {
         return new Response(JSON.stringify({ error: "tokenIds array required" }), {
@@ -290,6 +290,152 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Action: Check which NFTs user is eligible for
+    if (action === "check-eligible") {
+      // Get user's on-chain stats
+      const userStats = await publicClient.readContract({
+        address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+        abi: CONTROLLER_ABI,
+        functionName: "getUserStats",
+        args: [walletAddress as `0x${string}`],
+      }) as [bigint, bigint, bigint, bigint, boolean];
+
+      const [solar, evMiles, battery, charging, hasWelcome] = userStats;
+
+      // Get owned NFTs
+      const ownedNFTs = await publicClient.readContract({
+        address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+        abi: NFT_ABI,
+        functionName: "getOwnedTokens",
+        args: [walletAddress as `0x${string}`],
+      }) as bigint[];
+
+      const ownedSet = new Set(ownedNFTs.map(id => Number(id)));
+
+      // Calculate eligible NFTs based on cumulative stats
+      const eligibleNFTs: { tokenId: number; category: string; name: string; threshold: number }[] = [];
+      
+      // Solar milestones (token IDs 1-8)
+      const solarThresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
+      const solarNames = ["Sunspark", "Photonic", "Rayforge", "Solaris", "Helios", "Sunforge", "Gigasun", "Starforge"];
+      for (let i = 0; i < solarThresholds.length; i++) {
+        const tokenId = i + 1;
+        if (Number(solar) >= solarThresholds[i] && !ownedSet.has(tokenId)) {
+          eligibleNFTs.push({ tokenId, category: "solar", name: solarNames[i], threshold: solarThresholds[i] });
+        }
+      }
+
+      // Battery milestones (token IDs 9-15)
+      const batteryThresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000];
+      const batteryNames = ["Voltbank", "Gridpulse", "Megacell", "Reservex", "Dynamax", "Ultracell", "Gigavolt"];
+      for (let i = 0; i < batteryThresholds.length; i++) {
+        const tokenId = i + 9;
+        if (Number(battery) >= batteryThresholds[i] && !ownedSet.has(tokenId)) {
+          eligibleNFTs.push({ tokenId, category: "battery", name: batteryNames[i], threshold: batteryThresholds[i] });
+        }
+      }
+
+      // Charging milestones (token IDs 16-23)
+      const chargingThresholds = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000];
+      const chargingNames = ["Ignite", "Voltcharge", "Kilovolt", "Ampforge", "Chargeon", "Gigacharge", "Megacharge", "Teracharge"];
+      for (let i = 0; i < chargingThresholds.length; i++) {
+        const tokenId = i + 16;
+        if (Number(charging) >= chargingThresholds[i] && !ownedSet.has(tokenId)) {
+          eligibleNFTs.push({ tokenId, category: "charging", name: chargingNames[i], threshold: chargingThresholds[i] });
+        }
+      }
+
+      // EV Miles milestones (token IDs 24-33)
+      const evMilesThresholds = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000];
+      const evMilesNames = ["Ignitor", "Velocity", "Autobahn", "Hyperdrive", "Electra", "Velocity Pro", "Mach One", "Centaurion", "Voyager", "Odyssey"];
+      for (let i = 0; i < evMilesThresholds.length; i++) {
+        const tokenId = i + 24;
+        if (Number(evMiles) >= evMilesThresholds[i] && !ownedSet.has(tokenId)) {
+          eligibleNFTs.push({ tokenId, category: "ev", name: evMilesNames[i], threshold: evMilesThresholds[i] });
+        }
+      }
+
+      // Check for combo eligibility
+      const solarCount = solarThresholds.filter((t, i) => Number(solar) >= t && ownedSet.has(i + 1)).length;
+      const batteryCount = batteryThresholds.filter((t, i) => Number(battery) >= t && ownedSet.has(i + 9)).length;
+      const chargingCount = chargingThresholds.filter((t, i) => Number(charging) >= t && ownedSet.has(i + 16)).length;
+      const evMilesCount = evMilesThresholds.filter((t, i) => Number(evMiles) >= t && ownedSet.has(i + 24)).length;
+
+      const categoriesWithNFTs = [solarCount > 0, batteryCount > 0, chargingCount > 0, evMilesCount > 0].filter(Boolean).length;
+      const totalCategoryNFTs = solarCount + batteryCount + chargingCount + evMilesCount;
+      
+      const solarMaxed = solarCount === solarThresholds.length;
+      const batteryMaxed = batteryCount === batteryThresholds.length;
+      const chargingMaxed = chargingCount === chargingThresholds.length;
+      const evMilesMaxed = evMilesCount === evMilesThresholds.length;
+      const categoriesMaxed = [solarMaxed, batteryMaxed, chargingMaxed, evMilesMaxed].filter(Boolean).length;
+
+      const eligibleCombos: { tokenId: number; name: string; comboType: string }[] = [];
+      if (categoriesWithNFTs >= 2 && !ownedSet.has(34)) eligibleCombos.push({ tokenId: 34, name: "Duality", comboType: "2 categories" });
+      if (categoriesWithNFTs >= 3 && !ownedSet.has(35)) eligibleCombos.push({ tokenId: 35, name: "Trifecta", comboType: "3 categories" });
+      if (totalCategoryNFTs >= 5 && !ownedSet.has(36)) eligibleCombos.push({ tokenId: 36, name: "Quadrant", comboType: "5 total NFTs" });
+      if (totalCategoryNFTs >= 10 && !ownedSet.has(37)) eligibleCombos.push({ tokenId: 37, name: "Constellation", comboType: "10 total NFTs" });
+      if (totalCategoryNFTs >= 20 && !ownedSet.has(38)) eligibleCombos.push({ tokenId: 38, name: "Cyber Echo", comboType: "20 total NFTs" });
+      if (totalCategoryNFTs >= 30 && !ownedSet.has(39)) eligibleCombos.push({ tokenId: 39, name: "Zenith", comboType: "30 total NFTs" });
+      if (categoriesMaxed >= 1 && !ownedSet.has(40)) eligibleCombos.push({ tokenId: 40, name: "ZenMaster", comboType: "Max 1 category" });
+      if (categoriesMaxed >= 4 && !ownedSet.has(41)) eligibleCombos.push({ tokenId: 41, name: "Total Eclipse", comboType: "Max all categories" });
+
+      return new Response(JSON.stringify({
+        walletAddress,
+        hasWelcomeNFT: hasWelcome,
+        onChainStats: {
+          solarKwh: Number(solar),
+          evMiles: Number(evMiles),
+          batteryKwh: Number(battery),
+          chargingKwh: Number(charging),
+        },
+        ownedNFTs: Array.from(ownedSet),
+        eligibleMilestoneNFTs: eligibleNFTs,
+        eligibleComboNFTs: eligibleCombos,
+        totalEligible: eligibleNFTs.length + eligibleCombos.length,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Action: Mint all eligible milestone NFTs (triggers via mintRewards with 0 delta to force check)
+    // Note: The contract auto-mints milestone NFTs when mintRewards is called and thresholds are met.
+    // This action is for manually claiming any missed NFTs by re-triggering the check.
+    if (action === "claim-milestone-nfts") {
+      console.log("Claiming eligible milestone NFTs for:", walletAddress);
+
+      // Call mintRewards with 0 deltas - this triggers the milestone check without adding new activity
+      // The contract will mint any NFTs the user is eligible for but doesn't have
+      const hash = await walletClient.writeContract({
+        address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+        abi: CONTROLLER_ABI,
+        functionName: "mintRewards",
+        args: [
+          walletAddress as `0x${string}`,
+          BigInt(0),
+          BigInt(0),
+          BigInt(0),
+          BigInt(0),
+        ],
+      });
+
+      console.log("Claim milestone NFTs tx hash:", hash);
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      console.log("Claim milestone NFTs tx confirmed, status:", receipt.status);
+
+      return new Response(JSON.stringify({
+        success: receipt.status === "success",
+        txHash: hash,
+        blockNumber: receipt.blockNumber.toString(),
+        message: receipt.status === "success" 
+          ? "Milestone NFTs claimed! Check your wallet." 
+          : "Transaction failed",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Action: Get user's on-chain status
     if (action === "status") {
       const [hasWelcome, tokenBalance, ownedNFTs] = await Promise.all([
@@ -324,7 +470,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: "Invalid action. Use: register, mint-rewards, mint-combos, status" }), {
+return new Response(JSON.stringify({ 
+      error: "Invalid action. Use: register, mint-rewards, mint-combos, claim-milestone-nfts, check-eligible, status" 
+    }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
