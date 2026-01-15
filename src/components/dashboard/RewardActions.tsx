@@ -3,6 +3,7 @@ import { Coins, Award, RefreshCw, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
+import { useHaptics } from '@/hooks/useHaptics';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ interface RewardActionsProps {
 export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
   const { toast } = useToast();
   const { triggerConfetti } = useConfetti();
+  const { success: hapticSuccess } = useHaptics();
   const [mintDialog, setMintDialog] = useState<{ 
     open: boolean; 
     type: 'token' | 'nft' | null; 
@@ -28,6 +30,9 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
   });
 
   const handleMint = (type: 'token' | 'nft') => {
+    // Trigger haptic success feedback for mobile/PWA
+    hapticSuccess();
+    
     // Trigger confetti celebration
     triggerConfetti();
     
@@ -51,7 +56,7 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
         <Button
           onClick={() => handleMint('token')}
           disabled={isLoading}
-          className="w-full bg-primary hover:bg-primary/90"
+          className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
           size="lg"
         >
           <Coins className="mr-2 h-4 w-4" />
@@ -61,7 +66,7 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
         <Button
           onClick={() => handleMint('nft')}
           disabled={isLoading}
-          className="w-full bg-primary hover:bg-primary/90"
+          className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
           size="lg"
         >
           <Award className="mr-2 h-4 w-4" />
