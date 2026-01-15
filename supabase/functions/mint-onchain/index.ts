@@ -537,7 +537,186 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Action: Get user's on-chain status
+    // Action: Mint a specific NFT by token ID
+    if (action === "mint-specific-nft") {
+      const { tokenId } = body;
+      
+      if (tokenId === undefined || tokenId === null) {
+        return new Response(JSON.stringify({ error: "tokenId required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log(`Minting specific NFT tokenId ${tokenId} for:`, walletAddress);
+
+      // Check if user already owns this NFT
+      const hasToken = await publicClient.readContract({
+        address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+        abi: NFT_ABI,
+        functionName: "hasToken",
+        args: [walletAddress as `0x${string}`, BigInt(tokenId)],
+      });
+
+      if (hasToken) {
+        return new Response(JSON.stringify({
+          success: false,
+          alreadyOwned: true,
+          message: `You already own ${NFT_NAMES[tokenId] || `Token #${tokenId}`}`,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Determine what type of NFT this is
+      if (tokenId === 0) {
+        // Welcome NFT - use register
+        const hash = await walletClient.writeContract({
+          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+          abi: CONTROLLER_ABI,
+          functionName: "registerUser",
+          args: [walletAddress as `0x${string}`],
+        });
+
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        
+        if (receipt.status === "success") {
+          await recordTransaction(
+            supabaseClient,
+            user.id,
+            hash,
+            receipt.blockNumber.toString(),
+            "mint-specific-nft",
+            walletAddress,
+            0,
+            [0]
+          );
+        }
+
+        return new Response(JSON.stringify({
+          success: receipt.status === "success",
+          txHash: hash,
+          blockNumber: receipt.blockNumber.toString(),
+          nftsMinted: [0],
+          nftNames: ["Welcome"],
+          message: receipt.status === "success" 
+            ? "Welcome NFT minted successfully!" 
+            : "Transaction failed",
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } else if (tokenId >= 34 && tokenId <= 41) {
+        // Combo NFT - use mintComboNFT
+        const comboTypeMap: Record<number, string> = {
+          34: "2 categories",
+          35: "3 categories", 
+          36: "5 total NFTs",
+          37: "10 total NFTs",
+          38: "20 total NFTs",
+          39: "30 total NFTs",
+          40: "Max 1 category",
+          41: "Max all categories",
+        };
+
+        const hash = await walletClient.writeContract({
+          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+          abi: CONTROLLER_ABI,
+          functionName: "mintComboNFT",
+          args: [walletAddress as `0x${string}`, BigInt(tokenId), comboTypeMap[tokenId]],
+        });
+
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        
+        if (receipt.status === "success") {
+          await recordTransaction(
+            supabaseClient,
+            user.id,
+            hash,
+            receipt.blockNumber.toString(),
+            "mint-specific-nft",
+            walletAddress,
+            0,
+            [tokenId]
+          );
+        }
+
+        return new Response(JSON.stringify({
+          success: receipt.status === "success",
+          txHash: hash,
+          blockNumber: receipt.blockNumber.toString(),
+          nftsMinted: [tokenId],
+          nftNames: [NFT_NAMES[tokenId] || `Token #${tokenId}`],
+          message: receipt.status === "success" 
+            ? `${NFT_NAMES[tokenId]} NFT minted successfully!` 
+            : "Transaction failed",
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } else {
+        // Milestone NFT (1-33) - trigger mintRewards with 0 delta to claim eligible NFTs
+        const nftsBefore = await publicClient.readContract({
+          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+          abi: NFT_ABI,
+          functionName: "getOwnedTokens",
+          args: [walletAddress as `0x${string}`],
+        }) as bigint[];
+        const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
+
+        const hash = await walletClient.writeContract({
+          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+          abi: CONTROLLER_ABI,
+          functionName: "mintRewards",
+          args: [walletAddress as `0x${string}`, BigInt(0), BigInt(0), BigInt(0), BigInt(0)],
+        });
+
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        
+        let newNfts: number[] = [];
+        if (receipt.status === "success") {
+          const nftsAfter = await publicClient.readContract({
+            address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+            abi: NFT_ABI,
+            functionName: "getOwnedTokens",
+            args: [walletAddress as `0x${string}`],
+          }) as bigint[];
+          
+          newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
+
+          if (newNfts.length > 0) {
+            await recordTransaction(
+              supabaseClient,
+              user.id,
+              hash,
+              receipt.blockNumber.toString(),
+              "mint-specific-nft",
+              walletAddress,
+              0,
+              newNfts
+            );
+          }
+        }
+
+        const mintedTarget = newNfts.includes(tokenId);
+        
+        return new Response(JSON.stringify({
+          success: receipt.status === "success" && mintedTarget,
+          txHash: hash,
+          blockNumber: receipt.blockNumber.toString(),
+          nftsMinted: newNfts,
+          nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
+          message: receipt.status === "success" 
+            ? mintedTarget 
+              ? `${NFT_NAMES[tokenId]} minted successfully!`
+              : newNfts.length > 0 
+                ? `Minted ${newNfts.length} NFT(s), but ${NFT_NAMES[tokenId]} was not eligible.`
+                : `${NFT_NAMES[tokenId]} is not eligible yet. Increase your activity!`
+            : "Transaction failed",
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     if (action === "status") {
       const [hasWelcome, tokenBalance, ownedNFTs] = await Promise.all([
         publicClient.readContract({
