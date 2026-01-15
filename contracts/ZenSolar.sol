@@ -6,9 +6,10 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface IMintableERC721 is IERC721 {
-    function mint(address to) external returns (uint256);
+    function mintWithId(address to, uint256 tokenId) external returns (uint256);
     function ownerOf(uint256 tokenId) external view returns (address);
     function burn(uint256 tokenId) external;
+    function canMint(uint256 tokenId) external view returns (bool);
 }
 
 interface IMintableERC20 is IERC20 {
@@ -38,14 +39,32 @@ contract ZenSolar is Ownable {
     uint256 public constant TOKENS_PER_UNIT = 1e18; // 1 token per kWh or per mile
     uint256 public constant MAX_SUPPLY = 50_000_000_000 * 10**18;
 
+    // Welcome NFT token ID
+    uint256 public constant WELCOME_TOKEN_ID = 0;
+
     address public treasury;
     address public lpRewards;
 
-    // Separate milestone arrays per category (matching app exactly)
+    // Milestone arrays with corresponding token IDs
+    // Solar: Token IDs 1-8
     uint256[] public solarMilestones = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
+    uint256[] public solarTokenIds = [1, 2, 3, 4, 5, 6, 7, 8];
+    
+    // Battery: Token IDs 9-15
     uint256[] public batteryMilestones = [500, 1000, 2500, 5000, 10000, 25000, 50000];
+    uint256[] public batteryTokenIds = [9, 10, 11, 12, 13, 14, 15];
+    
+    // Charging: Token IDs 16-23
     uint256[] public chargingMilestones = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000];
+    uint256[] public chargingTokenIds = [16, 17, 18, 19, 20, 21, 22, 23];
+    
+    // EV Miles: Token IDs 24-33
     uint256[] public evMilesMilestones = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000];
+    uint256[] public evMilesTokenIds = [24, 25, 26, 27, 28, 29, 30, 31, 32, 33];
+
+    // Combo Token IDs: 34-41
+    // 34=Duality, 35=Trifecta, 36=Quadrant, 37=Constellation, 
+    // 38=Cyber Echo, 39=Zenith, 40=ZenMaster, 41=Total Eclipse
 
     event TokensMinted(address indexed user, uint256 totalTokens);
     event MilestoneNFTMinted(address indexed user, uint256 tokenId, uint256 milestoneValue, string category);
@@ -65,14 +84,16 @@ contract ZenSolar is Ownable {
         lpRewards = _lpRewards;
     }
 
-    // Register new user - mints Welcome NFT
+    // Register new user - mints Welcome NFT (Token ID 0)
     function registerUser(address user) external onlyOwner {
         require(!hasWelcomeNFT[user], "User already registered");
-        uint256 tokenId = zenSolarNFT.mint(user);
+        require(zenSolarNFT.canMint(WELCOME_TOKEN_ID), "Welcome NFT already minted");
+        
+        zenSolarNFT.mintWithId(user, WELCOME_TOKEN_ID);
         hasWelcomeNFT[user] = true;
-        nftMilestoneValue[tokenId] = 0;
-        nftCategory[tokenId] = "Welcome";
-        emit WelcomeNFTMinted(user, tokenId);
+        nftMilestoneValue[WELCOME_TOKEN_ID] = 0;
+        nftCategory[WELCOME_TOKEN_ID] = "Welcome";
+        emit WelcomeNFTMinted(user, WELCOME_TOKEN_ID);
     }
 
     // Mint rewards based on new activity
@@ -110,36 +131,47 @@ contract ZenSolar is Ownable {
         cumulativeBatteryKwh[user] += batteryDeltaKwh;
         cumulativeChargingKwh[user] += chargingDeltaKwh;
 
-        // Check milestones with correct array per category
-        _checkMilestone(user, cumulativeSolarKwh[user], solarMilestones, "Solar");
-        _checkMilestone(user, cumulativeBatteryKwh[user], batteryMilestones, "Battery");
-        _checkMilestone(user, cumulativeChargingKwh[user], chargingMilestones, "Charging");
-        _checkMilestone(user, cumulativeEvMiles[user], evMilesMilestones, "EV Miles");
+        // Check milestones with fixed token IDs
+        _checkMilestone(user, cumulativeSolarKwh[user], solarMilestones, solarTokenIds, "Solar");
+        _checkMilestone(user, cumulativeBatteryKwh[user], batteryMilestones, batteryTokenIds, "Battery");
+        _checkMilestone(user, cumulativeChargingKwh[user], chargingMilestones, chargingTokenIds, "Charging");
+        _checkMilestone(user, cumulativeEvMiles[user], evMilesMilestones, evMilesTokenIds, "EV Miles");
     }
 
     function _checkMilestone(
         address user,
         uint256 current,
         uint256[] storage tiers,
+        uint256[] storage tokenIds,
         string memory cat
     ) internal {
         for (uint256 i = 0; i < tiers.length; i++) {
             if (current >= tiers[i] && !milestonesMinted[user][cat][tiers[i]]) {
-                uint256 tokenId = zenSolarNFT.mint(user);
-                nftMilestoneValue[tokenId] = tiers[i];
-                nftCategory[tokenId] = cat;
-                milestonesMinted[user][cat][tiers[i]] = true;
-                emit MilestoneNFTMinted(user, tokenId, tiers[i], cat);
+                uint256 tokenId = tokenIds[i];
+                
+                // Check if this specific token ID can be minted
+                if (zenSolarNFT.canMint(tokenId)) {
+                    zenSolarNFT.mintWithId(user, tokenId);
+                    nftMilestoneValue[tokenId] = tiers[i];
+                    nftCategory[tokenId] = cat;
+                    milestonesMinted[user][cat][tiers[i]] = true;
+                    emit MilestoneNFTMinted(user, tokenId, tiers[i], cat);
+                }
             }
         }
     }
 
-    // Mint combo NFT (called by backend when combo conditions are met)
-    function mintComboNFT(address user, string memory comboType) external onlyOwner {
-        uint256 tokenId = zenSolarNFT.mint(user);
-        nftMilestoneValue[tokenId] = 0;
-        nftCategory[tokenId] = comboType;
-        emit ComboNFTMinted(user, tokenId, comboType);
+    // Mint combo NFT with specific token ID (called by backend when combo conditions are met)
+    // comboTokenId: 34=Duality, 35=Trifecta, 36=Quadrant, 37=Constellation, 
+    //               38=Cyber Echo, 39=Zenith, 40=ZenMaster, 41=Total Eclipse
+    function mintComboNFT(address user, uint256 comboTokenId, string memory comboType) external onlyOwner {
+        require(comboTokenId >= 34 && comboTokenId <= 41, "Invalid combo token ID");
+        require(zenSolarNFT.canMint(comboTokenId), "Combo NFT already minted");
+        
+        zenSolarNFT.mintWithId(user, comboTokenId);
+        nftMilestoneValue[comboTokenId] = 0;
+        nftCategory[comboTokenId] = comboType;
+        emit ComboNFTMinted(user, comboTokenId, comboType);
     }
 
     // Redeem NFT for tokens (user burns NFT, gets tokens minus 2% burn fee)
@@ -202,5 +234,26 @@ contract ZenSolar is Ownable {
             cumulativeChargingKwh[user],
             hasWelcomeNFT[user]
         );
+    }
+
+    // Get token ID for a specific milestone (useful for frontend)
+    function getSolarTokenId(uint256 index) external view returns (uint256) {
+        require(index < solarTokenIds.length, "Index out of bounds");
+        return solarTokenIds[index];
+    }
+
+    function getBatteryTokenId(uint256 index) external view returns (uint256) {
+        require(index < batteryTokenIds.length, "Index out of bounds");
+        return batteryTokenIds[index];
+    }
+
+    function getChargingTokenId(uint256 index) external view returns (uint256) {
+        require(index < chargingTokenIds.length, "Index out of bounds");
+        return chargingTokenIds[index];
+    }
+
+    function getEvMilesTokenId(uint256 index) external view returns (uint256) {
+        require(index < evMilesTokenIds.length, "Index out of bounds");
+        return evMilesTokenIds[index];
     }
 }
