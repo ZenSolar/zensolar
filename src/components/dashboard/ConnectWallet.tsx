@@ -293,8 +293,14 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
     );
   }
 
+  // Show saved wallet from profile even if wagmi isn't actively connected
+  // This handles PWA standalone mode where wagmi state doesn't persist across app restarts
+  const hasSavedWallet = Boolean(walletAddress);
+  const showAsConnected = isConnected && address;
+  const showAsSavedButNotLive = !isConnected && hasSavedWallet;
+
   // Connected in wallet (wagmi). We render a disconnect + diagnostics even if not yet saved to profile.
-  if (isConnected && address) {
+  if (showAsConnected) {
     const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
     return (
@@ -381,6 +387,85 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
             Disconnect Wallet
           </Button>
         </div>
+
+        {showDiagnostics && (
+          <WalletConnectDiagnostics
+            isMobile={device.isMobile}
+            isStandalone={device.isStandalone}
+            userAgent={device.userAgent}
+            isConnected={isConnected}
+            wagmiAddress={address}
+            chainId={chainId}
+            profileWalletAddress={walletAddress}
+            lastSaveError={lastSaveError}
+            events={events}
+            onReset={handleReset}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Wallet saved in profile but wagmi session not active (common in PWA standalone mode)
+  if (showAsSavedButNotLive) {
+    const shortAddress = `${walletAddress!.slice(0, 6)}...${walletAddress!.slice(-4)}`;
+
+    return (
+      <div className="rounded-lg border border-border bg-card p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+            <CheckCircle2 className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">Wallet Linked</p>
+            <p className="text-xs text-muted-foreground font-mono">{shortAddress}</p>
+          </div>
+        </div>
+
+        <div className="rounded-md border border-border bg-muted/30 p-3 text-xs mb-3">
+          <p className="text-foreground font-medium flex items-center gap-2">
+            <Link2 className="h-4 w-4" />
+            Your wallet is saved to your profile
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            Reconnect your wallet to perform on-chain actions like minting NFTs.
+          </p>
+        </div>
+
+        <ConnectButton.Custom>
+          {({ openConnectModal, mounted }) => {
+            if (!mounted) return null;
+            
+            return (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  mark('reconnectButtonTap');
+                  openConnectModal();
+                }}
+              >
+                <Wallet className="h-4 w-4 mr-2" />
+                Reconnect Wallet
+              </Button>
+            );
+          }}
+        </ConnectButton.Custom>
+
+        {device.showDeepLinks && (
+          <div className="mt-2">
+            <WalletDeepLinks
+              wcUri={wcUri}
+              disabled={isStartingWc}
+              onSelect={(wallet) => {
+                markForWallet(mark, wallet);
+                startWalletConnectDeepLink(wallet);
+              }}
+            />
+          </div>
+        )}
 
         {showDiagnostics && (
           <WalletConnectDiagnostics

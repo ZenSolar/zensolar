@@ -5,6 +5,7 @@ import { hardResetWalletStorage, getWalletStorageStats } from '@/lib/walletStora
 
 export type WalletDiagEvents = {
   connectButtonTap?: number;
+  reconnectButtonTap?: number;
   deepLinkMetaMaskTap?: number;
   deepLinkCoinbaseTap?: number;
   deepLinkTrustTap?: number;
