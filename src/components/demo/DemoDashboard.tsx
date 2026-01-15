@@ -199,7 +199,8 @@ export function DemoDashboard() {
         <AnimatedItem>
           <RewardActions 
             onRefresh={refreshDashboard} 
-            isLoading={isLoading} 
+            isLoading={isLoading}
+            walletAddress={null} // Demo mode - no real wallet
           />
         </AnimatedItem>
       </AnimatedContainer>
