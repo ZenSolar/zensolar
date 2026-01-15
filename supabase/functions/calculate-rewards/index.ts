@@ -15,64 +15,132 @@ const REWARD_RATES = {
   ev_charging: 1,         // 1 $ZSOLAR per kWh charged
 };
 
-// NFT thresholds - aligned with final_milestones.docx (January 14, 2026)
+// ==============================================================================
+// NFT MILESTONE THRESHOLDS - ALIGNED WITH SMART CONTRACT (ZenSolar.sol)
+// ==============================================================================
+// These MUST match exactly with:
+// - src/lib/nftMilestones.ts (frontend)
+// - contracts/ZenSolar.sol (smart contract)
+// - public/nft-metadata-flat/*.json (IPFS metadata)
+// - docs/NFT_MILESTONES_REFERENCE.md
+// ==============================================================================
 
-// Solar Energy Produced (8 tiers: 500-100,000 kWh)
+// Solar Energy Produced (8 tiers: 500-100,000 kWh) - Token IDs 1-8
 const SOLAR_THRESHOLDS = [
-  { name: "Sunlink", threshold: 500 },
-  { name: "Photon", threshold: 1000 },
-  { name: "Rayfield", threshold: 2500 },
-  { name: "Solarflare", threshold: 5000 },
-  { name: "Heliogen", threshold: 10000 },
-  { name: "Sunvault", threshold: 25000 },
-  { name: "Gigasol", threshold: 50000 },
-  { name: "Starpower", threshold: 100000 },
+  { tokenId: 1, name: "Sunspark", threshold: 500 },
+  { tokenId: 2, name: "Photonic", threshold: 1000 },
+  { tokenId: 3, name: "Rayforge", threshold: 2500 },
+  { tokenId: 4, name: "Solaris", threshold: 5000 },
+  { tokenId: 5, name: "Helios", threshold: 10000 },
+  { tokenId: 6, name: "Sunforge", threshold: 25000 },
+  { tokenId: 7, name: "Gigasun", threshold: 50000 },
+  { tokenId: 8, name: "Starforge", threshold: 100000 },
 ];
 
-// Battery Storage Discharged (7 tiers: 500-50,000 kWh)
+// Battery Storage Discharged (7 tiers: 500-50,000 kWh) - Token IDs 9-15
 const BATTERY_THRESHOLDS = [
-  { name: "Powerwall", threshold: 500 },
-  { name: "Gridlink", threshold: 1000 },
-  { name: "Megapack", threshold: 2500 },
-  { name: "Reservoir", threshold: 5000 },
-  { name: "Dynamo", threshold: 10000 },
-  { name: "Gigabank", threshold: 25000 },
-  { name: "Ultrabank", threshold: 50000 },
+  { tokenId: 9, name: "Voltbank", threshold: 500 },
+  { tokenId: 10, name: "Gridpulse", threshold: 1000 },
+  { tokenId: 11, name: "Megacell", threshold: 2500 },
+  { tokenId: 12, name: "Reservex", threshold: 5000 },
+  { tokenId: 13, name: "Dynamax", threshold: 10000 },
+  { tokenId: 14, name: "Ultracell", threshold: 25000 },
+  { tokenId: 15, name: "Gigavolt", threshold: 50000 },
 ];
 
-// EV Charging - combined supercharger + home (8 tiers: 100-25,000 kWh)
+// EV Charging - combined supercharger + home (8 tiers: 100-25,000 kWh) - Token IDs 16-23
 const EV_CHARGING_THRESHOLDS = [
-  { name: "Spark", threshold: 100 },
-  { name: "Supercharger", threshold: 500 },
-  { name: "Megavolt", threshold: 1000 },
-  { name: "Amperage", threshold: 1500 },
-  { name: "Destination", threshold: 2500 },
-  { name: "Gigawatt", threshold: 5000 },
-  { name: "Megawatt", threshold: 10000 },
-  { name: "Terawatt", threshold: 25000 },
+  { tokenId: 16, name: "Ignite", threshold: 100 },
+  { tokenId: 17, name: "Voltcharge", threshold: 500 },
+  { tokenId: 18, name: "Kilovolt", threshold: 1000 },
+  { tokenId: 19, name: "Ampforge", threshold: 1500 },
+  { tokenId: 20, name: "Chargeon", threshold: 2500 },
+  { tokenId: 21, name: "Gigacharge", threshold: 5000 },
+  { tokenId: 22, name: "Megacharge", threshold: 10000 },
+  { tokenId: 23, name: "Teracharge", threshold: 25000 },
 ];
 
-// EV Miles Driven (10 tiers: 100-200,000 miles)
+// EV Miles Driven (10 tiers: 100-200,000 miles) - Token IDs 24-33
 const EV_MILES_THRESHOLDS = [
-  { name: "Ignition", threshold: 100 },
-  { name: "Cruiser", threshold: 500 },
-  { name: "Autobahn", threshold: 1000 },
-  { name: "Hyperlane", threshold: 5000 },
-  { name: "Roadster", threshold: 10000 },
-  { name: "Plaid", threshold: 25000 },
-  { name: "Ludicrous", threshold: 50000 },
-  { name: "Centurion", threshold: 100000 },
-  { name: "Voyager", threshold: 150000 },
-  { name: "Legend", threshold: 200000 },
+  { tokenId: 24, name: "Ignitor", threshold: 100 },
+  { tokenId: 25, name: "Velocity", threshold: 500 },
+  { tokenId: 26, name: "Autobahn", threshold: 1000 },
+  { tokenId: 27, name: "Hyperdrive", threshold: 5000 },
+  { tokenId: 28, name: "Electra", threshold: 10000 },
+  { tokenId: 29, name: "Velocity Pro", threshold: 25000 },
+  { tokenId: 30, name: "Mach One", threshold: 50000 },
+  { tokenId: 31, name: "Centaurion", threshold: 100000 },
+  { tokenId: 32, name: "Voyager", threshold: 150000 },
+  { tokenId: 33, name: "Odyssey", threshold: 200000 },
 ];
+
+// Combo Achievements (8 NFTs) - Token IDs 34-41
+// These are calculated based on category NFT counts, NOT direct activity values
+const COMBO_DEFINITIONS = [
+  { tokenId: 34, name: "Duality", type: "categories", value: 2 },      // 2 categories with ≥1 NFT
+  { tokenId: 35, name: "Trifecta", type: "categories", value: 3 },    // 3 categories with ≥1 NFT
+  { tokenId: 36, name: "Quadrant", type: "total", value: 5 },          // 5 total category NFTs
+  { tokenId: 37, name: "Constellation", type: "total", value: 10 },    // 10 total category NFTs
+  { tokenId: 38, name: "Cyber Echo", type: "total", value: 20 },       // 20 total category NFTs
+  { tokenId: 39, name: "Zenith", type: "total", value: 30 },           // 30 total category NFTs
+  { tokenId: 40, name: "ZenMaster", type: "maxed", value: 1 },         // 1 category maxed out
+  { tokenId: 41, name: "Total Eclipse", type: "maxed", value: 4 },     // All 4 categories maxed
+];
+
+// Category max counts for "maxed" calculations
+const CATEGORY_MAX_COUNTS = {
+  solar: 8,      // 8 solar NFTs total
+  battery: 7,    // 7 battery NFTs total  
+  charging: 8,   // 8 charging NFTs total
+  evMiles: 10,   // 10 EV miles NFTs total
+};
 
 function calculateEarnedForCategory(
   value: number,
-  thresholds: { name: string; threshold: number }[]
-): string[] {
+  thresholds: { tokenId: number; name: string; threshold: number }[]
+): { tokenId: number; name: string }[] {
   return thresholds
     .filter((t) => value >= t.threshold)
-    .map((t) => t.name);
+    .map((t) => ({ tokenId: t.tokenId, name: t.name }));
+}
+
+function calculateComboNFTs(
+  solarEarned: number,
+  batteryEarned: number,
+  chargingEarned: number,
+  evMilesEarned: number
+): { tokenId: number; name: string }[] {
+  const combos: { tokenId: number; name: string }[] = [];
+  
+  // Count categories with at least 1 NFT
+  const categoriesWithNFTs = [
+    solarEarned > 0,
+    batteryEarned > 0,
+    chargingEarned > 0,
+    evMilesEarned > 0,
+  ].filter(Boolean).length;
+  
+  // Total category NFTs (combos don't count toward combos)
+  const totalCategoryNFTs = solarEarned + batteryEarned + chargingEarned + evMilesEarned;
+  
+  // Check maxed categories
+  const solarMaxed = solarEarned >= CATEGORY_MAX_COUNTS.solar;
+  const batteryMaxed = batteryEarned >= CATEGORY_MAX_COUNTS.battery;
+  const chargingMaxed = chargingEarned >= CATEGORY_MAX_COUNTS.charging;
+  const evMilesMaxed = evMilesEarned >= CATEGORY_MAX_COUNTS.evMiles;
+  const categoriesMaxed = [solarMaxed, batteryMaxed, chargingMaxed, evMilesMaxed].filter(Boolean).length;
+  
+  // Award combos
+  if (categoriesWithNFTs >= 2) combos.push({ tokenId: 34, name: "Duality" });
+  if (categoriesWithNFTs >= 3) combos.push({ tokenId: 35, name: "Trifecta" });
+  if (totalCategoryNFTs >= 5) combos.push({ tokenId: 36, name: "Quadrant" });
+  if (totalCategoryNFTs >= 10) combos.push({ tokenId: 37, name: "Constellation" });
+  if (totalCategoryNFTs >= 20) combos.push({ tokenId: 38, name: "Cyber Echo" });
+  if (totalCategoryNFTs >= 30) combos.push({ tokenId: 39, name: "Zenith" });
+  if (categoriesMaxed >= 1) combos.push({ tokenId: 40, name: "ZenMaster" });
+  if (categoriesMaxed >= 4) combos.push({ tokenId: 41, name: "Total Eclipse" });
+  
+  return combos;
 }
 
 Deno.serve(async (req) => {
@@ -138,23 +206,38 @@ Deno.serve(async (req) => {
 
       const pendingTokens = unclaimedRewards?.reduce((sum, r) => sum + Number(r.tokens_earned), 0) || 0;
 
-      // Calculate NFTs for each category
+      // Calculate NFTs for each category (returns array of {tokenId, name})
       const solarEarned = calculateEarnedForCategory(totalSolarKwh, SOLAR_THRESHOLDS);
       const batteryEarned = calculateEarnedForCategory(totalBatteryKwh, BATTERY_THRESHOLDS);
       const evChargingEarned = calculateEarnedForCategory(totalEvChargingKwh, EV_CHARGING_THRESHOLDS);
       const evMilesEarned = calculateEarnedForCategory(totalEvMiles, EV_MILES_THRESHOLDS);
       
-      // Welcome NFT is always earned for registered users
-      const earnedNFTs = [
-        "Welcome", // Auto-minted on registration
+      // Calculate combo NFTs based on category NFT counts
+      const comboEarned = calculateComboNFTs(
+        solarEarned.length,
+        batteryEarned.length,
+        evChargingEarned.length,
+        evMilesEarned.length
+      );
+      
+      // Welcome NFT (Token ID 0) is always earned for registered users
+      const welcomeNft = { tokenId: 0, name: "Welcome" };
+      
+      // All earned NFTs with token IDs for on-chain minting
+      const allEarnedNFTs = [
+        welcomeNft,
         ...solarEarned,
         ...batteryEarned,
         ...evChargingEarned,
         ...evMilesEarned,
+        ...comboEarned,
       ];
+      
+      // Legacy format: just names for backward compatibility
+      const earnedNFTNames = allEarnedNFTs.map(nft => nft.name);
 
-      // Calculate CO2 offset (0.92 lbs per kWh solar + 0.4 lbs per EV mile) - display only, no NFTs
-      const co2OffsetLbs = (totalSolarKwh * 0.92) + (totalEvMiles * 0.4);
+      // Calculate CO2 offset (EPA values) - display only, no NFTs
+      const co2OffsetLbs = (totalSolarKwh * 0.868) + (totalEvMiles * 0.891);
 
       console.log("Rewards calculation:", {
         totalClaimedTokens,
@@ -163,20 +246,35 @@ Deno.serve(async (req) => {
         batteryEarned: batteryEarned.length,
         evChargingEarned: evChargingEarned.length,
         evMilesEarned: evMilesEarned.length,
-        earnedNFTs,
+        comboEarned: comboEarned.length,
+        totalNFTs: allEarnedNFTs.length,
       });
 
       return new Response(JSON.stringify({
         total_tokens_earned: totalClaimedTokens + pendingTokens,
         tokens_claimed: totalClaimedTokens,
         tokens_pending: pendingTokens,
-        earned_nfts: earnedNFTs,
+        // Full NFT data with token IDs (for smart contract minting)
+        earned_nfts_full: allEarnedNFTs,
+        // Legacy format: just names (for backward compatibility)
+        earned_nfts: earnedNFTNames,
         nfts_by_category: {
-          welcome: ["Welcome"],
+          welcome: [welcomeNft],
           solar: solarEarned,
           battery: batteryEarned,
           ev_charging: evChargingEarned,
           ev_miles: evMilesEarned,
+          combo: comboEarned,
+        },
+        // Category counts for combo calculations
+        nft_counts: {
+          solar: solarEarned.length,
+          battery: batteryEarned.length,
+          charging: evChargingEarned.length,
+          ev_miles: evMilesEarned.length,
+          combo: comboEarned.length,
+          total_category: solarEarned.length + batteryEarned.length + evChargingEarned.length + evMilesEarned.length,
+          total_all: allEarnedNFTs.length,
         },
         co2_offset_lbs: co2OffsetLbs,
         reward_rates: REWARD_RATES,
