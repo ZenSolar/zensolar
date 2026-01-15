@@ -32,6 +32,12 @@ interface ProfileWithEmail {
   twitter_connected: boolean;
   linkedin_connected: boolean;
   created_at: string;
+  updated_at: string;
+}
+
+interface UserPushStatus {
+  user_id: string;
+  has_push: boolean;
 }
 
 export default function Admin() {
@@ -39,6 +45,7 @@ export default function Admin() {
   const { isAdmin, isChecking: adminChecking } = useAdminCheck();
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<ProfileWithEmail[]>([]);
+  const [pushStatuses, setPushStatuses] = useState<Map<string, boolean>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
@@ -77,6 +84,19 @@ export default function Admin() {
     }
 
     setProfiles(data || []);
+
+    // Fetch push subscription status for all users
+    const { data: pushData, error: pushError } = await supabase
+      .from('push_subscriptions')
+      .select('user_id');
+
+    if (!pushError && pushData) {
+      const statusMap = new Map<string, boolean>();
+      pushData.forEach(sub => {
+        statusMap.set(sub.user_id, true);
+      });
+      setPushStatuses(statusMap);
+    }
   };
 
   useEffect(() => {
@@ -511,6 +531,23 @@ export default function Admin() {
     });
   };
 
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return 'Today';
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return formatDate(dateString);
+    }
+  };
+
   const countConnections = (profile: ProfileWithEmail) => {
     let count = 0;
     if (profile.tesla_connected) count++;
@@ -871,13 +908,15 @@ export default function Admin() {
                     <TableHead>Energy</TableHead>
                     <TableHead>Social</TableHead>
                     <TableHead>Connections</TableHead>
+                    <TableHead>Last Activity</TableHead>
+                    <TableHead>Notifications</TableHead>
                     <TableHead>Joined</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {profiles.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                         No users registered yet
                       </TableCell>
                     </TableRow>
@@ -924,6 +963,21 @@ export default function Admin() {
                           <Badge variant={countConnections(profile) > 0 ? 'default' : 'secondary'}>
                             {countConnections(profile)}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {formatDateTime(profile.updated_at)}
+                        </TableCell>
+                        <TableCell>
+                          {pushStatuses.get(profile.user_id) ? (
+                            <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                              <Bell className="h-3 w-3 mr-1" />
+                              On
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              Off
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
                           {formatDate(profile.created_at)}
