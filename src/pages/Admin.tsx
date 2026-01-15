@@ -26,6 +26,7 @@ interface ProfileWithEmail {
   tesla_connected: boolean;
   enphase_connected: boolean;
   solaredge_connected: boolean;
+  wallbox_connected: boolean;
   facebook_connected: boolean;
   instagram_connected: boolean;
   tiktok_connected: boolean;
@@ -33,6 +34,14 @@ interface ProfileWithEmail {
   linkedin_connected: boolean;
   created_at: string;
   updated_at: string;
+}
+
+interface UserKPIs {
+  user_id: string;
+  device_count: number;
+  total_production_kwh: number;
+  total_consumption_kwh: number;
+  total_tokens: number;
 }
 
 interface UserPushStatus {
@@ -45,7 +54,15 @@ export default function Admin() {
   const { isAdmin, isChecking: adminChecking } = useAdminCheck();
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<ProfileWithEmail[]>([]);
+  const [userKPIs, setUserKPIs] = useState<Map<string, UserKPIs>>(new Map());
   const [pushStatuses, setPushStatuses] = useState<Map<string, boolean>>(new Map());
+  const [aggregateKPIs, setAggregateKPIs] = useState({
+    totalUsers: 0,
+    usersWithEnergy: 0,
+    totalDevices: 0,
+    totalProductionKwh: 0,
+    totalTokens: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
@@ -72,6 +89,7 @@ export default function Admin() {
   const [clearSubsMessage, setClearSubsMessage] = useState('');
 
   const fetchProfiles = async () => {
+    // Fetch profiles
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -85,18 +103,92 @@ export default function Admin() {
 
     setProfiles(data || []);
 
-    // Fetch push subscription status for all users
-    const { data: pushData, error: pushError } = await supabase
-      .from('push_subscriptions')
-      .select('user_id');
+    // Fetch push subscription status, devices, production, and rewards in parallel
+    const [pushResult, devicesResult, productionResult, rewardsResult] = await Promise.all([
+      supabase.from('push_subscriptions').select('user_id'),
+      supabase.from('connected_devices').select('user_id, id, provider, device_type'),
+      supabase.from('energy_production').select('user_id, production_wh, consumption_wh'),
+      supabase.from('user_rewards').select('user_id, tokens_earned'),
+    ]);
 
-    if (!pushError && pushData) {
+    // Process push statuses
+    if (!pushResult.error && pushResult.data) {
       const statusMap = new Map<string, boolean>();
-      pushData.forEach(sub => {
+      pushResult.data.forEach(sub => {
         statusMap.set(sub.user_id, true);
       });
       setPushStatuses(statusMap);
     }
+
+    // Aggregate KPIs per user
+    const kpiMap = new Map<string, UserKPIs>();
+    
+    // Initialize for all users
+    (data || []).forEach(profile => {
+      kpiMap.set(profile.user_id, {
+        user_id: profile.user_id,
+        device_count: 0,
+        total_production_kwh: 0,
+        total_consumption_kwh: 0,
+        total_tokens: 0,
+      });
+    });
+
+    // Count devices per user
+    if (!devicesResult.error && devicesResult.data) {
+      devicesResult.data.forEach(device => {
+        const existing = kpiMap.get(device.user_id);
+        if (existing) {
+          existing.device_count++;
+        }
+      });
+    }
+
+    // Sum production per user
+    if (!productionResult.error && productionResult.data) {
+      productionResult.data.forEach(prod => {
+        const existing = kpiMap.get(prod.user_id);
+        if (existing) {
+          existing.total_production_kwh += (Number(prod.production_wh) || 0) / 1000;
+          existing.total_consumption_kwh += (Number(prod.consumption_wh) || 0) / 1000;
+        }
+      });
+    }
+
+    // Sum tokens per user
+    if (!rewardsResult.error && rewardsResult.data) {
+      rewardsResult.data.forEach(reward => {
+        const existing = kpiMap.get(reward.user_id);
+        if (existing) {
+          existing.total_tokens += Number(reward.tokens_earned) || 0;
+        }
+      });
+    }
+
+    setUserKPIs(kpiMap);
+
+    // Calculate aggregate KPIs
+    let totalDevices = 0;
+    let totalProductionKwh = 0;
+    let totalTokens = 0;
+    let usersWithEnergy = 0;
+
+    kpiMap.forEach((kpi) => {
+      totalDevices += kpi.device_count;
+      totalProductionKwh += kpi.total_production_kwh;
+      totalTokens += kpi.total_tokens;
+      if (kpi.device_count > 0 || kpi.total_production_kwh > 0) {
+        usersWithEnergy++;
+      }
+    });
+
+    setAggregateKPIs({
+      totalUsers: data?.length || 0,
+      usersWithEnergy,
+      totalDevices,
+      totalProductionKwh,
+      totalTokens,
+    });
   };
 
   useEffect(() => {
@@ -882,6 +974,59 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        {/* KPI Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <Card className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Users className="h-3.5 w-3.5" />
+              Total Users
+            </div>
+            <div className="text-2xl font-bold">{aggregateKPIs.totalUsers}</div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Zap className="h-3.5 w-3.5" />
+              With Energy
+            </div>
+            <div className="text-2xl font-bold text-secondary">{aggregateKPIs.usersWithEnergy}</div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Zap className="h-3.5 w-3.5" />
+              Devices
+            </div>
+            <div className="text-2xl font-bold">{aggregateKPIs.totalDevices}</div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Zap className="h-3.5 w-3.5" />
+              Production
+            </div>
+            <div className="text-2xl font-bold text-primary">
+              {aggregateKPIs.totalProductionKwh >= 1000000 
+                ? `${(aggregateKPIs.totalProductionKwh / 1000000).toFixed(1)}M kWh`
+                : aggregateKPIs.totalProductionKwh >= 1000
+                ? `${(aggregateKPIs.totalProductionKwh / 1000).toFixed(1)}k kWh`
+                : `${aggregateKPIs.totalProductionKwh.toFixed(0)} kWh`
+              }
+            </div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Zap className="h-3.5 w-3.5" />
+              Tokens Earned
+            </div>
+            <div className="text-2xl font-bold text-amber-500">
+              {aggregateKPIs.totalTokens >= 1000000 
+                ? `${(aggregateKPIs.totalTokens / 1000000).toFixed(1)}M`
+                : aggregateKPIs.totalTokens >= 1000
+                ? `${(aggregateKPIs.totalTokens / 1000).toFixed(1)}k`
+                : aggregateKPIs.totalTokens.toLocaleString()
+              }
+            </div>
+          </Card>
+        </div>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Users className="h-6 w-6 text-primary" />
@@ -897,6 +1042,7 @@ export default function Admin() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">User Profiles</CardTitle>
+            <CardDescription>Energy production data, devices, and tokens earned per user</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -905,10 +1051,10 @@ export default function Admin() {
                   <TableRow>
                     <TableHead>Display Name</TableHead>
                     <TableHead>Wallet</TableHead>
-                    <TableHead>Energy</TableHead>
-                    <TableHead>Social</TableHead>
-                    <TableHead>Connections</TableHead>
-                    <TableHead>Last Activity</TableHead>
+                    <TableHead>Energy Accounts</TableHead>
+                    <TableHead className="text-right">Devices</TableHead>
+                    <TableHead className="text-right">Production</TableHead>
+                    <TableHead className="text-right">Tokens</TableHead>
                     <TableHead>Notifications</TableHead>
                     <TableHead>Joined</TableHead>
                   </TableRow>
@@ -921,69 +1067,87 @@ export default function Admin() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    profiles.map((profile) => (
-                      <TableRow key={profile.id}>
-                        <TableCell className="font-medium">
-                          {profile.display_name || 'Anonymous'}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {formatAddress(profile.wallet_address)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            {profile.tesla_connected && (
-                              <Badge variant="outline" className="text-xs">Tesla</Badge>
-                            )}
-                            {profile.enphase_connected && (
-                              <Badge variant="outline" className="text-xs">Enphase</Badge>
-                            )}
-                            {profile.solaredge_connected && (
-                              <Badge variant="outline" className="text-xs">SolarEdge</Badge>
-                            )}
-                            {!profile.tesla_connected && !profile.enphase_connected && !profile.solaredge_connected && (
-                              <span className="text-muted-foreground text-xs">None</span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1 flex-wrap">
-                            {profile.facebook_connected && <Badge variant="secondary" className="text-xs">FB</Badge>}
-                            {profile.instagram_connected && <Badge variant="secondary" className="text-xs">IG</Badge>}
-                            {profile.tiktok_connected && <Badge variant="secondary" className="text-xs">TT</Badge>}
-                            {profile.twitter_connected && <Badge variant="secondary" className="text-xs">X</Badge>}
-                            {profile.linkedin_connected && <Badge variant="secondary" className="text-xs">LI</Badge>}
-                            {!profile.facebook_connected && !profile.instagram_connected && 
-                             !profile.tiktok_connected && !profile.twitter_connected && 
-                             !profile.linkedin_connected && (
-                              <span className="text-muted-foreground text-xs">None</span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={countConnections(profile) > 0 ? 'default' : 'secondary'}>
-                            {countConnections(profile)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
-                          {formatDateTime(profile.updated_at)}
-                        </TableCell>
-                        <TableCell>
-                          {pushStatuses.get(profile.user_id) ? (
-                            <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                              <Bell className="h-3 w-3 mr-1" />
-                              On
+                    profiles.map((profile) => {
+                      const kpi = userKPIs.get(profile.user_id);
+                      return (
+                        <TableRow key={profile.id}>
+                          <TableCell className="font-medium">
+                            {profile.display_name || 'Anonymous'}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {formatAddress(profile.wallet_address)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1 flex-wrap">
+                              {profile.tesla_connected && (
+                                <Badge variant="outline" className="text-xs">Tesla</Badge>
+                              )}
+                              {profile.enphase_connected && (
+                                <Badge variant="outline" className="text-xs">Enphase</Badge>
+                              )}
+                              {profile.solaredge_connected && (
+                                <Badge variant="outline" className="text-xs">SolarEdge</Badge>
+                              )}
+                              {profile.wallbox_connected && (
+                                <Badge variant="outline" className="text-xs">Wallbox</Badge>
+                              )}
+                              {!profile.tesla_connected && !profile.enphase_connected && 
+                               !profile.solaredge_connected && !profile.wallbox_connected && (
+                                <span className="text-muted-foreground text-xs">None</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant={kpi?.device_count ? 'default' : 'secondary'}>
+                              {kpi?.device_count || 0}
                             </Badge>
-                          ) : (
-                            <Badge variant="secondary">
-                              Off
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
-                          {formatDate(profile.created_at)}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {kpi && kpi.total_production_kwh > 0 ? (
+                              <span className="font-medium text-primary">
+                                {kpi.total_production_kwh >= 1000000 
+                                  ? `${(kpi.total_production_kwh / 1000000).toFixed(1)}M`
+                                  : kpi.total_production_kwh >= 1000
+                                  ? `${(kpi.total_production_kwh / 1000).toFixed(1)}k`
+                                  : kpi.total_production_kwh.toFixed(0)
+                                } kWh
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {kpi && kpi.total_tokens > 0 ? (
+                              <span className="font-medium text-amber-500">
+                                {kpi.total_tokens >= 1000000 
+                                  ? `${(kpi.total_tokens / 1000000).toFixed(1)}M`
+                                  : kpi.total_tokens >= 1000
+                                  ? `${(kpi.total_tokens / 1000).toFixed(1)}k`
+                                  : kpi.total_tokens.toLocaleString()
+                                }
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {pushStatuses.get(profile.user_id) ? (
+                              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                                <Bell className="h-3 w-3 mr-1" />
+                                On
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">
+                                Off
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm">
+                            {formatDate(profile.created_at)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
