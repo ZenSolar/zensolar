@@ -17,14 +17,19 @@ import {
   Calendar,
   Sparkles,
   Crown,
-  Award
+  Award,
+  Loader2,
+  Wallet,
+  AlertCircle
 } from 'lucide-react';
 import { NFTBadge } from '@/components/ui/nft-badge';
 import { getNftArtwork } from '@/lib/nftArtwork';
-import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_RANGES } from '@/lib/nftTokenMapping';
+import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import type { NFTMilestone } from '@/lib/nftMilestones';
 
 interface NFTDetailModalProps {
@@ -32,6 +37,7 @@ interface NFTDetailModalProps {
   isEarned: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onMintSuccess?: () => void;
 }
 
 interface MintTransaction {
@@ -102,10 +108,48 @@ function isRedeemable(milestone: NFTMilestone): boolean {
   return getRedemptionValue(milestone) !== null;
 }
 
-export function NFTDetailModal({ milestone, isEarned, open, onOpenChange }: NFTDetailModalProps) {
+export function NFTDetailModal({ milestone, isEarned, open, onOpenChange, onMintSuccess }: NFTDetailModalProps) {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const [transactions, setTransactions] = useState<MintTransaction[]>([]);
   const [loadingTx, setLoadingTx] = useState(false);
+  const [isMinting, setIsMinting] = useState(false);
+  const [mintResult, setMintResult] = useState<{ success: boolean; txHash?: string; message: string } | null>(null);
+  const [isOnChain, setIsOnChain] = useState(false);
+  const [checkingOnChain, setCheckingOnChain] = useState(false);
+
+  const walletAddress = profile?.wallet_address;
+
+  // Check if NFT is already on-chain
+  useEffect(() => {
+    if (!open || !milestone || !walletAddress) {
+      setIsOnChain(false);
+      return;
+    }
+
+    async function checkOnChainStatus() {
+      setCheckingOnChain(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { data, error } = await supabase.functions.invoke('mint-onchain', {
+          body: { action: 'status', walletAddress },
+        });
+
+        if (!error && data?.ownedNFTTokenIds) {
+          const tokenId = MILESTONE_TO_TOKEN_ID[milestone.id];
+          setIsOnChain(data.ownedNFTTokenIds.includes(tokenId));
+        }
+      } catch (err) {
+        console.error('Error checking on-chain status:', err);
+      } finally {
+        setCheckingOnChain(false);
+      }
+    }
+
+    checkOnChainStatus();
+  }, [open, milestone, walletAddress]);
 
   // Fetch transaction history for this NFT when modal opens
   useEffect(() => {
@@ -145,6 +189,61 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange }: NFTD
     fetchTransactions();
   }, [open, milestone, user]);
 
+  // Reset mint result when modal closes
+  useEffect(() => {
+    if (!open) {
+      setMintResult(null);
+    }
+  }, [open]);
+
+  const handleMintNFT = async () => {
+    if (!milestone || !walletAddress) return;
+
+    setIsMinting(true);
+    setMintResult(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to mint');
+        return;
+      }
+
+      const tokenId = MILESTONE_TO_TOKEN_ID[milestone.id];
+
+      const { data, error } = await supabase.functions.invoke('mint-onchain', {
+        body: { 
+          action: 'mint-specific-nft', 
+          walletAddress,
+          tokenId
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.alreadyOwned) {
+        setMintResult({ success: false, message: data.message });
+        setIsOnChain(true);
+        toast.info(data.message);
+      } else if (data.success) {
+        setMintResult({ success: true, txHash: data.txHash, message: data.message });
+        setIsOnChain(true);
+        toast.success(data.message);
+        onMintSuccess?.();
+      } else {
+        setMintResult({ success: false, message: data.message || 'Minting failed' });
+        toast.error(data.message || 'Minting failed');
+      }
+    } catch (err) {
+      console.error('Mint error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to mint NFT';
+      setMintResult({ success: false, message: errorMessage });
+      toast.error(errorMessage);
+    } finally {
+      setIsMinting(false);
+    }
+  };
+
   if (!milestone) return null;
 
   const artwork = getNftArtwork(milestone.id);
@@ -154,6 +253,8 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange }: NFTD
   const rarity = getRarity(milestone);
   const redemptionValue = getRedemptionValue(milestone);
   const redeemable = isRedeemable(milestone);
+
+  const canMint = isEarned && walletAddress && !isOnChain && !isMinting;
 
   const truncateHash = (hash: string) => {
     return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
@@ -276,6 +377,90 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange }: NFTD
                 </div>
               </div>
               
+              {/* Mint Now Section */}
+              <div className="pt-3 border-t border-border/50 space-y-3">
+                {!walletAddress ? (
+                  <div className="bg-muted/50 rounded-lg p-3 flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Connect a wallet to mint this NFT
+                    </p>
+                  </div>
+                ) : checkingOnChain ? (
+                  <div className="bg-muted/50 rounded-lg p-3 flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Checking on-chain status...</p>
+                  </div>
+                ) : isOnChain ? (
+                  <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-primary">Minted On-Chain</p>
+                      <p className="text-xs text-muted-foreground">This NFT is in your wallet</p>
+                    </div>
+                  </div>
+                ) : !isEarned ? (
+                  <div className="bg-muted/50 rounded-lg p-3 flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Reach the milestone to unlock this NFT
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {mintResult ? (
+                      <div className={`rounded-lg p-3 ${
+                        mintResult.success 
+                          ? 'bg-primary/10 border border-primary/30' 
+                          : 'bg-destructive/10 border border-destructive/30'
+                      }`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          {mintResult.success ? (
+                            <CheckCircle2 className="h-4 w-4 text-primary" />
+                          ) : (
+                            <AlertCircle className="h-4 w-4 text-destructive" />
+                          )}
+                          <p className={`text-sm font-medium ${
+                            mintResult.success ? 'text-primary' : 'text-destructive'
+                          }`}>
+                            {mintResult.success ? 'Minted Successfully!' : 'Minting Failed'}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{mintResult.message}</p>
+                        {mintResult.txHash && (
+                          <a
+                            href={`https://sepolia.basescan.org/tx/${mintResult.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                          >
+                            View Transaction <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <Button 
+                        className="w-full gap-2" 
+                        onClick={handleMintNFT}
+                        disabled={!canMint}
+                      >
+                        {isMinting ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Minting...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            Mint Now
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+              
               {/* External Links */}
               <div className="pt-2 border-t border-border/50">
                 <p className="text-xs text-muted-foreground mb-2">External Links</p>
@@ -284,7 +469,7 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange }: NFTD
                     variant="outline" 
                     size="sm" 
                     className="text-xs gap-1.5"
-                    onClick={() => window.open(`https://basescan.org/token/0x...?a=${tokenId}`, '_blank')}
+                    onClick={() => window.open(`https://sepolia.basescan.org/token/0x0D2E9f87c95cB95f37854DBe692e5BC1920e4B79?a=${tokenId}`, '_blank')}
                   >
                     <ExternalLink className="h-3 w-3" />
                     View on BaseScan
