@@ -42,6 +42,14 @@ interface UserDevice {
     total_energy_discharged_wh?: number;
     total_solar_produced_wh?: number;
   } | null;
+  lifetime_totals: {
+    odometer?: number;
+    charging_kwh?: number;
+    solar_wh?: number;
+    battery_discharge_wh?: number;
+    wall_connector_wh?: number;
+    updated_at?: string;
+  } | null;
 }
 
 interface MintRecord {
@@ -508,7 +516,7 @@ export default function AdminUsers() {
     // Fetch push subscription status, devices, production, and rewards in parallel
     const [pushResult, devicesResult, productionResult, rewardsResult] = await Promise.all([
       supabase.from('push_subscriptions').select('user_id'),
-      supabase.from('connected_devices').select('id, user_id, provider, device_type, device_name, baseline_data'),
+      supabase.from('connected_devices').select('id, user_id, provider, device_type, device_name, baseline_data, lifetime_totals'),
       supabase.from('energy_production').select('user_id, production_wh, consumption_wh'),
       supabase.from('user_rewards').select('id, user_id, reward_type, tokens_earned, energy_wh_basis, claimed, claimed_at, created_at').order('created_at', { ascending: false }),
     ]);
@@ -544,19 +552,28 @@ export default function AdminUsers() {
       });
     });
 
-    // Process devices per user (including EV and battery data from baseline)
+    // Process devices per user - use lifetime_totals for accurate data, fall back to baseline
     if (!devicesResult.error && devicesResult.data) {
       devicesResult.data.forEach(device => {
         const existing = kpiMap.get(device.user_id);
         if (existing) {
           existing.device_count++;
           
-          // Parse baseline_data for all device metrics
+          // Parse baseline_data and lifetime_totals
           const baselineData = device.baseline_data as { 
             odometer?: number; 
             total_charge_energy_added_kwh?: number;
             total_energy_discharged_wh?: number;
             total_solar_produced_wh?: number;
+          } | null;
+          
+          const lifetimeTotals = device.lifetime_totals as {
+            odometer?: number;
+            charging_kwh?: number;
+            solar_wh?: number;
+            battery_discharge_wh?: number;
+            wall_connector_wh?: number;
+            updated_at?: string;
           } | null;
           
           existing.devices.push({
@@ -565,22 +582,25 @@ export default function AdminUsers() {
             device_name: device.device_name,
             provider: device.provider,
             baseline_data: baselineData,
+            lifetime_totals: lifetimeTotals,
           });
           
-          // Aggregate EV data from vehicle devices
-          if (device.device_type === 'vehicle' && baselineData) {
-            if (baselineData.odometer) {
-              existing.total_ev_miles += baselineData.odometer;
-            }
-            if (baselineData.total_charge_energy_added_kwh) {
-              existing.total_charging_kwh += baselineData.total_charge_energy_added_kwh;
-            }
+          // Aggregate EV data from vehicle devices - prefer lifetime_totals over baseline
+          if (device.device_type === 'vehicle') {
+            const odometer = lifetimeTotals?.odometer ?? baselineData?.odometer ?? 0;
+            const chargingKwh = lifetimeTotals?.charging_kwh ?? baselineData?.total_charge_energy_added_kwh ?? 0;
+            existing.total_ev_miles += odometer;
+            existing.total_charging_kwh += chargingKwh;
           }
           
-          // Aggregate battery data from powerwall devices
-          if (device.device_type === 'powerwall' && baselineData) {
-            if (baselineData.total_energy_discharged_wh) {
-              existing.total_battery_discharged_kwh += baselineData.total_energy_discharged_wh / 1000;
+          // Aggregate battery data from powerwall devices - prefer lifetime_totals over baseline
+          if (device.device_type === 'powerwall') {
+            const batteryDischargeWh = lifetimeTotals?.battery_discharge_wh ?? baselineData?.total_energy_discharged_wh ?? 0;
+            existing.total_battery_discharged_kwh += batteryDischargeWh / 1000;
+            
+            // Also add solar from lifetime_totals if available (Tesla solar)
+            if (lifetimeTotals?.solar_wh) {
+              existing.total_production_kwh += lifetimeTotals.solar_wh / 1000;
             }
           }
         }
