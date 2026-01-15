@@ -167,6 +167,51 @@ export type Database = {
         }
         Relationships: []
       }
+      mint_transactions: {
+        Row: {
+          action: string
+          block_number: string | null
+          created_at: string
+          gas_used: string | null
+          id: string
+          nft_names: string[] | null
+          nfts_minted: number[] | null
+          status: string
+          tokens_minted: number | null
+          tx_hash: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          action: string
+          block_number?: string | null
+          created_at?: string
+          gas_used?: string | null
+          id?: string
+          nft_names?: string[] | null
+          nfts_minted?: number[] | null
+          status?: string
+          tokens_minted?: number | null
+          tx_hash: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          action?: string
+          block_number?: string | null
+          created_at?: string
+          gas_used?: string | null
+          id?: string
+          nft_names?: string[] | null
+          nfts_minted?: number[] | null
+          status?: string
+          tokens_minted?: number | null
+          tx_hash?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           body: string
