@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images } from 'lucide-react';
+import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useAccount } from 'wagmi';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,10 @@ interface RewardActionsProps {
   onRefresh: () => Promise<void>;
   isLoading: boolean;
   walletAddress?: string | null;
+}
+
+export interface RewardActionsRef {
+  openTokenMintDialog: () => void;
 }
 
 interface MintResult {
@@ -55,7 +60,8 @@ interface EligibilityData {
   totalEligible: number;
 }
 
-export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardActionsProps) {
+export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(function RewardActions({ onRefresh, isLoading, walletAddress }, ref) {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { triggerConfetti } = useConfetti();
   const { success: hapticSuccess } = useHaptics();
@@ -82,6 +88,11 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
   const [tokenAmount, setTokenAmount] = useState('');
   const [maxTokens, setMaxTokens] = useState(0);
   const [loadingMax, setLoadingMax] = useState(false);
+
+  // Expose openTokenMintDialog to parent via ref
+  useImperativeHandle(ref, () => ({
+    openTokenMintDialog: () => openTokenAmountDialog(),
+  }));
 
   // Check NFT eligibility when wallet is connected
   useEffect(() => {
@@ -443,24 +454,21 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
             : 'MINT $ZSOLAR TOKENS'}
         </Button>
 
-        {/* Welcome NFT Button - only show if not already owned */}
-        {!hasWelcomeNFT && (
-          <Button
-            onClick={handleMintWelcomeNFT}
-            disabled={isLoading || isMinting || !walletAddress}
-            className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black"
-            size="lg"
-          >
-            {mintingState.type === 'nft' && mintingState.isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Award className="mr-2 h-4 w-4" />
-            )}
-            {mintingState.type === 'nft' && mintingState.isLoading 
-              ? 'MINTING...' 
-              : 'MINT WELCOME NFT'}
-          </Button>
-        )}
+        {/* NFT Collection Button - shows all eligible NFTs */}
+        <Button
+          onClick={() => navigate('/nft-collection')}
+          disabled={isLoading || isMinting}
+          className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black"
+          size="lg"
+        >
+          <Images className="mr-2 h-4 w-4" />
+          MINT ZENSOLAR NFTS
+          {eligibility && eligibility.totalEligible > 0 && (
+            <Badge variant="secondary" className="ml-2 bg-black/20 text-black">
+              {eligibility.totalEligible} available
+            </Badge>
+          )}
+        </Button>
 
         {/* Milestone NFTs Button - show if eligible */}
         {eligibleMilestones > 0 && (
@@ -718,4 +726,4 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
       </Dialog>
     </>
   );
-}
+});

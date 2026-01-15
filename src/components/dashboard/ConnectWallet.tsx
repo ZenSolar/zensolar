@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { WalletConnectDiagnostics, type WalletDiagEvents } from './WalletConnectDiagnostics';
 import { WalletDeepLinks, getWalletConnectDeepLink, type WalletDeepLinkWalletId } from './WalletDeepLinks';
 import { hardResetWalletStorage } from '@/lib/walletStorage';
-import { autoPromptAddToken, resetTokenPromptFlag, promptAddZsolarToken } from '@/lib/walletAssets';
+import { autoPromptAddToken, resetTokenPromptFlag } from '@/lib/walletAssets';
 
 interface ConnectWalletProps {
   walletAddress: string | null;
   onConnect: (address: string) => Promise<void>;
   onDisconnect?: () => Promise<void>;
+  onMintTokens?: () => void;
   isDemo?: boolean;
   showDiagnostics?: boolean;
 }
@@ -39,7 +40,7 @@ function markForWallet(set: (key: keyof WalletDiagEvents) => void, wallet: Walle
   }
 }
 
-export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo = false, showDiagnostics = false }: ConnectWalletProps) {
+export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTokens, isDemo = false, showDiagnostics = false }: ConnectWalletProps) {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -223,13 +224,14 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
     }
   }, [isConnected, address, mark, walletAddress, onConnect]);
 
-  // Handler to manually add ZSOLAR token to wallet
-  const handleAddToken = useCallback(async () => {
-    const success = await promptAddZsolarToken();
-    if (success) {
-      toast.success('$ZSOLAR token added to wallet!');
+  // Handler to open the mint tokens dialog
+  const handleAddToken = useCallback(() => {
+    if (onMintTokens) {
+      onMintTokens();
+    } else {
+      toast.info('Mint tokens from the Reward Actions section');
     }
-  }, []);
+  }, [onMintTokens]);
 
   const handleReset = useCallback(async () => {
     mark('resetTap');
