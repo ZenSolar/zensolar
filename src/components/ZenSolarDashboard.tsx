@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -7,7 +8,7 @@ import { ConnectAccounts } from './dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from './dashboard/ConnectSocialAccounts';
 import { ConnectWallet } from './dashboard/ConnectWallet';
 import { ActivityMetrics } from './dashboard/ActivityMetrics';
-import { RewardActions } from './dashboard/RewardActions';
+import { RewardActions, RewardActionsRef } from './dashboard/RewardActions';
 import { HowItWorks } from './dashboard/HowItWorks';
 import { RewardProgress } from './dashboard/RewardProgress';
 import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
@@ -55,10 +56,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { activityData, isLoading: dataLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts } = useDashboardData();
   const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
   const { isAdmin } = useAdminCheck();
+  const rewardActionsRef = useRef<RewardActionsRef>(null);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
   });
+
+  const handleMintTokens = () => {
+    rewardActionsRef.current?.openTokenMintDialog();
+  };
 
   const handleConnectWallet = async (address: string) => {
     await updateProfile({ wallet_address: address });
@@ -196,6 +202,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             walletAddress={profile?.wallet_address ?? null}
             onConnect={handleConnectWallet}
             onDisconnect={handleDisconnectWallet}
+            onMintTokens={handleMintTokens}
             isDemo={isDemo}
             showDiagnostics={isAdmin}
           />
@@ -236,6 +243,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         
         <AnimatedItem>
           <RewardActions 
+            ref={rewardActionsRef}
             onRefresh={refreshDashboard} 
             isLoading={dataLoading}
             walletAddress={profile?.wallet_address}
