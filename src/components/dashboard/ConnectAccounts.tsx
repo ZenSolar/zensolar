@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ConnectedAccount } from '@/types/dashboard';
 import { ConnectAccountButton } from './ConnectAccountButton';
 import { EnphaseCodeDialog } from './EnphaseCodeDialog';
@@ -6,11 +6,13 @@ import { SolarEdgeConnectDialog } from './SolarEdgeConnectDialog';
 import { WallboxConnectDialog } from './WallboxConnectDialog';
 import { DeviceSelectionDialog } from './DeviceSelectionDialog';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
+import { useIncompleteSetup } from '@/hooks/useIncompleteSetup';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronDown, ChevronUp, Zap } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Zap, AlertCircle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Import brand logos
 import teslaLogo from '@/assets/logos/tesla-logo.png';
@@ -34,12 +36,25 @@ interface ConnectAccountsProps {
 
 export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAccountsProps) {
   const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge, connectWallbox } = useEnergyOAuth();
+  const { incompleteSetups, refreshIncompleteSetups } = useIncompleteSetup();
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
   const [solarEdgeDialogOpen, setSolarEdgeDialogOpen] = useState(false);
   const [wallboxDialogOpen, setWallboxDialogOpen] = useState(false);
   const [deviceSelectionOpen, setDeviceSelectionOpen] = useState(false);
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Auto-expand if there are incomplete setups
+  useEffect(() => {
+    if (incompleteSetups.length > 0) {
+      setIsExpanded(true);
+    }
+  }, [incompleteSetups]);
+
+  const handleResumeSetup = (provider: 'tesla' | 'enphase') => {
+    setDeviceSelectionProvider(provider);
+    setDeviceSelectionOpen(true);
+  };
 
   const handleConnect = async (service: ConnectedAccount['service']) => {
     if (service === 'tesla') {
@@ -119,6 +134,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
 
   const handleDeviceSelectionComplete = () => {
     onConnect(deviceSelectionProvider);
+    refreshIncompleteSetups();
   };
 
   const connectedAccounts = accounts.filter(acc => acc.connected);
@@ -126,10 +142,47 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
   const hasConnectedAccounts = connectedAccounts.length > 0;
   const allConnected = disconnectedAccounts.length === 0;
 
+  // Resume setup alert component
+  const ResumeSetupAlert = () => {
+    if (incompleteSetups.length === 0) return null;
+
+    return (
+      <div className="space-y-2">
+        {incompleteSetups.map((setup) => (
+          <Alert key={setup.provider} className="border-amber-500/50 bg-amber-500/10">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <img 
+                  src={providerLogos[setup.provider]} 
+                  alt={setup.provider}
+                  className="h-5 w-5 object-contain rounded-sm"
+                />
+                <span className="text-sm">
+                  Your {setup.provider.charAt(0).toUpperCase() + setup.provider.slice(1)} account is connected but you haven't selected devices yet.
+                </span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="shrink-0 border-amber-500/50 hover:bg-amber-500/20"
+                onClick={() => handleResumeSetup(setup.provider)}
+              >
+                Complete Setup
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ))}
+      </div>
+    );
+  };
+
   // If no accounts connected, show the full connection UI prominently
   if (!hasConnectedAccounts) {
     return (
       <>
+        <ResumeSetupAlert />
+        
         <div className="rounded-lg border border-border bg-card p-4 space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -182,6 +235,8 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
   // Compact view when accounts are connected
   return (
     <>
+      <ResumeSetupAlert />
+      
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <div className="rounded-lg border border-border bg-card overflow-hidden">
           {/* Compact header showing connected accounts */}
