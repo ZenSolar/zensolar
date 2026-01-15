@@ -10,8 +10,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Battery, Sun, AlertTriangle, Mail } from 'lucide-react';
+import { Loader2, Car, Battery, Sun, AlertTriangle, Mail, Moon, Wifi } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -46,6 +47,7 @@ export function DeviceSelectionDialog({
 }: DeviceSelectionDialogProps) {
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevices, setSelectedDevices] = useState<Set<string>>(new Set());
+  const [manualOdometers, setManualOdometers] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,15 +137,25 @@ export function DeviceSelectionDialog({
         return;
       }
 
+      // Attach manual odometer readings to device metadata
+      const devicesWithOdometer = devicesToClaim.map(d => {
+        const manualOdometer = manualOdometers[d.device_id];
+        return {
+          device_id: d.device_id,
+          device_type: d.device_type,
+          device_name: d.device_name,
+          metadata: {
+            ...d.metadata,
+            // Use manual odometer if provided, otherwise use the one from API (if vehicle was online)
+            manual_odometer: manualOdometer ? parseInt(manualOdometer, 10) : undefined,
+          },
+        };
+      });
+
       const response = await supabase.functions.invoke('claim-devices', {
         body: {
           provider,
-          devices: devicesToClaim.map(d => ({
-            device_id: d.device_id,
-            device_type: d.device_type,
-            device_name: d.device_name,
-            metadata: d.metadata,
-          })),
+          devices: devicesWithOdometer,
         },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -214,35 +226,83 @@ export function DeviceSelectionDialog({
               {availableDevices.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium">Available Devices</h4>
-                  {availableDevices.map(device => (
-                    <div
-                      key={device.device_id}
-                      className="flex items-center space-x-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-                      onClick={() => handleToggleDevice(device.device_id, device)}
-                    >
-                      <Checkbox
-                        id={device.device_id}
-                        checked={selectedDevices.has(device.device_id)}
-                        onCheckedChange={() => handleToggleDevice(device.device_id, device)}
-                      />
-                      <div className="text-muted-foreground">
-                        {deviceIcons[device.device_type] || <Sun className="h-5 w-5" />}
+                  {availableDevices.map(device => {
+                    const isVehicle = device.device_type === 'vehicle';
+                    const vehicleState = device.metadata?.state;
+                    const isAsleepOrOffline = vehicleState === 'asleep' || vehicleState === 'offline';
+                    const apiOdometer = device.metadata?.odometer;
+                    const needsManualOdometer = isVehicle && isAsleepOrOffline && !apiOdometer && !device.claimed_by_current_user;
+                    
+                    return (
+                      <div
+                        key={device.device_id}
+                        className="p-3 rounded-lg border bg-card"
+                      >
+                        <div 
+                          className="flex items-center space-x-3 cursor-pointer hover:bg-accent/50 -m-3 p-3 rounded-lg transition-colors"
+                          onClick={() => handleToggleDevice(device.device_id, device)}
+                        >
+                          <Checkbox
+                            id={device.device_id}
+                            checked={selectedDevices.has(device.device_id)}
+                            onCheckedChange={() => handleToggleDevice(device.device_id, device)}
+                          />
+                          <div className="text-muted-foreground">
+                            {deviceIcons[device.device_type] || <Sun className="h-5 w-5" />}
+                          </div>
+                          <div className="flex-1">
+                            <Label htmlFor={device.device_id} className="font-medium cursor-pointer">
+                              {device.device_name}
+                            </Label>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span className="capitalize">{device.device_type.replace('_', ' ')}</span>
+                              {isVehicle && vehicleState && (
+                                <span className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded ${
+                                  vehicleState === 'online' 
+                                    ? 'bg-green-500/20 text-green-600' 
+                                    : 'bg-yellow-500/20 text-yellow-600'
+                                }`}>
+                                  {vehicleState === 'online' ? <Wifi className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
+                                  {vehicleState}
+                                </span>
+                              )}
+                              {apiOdometer && (
+                                <span className="text-xs">({apiOdometer.toLocaleString()} mi)</span>
+                              )}
+                            </div>
+                          </div>
+                          {device.claimed_by_current_user && (
+                            <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                              Connected
+                            </span>
+                          )}
+                        </div>
+                        
+                        {/* Manual odometer input for sleeping vehicles */}
+                        {needsManualOdometer && selectedDevices.has(device.device_id) && (
+                          <div className="mt-3 pt-3 border-t">
+                            <Label htmlFor={`odometer-${device.device_id}`} className="text-sm font-medium">
+                              Current Odometer (miles)
+                            </Label>
+                            <p className="text-xs text-muted-foreground mb-2">
+                              Vehicle is {vehicleState}. Enter your current odometer reading from the Tesla app.
+                            </p>
+                            <Input
+                              id={`odometer-${device.device_id}`}
+                              type="number"
+                              placeholder="e.g., 12684"
+                              value={manualOdometers[device.device_id] || ''}
+                              onChange={(e) => setManualOdometers(prev => ({
+                                ...prev,
+                                [device.device_id]: e.target.value
+                              }))}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1">
-                        <Label htmlFor={device.device_id} className="font-medium cursor-pointer">
-                          {device.device_name}
-                        </Label>
-                        <p className="text-sm text-muted-foreground capitalize">
-                          {device.device_type.replace('_', ' ')}
-                        </p>
-                      </div>
-                      {device.claimed_by_current_user && (
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">
-                          Connected
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
               
