@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Coins, Award, RefreshCw, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useConfetti } from '@/hooks/useConfetti';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ interface RewardActionsProps {
 
 export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
   const { toast } = useToast();
+  const { triggerConfetti } = useConfetti();
   const [mintDialog, setMintDialog] = useState<{ 
     open: boolean; 
     type: 'token' | 'nft' | null; 
@@ -26,10 +28,15 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
   });
 
   const handleMint = (type: 'token' | 'nft') => {
-    // Show toast notification
+    // Trigger confetti celebration
+    triggerConfetti();
+    
+    // Show success toast notification
     toast({
-      title: type === 'token' ? "🪙 Token Minting" : "🎨 NFT Minting",
-      description: "Minting feature coming soon! Stay tuned for Base L2 launch.",
+      title: type === 'token' ? "🎉 Minting Success!" : "🎨 NFT Minting Success!",
+      description: type === 'token' 
+        ? "Your $ZSOLAR tokens are being prepared for minting!"
+        : "Your ZenSolar NFT is being prepared for minting!",
     });
     
     // Show the exciting coming soon dialog
@@ -38,7 +45,6 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
       type,
     });
   };
-
   return (
     <>
       <div className="space-y-3">
