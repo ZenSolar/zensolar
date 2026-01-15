@@ -718,39 +718,55 @@ Deno.serve(async (req) => {
     }
 
     if (action === "status") {
-      const [hasWelcome, tokenBalance, ownedNFTs] = await Promise.all([
-        publicClient.readContract({
-          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
-          abi: CONTROLLER_ABI,
-          functionName: "hasWelcomeNFT",
-          args: [walletAddress as `0x${string}`],
-        }),
-        publicClient.readContract({
-          address: ZSOLAR_TOKEN_ADDRESS as `0x${string}`,
-          abi: TOKEN_ABI,
-          functionName: "balanceOf",
-          args: [walletAddress as `0x${string}`],
-        }),
-        publicClient.readContract({
-          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-          abi: NFT_ABI,
-          functionName: "getOwnedTokens",
-          args: [walletAddress as `0x${string}`],
-        }),
-      ]);
+      try {
+        const [hasWelcome, tokenBalance, ownedNFTs] = await Promise.all([
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "hasWelcomeNFT",
+            args: [walletAddress as `0x${string}`],
+          }),
+          publicClient.readContract({
+            address: ZSOLAR_TOKEN_ADDRESS as `0x${string}`,
+            abi: TOKEN_ABI,
+            functionName: "balanceOf",
+            args: [walletAddress as `0x${string}`],
+          }),
+          publicClient.readContract({
+            address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+            abi: NFT_ABI,
+            functionName: "getOwnedTokens",
+            args: [walletAddress as `0x${string}`],
+          }),
+        ]);
 
-      const ownedIds = (ownedNFTs as bigint[]).map(id => Number(id));
+        const ownedIds = (ownedNFTs as bigint[]).map(id => Number(id));
 
-      return new Response(JSON.stringify({
-        walletAddress,
-        hasWelcomeNFT: hasWelcome,
-        zsolarBalance: formatEther(tokenBalance as bigint),
-        ownedNFTTokenIds: ownedIds,
-        ownedNFTNames: ownedIds.map(id => NFT_NAMES[id] || `Token #${id}`),
-        nftCount: ownedIds.length,
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+        return new Response(JSON.stringify({
+          walletAddress,
+          hasWelcomeNFT: hasWelcome,
+          zsolarBalance: formatEther(tokenBalance as bigint),
+          ownedNFTTokenIds: ownedIds,
+          ownedNFTNames: ownedIds.map(id => NFT_NAMES[id] || `Token #${id}`),
+          nftCount: ownedIds.length,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (statusError) {
+        // If contract calls fail (wallet not registered), return empty state
+        console.log("Status check failed, wallet may not be registered:", statusError);
+        return new Response(JSON.stringify({
+          walletAddress,
+          hasWelcomeNFT: false,
+          zsolarBalance: "0",
+          ownedNFTTokenIds: [],
+          ownedNFTNames: [],
+          nftCount: 0,
+          notRegistered: true,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     return new Response(JSON.stringify({ 

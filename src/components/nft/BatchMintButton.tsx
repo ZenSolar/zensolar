@@ -103,9 +103,16 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
         }
       });
 
-      if (fnError) throw fnError;
+      // If contract call fails (wallet not registered), treat as no owned NFTs
+      if (fnError) {
+        console.log('Status check error (wallet may not be registered yet):', fnError);
+        setOwnedTokenIds([]);
+        setEligibleNFTs(getEligibleForMint());
+        setIsChecking(false);
+        return;
+      }
       
-      setOwnedTokenIds(data.ownedNFTTokenIds || []);
+      setOwnedTokenIds(data?.ownedNFTTokenIds || []);
       setEligibleNFTs(getEligibleForMint());
     } catch (err) {
       console.error('Error checking on-chain status:', err);
