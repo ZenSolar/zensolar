@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Coins, Award, RefreshCw, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ interface RewardActionsProps {
 }
 
 export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
+  const { toast } = useToast();
   const [mintDialog, setMintDialog] = useState<{ 
     open: boolean; 
     type: 'token' | 'nft' | null; 
@@ -24,7 +26,13 @@ export function RewardActions({ onRefresh, isLoading }: RewardActionsProps) {
   });
 
   const handleMint = (type: 'token' | 'nft') => {
-    // Show the exciting coming soon dialog immediately
+    // Show toast notification
+    toast({
+      title: type === 'token' ? "🪙 Token Minting" : "🎨 NFT Minting",
+      description: "Minting feature coming soon! Stay tuned for Base L2 launch.",
+    });
+    
+    // Show the exciting coming soon dialog
     setMintDialog({
       open: true,
       type,
