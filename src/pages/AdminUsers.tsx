@@ -39,6 +39,8 @@ interface UserDevice {
   baseline_data: {
     odometer?: number;
     total_charge_energy_added_kwh?: number;
+    total_energy_discharged_wh?: number;
+    total_solar_produced_wh?: number;
   } | null;
 }
 
@@ -60,6 +62,7 @@ interface UserKPIs {
   total_consumption_kwh: number;
   total_ev_miles: number;
   total_charging_kwh: number;
+  total_battery_discharged_kwh: number;
   total_tokens_earned: number;
   total_tokens_claimed: number;
   total_tokens_pending: number;
@@ -122,6 +125,7 @@ interface EnergyData {
   productionKwh: number;
   evMiles: number;
   chargingKwh: number;
+  batteryDischargedKwh: number;
 }
 
 function calculateEarnedNFTs(data: EnergyData): string[] {
@@ -145,6 +149,13 @@ function calculateEarnedNFTs(data: EnergyData): string[] {
   CHARGING_THRESHOLDS.forEach(t => {
     if (data.chargingKwh >= t.threshold) {
       earned.push(`Charging: ${t.name}`);
+    }
+  });
+  
+  // Battery NFTs
+  BATTERY_THRESHOLDS.forEach(t => {
+    if (data.batteryDischargedKwh >= t.threshold) {
+      earned.push(`Battery: ${t.name}`);
     }
   });
   
@@ -344,6 +355,15 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
                         <div className="font-semibold text-accent-foreground">{formatNumber(kpi.total_charging_kwh)} kWh</div>
                       </div>
                     )}
+                    {kpi.total_battery_discharged_kwh > 0 && (
+                      <div className="bg-background rounded-lg p-3 border">
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                          <Battery className="h-3 w-3" />
+                          Battery Discharged
+                        </div>
+                        <div className="font-semibold text-amber-500">{formatNumber(kpi.total_battery_discharged_kwh)} kWh</div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -515,6 +535,7 @@ export default function AdminUsers() {
         total_consumption_kwh: 0,
         total_ev_miles: 0,
         total_charging_kwh: 0,
+        total_battery_discharged_kwh: 0,
         total_tokens_earned: 0,
         total_tokens_claimed: 0,
         total_tokens_pending: 0,
@@ -523,15 +544,20 @@ export default function AdminUsers() {
       });
     });
 
-    // Process devices per user (including EV data from baseline)
+    // Process devices per user (including EV and battery data from baseline)
     if (!devicesResult.error && devicesResult.data) {
       devicesResult.data.forEach(device => {
         const existing = kpiMap.get(device.user_id);
         if (existing) {
           existing.device_count++;
           
-          // Parse baseline_data for EV metrics
-          const baselineData = device.baseline_data as { odometer?: number; total_charge_energy_added_kwh?: number } | null;
+          // Parse baseline_data for all device metrics
+          const baselineData = device.baseline_data as { 
+            odometer?: number; 
+            total_charge_energy_added_kwh?: number;
+            total_energy_discharged_wh?: number;
+            total_solar_produced_wh?: number;
+          } | null;
           
           existing.devices.push({
             id: device.id,
@@ -548,6 +574,13 @@ export default function AdminUsers() {
             }
             if (baselineData.total_charge_energy_added_kwh) {
               existing.total_charging_kwh += baselineData.total_charge_energy_added_kwh;
+            }
+          }
+          
+          // Aggregate battery data from powerwall devices
+          if (device.device_type === 'powerwall' && baselineData) {
+            if (baselineData.total_energy_discharged_wh) {
+              existing.total_battery_discharged_kwh += baselineData.total_energy_discharged_wh / 1000;
             }
           }
         }
@@ -596,6 +629,7 @@ export default function AdminUsers() {
         productionKwh: kpi.total_production_kwh,
         evMiles: kpi.total_ev_miles,
         chargingKwh: kpi.total_charging_kwh,
+        batteryDischargedKwh: kpi.total_battery_discharged_kwh,
       });
     });
 
