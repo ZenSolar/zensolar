@@ -179,6 +179,22 @@ export function AppSidebar() {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Registered Users">
+                    <NavLink 
+                      to="/admin/users"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>Registered Users</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
