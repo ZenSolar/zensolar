@@ -5,11 +5,13 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ZenSolarNFT is ERC721, Ownable {
-    uint256 private _tokenIdCounter;
     string public baseURI;
 
     // Mapping from token ID to metadata URI suffix
     mapping(uint256 => string) private _tokenURIs;
+    
+    // Track which token IDs have been minted (for fixed ID minting)
+    mapping(uint256 => bool) public tokenIdExists;
 
     event BaseURIUpdated(string newBaseURI);
     event NFTMinted(address indexed to, uint256 tokenId);
@@ -19,20 +21,24 @@ contract ZenSolarNFT is ERC721, Ownable {
         baseURI = _baseURI;
     }
 
-    function mint(address to) external onlyOwner returns (uint256) {
+    // Mint with a specific token ID (for milestone NFTs with fixed metadata)
+    function mintWithId(address to, uint256 tokenId) external onlyOwner returns (uint256) {
         require(to != address(0), "Invalid address");
-        _tokenIdCounter++;
-        uint256 tokenId = _tokenIdCounter;
+        require(!tokenIdExists[tokenId], "Token ID already minted");
+        
         _safeMint(to, tokenId);
+        tokenIdExists[tokenId] = true;
         emit NFTMinted(to, tokenId);
         return tokenId;
     }
 
-    function mintWithURI(address to, string memory uri) external onlyOwner returns (uint256) {
+    // Mint with specific token ID and custom URI
+    function mintWithIdAndURI(address to, uint256 tokenId, string memory uri) external onlyOwner returns (uint256) {
         require(to != address(0), "Invalid address");
-        _tokenIdCounter++;
-        uint256 tokenId = _tokenIdCounter;
+        require(!tokenIdExists[tokenId], "Token ID already minted");
+        
         _safeMint(to, tokenId);
+        tokenIdExists[tokenId] = true;
         _tokenURIs[tokenId] = uri;
         emit NFTMinted(to, tokenId);
         return tokenId;
@@ -41,6 +47,7 @@ contract ZenSolarNFT is ERC721, Ownable {
     function burn(uint256 tokenId) external onlyOwner {
         require(_ownerOf(tokenId) != address(0), "Token does not exist");
         _burn(tokenId);
+        tokenIdExists[tokenId] = false;
         delete _tokenURIs[tokenId];
         emit NFTBurned(tokenId);
     }
@@ -63,11 +70,22 @@ contract ZenSolarNFT is ERC721, Ownable {
             return string(abi.encodePacked(baseURI, _tokenURI));
         }
         
+        // Default: baseURI + tokenId + .json (e.g., ipfs://CID/0.json)
         return string(abi.encodePacked(baseURI, Strings.toString(tokenId), ".json"));
     }
 
     function totalSupply() public view returns (uint256) {
-        return _tokenIdCounter;
+        // Count minted tokens (this is a simple implementation)
+        uint256 count = 0;
+        for (uint256 i = 0; i <= 50; i++) {
+            if (tokenIdExists[i]) count++;
+        }
+        return count;
+    }
+
+    // Check if a token ID can be minted
+    function canMint(uint256 tokenId) public view returns (bool) {
+        return !tokenIdExists[tokenId];
     }
 
     // Transfer ownership of the contract

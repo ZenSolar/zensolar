@@ -1,6 +1,6 @@
 # ZenSolar NFT Milestones Reference
 
-**Updated:** January 14, 2026  
+**Updated:** January 15, 2026  
 **Source:** final_milestones-3.docx  
 **Total NFTs:** 42 (1 welcome + 33 category + 8 combo)
 
@@ -8,15 +8,15 @@
 
 ## Overview
 
-| Category | NFT Count | Unit | Notes |
-|----------|-----------|------|-------|
-| Welcome | 1 | - | Auto-minted on registration, non-redeemable |
-| Solar Production | 8 | kWh | |
-| Battery Discharge | 7 | kWh | |
-| EV Charging | 8 | kWh | Combined supercharger + home charger |
-| EV Miles Driven | 10 | miles | |
-| **Category Subtotal** | **33** | | Only these count toward combo requirements |
-| Combo Achievements | 8 | varies | Cross-category achievements |
+| Category | NFT Count | Unit | Token ID Range | Notes |
+|----------|-----------|------|----------------|-------|
+| Welcome | 1 | - | 0 | Auto-minted on registration, non-redeemable |
+| Solar Production | 8 | kWh | 1-8 | |
+| Battery Discharge | 7 | kWh | 9-15 | |
+| EV Charging | 8 | kWh | 16-23 | Combined supercharger + home charger |
+| EV Miles Driven | 10 | miles | 24-33 | |
+| **Category Subtotal** | **33** | | 1-33 | Only these count toward combo requirements |
+| Combo Achievements | 8 | varies | 34-41 | Cross-category achievements |
 
 **Important:** Only category NFTs (33 total) count toward combo NFT requirements. Combo NFTs do not count toward earning other combos.
 
@@ -24,93 +24,93 @@
 
 ---
 
-## Welcome NFT (1 NFT)
+## Welcome NFT (Token ID 0)
 
-| # | ID | Name | Threshold | Description | Artwork File |
-|---|-----|------|-----------|-------------|--------------|
-| 1 | `welcome` | Welcome | 0 | Welcome to ZenSolar | `solar-genesis.png` |
+| Token ID | Milestone ID | Name | Threshold | Description |
+|----------|--------------|------|-----------|-------------|
+| 0 | `welcome` | Welcome | 0 | Welcome to ZenSolar |
 
 **Note:** Issued automatically on account registration. Non-redeemable. Only one per user.
 
 ---
 
-## Category 1: Solar Energy Produced (8 NFTs)
+## Category 1: Solar Energy Produced (Token IDs 1-8)
 
-| # | ID | Name | Threshold | Description | Artwork File |
-|---|-----|------|-----------|-------------|--------------|
-| 1 | `solar_1` | Sunspark | 500 kWh | 500 kWh generated | `solar-sunlink.png` |
-| 2 | `solar_2` | Photonic | 1,000 kWh | 1,000 kWh generated | `solar-photon.png` |
-| 3 | `solar_3` | Rayforge | 2,500 kWh | 2,500 kWh generated | `solar-rayfield.png` |
-| 4 | `solar_4` | Solaris | 5,000 kWh | 5,000 kWh generated | `solar-solarflare.png` |
-| 5 | `solar_5` | Helios | 10,000 kWh | 10,000 kWh generated | `solar-heliogen.png` |
-| 6 | `solar_6` | Sunforge | 25,000 kWh | 25,000 kWh generated | `solar-sunvault.png` |
-| 7 | `solar_7` | Gigasun | 50,000 kWh | 50,000 kWh generated | `solar-gigasol.png` |
-| 8 | `solar_8` | Starforge | 100,000 kWh | 100,000 kWh generated | `solar-starpower.png` |
-
----
-
-## Category 2: Battery Storage Discharged (7 NFTs)
-
-| # | ID | Name | Threshold | Description | Artwork File |
-|---|-----|------|-----------|-------------|--------------|
-| 1 | `battery_1` | Voltbank | 500 kWh | 500 kWh discharged | `battery-powerwall.png` |
-| 2 | `battery_2` | Gridpulse | 1,000 kWh | 1,000 kWh discharged | `battery-gridlink.png` |
-| 3 | `battery_3` | Megacell | 2,500 kWh | 2,500 kWh discharged | `battery-megapack.png` |
-| 4 | `battery_4` | Reservex | 5,000 kWh | 5,000 kWh discharged | `battery-reservoir.png` |
-| 5 | `battery_5` | Dynamax | 10,000 kWh | 10,000 kWh discharged | `battery-dynamo.png` |
-| 6 | `battery_6` | Ultracell | 25,000 kWh | 25,000 kWh discharged | `battery-gigabank.png` |
-| 7 | `battery_7` | Gigavolt | 50,000 kWh | 50,000 kWh discharged | `battery-ultrabank.png` |
+| Token ID | Milestone ID | Name | Threshold | Description |
+|----------|--------------|------|-----------|-------------|
+| 1 | `solar_1` | Sunspark | 500 kWh | 500 kWh generated |
+| 2 | `solar_2` | Photonic | 1,000 kWh | 1,000 kWh generated |
+| 3 | `solar_3` | Rayforge | 2,500 kWh | 2,500 kWh generated |
+| 4 | `solar_4` | Solaris | 5,000 kWh | 5,000 kWh generated |
+| 5 | `solar_5` | Helios | 10,000 kWh | 10,000 kWh generated |
+| 6 | `solar_6` | Sunforge | 25,000 kWh | 25,000 kWh generated |
+| 7 | `solar_7` | Gigasun | 50,000 kWh | 50,000 kWh generated |
+| 8 | `solar_8` | Starforge | 100,000 kWh | 100,000 kWh generated |
 
 ---
 
-## Category 3: EV Charging (8 NFTs)
+## Category 2: Battery Storage Discharged (Token IDs 9-15)
+
+| Token ID | Milestone ID | Name | Threshold | Description |
+|----------|--------------|------|-----------|-------------|
+| 9 | `battery_1` | Voltbank | 500 kWh | 500 kWh discharged |
+| 10 | `battery_2` | Gridpulse | 1,000 kWh | 1,000 kWh discharged |
+| 11 | `battery_3` | Megacell | 2,500 kWh | 2,500 kWh discharged |
+| 12 | `battery_4` | Reservex | 5,000 kWh | 5,000 kWh discharged |
+| 13 | `battery_5` | Dynamax | 10,000 kWh | 10,000 kWh discharged |
+| 14 | `battery_6` | Ultracell | 25,000 kWh | 25,000 kWh discharged |
+| 15 | `battery_7` | Gigavolt | 50,000 kWh | 50,000 kWh discharged |
+
+---
+
+## Category 3: EV Charging (Token IDs 16-23)
 
 Combined supercharger + home charger kWh
 
-| # | ID | Name | Threshold | Description | Artwork File |
-|---|-----|------|-----------|-------------|--------------|
-| 1 | `charge_1` | Ignite | 100 kWh | 100 kWh charged | `charge-spark.png` |
-| 2 | `charge_2` | Voltcharge | 500 kWh | 500 kWh charged | `charge-supercharger.png` |
-| 3 | `charge_3` | Kilovolt | 1,000 kWh | 1,000 kWh charged | `charge-megavolt.png` |
-| 4 | `charge_4` | Ampforge | 1,500 kWh | 1,500 kWh charged | `charge-amperage.png` |
-| 5 | `charge_5` | Chargeon | 2,500 kWh | 2,500 kWh charged | `charge-destination.png` |
-| 6 | `charge_6` | Gigacharge | 5,000 kWh | 5,000 kWh charged | `charge-gigawatt.png` |
-| 7 | `charge_7` | Megacharge | 10,000 kWh | 10,000 kWh charged | `charge-megawatt.png` |
-| 8 | `charge_8` | Teracharge | 25,000 kWh | 25,000 kWh charged | `charge-terawatt.png` |
+| Token ID | Milestone ID | Name | Threshold | Description |
+|----------|--------------|------|-----------|-------------|
+| 16 | `charge_1` | Ignite | 100 kWh | 100 kWh charged |
+| 17 | `charge_2` | Voltcharge | 500 kWh | 500 kWh charged |
+| 18 | `charge_3` | Kilovolt | 1,000 kWh | 1,000 kWh charged |
+| 19 | `charge_4` | Ampforge | 1,500 kWh | 1,500 kWh charged |
+| 20 | `charge_5` | Chargeon | 2,500 kWh | 2,500 kWh charged |
+| 21 | `charge_6` | Gigacharge | 5,000 kWh | 5,000 kWh charged |
+| 22 | `charge_7` | Megacharge | 10,000 kWh | 10,000 kWh charged |
+| 23 | `charge_8` | Teracharge | 25,000 kWh | 25,000 kWh charged |
 
 ---
 
-## Category 4: EV Miles Driven (10 NFTs)
+## Category 4: EV Miles Driven (Token IDs 24-33)
 
-| # | ID | Name | Threshold | Description | Artwork File |
-|---|-----|------|-----------|-------------|--------------|
-| 1 | `ev_1` | Ignitor | 100 miles | 100 miles driven | `ev-ignition.png` |
-| 2 | `ev_2` | Velocity | 500 miles | 500 miles driven | `ev-cruiser.png` |
-| 3 | `ev_3` | Autobahn | 1,000 miles | 1,000 miles driven | `ev-autobahn.png` |
-| 4 | `ev_4` | Hyperdrive | 5,000 miles | 5,000 miles driven | `ev-hyperlane.png` |
-| 5 | `ev_5` | Electra | 10,000 miles | 10,000 miles driven | `ev-roadster.png` |
-| 6 | `ev_6` | Velocity Pro | 25,000 miles | 25,000 miles driven | `ev-plaid.png` |
-| 7 | `ev_7` | Mach One | 50,000 miles | 50,000 miles driven | `ev-ludicrous.png` |
-| 8 | `ev_8` | Centaurion | 100,000 miles | 100,000 miles driven | `ev-centurion.png` |
-| 9 | `ev_9` | Voyager | 150,000 miles | 150,000 miles driven | `ev-voyager.png` |
-| 10 | `ev_10` | Odyssey | 200,000 miles | 200,000 miles driven | `ev-legend.png` |
+| Token ID | Milestone ID | Name | Threshold | Description |
+|----------|--------------|------|-----------|-------------|
+| 24 | `ev_1` | Ignitor | 100 miles | 100 miles driven |
+| 25 | `ev_2` | Velocity | 500 miles | 500 miles driven |
+| 26 | `ev_3` | Autobahn | 1,000 miles | 1,000 miles driven |
+| 27 | `ev_4` | Hyperdrive | 5,000 miles | 5,000 miles driven |
+| 28 | `ev_5` | Electra | 10,000 miles | 10,000 miles driven |
+| 29 | `ev_6` | Velocity Pro | 25,000 miles | 25,000 miles driven |
+| 30 | `ev_7` | Mach One | 50,000 miles | 50,000 miles driven |
+| 31 | `ev_8` | Centaurion | 100,000 miles | 100,000 miles driven |
+| 32 | `ev_9` | Voyager | 150,000 miles | 150,000 miles driven |
+| 33 | `ev_10` | Odyssey | 200,000 miles | 200,000 miles driven |
 
 ---
 
-## Category 5: Combo Achievements (8 NFTs)
+## Category 5: Combo Achievements (Token IDs 34-41)
 
 **Important:** Only the 33 category NFTs count toward combo requirements. Combo NFTs do not count.
 
-| # | ID | Name | Condition | Description | Rarity Tier | Artwork File |
-|---|-----|------|-----------|-------------|-------------|--------------|
-| 1 | `combo_1` | Duality | 2 categories | Earn NFT in 2 categories | Premium | `combo-duality.png` |
-| 2 | `combo_2` | Trifecta | 3 categories | Earn NFT in 3 categories | Trifecta | `combo-trifecta.png` |
-| 3 | `combo_3` | Quadrant | 5 category NFTs | Earn 5 category NFTs | Quadrant | `combo-quadrant.png` |
-| 4 | `combo_4` | Constellation | 10 category NFTs | Earn 10 category NFTs | Constellation | `combo-constellation.png` |
-| 5 | `combo_5` | Cyber Echo | 20 category NFTs | Earn 20 category NFTs | Echo | `combo-ecosystem.png` |
-| 6 | `combo_6` | Zenith | 30 category NFTs | Earn 30 category NFTs | Zenith | `combo-sovereign.png` |
-| 7 | `combo_7` | ZenMaster | 1 maxed category | Max out any category | Master | `combo-master.png` |
-| 8 | `combo_8` | Total Eclipse | 4 maxed categories | Max out all categories | Eclipse (Ultimate) | `combo-apex.png` |
+| Token ID | Milestone ID | Name | Condition | Description |
+|----------|--------------|------|-----------|-------------|
+| 34 | `combo_1` | Duality | 2 categories | Earn NFT in 2 categories |
+| 35 | `combo_2` | Trifecta | 3 categories | Earn NFT in 3 categories |
+| 36 | `combo_3` | Quadrant | 5 category NFTs | Earn 5 category NFTs |
+| 37 | `combo_4` | Constellation | 10 category NFTs | Earn 10 category NFTs |
+| 38 | `combo_5` | Cyber Echo | 20 category NFTs | Earn 20 category NFTs |
+| 39 | `combo_6` | Zenith | 30 category NFTs | Earn 30 category NFTs |
+| 40 | `combo_7` | ZenMaster | 1 maxed category | Max out any category |
+| 41 | `combo_8` | Total Eclipse | 4 maxed categories | Max out all categories |
 
 ### Combo Achievement Logic
 
@@ -141,120 +141,100 @@ Total Eclipse → all 4 categories maxed
 
 ---
 
-## Smart Contract Data Structure
+## Smart Contract Token ID Summary
 
-### Suggested Token ID Mapping
+| Token ID Range | Category | Count |
+|----------------|----------|-------|
+| 0 | Welcome | 1 |
+| 1-8 | Solar Production | 8 |
+| 9-15 | Battery Discharge | 7 |
+| 16-23 | EV Charging | 8 |
+| 24-33 | EV Miles Driven | 10 |
+| 34-41 | Combo Achievements | 8 |
+| **Total** | | **42** |
 
-| Token ID Range | Category |
-|----------------|----------|
-| 1 | Welcome |
-| 2-9 | Solar Production |
-| 10-16 | Battery Discharge |
-| 17-24 | EV Charging |
-| 25-34 | EV Miles Driven |
-| 35-42 | Combo Achievements |
+---
 
-### Complete Token ID Mapping
+## Token Economics
 
-| Token ID | Milestone ID | Name | Category |
-|----------|--------------|------|----------|
-| 1 | `welcome` | Welcome | Welcome |
-| 2 | `solar_1` | Sunspark | Solar |
-| 3 | `solar_2` | Photonic | Solar |
-| 4 | `solar_3` | Rayforge | Solar |
-| 5 | `solar_4` | Solaris | Solar |
-| 6 | `solar_5` | Helios | Solar |
-| 7 | `solar_6` | Sunforge | Solar |
-| 8 | `solar_7` | Gigasun | Solar |
-| 9 | `solar_8` | Starforge | Solar |
-| 10 | `battery_1` | Voltbank | Battery |
-| 11 | `battery_2` | Gridpulse | Battery |
-| 12 | `battery_3` | Megacell | Battery |
-| 13 | `battery_4` | Reservex | Battery |
-| 14 | `battery_5` | Dynamax | Battery |
-| 15 | `battery_6` | Ultracell | Battery |
-| 16 | `battery_7` | Gigavolt | Battery |
-| 17 | `charge_1` | Ignite | EV Charging |
-| 18 | `charge_2` | Voltcharge | EV Charging |
-| 19 | `charge_3` | Kilovolt | EV Charging |
-| 20 | `charge_4` | Ampforge | EV Charging |
-| 21 | `charge_5` | Chargeon | EV Charging |
-| 22 | `charge_6` | Gigacharge | EV Charging |
-| 23 | `charge_7` | Megacharge | EV Charging |
-| 24 | `charge_8` | Teracharge | EV Charging |
-| 25 | `ev_1` | Ignitor | EV Miles |
-| 26 | `ev_2` | Velocity | EV Miles |
-| 27 | `ev_3` | Autobahn | EV Miles |
-| 28 | `ev_4` | Hyperdrive | EV Miles |
-| 29 | `ev_5` | Electra | EV Miles |
-| 30 | `ev_6` | Velocity Pro | EV Miles |
-| 31 | `ev_7` | Mach One | EV Miles |
-| 32 | `ev_8` | Centaurion | EV Miles |
-| 33 | `ev_9` | Voyager | EV Miles |
-| 34 | `ev_10` | Odyssey | EV Miles |
-| 35 | `combo_1` | Duality | Combo |
-| 36 | `combo_2` | Trifecta | Combo |
-| 37 | `combo_3` | Quadrant | Combo |
-| 38 | `combo_4` | Constellation | Combo |
-| 39 | `combo_5` | Cyber Echo | Combo |
-| 40 | `combo_6` | Zenith | Combo |
-| 41 | `combo_7` | ZenMaster | Combo |
-| 42 | `combo_8` | Total Eclipse | Combo |
+### Minting Rewards (1:1 Ratio)
+- 1 kWh solar generated = 1 ZSOLAR token
+- 1 kWh battery discharged = 1 ZSOLAR token
+- 1 kWh EV charging = 1 ZSOLAR token
+- 1 mile EV driven = 1 ZSOLAR token
+
+### Distribution on Mint
+- 93% → User wallet
+- 5% → Burned (deflationary)
+- 1% → LP Rewards pool
+- 1% → Treasury
+
+### NFT Redemption
+- Category NFTs (Solar, Battery, Charging, EV Miles) can be redeemed for tokens
+- Redemption value = milestone threshold × 1 ZSOLAR
+- 2% burn fee on redemption
+- Welcome and Combo NFTs are NOT redeemable
+
+### Transfer Tax (ERC-20)
+- 3.5% burn on transfers
+- 3.5% to treasury on transfers
+- Exempt addresses: founder, owner, treasury, contract itself
 
 ---
 
 ## Metadata URI Structure
 
-Suggested format for NFT metadata:
+Base URI format: `ipfs://[CID]/`
+
+Token URI: `ipfs://[CID]/[tokenId].json`
+
+Example: Token ID 5 (Helios) → `ipfs://[CID]/5.json`
 
 ```json
 {
-  "name": "Sunspark",
-  "description": "500 kWh generated",
-  "image": "ipfs://[CID]/solar-sunlink.png",
+  "name": "Helios",
+  "description": "10,000 kWh generated",
+  "image": "ipfs://[IMAGE_CID]/solar/helios.png",
+  "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
-    {
-      "trait_type": "Category",
-      "value": "Solar Production"
-    },
-    {
-      "trait_type": "Threshold",
-      "value": 500
-    },
-    {
-      "trait_type": "Unit",
-      "value": "kWh"
-    },
-    {
-      "trait_type": "Milestone ID",
-      "value": "solar_1"
-    },
-    {
-      "trait_type": "Token ID",
-      "value": 2
-    }
+    { "trait_type": "Category", "value": "Solar" },
+    { "trait_type": "Threshold", "value": 10000, "display_type": "number" },
+    { "trait_type": "Unit", "value": "kWh" },
+    { "trait_type": "Token ID", "value": 5, "display_type": "number" },
+    { "trait_type": "Milestone ID", "value": "solar_5" },
+    { "trait_type": "Tier", "value": 5, "display_type": "number" },
+    { "trait_type": "Rarity", "value": "Rare" },
+    { "trait_type": "Redeemable", "value": "Yes" },
+    { "trait_type": "Token Value", "value": 10000, "display_type": "number" }
   ]
 }
 ```
 
 ---
 
-## Artwork Files Location
+## Deployment Checklist
 
-All artwork files are stored in: `src/assets/nft/`
-
-**Total: 42 PNG files at 1024x1024 resolution**
-
-All artwork is now complete! ✅
+1. ✅ Deploy ZSOLAR (ERC-20) token contract
+2. ✅ Deploy ZenSolarNFT (ERC-721) contract with baseURI
+3. ✅ Deploy ZenSolar main contract with all addresses
+4. ✅ Transfer ZSOLAR ownership to ZenSolar contract
+5. ✅ Transfer ZenSolarNFT ownership to ZenSolar contract
+6. ✅ Set exempt addresses in ZSOLAR (ZenSolar contract address)
+7. ✅ Verify all contracts on block explorer
+8. ✅ Test Welcome NFT minting (Token ID 0)
+9. ✅ Test milestone NFT minting with correct token IDs
+10. ✅ Test combo NFT minting with correct token IDs
+11. ✅ Test NFT redemption
+12. ✅ Verify metadata URIs resolve correctly
 
 ---
 
 ## Key Notes
 
-1. **Welcome NFT** is auto-minted on account registration (non-redeemable)
-2. **EV Miles** has higher thresholds to reflect real-world driving distances
-3. **EV Charging** combines supercharger and home charger kWh
-4. **CO₂ Offset** is display-only (no NFTs or direct rewards)
+1. **Token IDs are 0-indexed** - Welcome = 0, first Solar = 1, etc.
+2. **Fixed Token IDs** - Each milestone has a predetermined token ID that matches metadata
+3. **One NFT per milestone per user** - Users cannot earn duplicate milestone NFTs
+4. **Welcome NFT is unique** - Only one Welcome NFT exists (Token ID 0)
 5. **Combo NFTs** are earned based on category NFTs only (combos don't count toward combos)
 6. All thresholds are **greater than or equal to** (>=) checks
-7. Each milestone cross mints one NFT per field
+7. Each milestone mints exactly one NFT with a fixed token ID
