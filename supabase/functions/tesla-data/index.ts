@@ -440,6 +440,8 @@ Deno.serve(async (req) => {
         );
 
         const baselineOdometer = vehicle.baseline?.odometer || 0;
+        // Get last known odometer from lifetime_totals (stored from previous successful fetches)
+        const lastKnownOdometer = vehicle.baseline?.last_known_odometer || 0;
 
         if (vehicleResponse.ok) {
           const vehicleData = await vehicleResponse.json();
@@ -475,16 +477,58 @@ Deno.serve(async (req) => {
         } else if (vehicleResponse.status === 429) {
           console.warn("Tesla API rate limited for vehicle:", vehicle.id);
         } else if (vehicleResponse.status === 408) {
-          // Vehicle is asleep - use baseline odometer as current since we can't get live data
-          console.log(`Vehicle ${vehicle.id} is asleep, using baseline odometer: ${baselineOdometer}`);
+          // Vehicle is asleep - try to get odometer from /vehicles list endpoint (doesn't require wake)
+          console.log(`Vehicle ${vehicle.id} is asleep, attempting to get cached vehicle data...`);
+          
+          let cachedOdometer = lastKnownOdometer;
+          
+          // Try the /vehicles endpoint which returns cached data for sleeping vehicles
+          try {
+            const vehiclesListResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+            
+            if (vehiclesListResponse.ok) {
+              const vehiclesList = await vehiclesListResponse.json();
+              const thisVehicle = (vehiclesList.response || []).find((v: any) => v.vin === vehicle.id);
+              
+              if (thisVehicle) {
+                // Some Tesla API versions include cached vehicle_state
+                const cachedState = thisVehicle.vehicle_state || thisVehicle.cached_data?.vehicle_state;
+                if (cachedState?.odometer && cachedState.odometer > 0) {
+                  cachedOdometer = cachedState.odometer;
+                  console.log(`Got cached odometer from /vehicles list: ${cachedOdometer}`);
+                }
+              }
+            }
+          } catch (listError) {
+            console.log("Could not fetch vehicles list for cached data:", listError);
+          }
+          
+          // If still no odometer, try to estimate from charging sessions
+          if (cachedOdometer === 0 && totalChargingKwh > 0) {
+            // Rough estimate: Tesla Model 3/Y averages ~3.5-4 miles per kWh
+            // This is a fallback estimate when vehicle data is unavailable
+            const estimatedMiles = Math.round(totalChargingKwh * 3.5);
+            console.log(`Estimating odometer from charging: ${totalChargingKwh} kWh * 3.5 = ~${estimatedMiles} miles`);
+            cachedOdometer = estimatedMiles;
+          }
+          
+          const pendingMiles = Math.max(0, cachedOdometer - baselineOdometer);
+          
+          console.log(`Vehicle ${vehicle.id} asleep - using odometer: ${cachedOdometer}, pending: ${pendingMiles}`);
+          
           vehiclesData.push({ 
             vin: vehicle.id, 
             status: "asleep", 
-            odometer: baselineOdometer, 
-            pending_miles: 0 // No new miles since we can't verify
+            odometer: cachedOdometer, 
+            pending_miles: pendingMiles,
+            estimated: cachedOdometer !== lastKnownOdometer && cachedOdometer > 0
           });
-          totalEvMiles += baselineOdometer;
-          // Don't add pending miles since we can't confirm new driving
+          
+          totalEvMiles += cachedOdometer;
+          pendingEvMiles += pendingMiles;
         } else {
           const errorText = await vehicleResponse.text();
           console.error(`Failed to fetch vehicle ${vehicle.id} (${vehicleResponse.status}):`, errorText);
@@ -550,17 +594,40 @@ Deno.serve(async (req) => {
         .eq("provider", "tesla");
     }
     
-    // Update vehicles with lifetime totals
+    // Update vehicles with lifetime totals and last known odometer (for future asleep states)
     for (const vehicle of vehiclesData) {
+      const updateData: any = {
+        lifetime_totals: {
+          odometer: vehicle.odometer,
+          charging_kwh: totalEvChargingKwh, // Total charging across all vehicles
+          updated_at: new Date().toISOString(),
+        }
+      };
+      
+      // If we got a real odometer reading (not asleep/estimated), update baseline with last_known_odometer
+      if (vehicle.status !== "asleep" && vehicle.odometer > 0) {
+        // Get current baseline and update with last_known_odometer
+        const { data: currentDevice } = await supabaseClient
+          .from("connected_devices")
+          .select("baseline_data")
+          .eq("user_id", user.id)
+          .eq("device_id", vehicle.vin)
+          .eq("provider", "tesla")
+          .single();
+        
+        if (currentDevice) {
+          const currentBaseline = currentDevice.baseline_data || {};
+          updateData.baseline_data = {
+            ...currentBaseline,
+            last_known_odometer: vehicle.odometer,
+          };
+          console.log(`Updated last_known_odometer for ${vehicle.vin}: ${vehicle.odometer}`);
+        }
+      }
+      
       await supabaseClient
         .from("connected_devices")
-        .update({
-          lifetime_totals: {
-            odometer: vehicle.odometer,
-            charging_kwh: totalEvChargingKwh, // Total charging across all vehicles
-            updated_at: new Date().toISOString(),
-          }
-        })
+        .update(updateData)
         .eq("user_id", user.id)
         .eq("device_id", vehicle.vin)
         .eq("provider", "tesla");

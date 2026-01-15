@@ -16,9 +16,11 @@ interface DeviceToClaim {
 
 interface BaselineData {
   odometer?: number;
+  last_known_odometer?: number;
   total_energy_discharged_wh?: number;
   total_solar_produced_wh?: number;
   total_charge_energy_added_kwh?: number;
+  estimated?: boolean;
   captured_at: string;
 }
 
@@ -41,21 +43,98 @@ async function fetchVehicleLifetimeData(
       const chargeState = data.response?.charge_state || {};
       
       baseline.odometer = vehicleState.odometer || 0;
+      baseline.last_known_odometer = vehicleState.odometer || 0;
       // Note: Tesla doesn't provide lifetime charge energy directly
       // We'll track it incrementally from charge_energy_added per session
       baseline.total_charge_energy_added_kwh = 0;
       
       console.log(`Vehicle ${vin} baseline:`, JSON.stringify(baseline));
     } else if (response.status === 408) {
-      // Vehicle asleep - use 0 as baseline and update later
-      console.log(`Vehicle ${vin} is asleep, using 0 baseline`);
-      baseline.odometer = 0;
+      // Vehicle asleep - try to get data from /vehicles list endpoint
+      console.log(`Vehicle ${vin} is asleep, trying /vehicles list for cached data...`);
+      
+      try {
+        const vehiclesListResponse = await fetch(
+          `${TESLA_API_BASE}/api/1/vehicles`,
+          { headers: { "Authorization": `Bearer ${accessToken}` } }
+        );
+        
+        if (vehiclesListResponse.ok) {
+          const vehiclesList = await vehiclesListResponse.json();
+          const thisVehicle = (vehiclesList.response || []).find((v: any) => v.vin === vin);
+          
+          if (thisVehicle) {
+            const cachedState = thisVehicle.vehicle_state || thisVehicle.cached_data?.vehicle_state;
+            if (cachedState?.odometer && cachedState.odometer > 0) {
+              baseline.odometer = cachedState.odometer;
+              baseline.last_known_odometer = cachedState.odometer;
+              console.log(`Got cached odometer from /vehicles list: ${baseline.odometer}`);
+            }
+          }
+        }
+      } catch (listError) {
+        console.log("Could not fetch vehicles list for cached data:", listError);
+      }
+      
+      // If still no odometer, try to estimate from charging history
+      if (!baseline.odometer || baseline.odometer === 0) {
+        try {
+          const chargingResponse = await fetch(
+            `${TESLA_API_BASE}/api/1/dx/charging/history?pageSize=100&pageNo=1`,
+            { headers: { "Authorization": `Bearer ${accessToken}` } }
+          );
+          
+          if (chargingResponse.ok) {
+            const chargingData = await chargingResponse.json();
+            const sessions = chargingData.data || [];
+            let totalKwh = 0;
+            
+            for (const session of sessions) {
+              if (session.vin === vin) {
+                const directKwh = session.chargeEnergyAdded || session.charge_energy_added || 0;
+                let kwhFromFees = 0;
+                if (Array.isArray(session.fees)) {
+                  for (const fee of session.fees) {
+                    if (String(fee.feeType || '').toUpperCase() === 'CHARGING' && String(fee.uom || '').toLowerCase() === 'kwh') {
+                      kwhFromFees += Number(fee.usageBase || 0) + Number(fee.usageTier1 || 0) + Number(fee.usageTier2 || 0);
+                    }
+                  }
+                }
+                totalKwh += Number(directKwh || kwhFromFees || 0);
+              }
+            }
+            
+            if (totalKwh > 0) {
+              // Estimate: ~3.5 miles per kWh for typical Tesla
+              const estimatedMiles = Math.round(totalKwh * 3.5);
+              baseline.odometer = estimatedMiles;
+              baseline.last_known_odometer = estimatedMiles;
+              baseline.estimated = true;
+              console.log(`Estimated baseline from charging history: ${totalKwh} kWh * 3.5 = ${estimatedMiles} miles`);
+            }
+          }
+        } catch (chargingError) {
+          console.log("Could not fetch charging history for estimate:", chargingError);
+        }
+      }
+      
+      // Final fallback: use 0 and update later
+      if (!baseline.odometer) {
+        baseline.odometer = 0;
+        baseline.last_known_odometer = 0;
+      }
       baseline.total_charge_energy_added_kwh = 0;
     } else {
       console.error(`Failed to fetch vehicle ${vin} baseline:`, await response.text());
+      baseline.odometer = 0;
+      baseline.last_known_odometer = 0;
+      baseline.total_charge_energy_added_kwh = 0;
     }
   } catch (error) {
     console.error(`Error fetching vehicle ${vin} baseline:`, error);
+    baseline.odometer = 0;
+    baseline.last_known_odometer = 0;
+    baseline.total_charge_energy_added_kwh = 0;
   }
   
   return baseline;
