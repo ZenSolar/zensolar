@@ -66,10 +66,57 @@ Deno.serve(async (req) => {
       vehicles = vehiclesData.response || [];
       console.log("Tesla vehicles:", JSON.stringify(vehicles));
       
-      // For each vehicle that's online, try to fetch current odometer
+      // For each vehicle, try to wake it and fetch odometer
       for (let i = 0; i < vehicles.length; i++) {
         const v = vehicles[i];
-        if (v.state === 'online') {
+        let currentState = v.state;
+        
+        // If vehicle is not online, attempt to wake it
+        if (currentState !== 'online') {
+          console.log(`Vehicle ${v.vin} is ${currentState}, attempting to wake...`);
+          try {
+            const wakeResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles/${v.vin}/wake_up`,
+              { 
+                method: 'POST',
+                headers: { "Authorization": `Bearer ${accessToken}` } 
+              }
+            );
+            
+            if (wakeResponse.ok) {
+              const wakeData = await wakeResponse.json();
+              currentState = wakeData.response?.state || currentState;
+              vehicles[i].state = currentState;
+              console.log(`Wake response for ${v.vin}: state=${currentState}`);
+              
+              // Wait a moment for the vehicle to come online
+              if (currentState !== 'online') {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                // Check state again
+                const recheckResponse = await fetch(`${TESLA_API_BASE}/api/1/vehicles`, {
+                  headers: { "Authorization": `Bearer ${accessToken}` },
+                });
+                if (recheckResponse.ok) {
+                  const recheckData = await recheckResponse.json();
+                  const updatedVehicle = (recheckData.response || []).find((rv: any) => rv.vin === v.vin);
+                  if (updatedVehicle) {
+                    currentState = updatedVehicle.state;
+                    vehicles[i].state = currentState;
+                    console.log(`After wait, ${v.vin} state: ${currentState}`);
+                  }
+                }
+              }
+            } else {
+              console.log(`Wake failed for ${v.vin}:`, await wakeResponse.text());
+            }
+          } catch (wakeError) {
+            console.log(`Could not wake ${v.vin}:`, wakeError);
+          }
+        }
+        
+        // If vehicle is now online, fetch odometer
+        if (currentState === 'online') {
           try {
             const vehicleDataResponse = await fetch(
               `${TESLA_API_BASE}/api/1/vehicles/${v.vin}/vehicle_data?endpoints=vehicle_state`,

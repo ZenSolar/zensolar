@@ -286,16 +286,7 @@ Deno.serve(async (req) => {
       
       if (provider === "tesla" && accessToken) {
         if (device.device_type === "vehicle") {
-          // Check if manual odometer was provided
-          const manualOdometer = device.metadata?.manual_odometer;
-          if (manualOdometer && manualOdometer > 0) {
-            console.log(`Using manual odometer for ${device.device_id}: ${manualOdometer}`);
-            baselineData.odometer = manualOdometer;
-            baselineData.last_known_odometer = manualOdometer;
-            baselineData.total_charge_energy_added_kwh = 0;
-          } else {
-            baselineData = await fetchVehicleLifetimeData(device.device_id, accessToken);
-          }
+          baselineData = await fetchVehicleLifetimeData(device.device_id, accessToken);
         } else if (device.device_type === "powerwall" || device.device_type === "solar") {
           baselineData = await fetchEnergySiteLifetimeData(device.device_id, accessToken);
         }

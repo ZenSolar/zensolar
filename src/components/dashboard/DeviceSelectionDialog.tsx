@@ -10,9 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Battery, Sun, AlertTriangle, Mail, Moon, Wifi } from 'lucide-react';
+import { Loader2, Car, Battery, Sun, AlertTriangle, Mail, Moon, Wifi, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -47,7 +46,7 @@ export function DeviceSelectionDialog({
 }: DeviceSelectionDialogProps) {
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevices, setSelectedDevices] = useState<Set<string>>(new Set());
-  const [manualOdometers, setManualOdometers] = useState<Record<string, string>>({});
+  const [wakingDevices, setWakingDevices] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,6 +109,43 @@ export function DeviceSelectionDialog({
     });
   };
 
+  const handleWakeVehicle = async (deviceId: string) => {
+    setWakingDevices(prev => new Set(prev).add(deviceId));
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please log in first');
+        return;
+      }
+
+      // Call a dedicated wake endpoint or re-fetch devices (which will attempt wake)
+      toast.info('Waking vehicle... This may take a few moments.');
+      
+      // Re-fetch devices which will attempt to wake the vehicle
+      await fetchDevices();
+      
+      // Check if the device is now online with odometer
+      const updatedDevice = devices.find(d => d.device_id === deviceId);
+      if (updatedDevice?.metadata?.odometer) {
+        toast.success('Vehicle awake! Odometer data retrieved.');
+      } else if (updatedDevice?.metadata?.state === 'online') {
+        toast.success('Vehicle is waking up. Please try again in a moment.');
+      } else {
+        toast.warning('Vehicle is still asleep. Please ensure the vehicle has cellular connectivity and try again.');
+      }
+    } catch (err) {
+      console.error('Failed to wake vehicle:', err);
+      toast.error('Failed to wake vehicle');
+    } finally {
+      setWakingDevices(prev => {
+        const next = new Set(prev);
+        next.delete(deviceId);
+        return next;
+      });
+    }
+  };
+
   const handleSubmit = async () => {
     const devicesToClaim = devices.filter(
       d => selectedDevices.has(d.device_id) && !d.claimed_by_current_user
@@ -137,25 +173,15 @@ export function DeviceSelectionDialog({
         return;
       }
 
-      // Attach manual odometer readings to device metadata
-      const devicesWithOdometer = devicesToClaim.map(d => {
-        const manualOdometer = manualOdometers[d.device_id];
-        return {
-          device_id: d.device_id,
-          device_type: d.device_type,
-          device_name: d.device_name,
-          metadata: {
-            ...d.metadata,
-            // Use manual odometer if provided, otherwise use the one from API (if vehicle was online)
-            manual_odometer: manualOdometer ? parseInt(manualOdometer, 10) : undefined,
-          },
-        };
-      });
-
       const response = await supabase.functions.invoke('claim-devices', {
         body: {
           provider,
-          devices: devicesWithOdometer,
+          devices: devicesToClaim.map(d => ({
+            device_id: d.device_id,
+            device_type: d.device_type,
+            device_name: d.device_name,
+            metadata: d.metadata,
+          })),
         },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -231,7 +257,8 @@ export function DeviceSelectionDialog({
                     const vehicleState = device.metadata?.state;
                     const isAsleepOrOffline = vehicleState === 'asleep' || vehicleState === 'offline';
                     const apiOdometer = device.metadata?.odometer;
-                    const needsManualOdometer = isVehicle && isAsleepOrOffline && !apiOdometer && !device.claimed_by_current_user;
+                    const needsWake = isVehicle && isAsleepOrOffline && !apiOdometer && !device.claimed_by_current_user;
+                    const isWaking = wakingDevices.has(device.device_id);
                     
                     return (
                       <div
@@ -278,26 +305,37 @@ export function DeviceSelectionDialog({
                           )}
                         </div>
                         
-                        {/* Manual odometer input for sleeping vehicles */}
-                        {needsManualOdometer && selectedDevices.has(device.device_id) && (
+                        {/* Wake vehicle button for sleeping vehicles without odometer */}
+                        {needsWake && selectedDevices.has(device.device_id) && (
                           <div className="mt-3 pt-3 border-t">
-                            <Label htmlFor={`odometer-${device.device_id}`} className="text-sm font-medium">
-                              Current Odometer (miles)
-                            </Label>
-                            <p className="text-xs text-muted-foreground mb-2">
-                              Vehicle is {vehicleState}. Enter your current odometer reading from the Tesla app.
-                            </p>
-                            <Input
-                              id={`odometer-${device.device_id}`}
-                              type="number"
-                              placeholder="e.g., 12684"
-                              value={manualOdometers[device.device_id] || ''}
-                              onChange={(e) => setManualOdometers(prev => ({
-                                ...prev,
-                                [device.device_id]: e.target.value
-                              }))}
-                              onClick={(e) => e.stopPropagation()}
-                            />
+                            <Alert className="mb-3">
+                              <AlertTriangle className="h-4 w-4" />
+                              <AlertDescription className="text-sm">
+                                Vehicle is {vehicleState}. Tap "Wake Vehicle" to retrieve odometer data before connecting.
+                              </AlertDescription>
+                            </Alert>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleWakeVehicle(device.device_id);
+                              }}
+                              disabled={isWaking}
+                            >
+                              {isWaking ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Waking Vehicle...
+                                </>
+                              ) : (
+                                <>
+                                  <Zap className="mr-2 h-4 w-4" />
+                                  Wake Vehicle
+                                </>
+                              )}
+                            </Button>
                           </div>
                         )}
                       </div>
