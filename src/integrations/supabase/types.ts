@@ -25,6 +25,7 @@ export type Database = {
           device_type: string
           id: string
           last_minted_at: string | null
+          lifetime_totals: Json | null
           provider: string
           updated_at: string
           user_id: string
@@ -39,6 +40,7 @@ export type Database = {
           device_type: string
           id?: string
           last_minted_at?: string | null
+          lifetime_totals?: Json | null
           provider: string
           updated_at?: string
           user_id: string
@@ -53,6 +55,7 @@ export type Database = {
           device_type?: string
           id?: string
           last_minted_at?: string | null
+          lifetime_totals?: Json | null
           provider?: string
           updated_at?: string
           user_id?: string

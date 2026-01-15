@@ -270,6 +270,23 @@ Deno.serve(async (req) => {
     // Return lifetime energy from summary (in Wh)
     const lifetimeEnergyWh = summaryData?.energy_lifetime || 0;
     
+    // Store lifetime totals in connected_devices for admin reporting
+    if (lifetimeEnergyWh > 0) {
+      await supabaseClient
+        .from("connected_devices")
+        .update({
+          lifetime_totals: {
+            solar_wh: lifetimeEnergyWh,
+            updated_at: new Date().toISOString(),
+          }
+        })
+        .eq("user_id", user.id)
+        .eq("device_id", String(systemId))
+        .eq("provider", "enphase");
+      
+      console.log(`Stored Enphase lifetime total: ${lifetimeEnergyWh} Wh`);
+    }
+    
     const responseData = {
       system: systemsData.systems[0],
       summary: summaryData,

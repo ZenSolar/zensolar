@@ -532,6 +532,42 @@ Deno.serve(async (req) => {
     
     console.log(`EV Charging: Supercharger (DC)=${superchargerKwh.toFixed(1)} kWh, Wall Connector (AC)=${wallConnectorKwh.toFixed(1)} kWh, Total=${totalEvChargingKwh.toFixed(1)} kWh`);
 
+    // Store lifetime totals in connected_devices for admin reporting
+    // Update energy sites with lifetime totals
+    for (const site of energySitesData) {
+      await supabaseClient
+        .from("connected_devices")
+        .update({
+          lifetime_totals: {
+            solar_wh: site.lifetime_solar_wh,
+            battery_discharge_wh: site.lifetime_battery_discharge_wh,
+            wall_connector_wh: site.wall_connector_charging_wh,
+            updated_at: new Date().toISOString(),
+          }
+        })
+        .eq("user_id", user.id)
+        .eq("device_id", site.site_id)
+        .eq("provider", "tesla");
+    }
+    
+    // Update vehicles with lifetime totals
+    for (const vehicle of vehiclesData) {
+      await supabaseClient
+        .from("connected_devices")
+        .update({
+          lifetime_totals: {
+            odometer: vehicle.odometer,
+            charging_kwh: totalEvChargingKwh, // Total charging across all vehicles
+            updated_at: new Date().toISOString(),
+          }
+        })
+        .eq("user_id", user.id)
+        .eq("device_id", vehicle.vin)
+        .eq("provider", "tesla");
+    }
+    
+    console.log("Stored lifetime totals in connected_devices for admin reporting");
+
     return new Response(JSON.stringify({
       energy_sites: energySitesData,
       vehicles: vehiclesData,
