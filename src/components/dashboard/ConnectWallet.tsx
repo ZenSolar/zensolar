@@ -2,12 +2,13 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useChainId, useSwitchChain, useDisconnect, useConnect } from 'wagmi';
 import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2 } from 'lucide-react';
+import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Coins } from 'lucide-react';
 import { CHAIN_ID } from '@/lib/wagmi';
 import { Button } from '@/components/ui/button';
 import { WalletConnectDiagnostics, type WalletDiagEvents } from './WalletConnectDiagnostics';
 import { WalletDeepLinks, getWalletConnectDeepLink, type WalletDeepLinkWalletId } from './WalletDeepLinks';
 import { hardResetWalletStorage } from '@/lib/walletStorage';
+import { autoPromptAddToken, resetTokenPromptFlag, promptAddZsolarToken } from '@/lib/walletAssets';
 
 interface ConnectWalletProps {
   walletAddress: string | null;
@@ -197,6 +198,8 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
           onConnect(address)
             .then(() => {
               toast.success('Wallet linked to your profile!');
+              // Auto-prompt to add ZSOLAR token after successful connection
+              autoPromptAddToken();
             })
             .catch((err) => {
               console.error('[ConnectWallet] Auto-link failed:', err);
@@ -205,6 +208,9 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
               // Reset so user can retry manually
               hasHandledConnection.current = false;
             });
+        } else {
+          // Already saved, still prompt to add token
+          autoPromptAddToken();
         }
       }
     }
@@ -213,8 +219,17 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
       mark('walletDisconnectedDetected');
       console.log('[ConnectWallet] Wallet disconnected');
       hasHandledConnection.current = false;
+      resetTokenPromptFlag();
     }
   }, [isConnected, address, mark, walletAddress, onConnect]);
+
+  // Handler to manually add ZSOLAR token to wallet
+  const handleAddToken = useCallback(async () => {
+    const success = await promptAddZsolarToken();
+    if (success) {
+      toast.success('$ZSOLAR token added to wallet!');
+    }
+  }, []);
 
   const handleReset = useCallback(async () => {
     mark('resetTap');
@@ -375,6 +390,17 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
               );
             }}
           </ConnectButton.Custom>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            type="button"
+            onClick={() => void handleAddToken()}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Coins className="h-4 w-4" />
+            Add $ZSOLAR to Wallet
+          </Button>
 
           <Button
             variant="outline"

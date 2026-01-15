@@ -36,8 +36,20 @@ This guide covers the complete deployment process for ZenSolar smart contracts o
 | Contract | File | Status |
 |----------|------|--------|
 | ZSOLAR (ERC-20) | `contracts/ZSOLAR.sol` | ✅ Ready |
-| ZenSolarNFT (ERC-721) | `contracts/ZenSolarNFT.sol` | ✅ Ready |
+| ZenSolarNFT (ERC-1155) | `contracts/ZenSolarNFT.sol` | ✅ Ready |
 | ZenSolar Controller | `contracts/ZenSolar.sol` | ✅ Ready |
+
+### ✅ DEPLOYED CONTRACT ADDRESSES (Base Sepolia Testnet)
+
+| Contract | Address | Status |
+|----------|---------|--------|
+| **ZSOLAR Token** | `0x4e704f5223FbfB588E9171981F40DB480B61106D` | ✅ Deployed & Verified |
+| **ZenSolarNFT** | `0x0D2E9f87c95cB95f37854DBe692e5BC1920e4B79` | ✅ Deployed & Verified |
+| **ZenSolar Controller** | `0xADd3a1E135356806A382dd5008611b5E52AA867F` | ✅ Deployed & Verified |
+
+**Deployed**: 2026-01-15  
+**Network**: Base Sepolia (Chain ID: 84532)  
+**Block Explorer**: https://sepolia.basescan.org
 
 ### ✅ NFT Metadata Files (Flat Structure)
 

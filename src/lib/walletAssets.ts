@@ -1,4 +1,7 @@
-import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_NFT_ADDRESS } from './wagmi';
+import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_NFT_ADDRESS, ZSOLAR_TOKEN_IMAGE } from './wagmi';
+
+// Track if we've already prompted to add token (per session)
+let hasPromptedTokenAdd = false;
 
 /**
  * Prompts the user to add the $ZSOLAR token to their wallet
@@ -19,7 +22,7 @@ export async function promptAddZsolarToken(): Promise<boolean> {
           address: ZSOLAR_TOKEN_ADDRESS,
           symbol: ZSOLAR_TOKEN_SYMBOL,
           decimals: ZSOLAR_TOKEN_DECIMALS,
-          image: `${window.location.origin}/zs-icon-192.png`,
+          image: `${window.location.origin}${ZSOLAR_TOKEN_IMAGE}`,
         },
       },
     });
@@ -29,6 +32,33 @@ export async function promptAddZsolarToken(): Promise<boolean> {
     console.error('Failed to add token to wallet:', error);
     return false;
   }
+}
+
+/**
+ * Automatically prompts to add ZSOLAR token after wallet connection
+ * Only prompts once per session to avoid annoying users
+ */
+export async function autoPromptAddToken(): Promise<void> {
+  if (hasPromptedTokenAdd) return;
+  
+  // Small delay to let the connection settle
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  hasPromptedTokenAdd = true;
+  
+  try {
+    await promptAddZsolarToken();
+  } catch (error) {
+    // Silently fail - user can add manually later
+    console.log('Auto-add token prompt declined or failed');
+  }
+}
+
+/**
+ * Reset the prompt flag (useful for testing or after disconnect)
+ */
+export function resetTokenPromptFlag(): void {
+  hasPromptedTokenAdd = false;
 }
 
 /**
