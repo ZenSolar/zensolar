@@ -230,27 +230,205 @@ interface UserRowProps {
   hasPush: boolean;
 }
 
+// Mobile-friendly card for each user
+function UserCard({ profile, kpi, hasPush }: UserRowProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const connectedProviders = [
+    profile.tesla_connected && 'Tesla',
+    profile.enphase_connected && 'Enphase',
+    profile.solaredge_connected && 'SolarEdge',
+    profile.wallbox_connected && 'Wallbox',
+  ].filter(Boolean);
+  
+  return (
+    <Card className="mb-3">
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <CollapsibleTrigger asChild>
+          <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 flex-shrink-0">
+                  {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium truncate">{profile.display_name || 'Anonymous'}</div>
+                  <div className="text-xs text-muted-foreground">{formatDate(profile.created_at)}</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {kpi && kpi.nfts_earned.length > 0 && (
+                  <Badge variant="secondary" className="gap-1">
+                    <Award className="h-3 w-3" />
+                    {kpi.nfts_earned.length}
+                  </Badge>
+                )}
+                {hasPush ? (
+                  <Badge variant="default" className="bg-green-600 text-xs px-1.5">
+                    <Bell className="h-3 w-3" />
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="text-xs px-1.5">Off</Badge>
+                )}
+              </div>
+            </div>
+            
+            {/* Quick stats row */}
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {connectedProviders.map((provider) => (
+                <Badge key={provider as string} variant="outline" className="text-xs">
+                  {provider}
+                </Badge>
+              ))}
+              {connectedProviders.length === 0 && (
+                <span className="text-xs text-muted-foreground">No energy accounts</span>
+              )}
+              
+              <span className="text-muted-foreground mx-1">•</span>
+              
+              {kpi?.device_count ? (
+                <span className="text-xs text-muted-foreground">{kpi.device_count} device{kpi.device_count > 1 ? 's' : ''}</span>
+              ) : (
+                <span className="text-xs text-muted-foreground">0 devices</span>
+              )}
+            </div>
+          </div>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent>
+          <div className="px-4 pb-4 space-y-4 border-t pt-4">
+            {/* Energy Activity Summary */}
+            {kpi && (kpi.total_ev_miles > 0 || kpi.total_charging_kwh > 0 || kpi.total_production_kwh > 0 || kpi.total_battery_discharged_kwh > 0) && (
+              <div>
+                <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-primary" />
+                  Energy Activity
+                </h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {kpi.total_production_kwh > 0 && (
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                        <Sun className="h-3 w-3" />
+                        Solar
+                      </div>
+                      <div className="font-semibold text-sm text-primary">{formatNumber(kpi.total_production_kwh)} kWh</div>
+                    </div>
+                  )}
+                  {kpi.total_ev_miles > 0 && (
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                        <Car className="h-3 w-3" />
+                        EV Miles
+                      </div>
+                      <div className="font-semibold text-sm text-secondary">{formatNumber(kpi.total_ev_miles)} mi</div>
+                    </div>
+                  )}
+                  {kpi.total_charging_kwh > 0 && (
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                        <Plug className="h-3 w-3" />
+                        Charging
+                      </div>
+                      <div className="font-semibold text-sm">{formatNumber(kpi.total_charging_kwh)} kWh</div>
+                    </div>
+                  )}
+                  {kpi.total_battery_discharged_kwh > 0 && (
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                        <Battery className="h-3 w-3" />
+                        Battery
+                      </div>
+                      <div className="font-semibold text-sm text-amber-500">{formatNumber(kpi.total_battery_discharged_kwh)} kWh</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Devices */}
+            {kpi && kpi.devices.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-primary" />
+                  Connected Devices ({kpi.devices.length})
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {kpi.devices.map((device) => {
+                    const odometer = device.lifetime_totals?.odometer ?? device.baseline_data?.odometer;
+                    return (
+                      <Badge key={device.id} variant="outline" className="text-xs">
+                        {device.provider}: {device.device_name || device.device_type}
+                        {odometer && ` (${formatNumber(odometer)} mi)`}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            {/* NFTs Earned */}
+            {kpi && kpi.nfts_earned.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                  <Award className="h-4 w-4 text-primary" />
+                  NFTs Earned ({kpi.nfts_earned.length})
+                </h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {kpi.nfts_earned.map((nft, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-xs">
+                      {nft}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Wallet & Tokens */}
+            <div className="flex items-center justify-between text-sm pt-2 border-t">
+              <div>
+                <span className="text-muted-foreground">Wallet: </span>
+                <span className="font-mono text-xs">{formatAddress(profile.wallet_address)}</span>
+              </div>
+              {kpi && kpi.total_tokens_earned > 0 && (
+                <div className="text-amber-500 font-medium">
+                  {formatNumber(kpi.total_tokens_earned)} tokens
+                </div>
+              )}
+            </div>
+            
+            {(!kpi || (kpi.devices.length === 0 && kpi.nfts_earned.length === 0)) && (
+              <p className="text-sm text-muted-foreground">No activity data available.</p>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+}
+
+// Desktop table row
 function UserRow({ profile, kpi, hasPush }: UserRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
   return (
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
       <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => setIsExpanded(!isExpanded)}>
-        <TableCell>
+        <TableCell className="w-10">
           <CollapsibleTrigger asChild>
             <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
               {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           </CollapsibleTrigger>
         </TableCell>
-        <TableCell className="font-medium">
+        <TableCell className="font-medium whitespace-nowrap">
           {profile.display_name || 'Anonymous'}
         </TableCell>
-        <TableCell className="font-mono text-xs">
+        <TableCell className="font-mono text-xs whitespace-nowrap">
           {formatAddress(profile.wallet_address)}
         </TableCell>
         <TableCell>
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-1 flex-wrap max-w-[150px]">
             {profile.tesla_connected && (
               <Badge variant="outline" className="text-xs">Tesla</Badge>
             )}
@@ -269,12 +447,12 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
             )}
           </div>
         </TableCell>
-        <TableCell className="text-right">
-          <Badge variant={kpi?.device_count ? 'default' : 'secondary'}>
+        <TableCell className="text-center">
+          <Badge variant={kpi?.device_count ? 'default' : 'secondary'} className="min-w-[32px]">
             {kpi?.device_count || 0}
           </Badge>
         </TableCell>
-        <TableCell className="text-right">
+        <TableCell className="text-right whitespace-nowrap">
           {kpi && kpi.total_production_kwh > 0 ? (
             <span className="font-medium text-primary">
               {formatNumber(kpi.total_production_kwh)} kWh
@@ -285,16 +463,9 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
         </TableCell>
         <TableCell className="text-right">
           {kpi && kpi.total_tokens_earned > 0 ? (
-            <div className="flex flex-col items-end gap-0.5">
-              <span className="font-medium text-amber-500">
-                {formatNumber(kpi.total_tokens_earned)}
-              </span>
-              {kpi.total_tokens_pending > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  ({formatNumber(kpi.total_tokens_pending)} pending)
-                </span>
-              )}
-            </div>
+            <span className="font-medium text-amber-500">
+              {formatNumber(kpi.total_tokens_earned)}
+            </span>
           ) : (
             <span className="text-muted-foreground text-xs">—</span>
           )}
@@ -306,20 +477,19 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
               {kpi.nfts_earned.length}
             </Badge>
           ) : (
-            <span className="text-muted-foreground text-xs">—</span>
+            <Badge variant="secondary">0</Badge>
           )}
         </TableCell>
-        <TableCell>
+        <TableCell className="text-center">
           {hasPush ? (
             <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-              <Bell className="h-3 w-3 mr-1" />
-              On
+              <Bell className="h-3 w-3" />
             </Badge>
           ) : (
             <Badge variant="secondary">Off</Badge>
           )}
         </TableCell>
-        <TableCell className="text-muted-foreground text-sm">
+        <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
           {formatDate(profile.created_at)}
         </TableCell>
       </TableRow>
@@ -329,7 +499,7 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
           <TableCell colSpan={10} className="p-0">
             <div className="p-4 space-y-4">
               {/* Energy Activity Summary */}
-              {kpi && (kpi.total_ev_miles > 0 || kpi.total_charging_kwh > 0 || kpi.total_production_kwh > 0) && (
+              {kpi && (kpi.total_ev_miles > 0 || kpi.total_charging_kwh > 0 || kpi.total_production_kwh > 0 || kpi.total_battery_discharged_kwh > 0) && (
                 <div>
                   <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Zap className="h-4 w-4 text-primary" />
@@ -360,7 +530,7 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
                           <Plug className="h-3 w-3" />
                           Charging Energy
                         </div>
-                        <div className="font-semibold text-accent-foreground">{formatNumber(kpi.total_charging_kwh)} kWh</div>
+                        <div className="font-semibold">{formatNumber(kpi.total_charging_kwh)} kWh</div>
                       </div>
                     )}
                     {kpi.total_battery_discharged_kwh > 0 && (
@@ -384,12 +554,15 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
                     Connected Devices ({kpi.devices.length})
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {kpi.devices.map((device) => (
-                      <Badge key={device.id} variant="outline" className="text-xs">
-                        {device.provider}: {device.device_name || device.device_type}
-                        {device.baseline_data?.odometer && ` (${formatNumber(device.baseline_data.odometer)} mi)`}
-                      </Badge>
-                    ))}
+                    {kpi.devices.map((device) => {
+                      const odometer = device.lifetime_totals?.odometer ?? device.baseline_data?.odometer;
+                      return (
+                        <Badge key={device.id} variant="outline" className="text-xs">
+                          {device.provider}: {device.device_name || device.device_type}
+                          {odometer && ` (${formatNumber(odometer)} mi)`}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -791,7 +964,7 @@ export default function AdminUsers() {
           </Card>
         </div>
 
-        {/* Users Table */}
+        {/* Users - Responsive: Cards on mobile, Table on desktop */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -800,29 +973,50 @@ export default function AdminUsers() {
                   <Users className="h-5 w-5 text-primary" />
                   User Profiles
                 </CardTitle>
-                <CardDescription>Click a row to expand and see detailed token minting history and NFT rewards</CardDescription>
+                <CardDescription className="text-sm">
+                  Tap a user to see details, NFTs, and token history
+                </CardDescription>
               </div>
               <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline ml-2">Refresh</span>
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
+          <CardContent className="p-4 sm:p-6">
+            {/* Mobile: Card layout */}
+            <div className="block lg:hidden">
+              {profiles.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">
+                  No users registered yet
+                </div>
+              ) : (
+                profiles.map((profile) => (
+                  <UserCard
+                    key={profile.id}
+                    profile={profile}
+                    kpi={userKPIs.get(profile.user_id)}
+                    hasPush={pushStatuses.get(profile.user_id) || false}
+                  />
+                ))
+              )}
+            </div>
+            
+            {/* Desktop: Table layout */}
+            <div className="hidden lg:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-10"></TableHead>
-                    <TableHead>Display Name</TableHead>
-                    <TableHead>Wallet</TableHead>
-                    <TableHead>Energy Accounts</TableHead>
-                    <TableHead className="text-right">Devices</TableHead>
-                    <TableHead className="text-right">Production</TableHead>
-                    <TableHead className="text-right">Tokens</TableHead>
-                    <TableHead className="text-center">NFTs</TableHead>
-                    <TableHead>Notifications</TableHead>
-                    <TableHead>Joined</TableHead>
+                    <TableHead className="min-w-[120px]">Display Name</TableHead>
+                    <TableHead className="min-w-[100px]">Wallet</TableHead>
+                    <TableHead className="min-w-[120px]">Energy Accounts</TableHead>
+                    <TableHead className="text-center min-w-[70px]">Devices</TableHead>
+                    <TableHead className="text-right min-w-[100px]">Production</TableHead>
+                    <TableHead className="text-right min-w-[80px]">Tokens</TableHead>
+                    <TableHead className="text-center min-w-[70px]">NFTs</TableHead>
+                    <TableHead className="text-center min-w-[50px]">Push</TableHead>
+                    <TableHead className="min-w-[100px]">Joined</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
