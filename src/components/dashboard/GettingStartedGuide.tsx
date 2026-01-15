@@ -164,8 +164,9 @@ export function GettingStartedGuide({
   const [currentStep, setCurrentStep] = useState(0);
   const [dismissed, setDismissed] = useState(false);
 
-  // Don't show if both are connected or dismissed - use display:none to prevent layout shift
-  const shouldHide = (energyConnected && walletConnected) || dismissed;
+  // Hide if energy is connected (primary requirement) OR if dismissed
+  // Wallet is optional - users can still use the dashboard without it
+  const shouldHide = energyConnected || dismissed;
 
   if (shouldHide) {
     return null;
