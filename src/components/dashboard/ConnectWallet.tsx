@@ -14,6 +14,7 @@ interface ConnectWalletProps {
   onConnect: (address: string) => Promise<void>;
   onDisconnect?: () => Promise<void>;
   isDemo?: boolean;
+  showDiagnostics?: boolean;
 }
 
 function normalizeAddress(addr?: string | null) {
@@ -37,7 +38,7 @@ function markForWallet(set: (key: keyof WalletDiagEvents) => void, wallet: Walle
   }
 }
 
-export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo = false }: ConnectWalletProps) {
+export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo = false, showDiagnostics = false }: ConnectWalletProps) {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -381,18 +382,20 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
           </Button>
         </div>
 
-        <WalletConnectDiagnostics
-          isMobile={device.isMobile}
-          isStandalone={device.isStandalone}
-          userAgent={device.userAgent}
-          isConnected={isConnected}
-          wagmiAddress={address}
-          chainId={chainId}
-          profileWalletAddress={walletAddress}
-          lastSaveError={lastSaveError}
-          events={events}
-          onReset={handleReset}
-        />
+        {showDiagnostics && (
+          <WalletConnectDiagnostics
+            isMobile={device.isMobile}
+            isStandalone={device.isStandalone}
+            userAgent={device.userAgent}
+            isConnected={isConnected}
+            wagmiAddress={address}
+            chainId={chainId}
+            profileWalletAddress={walletAddress}
+            lastSaveError={lastSaveError}
+            events={events}
+            onReset={handleReset}
+          />
+        )}
       </div>
     );
   }
@@ -504,18 +507,20 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
 
       <p className="mt-3 text-xs text-muted-foreground text-center">💡 Tap a wallet to connect • Base Sepolia testnet</p>
 
-      <WalletConnectDiagnostics
-        isMobile={device.isMobile}
-        isStandalone={device.isStandalone}
-        userAgent={device.userAgent}
-        isConnected={isConnected}
-        wagmiAddress={address}
-        chainId={chainId}
-        profileWalletAddress={walletAddress}
-        lastSaveError={lastSaveError}
-        events={events}
-        onReset={handleReset}
-      />
+      {showDiagnostics && (
+        <WalletConnectDiagnostics
+          isMobile={device.isMobile}
+          isStandalone={device.isStandalone}
+          userAgent={device.userAgent}
+          isConnected={isConnected}
+          wagmiAddress={address}
+          chainId={chainId}
+          profileWalletAddress={walletAddress}
+          lastSaveError={lastSaveError}
+          events={events}
+          onReset={handleReset}
+        />
+      )}
     </div>
   );
 }

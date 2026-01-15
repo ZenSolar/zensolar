@@ -1,6 +1,7 @@
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { ConnectAccounts } from './dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from './dashboard/ConnectSocialAccounts';
@@ -53,6 +54,7 @@ interface ZenSolarDashboardProps {
 export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { activityData, isLoading: dataLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts } = useDashboardData();
   const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
+  const { isAdmin } = useAdminCheck();
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
@@ -195,6 +197,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onConnect={handleConnectWallet}
             onDisconnect={handleDisconnectWallet}
             isDemo={isDemo}
+            showDiagnostics={isAdmin}
           />
         </AnimatedItem>
 
