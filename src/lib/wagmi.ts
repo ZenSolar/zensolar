@@ -51,11 +51,15 @@ export const config = getDefaultConfig({
 export const CHAIN_ID = baseSepolia.id;
 
 // Contract addresses for $ZSOLAR token and NFT (Base Sepolia testnet)
-// UPDATE THESE with your deployed contract addresses from Remix
-export const ZSOLAR_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
-export const ZSOLAR_NFT_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
+// Deployed 2026-01-15 on Base Sepolia
+export const ZSOLAR_TOKEN_ADDRESS = '0x4e704f5223FbfB588E9171981F40DB480B61106D' as const;
+export const ZSOLAR_NFT_ADDRESS = '0x0D2E9f87c95cB95f37854DBe692e5BC1920e4B79' as const;
+export const ZSOLAR_CONTROLLER_ADDRESS = '0xADd3a1E135356806A382dd5008611b5E52AA867F' as const;
 export const ZSOLAR_TOKEN_SYMBOL = 'ZSOLAR';
 export const ZSOLAR_TOKEN_DECIMALS = 18;
+
+// Token metadata for wallet integration
+export const ZSOLAR_TOKEN_IMAGE = '/zs-icon-192.png';
 
 declare module 'wagmi' {
   interface Register {
