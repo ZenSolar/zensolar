@@ -19,12 +19,20 @@ const demoNftsEarned = getAllEarnedNFTNames(
 );
 
 const demoActivityData: ActivityData = {
+  // Lifetime totals (for NFT milestone progress)
   solarEnergyProduced: DEMO_SOLAR_KWH,
   evMilesDriven: DEMO_EV_MILES,
   batteryStorageDischarged: DEMO_BATTERY_KWH,
   teslaSuperchargerKwh: 892,
   homeChargerKwh: 4127,
+  // Pending rewards (simulating 30% pending since last mint)
+  pendingSolarKwh: Math.round(DEMO_SOLAR_KWH * 0.3),
+  pendingEvMiles: Math.round(DEMO_EV_MILES * 0.3),
+  pendingBatteryKwh: Math.round(DEMO_BATTERY_KWH * 0.3),
+  pendingChargingKwh: Math.round(5019 * 0.3),
+  // Reward totals
   tokensEarned: 45616,
+  pendingTokens: Math.round(45616 * 0.3),
   referralTokens: 2500,
   nftsEarned: demoNftsEarned,
   co2OffsetPounds: 0,

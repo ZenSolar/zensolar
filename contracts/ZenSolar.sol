@@ -96,7 +96,22 @@ contract ZenSolar is Ownable {
         emit WelcomeNFTMinted(user, WELCOME_TOKEN_ID);
     }
 
-    // Mint rewards based on new activity
+    /**
+     * @notice Mint rewards based on new activity since last mint
+     * @dev CRITICAL: Parameters must be DELTA values (new activity only), NOT lifetime totals.
+     *      Each unit of activity (kWh, mile) can only generate tokens ONCE.
+     *      The backend is responsible for:
+     *        1. Tracking baseline values per device
+     *        2. Calculating delta = current_lifetime - baseline
+     *        3. Resetting baseline after successful mint
+     *      This ensures no double-issuance of tokens for the same activity.
+     * 
+     * @param user The user address to receive rewards
+     * @param solarDeltaKwh NEW solar kWh produced since last mint (not lifetime)
+     * @param evMilesDelta NEW EV miles driven since last mint (not lifetime)
+     * @param batteryDeltaKwh NEW battery kWh discharged since last mint (not lifetime)
+     * @param chargingDeltaKwh NEW charging kWh (supercharger + home) since last mint (not lifetime)
+     */
     function mintRewards(
         address user,
         uint256 solarDeltaKwh,

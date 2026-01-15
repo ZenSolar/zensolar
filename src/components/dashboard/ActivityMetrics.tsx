@@ -59,16 +59,49 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   const totalEarned = 1 + solarEarned.length + evMilesEarned.length + chargingEarned.length + batteryEarned.length + comboEarned.length;
   const totalPossible = getTotalNftCount();
 
+  // Calculate pending tokens from pending activity values
+  const pendingTokens = data.pendingTokens || 
+    Math.floor(data.pendingSolarKwh) + 
+    Math.floor(data.pendingEvMiles) + 
+    Math.floor(data.pendingBatteryKwh) + 
+    Math.floor(data.pendingChargingKwh);
+
   return (
     <div className="space-y-6">
-      {/* Rewards Section - Tokens & NFTs */}
+      {/* Pending Rewards Section - What can be minted */}
+      {pendingTokens > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            Pending Rewards
+          </h2>
+          <p className="text-xs text-muted-foreground -mt-2">
+            Activity since your last mint — eligible for token rewards
+          </p>
+          
+          <div className="grid gap-3">
+            <MetricCard
+              icon={Coins}
+              label="Tokens Ready to Mint"
+              value={pendingTokens}
+              unit="$ZSOLAR"
+              colorClass="bg-primary"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Total Rewards Section - Tokens & NFTs */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-foreground">Rewards</h2>
+        <h2 className="text-lg font-semibold text-foreground">Total Rewards</h2>
         
         <div className="grid gap-3">
           <MetricCard
             icon={Coins}
-            label="Tokens Earned"
+            label="Lifetime Tokens Earned"
             value={data.tokensEarned}
             unit="$ZSOLAR"
             colorClass="bg-token"
@@ -98,14 +131,17 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
         </div>
         <div className="relative flex justify-center">
           <span className="bg-background px-3 text-xs text-muted-foreground uppercase tracking-wider">
-            Energy Activity
+            Lifetime Activity
           </span>
         </div>
       </div>
 
-      {/* Energy Data Section - API Data */}
+      {/* Lifetime Energy Data Section - Used for NFT Milestone Progress */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground">Activity Data</h2>
+        <p className="text-xs text-muted-foreground -mt-2">
+          Cumulative totals used for NFT milestone progress
+        </p>
         
         <div className="grid gap-3">
           <MetricCard
