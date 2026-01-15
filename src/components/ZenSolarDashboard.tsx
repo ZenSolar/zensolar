@@ -237,7 +237,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         <AnimatedItem>
           <RewardActions 
             onRefresh={refreshDashboard} 
-            isLoading={dataLoading} 
+            isLoading={dataLoading}
+            walletAddress={profile?.wallet_address}
           />
         </AnimatedItem>
       </AnimatedContainer>
