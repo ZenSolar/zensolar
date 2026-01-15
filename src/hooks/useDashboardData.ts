@@ -4,12 +4,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const defaultActivityData: ActivityData = {
+  // Lifetime totals (for NFT milestone progress)
   solarEnergyProduced: 0,
   evMilesDriven: 0,
   batteryStorageDischarged: 0,
   teslaSuperchargerKwh: 0,
   homeChargerKwh: 0,
+  // Pending rewards (since last mint)
+  pendingSolarKwh: 0,
+  pendingEvMiles: 0,
+  pendingBatteryKwh: 0,
+  pendingChargingKwh: 0,
+  // Reward totals
   tokensEarned: 0,
+  pendingTokens: 0,
   referralTokens: 0,
   nftsEarned: [],
   co2OffsetPounds: 0,
@@ -265,11 +273,18 @@ export function useDashboardData() {
     setIsLoading(true);
     
     try {
+      // Lifetime totals
       let solarEnergy = 0;
       let evMiles = 0;
       let batteryDischarge = 0;
       let superchargerKwh = 0;
       let homeChargerKwh = 0;
+      
+      // Pending (since last mint) - starts at 0, updated from API responses
+      let pendingSolar = 0;
+      let pendingEvMiles = 0;
+      let pendingBattery = 0;
+      let pendingCharging = 0;
 
       // Fetch data in parallel (including device labels)
       const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels] = await Promise.all([
@@ -289,6 +304,7 @@ export function useDashboardData() {
       // Process Enphase data - use lifetime energy for solar
       if (enphaseData?.totals) {
         solarEnergy = (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
+        // Enphase pending would come from baseline comparison (to be added)
         console.log('Enphase solar:', solarEnergy, 'kWh');
       }
 
@@ -300,14 +316,19 @@ export function useDashboardData() {
       }
 
       // Process Tesla data - EV miles, battery storage, EV charging
-      // Only use Tesla solar if NO dedicated solar provider is connected
+      // Tesla API returns both lifetime and pending values
       if (teslaData?.totals) {
-        // Tesla provides: EV miles, battery discharge, supercharger charging
+        // Lifetime values
         batteryDischarge = (teslaData.totals.battery_discharge_wh || 0) / 1000;
         evMiles = teslaData.totals.ev_miles || 0;
         superchargerKwh = teslaData.totals.supercharger_kwh || 0;
-        // Home charger data will come from wall connector integration later
         homeChargerKwh = teslaData.totals.wall_connector_kwh || 0;
+        
+        // Pending values (since last mint baseline)
+        pendingSolar = (teslaData.totals.pending_solar_wh || 0) / 1000;
+        pendingBattery = (teslaData.totals.pending_battery_wh || 0) / 1000;
+        pendingEvMiles = teslaData.totals.pending_ev_miles || 0;
+        pendingCharging = teslaData.totals.pending_charging_kwh || 0;
         
         // Only add Tesla solar if no Enphase/SolarEdge connected
         if (!hasDedicatedSolarProvider) {
@@ -319,25 +340,42 @@ export function useDashboardData() {
       // Process Wallbox data - home charger kWh
       if (wallboxData?.totals) {
         homeChargerKwh += wallboxData.totals.home_charger_kwh || 0;
+        pendingCharging += wallboxData.totals.pending_charging_kwh || 0;
         console.log('Wallbox data:', { homeChargerKwh: wallboxData.totals.home_charger_kwh });
       }
 
-      // Tokens are awarded per whole unit
+      // Total lifetime tokens (for display)
       const tokensEarned =
         Math.floor(evMiles) +
         Math.floor(solarEnergy) +
         Math.floor(batteryDischarge) +
         Math.floor(superchargerKwh) +
         Math.floor(homeChargerKwh);
+      
+      // Pending tokens (available to mint) - from rewards API or calculated from pending values
+      const pendingTokens = rewardsData?.tokens_pending || 
+        Math.floor(pendingSolar) + 
+        Math.floor(pendingEvMiles) + 
+        Math.floor(pendingBattery) + 
+        Math.floor(pendingCharging);
+      
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
       const newData: ActivityData = {
+        // Lifetime totals (for NFT milestone progress)
         solarEnergyProduced: solarEnergy,
         evMilesDriven: evMiles,
         batteryStorageDischarged: batteryDischarge,
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh: homeChargerKwh,
+        // Pending (since last mint, eligible for token rewards)
+        pendingSolarKwh: pendingSolar,
+        pendingEvMiles: pendingEvMiles,
+        pendingBatteryKwh: pendingBattery,
+        pendingChargingKwh: pendingCharging,
+        // Totals
         tokensEarned,
+        pendingTokens,
         referralTokens,
         nftsEarned: earnedNFTs,
         co2OffsetPounds: 0,

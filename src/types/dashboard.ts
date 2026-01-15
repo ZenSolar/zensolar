@@ -6,13 +6,38 @@ export interface DeviceLabels {
   solar?: string;         // e.g., "PROJ-8098" for solar system name
 }
 
+/**
+ * IMPORTANT: Token Issuance Rules
+ * 
+ * Each unit of activity (kWh, mile) can ONLY generate tokens ONCE.
+ * - "Lifetime" values track total cumulative activity (used for NFT milestones)
+ * - "Pending" values track new activity since last mint (eligible for token rewards)
+ * 
+ * Flow:
+ * 1. User connects device → baseline captured at current lifetime values
+ * 2. User syncs → pending = current lifetime - baseline
+ * 3. User mints → tokens issued for pending amount, baseline resets to current
+ * 4. Next sync → pending starts from 0 again
+ * 
+ * This ensures no double-issuance of tokens for the same activity.
+ */
 export interface ActivityData {
+  // Lifetime totals (cumulative, used for NFT milestone progress)
   solarEnergyProduced: number;
   evMilesDriven: number;
   batteryStorageDischarged: number;
   teslaSuperchargerKwh: number;
   homeChargerKwh: number;
-  tokensEarned: number;
+  
+  // Pending rewards (since last mint, eligible for token issuance)
+  pendingSolarKwh: number;
+  pendingEvMiles: number;
+  pendingBatteryKwh: number;
+  pendingChargingKwh: number;
+  
+  // Reward totals
+  tokensEarned: number;         // Total lifetime tokens earned
+  pendingTokens: number;        // Tokens pending (not yet minted)
   referralTokens: number;
   nftsEarned: string[];
   co2OffsetPounds: number;
@@ -61,4 +86,3 @@ export function calculateCO2Offset(data: ActivityData): number {
 
   return Math.round(solarOffsetLbs + batteryOffsetLbs + evNetOffsetLbs);
 }
-
