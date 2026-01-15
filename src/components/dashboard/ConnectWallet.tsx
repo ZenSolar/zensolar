@@ -454,18 +454,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
           }}
         </ConnectButton.Custom>
 
-        {device.showDeepLinks && (
-          <div className="mt-2">
-            <WalletDeepLinks
-              wcUri={wcUri}
-              disabled={isStartingWc}
-              onSelect={(wallet) => {
-                markForWallet(mark, wallet);
-                startWalletConnectDeepLink(wallet);
-              }}
-            />
-          </div>
-        )}
 
         {showDiagnostics && (
           <WalletConnectDiagnostics
@@ -533,16 +521,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, isDemo =
                   Connect Wallet
                 </button>
 
-                {device.showDeepLinks && (
-                  <WalletDeepLinks
-                    wcUri={wcUri}
-                    disabled={isStartingWc}
-                    onSelect={(wallet) => {
-                      markForWallet(mark, wallet);
-                      startWalletConnectDeepLink(wallet);
-                    }}
-                  />
-                )}
               </div>
             );
           }
