@@ -12,8 +12,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface RewardActionsProps {
   onRefresh: () => Promise<void>;
@@ -74,6 +77,10 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
     message: '',
     type: null,
   });
+  const [tokenAmountDialog, setTokenAmountDialog] = useState(false);
+  const [tokenAmount, setTokenAmount] = useState('');
+  const [maxTokens, setMaxTokens] = useState(0);
+  const [loadingMax, setLoadingMax] = useState(false);
 
   // Check NFT eligibility when wallet is connected
   useEffect(() => {
@@ -106,7 +113,7 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
     }
   };
 
-  const handleMintTokens = async () => {
+  const openTokenAmountDialog = async () => {
     if (!walletAddress) {
       toast({
         title: "Wallet Required",
@@ -116,6 +123,53 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
       return;
     }
 
+    setLoadingMax(true);
+    setTokenAmountDialog(true);
+    setTokenAmount('');
+    
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        throw new Error("Not authenticated");
+      }
+
+      // Calculate pending rewards to get max available
+      const { data, error } = await supabase.functions.invoke('calculate-rewards', {
+        body: {},
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+      });
+
+      if (!error && data) {
+        // Extract max tokens from response - this is the total unclaimed tokens
+        const pendingTokens = data.tokensEarned || data.totalPending || 0;
+        setMaxTokens(pendingTokens);
+        setTokenAmount(pendingTokens.toString());
+      } else {
+        // Default to a reasonable amount if calculation fails
+        setMaxTokens(100);
+      }
+    } catch (error) {
+      console.error('Error calculating max tokens:', error);
+      setMaxTokens(100);
+    } finally {
+      setLoadingMax(false);
+    }
+  };
+
+  const handleMintTokens = async () => {
+    const amount = parseInt(tokenAmount) || 0;
+    if (amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid token amount to mint.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTokenAmountDialog(false);
     setMintingState({ isLoading: true, type: 'token' });
     hapticSuccess();
 
@@ -125,23 +179,17 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
         throw new Error("Not authenticated");
       }
 
-      // Call calculate-rewards to get pending rewards
-      await supabase.functions.invoke('calculate-rewards', {
-        body: {},
-        headers: {
-          Authorization: `Bearer ${sessionData.session.access_token}`,
-        },
-      });
-
-      // Mint tokens with activity deltas
+      // Mint tokens with the specified amount
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-rewards',
           walletAddress,
-          solarDelta: 10,
-          evMilesDelta: 5,
-          batteryDelta: 2,
-          chargingDelta: 3,
+          tokenAmount: amount,
+          // Activity deltas proportional to token amount requested
+          solarDelta: Math.floor(amount * 0.4),
+          evMilesDelta: Math.floor(amount * 0.25),
+          batteryDelta: Math.floor(amount * 0.15),
+          chargingDelta: Math.floor(amount * 0.2),
         },
       });
 
@@ -155,7 +203,7 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
           open: true,
           success: true,
           txHash: result.txHash,
-          message: result.message || 'Tokens minted successfully!',
+          message: result.message || `${amount} $ZSOLAR tokens minted successfully!`,
           type: 'token',
         });
         
@@ -178,6 +226,11 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
     } finally {
       setMintingState({ isLoading: false, type: null });
     }
+  };
+
+  const handleMaxClick = () => {
+    setTokenAmount(maxTokens.toString());
+    hapticSuccess();
   };
 
   const handleMintWelcomeNFT = async () => {
@@ -374,7 +427,7 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
       <div className="space-y-3">
         {/* Mint Tokens Button */}
         <Button
-          onClick={handleMintTokens}
+          onClick={openTokenAmountDialog}
           disabled={isLoading || isMinting || !walletAddress}
           className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
           size="lg"
@@ -499,6 +552,81 @@ export function RewardActions({ onRefresh, isLoading, walletAddress }: RewardAct
           REFRESH DASHBOARD
         </Button>
       </div>
+
+      {/* Token Amount Selection Dialog */}
+      <Dialog open={tokenAmountDialog} onOpenChange={setTokenAmountDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Coins className="h-6 w-6 text-primary" />
+              Mint $ZSOLAR Tokens
+            </DialogTitle>
+            <DialogDescription>
+              Enter the amount of tokens you want to mint to your wallet.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="tokenAmount">Token Amount</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="tokenAmount"
+                  type="number"
+                  placeholder="Enter amount"
+                  value={tokenAmount}
+                  onChange={(e) => setTokenAmount(e.target.value)}
+                  min="1"
+                  max={maxTokens}
+                  className="flex-1"
+                  disabled={loadingMax}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleMaxClick}
+                  disabled={loadingMax || maxTokens <= 0}
+                  className="px-4 font-semibold"
+                >
+                  {loadingMax ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'MAX'
+                  )}
+                </Button>
+              </div>
+              {!loadingMax && (
+                <p className="text-sm text-muted-foreground">
+                  Available: <span className="font-semibold text-primary">{maxTokens.toLocaleString()}</span> $ZSOLAR
+                </p>
+              )}
+              {loadingMax && (
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Calculating available tokens...
+                </p>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setTokenAmountDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleMintTokens}
+              disabled={!tokenAmount || parseInt(tokenAmount) <= 0 || loadingMax}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Coins className="mr-2 h-4 w-4" />
+              Mint Tokens
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Result Dialog */}
       <Dialog open={resultDialog.open} onOpenChange={(open) => setResultDialog({ ...resultDialog, open })}>
