@@ -136,6 +136,22 @@ export function NFTMintFlow({
       });
 
       const hasWelcomeNFT = statusData?.hasWelcomeNFT;
+      const ownedTokenIds: number[] = Array.isArray(statusData?.ownedNFTTokenIds)
+        ? statusData.ownedNFTTokenIds
+        : [];
+
+      // If already owned, don't error — show success-style import UI instead.
+      if (ownedTokenIds.includes(tokenId)) {
+        setMintResult({
+          txHash: '',
+          tokenId,
+          message: `${milestone.name} is already on-chain.`,
+        });
+        setStep('success');
+        toast.info('This NFT is already minted. Add it to MetaMask below.');
+        onMintSuccess?.();
+        return;
+      }
 
       let result: { success: boolean; txHash?: string; message?: string; nftsMinted?: number[] };
 
@@ -191,7 +207,16 @@ export function NFTMintFlow({
         // Check if our specific NFT was minted
         const wasMinted = data.nftsMinted?.includes(tokenId);
         if (!wasMinted) {
-          throw new Error('NFT was not minted. It may already be on-chain.');
+          // If it wasn't newly minted, it's either already owned or not eligible yet.
+          // (Already-owned case is handled above, but keep this defensive.)
+          if (Array.isArray(statusData?.ownedNFTTokenIds) && statusData.ownedNFTTokenIds.includes(tokenId)) {
+            setMintResult({ txHash: '', tokenId, message: `${milestone.name} is already on-chain.` });
+            setStep('success');
+            toast.info('This NFT is already minted. Add it to MetaMask below.');
+            onMintSuccess?.();
+            return;
+          }
+          throw new Error(data.message || 'NFT is not eligible to mint right now.');
         }
         result = data;
       }
@@ -398,9 +423,11 @@ export function NFTMintFlow({
 
               <div>
                 <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mb-1">
-                  NFT Minted Successfully!
+                  {mintResult.txHash ? 'NFT Minted Successfully!' : 'NFT Already On-Chain'}
                 </h3>
-                <p className="text-sm text-muted-foreground">{milestone.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {mintResult.txHash ? milestone.name : 'This collectible is already in your wallet. Add it to MetaMask below.'}
+                </p>
               </div>
 
               {/* Transaction Hash */}

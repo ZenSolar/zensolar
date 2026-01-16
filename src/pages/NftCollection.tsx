@@ -721,12 +721,23 @@ export default function NftCollection() {
     const checkOnChainStatus = async () => {
       setIsCheckingOnChain(true);
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
-
         const { data, error } = await supabase.functions.invoke('mint-onchain', {
           body: { action: 'status', walletAddress },
         });
+
+        if (!error && data?.ownedNFTTokenIds) {
+          setOwnedTokenIds(data.ownedNFTTokenIds);
+          // Check if welcome NFT is owned
+          if (data.ownedNFTTokenIds.includes(0)) {
+            setWelcomeNftClaimed(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking on-chain status:', err);
+      } finally {
+        setIsCheckingOnChain(false);
+      }
+    };
 
         if (!error && data?.ownedNFTTokenIds) {
           setOwnedTokenIds(data.ownedNFTTokenIds);
@@ -828,9 +839,6 @@ export default function NftCollection() {
     // Refresh on-chain status
     if (walletAddress) {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
-
         const { data, error } = await supabase.functions.invoke('mint-onchain', {
           body: { action: 'status', walletAddress },
         });
