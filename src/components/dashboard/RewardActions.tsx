@@ -99,6 +99,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     type: null,
   });
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
+  const [confirmMintDialog, setConfirmMintDialog] = useState(false);
+  const [pendingMintCategory, setPendingMintCategory] = useState<MintCategory | null>(null);
   const [mintingProgressDialog, setMintingProgressDialog] = useState(false);
   const [mintingProgress, setMintingProgress] = useState<{
     step: 'preparing' | 'submitting' | 'confirming' | 'complete' | 'error';
@@ -143,7 +145,28 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   const totalPendingTokens = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
 
-  const handleMintCategory = async (category: MintCategory) => {
+  // Get the amount for a specific category
+  const getCategoryAmount = (category: MintCategory): number => {
+    if (category === 'all') return totalPendingTokens;
+    if (category === 'solar') return pendingRewards.solar;
+    if (category === 'ev_miles') return pendingRewards.evMiles;
+    if (category === 'battery') return pendingRewards.battery;
+    if (category === 'charging') return pendingRewards.charging;
+    return 0;
+  };
+
+  // Get readable label for category
+  const getCategoryLabel = (category: MintCategory): string => {
+    if (category === 'all') return 'All Categories';
+    if (category === 'solar') return 'Solar Production';
+    if (category === 'ev_miles') return 'EV Miles Driven';
+    if (category === 'battery') return 'Battery Storage';
+    if (category === 'charging') return 'EV Charging';
+    return category;
+  };
+
+  // Show confirmation dialog before minting
+  const handleRequestMint = (category: MintCategory) => {
     if (!walletAddress) {
       toast({
         title: "Wallet Required",
@@ -152,8 +175,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
       return;
     }
-
+    
+    setPendingMintCategory(category);
     setTokenMintDialog(false);
+    setConfirmMintDialog(true);
+  };
+
+  // Actually execute the mint after confirmation
+  const handleConfirmMint = async () => {
+    if (!pendingMintCategory) return;
+    
+    setConfirmMintDialog(false);
+    const category = pendingMintCategory;
+    setPendingMintCategory(null);
     setMintingState({ isLoading: true, type: 'token', category });
     setMintingProgressDialog(true);
     setMintingProgress({ step: 'preparing', message: 'Preparing your transaction...' });
@@ -637,7 +671,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleMintCategory('solar')}
+                      onClick={() => handleRequestMint('solar')}
                       disabled={pendingRewards.solar === 0 || isMinting}
                     >
                       {mintingState.category === 'solar' ? (
@@ -662,7 +696,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleMintCategory('battery')}
+                      onClick={() => handleRequestMint('battery')}
                       disabled={pendingRewards.battery === 0 || isMinting}
                     >
                       {mintingState.category === 'battery' ? (
@@ -687,7 +721,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleMintCategory('ev_miles')}
+                      onClick={() => handleRequestMint('ev_miles')}
                       disabled={pendingRewards.evMiles === 0 || isMinting}
                     >
                       {mintingState.category === 'ev_miles' ? (
@@ -712,7 +746,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleMintCategory('charging')}
+                      onClick={() => handleRequestMint('charging')}
                       disabled={pendingRewards.charging === 0 || isMinting}
                     >
                       {mintingState.category === 'charging' ? (
@@ -742,7 +776,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </div>
                   <Button
                     className="w-full bg-primary hover:bg-primary/90"
-                    onClick={() => handleMintCategory('all')}
+                    onClick={() => handleRequestMint('all')}
                     disabled={isMinting}
                   >
                     {mintingState.category === 'all' ? (
@@ -764,6 +798,62 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               className="w-full"
             >
               Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mint Confirmation Dialog */}
+      <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Coins className="h-6 w-6 text-primary" />
+              Confirm Minting
+            </DialogTitle>
+            <DialogDescription className="pt-4">
+              <div className="space-y-4">
+                <p className="text-base text-foreground">
+                  You are about to mint tokens for:
+                </p>
+                
+                {pendingMintCategory && (
+                  <div className="p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{getCategoryLabel(pendingMintCategory)}</span>
+                      <span className="text-xl font-bold text-primary">
+                        {getCategoryAmount(pendingMintCategory).toLocaleString()} $ZSOLAR
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="bg-muted/50 rounded-lg p-3 border">
+                  <p className="text-sm text-muted-foreground">
+                    This will submit a transaction to the Base Sepolia blockchain. 
+                    The tokens will be minted directly to your connected wallet.
+                  </p>
+                </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmMintDialog(false);
+                setPendingMintCategory(null);
+              }}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmMint}
+              className="flex-1 bg-primary hover:bg-primary/90"
+            >
+              <Coins className="mr-2 h-4 w-4" />
+              Confirm Mint
             </Button>
           </DialogFooter>
         </DialogContent>
