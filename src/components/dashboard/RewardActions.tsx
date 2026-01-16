@@ -168,37 +168,84 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return Math.floor(getCategoryActivityUnits(category) * 0.93);
   };
 
-  // Add the ZSOLAR token to the connected wallet using wagmi walletClient
+  // Add the ZSOLAR token to the connected wallet using wallet_watchAsset (best-effort)
   const addZsolarToWallet = async (): Promise<boolean> => {
     // Skip if already added
     if (hasTokenBeenAdded()) {
-      console.log('$ZSOLAR token already in wallet');
+      console.log('$ZSOLAR token already in wallet (flagged)');
       return true;
     }
 
-    // Use wagmi wallet client for proper mobile/WalletConnect support
-    if (!walletClient) {
-      console.warn('No wallet client available');
-      return false;
-    }
+    const params = {
+      type: 'ERC20' as const,
+      options: {
+        address: ZSOLAR_TOKEN_ADDRESS,
+        symbol: ZSOLAR_TOKEN_SYMBOL,
+        decimals: ZSOLAR_TOKEN_DECIMALS,
+        image: `${window.location.origin}${ZSOLAR_TOKEN_IMAGE}`,
+      },
+    };
+
+    // If the wallet app was just opened (mobile deep-link), wait until user returns
+    // so the request can be shown reliably.
+    const waitForForeground = async () => {
+      if (typeof document === 'undefined') return;
+      if (!document.hidden) return;
+
+      await new Promise<void>((resolve) => {
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          resolve();
+        }, 8000);
+
+        const onVis = () => {
+          if (!document.hidden) {
+            cleanup();
+            resolve();
+          }
+        };
+
+        const cleanup = () => {
+          window.clearTimeout(timeout);
+          document.removeEventListener('visibilitychange', onVis);
+        };
+
+        document.addEventListener('visibilitychange', onVis);
+      });
+    };
+
+    const markSuccess = () => {
+      markTokenAdded();
+      console.log('$ZSOLAR token added to wallet successfully');
+    };
 
     try {
-      console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
-      const success = await walletClient.watchAsset({
-        type: 'ERC20',
-        options: {
-          address: ZSOLAR_TOKEN_ADDRESS,
-          symbol: ZSOLAR_TOKEN_SYMBOL,
-          decimals: ZSOLAR_TOKEN_DECIMALS,
-          image: `${window.location.origin}${ZSOLAR_TOKEN_IMAGE}`,
-        },
-      });
-      
-      if (success) {
-        markTokenAdded();
-        console.log('$ZSOLAR token added to wallet successfully');
+      // 1) Prefer wagmi/viem wallet client (works for many injected + some WC wallets)
+      if (walletClient) {
+        console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
+        await waitForForeground();
+        const success = await walletClient.watchAsset(params);
+        if (success) markSuccess();
+        if (success) return true;
+        console.log('walletClient.watchAsset returned false');
+      } else {
+        console.warn('No walletClient available for watchAsset');
       }
-      return success;
+
+      // 2) Fallback to injected provider (desktop MetaMask, etc.)
+      if (window.ethereum?.request) {
+        console.log('Attempting to add $ZSOLAR token via window.ethereum.request(wallet_watchAsset)...');
+        await waitForForeground();
+        const wasAdded = await window.ethereum.request({
+          method: 'wallet_watchAsset',
+          params,
+        });
+        if (wasAdded) markSuccess();
+        return Boolean(wasAdded);
+      }
+
+      console.warn('No supported provider available for wallet_watchAsset');
+      return false;
     } catch (error) {
       console.log('Token add rejected or failed:', error);
       return false;
@@ -302,22 +349,26 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // IMMEDIATELY prompt to add $ZSOLAR token to wallet for seamless UX
-        // This happens right after confetti, before the result dialog shows
-        if (!hasTokenBeenAdded() && walletClient) {
-          try {
-            console.log('Auto-prompting to add $ZSOLAR token to wallet...');
-            const added = await addZsolarToWallet();
-            if (added) {
-              toast({
-                title: "Token Added! 🎉",
-                description: "$ZSOLAR token has been added to your wallet automatically!",
-              });
+        // Prompt to add $ZSOLAR token to wallet for seamless UX (best-effort)
+        // NOTE: Some WalletConnect sessions do not support wallet_watchAsset.
+        if (!hasTokenBeenAdded()) {
+          // small delay to ensure UI settles before triggering the wallet prompt
+          window.setTimeout(async () => {
+            try {
+              console.log('Auto-prompting to add $ZSOLAR token to wallet...');
+              const added = await addZsolarToWallet();
+              if (added) {
+                toast({
+                  title: 'Token Added',
+                  description: '$ZSOLAR token has been added to your wallet.',
+                });
+              } else {
+                console.log('Auto token add not supported or was declined');
+              }
+            } catch (err) {
+              console.log('Auto token add declined or failed:', err);
             }
-          } catch (err) {
-            console.log('Auto token add declined or failed:', err);
-            // Silent fail - user can add manually via button
-          }
+          }, 750);
         }
         
         // Also auto-add NFTs if any were minted
@@ -1060,15 +1111,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             {resultDialog.success && resultDialog.type === 'token' && (
               <Button 
                 onClick={async () => {
-                  if (!walletClient) {
-                    toast({
-                      title: 'Wallet Not Connected',
-                      description: 'Please ensure your wallet is connected to add the token.',
-                      variant: 'destructive',
-                    });
-                    return;
-                  }
-                  
                   try {
                     const added = await addZsolarToWallet();
                     if (added) {
@@ -1078,15 +1120,17 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       });
                     } else {
                       toast({
-                        title: 'Action Cancelled',
-                        description: 'Token was not added to wallet.',
+                        title: 'Could Not Add Token',
+                        description:
+                          'Your wallet may not support automatic token adding in this connection mode. Your tokens are still in your wallet—try switching networks, then retry.',
                       });
                     }
                   } catch (err) {
                     console.error('Error adding token:', err);
                     toast({
                       title: 'Could Not Add Token',
-                      description: 'The token may have been rejected or your wallet does not support this feature. Your tokens are still safely in your wallet!',
+                      description:
+                        'The request may have been rejected or your wallet does not support this feature. Your tokens are still safely in your wallet!',
                     });
                   }
                 }}
