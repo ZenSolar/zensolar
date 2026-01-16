@@ -242,7 +242,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Public status (no auth required) - reads on-chain state only
+    // Public status (no auth required) - reads on-chain state + database fallback
     if (action === "status") {
       const { walletAddress } = body;
 
@@ -259,6 +259,32 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
+      // Create supabase client for database fallback
+      const statusSupabaseClient = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+
+      // Fetch minted NFTs from database as fallback/supplement
+      const { data: mintTransactions } = await statusSupabaseClient
+        .from("mint_transactions")
+        .select("nfts_minted")
+        .eq("wallet_address", walletAddress)
+        .eq("status", "confirmed");
+
+      // Collect all minted NFT token IDs from database
+      const dbMintedIds = new Set<number>();
+      if (mintTransactions) {
+        for (const tx of mintTransactions) {
+          if (tx.nfts_minted && Array.isArray(tx.nfts_minted)) {
+            for (const id of tx.nfts_minted) {
+              dbMintedIds.add(id);
+            }
+          }
+        }
+      }
+      console.log("Database minted NFT IDs for", walletAddress, ":", [...dbMintedIds]);
 
       try {
         const [hasWelcome, tokenBalance] = await Promise.all([
@@ -277,32 +303,45 @@ Deno.serve(async (req) => {
         ]);
 
         const ownedNFTs = await safeGetOwnedTokens(publicClient, walletAddress);
-        const ownedIds = ownedNFTs.map((id) => Number(id));
+        const onChainIds = ownedNFTs.map((id) => Number(id));
+        console.log("On-chain NFT IDs for", walletAddress, ":", onChainIds);
+
+        // Merge on-chain and database IDs (database is source of truth for confirmed mints)
+        const allOwnedIds = [...new Set([...onChainIds, ...dbMintedIds])].sort((a, b) => a - b);
+        console.log("Combined NFT IDs for", walletAddress, ":", allOwnedIds);
 
         return new Response(
           JSON.stringify({
             walletAddress,
-            hasWelcomeNFT: hasWelcome,
+            hasWelcomeNFT: hasWelcome || dbMintedIds.has(0),
             zsolarBalance: formatEther(tokenBalance as bigint),
-            ownedNFTTokenIds: ownedIds,
-            ownedNFTNames: ownedIds.map((id) => NFT_NAMES[id] || `Token #${id}`),
-            nftCount: ownedIds.length,
+            ownedNFTTokenIds: allOwnedIds,
+            ownedNFTNames: allOwnedIds.map((id) => NFT_NAMES[id] || `Token #${id}`),
+            nftCount: allOwnedIds.length,
+            onChainCount: onChainIds.length,
+            dbCount: dbMintedIds.size,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           }
         );
       } catch (statusError) {
-        console.log("Status check failed, wallet may not be registered:", statusError);
+        console.log("On-chain status check failed, using database only:", statusError);
+        
+        // Fall back to database-only results
+        const dbIds = [...dbMintedIds].sort((a, b) => a - b);
+        
         return new Response(
           JSON.stringify({
             walletAddress,
-            hasWelcomeNFT: false,
+            hasWelcomeNFT: dbMintedIds.has(0),
             zsolarBalance: "0",
-            ownedNFTTokenIds: [],
-            ownedNFTNames: [],
-            nftCount: 0,
-            notRegistered: true,
+            ownedNFTTokenIds: dbIds,
+            ownedNFTNames: dbIds.map((id) => NFT_NAMES[id] || `Token #${id}`),
+            nftCount: dbIds.length,
+            onChainCount: 0,
+            dbCount: dbMintedIds.size,
+            notRegistered: dbMintedIds.size === 0,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
