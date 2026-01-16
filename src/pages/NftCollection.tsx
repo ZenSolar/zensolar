@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { useProfile } from '@/hooks/useProfile';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +22,11 @@ import {
   CheckCircle2,
   TrendingUp,
   Target,
-  Crown
+  Crown,
+  Star, 
+  Gift,
+  Loader2,
+  Wallet
 } from 'lucide-react';
 import {
   SOLAR_MILESTONES,
@@ -38,8 +44,8 @@ import {
 import { NFTBadge } from '@/components/ui/nft-badge';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { useConfetti } from '@/hooks/useConfetti';
-import { Star, Gift } from 'lucide-react';
-
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 function MilestoneCard({ 
   milestone, 
   isEarned, 
@@ -376,12 +382,59 @@ function ComboMilestoneCard({
 // Welcome NFT Card - Special prominent display for new users
 function WelcomeNftCard({ 
   isEarned,
-  onViewArtwork
+  onViewArtwork,
+  walletAddress,
+  onMintSuccess
 }: { 
   isEarned: boolean;
   onViewArtwork: (milestone: NFTMilestone) => void;
+  walletAddress?: string;
+  onMintSuccess?: () => void;
 }) {
+  const [isMinting, setIsMinting] = useState(false);
   const artwork = getNftArtwork('welcome');
+  
+  const handleClaimWelcomeNft = async () => {
+    if (!walletAddress) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    setIsMinting(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to claim');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('mint-onchain', {
+        body: { 
+          action: 'mint-specific-nft', 
+          walletAddress,
+          tokenId: 0 // Welcome NFT token ID
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.alreadyOwned) {
+        toast.info(data.message || 'You already own this NFT');
+      } else if (data.success) {
+        toast.success(data.message || 'Welcome NFT claimed successfully!');
+        onMintSuccess?.();
+      } else {
+        toast.error(data.message || 'Claiming failed');
+      }
+    } catch (err) {
+      console.error('Claim error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to claim Welcome NFT';
+      toast.error(errorMessage);
+    } finally {
+      setIsMinting(false);
+    }
+  };
   
   return (
     <motion.div
@@ -464,11 +517,39 @@ function WelcomeNftCard({
           </div>
           
           {!isEarned && (
-            <div className="flex items-center gap-2 mt-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-              <Sparkles className="h-4 w-4 text-amber-500 flex-shrink-0" />
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                <span className="font-medium">No requirements!</span> Just click "Mint NFTs" below to claim your first NFT.
-              </p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                <Sparkles className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  <span className="font-medium">No requirements!</span> {walletAddress ? 'Click claim to get your first NFT.' : 'Connect your wallet to claim.'}
+                </p>
+              </div>
+              
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClaimWelcomeNft();
+                }}
+                disabled={isMinting || !walletAddress}
+                className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold shadow-lg"
+              >
+                {isMinting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Claiming...
+                  </>
+                ) : !walletAddress ? (
+                  <>
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Connect Wallet to Claim
+                  </>
+                ) : (
+                  <>
+                    <Gift className="h-4 w-4 mr-2" />
+                    Claim Welcome NFT
+                  </>
+                )}
+              </Button>
             </div>
           )}
         </div>
@@ -566,9 +647,11 @@ function CategorySection({
 
 export default function NftCollection() {
   const { activityData, isLoading } = useDashboardData();
+  const { profile, refetch: refetchProfile } = useProfile();
   const [selectedNft, setSelectedNft] = useState<NFTMilestone | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [celebratedNfts, setCelebratedNfts] = useState<Set<string>>(new Set());
+  const [welcomeNftClaimed, setWelcomeNftClaimed] = useState(false);
   const { triggerCelebration, triggerGoldBurst } = useConfetti();
   const prevEarnedRef = useRef<Set<string>>(new Set());
 
@@ -677,8 +760,14 @@ export default function NftCollection() {
 
       {/* Welcome NFT - Prominent Display for New Users */}
       <WelcomeNftCard 
-        isEarned={true} // All authenticated users have earned the welcome NFT
+        isEarned={welcomeNftClaimed}
         onViewArtwork={handleViewArtwork}
+        walletAddress={profile?.wallet_address || undefined}
+        onMintSuccess={() => {
+          setWelcomeNftClaimed(true);
+          triggerGoldBurst();
+          triggerCelebration();
+        }}
       />
 
       {/* Stats Overview */}
