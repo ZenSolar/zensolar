@@ -22,6 +22,8 @@ export interface DeviceLabels {
  * This ensures no double-issuance of tokens for the same activity.
  */
 export interface ActivityData {
+  // Lifetime minted (from blockchain transactions)
+  lifetimeMinted: number;
   // Lifetime totals (cumulative, used for NFT milestone progress)
   solarEnergyProduced: number;
   evMilesDriven: number;
