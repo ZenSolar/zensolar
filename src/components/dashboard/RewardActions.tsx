@@ -164,46 +164,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         throw new Error("Not authenticated");
       }
 
-      setMintingProgress({ step: 'submitting', message: 'Checking wallet registration...' });
-
-      // First check if user is registered on-chain (has Welcome NFT)
-      const { data: statusData, error: statusError } = await supabase.functions.invoke('mint-onchain', {
-        body: {
-          action: 'status',
-          walletAddress,
-        },
-      });
-
-      if (statusError) {
-        const details = (statusError as any)?.context?.json ?? statusData;
-        throw new Error(details?.message || details?.error || statusError.message || 'Failed to check wallet status');
-      }
-
-      // Register user if they don't have a Welcome NFT
-      const needsRegistration = !statusData?.hasWelcomeNFT;
-      console.log('Status check result:', statusData, 'Needs registration:', needsRegistration);
-
-      if (needsRegistration) {
-        setMintingProgress({ step: 'submitting', message: 'Registering wallet on blockchain...' });
-        const { data: regData, error: regError } = await supabase.functions.invoke('mint-onchain', {
-          body: {
-            action: 'register',
-            walletAddress,
-          },
-        });
-
-        if (regError) {
-          const details = (regError as any)?.context?.json ?? regData;
-          throw new Error(details?.message || details?.error || regError.message || 'Registration failed');
-        }
-
-        if (!regData?.success) {
-          throw new Error(regData?.message || 'Registration failed');
-        }
-
-        console.log('User registered:', regData);
-      }
-
       const categoryLabel = category === 'all' ? 'all categories' : category.replace('_', ' ');
       setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
 
