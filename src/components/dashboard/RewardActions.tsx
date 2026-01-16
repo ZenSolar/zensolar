@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, Battery, Zap } from 'lucide-react';
 import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
@@ -16,15 +16,21 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
+
+export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
+
+interface PendingRewards {
+  solar: number;
+  evMiles: number;
+  battery: number;
+  charging: number;
+}
 
 interface RewardActionsProps {
   onRefresh: () => Promise<void>;
   isLoading: boolean;
   walletAddress?: string | null;
-  pendingTokens?: number;
+  pendingRewards?: PendingRewards;
 }
 
 export interface RewardActionsRef {
@@ -61,7 +67,12 @@ interface EligibilityData {
   totalEligible: number;
 }
 
-export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(function RewardActions({ onRefresh, isLoading, walletAddress, pendingTokens = 0 }, ref) {
+export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(function RewardActions({ 
+  onRefresh, 
+  isLoading, 
+  walletAddress, 
+  pendingRewards = { solar: 0, evMiles: 0, battery: 0, charging: 0 }
+}, ref) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { triggerConfetti } = useConfetti();
@@ -70,6 +81,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const [mintingState, setMintingState] = useState<{
     isLoading: boolean;
     type: 'token' | 'nft' | 'milestone' | 'combo' | null;
+    category?: MintCategory;
   }>({ isLoading: false, type: null });
   const [eligibility, setEligibility] = useState<EligibilityData | null>(null);
   const [checkingEligibility, setCheckingEligibility] = useState(false);
@@ -85,10 +97,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     message: '',
     type: null,
   });
-  const [tokenAmountDialog, setTokenAmountDialog] = useState(false);
-  const [tokenAmount, setTokenAmount] = useState('');
-  const [maxTokens, setMaxTokens] = useState(0);
-  const [loadingMax, setLoadingMax] = useState(false);
+  const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [mintingProgressDialog, setMintingProgressDialog] = useState(false);
   const [mintingProgress, setMintingProgress] = useState<{
     step: 'preparing' | 'submitting' | 'confirming' | 'complete' | 'error';
@@ -97,7 +106,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   // Expose openTokenMintDialog to parent via ref
   useImperativeHandle(ref, () => ({
-    openTokenMintDialog: () => openTokenAmountDialog(),
+    openTokenMintDialog: () => setTokenMintDialog(true),
   }));
 
   // Check NFT eligibility when wallet is connected
@@ -131,7 +140,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     }
   };
 
-  const openTokenAmountDialog = async () => {
+  const totalPendingTokens = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
+
+  const handleMintCategory = async (category: MintCategory) => {
     if (!walletAddress) {
       toast({
         title: "Wallet Required",
@@ -141,28 +152,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       return;
     }
 
-    // Use pending tokens from dashboard props - this is the accurate value
-    const availableTokens = pendingTokens > 0 ? pendingTokens : 0;
-    
-    setMaxTokens(availableTokens);
-    setTokenAmount(availableTokens > 0 ? availableTokens.toString() : '0');
-    setTokenAmountDialog(true);
-    setLoadingMax(false);
-  };
-
-  const handleMintTokens = async () => {
-    const amount = parseInt(tokenAmount) || 0;
-    if (amount <= 0) {
-      toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid token amount to mint.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setTokenAmountDialog(false);
-    setMintingState({ isLoading: true, type: 'token' });
+    setTokenMintDialog(false);
+    setMintingState({ isLoading: true, type: 'token', category });
     setMintingProgressDialog(true);
     setMintingProgress({ step: 'preparing', message: 'Preparing your transaction...' });
     hapticSuccess();
@@ -202,23 +193,23 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         console.log('User registered:', regData);
       }
 
-      setMintingProgress({ step: 'submitting', message: 'Minting tokens...' });
+      const categoryLabel = category === 'all' ? 'all categories' : category.replace('_', ' ');
+      setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
 
-      // Backend now calculates real deltas from device data - no need to send fabricated values
+      // Call mint-rewards with category parameter
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-rewards',
           walletAddress,
+          category, // 'solar', 'ev_miles', 'battery', 'charging', or 'all'
         },
       });
 
       if (error) {
-        // Check if it's a FunctionsHttpError with details
         const errorDetails = (error as any)?.context?.json || data;
         throw new Error(errorDetails?.message || errorDetails?.error || error.message || 'Minting failed');
       }
 
-      // Handle specific error cases from backend
       if (data?.requiresRegistration) {
         throw new Error('Wallet not registered. Registration should have happened automatically. Please try again.');
       }
@@ -234,17 +225,22 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       if (result.success) {
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         
-        // Brief delay to show completion before switching to result
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Show breakdown in message if available
         let successMessage = result.message || `$ZSOLAR tokens minted successfully!`;
         if ((data as any).breakdown) {
           const b = (data as any).breakdown;
-          successMessage += `\n\nBreakdown:\n• Solar: ${b.solarKwh} kWh\n• EV Miles: ${b.evMiles}\n• Battery: ${b.batteryKwh} kWh\n• Charging: ${b.chargingKwh} kWh`;
+          const parts = [];
+          if (b.solarKwh > 0) parts.push(`☀️ Solar: ${b.solarKwh} kWh`);
+          if (b.evMiles > 0) parts.push(`🚗 EV Miles: ${b.evMiles}`);
+          if (b.batteryKwh > 0) parts.push(`🔋 Battery: ${b.batteryKwh} kWh`);
+          if (b.chargingKwh > 0) parts.push(`⚡ Charging: ${b.chargingKwh} kWh`);
+          if (parts.length > 0) {
+            successMessage += `\n\n${parts.join('\n')}`;
+          }
         }
         
         setResultDialog({
@@ -267,7 +263,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       
       setMintingProgress({ step: 'error', message: errorMessage });
       
-      // Brief delay to show error before switching to result
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       setMintingProgressDialog(false);
@@ -280,11 +275,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     } finally {
       setMintingState({ isLoading: false, type: null });
     }
-  };
-
-  const handleMaxClick = () => {
-    setTokenAmount(maxTokens.toString());
-    hapticSuccess();
   };
 
   const handleMintWelcomeNFT = async () => {
@@ -481,7 +471,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       <div className="space-y-3">
         {/* Mint Tokens Button */}
         <Button
-          onClick={openTokenAmountDialog}
+          onClick={() => setTokenMintDialog(true)}
           disabled={isLoading || isMinting || !walletAddress}
           className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
           size="lg"
@@ -494,6 +484,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           {mintingState.type === 'token' && mintingState.isLoading 
             ? 'MINTING...' 
             : 'MINT $ZSOLAR TOKENS'}
+          {totalPendingTokens > 0 && (
+            <Badge variant="secondary" className="ml-2 bg-white/20">
+              {totalPendingTokens.toLocaleString()}
+            </Badge>
+          )}
         </Button>
 
         {/* NFT Collection Button - shows all eligible NFTs */}
@@ -604,8 +599,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         </Button>
       </div>
 
-      {/* Token Amount Selection Dialog */}
-      <Dialog open={tokenAmountDialog} onOpenChange={setTokenAmountDialog}>
+      {/* Token Category Selection Dialog */}
+      <Dialog open={tokenMintDialog} onOpenChange={setTokenMintDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl flex items-center gap-2">
@@ -613,109 +608,168 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               Mint $ZSOLAR Tokens
             </DialogTitle>
             <DialogDescription>
-              Enter the amount of tokens you want to mint to your wallet.
+              Mint your pending rewards by category or all at once.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
-            {/* Zero tokens message */}
-            {!loadingMax && maxTokens === 0 && (
+          <div className="space-y-3 py-4">
+            {totalPendingTokens === 0 ? (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">No tokens available to mint</p>
                     <p className="text-xs text-muted-foreground">
-                      This could be because your energy data hasn't synced yet, or the API rate limit has been reached. 
-                      Try refreshing your dashboard or wait a few hours for the API limit to reset.
+                      Connect devices and generate energy to earn tokens. Try refreshing your dashboard.
                     </p>
                   </div>
                 </div>
               </div>
-            )}
+            ) : (
+              <>
+                {/* Category breakdown */}
+                <div className="space-y-2">
+                  {/* Solar */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-solar/10">
+                        <Sun className="h-4 w-4 text-solar" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Solar</p>
+                        <p className="text-xs text-muted-foreground">{pendingRewards.solar.toLocaleString()} $ZSOLAR</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleMintCategory('solar')}
+                      disabled={pendingRewards.solar === 0 || isMinting}
+                    >
+                      {mintingState.category === 'solar' ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Mint'
+                      )}
+                    </Button>
+                  </div>
 
-            {/* Slider Control */}
-            {!loadingMax && maxTokens > 0 && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <Label>Select Amount</Label>
-                  <span className="text-sm font-semibold text-primary">
-                    {parseInt(tokenAmount || '0').toLocaleString()} $ZSOLAR
-                  </span>
-                </div>
-                <Slider
-                  value={[parseInt(tokenAmount) || 0]}
-                  onValueChange={(value) => setTokenAmount(value[0].toString())}
-                  max={maxTokens}
-                  min={1}
-                  step={Math.max(1, Math.floor(maxTokens / 100))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>1</span>
-                  <span>{Math.floor(maxTokens / 2).toLocaleString()}</span>
-                  <span>{maxTokens.toLocaleString()}</span>
-                </div>
-              </div>
-            )}
+                  {/* EV Miles */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-energy/10">
+                        <Car className="h-4 w-4 text-energy" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">EV Miles</p>
+                        <p className="text-xs text-muted-foreground">{pendingRewards.evMiles.toLocaleString()} $ZSOLAR</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleMintCategory('ev_miles')}
+                      disabled={pendingRewards.evMiles === 0 || isMinting}
+                    >
+                      {mintingState.category === 'ev_miles' ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Mint'
+                      )}
+                    </Button>
+                  </div>
 
-            {/* Input Field */}
-            <div className="space-y-2">
-              <Label htmlFor="tokenAmount">{maxTokens > 0 ? 'Or enter exact amount' : 'Enter amount'}</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="tokenAmount"
-                  type="number"
-                  placeholder="Enter amount"
-                  value={tokenAmount}
-                  onChange={(e) => setTokenAmount(e.target.value)}
-                  min="1"
-                  max={maxTokens || undefined}
-                  className="flex-1"
-                  disabled={loadingMax}
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleMaxClick}
-                  disabled={loadingMax || maxTokens <= 0}
-                  className="px-4 font-semibold"
-                >
-                  {loadingMax ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'MAX'
-                  )}
-                </Button>
-              </div>
-              {!loadingMax && (
-                <p className="text-sm text-muted-foreground">
-                  Available: <span className="font-semibold text-primary">{maxTokens.toLocaleString()}</span> $ZSOLAR
-                </p>
-              )}
-              {loadingMax && (
-                <p className="text-sm text-muted-foreground flex items-center gap-2">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Calculating available tokens...
-                </p>
-              )}
-            </div>
+                  {/* Battery */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-secondary/10">
+                        <Battery className="h-4 w-4 text-secondary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Battery</p>
+                        <p className="text-xs text-muted-foreground">{pendingRewards.battery.toLocaleString()} $ZSOLAR</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleMintCategory('battery')}
+                      disabled={pendingRewards.battery === 0 || isMinting}
+                    >
+                      {mintingState.category === 'battery' ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Mint'
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Charging */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-accent/10">
+                        <Zap className="h-4 w-4 text-accent" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Charging</p>
+                        <p className="text-xs text-muted-foreground">{pendingRewards.charging.toLocaleString()} $ZSOLAR</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleMintCategory('charging')}
+                      disabled={pendingRewards.charging === 0 || isMinting}
+                    >
+                      {mintingState.category === 'charging' ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Mint'
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-background px-2 text-xs text-muted-foreground">or</span>
+                  </div>
+                </div>
+
+                {/* Total & Mint All */}
+                <div className="p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold">Total Pending</span>
+                    <span className="text-xl font-bold text-primary">{totalPendingTokens.toLocaleString()} $ZSOLAR</span>
+                  </div>
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90"
+                    onClick={() => handleMintCategory('all')}
+                    disabled={isMinting}
+                  >
+                    {mintingState.category === 'all' ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Coins className="mr-2 h-4 w-4" />
+                    )}
+                    Mint All Tokens
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setTokenAmountDialog(false)}
+              onClick={() => setTokenMintDialog(false)}
+              className="w-full"
             >
               Cancel
-            </Button>
-            <Button
-              onClick={handleMintTokens}
-              disabled={!tokenAmount || parseInt(tokenAmount) <= 0 || loadingMax}
-              className="bg-primary hover:bg-primary/90"
-            >
-              <Coins className="mr-2 h-4 w-4" />
-              Mint Tokens
             </Button>
           </DialogFooter>
         </DialogContent>

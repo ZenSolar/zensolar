@@ -247,7 +247,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onRefresh={refreshDashboard} 
             isLoading={dataLoading}
             walletAddress={profile?.wallet_address}
-            pendingTokens={activityData.pendingTokens}
+            pendingRewards={{
+              solar: Math.floor(activityData.pendingSolarKwh),
+              evMiles: Math.floor(activityData.pendingEvMiles),
+              battery: Math.floor(activityData.pendingBatteryKwh),
+              charging: Math.floor(activityData.pendingChargingKwh),
+            }}
           />
         </AnimatedItem>
       </AnimatedContainer>

@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { action, walletAddress, tokenIds, comboTypes, solarDelta, evMilesDelta, batteryDelta, chargingDelta } = body;
+    const { action, walletAddress, tokenIds, comboTypes, category } = body;
 
     if (!walletAddress) {
       return new Response(JSON.stringify({ error: "Wallet address required" }), {
@@ -254,7 +254,11 @@ Deno.serve(async (req) => {
     }
 
     // Action: Mint rewards (tokens + milestone NFTs)
+    // Supports category-based minting: 'solar', 'ev_miles', 'battery', 'charging', or 'all' (default)
     if (action === "mint-rewards") {
+      const mintCategory = category || 'all'; // 'solar', 'ev_miles', 'battery', 'charging', 'all'
+      console.log(`Minting rewards for category: ${mintCategory}`);
+
       // First check if user is registered (has Welcome NFT)
       const hasWelcome = await publicClient.readContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
@@ -276,82 +280,75 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Get REAL pending rewards from database - not fabricated deltas!
-      const { data: pendingRewards, error: rewardsError } = await supabaseClient
-        .from("user_rewards")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("claimed", false);
-
-      if (rewardsError) {
-        console.error("Failed to fetch pending rewards:", rewardsError);
-        return new Response(JSON.stringify({ 
-          success: false, 
-          error: "database_error",
-          message: "Failed to fetch pending rewards. Please try again." 
-        }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const totalPendingTokens = pendingRewards?.reduce((sum, r) => sum + Number(r.tokens_earned), 0) || 0;
-
-      if (totalPendingTokens === 0) {
-        return new Response(JSON.stringify({ 
-          success: false, 
-          message: "No pending rewards to mint. Connect devices and generate energy first!" 
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
       // Get device breakdown from connected_devices to calculate real deltas
       const { data: devices } = await supabaseClient
         .from("connected_devices")
-        .select("device_type, provider, baseline_data, lifetime_totals")
+        .select("id, device_type, provider, baseline_data, lifetime_totals")
         .eq("user_id", user.id);
 
       let solarDeltaKwh = 0;
       let evMilesDelta = 0;
       let batteryDeltaKwh = 0;
       let chargingDeltaKwh = 0;
+      const deviceIdsToUpdate: string[] = [];
 
-      // Calculate real deltas from device data
+      // Calculate real deltas from device data, filtering by category
       for (const device of (devices || [])) {
         const baseline = device.baseline_data as Record<string, number> | null;
         const lifetime = device.lifetime_totals as Record<string, number> | null;
         
         if (!lifetime) continue;
 
-        if (device.device_type === "solar") {
+        if (device.device_type === "solar" && (mintCategory === 'all' || mintCategory === 'solar')) {
           const lifetimeSolarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-          const baselineSolarWh = baseline?.total_solar_produced_wh || 0;
-          solarDeltaKwh += Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
-        } else if (device.device_type === "powerwall" || device.device_type === "battery") {
+          const baselineSolarWh = baseline?.total_solar_produced_wh || baseline?.solar_wh || 0;
+          const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
+          if (delta > 0) {
+            solarDeltaKwh += delta;
+            deviceIdsToUpdate.push(device.id);
+          }
+        } else if ((device.device_type === "powerwall" || device.device_type === "battery") && (mintCategory === 'all' || mintCategory === 'battery')) {
           const lifetimeBatteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
-          const baselineBatteryWh = baseline?.total_energy_discharged_wh || 0;
-          batteryDeltaKwh += Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
+          const baselineBatteryWh = baseline?.total_energy_discharged_wh || baseline?.battery_discharge_wh || 0;
+          const delta = Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
+          if (delta > 0) {
+            batteryDeltaKwh += delta;
+            deviceIdsToUpdate.push(device.id);
+          }
         } else if (device.device_type === "vehicle") {
-          const lifetimeOdometer = lifetime.odometer || 0;
-          const baselineOdometer = baseline?.odometer || 0;
-          evMilesDelta += Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
+          // Vehicle has both EV miles and charging
+          if (mintCategory === 'all' || mintCategory === 'ev_miles') {
+            const lifetimeOdometer = lifetime.odometer || 0;
+            const baselineOdometer = baseline?.odometer || 0;
+            const delta = Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
+            if (delta > 0) {
+              evMilesDelta += delta;
+              if (!deviceIdsToUpdate.includes(device.id)) {
+                deviceIdsToUpdate.push(device.id);
+              }
+            }
+          }
           
-          const lifetimeChargingWh = lifetime.charging_wh || 0;
+          if (mintCategory === 'all' || mintCategory === 'charging') {
+            const lifetimeChargingWh = lifetime.charging_wh || 0;
+            const baselineChargingWh = baseline?.charging_wh || 0;
+            const delta = Math.max(0, Math.floor((lifetimeChargingWh - baselineChargingWh) / 1000));
+            if (delta > 0) {
+              chargingDeltaKwh += delta;
+              if (!deviceIdsToUpdate.includes(device.id)) {
+                deviceIdsToUpdate.push(device.id);
+              }
+            }
+          }
+        } else if (device.device_type === "wall_connector" && (mintCategory === 'all' || mintCategory === 'charging')) {
+          const lifetimeChargingWh = lifetime.charging_wh || lifetime.lifetime_charging_wh || 0;
           const baselineChargingWh = baseline?.charging_wh || 0;
-          chargingDeltaKwh += Math.max(0, Math.floor((lifetimeChargingWh - baselineChargingWh) / 1000));
+          const delta = Math.max(0, Math.floor((lifetimeChargingWh - baselineChargingWh) / 1000));
+          if (delta > 0) {
+            chargingDeltaKwh += delta;
+            deviceIdsToUpdate.push(device.id);
+          }
         }
-      }
-
-      // If no device deltas calculated, use total pending tokens as a fallback (evenly distributed)
-      // This handles cases where device data isn't fully synced yet
-      if (solarDeltaKwh + evMilesDelta + batteryDeltaKwh + chargingDeltaKwh === 0) {
-        console.log("No device deltas found, using pending tokens as fallback");
-        const tokensPerCategory = Math.floor(totalPendingTokens / 4);
-        solarDeltaKwh = tokensPerCategory;
-        batteryDeltaKwh = tokensPerCategory;
-        chargingDeltaKwh = tokensPerCategory;
-        evMilesDelta = totalPendingTokens - (tokensPerCategory * 3); // Remainder goes to EV miles
       }
 
       const solar = BigInt(solarDeltaKwh);
@@ -441,17 +438,23 @@ Deno.serve(async (req) => {
           newNfts
         );
 
-        // Mark rewards as claimed in database
-        const rewardIds = pendingRewards?.map(r => r.id) || [];
-        if (rewardIds.length > 0) {
-          await supabaseClient
-            .from("user_rewards")
-            .update({ 
-              claimed: true, 
-              claimed_at: new Date().toISOString() 
-            })
-            .in("id", rewardIds);
-          console.log(`Marked ${rewardIds.length} rewards as claimed`);
+        // Update baselines only for devices that were minted
+        if (deviceIdsToUpdate.length > 0) {
+          const now = new Date().toISOString();
+          for (const device of (devices || [])) {
+            if (!deviceIdsToUpdate.includes(device.id)) continue;
+            const lifetime = device.lifetime_totals as Record<string, any> | null;
+            if (lifetime) {
+              await supabaseClient
+                .from("connected_devices")
+                .update({ 
+                  baseline_data: { ...lifetime, captured_at: now },
+                  last_minted_at: now 
+                })
+                .eq("id", device.id);
+            }
+          }
+          console.log(`Updated baselines for ${deviceIdsToUpdate.length} devices`);
         }
 
         // Update baselines on devices
@@ -480,7 +483,7 @@ Deno.serve(async (req) => {
         txHash: hash,
         blockNumber: receipt.blockNumber.toString(),
         tokensEstimate: expectedTokens,
-        tokensMinted: totalPendingTokens,
+        tokensMinted: Number(totalUnits),
         nftsMinted: newNfts,
         nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
         message: receipt.status === "success" 
