@@ -10,14 +10,109 @@ import {
   AlertCircle,
   ExternalLink,
   Wallet,
-  Sparkles
+  Sparkles,
+  Copy,
+  Check
 } from 'lucide-react';
+import { toast } from 'sonner';
+
+// NFT Contract address on Base Sepolia
+const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
 import { supabase } from '@/integrations/supabase/client';
 import { useAccount } from 'wagmi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useConfetti } from '@/hooks/useConfetti';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
 import type { NFTMilestone } from '@/lib/nftMilestones';
+
+// MetaMask Import Helper Component
+function MetaMaskImportHelper({ 
+  contractAddress, 
+  tokenIds, 
+  nftNames 
+}: { 
+  contractAddress: string; 
+  tokenIds: number[]; 
+  nftNames: string[];
+}) {
+  const [copiedAddress, setCopiedAddress] = useState(false);
+  const [copiedTokenId, setCopiedTokenId] = useState<number | null>(null);
+
+  const copyToClipboard = async (text: string, type: 'address' | 'tokenId', tokenId?: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (type === 'address') {
+        setCopiedAddress(true);
+        toast.success('Contract address copied!');
+        setTimeout(() => setCopiedAddress(false), 2000);
+      } else if (tokenId !== undefined) {
+        setCopiedTokenId(tokenId);
+        toast.success(`Token ID ${tokenId} copied!`);
+        setTimeout(() => setCopiedTokenId(null), 2000);
+      }
+    } catch (err) {
+      toast.error('Failed to copy');
+    }
+  };
+
+  return (
+    <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border/50 space-y-3">
+      <div className="flex items-center gap-2 text-sm font-medium">
+        <Wallet className="h-4 w-4 text-primary" />
+        <span>Add to MetaMask</span>
+      </div>
+      
+      {/* Contract Address */}
+      <div className="space-y-1">
+        <label className="text-xs text-muted-foreground">Contract Address</label>
+        <button
+          onClick={() => copyToClipboard(contractAddress, 'address')}
+          className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors"
+        >
+          <span className="truncate">{contractAddress}</span>
+          {copiedAddress ? (
+            <Check className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+          ) : (
+            <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+          )}
+        </button>
+      </div>
+
+      {/* Token IDs */}
+      <div className="space-y-1">
+        <label className="text-xs text-muted-foreground">
+          Token ID{tokenIds.length > 1 ? 's' : ''} (tap to copy)
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {tokenIds.map((tokenId, idx) => (
+            <button
+              key={tokenId}
+              onClick={() => copyToClipboard(String(tokenId), 'tokenId', tokenId)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs font-mono transition-all ${
+                copiedTokenId === tokenId
+                  ? 'bg-green-500/10 border-green-500/30 text-green-600'
+                  : 'bg-background border-border hover:bg-muted'
+              }`}
+              title={nftNames[idx] || `Token ${tokenId}`}
+            >
+              <span>{tokenId}</span>
+              {copiedTokenId === tokenId ? (
+                <Check className="h-3 w-3" />
+              ) : (
+                <Copy className="h-3 w-3 text-muted-foreground" />
+              )}
+            </button>
+          ))}
+        </div>
+        {tokenIds.length > 1 && (
+          <p className="text-[10px] text-muted-foreground mt-1">
+            ⚠️ MetaMask requires adding each NFT separately
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface BatchMintButtonProps {
   earnedMilestones: NFTMilestone[];
@@ -341,6 +436,15 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
                 >
                   View transaction <ExternalLink className="h-3 w-3" />
                 </a>
+              )}
+
+              {/* MetaMask Import Helper */}
+              {mintResult.success && mintResult.nftsMinted.length > 0 && (
+                <MetaMaskImportHelper 
+                  contractAddress={NFT_CONTRACT_ADDRESS}
+                  tokenIds={mintResult.nftsMinted}
+                  nftNames={mintResult.nftNames}
+                />
               )}
               
               <Button
