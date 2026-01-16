@@ -53,6 +53,15 @@ contract ZSOLAR is ERC20, Ownable {
         emit Burned(amount);
     }
 
+    /**
+     * @notice Burn tokens from a specific address (owner only)
+     * @dev Used by Controller to burn tokens it minted to itself
+     */
+    function burnFrom(address from, uint256 amount) external onlyOwner {
+        _burn(from, amount);
+        emit Burned(amount);
+    }
+
     function transfer(address to, uint256 amount) public override returns (bool) {
         return _transferWithTax(msg.sender, to, amount);
     }
