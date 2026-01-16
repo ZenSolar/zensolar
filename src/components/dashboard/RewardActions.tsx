@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
-import { useAccount, useWalletClient, useWatchAsset } from 'wagmi';
+import { useAccount, useWalletClient, useWatchAsset, useChainId, useSwitchChain } from 'wagmi';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE, CHAIN_ID } from '@/lib/wagmi';
 import { hasTokenBeenAdded, hasNFTsBeenAdded, markTokenAsAdded as markTokenAdded, markNFTsAsAdded as markNFTsAdded, resetAssetPromptFlags } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
@@ -84,6 +84,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const { triggerConfetti } = useConfetti();
   const { success: hapticSuccess } = useHaptics();
   const { isConnected } = useAccount();
+  const chainId = useChainId();
+  const { switchChainAsync } = useSwitchChain();
   const { data: walletClient } = useWalletClient();
   const { watchAssetAsync } = useWatchAsset();
   const { isAdmin } = useAdminCheck();
@@ -233,10 +235,35 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
     };
 
+    const ensureBaseSepolia = async () => {
+      if (chainId === CHAIN_ID) return true;
+      if (!switchChainAsync) return false;
+
+      try {
+        console.log(`Switching wallet chain to ${CHAIN_ID} for watchAsset (current ${chainId})...`);
+        await waitForForeground();
+        await switchChainAsync({ chainId: CHAIN_ID });
+        return true;
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.log('switchChainAsync threw:', errMsg);
+        logWatchAssetAttempt({
+          provider: 'wagmi',
+          success: false,
+          error: `Failed to switch to Base Sepolia: ${errMsg}`,
+          params: paramsOptions,
+        });
+        return false;
+      }
+    };
+
     // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector (works for WalletConnect)
     if (watchAssetAsync && isConnected) {
       console.log('Attempting to add $ZSOLAR token via wagmi watchAssetAsync...');
       try {
+        // Token exists on Base Sepolia only; ensure wallet is on the same chain before requesting watchAsset.
+        await ensureBaseSepolia();
+
         await waitForForeground();
         const success = await watchAssetAsync({
           type: 'ERC20',
@@ -262,6 +289,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (walletClient) {
       console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
       try {
+        await ensureBaseSepolia();
         await waitForForeground();
         const success = await walletClient.watchAsset({
           type: 'ERC20',
@@ -286,6 +314,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (window.ethereum?.request) {
       console.log('Attempting to add $ZSOLAR token via window.ethereum.request(wallet_watchAsset)...');
       try {
+        await ensureBaseSepolia();
         await waitForForeground();
         const wasAdded = await window.ethereum.request({
           method: 'wallet_watchAsset',
