@@ -230,10 +230,12 @@ function MilestoneCard({
 function ComboMilestoneCard({ 
   milestone, 
   isEarned,
+  isOnChain,
   onViewArtwork
 }: { 
   milestone: NFTMilestone; 
   isEarned: boolean;
+  isOnChain?: boolean;
   onViewArtwork: (milestone: NFTMilestone) => void;
 }) {
   const artwork = getNftArtwork(milestone.id);
@@ -353,10 +355,22 @@ function ComboMilestoneCard({
           
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          {isEarned && (
+          {isEarned && !isOnChain && (
             <motion.div 
               className={`absolute inset-0 bg-gradient-to-br ${rarity.bgGlow} opacity-40 group-hover:opacity-60 transition-opacity duration-300`}
             />
+          )}
+          
+          {/* Already Minted Overlay for Combo */}
+          {isOnChain && (
+            <div className="absolute inset-0 bg-gradient-to-br from-green-600/40 via-green-500/30 to-emerald-600/40 flex items-center justify-center z-20">
+              <div className="bg-green-600/90 backdrop-blur-sm px-5 py-2.5 rounded-lg shadow-lg border border-green-400/50 transform -rotate-6">
+                <div className="flex items-center gap-2 text-white font-bold text-base">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span>ALREADY MINTED</span>
+                </div>
+              </div>
+            </div>
           )}
           
           {/* Rarity Badge - Enhanced with glow */}
@@ -376,7 +390,12 @@ function ComboMilestoneCard({
           
           {/* Status Badge */}
           <div className="absolute top-3 right-3 z-10">
-            {isEarned ? (
+            {isOnChain ? (
+              <Badge className="bg-green-600 text-white gap-1 text-[10px] backdrop-blur-sm shadow-lg">
+                <CheckCircle2 className="h-3 w-3" />
+                On-Chain
+              </Badge>
+            ) : isEarned ? (
               <Badge className="bg-primary/90 text-primary-foreground gap-1 text-[10px] backdrop-blur-sm shadow-lg">
                 <CheckCircle2 className="h-3 w-3" />
                 Earned
@@ -1081,14 +1100,19 @@ export default function NftCollection() {
 
             {/* Combo Grid */}
             <div className="grid grid-cols-1 gap-4">
-              {COMBO_MILESTONES.map((milestone) => (
-                <ComboMilestoneCard
-                  key={milestone.id}
-                  milestone={milestone}
-                  isEarned={comboEarnedIds.has(milestone.id)}
-                  onViewArtwork={handleViewArtwork}
-                />
-              ))}
+              {COMBO_MILESTONES.map((milestone) => {
+                const tokenId = MILESTONE_TO_TOKEN_ID[milestone.id];
+                const isComboOnChain = tokenId !== undefined && ownedTokenIds.includes(tokenId);
+                return (
+                  <ComboMilestoneCard
+                    key={milestone.id}
+                    milestone={milestone}
+                    isEarned={comboEarnedIds.has(milestone.id)}
+                    isOnChain={isComboOnChain}
+                    onViewArtwork={handleViewArtwork}
+                  />
+                );
+              })}
             </div>
           </div>
         </TabsContent>
