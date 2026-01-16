@@ -440,7 +440,7 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ 
           success: false, 
           error: "not_registered",
-          message: "Please register first. Your wallet needs a Welcome NFT before minting tokens.",
+          message: "You need to claim your Welcome NFT first before minting tokens. Go to NFT Collection and claim it.",
           requiresRegistration: true
         }), {
           status: 400,
