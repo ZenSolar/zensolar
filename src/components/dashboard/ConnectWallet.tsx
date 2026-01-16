@@ -4,6 +4,7 @@ import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Coins } from 'lucide-react';
 import { CHAIN_ID } from '@/lib/wagmi';
+
 import { Button } from '@/components/ui/button';
 import { WalletConnectDiagnostics, type WalletDiagEvents } from './WalletConnectDiagnostics';
 import { WalletDeepLinks, getWalletConnectDeepLink, type WalletDeepLinkWalletId } from './WalletDeepLinks';
@@ -359,36 +360,37 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
         )}
 
         <div className="flex flex-col gap-2">
+          {/* Network button - use chainId directly since RainbowKit chain data may not hydrate properly in PWA */}
+          {chainId === CHAIN_ID ? (
+            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 rounded-lg text-sm text-primary font-medium">
+              <div className="h-4 w-4 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">B</div>
+              Base Sepolia
+            </div>
+          ) : (
+            <Button
+              variant="secondary"
+              size="sm"
+              type="button"
+              onClick={() => void ensureCorrectNetwork()}
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              Switch to Base Sepolia
+            </Button>
+          )}
+
           <ConnectButton.Custom>
-            {({ chain, openChainModal, openAccountModal, mounted }) => {
+            {({ openAccountModal, mounted }) => {
               if (!mounted) return null;
 
               return (
-                <>
-                  {chain && (
-                    <button
-                      onClick={openChainModal}
-                      type="button"
-                      className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary/50 rounded-lg text-sm hover:bg-secondary/70 transition-colors"
-                    >
-                      {chain.hasIcon && chain.iconUrl && (
-                        <img
-                          alt={chain.name ?? 'Chain icon'}
-                          src={chain.iconUrl}
-                          className="h-4 w-4 rounded-full"
-                        />
-                      )}
-                      {chain.name ?? 'Unknown Network'}
-                    </button>
-                  )}
-                  <button
-                    onClick={openAccountModal}
-                    type="button"
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary/30 rounded-lg text-sm hover:bg-secondary/50 transition-colors"
-                  >
-                    View Account Details
-                  </button>
-                </>
+                <button
+                  onClick={openAccountModal}
+                  type="button"
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary/30 rounded-lg text-sm hover:bg-secondary/50 transition-colors"
+                >
+                  View Account Details
+                </button>
               );
             }}
           </ConnectButton.Custom>
