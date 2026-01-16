@@ -230,6 +230,27 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
+        // Automatically add ZSOLAR token to MetaMask
+        try {
+          if (window.ethereum) {
+            await window.ethereum.request({
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC20',
+                options: {
+                  address: '0xA3b57E04F91420FC72D6Cadd1eF2749a1B709e38', // ZSOLAR token
+                  symbol: 'ZSOLAR',
+                  decimals: 18,
+                },
+              },
+            });
+            console.log('ZSOLAR token added to wallet');
+          }
+        } catch (watchError) {
+          // User rejected or error - don't block the flow
+          console.log('User declined to add token or error:', watchError);
+        }
+        
         let successMessage = result.message || `$ZSOLAR tokens minted successfully!`;
         if ((data as any).breakdown) {
           const b = (data as any).breakdown;
