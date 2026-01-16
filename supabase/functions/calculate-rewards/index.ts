@@ -180,13 +180,40 @@ Deno.serve(async (req) => {
       // Get user's connected devices to calculate activity-based rewards
       const { data: devices } = await supabaseClient
         .from("connected_devices")
-        .select("device_id, device_type, provider, baseline_data")
+        .select("device_id, device_type, provider, baseline_data, lifetime_totals")
         .eq("user_id", user.id);
 
       let totalSolarKwh = 0;
       let totalBatteryKwh = 0;
       let totalEvMiles = 0;
       let totalEvChargingKwh = 0;
+
+      // Calculate totals from lifetime_totals
+      for (const device of (devices || [])) {
+        const lifetime = device.lifetime_totals as Record<string, number> | null;
+        if (!lifetime) continue;
+
+        if (device.device_type === "solar" || device.device_type === "solar_system") {
+          const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+          totalSolarKwh += Math.floor(solarWh / 1000);
+        } else if (device.device_type === "powerwall" || device.device_type === "battery") {
+          // Powerwalls may have both solar and battery
+          const solarWh = lifetime.solar_wh || 0;
+          const batteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
+          totalSolarKwh += Math.floor(solarWh / 1000);
+          totalBatteryKwh += Math.floor(batteryWh / 1000);
+        } else if (device.device_type === "vehicle") {
+          const odometer = lifetime.odometer || 0;
+          const chargingKwh = lifetime.charging_kwh || Math.floor((lifetime.charging_wh || 0) / 1000);
+          totalEvMiles += Math.floor(odometer);
+          totalEvChargingKwh += Math.floor(chargingKwh);
+        } else if (device.device_type === "wall_connector") {
+          const chargingWh = lifetime.charging_wh || lifetime.lifetime_charging_wh || 0;
+          totalEvChargingKwh += Math.floor(chargingWh / 1000);
+        }
+      }
+
+      console.log("Lifetime totals from devices:", { totalSolarKwh, totalBatteryKwh, totalEvMiles, totalEvChargingKwh });
 
       // Get already claimed rewards
       const { data: claimedRewards } = await supabaseClient
