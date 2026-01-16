@@ -24,14 +24,31 @@ interface BaselineData {
   captured_at: string;
 }
 
-// Fetch lifetime data for a Tesla vehicle
+// On initial device claim, we set baseline to 0 so that the FIRST mint 
+// includes ALL lifetime activity. After each mint, the baseline is reset
+// to current lifetime values so subsequent mints only include new activity.
+//
+// Example flow for a vehicle with 69,000 miles:
+// 1. User claims device → baseline.odometer = 0
+// 2. Dashboard shows pending = 69,000 - 0 = 69,000 miles
+// 3. User mints → gets 69,000 tokens, baseline reset to 69,000
+// 4. User drives 100 more miles → pending = 69,100 - 69,000 = 100 miles
+// 5. User mints → gets 100 tokens, baseline reset to 69,100
+
 async function fetchVehicleLifetimeData(
   vin: string,
   accessToken: string
 ): Promise<BaselineData> {
-  const baseline: BaselineData = { captured_at: new Date().toISOString() };
+  // CRITICAL: Set baseline to 0 on initial claim so first mint includes all lifetime activity
+  const baseline: BaselineData = { 
+    captured_at: new Date().toISOString(),
+    odometer: 0,  // First mint = ALL lifetime miles
+    last_known_odometer: 0,
+    total_charge_energy_added_kwh: 0,  // First mint = ALL lifetime charging
+  };
   
   try {
+    // Still fetch current odometer to store as last_known_odometer for reference
     const response = await fetch(
       `${TESLA_API_BASE}/api/1/vehicles/${vin}/vehicle_data?endpoints=vehicle_state;charge_state`,
       { headers: { "Authorization": `Bearer ${accessToken}` } }
@@ -40,161 +57,38 @@ async function fetchVehicleLifetimeData(
     if (response.ok) {
       const data = await response.json();
       const vehicleState = data.response?.vehicle_state || {};
-      const chargeState = data.response?.charge_state || {};
       
-      baseline.odometer = vehicleState.odometer || 0;
+      // Store current odometer as last_known for reference, but baseline stays at 0
       baseline.last_known_odometer = vehicleState.odometer || 0;
-      // Note: Tesla doesn't provide lifetime charge energy directly
-      // We'll track it incrementally from charge_energy_added per session
-      baseline.total_charge_energy_added_kwh = 0;
       
-      console.log(`Vehicle ${vin} baseline:`, JSON.stringify(baseline));
+      console.log(`Vehicle ${vin} claimed with baseline=0, current odometer=${baseline.last_known_odometer}`);
     } else if (response.status === 408) {
       // Vehicle asleep - try to get data from /vehicles list endpoint
-      console.log(`Vehicle ${vin} is asleep, trying /vehicles list for cached data...`);
-      
-      try {
-        const vehiclesListResponse = await fetch(
-          `${TESLA_API_BASE}/api/1/vehicles`,
-          { headers: { "Authorization": `Bearer ${accessToken}` } }
-        );
-        
-        if (vehiclesListResponse.ok) {
-          const vehiclesList = await vehiclesListResponse.json();
-          const thisVehicle = (vehiclesList.response || []).find((v: any) => v.vin === vin);
-          
-          if (thisVehicle) {
-            const cachedState = thisVehicle.vehicle_state || thisVehicle.cached_data?.vehicle_state;
-            if (cachedState?.odometer && cachedState.odometer > 0) {
-              baseline.odometer = cachedState.odometer;
-              baseline.last_known_odometer = cachedState.odometer;
-              console.log(`Got cached odometer from /vehicles list: ${baseline.odometer}`);
-            }
-          }
-        }
-      } catch (listError) {
-        console.log("Could not fetch vehicles list for cached data:", listError);
-      }
-      
-      // If still no odometer, try to estimate from charging history
-      if (!baseline.odometer || baseline.odometer === 0) {
-        try {
-          const chargingResponse = await fetch(
-            `${TESLA_API_BASE}/api/1/dx/charging/history?pageSize=100&pageNo=1`,
-            { headers: { "Authorization": `Bearer ${accessToken}` } }
-          );
-          
-          if (chargingResponse.ok) {
-            const chargingData = await chargingResponse.json();
-            const sessions = chargingData.data || [];
-            let totalKwh = 0;
-            
-            for (const session of sessions) {
-              if (session.vin === vin) {
-                const directKwh = session.chargeEnergyAdded || session.charge_energy_added || 0;
-                let kwhFromFees = 0;
-                if (Array.isArray(session.fees)) {
-                  for (const fee of session.fees) {
-                    if (String(fee.feeType || '').toUpperCase() === 'CHARGING' && String(fee.uom || '').toLowerCase() === 'kwh') {
-                      kwhFromFees += Number(fee.usageBase || 0) + Number(fee.usageTier1 || 0) + Number(fee.usageTier2 || 0);
-                    }
-                  }
-                }
-                totalKwh += Number(directKwh || kwhFromFees || 0);
-              }
-            }
-            
-            if (totalKwh > 0) {
-              // Estimate: ~3.5 miles per kWh for typical Tesla
-              const estimatedMiles = Math.round(totalKwh * 3.5);
-              baseline.odometer = estimatedMiles;
-              baseline.last_known_odometer = estimatedMiles;
-              baseline.estimated = true;
-              console.log(`Estimated baseline from charging history: ${totalKwh} kWh * 3.5 = ${estimatedMiles} miles`);
-            }
-          }
-        } catch (chargingError) {
-          console.log("Could not fetch charging history for estimate:", chargingError);
-        }
-      }
-      
-      // Final fallback: use 0 and update later
-      if (!baseline.odometer) {
-        baseline.odometer = 0;
-        baseline.last_known_odometer = 0;
-      }
-      baseline.total_charge_energy_added_kwh = 0;
+      console.log(`Vehicle ${vin} is asleep during claim, baseline set to 0`);
     } else {
-      console.error(`Failed to fetch vehicle ${vin} baseline:`, await response.text());
-      baseline.odometer = 0;
-      baseline.last_known_odometer = 0;
-      baseline.total_charge_energy_added_kwh = 0;
+      console.log(`Vehicle ${vin} could not fetch current odometer, baseline set to 0`);
     }
   } catch (error) {
-    console.error(`Error fetching vehicle ${vin} baseline:`, error);
-    baseline.odometer = 0;
-    baseline.last_known_odometer = 0;
-    baseline.total_charge_energy_added_kwh = 0;
+    console.error(`Error fetching vehicle ${vin} data during claim:`, error);
   }
   
   return baseline;
 }
 
 // Fetch lifetime data for a Tesla energy site (Powerwall/Solar)
+// On initial claim, baseline is set to 0 so first mint includes all lifetime production
 async function fetchEnergySiteLifetimeData(
   siteId: string,
   accessToken: string
 ): Promise<BaselineData> {
-  const baseline: BaselineData = { captured_at: new Date().toISOString() };
+  // CRITICAL: Set baseline to 0 on initial claim so first mint includes all lifetime activity
+  const baseline: BaselineData = { 
+    captured_at: new Date().toISOString(),
+    total_energy_discharged_wh: 0,  // First mint = ALL lifetime battery discharge
+    total_solar_produced_wh: 0,     // First mint = ALL lifetime solar production
+  };
   
-  try {
-    // Get site info for lifetime data
-    const infoResponse = await fetch(
-      `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/site_info`,
-      { headers: { "Authorization": `Bearer ${accessToken}` } }
-    );
-    
-    if (infoResponse.ok) {
-      const infoData = await infoResponse.json();
-      const response = infoData.response || {};
-      
-      // Tesla provides lifetime energy data in site_info
-      baseline.total_energy_discharged_wh = response.total_pack_energy || 0;
-      baseline.total_solar_produced_wh = response.nameplate_energy || 0;
-      
-      console.log(`Energy site ${siteId} info:`, JSON.stringify(response));
-    }
-    
-    // Also try to get historical totals from calendar_history
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setFullYear(startDate.getFullYear() - 5); // 5 years back
-    
-    const historyResponse = await fetch(
-      `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/calendar_history?kind=energy&period=lifetime`,
-      { headers: { "Authorization": `Bearer ${accessToken}` } }
-    );
-    
-    if (historyResponse.ok) {
-      const historyData = await historyResponse.json();
-      const response = historyData.response || {};
-      
-      // Sum up lifetime totals from history
-      if (response.total_battery_discharge_energy) {
-        baseline.total_energy_discharged_wh = response.total_battery_discharge_energy;
-      }
-      if (response.total_solar_energy_exported !== undefined) {
-        baseline.total_solar_produced_wh = response.total_solar_energy_exported + (response.total_solar_energy_consumed || 0);
-      }
-      
-      console.log(`Energy site ${siteId} history baseline:`, JSON.stringify(baseline));
-    } else {
-      console.log(`Could not fetch lifetime history for site ${siteId}:`, historyResponse.status);
-    }
-    
-  } catch (error) {
-    console.error(`Error fetching energy site ${siteId} baseline:`, error);
-  }
+  console.log(`Energy site ${siteId} claimed with baseline=0 (first mint = all lifetime)`);
   
   return baseline;
 }
