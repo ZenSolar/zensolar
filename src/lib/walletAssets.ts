@@ -18,7 +18,7 @@ export function hasTokenBeenAdded(): boolean {
 /**
  * Mark the token as added to wallet
  */
-function markTokenAsAdded(): void {
+export function markTokenAsAdded(): void {
   try {
     localStorage.setItem(TOKEN_ADDED_KEY, 'true');
   } catch {
@@ -40,7 +40,7 @@ export function hasNFTsBeenAdded(): boolean {
 /**
  * Mark NFTs as added to wallet
  */
-function markNFTsAsAdded(): void {
+export function markNFTsAsAdded(): void {
   try {
     localStorage.setItem(NFT_ADDED_KEY, 'true');
   } catch {
