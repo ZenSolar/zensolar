@@ -279,6 +279,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           type: 'token',
         });
         
+        // Wait for baseline updates to propagate before refreshing
+        console.log('Waiting for baseline updates to propagate...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         await onRefresh();
         await checkEligibility();
       } else {
