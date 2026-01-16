@@ -156,8 +156,8 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
       let allMintedNames: string[] = [];
       let lastTxHash: string | undefined;
 
-      // 1. Always check and register user first (Welcome NFT required before any minting)
-      // Check if user already has Welcome NFT on-chain
+      // 1. Check if user has Welcome NFT (required for other minting)
+      // Note: We do NOT auto-mint the Welcome NFT - user must explicitly claim it
       const { data: statusData } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'status',
@@ -165,11 +165,12 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
         }
       });
 
-      const needsRegistration = !statusData?.hasWelcomeNFT;
-      console.log('Status check result:', statusData, 'Needs registration:', needsRegistration);
+      const hasWelcomeNFT = statusData?.hasWelcomeNFT;
+      console.log('Status check result:', statusData, 'Has Welcome NFT:', hasWelcomeNFT);
       
-      if (needsRegistration || hasWelcome) {
-        console.log('Registering user (minting Welcome NFT)...');
+      // If user is trying to mint the Welcome NFT specifically
+      if (hasWelcome && !hasWelcomeNFT) {
+        console.log('Minting Welcome NFT...');
         const { data, error: fnError } = await supabase.functions.invoke('mint-onchain', {
           body: {
             action: 'register',
@@ -179,13 +180,16 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
 
         if (fnError) throw fnError;
         if (!data?.success) {
-          throw new Error(data?.message || 'Registration failed');
+          throw new Error(data?.message || 'Welcome NFT minting failed');
         }
         if (data.nftsMinted) {
           allMintedNFTs.push(...data.nftsMinted);
           allMintedNames.push(...(data.nftNames || []));
           lastTxHash = data.txHash;
         }
+      } else if (!hasWelcomeNFT && (milestoneTokenIds.length > 0 || comboTokenIds.length > 0)) {
+        // User needs Welcome NFT but doesn't have it and isn't minting it
+        throw new Error('You need to claim your Welcome NFT first before minting other NFTs.');
       }
 
       // 2. Claim milestone NFTs if any
