@@ -116,6 +116,19 @@ function MilestoneCard({
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           />
+          
+          {/* Already Minted Overlay */}
+          {isOnChain && (
+            <div className="absolute inset-0 bg-gradient-to-br from-green-600/30 via-green-500/20 to-emerald-600/30 flex items-center justify-center">
+              <div className="bg-green-600/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-green-400/50 transform -rotate-12">
+                <div className="flex items-center gap-2 text-white font-bold text-sm">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span>ALREADY MINTED</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
             <motion.span 
               className="text-white text-sm font-medium px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-full"
@@ -128,9 +141,9 @@ function MilestoneCard({
           {/* Status Badge on image */}
           <div className="absolute top-2 right-2">
             {isOnChain ? (
-              <Badge className="bg-green-600 text-white gap-1 text-[10px]">
+              <Badge className="bg-green-600 text-white gap-1 text-[10px] shadow-md">
                 <CheckCircle2 className="h-3 w-3" />
-                Minted
+                On-Chain
               </Badge>
             ) : isEarned ? (
               <Badge className="bg-primary text-primary-foreground gap-1 text-[10px]">
