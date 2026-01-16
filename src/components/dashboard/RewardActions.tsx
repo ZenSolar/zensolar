@@ -302,26 +302,32 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Prompt to add $ZSOLAR token to wallet (only if not already added)
-        // Give the user a moment to see the success before prompting
-        setTimeout(async () => {
+        // IMMEDIATELY prompt to add $ZSOLAR token to wallet for seamless UX
+        // This happens right after confetti, before the result dialog shows
+        if (!hasTokenBeenAdded() && walletClient) {
           try {
+            console.log('Auto-prompting to add $ZSOLAR token to wallet...');
             const added = await addZsolarToWallet();
-            if (added && !hasTokenBeenAdded()) {
+            if (added) {
               toast({
-                title: "Token Added",
-                description: "$ZSOLAR token has been added to your wallet!",
+                title: "Token Added! 🎉",
+                description: "$ZSOLAR token has been added to your wallet automatically!",
               });
             }
-            
-            // Also prompt to add NFTs if any were minted
-            if (result.nftsMinted && result.nftsMinted.length > 0) {
-              await addNFTsToWallet(result.nftsMinted);
-            }
           } catch (err) {
-            console.log('Asset add prompt declined or failed:', err);
+            console.log('Auto token add declined or failed:', err);
+            // Silent fail - user can add manually via button
           }
-        }, 1500);
+        }
+        
+        // Also auto-add NFTs if any were minted
+        if (result.nftsMinted && result.nftsMinted.length > 0) {
+          try {
+            await addNFTsToWallet(result.nftsMinted);
+          } catch (err) {
+            console.log('NFT add failed:', err);
+          }
+        }
         
         let successMessage = result.message || `$ZSOLAR tokens minted successfully!`;
         if ((data as any).breakdown) {
