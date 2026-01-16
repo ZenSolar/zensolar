@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, Battery, Zap, Copy, Check } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, Battery, Zap, Copy, Check, Wallet } from 'lucide-react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
@@ -19,8 +19,14 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { WatchAssetDiagnostics, type WatchAssetAttempt } from './WatchAssetDiagnostics';
 import { ManualTokenAddPanel } from './ManualTokenAddPanel';
+import { getNftArtwork } from '@/lib/nftArtwork';
+import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
+
+// NFT Contract address on Base Sepolia
+const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
@@ -114,6 +120,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
   const [pendingMintCategory, setPendingMintCategory] = useState<MintCategory | null>(null);
   const [mintingProgressDialog, setMintingProgressDialog] = useState(false);
+  
+  // NFT Selection Dialog state
+  const [nftMintDialog, setNftMintDialog] = useState<{
+    open: boolean;
+    type: 'milestone' | 'combo' | null;
+  }>({ open: false, type: null });
+  const [selectedNft, setSelectedNft] = useState<EligibleNFT | EligibleCombo | null>(null);
+  const [nftMintResult, setNftMintResult] = useState<{
+    success: boolean;
+    txHash?: string;
+    tokenId?: number;
+    nftName?: string;
+  } | null>(null);
   const [mintingProgress, setMintingProgress] = useState<{
     step: 'preparing' | 'submitting' | 'confirming' | 'complete' | 'error';
     message: string;
@@ -669,7 +688,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     }
   };
 
-  const handleMintMilestoneNFTs = async () => {
+  // Open NFT selection dialog instead of auto-minting
+  const handleOpenMilestoneDialog = () => {
     if (!walletAddress) {
       toast({
         title: "Wallet Required",
@@ -678,8 +698,31 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
       return;
     }
+    setNftMintResult(null);
+    setSelectedNft(null);
+    setNftMintDialog({ open: true, type: 'milestone' });
+  };
+
+  const handleOpenComboDialog = () => {
+    if (!walletAddress) {
+      toast({
+        title: "Wallet Required",
+        description: "Please connect your wallet first to mint NFTs.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setNftMintResult(null);
+    setSelectedNft(null);
+    setNftMintDialog({ open: true, type: 'combo' });
+  };
+
+  // Mint a single milestone NFT
+  const handleMintSingleMilestone = async (nft: EligibleNFT) => {
+    if (!walletAddress) return;
 
     setMintingState({ isLoading: true, type: 'milestone' });
+    setSelectedNft(nft);
     hapticSuccess();
 
     try {
@@ -687,6 +730,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         body: {
           action: 'claim-milestone-nfts',
           walletAddress,
+          specificTokenId: nft.tokenId,
         },
       });
 
@@ -697,18 +741,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       if (result.success) {
         triggerConfetti();
         
-        // Prompt to add NFTs to wallet (only once ever)
-        if (result.nftsMinted && result.nftsMinted.length > 0) {
-          setTimeout(() => addNFTsToWallet(result.nftsMinted!), 1500);
-        }
+        // Check if our specific NFT was minted
+        const wasMinted = result.nftsMinted?.includes(nft.tokenId);
         
-        setResultDialog({
-          open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message || 'Milestone NFTs claimed!',
-          type: 'milestone',
-        });
+        if (wasMinted) {
+          setNftMintResult({
+            success: true,
+            txHash: result.txHash,
+            tokenId: nft.tokenId,
+            nftName: nft.name,
+          });
+        } else {
+          throw new Error('NFT was not minted. It may already be on-chain.');
+        }
         
         await onRefresh();
         await checkEligibility();
@@ -719,41 +764,31 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     } catch (error) {
       console.error('Milestone NFT minting error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Minting failed';
-      
-      setResultDialog({
-        open: true,
-        success: false,
-        message: errorMessage,
-        type: 'milestone',
+      toast({
+        title: "Minting Failed",
+        description: errorMessage,
+        variant: "destructive",
       });
     } finally {
       setMintingState({ isLoading: false, type: null });
     }
   };
 
-  const handleMintComboNFTs = async () => {
-    if (!walletAddress || !eligibility?.eligibleComboNFTs.length) {
-      toast({
-        title: "No Eligible Combos",
-        description: "You don't have any combo NFTs to claim yet.",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Mint a single combo NFT
+  const handleMintSingleCombo = async (combo: EligibleCombo) => {
+    if (!walletAddress) return;
 
     setMintingState({ isLoading: true, type: 'combo' });
+    setSelectedNft(combo);
     hapticSuccess();
 
     try {
-      const tokenIds = eligibility.eligibleComboNFTs.map(c => c.tokenId);
-      const comboTypes = eligibility.eligibleComboNFTs.map(c => c.comboType);
-
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-combos',
           walletAddress,
-          tokenIds,
-          comboTypes,
+          tokenIds: [combo.tokenId],
+          comboTypes: [combo.comboType],
         },
       });
 
@@ -764,17 +799,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       if (result.success) {
         triggerConfetti();
         
-        // Prompt to add NFTs to wallet (only once ever)
-        if (result.nftsMinted && result.nftsMinted.length > 0) {
-          setTimeout(() => addNFTsToWallet(result.nftsMinted!), 1500);
-        }
-        
-        setResultDialog({
-          open: true,
+        setNftMintResult({
           success: true,
           txHash: result.txHash,
-          message: result.message || `Minted ${result.mintedCount} combo NFT(s)!`,
-          type: 'combo',
+          tokenId: combo.tokenId,
+          nftName: combo.name,
         });
         
         await onRefresh();
@@ -786,15 +815,35 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     } catch (error) {
       console.error('Combo NFT minting error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Minting failed';
-      
-      setResultDialog({
-        open: true,
-        success: false,
-        message: errorMessage,
-        type: 'combo',
+      toast({
+        title: "Minting Failed",
+        description: errorMessage,
+        variant: "destructive",
       });
     } finally {
       setMintingState({ isLoading: false, type: null });
+    }
+  };
+
+  // Get milestone ID from token ID for artwork lookup
+  const getMilestoneIdFromTokenId = (tokenId: number): string => {
+    return TOKEN_ID_TO_MILESTONE[tokenId] || `combo_${tokenId - 33}`;
+  };
+
+  // Copy helper for NFT import section
+  const handleCopyNftInfo = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied!",
+        description: `${label} copied to clipboard`,
+      });
+    } catch (err) {
+      toast({
+        title: "Copy Failed",
+        description: "Please copy manually",
+        variant: "destructive",
+      });
     }
   };
 
@@ -851,52 +900,32 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         {/* Milestone NFTs Button - show if eligible */}
         {eligibleMilestones > 0 && (
           <Button
-            onClick={handleMintMilestoneNFTs}
+            onClick={handleOpenMilestoneDialog}
             disabled={isLoading || isMinting || !walletAddress}
             className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
             size="lg"
           >
-            {mintingState.type === 'milestone' && mintingState.isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Trophy className="mr-2 h-4 w-4" />
-            )}
-            {mintingState.type === 'milestone' && mintingState.isLoading 
-              ? 'MINTING...' 
-              : (
-                <>
-                  MINT MILESTONE NFTS
-                  <Badge variant="secondary" className="ml-2 bg-white/20">
-                    {eligibleMilestones}
-                  </Badge>
-                </>
-              )}
+            <Trophy className="mr-2 h-4 w-4" />
+            MINT ZENSOLAR NFTS
+            <Badge variant="secondary" className="ml-2 bg-white/20">
+              {eligibleMilestones}
+            </Badge>
           </Button>
         )}
 
         {/* Combo NFTs Button - show if eligible */}
         {eligibleCombos > 0 && (
           <Button
-            onClick={handleMintComboNFTs}
+            onClick={handleOpenComboDialog}
             disabled={isLoading || isMinting || !walletAddress}
             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             size="lg"
           >
-            {mintingState.type === 'combo' && mintingState.isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="mr-2 h-4 w-4" />
-            )}
-            {mintingState.type === 'combo' && mintingState.isLoading 
-              ? 'MINTING...' 
-              : (
-                <>
-                  MINT COMBO NFTS
-                  <Badge variant="secondary" className="ml-2 bg-white/20">
-                    {eligibleCombos}
-                  </Badge>
-                </>
-              )}
+            <Sparkles className="mr-2 h-4 w-4" />
+            MINT COMBO NFTS
+            <Badge variant="secondary" className="ml-2 bg-white/20">
+              {eligibleCombos}
+            </Badge>
           </Button>
         )}
 
@@ -1313,6 +1342,242 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               {resultDialog.success ? 'Awesome!' : 'Close'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* NFT Selection Dialog - for Milestone and Combo NFTs */}
+      <Dialog 
+        open={nftMintDialog.open} 
+        onOpenChange={(open) => {
+          if (!open && !isMinting) {
+            setNftMintDialog({ open: false, type: null });
+            setNftMintResult(null);
+            setSelectedNft(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-[calc(100vw-24px)] max-h-[calc(100dvh-48px)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              {nftMintDialog.type === 'milestone' ? (
+                <>
+                  <Trophy className="h-6 w-6 text-emerald-500" />
+                  Mint ZenSolar NFTs
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-6 w-6 text-purple-500" />
+                  Mint Combo NFTs
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {nftMintResult 
+                ? 'NFT minted successfully! Copy the info below to add it to MetaMask.'
+                : 'Select an NFT to mint. Each NFT must be minted individually.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {/* Success state with MetaMask import info */}
+          {nftMintResult ? (
+            <div className="space-y-4 py-2">
+              {/* Success header */}
+              <div className="flex items-center gap-2 text-emerald-500">
+                <CheckCircle2 className="h-5 w-5" />
+                <span className="font-medium">{nftMintResult.nftName} minted!</span>
+              </div>
+
+              {/* Transaction link */}
+              {nftMintResult.txHash && (
+                <a
+                  href={`https://sepolia.basescan.org/tx/${nftMintResult.txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                >
+                  View transaction <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+
+              {/* MetaMask Import Section */}
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/50 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Wallet className="h-4 w-4 text-primary" />
+                  <span>Add to MetaMask</span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-muted-foreground">Contract Address</label>
+                    <button
+                      onClick={() => handleCopyNftInfo(NFT_CONTRACT_ADDRESS, 'Contract address')}
+                      className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
+                    >
+                      <span className="truncate">{NFT_CONTRACT_ADDRESS}</span>
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-xs text-muted-foreground">Token ID for {nftMintResult.nftName}</label>
+                    <button
+                      onClick={() => handleCopyNftInfo(String(nftMintResult.tokenId), 'Token ID')}
+                      className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
+                    >
+                      <span>{nftMintResult.tokenId}</span>
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Continue minting or close */}
+              <div className="flex gap-2">
+                {((nftMintDialog.type === 'milestone' && eligibility && eligibility.eligibleMilestoneNFTs.length > 0) ||
+                  (nftMintDialog.type === 'combo' && eligibility && eligibility.eligibleComboNFTs.length > 0)) ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setNftMintResult(null);
+                      setSelectedNft(null);
+                    }}
+                    className="flex-1"
+                  >
+                    Mint Another
+                  </Button>
+                ) : null}
+                <Button
+                  onClick={() => {
+                    setNftMintDialog({ open: false, type: null });
+                    setNftMintResult(null);
+                    setSelectedNft(null);
+                  }}
+                  className="flex-1"
+                >
+                  Done
+                </Button>
+              </div>
+            </div>
+          ) : (
+            /* NFT Selection list */
+            <ScrollArea className="max-h-[50vh] pr-4">
+              <div className="space-y-2 py-2">
+                {nftMintDialog.type === 'milestone' && eligibility?.eligibleMilestoneNFTs.map((nft) => {
+                  const milestoneId = getMilestoneIdFromTokenId(nft.tokenId);
+                  const artwork = getNftArtwork(milestoneId);
+                  const isSelected = selectedNft && 'tokenId' in selectedNft && selectedNft.tokenId === nft.tokenId;
+                  const isCurrentlyMinting = isMinting && isSelected;
+                  
+                  return (
+                    <div 
+                      key={nft.tokenId}
+                      className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex-shrink-0">
+                        {artwork ? (
+                          <img 
+                            src={artwork} 
+                            alt={nft.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Trophy className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate">{nft.name}</h4>
+                        <p className="text-xs text-muted-foreground capitalize">{nft.category}</p>
+                        <p className="text-xs text-muted-foreground">Token ID: {nft.tokenId}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => handleMintSingleMilestone(nft)}
+                        disabled={isMinting}
+                        className="flex-shrink-0"
+                      >
+                        {isCurrentlyMinting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Mint'
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+
+                {nftMintDialog.type === 'combo' && eligibility?.eligibleComboNFTs.map((combo) => {
+                  const milestoneId = getMilestoneIdFromTokenId(combo.tokenId);
+                  const artwork = getNftArtwork(milestoneId);
+                  const isSelected = selectedNft && 'tokenId' in selectedNft && selectedNft.tokenId === combo.tokenId;
+                  const isCurrentlyMinting = isMinting && isSelected;
+                  
+                  return (
+                    <div 
+                      key={combo.tokenId}
+                      className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/5 flex-shrink-0">
+                        {artwork ? (
+                          <img 
+                            src={artwork} 
+                            alt={combo.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Sparkles className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate">{combo.name}</h4>
+                        <p className="text-xs text-muted-foreground">{combo.comboType}</p>
+                        <p className="text-xs text-muted-foreground">Token ID: {combo.tokenId}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => handleMintSingleCombo(combo)}
+                        disabled={isMinting}
+                        className="flex-shrink-0 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                      >
+                        {isCurrentlyMinting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Mint'
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+
+                {/* Empty state */}
+                {((nftMintDialog.type === 'milestone' && (!eligibility?.eligibleMilestoneNFTs || eligibility.eligibleMilestoneNFTs.length === 0)) ||
+                  (nftMintDialog.type === 'combo' && (!eligibility?.eligibleComboNFTs || eligibility.eligibleComboNFTs.length === 0))) && (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No eligible NFTs to mint</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          )}
+
+          {!nftMintResult && (
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setNftMintDialog({ open: false, type: null });
+                  setSelectedNft(null);
+                }}
+                className="w-full"
+                disabled={isMinting}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </>
