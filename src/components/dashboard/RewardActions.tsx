@@ -263,7 +263,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       const result = data as MintResult;
 
-      if (result.success) {
+        if (result.success) {
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -271,8 +271,21 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Prompt to add $ZSOLAR token to the connected wallet (non-blocking)
-        void addZsolarToWallet();
+        // Prompt to add $ZSOLAR token to the connected wallet
+        // Give the user a moment to see the success before prompting
+        setTimeout(async () => {
+          try {
+            const added = await addZsolarToWallet();
+            if (added) {
+              toast({
+                title: "Token Added",
+                description: "$ZSOLAR token has been added to your wallet!",
+              });
+            }
+          } catch (err) {
+            console.log('Token add prompt declined or failed:', err);
+          }
+        }, 1500);
         
         let successMessage = result.message || `$ZSOLAR tokens minted successfully!`;
         if ((data as any).breakdown) {

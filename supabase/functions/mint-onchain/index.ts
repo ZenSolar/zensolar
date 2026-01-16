@@ -733,7 +733,10 @@ Deno.serve(async (req) => {
     }
 
     // Action: Check which NFTs user is eligible for
+    // This now uses BOTH on-chain stats AND database lifetime totals
+    // to show pending NFTs that will be minted when user mints tokens
     if (action === "check-eligible") {
+      // Get on-chain stats (already minted to blockchain)
       const userStats = await publicClient.readContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
@@ -741,7 +744,55 @@ Deno.serve(async (req) => {
         args: [walletAddress as `0x${string}`],
       }) as [bigint, bigint, bigint, bigint, boolean];
 
-      const [solar, evMiles, battery, charging, hasWelcome] = userStats;
+      const [onChainSolar, onChainEvMiles, onChainBattery, onChainCharging, hasWelcome] = userStats;
+
+      // Also get lifetime totals from database to show pending eligibility
+      const { data: devices } = await supabaseClient
+        .from("connected_devices")
+        .select("device_type, provider, lifetime_totals")
+        .eq("user_id", user.id);
+
+      let dbSolarKwh = 0;
+      let dbBatteryKwh = 0;
+      let dbEvMiles = 0;
+      let dbChargingKwh = 0;
+
+      for (const device of (devices || [])) {
+        const lifetime = device.lifetime_totals as Record<string, number> | null;
+        if (!lifetime) continue;
+
+        if (device.device_type === "solar" || device.device_type === "solar_system") {
+          const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+          dbSolarKwh += Math.floor(solarWh / 1000);
+        } else if (device.device_type === "powerwall" || device.device_type === "battery") {
+          // Powerwalls may have both solar and battery
+          const solarWh = lifetime.solar_wh || 0;
+          const batteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
+          dbSolarKwh += Math.floor(solarWh / 1000);
+          dbBatteryKwh += Math.floor(batteryWh / 1000);
+        } else if (device.device_type === "vehicle") {
+          const odometer = lifetime.odometer || 0;
+          const chargingKwh = lifetime.charging_kwh || Math.floor((lifetime.charging_wh || 0) / 1000);
+          dbEvMiles += Math.floor(odometer);
+          dbChargingKwh += Math.floor(chargingKwh);
+        } else if (device.device_type === "wall_connector") {
+          const chargingWh = lifetime.charging_wh || lifetime.lifetime_charging_wh || 0;
+          dbChargingKwh += Math.floor(chargingWh / 1000);
+        }
+      }
+
+      // Use the MAX of on-chain and database values for eligibility
+      // This shows all NFTs the user WILL earn when they mint
+      const totalSolarKwh = Math.max(Number(onChainSolar), dbSolarKwh);
+      const totalBatteryKwh = Math.max(Number(onChainBattery), dbBatteryKwh);
+      const totalChargingKwh = Math.max(Number(onChainCharging), dbChargingKwh);
+      const totalEvMiles = Math.max(Number(onChainEvMiles), dbEvMiles);
+
+      console.log("Eligibility check stats:", {
+        onChain: { solar: Number(onChainSolar), battery: Number(onChainBattery), charging: Number(onChainCharging), evMiles: Number(onChainEvMiles) },
+        database: { solar: dbSolarKwh, battery: dbBatteryKwh, charging: dbChargingKwh, evMiles: dbEvMiles },
+        combined: { solar: totalSolarKwh, battery: totalBatteryKwh, charging: totalChargingKwh, evMiles: totalEvMiles },
+      });
 
       const ownedNFTs = await safeGetOwnedTokens(publicClient, walletAddress);
 
@@ -750,14 +801,13 @@ Deno.serve(async (req) => {
       const eligibleNFTs: { tokenId: number; category: string; name: string; threshold: number }[] = [];
       
       // Welcome NFT is ALWAYS eligible for authenticated users if not already owned
-      // No energy requirements - just needs to be authenticated
       const welcomeEligible = !hasWelcome && !ownedSet.has(0);
       
       const solarThresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
       const solarNames = ["Sunspark", "Photonic", "Rayforge", "Solaris", "Helios", "Sunforge", "Gigasun", "Starforge"];
       for (let i = 0; i < solarThresholds.length; i++) {
         const tokenId = i + 1;
-        if (Number(solar) >= solarThresholds[i] && !ownedSet.has(tokenId)) {
+        if (totalSolarKwh >= solarThresholds[i] && !ownedSet.has(tokenId)) {
           eligibleNFTs.push({ tokenId, category: "solar", name: solarNames[i], threshold: solarThresholds[i] });
         }
       }
@@ -766,7 +816,7 @@ Deno.serve(async (req) => {
       const batteryNames = ["Voltbank", "Gridpulse", "Megacell", "Reservex", "Dynamax", "Ultracell", "Gigavolt"];
       for (let i = 0; i < batteryThresholds.length; i++) {
         const tokenId = i + 9;
-        if (Number(battery) >= batteryThresholds[i] && !ownedSet.has(tokenId)) {
+        if (totalBatteryKwh >= batteryThresholds[i] && !ownedSet.has(tokenId)) {
           eligibleNFTs.push({ tokenId, category: "battery", name: batteryNames[i], threshold: batteryThresholds[i] });
         }
       }
@@ -775,7 +825,7 @@ Deno.serve(async (req) => {
       const chargingNames = ["Ignite", "Voltcharge", "Kilovolt", "Ampforge", "Chargeon", "Gigacharge", "Megacharge", "Teracharge"];
       for (let i = 0; i < chargingThresholds.length; i++) {
         const tokenId = i + 16;
-        if (Number(charging) >= chargingThresholds[i] && !ownedSet.has(tokenId)) {
+        if (totalChargingKwh >= chargingThresholds[i] && !ownedSet.has(tokenId)) {
           eligibleNFTs.push({ tokenId, category: "charging", name: chargingNames[i], threshold: chargingThresholds[i] });
         }
       }
@@ -784,23 +834,24 @@ Deno.serve(async (req) => {
       const evMilesNames = ["Ignitor", "Velocity", "Autobahn", "Hyperdrive", "Electra", "Velocity Pro", "Mach One", "Centaurion", "Voyager", "Odyssey"];
       for (let i = 0; i < evMilesThresholds.length; i++) {
         const tokenId = i + 24;
-        if (Number(evMiles) >= evMilesThresholds[i] && !ownedSet.has(tokenId)) {
+        if (totalEvMiles >= evMilesThresholds[i] && !ownedSet.has(tokenId)) {
           eligibleNFTs.push({ tokenId, category: "ev", name: evMilesNames[i], threshold: evMilesThresholds[i] });
         }
       }
 
-      const solarCount = solarThresholds.filter((t, i) => Number(solar) >= t && ownedSet.has(i + 1)).length;
-      const batteryCount = batteryThresholds.filter((t, i) => Number(battery) >= t && ownedSet.has(i + 9)).length;
-      const chargingCount = chargingThresholds.filter((t, i) => Number(charging) >= t && ownedSet.has(i + 16)).length;
-      const evMilesCount = evMilesThresholds.filter((t, i) => Number(evMiles) >= t && ownedSet.has(i + 24)).length;
+      // For combo calculations, count category NFTs earned (based on combined stats)
+      const solarEarnedCount = solarThresholds.filter(t => totalSolarKwh >= t).length;
+      const batteryEarnedCount = batteryThresholds.filter(t => totalBatteryKwh >= t).length;
+      const chargingEarnedCount = chargingThresholds.filter(t => totalChargingKwh >= t).length;
+      const evMilesEarnedCount = evMilesThresholds.filter(t => totalEvMiles >= t).length;
 
-      const categoriesWithNFTs = [solarCount > 0, batteryCount > 0, chargingCount > 0, evMilesCount > 0].filter(Boolean).length;
-      const totalCategoryNFTs = solarCount + batteryCount + chargingCount + evMilesCount;
+      const categoriesWithNFTs = [solarEarnedCount > 0, batteryEarnedCount > 0, chargingEarnedCount > 0, evMilesEarnedCount > 0].filter(Boolean).length;
+      const totalCategoryNFTs = solarEarnedCount + batteryEarnedCount + chargingEarnedCount + evMilesEarnedCount;
       
-      const solarMaxed = solarCount === solarThresholds.length;
-      const batteryMaxed = batteryCount === batteryThresholds.length;
-      const chargingMaxed = chargingCount === chargingThresholds.length;
-      const evMilesMaxed = evMilesCount === evMilesThresholds.length;
+      const solarMaxed = solarEarnedCount === solarThresholds.length;
+      const batteryMaxed = batteryEarnedCount === batteryThresholds.length;
+      const chargingMaxed = chargingEarnedCount === chargingThresholds.length;
+      const evMilesMaxed = evMilesEarnedCount === evMilesThresholds.length;
       const categoriesMaxed = [solarMaxed, batteryMaxed, chargingMaxed, evMilesMaxed].filter(Boolean).length;
 
       const eligibleCombos: { tokenId: number; name: string; comboType: string }[] = [];
@@ -816,17 +867,36 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({
         walletAddress,
         hasWelcomeNFT: hasWelcome,
-        welcomeEligible, // True if user can claim Welcome NFT
+        welcomeEligible,
         onChainStats: {
-          solarKwh: Number(solar),
-          evMiles: Number(evMiles),
-          batteryKwh: Number(battery),
-          chargingKwh: Number(charging),
+          solarKwh: Number(onChainSolar),
+          evMiles: Number(onChainEvMiles),
+          batteryKwh: Number(onChainBattery),
+          chargingKwh: Number(onChainCharging),
+        },
+        databaseStats: {
+          solarKwh: dbSolarKwh,
+          evMiles: dbEvMiles,
+          batteryKwh: dbBatteryKwh,
+          chargingKwh: dbChargingKwh,
+        },
+        combinedStats: {
+          solarKwh: totalSolarKwh,
+          evMiles: totalEvMiles,
+          batteryKwh: totalBatteryKwh,
+          chargingKwh: totalChargingKwh,
         },
         ownedNFTs: Array.from(ownedSet),
         eligibleMilestoneNFTs: eligibleNFTs,
         eligibleComboNFTs: eligibleCombos,
         totalEligible: (welcomeEligible ? 1 : 0) + eligibleNFTs.length + eligibleCombos.length,
+        nftCounts: {
+          solar: solarEarnedCount,
+          battery: batteryEarnedCount,
+          charging: chargingEarnedCount,
+          evMiles: evMilesEarnedCount,
+          totalCategory: totalCategoryNFTs,
+        },
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
