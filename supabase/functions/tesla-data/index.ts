@@ -351,6 +351,8 @@ Deno.serve(async (req) => {
     // Fetch charging history for EV charging kWh totals - paginate through all results
     let totalChargingKwh = 0;
     let baselineChargingKwh = 0;
+    let baselineSuperchargerKwh = 0;
+    let baselineWallConnectorKwh = 0;
     let totalSessions = 0;
     
     if (vehicleDevices.length > 0) {
@@ -425,7 +427,10 @@ Deno.serve(async (req) => {
         console.log(`Charging history complete: ${totalSessions} sessions, total kWh: ${totalChargingKwh}`);
         
         // Get baseline from first vehicle's baseline data
-        baselineChargingKwh = vehicleDevices[0]?.baseline?.total_charge_energy_added_kwh || 0;
+        const vehicleBaseline = vehicleDevices[0]?.baseline || {};
+        baselineChargingKwh = vehicleBaseline.total_charge_energy_added_kwh || 0;
+        baselineSuperchargerKwh = vehicleBaseline.supercharger_kwh || 0;
+        baselineWallConnectorKwh = vehicleBaseline.wall_connector_kwh || 0;
       } catch (error) {
         console.error("Error fetching charging history:", error);
       }
@@ -592,8 +597,26 @@ Deno.serve(async (req) => {
       }
     }
     
-    // Calculate pending charging kWh
+    // Calculate pending charging kWh (total and per source)
     const pendingChargingKwh = Math.max(0, totalChargingKwh - baselineChargingKwh);
+
+    // Total EV charging calculation:
+    // - Supercharger (DC): From billing history - available for all users
+    // - Wall Connector (AC): From energy site telemetry - only for users with Tesla Wall Connectors
+    // - No estimation: Only report measured/verified data for accuracy
+    
+    const superchargerKwh = totalChargingKwh; // DC charging from billing
+    const wallConnectorKwh = totalHomeChargingWh / 1000; // AC charging from Wall Connector telemetry
+    
+    // Total = Supercharger + Wall Connector (if available)
+    const totalEvChargingKwh = superchargerKwh + wallConnectorKwh;
+
+    // Calculate pending for each charging source
+    const pendingSuperchargerKwh = Math.max(0, superchargerKwh - baselineSuperchargerKwh);
+    const pendingWallConnectorKwh = Math.max(0, wallConnectorKwh - baselineWallConnectorKwh);
+    const pendingEvChargingKwh = pendingSuperchargerKwh + pendingWallConnectorKwh;
+    
+    console.log(`EV Charging: Supercharger (DC)=${superchargerKwh.toFixed(1)} kWh (pending: ${pendingSuperchargerKwh.toFixed(1)}), Wall Connector (AC)=${wallConnectorKwh.toFixed(1)} kWh (pending: ${pendingWallConnectorKwh.toFixed(1)}), Total=${totalEvChargingKwh.toFixed(1)} kWh`);
 
     // Store production data for rewards calculation (using pending amounts)
     if (pendingSolarProduction > 0 || pendingBatteryDischarge > 0) {
@@ -614,21 +637,6 @@ Deno.serve(async (req) => {
         }
       }
     }
-
-    // Total EV charging calculation:
-    // - Supercharger (DC): From billing history - available for all users
-    // - Wall Connector (AC): From energy site telemetry - only for users with Tesla Wall Connectors
-    // - No estimation: Only report measured/verified data for accuracy
-    
-    const superchargerKwh = totalChargingKwh; // DC charging from billing
-    const wallConnectorKwh = totalHomeChargingWh / 1000; // AC charging from Wall Connector telemetry
-    
-    // Total = Supercharger + Wall Connector (if available)
-    const totalEvChargingKwh = superchargerKwh + wallConnectorKwh;
-
-    const pendingEvChargingKwh = Math.max(0, totalEvChargingKwh - baselineChargingKwh);
-    
-    console.log(`EV Charging: Supercharger (DC)=${superchargerKwh.toFixed(1)} kWh, Wall Connector (AC)=${wallConnectorKwh.toFixed(1)} kWh, Total=${totalEvChargingKwh.toFixed(1)} kWh`);
 
     // Store lifetime totals in connected_devices for admin reporting
     // Update energy sites with lifetime totals
@@ -705,6 +713,8 @@ Deno.serve(async (req) => {
         pending_battery_discharge_wh: pendingBatteryDischarge,
         pending_ev_miles: pendingEvMiles,
         pending_ev_charging_kwh: pendingEvChargingKwh,
+        pending_supercharger_kwh: pendingSuperchargerKwh,
+        pending_wall_connector_kwh: pendingWallConnectorKwh,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
