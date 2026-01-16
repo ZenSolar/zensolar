@@ -24,6 +24,7 @@ interface RewardActionsProps {
   onRefresh: () => Promise<void>;
   isLoading: boolean;
   walletAddress?: string | null;
+  pendingTokens?: number;
 }
 
 export interface RewardActionsRef {
@@ -60,7 +61,7 @@ interface EligibilityData {
   totalEligible: number;
 }
 
-export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(function RewardActions({ onRefresh, isLoading, walletAddress }, ref) {
+export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(function RewardActions({ onRefresh, isLoading, walletAddress, pendingTokens = 0 }, ref) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { triggerConfetti } = useConfetti();
@@ -135,48 +136,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       return;
     }
 
-    setLoadingMax(true);
-    setTokenAmountDialog(true);
-    setTokenAmount('');
+    // Use pending tokens from dashboard props - this is the accurate value
+    const availableTokens = pendingTokens > 0 ? pendingTokens : 0;
     
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        throw new Error("Not authenticated");
-      }
-
-      // Calculate pending rewards to get max available
-      const { data, error } = await supabase.functions.invoke('calculate-rewards', {
-        body: {},
-        headers: {
-          Authorization: `Bearer ${sessionData.session.access_token}`,
-        },
-      });
-
-      console.log('calculate-rewards response:', { data, error });
-
-      if (!error && data) {
-        // Extract max tokens from response - this is the total unclaimed tokens
-        const pendingTokens = data.tokensEarned || data.totalPending || data.pendingTokens || 0;
-        console.log('Pending tokens calculated:', pendingTokens, 'from data:', data);
-        
-        // If no pending tokens from calculation, use a default minimum for testing
-        const finalAmount = pendingTokens > 0 ? pendingTokens : 100;
-        setMaxTokens(finalAmount);
-        setTokenAmount(finalAmount.toString());
-      } else {
-        console.log('Using default tokens due to error or no data');
-        // Default to a reasonable amount if calculation fails
-        setMaxTokens(100);
-        setTokenAmount('100');
-      }
-    } catch (error) {
-      console.error('Error calculating max tokens:', error);
-      setMaxTokens(100);
-      setTokenAmount('100');
-    } finally {
-      setLoadingMax(false);
-    }
+    setMaxTokens(availableTokens);
+    setTokenAmount(availableTokens > 0 ? availableTokens.toString() : '0');
+    setTokenAmountDialog(true);
+    setLoadingMax(false);
   };
 
   const handleMintTokens = async () => {
