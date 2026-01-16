@@ -279,10 +279,24 @@ export default function MintHistory() {
       {/* Transaction History - Card-based for mobile */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Hash className="h-5 w-5 text-primary" />
-            Transaction Details
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Hash className="h-5 w-5 text-primary" />
+              Transaction Details
+            </CardTitle>
+            {profile?.wallet_address && (
+              <a
+                href={`https://sepolia.basescan.org/address/${profile.wallet_address}#tokentxns`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-primary hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">View All on BaseScan</span>
+                <span className="sm:hidden">BaseScan</span>
+              </a>
+            )}
+          </div>
           <CardDescription className="text-xs sm:text-sm">All minting transactions recorded on Base Sepolia</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
