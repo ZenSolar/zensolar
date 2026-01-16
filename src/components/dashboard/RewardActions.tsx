@@ -921,19 +921,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             size="lg"
           >
             <Trophy className="mr-2 h-4 w-4" />
-            MINT ZENSOLAR NFTS
+            MINT MILESTONE NFTS
             <Badge variant="secondary" className="ml-2 bg-white/20">
               {eligibleMilestones}
             </Badge>
           </Button>
         )}
 
-        {/* Combo NFTs Button - show if eligible */}
-        {eligibleCombos > 0 && (
+        {/* Combo NFTs Button - always show as the last CTA (disabled if none eligible) */}
+        {walletAddress && hasWelcomeNFT && (
           <Button
             onClick={handleOpenComboDialog}
-            disabled={isLoading || isMinting || !walletAddress}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            disabled={isLoading || isMinting || eligibleCombos === 0}
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-60"
             size="lg"
           >
             <Sparkles className="mr-2 h-4 w-4" />

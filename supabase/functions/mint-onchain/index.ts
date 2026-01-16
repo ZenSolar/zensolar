@@ -242,6 +242,75 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Public status (no auth required) - reads on-chain state only
+    if (action === "status") {
+      const { walletAddress } = body;
+
+      if (!walletAddress) {
+        return new Response(JSON.stringify({ error: "Wallet address required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+        return new Response(JSON.stringify({ error: "Invalid wallet address format" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      try {
+        const [hasWelcome, tokenBalance] = await Promise.all([
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "hasWelcomeNFT",
+            args: [walletAddress as `0x${string}`],
+          }),
+          publicClient.readContract({
+            address: ZSOLAR_TOKEN_ADDRESS as `0x${string}`,
+            abi: TOKEN_ABI,
+            functionName: "balanceOf",
+            args: [walletAddress as `0x${string}`],
+          }),
+        ]);
+
+        const ownedNFTs = await safeGetOwnedTokens(publicClient, walletAddress);
+        const ownedIds = ownedNFTs.map((id) => Number(id));
+
+        return new Response(
+          JSON.stringify({
+            walletAddress,
+            hasWelcomeNFT: hasWelcome,
+            zsolarBalance: formatEther(tokenBalance as bigint),
+            ownedNFTTokenIds: ownedIds,
+            ownedNFTNames: ownedIds.map((id) => NFT_NAMES[id] || `Token #${id}`),
+            nftCount: ownedIds.length,
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      } catch (statusError) {
+        console.log("Status check failed, wallet may not be registered:", statusError);
+        return new Response(
+          JSON.stringify({
+            walletAddress,
+            hasWelcomeNFT: false,
+            zsolarBalance: "0",
+            ownedNFTTokenIds: [],
+            ownedNFTNames: [],
+            nftCount: 0,
+            notRegistered: true,
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -1126,52 +1195,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (action === "status") {
-      try {
-        const [hasWelcome, tokenBalance] = await Promise.all([
-          publicClient.readContract({
-            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
-            abi: CONTROLLER_ABI,
-            functionName: "hasWelcomeNFT",
-            args: [walletAddress as `0x${string}`],
-          }),
-          publicClient.readContract({
-            address: ZSOLAR_TOKEN_ADDRESS as `0x${string}`,
-            abi: TOKEN_ABI,
-            functionName: "balanceOf",
-            args: [walletAddress as `0x${string}`],
-          }),
-        ]);
-        
-        const ownedNFTs = await safeGetOwnedTokens(publicClient, walletAddress);
-        const ownedIds = ownedNFTs.map(id => Number(id));
+    // NOTE: "status" is handled earlier as a public (no-auth) action.
 
-        return new Response(JSON.stringify({
-          walletAddress,
-          hasWelcomeNFT: hasWelcome,
-          zsolarBalance: formatEther(tokenBalance as bigint),
-          ownedNFTTokenIds: ownedIds,
-          ownedNFTNames: ownedIds.map(id => NFT_NAMES[id] || `Token #${id}`),
-          nftCount: ownedIds.length,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      } catch (statusError) {
-        // If contract calls fail (wallet not registered), return empty state
-        console.log("Status check failed, wallet may not be registered:", statusError);
-        return new Response(JSON.stringify({
-          walletAddress,
-          hasWelcomeNFT: false,
-          zsolarBalance: "0",
-          ownedNFTTokenIds: [],
-          ownedNFTNames: [],
-          nftCount: 0,
-          notRegistered: true,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    }
 
     // Action: Health check - verify contract ownership and wiring
     if (action === "health-check") {
