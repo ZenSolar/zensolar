@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
@@ -89,6 +89,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const [tokenAmount, setTokenAmount] = useState('');
   const [maxTokens, setMaxTokens] = useState(0);
   const [loadingMax, setLoadingMax] = useState(false);
+  const [mintingProgressDialog, setMintingProgressDialog] = useState(false);
+  const [mintingProgress, setMintingProgress] = useState<{
+    step: 'preparing' | 'submitting' | 'confirming' | 'complete' | 'error';
+    message: string;
+  }>({ step: 'preparing', message: 'Preparing transaction...' });
 
   // Expose openTokenMintDialog to parent via ref
   useImperativeHandle(ref, () => ({
@@ -158,6 +163,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
     setTokenAmountDialog(false);
     setMintingState({ isLoading: true, type: 'token' });
+    setMintingProgressDialog(true);
+    setMintingProgress({ step: 'preparing', message: 'Preparing your transaction...' });
     hapticSuccess();
 
     try {
@@ -165,6 +172,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       if (!sessionData.session) {
         throw new Error("Not authenticated");
       }
+
+      setMintingProgress({ step: 'submitting', message: 'Submitting to blockchain...' });
 
       // Mint tokens with the specified amount
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
@@ -182,9 +191,17 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       if (error) throw error;
 
+      setMintingProgress({ step: 'confirming', message: 'Waiting for confirmation...' });
+
       const result = data as MintResult;
 
       if (result.success) {
+        setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
+        
+        // Brief delay to show completion before switching to result
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        setMintingProgressDialog(false);
         triggerConfetti();
         setResultDialog({
           open: true,
@@ -204,6 +221,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       console.error('Token minting error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Minting failed';
       
+      setMintingProgress({ step: 'error', message: errorMessage });
+      
+      // Brief delay to show error before switching to result
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setMintingProgressDialog(false);
       setResultDialog({
         open: true,
         success: false,
@@ -551,6 +574,22 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           </DialogHeader>
           
           <div className="space-y-6 py-4">
+            {/* Zero tokens message */}
+            {!loadingMax && maxTokens === 0 && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">No tokens available to mint</p>
+                    <p className="text-xs text-muted-foreground">
+                      This could be because your energy data hasn't synced yet, or the API rate limit has been reached. 
+                      Try refreshing your dashboard or wait a few hours for the API limit to reset.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Slider Control */}
             {!loadingMax && maxTokens > 0 && (
               <div className="space-y-4">
@@ -578,7 +617,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
             {/* Input Field */}
             <div className="space-y-2">
-              <Label htmlFor="tokenAmount">Or enter exact amount</Label>
+              <Label htmlFor="tokenAmount">{maxTokens > 0 ? 'Or enter exact amount' : 'Enter amount'}</Label>
               <div className="flex gap-2">
                 <Input
                   id="tokenAmount"
@@ -587,7 +626,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   value={tokenAmount}
                   onChange={(e) => setTokenAmount(e.target.value)}
                   min="1"
-                  max={maxTokens}
+                  max={maxTokens || undefined}
                   className="flex-1"
                   disabled={loadingMax}
                 />
@@ -635,6 +674,63 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               Mint Tokens
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Minting Progress Dialog */}
+      <Dialog open={mintingProgressDialog} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              {mintingProgress.step === 'error' ? (
+                <AlertCircle className="h-6 w-6 text-destructive" />
+              ) : mintingProgress.step === 'complete' ? (
+                <CheckCircle2 className="h-6 w-6 text-primary" />
+              ) : (
+                <Loader2 className="h-6 w-6 text-primary animate-spin" />
+              )}
+              {mintingProgress.step === 'preparing' && 'Preparing Transaction'}
+              {mintingProgress.step === 'submitting' && 'Submitting to Blockchain'}
+              {mintingProgress.step === 'confirming' && 'Confirming Transaction'}
+              {mintingProgress.step === 'complete' && 'Transaction Complete!'}
+              {mintingProgress.step === 'error' && 'Transaction Failed'}
+            </DialogTitle>
+            <DialogDescription className="pt-4">
+              <div className="space-y-4">
+                <p className="text-base text-foreground">{mintingProgress.message}</p>
+                
+                {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
+                  <div className="bg-muted/50 rounded-lg p-4 border">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-primary transition-all duration-500 ease-out"
+                            style={{
+                              width: mintingProgress.step === 'preparing' ? '25%' : 
+                                     mintingProgress.step === 'submitting' ? '50%' : 
+                                     mintingProgress.step === 'confirming' ? '75%' : '100%'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Please wait while your transaction is being processed...
+                    </p>
+                  </div>
+                )}
+                
+                {mintingProgress.step === 'complete' && (
+                  <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+                    <p className="text-sm text-primary font-medium">
+                      ✨ Your tokens have been minted successfully!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
         </DialogContent>
       </Dialog>
 
