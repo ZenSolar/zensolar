@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, Battery, Zap } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, Battery, Zap, Copy, Check } from 'lucide-react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { WatchAssetDiagnostics, type WatchAssetAttempt } from './WatchAssetDiagnostics';
+import { ManualTokenAddPanel } from './ManualTokenAddPanel';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
@@ -1192,43 +1193,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </p>
                 </div>
               )}
+              
+              {/* Manual Token Add Instructions - shown for token mints */}
+              {resultDialog.success && resultDialog.type === 'token' && (
+                <ManualTokenAddPanel />
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 pt-2">
-            {resultDialog.success && resultDialog.type === 'token' && (
-              <Button 
-                onClick={async () => {
-                  try {
-                    const added = await addZsolarToWallet();
-                    if (added) {
-                      toast({
-                        title: 'Token Added',
-                        description: '$ZSOLAR token added to your wallet!',
-                      });
-                    } else {
-                      toast({
-                        title: 'Could Not Add Token',
-                        description:
-                          'Your wallet may not support automatic token adding in this connection mode. Your tokens are still in your wallet—try switching networks, then retry.',
-                      });
-                    }
-                  } catch (err) {
-                    console.error('Error adding token:', err);
-                    toast({
-                      title: 'Could Not Add Token',
-                      description:
-                        'The request may have been rejected or your wallet does not support this feature. Your tokens are still safely in your wallet!',
-                    });
-                  }
-                }}
-                variant="outline"
-                className="w-full"
-              >
-                <Coins className="h-4 w-4 mr-2" />
-                Add $ZSOLAR to Wallet
-              </Button>
-            )}
-            
             {/* Diagnostics panel for debugging wallet_watchAsset - Admin only */}
             {isAdmin && (
               <WatchAssetDiagnostics 
