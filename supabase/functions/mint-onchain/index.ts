@@ -606,43 +606,40 @@ Deno.serve(async (req) => {
           newNfts
         );
 
-        // Update baselines only for devices that were minted
+        // CRITICAL: Update baselines ONLY for devices that were minted (in deviceIdsToUpdate)
+        // This prevents double-minting by setting baseline = current lifetime totals
         if (deviceIdsToUpdate.length > 0) {
           const now = new Date().toISOString();
+          console.log(`Updating baselines for ${deviceIdsToUpdate.length} devices: ${deviceIdsToUpdate.join(', ')}`);
+          
           for (const device of (devices || [])) {
             if (!deviceIdsToUpdate.includes(device.id)) continue;
+            
             const lifetime = device.lifetime_totals as Record<string, any> | null;
             if (lifetime) {
-              await supabaseClient
+              // Create new baseline from current lifetime totals
+              const newBaseline = { ...lifetime, captured_at: now, updated_at: now };
+              
+              console.log(`Setting baseline for device ${device.id} (${device.device_type}):`, JSON.stringify(newBaseline));
+              
+              const { error: updateError } = await supabaseClient
                 .from("connected_devices")
                 .update({ 
-                  baseline_data: { ...lifetime, captured_at: now },
+                  baseline_data: newBaseline,
                   last_minted_at: now 
                 })
                 .eq("id", device.id);
+                
+              if (updateError) {
+                console.error(`Failed to update baseline for device ${device.id}:`, updateError);
+              } else {
+                console.log(`Successfully updated baseline for device ${device.id}`);
+              }
             }
           }
-          console.log(`Updated baselines for ${deviceIdsToUpdate.length} devices`);
-        }
-
-        // Update baselines on devices
-        if (devices && devices.length > 0) {
-          const now = new Date().toISOString();
-          for (const device of devices) {
-            const lifetime = device.lifetime_totals as Record<string, any> | null;
-            if (lifetime) {
-              await supabaseClient
-                .from("connected_devices")
-                .update({ 
-                  baseline_data: { ...lifetime, captured_at: now },
-                  last_minted_at: now 
-                })
-                .eq("user_id", user.id)
-                .eq("device_type", device.device_type)
-                .eq("provider", device.provider);
-            }
-          }
-          console.log(`Updated baselines for ${devices.length} devices`);
+          console.log(`Baseline updates complete for ${deviceIdsToUpdate.length} devices`);
+        } else {
+          console.log("No devices to update baselines for (deviceIdsToUpdate is empty)");
         }
       }
 
