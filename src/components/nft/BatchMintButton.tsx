@@ -156,8 +156,19 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
       let allMintedNames: string[] = [];
       let lastTxHash: string | undefined;
 
-      // 1. Mint Welcome NFT if needed
-      if (hasWelcome) {
+      // 1. Always check and register user first (Welcome NFT required before any minting)
+      // Check if user already has Welcome NFT on-chain
+      const { data: statusData } = await supabase.functions.invoke('mint-onchain', {
+        body: {
+          action: 'status',
+          walletAddress: address
+        }
+      });
+
+      const needsRegistration = !statusData?.hasWelcome;
+      
+      if (needsRegistration || hasWelcome) {
+        console.log('Registering user (minting Welcome NFT)...');
         const { data, error: fnError } = await supabase.functions.invoke('mint-onchain', {
           body: {
             action: 'register',
