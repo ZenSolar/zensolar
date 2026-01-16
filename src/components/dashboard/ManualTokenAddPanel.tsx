@@ -31,13 +31,13 @@ export function ManualTokenAddPanel() {
   };
 
   return (
-    <div className="mt-4 p-4 rounded-lg border border-border bg-muted/30 space-y-3">
+    <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-foreground">Add $ZSOLAR to MetaMask</span>
+        <span className="text-sm font-semibold text-foreground">Add $ZSOLAR to Your Wallet</span>
       </div>
       
-      <p className="text-xs text-muted-foreground">
-        Open MetaMask → Tokens → Import Token, then paste these details:
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        In MetaMask, tap <strong>Tokens</strong> → <strong>Import Token</strong> → paste these:
       </p>
 
       <div className="space-y-2">
@@ -45,7 +45,7 @@ export function ManualTokenAddPanel() {
         <div className="flex items-center justify-between gap-2 p-2 rounded bg-background border border-border">
           <div className="flex-1 min-w-0">
             <div className="text-[10px] uppercase text-muted-foreground font-medium">Contract Address</div>
-            <div className="text-xs font-mono truncate">{ZSOLAR_TOKEN_ADDRESS}</div>
+            <div className="text-[11px] font-mono break-all leading-snug">{ZSOLAR_TOKEN_ADDRESS}</div>
           </div>
           <Button
             variant="ghost"

@@ -1222,7 +1222,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       {/* Result Dialog */}
       <Dialog open={resultDialog.open} onOpenChange={(open) => setResultDialog({ ...resultDialog, open })}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-24px)] max-h-[calc(100dvh-48px)] overflow-y-auto sm:max-w-md">
           <DialogHeader>
             <DialogTitle className={`text-xl flex items-center gap-2 ${resultDialog.success ? 'text-primary' : 'text-destructive'}`}>
               {resultDialog.success ? (
@@ -1272,40 +1272,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 pt-2">
-            {/* Add token to wallet button - tries automatic first, shows manual fallback if needed */}
-            {resultDialog.success && resultDialog.type === 'token' && (
-              <Button 
-                onClick={async () => {
-                  try {
-                    const added = await addZsolarToWallet();
-                    if (added) {
-                      toast({
-                        title: 'Token Added',
-                        description: '$ZSOLAR token added to your wallet!',
-                      });
-                    } else {
-                      toast({
-                        title: 'Auto-Add Not Supported',
-                        description: 'Use the manual instructions below to add the token.',
-                      });
-                    }
-                  } catch (err) {
-                    console.error('Error adding token:', err);
-                    toast({
-                      title: 'Could Not Add Token',
-                      description: 'The request may have been rejected. Use the manual instructions below.',
-                    });
-                  }
-                }}
-                variant="outline"
-                className="w-full"
-              >
-                <Coins className="h-4 w-4 mr-2" />
-                Add $ZSOLAR to Wallet
-              </Button>
-            )}
-            
-            {/* Manual Token Add Instructions - fallback for when auto-add fails */}
+            {/* Manual Token Add Instructions - primary method for Base Sepolia beta */}
             {resultDialog.success && resultDialog.type === 'token' && (
               <ManualTokenAddPanel />
             )}
@@ -1319,7 +1286,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             )}
             <Button 
               onClick={() => setResultDialog({ ...resultDialog, open: false })}
-              className="w-full"
+              className="w-full mt-2"
               variant={resultDialog.success ? "default" : "outline"}
             >
               {resultDialog.success ? 'Awesome!' : 'Close'}
