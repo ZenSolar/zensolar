@@ -8,10 +8,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Contract addresses (Base Sepolia - deployed 2026-01-15)
+// Contract addresses (Base Sepolia - deployed 2026-01-16)
 const ZSOLAR_TOKEN_ADDRESS = "0xe70A1599e77098c5cDA52aDC99580eAA429197AD";
 const ZSOLAR_NFT_ADDRESS = "0x3F3793804C4d8f870b3F23743890c976e973B3e0";
-const ZENSOLAR_CONTROLLER_ADDRESS = "0x9153B80d770edc4a383bf7b0CBF3FC9530Cd7Ca1";
+const ZENSOLAR_CONTROLLER_ADDRESS = "0x159C447076BFCc86680Df0e8687543b4362C4eF5";
 
 // ZenSolar Controller ABI (only the functions we need)
 const CONTROLLER_ABI = parseAbi([
