@@ -184,7 +184,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
 
       // Register user if they don't have a Welcome NFT
-      if (!statusData?.hasWelcome) {
+      const needsRegistration = !statusData?.hasWelcomeNFT;
+      console.log('Status check result:', statusData, 'Needs registration:', needsRegistration);
+      
+      if (needsRegistration) {
         setMintingProgress({ step: 'submitting', message: 'Registering wallet on blockchain...' });
         const { data: regData, error: regError } = await supabase.functions.invoke('mint-onchain', {
           body: {
@@ -193,6 +196,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           },
         });
         if (regError) throw regError;
+        if (!regData?.success) {
+          throw new Error(regData?.message || 'Registration failed');
+        }
         console.log('User registered:', regData);
       }
 

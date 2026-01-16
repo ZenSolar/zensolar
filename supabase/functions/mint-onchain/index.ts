@@ -187,18 +187,22 @@ Deno.serve(async (req) => {
 
     // Action: Register user (mint Welcome NFT)
     if (action === "register") {
+      console.log("Checking if user has Welcome NFT...");
       const hasWelcome = await publicClient.readContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
         functionName: "hasWelcomeNFT",
         args: [walletAddress as `0x${string}`],
       });
+      console.log("hasWelcomeNFT result:", hasWelcome);
 
       if (hasWelcome) {
+        console.log("User already registered, skipping registration");
         return new Response(JSON.stringify({ 
           success: true, 
           message: "User already registered with Welcome NFT",
-          alreadyRegistered: true
+          alreadyRegistered: true,
+          hasWelcome: true
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
