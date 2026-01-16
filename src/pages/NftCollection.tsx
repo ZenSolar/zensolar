@@ -231,13 +231,18 @@ function ComboMilestoneCard({
   milestone, 
   isEarned,
   isOnChain,
-  onViewArtwork
+  onViewArtwork,
+  onMintNFT,
+  walletAddress
 }: { 
   milestone: NFTMilestone; 
   isEarned: boolean;
   isOnChain?: boolean;
   onViewArtwork: (milestone: NFTMilestone) => void;
+  onMintNFT?: (milestone: NFTMilestone) => void;
+  walletAddress?: string;
 }) {
+  const canMint = isEarned && walletAddress && !isOnChain;
   const artwork = getNftArtwork(milestone.id);
   
   // Determine rarity tier based on milestone with enhanced styling
@@ -434,12 +439,36 @@ function ComboMilestoneCard({
           
           {/* Name overlay with enhanced styling */}
           <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-            <h3 className={`font-bold text-lg drop-shadow-lg ${isEarned ? 'text-white' : 'text-white/70'}`}>
-              {milestone.name}
-            </h3>
-            <p className={`text-xs ${isEarned ? 'text-white/90' : 'text-white/50'}`}>
-              {milestone.description}
-            </p>
+            <div className="flex items-end justify-between gap-3">
+              <div className="flex-1">
+                <h3 className={`font-bold text-lg drop-shadow-lg ${isEarned ? 'text-white' : 'text-white/70'}`}>
+                  {milestone.name}
+                </h3>
+                <p className={`text-xs ${isEarned ? 'text-white/90' : 'text-white/50'}`}>
+                  {milestone.description}
+                </p>
+              </div>
+              {/* Mint Button for earned combos */}
+              {canMint && onMintNFT && (
+                <Button
+                  size="sm"
+                  className="gap-1.5 bg-primary hover:bg-primary/90 shadow-lg shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMintNFT(milestone);
+                  }}
+                >
+                  <Zap className="h-3.5 w-3.5" />
+                  Mint NFT
+                </Button>
+              )}
+              {isOnChain && (
+                <div className="flex items-center gap-1.5 text-xs text-green-400 bg-green-600/30 px-2 py-1 rounded-full backdrop-blur-sm shrink-0">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>On-Chain</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -1110,6 +1139,8 @@ export default function NftCollection() {
                     isEarned={comboEarnedIds.has(milestone.id)}
                     isOnChain={isComboOnChain}
                     onViewArtwork={handleViewArtwork}
+                    onMintNFT={handleMintNFT}
+                    walletAddress={walletAddress}
                   />
                 );
               })}
