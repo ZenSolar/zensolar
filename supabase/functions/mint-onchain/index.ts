@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { createWalletClient, createPublicClient, http, parseAbi, formatEther } from "npm:viem@2.43.5";
+import { createWalletClient, createPublicClient, http, parseAbi, formatEther, decodeErrorResult } from "npm:viem@2.43.5";
 import { privateKeyToAccount } from "npm:viem@2.43.5/accounts";
 import { baseSepolia } from "npm:viem@2.43.5/chains";
 
@@ -21,17 +21,22 @@ const CONTROLLER_ABI = parseAbi([
   "function mintComboNFTBatch(address user, uint256[] calldata comboTokenIds, string[] calldata comboTypes) external",
   "function hasWelcomeNFT(address user) external view returns (bool)",
   "function getUserStats(address user) external view returns (uint256 solar, uint256 evMiles, uint256 battery, uint256 charging, bool hasWelcome)",
+  "function owner() external view returns (address)",
+  "function zSolarToken() external view returns (address)",
+  "function zenSolarNFT() external view returns (address)",
 ]);
 
 // ZSOLAR Token ABI
 const TOKEN_ABI = parseAbi([
   "function balanceOf(address account) external view returns (uint256)",
+  "function owner() external view returns (address)",
 ]);
 
 // ZenSolarNFT ABI
 const NFT_ABI = parseAbi([
   "function hasToken(address user, uint256 tokenId) external view returns (bool)",
   "function getOwnedTokens(address user) external view returns (uint256[])",
+  "function owner() external view returns (address)",
 ]);
 
 // NFT name mappings
@@ -250,10 +255,109 @@ Deno.serve(async (req) => {
 
     // Action: Mint rewards (tokens + milestone NFTs)
     if (action === "mint-rewards") {
-      const solar = BigInt(solarDelta || 0);
-      const evMiles = BigInt(evMilesDelta || 0);
-      const battery = BigInt(batteryDelta || 0);
-      const charging = BigInt(chargingDelta || 0);
+      // First check if user is registered (has Welcome NFT)
+      const hasWelcome = await publicClient.readContract({
+        address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+        abi: CONTROLLER_ABI,
+        functionName: "hasWelcomeNFT",
+        args: [walletAddress as `0x${string}`],
+      });
+
+      if (!hasWelcome) {
+        console.log("User not registered, cannot mint rewards without Welcome NFT");
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "not_registered",
+          message: "Please register first. Your wallet needs a Welcome NFT before minting tokens.",
+          requiresRegistration: true
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Get REAL pending rewards from database - not fabricated deltas!
+      const { data: pendingRewards, error: rewardsError } = await supabaseClient
+        .from("user_rewards")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("claimed", false);
+
+      if (rewardsError) {
+        console.error("Failed to fetch pending rewards:", rewardsError);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "database_error",
+          message: "Failed to fetch pending rewards. Please try again." 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const totalPendingTokens = pendingRewards?.reduce((sum, r) => sum + Number(r.tokens_earned), 0) || 0;
+
+      if (totalPendingTokens === 0) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          message: "No pending rewards to mint. Connect devices and generate energy first!" 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Get device breakdown from connected_devices to calculate real deltas
+      const { data: devices } = await supabaseClient
+        .from("connected_devices")
+        .select("device_type, provider, baseline_data, lifetime_totals")
+        .eq("user_id", user.id);
+
+      let solarDeltaKwh = 0;
+      let evMilesDelta = 0;
+      let batteryDeltaKwh = 0;
+      let chargingDeltaKwh = 0;
+
+      // Calculate real deltas from device data
+      for (const device of (devices || [])) {
+        const baseline = device.baseline_data as Record<string, number> | null;
+        const lifetime = device.lifetime_totals as Record<string, number> | null;
+        
+        if (!lifetime) continue;
+
+        if (device.device_type === "solar") {
+          const lifetimeSolarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+          const baselineSolarWh = baseline?.total_solar_produced_wh || 0;
+          solarDeltaKwh += Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
+        } else if (device.device_type === "powerwall" || device.device_type === "battery") {
+          const lifetimeBatteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
+          const baselineBatteryWh = baseline?.total_energy_discharged_wh || 0;
+          batteryDeltaKwh += Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
+        } else if (device.device_type === "vehicle") {
+          const lifetimeOdometer = lifetime.odometer || 0;
+          const baselineOdometer = baseline?.odometer || 0;
+          evMilesDelta += Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
+          
+          const lifetimeChargingWh = lifetime.charging_wh || 0;
+          const baselineChargingWh = baseline?.charging_wh || 0;
+          chargingDeltaKwh += Math.max(0, Math.floor((lifetimeChargingWh - baselineChargingWh) / 1000));
+        }
+      }
+
+      // If no device deltas calculated, use total pending tokens as a fallback (evenly distributed)
+      // This handles cases where device data isn't fully synced yet
+      if (solarDeltaKwh + evMilesDelta + batteryDeltaKwh + chargingDeltaKwh === 0) {
+        console.log("No device deltas found, using pending tokens as fallback");
+        const tokensPerCategory = Math.floor(totalPendingTokens / 4);
+        solarDeltaKwh = tokensPerCategory;
+        batteryDeltaKwh = tokensPerCategory;
+        chargingDeltaKwh = tokensPerCategory;
+        evMilesDelta = totalPendingTokens - (tokensPerCategory * 3); // Remainder goes to EV miles
+      }
+
+      const solar = BigInt(solarDeltaKwh);
+      const evMiles = BigInt(evMilesDelta);
+      const battery = BigInt(batteryDeltaKwh);
+      const charging = BigInt(chargingDeltaKwh);
 
       const totalUnits = solar + evMiles + battery + charging;
       
@@ -271,6 +375,40 @@ Deno.serve(async (req) => {
       const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
       console.log(`Minting rewards: solar=${solar}, evMiles=${evMiles}, battery=${battery}, charging=${charging}`);
+
+      // Simulate the transaction first to catch errors before sending
+      try {
+        await publicClient.simulateContract({
+          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+          abi: CONTROLLER_ABI,
+          functionName: "mintRewards",
+          args: [walletAddress as `0x${string}`, solar, evMiles, battery, charging],
+          account: account.address,
+        });
+        console.log("Simulation passed, proceeding with transaction");
+      } catch (simError: any) {
+        console.error("Simulation failed:", simError);
+        
+        // Try to extract a meaningful error message
+        let errorMessage = "Contract simulation failed";
+        if (simError?.cause?.reason) {
+          errorMessage = simError.cause.reason;
+        } else if (simError?.shortMessage) {
+          errorMessage = simError.shortMessage;
+        } else if (simError?.message) {
+          errorMessage = simError.message.substring(0, 200);
+        }
+        
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: "simulation_failed",
+          message: `Transaction would fail: ${errorMessage}`,
+          details: "This usually means the controller contract doesn't have permission to mint tokens. Contact support."
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       const hash = await walletClient.writeContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
@@ -302,6 +440,39 @@ Deno.serve(async (req) => {
           expectedTokens,
           newNfts
         );
+
+        // Mark rewards as claimed in database
+        const rewardIds = pendingRewards?.map(r => r.id) || [];
+        if (rewardIds.length > 0) {
+          await supabaseClient
+            .from("user_rewards")
+            .update({ 
+              claimed: true, 
+              claimed_at: new Date().toISOString() 
+            })
+            .in("id", rewardIds);
+          console.log(`Marked ${rewardIds.length} rewards as claimed`);
+        }
+
+        // Update baselines on devices
+        if (devices && devices.length > 0) {
+          const now = new Date().toISOString();
+          for (const device of devices) {
+            const lifetime = device.lifetime_totals as Record<string, any> | null;
+            if (lifetime) {
+              await supabaseClient
+                .from("connected_devices")
+                .update({ 
+                  baseline_data: { ...lifetime, captured_at: now },
+                  last_minted_at: now 
+                })
+                .eq("user_id", user.id)
+                .eq("device_type", device.device_type)
+                .eq("provider", device.provider);
+            }
+          }
+          console.log(`Updated baselines for ${devices.length} devices`);
+        }
       }
 
       return new Response(JSON.stringify({
@@ -309,11 +480,18 @@ Deno.serve(async (req) => {
         txHash: hash,
         blockNumber: receipt.blockNumber.toString(),
         tokensEstimate: expectedTokens,
+        tokensMinted: totalPendingTokens,
         nftsMinted: newNfts,
         nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
         message: receipt.status === "success" 
           ? `Minted ~${expectedTokens.toFixed(0)} $ZSOLAR tokens${newNfts.length > 0 ? ` + ${newNfts.length} NFT(s)!` : '!'}` 
           : "Transaction failed",
+        breakdown: {
+          solarKwh: Number(solar),
+          evMiles: Number(evMiles),
+          batteryKwh: Number(battery),
+          chargingKwh: Number(charging),
+        }
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -752,8 +930,119 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Action: Health check - verify contract ownership and wiring
+    if (action === "health-check") {
+      try {
+        console.log("Running contract health check...");
+        
+        // Get owners of all contracts
+        const [controllerOwner, tokenOwner, nftOwner] = await Promise.all([
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "owner",
+          }),
+          publicClient.readContract({
+            address: ZSOLAR_TOKEN_ADDRESS as `0x${string}`,
+            abi: TOKEN_ABI,
+            functionName: "owner",
+          }),
+          publicClient.readContract({
+            address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+            abi: NFT_ABI,
+            functionName: "owner",
+          }),
+        ]);
+
+        // Get controller's configured contract addresses
+        const [configuredToken, configuredNft] = await Promise.all([
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "zSolarToken",
+          }),
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "zenSolarNFT",
+          }),
+        ]);
+
+        const issues: string[] = [];
+        
+        // Check if controller owns the token contract
+        if ((tokenOwner as string).toLowerCase() !== ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase()) {
+          issues.push(`ZSOLAR token owner is ${tokenOwner}, but should be controller ${ZENSOLAR_CONTROLLER_ADDRESS}`);
+        }
+        
+        // Check if controller owns the NFT contract
+        if ((nftOwner as string).toLowerCase() !== ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase()) {
+          issues.push(`ZenSolarNFT owner is ${nftOwner}, but should be controller ${ZENSOLAR_CONTROLLER_ADDRESS}`);
+        }
+
+        // Check if controller has correct token address configured
+        if ((configuredToken as string).toLowerCase() !== ZSOLAR_TOKEN_ADDRESS.toLowerCase()) {
+          issues.push(`Controller's token address is ${configuredToken}, but should be ${ZSOLAR_TOKEN_ADDRESS}`);
+        }
+
+        // Check if controller has correct NFT address configured
+        if ((configuredNft as string).toLowerCase() !== ZSOLAR_NFT_ADDRESS.toLowerCase()) {
+          issues.push(`Controller's NFT address is ${configuredNft}, but should be ${ZSOLAR_NFT_ADDRESS}`);
+        }
+
+        // Check minter wallet balance
+        const minterBalance = await publicClient.getBalance({ address: account.address });
+        if (minterBalance < BigInt(1e15)) {
+          issues.push(`Minter wallet low on ETH: ${formatEther(minterBalance)} ETH`);
+        }
+
+        const isHealthy = issues.length === 0;
+
+        console.log("Health check result:", { isHealthy, issues });
+
+        return new Response(JSON.stringify({
+          healthy: isHealthy,
+          issues,
+          contracts: {
+            controller: {
+              address: ZENSOLAR_CONTROLLER_ADDRESS,
+              owner: controllerOwner,
+            },
+            token: {
+              address: ZSOLAR_TOKEN_ADDRESS,
+              owner: tokenOwner,
+              configuredInController: configuredToken,
+              ownershipCorrect: (tokenOwner as string).toLowerCase() === ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase(),
+            },
+            nft: {
+              address: ZSOLAR_NFT_ADDRESS,
+              owner: nftOwner,
+              configuredInController: configuredNft,
+              ownershipCorrect: (nftOwner as string).toLowerCase() === ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase(),
+            },
+          },
+          minter: {
+            address: account.address,
+            balance: formatEther(minterBalance),
+          },
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (healthError) {
+        console.error("Health check failed:", healthError);
+        return new Response(JSON.stringify({
+          healthy: false,
+          error: "Health check failed",
+          details: healthError instanceof Error ? healthError.message : String(healthError),
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     return new Response(JSON.stringify({ 
-      error: "Invalid action. Use: register, mint-rewards, mint-combos, claim-milestone-nfts, check-eligible, status" 
+      error: "Invalid action. Use: register, mint-rewards, mint-combos, claim-milestone-nfts, check-eligible, status, health-check" 
     }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

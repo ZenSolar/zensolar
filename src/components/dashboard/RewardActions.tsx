@@ -204,21 +204,28 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       setMintingProgress({ step: 'submitting', message: 'Minting tokens...' });
 
-      // Mint tokens with the specified amount
+      // Backend now calculates real deltas from device data - no need to send fabricated values
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-rewards',
           walletAddress,
-          tokenAmount: amount,
-          // Activity deltas proportional to token amount requested
-          solarDelta: Math.floor(amount * 0.4),
-          evMilesDelta: Math.floor(amount * 0.25),
-          batteryDelta: Math.floor(amount * 0.15),
-          chargingDelta: Math.floor(amount * 0.2),
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's a FunctionsHttpError with details
+        const errorDetails = (error as any)?.context?.json || data;
+        throw new Error(errorDetails?.message || errorDetails?.error || error.message || 'Minting failed');
+      }
+
+      // Handle specific error cases from backend
+      if (data?.requiresRegistration) {
+        throw new Error('Wallet not registered. Registration should have happened automatically. Please try again.');
+      }
+
+      if (data?.error === 'simulation_failed') {
+        throw new Error(data.message || 'Contract simulation failed. Please contact support.');
+      }
 
       setMintingProgress({ step: 'confirming', message: 'Waiting for confirmation...' });
 
@@ -232,11 +239,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         
         setMintingProgressDialog(false);
         triggerConfetti();
+        
+        // Show breakdown in message if available
+        let successMessage = result.message || `$ZSOLAR tokens minted successfully!`;
+        if ((data as any).breakdown) {
+          const b = (data as any).breakdown;
+          successMessage += `\n\nBreakdown:\n• Solar: ${b.solarKwh} kWh\n• EV Miles: ${b.evMiles}\n• Battery: ${b.batteryKwh} kWh\n• Charging: ${b.chargingKwh} kWh`;
+        }
+        
         setResultDialog({
           open: true,
           success: true,
           txHash: result.txHash,
-          message: result.message || `${amount} $ZSOLAR tokens minted successfully!`,
+          message: successMessage,
           type: 'token',
         });
         
