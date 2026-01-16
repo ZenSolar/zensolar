@@ -133,6 +133,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     tokenId?: number;
     nftName?: string;
   } | null>(null);
+  const [showNftImportPanel, setShowNftImportPanel] = useState(false);
   const [mintingProgress, setMintingProgress] = useState<{
     step: 'preparing' | 'submitting' | 'confirming' | 'complete' | 'error';
     message: string;
@@ -162,6 +163,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       setShowTokenAddPanel(false);
     }
   }, [resultDialog.open, resultDialog.success, resultDialog.type]);
+
+  // Delayed reveal of NFT import panel (4 seconds after successful NFT mint)
+  useEffect(() => {
+    if (nftMintResult?.success) {
+      setShowNftImportPanel(false);
+      const timer = setTimeout(() => {
+        setShowNftImportPanel(true);
+      }, 4000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowNftImportPanel(false);
+    }
+  }, [nftMintResult]);
 
   // Expose openTokenMintDialog to parent via ref
   useImperativeHandle(ref, () => ({
@@ -1399,37 +1413,44 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 </a>
               )}
 
-              {/* MetaMask Import Section */}
-              <div className="p-4 bg-muted/50 rounded-lg border border-border/50 space-y-3">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <Wallet className="h-4 w-4 text-primary" />
-                  <span>Add to MetaMask</span>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Contract Address</label>
-                    <button
-                      onClick={() => handleCopyNftInfo(NFT_CONTRACT_ADDRESS, 'Contract address')}
-                      className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
-                    >
-                      <span className="truncate">{NFT_CONTRACT_ADDRESS}</span>
-                      <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                    </button>
+              {/* MetaMask Import Section - shows after 4 second delay */}
+              {showNftImportPanel ? (
+                <div className="p-4 bg-muted/50 rounded-lg border border-border/50 space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <Wallet className="h-4 w-4 text-primary" />
+                    <span>Add to MetaMask</span>
                   </div>
                   
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Token ID for {nftMintResult.nftName}</label>
-                    <button
-                      onClick={() => handleCopyNftInfo(String(nftMintResult.tokenId), 'Token ID')}
-                      className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
-                    >
-                      <span>{nftMintResult.tokenId}</span>
-                      <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                    </button>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">Contract Address</label>
+                      <button
+                        onClick={() => handleCopyNftInfo(NFT_CONTRACT_ADDRESS, 'Contract address')}
+                        className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
+                      >
+                        <span className="truncate">{NFT_CONTRACT_ADDRESS}</span>
+                        <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">Token ID for {nftMintResult.nftName}</label>
+                      <button
+                        onClick={() => handleCopyNftInfo(String(nftMintResult.tokenId), 'Token ID')}
+                        className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
+                      >
+                        <span>{nftMintResult.tokenId}</span>
+                        <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">Preparing wallet instructions...</span>
+                </div>
+              )}
 
               {/* Continue minting or close */}
               <div className="flex gap-2">
