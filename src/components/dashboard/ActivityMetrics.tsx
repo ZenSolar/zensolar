@@ -136,18 +136,18 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
         </div>
       </div>
 
-      {/* Activity Data Section - Pending values reset after mint */}
+      {/* Activity Data Section - Lifetime totals from connected devices */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground">Activity Data</h2>
         <p className="text-xs text-muted-foreground -mt-2">
-          Pending activity since last mint — resets after minting
+          Lifetime totals from your connected devices
         </p>
         
         <div className="grid gap-3">
           <MetricCard
             icon={Sun}
             label={solarLabel}
-            value={data.pendingSolarKwh}
+            value={data.solarEnergyProduced}
             unit="kWh"
             colorClass="bg-solar"
           />
@@ -155,7 +155,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Car}
             label={evLabel}
-            value={data.pendingEvMiles}
+            value={data.evMilesDriven}
             unit="miles"
             colorClass="bg-energy"
           />
@@ -163,7 +163,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Battery}
             label={batteryLabel}
-            value={data.pendingBatteryKwh}
+            value={data.batteryStorageDischarged}
             unit="kWh"
             colorClass="bg-secondary"
           />
@@ -171,7 +171,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Zap}
             label="EV Charging"
-            value={data.pendingChargingKwh}
+            value={data.teslaSuperchargerKwh + data.homeChargerKwh}
             unit="kWh"
             colorClass="bg-accent"
           />
