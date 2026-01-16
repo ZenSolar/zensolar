@@ -173,7 +173,30 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         throw new Error("Not authenticated");
       }
 
-      setMintingProgress({ step: 'submitting', message: 'Submitting to blockchain...' });
+      setMintingProgress({ step: 'submitting', message: 'Checking wallet registration...' });
+
+      // First check if user is registered on-chain (has Welcome NFT)
+      const { data: statusData } = await supabase.functions.invoke('mint-onchain', {
+        body: {
+          action: 'status',
+          walletAddress,
+        },
+      });
+
+      // Register user if they don't have a Welcome NFT
+      if (!statusData?.hasWelcome) {
+        setMintingProgress({ step: 'submitting', message: 'Registering wallet on blockchain...' });
+        const { data: regData, error: regError } = await supabase.functions.invoke('mint-onchain', {
+          body: {
+            action: 'register',
+            walletAddress,
+          },
+        });
+        if (regError) throw regError;
+        console.log('User registered:', regData);
+      }
+
+      setMintingProgress({ step: 'submitting', message: 'Minting tokens...' });
 
       // Mint tokens with the specified amount
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
