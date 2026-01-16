@@ -5,8 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
-import { useAccount, useWalletClient } from 'wagmi';
-import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE } from '@/lib/wagmi';
+import { useAccount, useWalletClient, useWatchAsset } from 'wagmi';
+import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE, CHAIN_ID } from '@/lib/wagmi';
 import { hasTokenBeenAdded, hasNFTsBeenAdded, markTokenAsAdded as markTokenAdded, markNFTsAsAdded as markNFTsAdded, resetAssetPromptFlags } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -85,6 +85,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const { success: hapticSuccess } = useHaptics();
   const { isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
+  const { watchAssetAsync } = useWatchAsset();
   const { isAdmin } = useAdminCheck();
   const [mintingState, setMintingState] = useState<{
     isLoading: boolean;
@@ -199,9 +200,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       image: `${window.location.origin}${ZSOLAR_TOKEN_IMAGE}`,
     };
 
-    const params = {
-      type: 'ERC20' as const,
-      options: paramsOptions,
+    const markSuccess = () => {
+      markTokenAdded();
+      console.log('$ZSOLAR token added to wallet successfully');
     };
 
     // If the wallet app was just opened (mobile deep-link), wait until user returns
@@ -232,17 +233,40 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
     };
 
-    const markSuccess = () => {
-      markTokenAdded();
-      console.log('$ZSOLAR token added to wallet successfully');
-    };
+    // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector (works for WalletConnect)
+    if (watchAssetAsync && isConnected) {
+      console.log('Attempting to add $ZSOLAR token via wagmi watchAssetAsync...');
+      try {
+        await waitForForeground();
+        const success = await watchAssetAsync({
+          type: 'ERC20',
+          options: paramsOptions,
+        });
+        logWatchAssetAttempt({ provider: 'wagmi', success: Boolean(success), params: paramsOptions });
+        if (success) {
+          markSuccess();
+          return true;
+        }
+        console.log('wagmi watchAssetAsync returned false');
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.log('wagmi watchAssetAsync threw:', errMsg);
+        logWatchAssetAttempt({ provider: 'wagmi', success: false, error: errMsg, params: paramsOptions });
+      }
+    } else {
+      console.warn('wagmi watchAssetAsync not available');
+      logWatchAssetAttempt({ provider: 'wagmi', success: false, error: 'watchAssetAsync not available or not connected' });
+    }
 
-    // 1) Prefer wagmi/viem wallet client (works for many injected + some WC wallets)
+    // 2) Fallback to viem walletClient (older approach, may not work with WalletConnect)
     if (walletClient) {
       console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
       try {
         await waitForForeground();
-        const success = await walletClient.watchAsset(params);
+        const success = await walletClient.watchAsset({
+          type: 'ERC20',
+          options: paramsOptions,
+        });
         logWatchAssetAttempt({ provider: 'walletClient', success: Boolean(success), params: paramsOptions });
         if (success) {
           markSuccess();
@@ -256,17 +280,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       }
     } else {
       console.warn('No walletClient available for watchAsset');
-      logWatchAssetAttempt({ provider: 'walletClient', success: false, error: 'walletClient is null/undefined' });
     }
 
-    // 2) Fallback to injected provider (desktop MetaMask, etc.)
+    // 3) Final fallback to injected provider (desktop MetaMask extension, etc.)
     if (window.ethereum?.request) {
       console.log('Attempting to add $ZSOLAR token via window.ethereum.request(wallet_watchAsset)...');
       try {
         await waitForForeground();
         const wasAdded = await window.ethereum.request({
           method: 'wallet_watchAsset',
-          params,
+          params: {
+            type: 'ERC20',
+            options: paramsOptions,
+          },
         });
         logWatchAssetAttempt({ provider: 'window.ethereum', success: Boolean(wasAdded), params: paramsOptions });
         if (wasAdded) markSuccess();
@@ -280,7 +306,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     }
 
     console.warn('No supported provider available for wallet_watchAsset');
-    logWatchAssetAttempt({ provider: 'none', success: false, error: 'No provider available (no walletClient, no window.ethereum)' });
+    logWatchAssetAttempt({ provider: 'none', success: false, error: 'No provider available' });
     return false;
   };
 
