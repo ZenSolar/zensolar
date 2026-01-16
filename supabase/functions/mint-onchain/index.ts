@@ -176,6 +176,12 @@ Deno.serve(async (req) => {
         const minterBalance = await publicClient.getBalance({ address: account.address });
 
         const issues: string[] = [];
+
+        if ((controllerOwner as string).toLowerCase() !== account.address.toLowerCase()) {
+          issues.push(
+            `Controller owner mismatch: ${controllerOwner} (owner) != ${account.address} (backend signer). Transfer ownership to the signer wallet to enable minting.`
+          );
+        }
         
         if ((tokenOwner as string).toLowerCase() !== ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase()) {
           issues.push(`ZSOLAR token owner mismatch: ${tokenOwner} should be ${ZENSOLAR_CONTROLLER_ADDRESS}`);
@@ -278,11 +284,50 @@ Deno.serve(async (req) => {
 
     console.log(`Processing ${action} for user ${user.id}, wallet ${walletAddress}`);
 
+    // Guardrail: actions that write to chain require the controller owner to match
+    // the backend signer (MINTER_PRIVATE_KEY derived address).
+    const ownerRequiredActions = new Set([
+      "register",
+      "mint-rewards",
+      "mint-combos",
+      "claim-milestone-nfts",
+      "mint-specific-nft",
+    ]);
+
+    if (ownerRequiredActions.has(action)) {
+      const controllerOwner = await publicClient.readContract({
+        address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+        abi: CONTROLLER_ABI,
+        functionName: "owner",
+      });
+
+      if ((controllerOwner as string).toLowerCase() !== account.address.toLowerCase()) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "owner_mismatch",
+            message: `Contract owner mismatch. Current controller owner is ${controllerOwner}, but backend signer is ${account.address}. Transfer ownership from ${controllerOwner} to ${account.address} (recommended), or update MINTER_PRIVATE_KEY to match the current owner.`,
+            controller: {
+              address: ZENSOLAR_CONTROLLER_ADDRESS,
+              owner: controllerOwner,
+            },
+            signer: {
+              address: account.address,
+            },
+          }),
+          {
+            status: 409,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
     const minterBalance = await publicClient.getBalance({ address: account.address });
     console.log("Minter ETH balance:", formatEther(minterBalance));
-    
+
     if (minterBalance < BigInt(1e15)) {
-      return new Response(JSON.stringify({ 
+      return new Response(JSON.stringify({
         error: "Minter wallet needs more ETH for gas fees",
         minterBalance: formatEther(minterBalance)
       }), {
