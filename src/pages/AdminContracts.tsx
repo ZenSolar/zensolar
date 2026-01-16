@@ -47,8 +47,8 @@ const WALLETS = {
   minter: {
     name: 'Minter Wallet',
     description: 'Backend wallet that signs contract transactions',
-    address: '0x70918Aa38d19BbBE0BD3e00C008442978c0e5cB1',
-    role: 'ZenSolar Controller Owner',
+    address: '0x79ded21cF400F3ce354914D91fb209737d76b16D',
+    role: 'Backend Signer (should own Controller)',
   },
   treasury: {
     name: 'Treasury Wallet',
@@ -88,21 +88,21 @@ const WALLETS = {
   },
 };
 
-// Contract addresses (placeholder - update when deployed)
+// Contract addresses (Base Sepolia)
 const CONTRACTS = {
   ZSOLAR: {
     name: 'ZSOLAR Token',
     symbol: 'ZSOLAR',
     type: 'ERC-20',
-    address: '0x...TBD', // Update after deployment
+    address: '0xe70A1599e77098c5cDA52aDC99580eAA429197AD',
     network: 'Base Sepolia',
     chainId: 84532,
   },
   ZenSolarNFT: {
     name: 'ZenSolarNFT',
     symbol: 'ZSNFT',
-    type: 'ERC-721',
-    address: '0x...TBD', // Update after deployment
+    type: 'ERC-1155',
+    address: '0x3F3793804C4d8f870b3F23743890c976e973B3e0',
     network: 'Base Sepolia',
     chainId: 84532,
   },
@@ -110,7 +110,7 @@ const CONTRACTS = {
     name: 'ZenSolar Controller',
     symbol: 'Controller',
     type: 'Controller',
-    address: '0x...TBD', // Update after deployment
+    address: '0x9153B80d770edc4a383bf7b0CBF3FC9530Cd7Ca1',
     network: 'Base Sepolia',
     chainId: 84532,
   },
