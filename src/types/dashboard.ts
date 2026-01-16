@@ -35,7 +35,9 @@ export interface ActivityData {
   pendingSolarKwh: number;
   pendingEvMiles: number;
   pendingBatteryKwh: number;
-  pendingChargingKwh: number;
+  pendingChargingKwh: number;      // Combined total for minting (supercharger + home)
+  pendingSuperchargerKwh: number;  // Tesla Supercharger kWh since last mint
+  pendingHomeChargerKwh: number;   // Home Charger kWh since last mint
   
   // Reward totals
   tokensEarned: number;         // Total lifetime tokens earned

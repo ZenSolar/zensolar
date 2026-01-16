@@ -17,6 +17,8 @@ const defaultActivityData: ActivityData = {
   pendingEvMiles: 0,
   pendingBatteryKwh: 0,
   pendingChargingKwh: 0,
+  pendingSuperchargerKwh: 0,
+  pendingHomeChargerKwh: 0,
   // Reward totals
   tokensEarned: 0,
   pendingTokens: 0,
@@ -311,6 +313,8 @@ export function useDashboardData() {
       let pendingEvMiles = 0;
       let pendingBattery = 0;
       let pendingCharging = 0;
+      let pendingSupercharger = 0;
+      let pendingHomeCharger = 0;
 
       // Fetch data in parallel (including device labels and minted tokens)
       const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted] = await Promise.all([
@@ -368,9 +372,12 @@ export function useDashboardData() {
         const teslaPendingEvMiles = teslaData.totals.pending_ev_miles !== undefined
           ? teslaData.totals.pending_ev_miles
           : evMiles;
-        const teslaPendingCharging = teslaData.totals.pending_ev_charging_kwh !== undefined
-          ? teslaData.totals.pending_ev_charging_kwh
-          : (superchargerKwh + homeChargerKwh);
+        const teslaPendingSupercharger = teslaData.totals.pending_supercharger_kwh !== undefined
+          ? teslaData.totals.pending_supercharger_kwh
+          : superchargerKwh;
+        const teslaPendingHomeCharger = teslaData.totals.pending_wall_connector_kwh !== undefined
+          ? teslaData.totals.pending_wall_connector_kwh
+          : homeChargerKwh;
         
         // Only use Tesla solar/pending if no dedicated solar provider
         if (!hasDedicatedSolarProvider) {
@@ -380,7 +387,9 @@ export function useDashboardData() {
         
         pendingBattery = teslaPendingBattery;
         pendingEvMiles = teslaPendingEvMiles;
-        pendingCharging = teslaPendingCharging;
+        pendingSupercharger = teslaPendingSupercharger;
+        pendingHomeCharger = teslaPendingHomeCharger;
+        pendingCharging = pendingSupercharger + pendingHomeCharger;
         
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
       }
@@ -388,10 +397,11 @@ export function useDashboardData() {
       // Process Wallbox data - home charger kWh
       if (wallboxData?.totals) {
         homeChargerKwh += wallboxData.totals.home_charger_kwh || 0;
-        // Add Wallbox pending to charging
+        // Add Wallbox pending to home charger specifically
         const wallboxPending = wallboxData.totals.pending_charging_kwh !== undefined
           ? wallboxData.totals.pending_charging_kwh
           : wallboxData.totals.home_charger_kwh || 0;
+        pendingHomeCharger += wallboxPending;
         pendingCharging += wallboxPending;
         console.log('Wallbox data:', { homeChargerKwh: wallboxData.totals.home_charger_kwh });
       }
@@ -428,6 +438,8 @@ export function useDashboardData() {
         pendingEvMiles: pendingEvMiles,
         pendingBatteryKwh: pendingBattery,
         pendingChargingKwh: pendingCharging,
+        pendingSuperchargerKwh: pendingSupercharger,
+        pendingHomeChargerKwh: pendingHomeCharger,
         // Totals
         tokensEarned,
         pendingTokens,

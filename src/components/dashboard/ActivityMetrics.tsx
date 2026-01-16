@@ -173,7 +173,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
         <div className="grid gap-3">
           <MetricCard
             icon={Sun}
-            label={`${solarLabel} (since last mint)`}
+            label={solarLabel}
             value={data.pendingSolarKwh}
             unit="kWh"
             colorClass="bg-solar"
@@ -181,7 +181,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Car}
-            label={`${evLabel} (since last mint)`}
+            label={evLabel}
             value={data.pendingEvMiles}
             unit="miles"
             colorClass="bg-energy"
@@ -189,7 +189,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Battery}
-            label={`${batteryLabel} (since last mint)`}
+            label={batteryLabel}
             value={data.pendingBatteryKwh}
             unit="kWh"
             colorClass="bg-secondary"
@@ -197,8 +197,16 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           
           <MetricCard
             icon={Zap}
-            label="EV Charging (since last mint)"
-            value={data.pendingChargingKwh}
+            label="Tesla Supercharger"
+            value={data.pendingSuperchargerKwh || 0}
+            unit="kWh"
+            colorClass="bg-accent"
+          />
+          
+          <MetricCard
+            icon={Zap}
+            label={homeChargerLabel}
+            value={data.pendingHomeChargerKwh || 0}
             unit="kWh"
             colorClass="bg-accent"
           />

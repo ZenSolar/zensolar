@@ -32,6 +32,8 @@ const demoActivityData: ActivityData = {
   pendingEvMiles: Math.round(DEMO_EV_MILES * 0.3),
   pendingBatteryKwh: Math.round(DEMO_BATTERY_KWH * 0.3),
   pendingChargingKwh: Math.round(5019 * 0.3),
+  pendingSuperchargerKwh: Math.round(892 * 0.3),
+  pendingHomeChargerKwh: Math.round(4127 * 0.3),
   // Reward totals
   tokensEarned: 45616,
   pendingTokens: Math.round(45616 * 0.3),
