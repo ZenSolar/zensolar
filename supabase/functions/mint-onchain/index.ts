@@ -10,7 +10,7 @@ const corsHeaders = {
 
 // Contract addresses (Base Sepolia - deployed 2026-01-16 with setMinter + transferOwnership)
 const ZSOLAR_TOKEN_ADDRESS = "0xAb13cc345C8a3e88B876512A3fdD93cE334B20FE";
-const ZSOLAR_NFT_ADDRESS = "0x06a8D3e6298944dDc94D06F11D3F85b4876C27B9";
+const ZSOLAR_NFT_ADDRESS = "0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3";
 const ZENSOLAR_CONTROLLER_ADDRESS = "0x54542Ad80FACbedA774465fE9724c281FBaf7437";
 
 // ZenSolar Controller ABI (only the functions we need)
