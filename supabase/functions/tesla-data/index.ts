@@ -439,8 +439,10 @@ Deno.serve(async (req) => {
           { headers: { "Authorization": `Bearer ${accessToken}` } }
         );
 
+        // CRITICAL: If baseline is null/0, use 0 so first mint = ALL lifetime miles
+        // After minting, baseline is reset to current odometer for delta tracking
         const baselineOdometer = vehicle.baseline?.odometer || 0;
-        // Get last known odometer from lifetime_totals (stored from previous successful fetches)
+        // Get last known odometer from baseline (stored from previous successful fetches)
         const lastKnownOdometer = vehicle.baseline?.last_known_odometer || 0;
 
         if (vehicleResponse.ok) {
@@ -451,11 +453,16 @@ Deno.serve(async (req) => {
           const vehicleState = response.vehicle_state || {};
           
           const currentOdometer = vehicleState.odometer || 0;
+          
+          // Pending = current lifetime - baseline
+          // If baseline is 0 (first mint), pending = full lifetime
+          // If baseline is set (after mint), pending = delta since last mint
           const pendingMiles = Math.max(0, currentOdometer - baselineOdometer);
           
           console.log(`Vehicle ${vehicle.id} data:`, JSON.stringify({
             odometer: currentOdometer,
             baseline_odometer: baselineOdometer,
+            baseline_is_null: vehicle.baseline === null,
             pending_miles: pendingMiles,
             battery_level: chargeState.battery_level,
             charging_state: chargeState.charging_state,
@@ -465,6 +472,7 @@ Deno.serve(async (req) => {
             vin: vehicle.id,
             odometer: currentOdometer,
             pending_miles: pendingMiles,
+            baseline_odometer: baselineOdometer,
             battery_level: chargeState.battery_level || 0,
             charging_state: chargeState.charging_state || "Unknown",
             charge_energy_added: chargeState.charge_energy_added || 0,
@@ -517,13 +525,14 @@ Deno.serve(async (req) => {
           
           const pendingMiles = Math.max(0, cachedOdometer - baselineOdometer);
           
-          console.log(`Vehicle ${vehicle.id} asleep - using odometer: ${cachedOdometer}, pending: ${pendingMiles}`);
+          console.log(`Vehicle ${vehicle.id} asleep - using odometer: ${cachedOdometer}, baseline: ${baselineOdometer}, pending: ${pendingMiles}`);
           
           vehiclesData.push({ 
             vin: vehicle.id, 
             status: "asleep", 
             odometer: cachedOdometer, 
             pending_miles: pendingMiles,
+            baseline_odometer: baselineOdometer,
             estimated: cachedOdometer !== lastKnownOdometer && cachedOdometer > 0
           });
           
