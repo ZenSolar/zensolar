@@ -753,24 +753,25 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       const result = data as MintResult;
 
       if (result.success) {
-        triggerConfetti();
-        
         // Check if our specific NFT was minted
         const wasMinted = result.nftsMinted?.includes(nft.tokenId);
         
         if (wasMinted) {
+          // Only trigger confetti AFTER confirming the NFT was actually minted
+          triggerConfetti();
+          
           setNftMintResult({
             success: true,
             txHash: result.txHash,
             tokenId: nft.tokenId,
             nftName: nft.name,
           });
+          
+          await onRefresh();
+          await checkEligibility();
         } else {
           throw new Error('NFT was not minted. It may already be on-chain.');
         }
-        
-        await onRefresh();
-        await checkEligibility();
       } else {
         throw new Error(result.error || result.message || 'Minting failed');
       }
