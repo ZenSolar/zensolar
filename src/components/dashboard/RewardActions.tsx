@@ -9,6 +9,7 @@ import { useAccount, useWalletClient } from 'wagmi';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE } from '@/lib/wagmi';
 import { hasTokenBeenAdded, hasNFTsBeenAdded, markTokenAsAdded as markTokenAdded, markNFTsAsAdded as markNFTsAdded, resetAssetPromptFlags } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
+import { useAdminCheck } from '@/hooks/useAdminCheck';
 import {
   Dialog,
   DialogContent,
@@ -84,6 +85,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const { success: hapticSuccess } = useHaptics();
   const { isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
+  const { isAdmin } = useAdminCheck();
   const [mintingState, setMintingState] = useState<{
     isLoading: boolean;
     type: 'token' | 'nft' | 'milestone' | 'combo' | null;
@@ -1172,11 +1174,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               </Button>
             )}
             
-            {/* Diagnostics panel for debugging wallet_watchAsset */}
-            <WatchAssetDiagnostics 
-              attempts={watchAssetAttempts} 
-              onClear={clearWatchAssetDiagnostics} 
-            />
+            {/* Diagnostics panel for debugging wallet_watchAsset - Admin only */}
+            {isAdmin && (
+              <WatchAssetDiagnostics 
+                attempts={watchAssetAttempts} 
+                onClear={clearWatchAssetDiagnostics} 
+              />
+            )}
             <Button 
               onClick={() => setResultDialog({ ...resultDialog, open: false })}
               className="w-full"
