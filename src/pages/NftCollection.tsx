@@ -739,20 +739,6 @@ export default function NftCollection() {
       }
     };
 
-        if (!error && data?.ownedNFTTokenIds) {
-          setOwnedTokenIds(data.ownedNFTTokenIds);
-          // Check if welcome NFT is owned
-          if (data.ownedNFTTokenIds.includes(0)) {
-            setWelcomeNftClaimed(true);
-          }
-        }
-      } catch (err) {
-        console.error('Error checking on-chain status:', err);
-      } finally {
-        setIsCheckingOnChain(false);
-      }
-    };
-
     checkOnChainStatus();
   }, [walletAddress]);
 
