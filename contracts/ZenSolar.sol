@@ -23,6 +23,7 @@ interface IZenSolarNFT {
 interface IMintableERC20 is IERC20 {
     function mint(address to, uint256 amount) external;
     function burn(uint256 amount) external;
+    function burnFrom(address from, uint256 amount) external;
 }
 
 /**
@@ -224,9 +225,9 @@ contract ZenSolar is Ownable {
         zSolarToken.mint(lpRewards, lpAmount);
         zSolarToken.mint(treasury, treasuryAmount);
         
-        // Burn tokens (mint to contract then burn)
+        // Burn tokens (mint to controller then burn from controller)
         zSolarToken.mint(address(this), burnAmount);
-        zSolarToken.burn(burnAmount);
+        zSolarToken.burnFrom(address(this), burnAmount);
 
         emit TokensMinted(user, tokenAmount, userAmount);
         emit Burned(burnAmount);
