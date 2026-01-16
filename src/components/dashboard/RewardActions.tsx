@@ -109,6 +109,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     message: '',
     type: null,
   });
+  const [showTokenAddPanel, setShowTokenAddPanel] = useState(false);
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
   const [pendingMintCategory, setPendingMintCategory] = useState<MintCategory | null>(null);
@@ -129,6 +130,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     setWatchAssetAttempts([]);
     resetAssetPromptFlags();
   }, []);
+
+  // Delayed reveal of token add panel (4 seconds after successful token mint)
+  useEffect(() => {
+    if (resultDialog.open && resultDialog.success && resultDialog.type === 'token') {
+      setShowTokenAddPanel(false);
+      const timer = setTimeout(() => {
+        setShowTokenAddPanel(true);
+      }, 4000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowTokenAddPanel(false);
+    }
+  }, [resultDialog.open, resultDialog.success, resultDialog.type]);
 
   // Expose openTokenMintDialog to parent via ref
   useImperativeHandle(ref, () => ({
@@ -1272,9 +1286,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 pt-2">
-            {/* Manual Token Add Instructions - primary method for Base Sepolia beta */}
+            {/* Manual Token Add Instructions - shows after 4 second delay */}
             {resultDialog.success && resultDialog.type === 'token' && (
-              <ManualTokenAddPanel />
+              showTokenAddPanel ? (
+                <ManualTokenAddPanel />
+              ) : (
+                <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">Preparing wallet instructions...</span>
+                </div>
+              )
             )}
             
             {/* Diagnostics panel for debugging wallet_watchAsset - Admin only */}
