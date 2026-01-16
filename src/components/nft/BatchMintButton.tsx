@@ -165,7 +165,8 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
         }
       });
 
-      const needsRegistration = !statusData?.hasWelcome;
+      const needsRegistration = !statusData?.hasWelcomeNFT;
+      console.log('Status check result:', statusData, 'Needs registration:', needsRegistration);
       
       if (needsRegistration || hasWelcome) {
         console.log('Registering user (minting Welcome NFT)...');
@@ -177,6 +178,9 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
         });
 
         if (fnError) throw fnError;
+        if (!data?.success) {
+          throw new Error(data?.message || 'Registration failed');
+        }
         if (data.nftsMinted) {
           allMintedNFTs.push(...data.nftsMinted);
           allMintedNames.push(...(data.nftNames || []));
