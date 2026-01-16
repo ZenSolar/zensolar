@@ -44,6 +44,25 @@ const NFT_NAMES: Record<number, string> = {
   34: "Duality", 35: "Trifecta", 36: "Quadrant", 37: "Constellation", 38: "Cyber Echo", 39: "Zenith", 40: "ZenMaster", 41: "Total Eclipse",
 };
 
+// Helper to safely get owned NFTs (handles contract revert for new wallets)
+async function safeGetOwnedTokens(
+  publicClient: any, 
+  walletAddress: string
+): Promise<bigint[]> {
+  try {
+    const ownedNFTs = await publicClient.readContract({
+      address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+      abi: NFT_ABI,
+      functionName: "getOwnedTokens",
+      args: [walletAddress as `0x${string}`],
+    });
+    return ownedNFTs as bigint[];
+  } catch (error) {
+    console.log("getOwnedTokens reverted (wallet may not have any NFTs yet):", walletAddress);
+    return [];
+  }
+}
+
 // Helper to record transaction in database
 async function recordTransaction(
   supabaseClient: any,
@@ -244,12 +263,7 @@ Deno.serve(async (req) => {
       }
 
       // Get NFTs before minting to compare after
-      const nftsBefore = await publicClient.readContract({
-        address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-        abi: NFT_ABI,
-        functionName: "getOwnedTokens",
-        args: [walletAddress as `0x${string}`],
-      }) as bigint[];
+      const nftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
       const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
       console.log(`Minting rewards: solar=${solar}, evMiles=${evMiles}, battery=${battery}, charging=${charging}`);
@@ -270,12 +284,7 @@ Deno.serve(async (req) => {
 
       // Get NFTs after minting to see what was minted
       if (receipt.status === "success") {
-        const nftsAfter = await publicClient.readContract({
-          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-          abi: NFT_ABI,
-          functionName: "getOwnedTokens",
-          args: [walletAddress as `0x${string}`],
-        }) as bigint[];
+        const nftsAfter = await safeGetOwnedTokens(publicClient, walletAddress);
         
         newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
         
@@ -384,12 +393,7 @@ Deno.serve(async (req) => {
 
       const [solar, evMiles, battery, charging, hasWelcome] = userStats;
 
-      const ownedNFTs = await publicClient.readContract({
-        address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-        abi: NFT_ABI,
-        functionName: "getOwnedTokens",
-        args: [walletAddress as `0x${string}`],
-      }) as bigint[];
+      const ownedNFTs = await safeGetOwnedTokens(publicClient, walletAddress);
 
       const ownedSet = new Set(ownedNFTs.map(id => Number(id)));
 
@@ -477,12 +481,7 @@ Deno.serve(async (req) => {
     if (action === "claim-milestone-nfts") {
       console.log("Claiming eligible milestone NFTs for:", walletAddress);
 
-      const nftsBefore = await publicClient.readContract({
-        address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-        abi: NFT_ABI,
-        functionName: "getOwnedTokens",
-        args: [walletAddress as `0x${string}`],
-      }) as bigint[];
+      const nftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
       const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
       const hash = await walletClient.writeContract({
@@ -498,12 +497,7 @@ Deno.serve(async (req) => {
 
       let newNfts: number[] = [];
       if (receipt.status === "success") {
-        const nftsAfter = await publicClient.readContract({
-          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-          abi: NFT_ABI,
-          functionName: "getOwnedTokens",
-          args: [walletAddress as `0x${string}`],
-        }) as bigint[];
+        const nftsAfter = await safeGetOwnedTokens(publicClient, walletAddress);
         
         newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
 
@@ -654,12 +648,7 @@ Deno.serve(async (req) => {
         });
       } else {
         // Milestone NFT (1-33) - trigger mintRewards with 0 delta to claim eligible NFTs
-        const nftsBefore = await publicClient.readContract({
-          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-          abi: NFT_ABI,
-          functionName: "getOwnedTokens",
-          args: [walletAddress as `0x${string}`],
-        }) as bigint[];
+        const nftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
         const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
         const hash = await walletClient.writeContract({
@@ -673,12 +662,7 @@ Deno.serve(async (req) => {
         
         let newNfts: number[] = [];
         if (receipt.status === "success") {
-          const nftsAfter = await publicClient.readContract({
-            address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-            abi: NFT_ABI,
-            functionName: "getOwnedTokens",
-            args: [walletAddress as `0x${string}`],
-          }) as bigint[];
+          const nftsAfter = await safeGetOwnedTokens(publicClient, walletAddress);
           
           newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
 
@@ -719,7 +703,7 @@ Deno.serve(async (req) => {
 
     if (action === "status") {
       try {
-        const [hasWelcome, tokenBalance, ownedNFTs] = await Promise.all([
+        const [hasWelcome, tokenBalance] = await Promise.all([
           publicClient.readContract({
             address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
             abi: CONTROLLER_ABI,
@@ -732,15 +716,10 @@ Deno.serve(async (req) => {
             functionName: "balanceOf",
             args: [walletAddress as `0x${string}`],
           }),
-          publicClient.readContract({
-            address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-            abi: NFT_ABI,
-            functionName: "getOwnedTokens",
-            args: [walletAddress as `0x${string}`],
-          }),
         ]);
-
-        const ownedIds = (ownedNFTs as bigint[]).map(id => Number(id));
+        
+        const ownedNFTs = await safeGetOwnedTokens(publicClient, walletAddress);
+        const ownedIds = ownedNFTs.map(id => Number(id));
 
         return new Response(JSON.stringify({
           walletAddress,
