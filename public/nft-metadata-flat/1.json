@@ -1,7 +1,7 @@
 {
   "name": "Sunspark",
   "description": "500 kWh of solar energy generated. Your solar journey begins!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/solar/sunspark.png",
+  "image": "https://zensolar.lovable.app/nft-images/solar/sunspark.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Solar" },

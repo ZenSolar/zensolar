@@ -1,7 +1,7 @@
 {
   "name": "Centaurion",
   "description": "100,000 electric miles driven. Century champion of electric mobility!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/ev/centaurion.png",
+  "image": "https://zensolar.lovable.app/nft-images/ev/centaurion.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "EV Miles" },

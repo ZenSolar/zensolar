@@ -1,7 +1,7 @@
 {
   "name": "Megacell",
   "description": "2,500 kWh of battery discharge. Mega-level energy storage!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/battery/megacell.png",
+  "image": "https://zensolar.lovable.app/nft-images/battery/megacell.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Battery" },

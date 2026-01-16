@@ -1,7 +1,7 @@
 {
   "name": "Trifecta",
   "description": "Earned NFTs in 3 different categories. Triple-threat sustainability master!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/combo/trifecta.png",
+  "image": "https://zensolar.lovable.app/nft-images/combo/trifecta.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Combo" },

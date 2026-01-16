@@ -1,7 +1,7 @@
 {
   "name": "Dynamax",
   "description": "10,000 kWh of battery discharge. Dynamic maximum power!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/battery/dynamax.png",
+  "image": "https://zensolar.lovable.app/nft-images/battery/dynamax.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Battery" },

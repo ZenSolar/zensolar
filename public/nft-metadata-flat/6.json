@@ -1,7 +1,7 @@
 {
   "name": "Sunforge",
   "description": "25,000 kWh of solar energy generated. Master of the solar forge!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/solar/sunforge.png",
+  "image": "https://zensolar.lovable.app/nft-images/solar/sunforge.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Solar" },
