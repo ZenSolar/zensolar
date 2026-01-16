@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 export interface WatchAssetAttempt {
   timestamp: number;
-  provider: 'walletClient' | 'window.ethereum' | 'none';
+  provider: 'wagmi' | 'walletClient' | 'window.ethereum' | 'none';
   success: boolean;
   error?: string;
   params?: {
