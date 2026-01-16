@@ -136,18 +136,18 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
         </div>
       </div>
 
-      {/* Lifetime Energy Data Section - Used for NFT Milestone Progress */}
+      {/* Activity Data Section - Pending values reset after mint */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground">Activity Data</h2>
         <p className="text-xs text-muted-foreground -mt-2">
-          Cumulative totals used for NFT milestone progress
+          Pending activity since last mint — resets after minting
         </p>
         
         <div className="grid gap-3">
           <MetricCard
             icon={Sun}
             label={solarLabel}
-            value={data.solarEnergyProduced}
+            value={data.pendingSolarKwh}
             unit="kWh"
             colorClass="bg-solar"
           />
@@ -155,7 +155,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Car}
             label={evLabel}
-            value={data.evMilesDriven}
+            value={data.pendingEvMiles}
             unit="miles"
             colorClass="bg-energy"
           />
@@ -163,25 +163,17 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Battery}
             label={batteryLabel}
-            value={data.batteryStorageDischarged}
+            value={data.pendingBatteryKwh}
             unit="kWh"
             colorClass="bg-secondary"
           />
           
           <MetricCard
             icon={Zap}
-            label="Tesla Supercharger kWh"
-            value={data.teslaSuperchargerKwh}
+            label="EV Charging"
+            value={data.pendingChargingKwh}
             unit="kWh"
             colorClass="bg-accent"
-          />
-          
-          <MetricCard
-            icon={Zap}
-            label={homeChargerLabel}
-            value={data.homeChargerKwh}
-            unit="kWh"
-            colorClass="bg-secondary"
           />
           
           <MetricCard
@@ -191,6 +183,30 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
             unit="lbs"
             colorClass="bg-eco"
           />
+        </div>
+      </div>
+
+      {/* Lifetime Minted - Links to Mint History */}
+      <div 
+        className="mt-4 p-4 rounded-lg bg-muted/50 border border-border cursor-pointer hover:bg-muted/80 transition-colors"
+        onClick={() => window.location.href = '/mint-history'}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-full bg-primary/10">
+              <Coins className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">Lifetime Minted</p>
+              <p className="text-xs text-muted-foreground">View full mint history</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-foreground">{data.tokensEarned.toLocaleString()} $ZSOLAR</span>
+            <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
