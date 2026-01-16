@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract ZSOLAR is ERC20, Ownable {
     uint256 public constant MAX_SUPPLY = 50_000_000_000 * 10**18; // 50 billion tokens
     address public treasury;
+    address public minter; // The ZenSolar Controller that can mint tokens
 
     // Tax rates (in basis points, 100 = 1%)
     uint256 public burnTaxBps = 350;    // 3.5%
@@ -17,6 +18,12 @@ contract ZSOLAR is ERC20, Ownable {
 
     event Burned(uint256 amount);
     event TreasuryUpdated(address newTreasury);
+    event MinterUpdated(address newMinter);
+
+    modifier onlyMinter() {
+        require(msg.sender == minter || msg.sender == owner(), "Not authorized to mint");
+        _;
+    }
 
     constructor(
         address _founder,
@@ -43,9 +50,20 @@ contract ZSOLAR is ERC20, Ownable {
         isExemptFromTax[address(this)] = true;
     }
 
-    function mint(address to, uint256 amount) external onlyOwner {
+    function mint(address to, uint256 amount) external onlyMinter {
         require(totalSupply() + amount <= MAX_SUPPLY, "Exceeds max supply");
         _mint(to, amount);
+    }
+
+    /**
+     * @notice Set the minter address (ZenSolar Controller)
+     * @param _minter The address authorized to mint tokens
+     */
+    function setMinter(address _minter) external onlyOwner {
+        require(_minter != address(0), "Invalid minter");
+        minter = _minter;
+        isExemptFromTax[_minter] = true;
+        emit MinterUpdated(_minter);
     }
 
     function burn(uint256 amount) external {
@@ -57,7 +75,7 @@ contract ZSOLAR is ERC20, Ownable {
      * @notice Burn tokens from a specific address (owner only)
      * @dev Used by Controller to burn tokens it minted to itself
      */
-    function burnFrom(address from, uint256 amount) external onlyOwner {
+    function burnFrom(address from, uint256 amount) external onlyMinter {
         _burn(from, amount);
         emit Burned(amount);
     }
