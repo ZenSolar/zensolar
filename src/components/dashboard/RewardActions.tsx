@@ -6,8 +6,8 @@ import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useAccount, useWalletClient } from 'wagmi';
-import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS } from '@/lib/wagmi';
-import { promptAddZsolarToken, promptAddZsolarNFT, hasTokenBeenAdded, hasNFTsBeenAdded } from '@/lib/walletAssets';
+import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE } from '@/lib/wagmi';
+import { hasTokenBeenAdded, hasNFTsBeenAdded, markTokenAsAdded as markTokenAdded, markNFTsAsAdded as markNFTsAdded } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -168,7 +168,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return Math.floor(getCategoryActivityUnits(category) * 0.93);
   };
 
-  // Add the ZSOLAR token to the connected wallet (only if not already added)
+  // Add the ZSOLAR token to the connected wallet using wagmi walletClient
   const addZsolarToWallet = async (): Promise<boolean> => {
     // Skip if already added
     if (hasTokenBeenAdded()) {
@@ -176,9 +176,29 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       return true;
     }
 
+    // Use wagmi wallet client for proper mobile/WalletConnect support
+    if (!walletClient) {
+      console.warn('No wallet client available');
+      return false;
+    }
+
     try {
-      const added = await promptAddZsolarToken();
-      return added;
+      console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
+      const success = await walletClient.watchAsset({
+        type: 'ERC20',
+        options: {
+          address: ZSOLAR_TOKEN_ADDRESS,
+          symbol: ZSOLAR_TOKEN_SYMBOL,
+          decimals: ZSOLAR_TOKEN_DECIMALS,
+          image: `${window.location.origin}${ZSOLAR_TOKEN_IMAGE}`,
+        },
+      });
+      
+      if (success) {
+        markTokenAdded();
+        console.log('$ZSOLAR token added to wallet successfully');
+      }
+      return success;
     } catch (error) {
       console.log('Token add rejected or failed:', error);
       return false;
@@ -193,13 +213,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       return true;
     }
 
-    try {
-      const added = await promptAddZsolarNFT(tokenIds);
-      return added;
-    } catch (error) {
-      console.log('NFT add rejected or failed:', error);
-      return false;
-    }
+    // NFT watchAsset is not widely supported, so we just mark as acknowledged
+    // Wallets auto-detect NFTs on most platforms
+    markNFTsAdded();
+    console.log('NFTs acknowledged - they should appear automatically in wallet');
+    return true;
   };
 
   // Get readable label for category
@@ -1036,11 +1054,33 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             {resultDialog.success && resultDialog.type === 'token' && (
               <Button 
                 onClick={async () => {
-                  const added = await addZsolarToWallet();
-                  if (added) {
+                  if (!walletClient) {
                     toast({
-                      title: 'Token Added',
-                      description: '$ZSOLAR token added to your wallet!',
+                      title: 'Wallet Not Connected',
+                      description: 'Please ensure your wallet is connected to add the token.',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  
+                  try {
+                    const added = await addZsolarToWallet();
+                    if (added) {
+                      toast({
+                        title: 'Token Added',
+                        description: '$ZSOLAR token added to your wallet!',
+                      });
+                    } else {
+                      toast({
+                        title: 'Action Cancelled',
+                        description: 'Token was not added to wallet.',
+                      });
+                    }
+                  } catch (err) {
+                    console.error('Error adding token:', err);
+                    toast({
+                      title: 'Could Not Add Token',
+                      description: 'The token may have been rejected or your wallet does not support this feature. Your tokens are still safely in your wallet!',
                     });
                   }
                 }}
