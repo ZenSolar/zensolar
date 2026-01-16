@@ -650,14 +650,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               <>
                 {/* Category breakdown */}
                 <div className="space-y-2">
-                  {/* Solar */}
+                  {/* Solar Energy */}
                   <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-full bg-solar/10">
                         <Sun className="h-4 w-4 text-solar" />
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Solar</p>
+                        <p className="font-medium text-sm">Solar Energy</p>
                         <p className="text-xs text-muted-foreground">{pendingRewards.solar.toLocaleString()} $ZSOLAR</p>
                       </div>
                     </div>
@@ -668,6 +668,31 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       disabled={pendingRewards.solar === 0 || isMinting}
                     >
                       {mintingState.category === 'solar' ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Mint'
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Battery Storage */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-secondary/10">
+                        <Battery className="h-4 w-4 text-secondary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Battery Storage</p>
+                        <p className="text-xs text-muted-foreground">{pendingRewards.battery.toLocaleString()} $ZSOLAR</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleMintCategory('battery')}
+                      disabled={pendingRewards.battery === 0 || isMinting}
+                    >
+                      {mintingState.category === 'battery' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         'Mint'
@@ -700,39 +725,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     </Button>
                   </div>
 
-                  {/* Battery */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-secondary/10">
-                        <Battery className="h-4 w-4 text-secondary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">Battery</p>
-                        <p className="text-xs text-muted-foreground">{pendingRewards.battery.toLocaleString()} $ZSOLAR</p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleMintCategory('battery')}
-                      disabled={pendingRewards.battery === 0 || isMinting}
-                    >
-                      {mintingState.category === 'battery' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        'Mint'
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Charging */}
+                  {/* EV Charging */}
                   <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-full bg-accent/10">
                         <Zap className="h-4 w-4 text-accent" />
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Charging</p>
+                        <p className="font-medium text-sm">EV Charging</p>
                         <p className="text-xs text-muted-foreground">{pendingRewards.charging.toLocaleString()} $ZSOLAR</p>
                       </div>
                     </div>

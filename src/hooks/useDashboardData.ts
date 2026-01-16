@@ -326,9 +326,9 @@ export function useDashboardData() {
         
         // Pending values (since last mint baseline)
         pendingSolar = (teslaData.totals.pending_solar_wh || 0) / 1000;
-        pendingBattery = (teslaData.totals.pending_battery_wh || 0) / 1000;
+        pendingBattery = (teslaData.totals.pending_battery_discharge_wh || 0) / 1000;
         pendingEvMiles = teslaData.totals.pending_ev_miles || 0;
-        pendingCharging = teslaData.totals.pending_charging_kwh || 0;
+        pendingCharging = teslaData.totals.pending_ev_charging_kwh || 0;
         
         // Only add Tesla solar if no Enphase/SolarEdge connected
         if (!hasDedicatedSolarProvider) {
