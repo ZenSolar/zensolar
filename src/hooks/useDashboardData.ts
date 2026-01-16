@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const defaultActivityData: ActivityData = {
+  // Lifetime minted (from mint_transactions)
+  lifetimeMinted: 0,
   // Lifetime totals (for NFT milestone progress)
   solarEnergyProduced: 0,
   evMilesDriven: 0,
@@ -219,6 +221,30 @@ export function useDashboardData() {
     }
   }, []);
 
+  // Fetch total tokens actually minted from mint_transactions
+  const fetchMintedTokens = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+
+      const { data, error } = await supabase
+        .from('mint_transactions')
+        .select('tokens_minted')
+        .eq('user_id', user.id)
+        .eq('status', 'confirmed');
+
+      if (error) {
+        console.error('Mint transactions fetch error:', error);
+        return 0;
+      }
+
+      return data?.reduce((sum, tx) => sum + Number(tx.tokens_minted || 0), 0) || 0;
+    } catch (error) {
+      console.error('Failed to fetch minted tokens:', error);
+      return 0;
+    }
+  }, []);
+
   const fetchDeviceLabels = useCallback(async (): Promise<DeviceLabels> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -286,8 +312,8 @@ export function useDashboardData() {
       let pendingBattery = 0;
       let pendingCharging = 0;
 
-      // Fetch data in parallel (including device labels)
-      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels] = await Promise.all([
+      // Fetch data in parallel (including device labels and minted tokens)
+      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted] = await Promise.all([
         profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         profileConnections?.tesla_connected ? fetchTeslaData() : null,
@@ -295,6 +321,7 @@ export function useDashboardData() {
         fetchRewardsData(),
         fetchReferralTokens(),
         fetchDeviceLabels(),
+        fetchMintedTokens(),
       ]);
 
       // Solar source priority: Enphase > SolarEdge > Tesla
@@ -304,15 +331,21 @@ export function useDashboardData() {
       // Process Enphase data - use lifetime energy for solar
       if (enphaseData?.totals) {
         solarEnergy = (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
-        // Enphase pending would come from baseline comparison (to be added)
-        console.log('Enphase solar:', solarEnergy, 'kWh');
+        // Use pending from API if available, otherwise use lifetime (no baseline yet)
+        pendingSolar = enphaseData.totals.pending_solar_wh !== undefined 
+          ? (enphaseData.totals.pending_solar_wh / 1000)
+          : solarEnergy; // If no pending, use lifetime (means no baseline set yet)
+        console.log('Enphase solar:', solarEnergy, 'kWh, pending:', pendingSolar, 'kWh');
       }
 
       // Process SolarEdge data - use lifetime energy for solar
       if (solarEdgeData?.totals && !enphaseData?.totals) {
         // Only use SolarEdge if Enphase not available (Enphase takes priority)
         solarEnergy = (solarEdgeData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
-        console.log('SolarEdge solar:', solarEnergy, 'kWh');
+        pendingSolar = solarEdgeData.totals.pending_solar_wh !== undefined
+          ? (solarEdgeData.totals.pending_solar_wh / 1000)
+          : solarEnergy;
+        console.log('SolarEdge solar:', solarEnergy, 'kWh, pending:', pendingSolar, 'kWh');
       }
 
       // Process Tesla data - EV miles, battery storage, EV charging
@@ -325,22 +358,41 @@ export function useDashboardData() {
         homeChargerKwh = teslaData.totals.wall_connector_kwh || 0;
         
         // Pending values (since last mint baseline)
-        pendingSolar = (teslaData.totals.pending_solar_wh || 0) / 1000;
-        pendingBattery = (teslaData.totals.pending_battery_discharge_wh || 0) / 1000;
-        pendingEvMiles = teslaData.totals.pending_ev_miles || 0;
-        pendingCharging = teslaData.totals.pending_ev_charging_kwh || 0;
+        // If pending not returned, use lifetime (no baseline set yet means all is pending)
+        const teslaPendingSolar = teslaData.totals.pending_solar_wh !== undefined
+          ? (teslaData.totals.pending_solar_wh / 1000)
+          : (teslaData.totals.solar_production_wh || 0) / 1000;
+        const teslaPendingBattery = teslaData.totals.pending_battery_discharge_wh !== undefined
+          ? (teslaData.totals.pending_battery_discharge_wh / 1000)
+          : batteryDischarge;
+        const teslaPendingEvMiles = teslaData.totals.pending_ev_miles !== undefined
+          ? teslaData.totals.pending_ev_miles
+          : evMiles;
+        const teslaPendingCharging = teslaData.totals.pending_ev_charging_kwh !== undefined
+          ? teslaData.totals.pending_ev_charging_kwh
+          : (superchargerKwh + homeChargerKwh);
         
-        // Only add Tesla solar if no Enphase/SolarEdge connected
+        // Only use Tesla solar/pending if no dedicated solar provider
         if (!hasDedicatedSolarProvider) {
           solarEnergy += (teslaData.totals.solar_production_wh || 0) / 1000;
+          pendingSolar = teslaPendingSolar;
         }
+        
+        pendingBattery = teslaPendingBattery;
+        pendingEvMiles = teslaPendingEvMiles;
+        pendingCharging = teslaPendingCharging;
+        
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
       }
 
       // Process Wallbox data - home charger kWh
       if (wallboxData?.totals) {
         homeChargerKwh += wallboxData.totals.home_charger_kwh || 0;
-        pendingCharging += wallboxData.totals.pending_charging_kwh || 0;
+        // Add Wallbox pending to charging
+        const wallboxPending = wallboxData.totals.pending_charging_kwh !== undefined
+          ? wallboxData.totals.pending_charging_kwh
+          : wallboxData.totals.home_charger_kwh || 0;
+        pendingCharging += wallboxPending;
         console.log('Wallbox data:', { homeChargerKwh: wallboxData.totals.home_charger_kwh });
       }
 
@@ -352,17 +404,19 @@ export function useDashboardData() {
         Math.floor(superchargerKwh) +
         Math.floor(homeChargerKwh);
       
-      // Claimed tokens (already minted to blockchain)
-      const claimedTokens = rewardsData?.tokens_claimed || 0;
-      
-      // Pending tokens = Lifetime - Claimed
-      // If user has never minted, pending should equal lifetime
-      // This ensures the 1:1 relationship is always maintained
-      const pendingTokens = tokensEarned - claimedTokens;
+      // Pending tokens (calculated from pending activity - 1:1 rate)
+      // This represents tokens that can be minted now
+      const pendingTokens = 
+        Math.floor(pendingSolar) +
+        Math.floor(pendingEvMiles) +
+        Math.floor(pendingBattery) +
+        Math.floor(pendingCharging);
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
       const newData: ActivityData = {
+        // Lifetime minted (from confirmed blockchain transactions)
+        lifetimeMinted,
         // Lifetime totals (for NFT milestone progress)
         solarEnergyProduced: solarEnergy,
         evMilesDriven: evMiles,
@@ -398,7 +452,7 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels]);
+  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels, fetchMintedTokens]);
 
   // Auto-refresh when connections change
   useEffect(() => {
