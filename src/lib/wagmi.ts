@@ -51,10 +51,10 @@ export const config = getDefaultConfig({
 export const CHAIN_ID = baseSepolia.id;
 
 // Contract addresses for $ZSOLAR token and NFT (Base Sepolia testnet)
-// Deployed 2026-01-16 on Base Sepolia
-export const ZSOLAR_TOKEN_ADDRESS = '0x5942F66E2E92e3D371931E6dAC8D8cC648D04dE2' as const;
-export const ZSOLAR_NFT_ADDRESS = '0x512DD8Eb48a5e0723851606DB761fA49d5b4412f' as const;
-export const ZSOLAR_CONTROLLER_ADDRESS = '0x159C447076BFCc86680Df0e8687543b4362C4eF5' as const;
+// Deployed 2026-01-16 on Base Sepolia (fresh deployment)
+export const ZSOLAR_TOKEN_ADDRESS = '0x9bcf687eee0AF5f8C81F69812E3d7aC2cfCe410E' as const;
+export const ZSOLAR_NFT_ADDRESS = '0x63ef4BEF238a1E91740dA5aB11Ae1E7D319EFC4C' as const;
+export const ZSOLAR_CONTROLLER_ADDRESS = '0x3763B402b7f3Bd407B5141C55C94a1076f220cE7' as const;
 export const ZSOLAR_TOKEN_SYMBOL = 'ZSOLAR';
 export const ZSOLAR_TOKEN_DECIMALS = 18;
 

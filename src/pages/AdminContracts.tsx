@@ -88,13 +88,13 @@ const WALLETS = {
   },
 };
 
-// Contract addresses (Base Sepolia)
+// Contract addresses (Base Sepolia - Fresh deployment 2026-01-16)
 const CONTRACTS = {
   ZSOLAR: {
     name: 'ZSOLAR Token',
     symbol: 'ZSOLAR',
     type: 'ERC-20',
-    address: '0x5942F66E2E92e3D371931E6dAC8D8cC648D04dE2',
+    address: '0x9bcf687eee0AF5f8C81F69812E3d7aC2cfCe410E',
     network: 'Base Sepolia',
     chainId: 84532,
   },
@@ -102,7 +102,7 @@ const CONTRACTS = {
     name: 'ZenSolarNFT',
     symbol: 'ZSNFT',
     type: 'ERC-1155',
-    address: '0x512DD8Eb48a5e0723851606DB761fA49d5b4412f',
+    address: '0x63ef4BEF238a1E91740dA5aB11Ae1E7D319EFC4C',
     network: 'Base Sepolia',
     chainId: 84532,
   },
@@ -110,7 +110,7 @@ const CONTRACTS = {
     name: 'ZenSolar Controller',
     symbol: 'Controller',
     type: 'Controller',
-    address: '0x159C447076BFCc86680Df0e8687543b4362C4eF5',
+    address: '0x3763B402b7f3Bd407B5141C55C94a1076f220cE7',
     network: 'Base Sepolia',
     chainId: 84532,
   },
