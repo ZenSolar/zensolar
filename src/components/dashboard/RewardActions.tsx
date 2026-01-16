@@ -79,6 +79,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const { triggerConfetti } = useConfetti();
   const { success: hapticSuccess } = useHaptics();
   const { isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
   const [mintingState, setMintingState] = useState<{
     isLoading: boolean;
     type: 'token' | 'nft' | 'milestone' | 'combo' | null;
