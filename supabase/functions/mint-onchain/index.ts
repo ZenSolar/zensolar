@@ -360,6 +360,28 @@ Deno.serve(async (req) => {
       }
 
       console.log("Registering user and minting Welcome NFT...");
+      
+      // First simulate to get better error message if it fails
+      try {
+        await publicClient.simulateContract({
+          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+          abi: CONTROLLER_ABI,
+          functionName: "registerUser",
+          args: [walletAddress as `0x${string}`],
+          account: walletClient.account,
+        });
+        console.log("Simulation passed, proceeding with transaction...");
+      } catch (simError: any) {
+        console.error("Simulation failed:", simError.message);
+        if (simError.cause?.reason) {
+          console.error("Revert reason:", simError.cause.reason);
+        }
+        if (simError.cause?.data) {
+          console.error("Revert data:", simError.cause.data);
+        }
+        throw simError;
+      }
+      
       const hash = await walletClient.writeContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
