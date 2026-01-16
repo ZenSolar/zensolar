@@ -236,26 +236,101 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
     };
 
-    const ensureBaseSepolia = async () => {
-      if (chainId === CHAIN_ID) return true;
-      if (!switchChainAsync) return false;
+    // Force MetaMask to switch to Base Sepolia using low-level RPC calls
+    // This is more reliable than wagmi's switchChain for WalletConnect sessions
+    const forceNetworkSwitch = async (): Promise<boolean> => {
+      const baseSepoliaChainIdHex = `0x${CHAIN_ID.toString(16)}`; // 0x14a34 for 84532
+      
+      // Try wallet_switchEthereumChain first
+      const trySwitchChain = async (): Promise<boolean> => {
+        try {
+          if (walletClient?.request) {
+            await walletClient.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: baseSepoliaChainIdHex }],
+            });
+            console.log('wallet_switchEthereumChain succeeded');
+            return true;
+          }
+          if ((window as any).ethereum?.request) {
+            await (window as any).ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: baseSepoliaChainIdHex }],
+            });
+            console.log('window.ethereum wallet_switchEthereumChain succeeded');
+            return true;
+          }
+          return false;
+        } catch (switchError: any) {
+          // Error code 4902 means the chain is not added to MetaMask
+          if (switchError?.code === 4902 || switchError?.message?.includes('Unrecognized chain')) {
+            console.log('Chain not found, attempting wallet_addEthereumChain...');
+            return tryAddChain();
+          }
+          console.log('wallet_switchEthereumChain error:', switchError);
+          return false;
+        }
+      };
 
-      try {
-        console.log(`Switching wallet chain to ${CHAIN_ID} for watchAsset (current ${chainId})...`);
-        await waitForForeground();
-        await switchChainAsync({ chainId: CHAIN_ID });
-        return true;
-      } catch (error) {
-        const errMsg = error instanceof Error ? error.message : String(error);
-        console.log('switchChainAsync threw:', errMsg);
+      // Add the chain if it doesn't exist
+      const tryAddChain = async (): Promise<boolean> => {
+        const chainParams = {
+          chainId: baseSepoliaChainIdHex,
+          chainName: 'Base Sepolia',
+          nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18,
+          },
+          rpcUrls: ['https://sepolia.base.org'],
+          blockExplorerUrls: ['https://sepolia.basescan.org'],
+        };
+
+        try {
+          if (walletClient?.request) {
+            await walletClient.request({
+              method: 'wallet_addEthereumChain',
+              params: [chainParams],
+            });
+            console.log('wallet_addEthereumChain succeeded');
+            return true;
+          }
+          if ((window as any).ethereum?.request) {
+            await (window as any).ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [chainParams],
+            });
+            console.log('window.ethereum wallet_addEthereumChain succeeded');
+            return true;
+          }
+          return false;
+        } catch (addError) {
+          console.log('wallet_addEthereumChain error:', addError);
+          return false;
+        }
+      };
+
+      await waitForForeground();
+      return trySwitchChain();
+    };
+
+    // Ensure we're on Base Sepolia before watchAsset
+    const ensureBaseSepolia = async (): Promise<boolean> => {
+      // Always force the network switch for reliability with WalletConnect
+      console.log(`Forcing network switch to Base Sepolia (chainId: ${CHAIN_ID}) before watchAsset...`);
+      const switched = await forceNetworkSwitch();
+      if (!switched) {
+        console.log('Network switch failed or was rejected');
         logWatchAssetAttempt({
           provider: 'wagmi',
           success: false,
-          error: `Failed to switch to Base Sepolia: ${errMsg}`,
+          error: 'Failed to switch to Base Sepolia network',
           params: paramsOptions,
         });
-        return false;
       }
+      // Small delay to let MetaMask stabilize after network switch
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return switched;
     };
 
     // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector (works for WalletConnect)
@@ -1194,13 +1269,47 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 </div>
               )}
               
-              {/* Manual Token Add Instructions - shown for token mints */}
-              {resultDialog.success && resultDialog.type === 'token' && (
-                <ManualTokenAddPanel />
-              )}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 pt-2">
+            {/* Add token to wallet button - tries automatic first, shows manual fallback if needed */}
+            {resultDialog.success && resultDialog.type === 'token' && (
+              <Button 
+                onClick={async () => {
+                  try {
+                    const added = await addZsolarToWallet();
+                    if (added) {
+                      toast({
+                        title: 'Token Added',
+                        description: '$ZSOLAR token added to your wallet!',
+                      });
+                    } else {
+                      toast({
+                        title: 'Auto-Add Not Supported',
+                        description: 'Use the manual instructions below to add the token.',
+                      });
+                    }
+                  } catch (err) {
+                    console.error('Error adding token:', err);
+                    toast({
+                      title: 'Could Not Add Token',
+                      description: 'The request may have been rejected. Use the manual instructions below.',
+                    });
+                  }
+                }}
+                variant="outline"
+                className="w-full"
+              >
+                <Coins className="h-4 w-4 mr-2" />
+                Add $ZSOLAR to Wallet
+              </Button>
+            )}
+            
+            {/* Manual Token Add Instructions - fallback for when auto-add fails */}
+            {resultDialog.success && resultDialog.type === 'token' && (
+              <ManualTokenAddPanel />
+            )}
+            
             {/* Diagnostics panel for debugging wallet_watchAsset - Admin only */}
             {isAdmin && (
               <WatchAssetDiagnostics 
