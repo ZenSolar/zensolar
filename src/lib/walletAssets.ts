@@ -121,6 +121,11 @@ export function resetAssetPromptFlags(): void {
 }
 
 /**
+ * Alias for backward compatibility
+ */
+export const resetTokenPromptFlag = resetAssetPromptFlags;
+
+/**
  * Prompts the user to add a ZenSolar NFT to their wallet
  * Uses EIP-747 wallet_watchAsset for seamless NFT addition
  */
