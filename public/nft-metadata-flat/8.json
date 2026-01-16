@@ -1,7 +1,7 @@
 {
   "name": "Starforge",
   "description": "100,000 kWh of solar energy generated. You've forged a star!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/solar/starforge.png",
+  "image": "https://zensolar.lovable.app/nft-images/solar/starforge.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Solar" },

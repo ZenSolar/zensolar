@@ -1,7 +1,7 @@
 {
   "name": "Voyager",
   "description": "150,000 electric miles driven. Voyaging across the electric frontier!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/ev/voyager.png",
+  "image": "https://zensolar.lovable.app/nft-images/ev/voyager.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "EV Miles" },

@@ -1,7 +1,7 @@
 {
   "name": "Zenith",
   "description": "Earned 30 category NFTs total. You've reached the zenith of sustainable achievement!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/combo/zenith.png",
+  "image": "https://zensolar.lovable.app/nft-images/combo/zenith.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Combo" },

@@ -1,7 +1,7 @@
 {
   "name": "Quadrant",
   "description": "Earned 5 category NFTs total. Quadrant-level achievement unlocked!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/combo/quadrant.png",
+  "image": "https://zensolar.lovable.app/nft-images/combo/quadrant.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "Combo" },

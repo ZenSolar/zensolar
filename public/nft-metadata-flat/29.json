@@ -1,7 +1,7 @@
 {
   "name": "Velocity Pro",
   "description": "25,000 electric miles driven. Professional-grade velocity!",
-  "image": "ipfs://bafybeibfu2jiex3g5aglwd2xfj4wq6umr77zoqnre55hpcpghp6mstm5iy/ev/velocity-pro.png",
+  "image": "https://zensolar.lovable.app/nft-images/ev/velocity-pro.png",
   "external_url": "https://zensolar.lovable.app/nft-collection",
   "attributes": [
     { "trait_type": "Category", "value": "EV Miles" },
