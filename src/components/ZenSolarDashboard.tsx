@@ -247,6 +247,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onRefresh={refreshDashboard} 
             isLoading={dataLoading}
             walletAddress={profile?.wallet_address}
+            pendingTokens={activityData.pendingTokens}
           />
         </AnimatedItem>
       </AnimatedContainer>
