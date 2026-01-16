@@ -961,7 +961,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               {resultDialog.success && (
                 <div className="bg-gradient-to-br from-primary/10 via-secondary/5 to-token/10 rounded-lg p-4 border border-primary/20">
                   <p className="text-sm text-muted-foreground">
-                    {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet! They should appear automatically.'}
+                    {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet!'}
                     {resultDialog.type === 'nft' && 'Your Welcome NFT has been minted! Check your wallet or OpenSea to view it.'}
                     {resultDialog.type === 'milestone' && 'Your milestone NFTs have been claimed! View them in your wallet or on OpenSea.'}
                     {resultDialog.type === 'combo' && 'Your combo achievement NFTs have been minted! These celebrate your multi-category progress.'}
@@ -970,7 +970,38 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               )}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex gap-2 pt-2">
+          <div className="flex flex-col gap-2 pt-2">
+            {resultDialog.success && resultDialog.type === 'token' && window.ethereum && (
+              <Button 
+                onClick={async () => {
+                  try {
+                    await window.ethereum?.request({
+                      method: 'wallet_watchAsset',
+                      params: {
+                        type: 'ERC20',
+                        options: {
+                          address: ZSOLAR_TOKEN_ADDRESS,
+                          symbol: ZSOLAR_TOKEN_SYMBOL,
+                          decimals: ZSOLAR_TOKEN_DECIMALS,
+                          image: `${window.location.origin}/zs-icon-192.png`,
+                        },
+                      },
+                    });
+                    toast({
+                      title: "Token Added",
+                      description: "$ZSOLAR token added to your wallet!",
+                    });
+                  } catch (error) {
+                    console.log('User declined or error:', error);
+                  }
+                }}
+                variant="outline"
+                className="w-full"
+              >
+                <Coins className="h-4 w-4 mr-2" />
+                Add $ZSOLAR to Wallet
+              </Button>
+            )}
             <Button 
               onClick={() => setResultDialog({ ...resultDialog, open: false })}
               className="w-full"

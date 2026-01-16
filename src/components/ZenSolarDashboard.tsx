@@ -248,10 +248,10 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             isLoading={dataLoading}
             walletAddress={profile?.wallet_address}
             pendingRewards={{
-              solar: Math.floor(activityData.solarEnergyProduced),
-              evMiles: Math.floor(activityData.evMilesDriven),
-              battery: Math.floor(activityData.batteryStorageDischarged),
-              charging: Math.floor(activityData.teslaSuperchargerKwh + activityData.homeChargerKwh),
+              solar: Math.floor(activityData.pendingSolarKwh),
+              evMiles: Math.floor(activityData.pendingEvMiles),
+              battery: Math.floor(activityData.pendingBatteryKwh),
+              charging: Math.floor(activityData.pendingChargingKwh),
             }}
           />
         </AnimatedItem>

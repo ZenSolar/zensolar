@@ -59,15 +59,15 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   const totalEarned = 1 + solarEarned.length + evMilesEarned.length + chargingEarned.length + batteryEarned.length + comboEarned.length;
   const totalPossible = getTotalNftCount();
 
-  // Calculate tokens ready to mint from lifetime activity values
+  // Calculate tokens ready to mint from PENDING activity values (since last mint)
   const tokensReadyToMint = 
-    Math.floor(data.solarEnergyProduced) + 
-    Math.floor(data.evMilesDriven) + 
-    Math.floor(data.batteryStorageDischarged) + 
-    Math.floor(data.teslaSuperchargerKwh + data.homeChargerKwh);
+    Math.floor(data.pendingSolarKwh) + 
+    Math.floor(data.pendingEvMiles) + 
+    Math.floor(data.pendingBatteryKwh) + 
+    Math.floor(data.pendingChargingKwh);
   return (
     <div className="space-y-6">
-      {/* Pending Rewards Section - What can be minted */}
+      {/* Pending Rewards Section - What can be minted NOW (delta since last mint) */}
       {tokensReadyToMint > 0 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -78,7 +78,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
             Pending Rewards
           </h2>
           <p className="text-xs text-muted-foreground -mt-2">
-            Lifetime activity eligible for token rewards
+            Activity since your last mint, ready to claim
           </p>
           
           <div className="grid gap-3">
@@ -89,6 +89,34 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
               unit="$ZSOLAR"
               colorClass="bg-primary"
             />
+            
+            {/* Breakdown of pending by category */}
+            <div className="grid grid-cols-2 gap-2">
+              {data.pendingSolarKwh > 0 && (
+                <div className="flex items-center gap-2 p-2 rounded-md bg-solar/10 border border-solar/20">
+                  <Sun className="h-4 w-4 text-solar" />
+                  <span className="text-sm font-medium">{Math.floor(data.pendingSolarKwh).toLocaleString()} kWh</span>
+                </div>
+              )}
+              {data.pendingEvMiles > 0 && (
+                <div className="flex items-center gap-2 p-2 rounded-md bg-energy/10 border border-energy/20">
+                  <Car className="h-4 w-4 text-energy" />
+                  <span className="text-sm font-medium">{Math.floor(data.pendingEvMiles).toLocaleString()} mi</span>
+                </div>
+              )}
+              {data.pendingBatteryKwh > 0 && (
+                <div className="flex items-center gap-2 p-2 rounded-md bg-secondary/10 border border-secondary/20">
+                  <Battery className="h-4 w-4 text-secondary" />
+                  <span className="text-sm font-medium">{Math.floor(data.pendingBatteryKwh).toLocaleString()} kWh</span>
+                </div>
+              )}
+              {data.pendingChargingKwh > 0 && (
+                <div className="flex items-center gap-2 p-2 rounded-md bg-accent/10 border border-accent/20">
+                  <Zap className="h-4 w-4 text-accent" />
+                  <span className="text-sm font-medium">{Math.floor(data.pendingChargingKwh).toLocaleString()} kWh</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
