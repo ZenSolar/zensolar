@@ -10,6 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NFTDetailModal } from '@/components/nft/NFTDetailModal';
 import { BatchMintButton } from '@/components/nft/BatchMintButton';
+import { NFTMintFlow } from '@/components/nft/NFTMintFlow';
 import { 
   Award, 
   Trophy, 
@@ -45,6 +46,7 @@ import { NFTBadge } from '@/components/ui/nft-badge';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { useConfetti } from '@/hooks/useConfetti';
 import { supabase } from '@/integrations/supabase/client';
+import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
 import { toast } from 'sonner';
 function MilestoneCard({ 
   milestone, 
@@ -52,7 +54,10 @@ function MilestoneCard({
   currentValue,
   unit,
   isNext,
-  onViewArtwork
+  onViewArtwork,
+  onMintNFT,
+  isOnChain,
+  walletAddress
 }: { 
   milestone: NFTMilestone; 
   isEarned: boolean;
@@ -60,12 +65,16 @@ function MilestoneCard({
   unit: string;
   isNext: boolean;
   onViewArtwork: (milestone: NFTMilestone) => void;
+  onMintNFT?: (milestone: NFTMilestone) => void;
+  isOnChain?: boolean;
+  walletAddress?: string;
 }) {
   const progress = milestone.threshold > 0 
     ? Math.min((currentValue / milestone.threshold) * 100, 100)
     : 100;
   
   const artwork = getNftArtwork(milestone.id);
+  const canMint = isEarned && walletAddress && !isOnChain;
   
   return (
     <motion.div
@@ -118,7 +127,12 @@ function MilestoneCard({
           </div>
           {/* Status Badge on image */}
           <div className="absolute top-2 right-2">
-            {isEarned ? (
+            {isOnChain ? (
+              <Badge className="bg-green-600 text-white gap-1 text-[10px]">
+                <CheckCircle2 className="h-3 w-3" />
+                Minted
+              </Badge>
+            ) : isEarned ? (
               <Badge className="bg-primary text-primary-foreground gap-1 text-[10px]">
                 <CheckCircle2 className="h-3 w-3" />
                 Earned
@@ -171,6 +185,28 @@ function MilestoneCard({
               value={progress} 
               className={`h-1.5 ${isEarned ? '' : 'opacity-60'}`}
             />
+          </div>
+        )}
+
+        {/* Mint Button for earned NFTs */}
+        {canMint && onMintNFT && (
+          <Button
+            size="sm"
+            className="w-full mt-3 gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              onMintNFT(milestone);
+            }}
+          >
+            <Zap className="h-3.5 w-3.5" />
+            Mint NFT
+          </Button>
+        )}
+        
+        {isOnChain && (
+          <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-green-600 dark:text-green-400">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            <span>On-Chain</span>
           </div>
         )}
       </div>
@@ -568,6 +604,9 @@ function CategorySection({
   unit,
   accentColor,
   onViewArtwork,
+  onMintNFT,
+  ownedTokenIds,
+  walletAddress,
 }: {
   title: string;
   icon: React.ReactNode;
@@ -578,9 +617,13 @@ function CategorySection({
   unit: string;
   accentColor: string;
   onViewArtwork: (milestone: NFTMilestone) => void;
+  onMintNFT?: (milestone: NFTMilestone) => void;
+  ownedTokenIds?: number[];
+  walletAddress?: string;
 }) {
   const nextMilestone = getNextMilestone(currentValue, milestones);
   const earnedIds = new Set(earnedMilestones.map(m => m.id));
+  const ownedSet = new Set(ownedTokenIds || []);
   
   return (
     <div className="space-y-4">
@@ -629,17 +672,25 @@ function CategorySection({
 
       {/* Milestones Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {milestones.map((milestone) => (
-          <MilestoneCard
-            key={milestone.id}
-            milestone={milestone}
-            isEarned={earnedIds.has(milestone.id)}
-            currentValue={currentValue}
-            unit={unit}
-            isNext={nextMilestone?.id === milestone.id}
-            onViewArtwork={onViewArtwork}
-          />
-        ))}
+        {milestones.map((milestone) => {
+          const tokenId = MILESTONE_TO_TOKEN_ID[milestone.id];
+          const isOnChain = tokenId !== undefined && ownedSet.has(tokenId);
+          
+          return (
+            <MilestoneCard
+              key={milestone.id}
+              milestone={milestone}
+              isEarned={earnedIds.has(milestone.id)}
+              currentValue={currentValue}
+              unit={unit}
+              isNext={nextMilestone?.id === milestone.id}
+              onViewArtwork={onViewArtwork}
+              onMintNFT={onMintNFT}
+              isOnChain={isOnChain}
+              walletAddress={walletAddress}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -654,6 +705,45 @@ export default function NftCollection() {
   const [welcomeNftClaimed, setWelcomeNftClaimed] = useState(false);
   const { triggerCelebration, triggerGoldBurst } = useConfetti();
   const prevEarnedRef = useRef<Set<string>>(new Set());
+
+  // NFT Mint Flow state
+  const [mintFlowOpen, setMintFlowOpen] = useState(false);
+  const [mintingMilestone, setMintingMilestone] = useState<NFTMilestone | null>(null);
+  const [ownedTokenIds, setOwnedTokenIds] = useState<number[]>([]);
+  const [isCheckingOnChain, setIsCheckingOnChain] = useState(false);
+
+  const walletAddress = profile?.wallet_address;
+
+  // Check on-chain status
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    const checkOnChainStatus = async () => {
+      setIsCheckingOnChain(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { data, error } = await supabase.functions.invoke('mint-onchain', {
+          body: { action: 'status', walletAddress },
+        });
+
+        if (!error && data?.ownedNFTTokenIds) {
+          setOwnedTokenIds(data.ownedNFTTokenIds);
+          // Check if welcome NFT is owned
+          if (data.ownedNFTTokenIds.includes(0)) {
+            setWelcomeNftClaimed(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking on-chain status:', err);
+      } finally {
+        setIsCheckingOnChain(false);
+      }
+    };
+
+    checkOnChainStatus();
+  }, [walletAddress]);
 
   // Calculate all earned milestones
   const solarKwh = activityData.solarEnergyProduced;
@@ -725,6 +815,35 @@ export default function NftCollection() {
     }
   };
 
+  const handleMintNFT = (milestone: NFTMilestone) => {
+    if (!walletAddress) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    setMintingMilestone(milestone);
+    setMintFlowOpen(true);
+  };
+
+  const handleMintSuccess = async () => {
+    // Refresh on-chain status
+    if (walletAddress) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { data, error } = await supabase.functions.invoke('mint-onchain', {
+          body: { action: 'status', walletAddress },
+        });
+
+        if (!error && data?.ownedNFTTokenIds) {
+          setOwnedTokenIds(data.ownedNFTTokenIds);
+        }
+      } catch (err) {
+        console.error('Error refreshing on-chain status:', err);
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
@@ -743,7 +862,16 @@ export default function NftCollection() {
         onOpenChange={setDialogOpen}
       />
 
-      {/* Page Header */}
+      {/* NFT Mint Flow Dialog */}
+      {mintingMilestone && walletAddress && (
+        <NFTMintFlow
+          milestone={mintingMilestone}
+          walletAddress={walletAddress}
+          open={mintFlowOpen}
+          onOpenChange={setMintFlowOpen}
+          onMintSuccess={handleMintSuccess}
+        />
+      )}
       <div className="text-center space-y-2">
         <div className="flex flex-col items-center justify-center gap-1 mb-4">
           <div className="flex items-center justify-center gap-2">
@@ -869,6 +997,9 @@ export default function NftCollection() {
             unit="kWh"
             accentColor="bg-amber-500"
             onViewArtwork={handleViewArtwork}
+            onMintNFT={handleMintNFT}
+            ownedTokenIds={ownedTokenIds}
+            walletAddress={walletAddress}
           />
         </TabsContent>
 
@@ -883,6 +1014,9 @@ export default function NftCollection() {
             unit="miles"
             accentColor="bg-blue-500"
             onViewArtwork={handleViewArtwork}
+            onMintNFT={handleMintNFT}
+            ownedTokenIds={ownedTokenIds}
+            walletAddress={walletAddress}
           />
         </TabsContent>
 
@@ -897,6 +1031,9 @@ export default function NftCollection() {
             unit="kWh"
             accentColor="bg-yellow-500"
             onViewArtwork={handleViewArtwork}
+            onMintNFT={handleMintNFT}
+            ownedTokenIds={ownedTokenIds}
+            walletAddress={walletAddress}
           />
         </TabsContent>
 
@@ -911,6 +1048,9 @@ export default function NftCollection() {
             unit="kWh"
             accentColor="bg-green-500"
             onViewArtwork={handleViewArtwork}
+            onMintNFT={handleMintNFT}
+            ownedTokenIds={ownedTokenIds}
+            walletAddress={walletAddress}
           />
         </TabsContent>
 
