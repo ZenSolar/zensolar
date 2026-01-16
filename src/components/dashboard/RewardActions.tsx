@@ -6,6 +6,7 @@ import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useAccount } from 'wagmi';
+import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS } from '@/lib/wagmi';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -210,9 +211,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               params: {
                 type: 'ERC20',
                 options: {
-                  address: '0xA3b57E04F91420FC72D6Cadd1eF2749a1B709e38', // ZSOLAR token
-                  symbol: 'ZSOLAR',
-                  decimals: 18,
+                  address: ZSOLAR_TOKEN_ADDRESS,
+                  symbol: ZSOLAR_TOKEN_SYMBOL,
+                  decimals: ZSOLAR_TOKEN_DECIMALS,
                 },
               },
             });
