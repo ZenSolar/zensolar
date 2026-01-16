@@ -75,58 +75,66 @@ export default function MintHistory() {
         return;
       }
 
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('tesla_connected, enphase_connected, solaredge_connected')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      const hasDedicatedSolarProvider = !!(profileData?.enphase_connected || profileData?.solaredge_connected);
+      // Get connected devices with their baselines and lifetime totals
+      // This shows the DELTA since last mint, not lifetime totals
+      const { data: devices } = await supabase
+        .from('connected_devices')
+        .select('device_type, baseline_data, lifetime_totals')
+        .eq('user_id', session.user.id);
 
       let solarKwh = 0;
       let batteryKwh = 0;
       let evMiles = 0;
       let evChargingKwh = 0;
 
-      if (profileData?.enphase_connected) {
-        const response = await supabase.functions.invoke('enphase-data', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
+      for (const device of (devices || [])) {
+        const baseline = device.baseline_data as Record<string, number> | null;
+        const lifetime = device.lifetime_totals as Record<string, number> | null;
+        
+        if (!lifetime) continue;
 
-        if (response.data?.totals) {
-          solarKwh = (response.data.totals.lifetime_solar_wh || 0) / 1000;
+        if (device.device_type === 'solar' || device.device_type === 'solar_system') {
+          const lifetimeSolarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+          const baselineSolarWh = baseline?.solar_wh || baseline?.total_solar_produced_wh || 0;
+          const delta = Math.max(0, (lifetimeSolarWh - baselineSolarWh) / 1000);
+          solarKwh += delta;
+        } else if (device.device_type === 'powerwall' || device.device_type === 'battery') {
+          const lifetimeBatteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
+          const baselineBatteryWh = baseline?.battery_discharge_wh || baseline?.total_energy_discharged_wh || 0;
+          const delta = Math.max(0, (lifetimeBatteryWh - baselineBatteryWh) / 1000);
+          batteryKwh += delta;
+        } else if (device.device_type === 'vehicle') {
+          // EV miles
+          const lifetimeOdometer = lifetime.odometer || 0;
+          const baselineOdometer = baseline?.odometer || baseline?.last_known_odometer || 0;
+          const milesDelta = Math.max(0, lifetimeOdometer - baselineOdometer);
+          evMiles += milesDelta;
+          
+          // EV charging
+          const lifetimeChargingKwh = lifetime.charging_kwh || 0;
+          const baselineChargingKwh = baseline?.charging_kwh || baseline?.total_charge_energy_added_kwh || 0;
+          const chargingDelta = Math.max(0, lifetimeChargingKwh - baselineChargingKwh);
+          evChargingKwh += chargingDelta;
+        } else if (device.device_type === 'wall_connector') {
+          const lifetimeChargingKwh = lifetime.charging_kwh || lifetime.lifetime_charging_kwh || 0;
+          const baselineChargingKwh = baseline?.charging_kwh || 0;
+          const delta = Math.max(0, lifetimeChargingKwh - baselineChargingKwh);
+          evChargingKwh += delta;
         }
       }
 
-      if (profileData?.tesla_connected) {
-        const response = await supabase.functions.invoke('tesla-data', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-
-        if (response.data?.totals) {
-          const totals = response.data.totals;
-          batteryKwh = (totals.battery_discharge_wh || 0) / 1000;
-          evMiles = totals.ev_miles || 0;
-          evChargingKwh = totals.ev_charging_kwh || 0;
-
-          if (!hasDedicatedSolarProvider) {
-            solarKwh += (totals.solar_production_wh || 0) / 1000;
-          }
-        }
-      }
-
-      const totalTokens =
-        Math.floor(evMiles) +
-        Math.floor(solarKwh) +
-        Math.floor(batteryKwh) +
-        Math.floor(evChargingKwh);
+      // Total activity units (before fee distribution)
+      const totalActivityUnits = Math.floor(evMiles) + Math.floor(solarKwh) + Math.floor(batteryKwh) + Math.floor(evChargingKwh);
+      
+      // User receives 93% of activity units as tokens (5% burn, 1% LP, 1% treasury)
+      const tokensToReceive = Math.floor(totalActivityUnits * 0.93);
 
       setPendingActivity({
         solarKwh,
         batteryKwh,
         evMiles,
         evChargingKwh,
-        totalTokens,
+        totalTokens: tokensToReceive,
       });
     } catch (error) {
       console.error('Error fetching pending activity:', error);
@@ -159,12 +167,12 @@ export default function MintHistory() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardHeader className="pb-2 px-3 sm:px-6">
-            <CardDescription className="text-xs sm:text-sm">Lifetime Minted</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Tokens Received</CardDescription>
             <CardTitle className="text-lg sm:text-2xl flex items-center gap-2">
               <Coins className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
               <span className="truncate">{totalTokensMinted.toLocaleString()}</span>
             </CardTitle>
-            <p className="text-xs text-muted-foreground">$ZSOLAR</p>
+            <p className="text-xs text-muted-foreground">$ZSOLAR (93% of activity)</p>
           </CardHeader>
         </Card>
         <Card>
@@ -189,7 +197,7 @@ export default function MintHistory() {
         </Card>
         <Card>
           <CardHeader className="pb-2 px-3 sm:px-6">
-            <CardDescription className="text-xs sm:text-sm">Pending</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Pending Tokens</CardDescription>
             <CardTitle className="text-lg sm:text-2xl flex items-center gap-2 text-amber-600">
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               {isPendingLoading ? (
@@ -198,7 +206,7 @@ export default function MintHistory() {
                 <span className="truncate">{pendingActivity.totalTokens.toLocaleString()}</span>
               )}
             </CardTitle>
-            <p className="text-xs text-muted-foreground">Ready to mint</p>
+            <p className="text-xs text-muted-foreground">You'll receive (93%)</p>
           </CardHeader>
         </Card>
       </div>
@@ -210,7 +218,9 @@ export default function MintHistory() {
             <TrendingUp className="h-5 w-5 text-amber-600" />
             Pending Activity Breakdown
           </CardTitle>
-          <CardDescription className="text-xs sm:text-sm">Activity since last mint — will reset after minting</CardDescription>
+          <CardDescription className="text-xs sm:text-sm">
+            Activity since last mint — you receive 93% as tokens (5% burn, 1% LP, 1% treasury)
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isPendingLoading ? (

@@ -59,16 +59,20 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   const totalEarned = 1 + solarEarned.length + evMilesEarned.length + chargingEarned.length + batteryEarned.length + comboEarned.length;
   const totalPossible = getTotalNftCount();
 
-  // Calculate tokens ready to mint from PENDING activity values (since last mint)
-  const tokensReadyToMint = 
+  // Calculate activity units from PENDING activity values (since last mint)
+  const activityUnits = 
     Math.floor(data.pendingSolarKwh) + 
     Math.floor(data.pendingEvMiles) + 
     Math.floor(data.pendingBatteryKwh) + 
     Math.floor(data.pendingChargingKwh);
+  
+  // User receives 93% of activity units as tokens (5% burn, 1% LP, 1% treasury)
+  const tokensToReceive = Math.floor(activityUnits * 0.93);
+  
   return (
     <div className="space-y-6">
       {/* Pending Rewards Section - What can be minted NOW (delta since last mint) */}
-      {tokensReadyToMint > 0 && (
+      {activityUnits > 0 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -78,14 +82,14 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
             Pending Rewards
           </h2>
           <p className="text-xs text-muted-foreground -mt-2">
-            Activity since your last mint, ready to claim
+            Activity since your last mint — you receive 93% as tokens
           </p>
           
           <div className="grid gap-3">
             <MetricCard
               icon={Coins}
-              label="Tokens Ready to Mint"
-              value={tokensReadyToMint}
+              label="Tokens You'll Receive"
+              value={tokensToReceive}
               unit="$ZSOLAR"
               colorClass="bg-primary"
             />

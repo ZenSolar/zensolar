@@ -147,16 +147,25 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     }
   };
 
-  const totalPendingTokens = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
+  // Total activity units from pending rewards
+  const totalActivityUnits = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
+  
+  // User receives 93% of activity units as tokens (5% burn, 1% LP, 1% treasury)
+  const totalPendingTokens = Math.floor(totalActivityUnits * 0.93);
 
-  // Get the amount for a specific category
-  const getCategoryAmount = (category: MintCategory): number => {
-    if (category === 'all') return totalPendingTokens;
+  // Get the amount for a specific category (activity units, before fee distribution)
+  const getCategoryActivityUnits = (category: MintCategory): number => {
+    if (category === 'all') return totalActivityUnits;
     if (category === 'solar') return pendingRewards.solar;
     if (category === 'ev_miles') return pendingRewards.evMiles;
     if (category === 'battery') return pendingRewards.battery;
     if (category === 'charging') return pendingRewards.charging;
     return 0;
+  };
+  
+  // Get tokens user will receive for a category (after 93% distribution)
+  const getCategoryTokens = (category: MintCategory): number => {
+    return Math.floor(getCategoryActivityUnits(category) * 0.93);
   };
 
   // Add the ZSOLAR token to the connected wallet (only if not already added)
@@ -871,11 +880,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 
                 {pendingMintCategory && (
                   <div className="p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{getCategoryLabel(pendingMintCategory)}</span>
-                      <span className="text-xl font-bold text-primary">
-                        {getCategoryAmount(pendingMintCategory).toLocaleString()} $ZSOLAR
-                      </span>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{getCategoryLabel(pendingMintCategory)}</span>
+                        <span className="text-xl font-bold text-primary">
+                          {getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        You receive 93% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} activity units
+                      </p>
                     </div>
                   </div>
                 )}
