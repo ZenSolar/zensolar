@@ -485,58 +485,103 @@ Deno.serve(async (req) => {
         } else if (vehicleResponse.status === 429) {
           console.warn("Tesla API rate limited for vehicle:", vehicle.id);
         } else if (vehicleResponse.status === 408) {
-          // Vehicle is asleep - try to get odometer from /vehicles list endpoint (doesn't require wake)
-          console.log(`Vehicle ${vehicle.id} is asleep, attempting to get cached vehicle data...`);
+          // Vehicle is asleep - try to wake it up first
+          console.log(`Vehicle ${vehicle.id} is asleep, attempting to wake...`);
           
-          let cachedOdometer = lastKnownOdometer;
+          let currentOdometer = lastKnownOdometer;
+          let isAwake = false;
           
-          // Try the /vehicles endpoint which returns cached data for sleeping vehicles
+          // Try to wake the vehicle
           try {
-            const vehiclesListResponse = await fetch(
-              `${TESLA_API_BASE}/api/1/vehicles`,
-              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            const wakeResponse = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/wake_up`,
+              { 
+                method: "POST",
+                headers: { "Authorization": `Bearer ${accessToken}` } 
+              }
             );
             
-            if (vehiclesListResponse.ok) {
-              const vehiclesList = await vehiclesListResponse.json();
-              const thisVehicle = (vehiclesList.response || []).find((v: any) => v.vin === vehicle.id);
+            if (wakeResponse.ok) {
+              console.log(`Wake command sent to vehicle ${vehicle.id}, waiting for vehicle to come online...`);
               
-              if (thisVehicle) {
-                // Some Tesla API versions include cached vehicle_state
-                const cachedState = thisVehicle.vehicle_state || thisVehicle.cached_data?.vehicle_state;
-                if (cachedState?.odometer && cachedState.odometer > 0) {
-                  cachedOdometer = cachedState.odometer;
-                  console.log(`Got cached odometer from /vehicles list: ${cachedOdometer}`);
+              // Wait a bit for the vehicle to wake (Tesla recommends up to 30 seconds)
+              // We'll try 3 times with 5 second delays
+              for (let attempt = 0; attempt < 3; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                
+                const retryResponse = await fetch(
+                  `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state`,
+                  { headers: { "Authorization": `Bearer ${accessToken}` } }
+                );
+                
+                if (retryResponse.ok) {
+                  const retryData = await retryResponse.json();
+                  const vehicleState = retryData.response?.vehicle_state || {};
+                  if (vehicleState.odometer && vehicleState.odometer > 0) {
+                    currentOdometer = vehicleState.odometer;
+                    isAwake = true;
+                    console.log(`Vehicle ${vehicle.id} woke up! Odometer: ${currentOdometer}`);
+                    break;
+                  }
+                } else if (retryResponse.status !== 408) {
+                  console.log(`Retry ${attempt + 1} failed with status ${retryResponse.status}`);
+                  break;
                 }
               }
+            } else {
+              console.log(`Could not wake vehicle ${vehicle.id}: ${wakeResponse.status}`);
             }
-          } catch (listError) {
-            console.log("Could not fetch vehicles list for cached data:", listError);
+          } catch (wakeError) {
+            console.log(`Wake attempt failed for ${vehicle.id}:`, wakeError);
           }
           
-          // If still no odometer, try to estimate from charging sessions
-          if (cachedOdometer === 0 && totalChargingKwh > 0) {
-            // Rough estimate: Tesla Model 3/Y averages ~3.5-4 miles per kWh
-            // This is a fallback estimate when vehicle data is unavailable
+          // If wake didn't work, try the /vehicles list for cached data
+          if (!isAwake) {
+            try {
+              const vehiclesListResponse = await fetch(
+                `${TESLA_API_BASE}/api/1/vehicles`,
+                { headers: { "Authorization": `Bearer ${accessToken}` } }
+              );
+              
+              if (vehiclesListResponse.ok) {
+                const vehiclesList = await vehiclesListResponse.json();
+                const thisVehicle = (vehiclesList.response || []).find((v: any) => v.vin === vehicle.id);
+                
+                if (thisVehicle) {
+                  console.log(`Vehicle list data for ${vehicle.id}:`, JSON.stringify(thisVehicle));
+                  const cachedState = thisVehicle.vehicle_state || thisVehicle.cached_data?.vehicle_state;
+                  if (cachedState?.odometer && cachedState.odometer > 0) {
+                    currentOdometer = cachedState.odometer;
+                    console.log(`Got cached odometer from /vehicles list: ${currentOdometer}`);
+                  }
+                }
+              }
+            } catch (listError) {
+              console.log("Could not fetch vehicles list for cached data:", listError);
+            }
+          }
+          
+          // If still no good odometer and we have charging data, estimate
+          if (currentOdometer === 0 && totalChargingKwh > 0) {
             const estimatedMiles = Math.round(totalChargingKwh * 3.5);
             console.log(`Estimating odometer from charging: ${totalChargingKwh} kWh * 3.5 = ~${estimatedMiles} miles`);
-            cachedOdometer = estimatedMiles;
+            currentOdometer = estimatedMiles;
           }
           
-          const pendingMiles = Math.max(0, cachedOdometer - baselineOdometer);
+          const pendingMiles = Math.max(0, currentOdometer - baselineOdometer);
           
-          console.log(`Vehicle ${vehicle.id} asleep - using odometer: ${cachedOdometer}, baseline: ${baselineOdometer}, pending: ${pendingMiles}`);
+          console.log(`Vehicle ${vehicle.id} final - odometer: ${currentOdometer}, baseline: ${baselineOdometer}, pending: ${pendingMiles}, isAwake: ${isAwake}`);
           
           vehiclesData.push({ 
             vin: vehicle.id, 
-            status: "asleep", 
-            odometer: cachedOdometer, 
+            status: isAwake ? "online" : "asleep", 
+            odometer: currentOdometer, 
             pending_miles: pendingMiles,
             baseline_odometer: baselineOdometer,
-            estimated: cachedOdometer !== lastKnownOdometer && cachedOdometer > 0
+            needs_wake: !isAwake && currentOdometer !== lastKnownOdometer
           });
           
-          totalEvMiles += cachedOdometer;
+          totalEvMiles += currentOdometer;
           pendingEvMiles += pendingMiles;
         } else {
           const errorText = await vehicleResponse.text();
