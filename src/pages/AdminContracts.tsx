@@ -110,7 +110,7 @@ const CONTRACTS = {
     name: 'ZenSolar Controller',
     symbol: 'Controller',
     type: 'Controller',
-    address: '0x9153B80d770edc4a383bf7b0CBF3FC9530Cd7Ca1',
+    address: '0x159C447076BFCc86680Df0e8687543b4362C4eF5',
     network: 'Base Sepolia',
     chainId: 84532,
   },
