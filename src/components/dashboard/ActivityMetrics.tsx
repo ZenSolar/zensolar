@@ -59,17 +59,16 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   const totalEarned = 1 + solarEarned.length + evMilesEarned.length + chargingEarned.length + batteryEarned.length + comboEarned.length;
   const totalPossible = getTotalNftCount();
 
-  // Calculate pending tokens from pending activity values
-  const pendingTokens = data.pendingTokens || 
-    Math.floor(data.pendingSolarKwh) + 
-    Math.floor(data.pendingEvMiles) + 
-    Math.floor(data.pendingBatteryKwh) + 
-    Math.floor(data.pendingChargingKwh);
-
+  // Calculate tokens ready to mint from lifetime activity values
+  const tokensReadyToMint = 
+    Math.floor(data.solarEnergyProduced) + 
+    Math.floor(data.evMilesDriven) + 
+    Math.floor(data.batteryStorageDischarged) + 
+    Math.floor(data.teslaSuperchargerKwh + data.homeChargerKwh);
   return (
     <div className="space-y-6">
       {/* Pending Rewards Section - What can be minted */}
-      {pendingTokens > 0 && (
+      {tokensReadyToMint > 0 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -79,14 +78,14 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
             Pending Rewards
           </h2>
           <p className="text-xs text-muted-foreground -mt-2">
-            Activity since your last mint — eligible for token rewards
+            Lifetime activity eligible for token rewards
           </p>
           
           <div className="grid gap-3">
             <MetricCard
               icon={Coins}
               label="Tokens Ready to Mint"
-              value={pendingTokens}
+              value={tokensReadyToMint}
               unit="$ZSOLAR"
               colorClass="bg-primary"
             />
