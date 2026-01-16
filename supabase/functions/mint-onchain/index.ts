@@ -134,6 +134,108 @@ Deno.serve(async (req) => {
 
     console.log("Minter wallet address:", account.address);
 
+    const body = await req.json();
+    const { action } = body;
+
+    // Public health-check action (no auth required)
+    if (action === "public-health-check") {
+      try {
+        console.log("Running public contract health check...");
+        
+        const [controllerOwner, tokenOwner, nftOwner] = await Promise.all([
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "owner",
+          }),
+          publicClient.readContract({
+            address: ZSOLAR_TOKEN_ADDRESS as `0x${string}`,
+            abi: TOKEN_ABI,
+            functionName: "owner",
+          }),
+          publicClient.readContract({
+            address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
+            abi: NFT_ABI,
+            functionName: "owner",
+          }),
+        ]);
+
+        const [configuredToken, configuredNft] = await Promise.all([
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "zSolarToken",
+          }),
+          publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "zenSolarNFT",
+          }),
+        ]);
+
+        const minterBalance = await publicClient.getBalance({ address: account.address });
+
+        const issues: string[] = [];
+        
+        if ((tokenOwner as string).toLowerCase() !== ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase()) {
+          issues.push(`ZSOLAR token owner mismatch: ${tokenOwner} should be ${ZENSOLAR_CONTROLLER_ADDRESS}`);
+        }
+        
+        if ((nftOwner as string).toLowerCase() !== ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase()) {
+          issues.push(`NFT owner mismatch: ${nftOwner} should be ${ZENSOLAR_CONTROLLER_ADDRESS}`);
+        }
+
+        if ((configuredToken as string).toLowerCase() !== ZSOLAR_TOKEN_ADDRESS.toLowerCase()) {
+          issues.push(`Controller token address mismatch`);
+        }
+
+        if ((configuredNft as string).toLowerCase() !== ZSOLAR_NFT_ADDRESS.toLowerCase()) {
+          issues.push(`Controller NFT address mismatch`);
+        }
+
+        if (minterBalance < BigInt(1e15)) {
+          issues.push(`Minter wallet low on ETH: ${formatEther(minterBalance)} ETH`);
+        }
+
+        return new Response(JSON.stringify({
+          healthy: issues.length === 0,
+          issues,
+          contracts: {
+            controller: ZENSOLAR_CONTROLLER_ADDRESS,
+            token: ZSOLAR_TOKEN_ADDRESS,
+            nft: ZSOLAR_NFT_ADDRESS,
+          },
+          ownership: {
+            controllerOwner,
+            tokenOwner,
+            nftOwner,
+            tokenOwnedByController: (tokenOwner as string).toLowerCase() === ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase(),
+            nftOwnedByController: (nftOwner as string).toLowerCase() === ZENSOLAR_CONTROLLER_ADDRESS.toLowerCase(),
+          },
+          minter: {
+            address: account.address,
+            balanceEth: formatEther(minterBalance),
+          },
+          tokenInfo: {
+            address: ZSOLAR_TOKEN_ADDRESS,
+            symbol: "ZSOLAR",
+            decimals: 18,
+          },
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error: any) {
+        console.error("Public health check failed:", error);
+        return new Response(JSON.stringify({ 
+          healthy: false, 
+          error: error.message 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -158,8 +260,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body = await req.json();
-    const { action, walletAddress, tokenIds, comboTypes, category } = body;
+    const { walletAddress, tokenIds, comboTypes, category } = body;
 
     if (!walletAddress) {
       return new Response(JSON.stringify({ error: "Wallet address required" }), {
