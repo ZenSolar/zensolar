@@ -158,54 +158,54 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
         </div>
         <div className="relative flex justify-center">
           <span className="bg-background px-3 text-xs text-muted-foreground uppercase tracking-wider">
-            Lifetime Activity
+            Since Last Mint
           </span>
         </div>
       </div>
 
-      {/* Activity Data Section - Lifetime totals from connected devices */}
+      {/* Activity Data Section - Delta since last mint */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground">Activity Data</h2>
         <p className="text-xs text-muted-foreground -mt-2">
-          Lifetime totals from your connected devices
+          New activity since your last token mint
         </p>
         
         <div className="grid gap-3">
           <MetricCard
             icon={Sun}
-            label={solarLabel}
-            value={data.solarEnergyProduced}
+            label={`${solarLabel} (since last mint)`}
+            value={data.pendingSolarKwh}
             unit="kWh"
             colorClass="bg-solar"
           />
           
           <MetricCard
             icon={Car}
-            label={evLabel}
-            value={data.evMilesDriven}
+            label={`${evLabel} (since last mint)`}
+            value={data.pendingEvMiles}
             unit="miles"
             colorClass="bg-energy"
           />
           
           <MetricCard
             icon={Battery}
-            label={batteryLabel}
-            value={data.batteryStorageDischarged}
+            label={`${batteryLabel} (since last mint)`}
+            value={data.pendingBatteryKwh}
             unit="kWh"
             colorClass="bg-secondary"
           />
           
           <MetricCard
             icon={Zap}
-            label="EV Charging"
-            value={data.teslaSuperchargerKwh + data.homeChargerKwh}
+            label="EV Charging (since last mint)"
+            value={data.pendingChargingKwh}
             unit="kWh"
             colorClass="bg-accent"
           />
           
           <MetricCard
             icon={Leaf}
-            label="CO2 Offset"
+            label="CO2 Offset (lifetime)"
             value={data.co2OffsetPounds}
             unit="lbs"
             colorClass="bg-eco"

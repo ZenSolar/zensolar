@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
-import { useAccount } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS } from '@/lib/wagmi';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -155,6 +155,39 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return 0;
   };
 
+  // Add the ZSOLAR token to the connected wallet (works for injected + WalletConnect)
+  const addZsolarToWallet = async () => {
+    try {
+      const request = (walletClient as any)?.request ?? window.ethereum?.request;
+      if (!request) {
+        toast({
+          title: 'Wallet Not Supported',
+          description: 'This wallet cannot add tokens automatically. Please import $ZSOLAR manually.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      const wasAdded = await request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: ZSOLAR_TOKEN_ADDRESS,
+            symbol: ZSOLAR_TOKEN_SYMBOL,
+            decimals: ZSOLAR_TOKEN_DECIMALS,
+            image: `${window.location.origin}/zs-icon-192.png`,
+          },
+        },
+      });
+
+      return Boolean(wasAdded);
+    } catch (error) {
+      console.log('Token add rejected or failed:', error);
+      return false;
+    }
+  };
+
   // Get readable label for category
   const getCategoryLabel = (category: MintCategory): string => {
     if (category === 'all') return 'All Categories';
@@ -237,26 +270,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Automatically add ZSOLAR token to MetaMask
-        try {
-          if (window.ethereum) {
-            await window.ethereum.request({
-              method: 'wallet_watchAsset',
-              params: {
-                type: 'ERC20',
-                options: {
-                  address: ZSOLAR_TOKEN_ADDRESS,
-                  symbol: ZSOLAR_TOKEN_SYMBOL,
-                  decimals: ZSOLAR_TOKEN_DECIMALS,
-                },
-              },
-            });
-            console.log('ZSOLAR token added to wallet');
-          }
-        } catch (watchError) {
-          // User rejected or error - don't block the flow
-          console.log('User declined to add token or error:', watchError);
-        }
+        // Prompt to add $ZSOLAR token to the connected wallet (non-blocking)
+        void addZsolarToWallet();
         
         let successMessage = result.message || `$ZSOLAR tokens minted successfully!`;
         if ((data as any).breakdown) {
@@ -971,28 +986,15 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 pt-2">
-            {resultDialog.success && resultDialog.type === 'token' && window.ethereum && (
+            {resultDialog.success && resultDialog.type === 'token' && (
               <Button 
                 onClick={async () => {
-                  try {
-                    await window.ethereum?.request({
-                      method: 'wallet_watchAsset',
-                      params: {
-                        type: 'ERC20',
-                        options: {
-                          address: ZSOLAR_TOKEN_ADDRESS,
-                          symbol: ZSOLAR_TOKEN_SYMBOL,
-                          decimals: ZSOLAR_TOKEN_DECIMALS,
-                          image: `${window.location.origin}/zs-icon-192.png`,
-                        },
-                      },
-                    });
+                  const added = await addZsolarToWallet();
+                  if (added) {
                     toast({
-                      title: "Token Added",
-                      description: "$ZSOLAR token added to your wallet!",
+                      title: 'Token Added',
+                      description: '$ZSOLAR token added to your wallet!',
                     });
-                  } catch (error) {
-                    console.log('User declined or error:', error);
                   }
                 }}
                 variant="outline"
