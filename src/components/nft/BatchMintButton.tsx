@@ -416,11 +416,19 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
                   </Button>
 
                   {isMinting && (
-                    <div className="space-y-1">
-                      <Progress value={33} className="h-1" />
+                    <div className="space-y-2">
+                      <Progress value={33} className="h-1.5" />
                       <p className="text-xs text-center text-muted-foreground">
                         Processing transactions on Base Sepolia...
                       </p>
+                      <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
+                        <p className="text-xs text-center text-primary font-medium">
+                          💰 Each NFT mint also earns you <span className="font-bold">$ZSOLAR</span> tokens!
+                        </p>
+                        <p className="text-[10px] text-center text-muted-foreground mt-1">
+                          Tokens are automatically sent to your wallet
+                        </p>
+                      </div>
                     </div>
                   )}
                 </>
