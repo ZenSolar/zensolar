@@ -1377,7 +1377,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               {nftMintDialog.type === 'milestone' ? (
                 <>
                   <Trophy className="h-6 w-6 text-emerald-500" />
-                  Mint ZenSolar NFTs
+                  Mint Milestone NFTs
                 </>
               ) : (
                 <>
