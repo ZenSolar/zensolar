@@ -7,6 +7,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useAccount, useWalletClient } from 'wagmi';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS } from '@/lib/wagmi';
+import { promptAddZsolarToken, promptAddZsolarNFT, hasTokenBeenAdded, hasNFTsBeenAdded } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -45,6 +46,8 @@ interface MintResult {
   error?: string;
   alreadyRegistered?: boolean;
   mintedCount?: number;
+  nftsMinted?: number[];
+  nftNames?: string[];
 }
 
 interface EligibleNFT {
@@ -156,35 +159,36 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return 0;
   };
 
-  // Add the ZSOLAR token to the connected wallet (works for injected + WalletConnect)
-  const addZsolarToWallet = async () => {
+  // Add the ZSOLAR token to the connected wallet (only if not already added)
+  const addZsolarToWallet = async (): Promise<boolean> => {
+    // Skip if already added
+    if (hasTokenBeenAdded()) {
+      console.log('$ZSOLAR token already in wallet');
+      return true;
+    }
+
     try {
-      const request = (walletClient as any)?.request ?? window.ethereum?.request;
-      if (!request) {
-        toast({
-          title: 'Wallet Not Supported',
-          description: 'This wallet cannot add tokens automatically. Please import $ZSOLAR manually.',
-          variant: 'destructive',
-        });
-        return false;
-      }
-
-      const wasAdded = await request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address: ZSOLAR_TOKEN_ADDRESS,
-            symbol: ZSOLAR_TOKEN_SYMBOL,
-            decimals: ZSOLAR_TOKEN_DECIMALS,
-            image: `${window.location.origin}/zs-icon-192.png`,
-          },
-        },
-      });
-
-      return Boolean(wasAdded);
+      const added = await promptAddZsolarToken();
+      return added;
     } catch (error) {
       console.log('Token add rejected or failed:', error);
+      return false;
+    }
+  };
+
+  // Add NFTs to wallet after minting (only prompt once)
+  const addNFTsToWallet = async (tokenIds: number[]): Promise<boolean> => {
+    // Skip if already added/acknowledged
+    if (hasNFTsBeenAdded()) {
+      console.log('ZenSolar NFTs already acknowledged');
+      return true;
+    }
+
+    try {
+      const added = await promptAddZsolarNFT(tokenIds);
+      return added;
+    } catch (error) {
+      console.log('NFT add rejected or failed:', error);
       return false;
     }
   };
@@ -271,19 +275,24 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Prompt to add $ZSOLAR token to the connected wallet
+        // Prompt to add $ZSOLAR token to wallet (only if not already added)
         // Give the user a moment to see the success before prompting
         setTimeout(async () => {
           try {
             const added = await addZsolarToWallet();
-            if (added) {
+            if (added && !hasTokenBeenAdded()) {
               toast({
                 title: "Token Added",
                 description: "$ZSOLAR token has been added to your wallet!",
               });
             }
+            
+            // Also prompt to add NFTs if any were minted
+            if (result.nftsMinted && result.nftsMinted.length > 0) {
+              await addNFTsToWallet(result.nftsMinted);
+            }
           } catch (err) {
-            console.log('Token add prompt declined or failed:', err);
+            console.log('Asset add prompt declined or failed:', err);
           }
         }, 1500);
         
@@ -427,6 +436,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       if (result.success) {
         triggerConfetti();
         
+        // Prompt to add NFTs to wallet (only once ever)
+        if (result.nftsMinted && result.nftsMinted.length > 0) {
+          setTimeout(() => addNFTsToWallet(result.nftsMinted!), 1500);
+        }
+        
         setResultDialog({
           open: true,
           success: true,
@@ -488,6 +502,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       if (result.success) {
         triggerConfetti();
+        
+        // Prompt to add NFTs to wallet (only once ever)
+        if (result.nftsMinted && result.nftsMinted.length > 0) {
+          setTimeout(() => addNFTsToWallet(result.nftsMinted!), 1500);
+        }
         
         setResultDialog({
           open: true,
