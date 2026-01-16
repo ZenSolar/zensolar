@@ -730,6 +730,10 @@ Deno.serve(async (req) => {
 
       const eligibleNFTs: { tokenId: number; category: string; name: string; threshold: number }[] = [];
       
+      // Welcome NFT is ALWAYS eligible for authenticated users if not already owned
+      // No energy requirements - just needs to be authenticated
+      const welcomeEligible = !hasWelcome && !ownedSet.has(0);
+      
       const solarThresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
       const solarNames = ["Sunspark", "Photonic", "Rayforge", "Solaris", "Helios", "Sunforge", "Gigasun", "Starforge"];
       for (let i = 0; i < solarThresholds.length; i++) {
@@ -793,6 +797,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({
         walletAddress,
         hasWelcomeNFT: hasWelcome,
+        welcomeEligible, // True if user can claim Welcome NFT
         onChainStats: {
           solarKwh: Number(solar),
           evMiles: Number(evMiles),
@@ -802,7 +807,7 @@ Deno.serve(async (req) => {
         ownedNFTs: Array.from(ownedSet),
         eligibleMilestoneNFTs: eligibleNFTs,
         eligibleComboNFTs: eligibleCombos,
-        totalEligible: eligibleNFTs.length + eligibleCombos.length,
+        totalEligible: (welcomeEligible ? 1 : 0) + eligibleNFTs.length + eligibleCombos.length,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

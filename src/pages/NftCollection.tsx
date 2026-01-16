@@ -28,6 +28,7 @@ import {
   EV_CHARGING_MILESTONES,
   BATTERY_MILESTONES,
   COMBO_MILESTONES,
+  WELCOME_MILESTONE,
   NFT_CATEGORIES,
   calculateEarnedMilestones,
   getNextMilestone,
@@ -37,6 +38,7 @@ import {
 import { NFTBadge } from '@/components/ui/nft-badge';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { useConfetti } from '@/hooks/useConfetti';
+import { Star, Gift } from 'lucide-react';
 
 function MilestoneCard({ 
   milestone, 
@@ -371,6 +373,110 @@ function ComboMilestoneCard({
   );
 }
 
+// Welcome NFT Card - Special prominent display for new users
+function WelcomeNftCard({ 
+  isEarned,
+  onViewArtwork
+}: { 
+  isEarned: boolean;
+  onViewArtwork: (milestone: NFTMilestone) => void;
+}) {
+  const artwork = getNftArtwork('welcome');
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ 
+        scale: 1.02,
+        y: -4,
+        transition: { duration: 0.2, ease: "easeOut" }
+      }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.3 }}
+      className={`relative rounded-xl border overflow-hidden transition-all duration-300 cursor-pointer group ${
+        isEarned 
+          ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border-amber-500/40 shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 hover:border-amber-500/60' 
+          : 'bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border-amber-500/30 ring-2 ring-amber-500/30 hover:ring-amber-500/50 hover:shadow-lg animate-pulse-glow'
+      }`}
+    >
+      {/* Animated glow effect */}
+      {!isEarned && (
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-br from-amber-500/30 via-transparent to-yellow-500/20 opacity-50 pointer-events-none z-10"
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+      {isEarned && (
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"
+          initial={false}
+        />
+      )}
+      
+      <div className="flex flex-col sm:flex-row">
+        {/* NFT Artwork */}
+        {artwork && (
+          <div 
+            className={`relative w-full sm:w-48 aspect-square sm:aspect-auto overflow-hidden ${isEarned ? '' : 'opacity-90'}`}
+            onClick={() => onViewArtwork(WELCOME_MILESTONE)}
+          >
+            <motion.img 
+              src={artwork} 
+              alt="Welcome NFT"
+              className="w-full h-full object-cover"
+              whileHover={{ scale: 1.08 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/50 sm:block hidden" />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="flex-1 p-5">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 shadow-lg">
+              <Star className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-bold text-lg">Welcome NFT</h3>
+                {isEarned ? (
+                  <Badge className="bg-amber-500 text-white gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Claimed
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="border-amber-500 text-amber-600 dark:text-amber-400 gap-1 animate-pulse">
+                    <Gift className="h-3 w-3" />
+                    Ready to Claim!
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isEarned 
+                  ? "You've claimed your Welcome NFT! Start earning more by connecting your energy devices."
+                  : "Congratulations on joining ZenSolar! Claim your Welcome NFT to begin your clean energy journey."
+                }
+              </p>
+            </div>
+          </div>
+          
+          {!isEarned && (
+            <div className="flex items-center gap-2 mt-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+              <Sparkles className="h-4 w-4 text-amber-500 flex-shrink-0" />
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                <span className="font-medium">No requirements!</span> Just click "Mint NFTs" below to claim your first NFT.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function CategorySection({
   title,
   icon,
@@ -568,6 +674,12 @@ export default function NftCollection() {
           Unlock combo achievements by excelling across multiple categories!
         </p>
       </div>
+
+      {/* Welcome NFT - Prominent Display for New Users */}
+      <WelcomeNftCard 
+        isEarned={true} // All authenticated users have earned the welcome NFT
+        onViewArtwork={handleViewArtwork}
+      />
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
