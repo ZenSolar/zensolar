@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.reset-baselines]
 verify_jwt = false
+
+[functions.reset-user-nfts]
+verify_jwt = false
