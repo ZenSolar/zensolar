@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { 
   LayoutDashboard, 
   Coins, 
@@ -21,6 +22,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
   Sidebar,
@@ -60,6 +62,33 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
   const { isAdmin } = useAdminCheck();
+  
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email ?? null);
+        
+        // Fetch profile for avatar and display name
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('avatar_url, display_name')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile) {
+          setAvatarUrl(profile.avatar_url);
+          setDisplayName(profile.display_name);
+        }
+      }
+    };
+    
+    fetchUserInfo();
+  }, []);
 
   const handleNavClick = () => {
     setOpenMobile(false);
@@ -70,6 +99,17 @@ export function AppSidebar() {
     await supabase.auth.signOut();
     toast.success("Logged out successfully");
     navigate("/auth");
+  };
+
+  // Get initials for avatar fallback
+  const getInitials = () => {
+    if (displayName) {
+      return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    if (userEmail) {
+      return userEmail[0].toUpperCase();
+    }
+    return 'U';
   };
 
   return (
@@ -201,17 +241,33 @@ export function AppSidebar() {
         )}
       </SidebarContent>
 
-      {/* Footer with logout */}
-      <SidebarFooter>
+      {/* Footer with user info and logout */}
+      <SidebarFooter className="border-t border-sidebar-border">
+        <div className={`flex items-center gap-3 p-2 ${collapsed ? 'justify-center' : ''}`}>
+          <Avatar className="h-8 w-8 flex-shrink-0">
+            <AvatarImage src={avatarUrl ?? undefined} alt={displayName ?? userEmail ?? 'User'} />
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+              {getInitials()}
+            </AvatarFallback>
+          </Avatar>
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              {displayName && (
+                <p className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</p>
+              )}
+              <p className="text-xs text-sidebar-foreground/60 truncate">{userEmail}</p>
+            </div>
+          )}
+        </div>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
               onClick={handleLogout}
-              tooltip="Logout"
+              tooltip="Sign Out"
               className="text-destructive hover:bg-destructive/10"
             >
               <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
