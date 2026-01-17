@@ -26,7 +26,8 @@ import {
   Eye,
   Gem,
   Flame,
-  AlertCircle
+  AlertCircle,
+  ExternalLink
 } from 'lucide-react';
 import {
   SOLAR_MILESTONES,
@@ -771,21 +772,101 @@ export function DemoNftCollection() {
               </motion.div>
             )}
 
-            {mintProgress.step === 'success' && (
+            {mintProgress.step === 'success' && mintingMilestone && (
               <motion.div
                 key="success"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="py-8"
               >
-                <div className="flex flex-col items-center gap-4">
-                  <CheckCircle2 className="h-16 w-16 text-emerald-500" />
-                  <h3 className="font-bold text-lg">NFT Minted Successfully!</h3>
-                  <p className="text-center text-muted-foreground">{mintProgress.message}</p>
-                  <Button onClick={() => setMintDialogOpen(false)} className="mt-4">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-xl">
+                    <CheckCircle2 className="h-6 w-6 text-green-500" />
+                    Success!
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-5 py-2">
+                  {/* Main message with NFT preview */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden shadow-lg flex-shrink-0">
+                      <img 
+                        src={getNftArtwork(mintingMilestone.id)} 
+                        alt={mintingMilestone.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-lg font-medium text-foreground">{mintProgress.message}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Transaction Details Card */}
+                  <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Wallet className="h-4 w-4" />
+                        Transaction Hash
+                      </span>
+                      <Badge variant="outline" className="font-mono text-xs bg-background">
+                        0xdemo{Math.random().toString(16).slice(2, 8)}...
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <ExternalLink className="h-4 w-4" />
+                        Network
+                      </span>
+                      <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30">
+                        Base Sepolia
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Status
+                      </span>
+                      <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                        Confirmed
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Zap className="h-4 w-4" />
+                        Block Confirmations
+                      </span>
+                      <span className="text-sm font-medium">12</span>
+                    </div>
+                  </div>
+                  
+                  {/* NFT-specific info */}
+                  <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">NFT Name</span>
+                      <span className="font-medium">{mintingMilestone.name}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Token Standard</span>
+                      <span className="font-medium">ERC-1155</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Contract</span>
+                      <span className="font-mono text-xs">0xZenSolar...NFT</span>
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter className="mt-4">
+                  <Button 
+                    size="lg" 
+                    className="w-full" 
+                    onClick={() => setMintDialogOpen(false)}
+                  >
                     Close
                   </Button>
-                </div>
+                </DialogFooter>
               </motion.div>
             )}
 
