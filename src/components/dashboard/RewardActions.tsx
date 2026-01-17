@@ -245,13 +245,18 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   };
 
   // Add the ZSOLAR token to the connected wallet using wallet_watchAsset (best-effort)
+  // IMPORTANT: Only tries ONE method to avoid triggering multiple wallet prompts
   const addZsolarToWallet = async (): Promise<boolean> => {
-    // Skip if already added
+    // Skip if already added - prevents duplicate prompts
     if (hasTokenBeenAdded()) {
       console.log('$ZSOLAR token already in wallet (flagged)');
       logWatchAssetAttempt({ provider: 'none', success: true, error: 'Already flagged as added' });
       return true;
     }
+
+    // Mark as added IMMEDIATELY to prevent any race conditions or duplicate calls
+    // Even if the user declines, we don't want to pester them again
+    markTokenAdded();
 
     const paramsOptions = {
       address: ZSOLAR_TOKEN_ADDRESS,
@@ -260,8 +265,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       image: `${window.location.origin}${ZSOLAR_TOKEN_IMAGE}`,
     };
 
-    const markSuccess = () => {
-      markTokenAdded();
+    const logSuccess = () => {
       console.log('$ZSOLAR token added to wallet successfully');
     };
 
@@ -391,6 +395,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     };
 
     // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector (works for WalletConnect)
+    // Only try ONE method to avoid multiple wallet prompts
     if (watchAssetAsync && isConnected) {
       console.log('Attempting to add $ZSOLAR token via wagmi watchAssetAsync...');
       try {
@@ -404,21 +409,21 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         });
         logWatchAssetAttempt({ provider: 'wagmi', success: Boolean(success), params: paramsOptions });
         if (success) {
-          markSuccess();
+          logSuccess();
           return true;
         }
-        console.log('wagmi watchAssetAsync returned false');
+        console.log('wagmi watchAssetAsync returned false or was declined');
+        return false; // Don't try other methods - user declined or it failed
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
         console.log('wagmi watchAssetAsync threw:', errMsg);
         logWatchAssetAttempt({ provider: 'wagmi', success: false, error: errMsg, params: paramsOptions });
+        // Don't fallback - return early to prevent multiple prompts
+        return false;
       }
-    } else {
-      console.warn('wagmi watchAssetAsync not available');
-      logWatchAssetAttempt({ provider: 'wagmi', success: false, error: 'watchAssetAsync not available or not connected' });
     }
 
-    // 2) Fallback to viem walletClient (older approach, may not work with WalletConnect)
+    // 2) Only fallback to walletClient if wagmi wasn't available
     if (walletClient) {
       console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
       try {
@@ -430,20 +435,20 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         });
         logWatchAssetAttempt({ provider: 'walletClient', success: Boolean(success), params: paramsOptions });
         if (success) {
-          markSuccess();
+          logSuccess();
           return true;
         }
-        console.log('walletClient.watchAsset returned false');
+        console.log('walletClient.watchAsset returned false or was declined');
+        return false; // Don't try other methods
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
         console.log('walletClient.watchAsset threw:', errMsg);
         logWatchAssetAttempt({ provider: 'walletClient', success: false, error: errMsg, params: paramsOptions });
+        return false; // Don't fallback
       }
-    } else {
-      console.warn('No walletClient available for watchAsset');
     }
 
-    // 3) Final fallback to injected provider (desktop MetaMask extension, etc.)
+    // 3) Final fallback to injected provider - only if neither wagmi nor walletClient worked
     if (window.ethereum?.request) {
       console.log('Attempting to add $ZSOLAR token via window.ethereum.request(wallet_watchAsset)...');
       try {
@@ -457,7 +462,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           },
         });
         logWatchAssetAttempt({ provider: 'window.ethereum', success: Boolean(wasAdded), params: paramsOptions });
-        if (wasAdded) markSuccess();
+        if (wasAdded) logSuccess();
         return Boolean(wasAdded);
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);

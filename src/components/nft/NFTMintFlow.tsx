@@ -258,7 +258,7 @@ export function NFTMintFlow({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md overflow-hidden p-0">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <AnimatePresence mode="wait">
           {/* STEP 1: Confirmation */}
           {step === 'confirm' && (
@@ -268,7 +268,7 @@ export function NFTMintFlow({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="p-6 space-y-5"
+              className="space-y-5"
             >
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
@@ -356,7 +356,7 @@ export function NFTMintFlow({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.25 }}
-              className="py-14 px-6 text-center space-y-8"
+              className="py-10 text-center space-y-8"
             >
               {/* Animated NFT with Glow */}
               <div className="relative w-40 h-40 mx-auto">
@@ -475,7 +475,7 @@ export function NFTMintFlow({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3, type: 'spring', damping: 20 }}
-              className="py-10 px-6 text-center space-y-6"
+              className="py-6 text-center space-y-5"
             >
               {/* Animated Success Icon */}
               <motion.div
@@ -604,7 +604,7 @@ export function NFTMintFlow({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="py-12 px-6 text-center space-y-6"
+              className="py-8 text-center space-y-6"
             >
               {/* Error Icon with shake animation */}
               <motion.div 
