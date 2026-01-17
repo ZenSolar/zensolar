@@ -495,37 +495,104 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         </DialogContent>
       </Dialog>
 
-      {/* Result Dialog */}
+      {/* Result Dialog - Enhanced Success Screen */}
       <Dialog open={resultDialog.open} onOpenChange={(open) => setResultDialog(prev => ({ ...prev, open }))}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-xl">
               {resultDialog.success ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-6 w-6 text-green-500" />
               ) : (
-                <AlertCircle className="h-5 w-5 text-destructive" />
+                <AlertCircle className="h-6 w-6 text-destructive" />
               )}
-              {resultDialog.success ? 'Success!' : 'Error'}
+              {resultDialog.success ? 'Success!' : 'Transaction Failed'}
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <p className="text-muted-foreground whitespace-pre-line">{resultDialog.message}</p>
+          <div className="space-y-5 py-2">
+            {/* Main message with emphasis */}
+            <p className="text-lg font-medium text-foreground">{resultDialog.message}</p>
             
-            {resultDialog.txHash && (
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Transaction Hash (Demo)</span>
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {resultDialog.txHash}
-                  </Badge>
+            {resultDialog.txHash && resultDialog.success && (
+              <div className="space-y-4">
+                {/* Transaction Details Card */}
+                <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Wallet className="h-4 w-4" />
+                      Transaction Hash
+                    </span>
+                    <Badge variant="outline" className="font-mono text-xs bg-background">
+                      {resultDialog.txHash}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <ExternalLink className="h-4 w-4" />
+                      Network
+                    </span>
+                    <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30">
+                      Base Sepolia
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Status
+                    </span>
+                    <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                      Confirmed
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      Block Confirmations
+                    </span>
+                    <span className="text-sm font-medium">12</span>
+                  </div>
                 </div>
+                
+                {/* Token-specific info */}
+                {resultDialog.type === 'token' && (
+                  <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Gas Used (Demo)</span>
+                      <span className="font-mono">~0.0001 ETH</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Contract</span>
+                      <span className="font-mono text-xs">0xZSOLAR...Token</span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* NFT-specific info */}
+                {resultDialog.type === 'nft' && (
+                  <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Token Standard</span>
+                      <span className="font-medium">ERC-1155</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Contract</span>
+                      <span className="font-mono text-xs">0xZenSolar...NFT</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           <DialogFooter>
-            <Button onClick={() => setResultDialog(prev => ({ ...prev, open: false }))}>
+            <Button 
+              size="lg" 
+              className="w-full" 
+              onClick={() => setResultDialog(prev => ({ ...prev, open: false }))}
+            >
               Close
             </Button>
           </DialogFooter>
