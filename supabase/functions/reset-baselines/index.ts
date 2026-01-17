@@ -217,13 +217,53 @@ serve(async (req) => {
           .from('connected_devices')
           .update({
             baseline_data: newBaseline,
-            last_minted_at: new Date().toISOString(),
+            // Admin reset should behave like "never minted" so all lifetime is mintable
+            last_minted_at: null,
             updated_at: new Date().toISOString()
           })
           .eq('id', device.id);
 
         if (updateError) {
           console.error(`[reset-baselines] Error updating device ${device.id}:`, updateError);
+        }
+      }
+    }
+
+    // Clear cached solar provider responses so pending values recalculate immediately
+    const shouldClearSolarCache = shouldResetAll || categories.includes('solar');
+    if (shouldClearSolarCache) {
+      const providersToClear: string[] = ['enphase', 'solaredge'];
+
+      const { data: tokenRows, error: tokenRowsError } = await serviceClient
+        .from('energy_tokens')
+        .select('id, provider, extra_data')
+        .eq('user_id', user.id)
+        .in('provider', providersToClear);
+
+      if (tokenRowsError) {
+        console.error('[reset-baselines] Failed to fetch energy_tokens for cache clear:', tokenRowsError);
+      } else if (tokenRows && tokenRows.length > 0) {
+        for (const row of tokenRows) {
+          const extra = (row.extra_data as Record<string, any> | null) ?? {};
+          if (extra.cached_response !== undefined || extra.cached_at !== undefined) {
+            const nextExtra = { ...extra };
+            delete nextExtra.cached_response;
+            delete nextExtra.cached_at;
+
+            const { error: clearError } = await serviceClient
+              .from('energy_tokens')
+              .update({
+                extra_data: nextExtra,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', row.id);
+
+            if (clearError) {
+              console.error(`[reset-baselines] Failed clearing cache for ${row.provider}:`, clearError);
+            } else {
+              console.log(`[reset-baselines] Cleared ${row.provider} cache`);
+            }
+          }
         }
       }
     }

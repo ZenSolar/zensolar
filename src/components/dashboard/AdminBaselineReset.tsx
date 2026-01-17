@@ -118,7 +118,7 @@ export function AdminBaselineReset({ onResetComplete }: AdminBaselineResetProps)
             </CardTitle>
           </div>
           <CardDescription className="text-xs">
-            Simulate a new user by resetting baselines to current lifetime values. This sets pending rewards to 0 for testing mint flows.
+            Reset baselines to <span className="font-medium">zero</span> so all current dashboard totals become eligible for minting.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -220,7 +220,7 @@ export function AdminBaselineReset({ onResetComplete }: AdminBaselineResetProps)
               Confirm Baseline Reset
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will reset the following baselines to current lifetime values, simulating a fresh start:
+              This will reset the following baselines to <span className="font-medium">zero</span>:
               <ul className="mt-2 space-y-1 list-disc list-inside">
                 {selectedCategories.map(cat => {
                   const config = categoryConfig.find(c => c.id === cat);
@@ -228,7 +228,7 @@ export function AdminBaselineReset({ onResetComplete }: AdminBaselineResetProps)
                 })}
               </ul>
               <p className="mt-3 font-medium text-foreground">
-                After reset, pending rewards for these categories will be 0.
+                After reset, pending rewards for these categories should match your current dashboard totals (until you mint).
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
