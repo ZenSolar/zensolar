@@ -20,9 +20,12 @@ const NFT_ABI = parseAbi([
   "function owner() external view returns (address)",
 ]);
 
-// Controller ABI - for resetting user stats
+// Controller ABI - for admin burning NFTs
 const CONTROLLER_ABI = parseAbi([
   "function owner() external view returns (address)",
+  "function adminBurnNFT(address user, uint256 tokenId) external",
+  "function adminBurnNFTBatch(address user, uint256[] calldata tokenIds) external",
+  "function resetUserStats(address user) external",
 ]);
 
 // NFT name mappings
@@ -272,60 +275,86 @@ Deno.serve(async (req) => {
         baselinesReset: 0,
       };
 
-      // Step 1: Burn on-chain NFTs if wallet connected
+      // Step 1: Burn on-chain NFTs via Controller's adminBurnNFTBatch
       if (profile.wallet_address) {
-        // Check NFT contract ownership
-        const nftOwner = await publicClient.readContract({
-          address: ZSOLAR_NFT_ADDRESS as `0x${string}`,
-          abi: NFT_ABI,
-          functionName: "owner",
-        });
-
-        console.log("NFT contract owner:", nftOwner);
-        console.log("Controller address:", ZENSOLAR_CONTROLLER_ADDRESS);
-
-        // The NFT contract is owned by the Controller, which is owned by the minter
-        // But burn() requires onlyOwner which is the Controller, not us directly
-        // We need to call through the controller OR the NFT contract must allow the minter
-        
-        // For now, get the owned tokens and try to burn them
         const ownedTokens = await safeGetOwnedTokens(publicClient, profile.wallet_address);
         console.log(`Found ${ownedTokens.length} on-chain NFTs for ${profile.wallet_address}`);
 
-        for (const tokenId of ownedTokens) {
-          const id = Number(tokenId);
-          const name = NFT_NAMES[id] || `Token #${id}`;
-          
-          try {
-            console.log(`Attempting to burn token ${id} (${name}) from ${profile.wallet_address}`);
-            
-            // Note: This will only work if the minter wallet is the NFT contract owner
-            // or if the Controller has a burnUserNFT function we can call
-            // Since the NFT is owned by the Controller and Controller is owned by minter,
-            // we need the Controller to call burn on the NFT
-            
-            // For now, we'll record the attempt. In practice, you may need to:
-            // 1. Add a burnUserNFT function to the Controller
-            // 2. Or transfer NFT ownership to the minter wallet
-            // 3. Or implement an admin burn pattern
-            
-            // Since the NFT contract's burn() is onlyOwner (Controller),
-            // and we can't call Controller functions directly for burn,
-            // we'll note this limitation
-            
-            results.onChainErrors.push({
-              tokenId: id,
-              name,
-              error: "On-chain burn requires Controller modification (NFT owned by Controller, not minter directly)"
-            });
-            
-          } catch (error: any) {
-            console.error(`Failed to burn token ${id}:`, error);
-            results.onChainErrors.push({
-              tokenId: id,
-              name,
-              error: error.message || "Unknown error"
-            });
+        if (ownedTokens.length > 0) {
+          // Check if minter is the Controller owner
+          const controllerOwner = await publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "owner",
+          });
+
+          console.log("Controller owner:", controllerOwner);
+          console.log("Minter wallet:", account.address);
+
+          if (controllerOwner.toLowerCase() === account.address.toLowerCase()) {
+            // We own the Controller - can burn via adminBurnNFTBatch
+            try {
+              const tokenIdsToburn = ownedTokens.map(id => BigInt(id));
+              
+              console.log(`Burning ${tokenIdsToburn.length} NFTs via Controller.adminBurnNFTBatch`);
+              
+              const txHash = await walletClient.writeContract({
+                address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+                abi: CONTROLLER_ABI,
+                functionName: "adminBurnNFTBatch",
+                args: [profile.wallet_address as `0x${string}`, tokenIdsToburn],
+              });
+
+              console.log("Burn transaction submitted:", txHash);
+
+              // Wait for confirmation
+              const receipt = await publicClient.waitForTransactionReceipt({ 
+                hash: txHash,
+                timeout: 60_000,
+              });
+
+              if (receipt.status === "success") {
+                for (const tokenId of ownedTokens) {
+                  const id = Number(tokenId);
+                  results.onChainBurns.push({
+                    tokenId: id,
+                    name: NFT_NAMES[id] || `Token #${id}`,
+                    txHash,
+                  });
+                }
+                console.log(`Successfully burned ${ownedTokens.length} NFTs`);
+              } else {
+                for (const tokenId of ownedTokens) {
+                  const id = Number(tokenId);
+                  results.onChainErrors.push({
+                    tokenId: id,
+                    name: NFT_NAMES[id] || `Token #${id}`,
+                    error: "Transaction reverted",
+                  });
+                }
+              }
+            } catch (error: any) {
+              console.error("Failed to burn NFTs via Controller:", error);
+              for (const tokenId of ownedTokens) {
+                const id = Number(tokenId);
+                results.onChainErrors.push({
+                  tokenId: id,
+                  name: NFT_NAMES[id] || `Token #${id}`,
+                  error: error.message || "Unknown error",
+                });
+              }
+            }
+          } else {
+            // Minter is not Controller owner - can't burn
+            console.log("Minter is not Controller owner - cannot burn NFTs");
+            for (const tokenId of ownedTokens) {
+              const id = Number(tokenId);
+              results.onChainErrors.push({
+                tokenId: id,
+                name: NFT_NAMES[id] || `Token #${id}`,
+                error: "Minter wallet is not the Controller owner. Deploy updated Controller contract.",
+              });
+            }
           }
         }
       }
