@@ -232,6 +232,10 @@ export function DemoDashboard() {
             onConnect={handleConnectWallet}
             onDisconnect={handleDisconnectWallet}
             isDemo={true}
+            onMintTokens={() => {
+              // Open mint dialog for all categories when "Add $ZSOLAR" is tapped
+              demoRewardActionsRef.current?.openMintDialogForCategory?.('all');
+            }}
           />
         </AnimatedItem>
 
