@@ -344,24 +344,22 @@ Deno.serve(async (req) => {
         console.log(`Deleted ${results.dbTransactionsDeleted} mint transactions`);
       }
 
-      // Step 3: Reset device baselines (optional, controlled by parameter)
-      const { resetBaselines } = body;
-      if (resetBaselines) {
-        const { data: updatedDevices, error: baselineError } = await supabaseClient
-          .from("connected_devices")
-          .update({ 
-            baseline_data: null,
-            last_minted_at: null 
-          })
-          .eq("user_id", userId)
-          .select("id");
+      // IMPORTANT: We do NOT touch baseline_data or lifetime_totals
+      // Activity data (solar, EV, battery metrics) remains completely intact
+      // Only the mint_transactions (NFT history) is cleared
+      
+      // Step 3: Clear last_minted_at to allow re-minting same milestones
+      // This does NOT affect any activity data - just the NFT mint eligibility
+      const { data: updatedDevices, error: mintAtError } = await supabaseClient
+        .from("connected_devices")
+        .update({ last_minted_at: null })
+        .eq("user_id", userId)
+        .select("id");
 
-        if (baselineError) {
-          console.error("Failed to reset baselines:", baselineError);
-        } else {
-          results.baselinesReset = updatedDevices?.length || 0;
-          console.log(`Reset baselines for ${results.baselinesReset} devices`);
-        }
+      if (mintAtError) {
+        console.error("Failed to clear last_minted_at:", mintAtError);
+      } else {
+        console.log(`Cleared last_minted_at for ${updatedDevices?.length || 0} devices`);
       }
 
       return new Response(JSON.stringify({
