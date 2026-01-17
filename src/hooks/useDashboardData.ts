@@ -472,12 +472,17 @@ export function useDashboardData() {
       // Process Enphase data - use lifetime energy for solar
       if (enphaseData?.totals) {
         const apiLifetimeWh = Number(enphaseData.totals.lifetime_solar_wh || 0);
-        const apiPendingWh = Number((enphaseData.totals as any).pending_solar_wh || 0);
+
+        // IMPORTANT: pending_solar_wh may legitimately be 0 after a successful mint.
+        // We must treat "0" as a real value (not fall back to lifetime).
+        const pendingRaw = (enphaseData.totals as any).pending_solar_wh;
+        const hasPending = pendingRaw !== undefined && pendingRaw !== null;
+        const apiPendingWh = Number(pendingRaw ?? 0);
 
         // If provider is cached/rate-limited and returns 0, fall back to last known backend totals
         const effectiveLifetimeKwh = apiLifetimeWh > 0 ? apiLifetimeWh / 1000 : fallback.solarLifetimeKwh;
         const effectivePendingKwh = apiLifetimeWh > 0
-          ? (apiPendingWh > 0 ? apiPendingWh / 1000 : effectiveLifetimeKwh)
+          ? (hasPending ? apiPendingWh / 1000 : effectiveLifetimeKwh)
           : fallback.solarPendingKwh;
 
         solarEnergy = effectiveLifetimeKwh;
@@ -490,11 +495,15 @@ export function useDashboardData() {
       if (solarEdgeData?.totals && !enphaseData?.totals) {
         // Only use SolarEdge if Enphase not available (Enphase takes priority)
         const apiLifetimeWh = Number(solarEdgeData.totals.lifetime_solar_wh || 0);
-        const apiPendingWh = Number((solarEdgeData.totals as any).pending_solar_wh || 0);
+
+        // Same rule: 0 pending is valid after minting.
+        const pendingRaw = (solarEdgeData.totals as any).pending_solar_wh;
+        const hasPending = pendingRaw !== undefined && pendingRaw !== null;
+        const apiPendingWh = Number(pendingRaw ?? 0);
 
         const effectiveLifetimeKwh = apiLifetimeWh > 0 ? apiLifetimeWh / 1000 : fallback.solarLifetimeKwh;
         const effectivePendingKwh = apiLifetimeWh > 0
-          ? (apiPendingWh > 0 ? apiPendingWh / 1000 : effectiveLifetimeKwh)
+          ? (hasPending ? apiPendingWh / 1000 : effectiveLifetimeKwh)
           : fallback.solarPendingKwh;
 
         solarEnergy = effectiveLifetimeKwh;
