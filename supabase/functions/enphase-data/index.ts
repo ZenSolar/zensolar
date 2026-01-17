@@ -193,6 +193,47 @@ Deno.serve(async (req) => {
         });
       }
       
+      // If rate limited and no cache, try to get data from connected_devices table
+      if (systemsResponse.status === 429) {
+        console.log("Rate limited, no cache - checking connected_devices for fallback data");
+        const { data: devices } = await supabaseClient
+          .from("connected_devices")
+          .select("lifetime_totals, baseline_data, device_name")
+          .eq("user_id", user.id)
+          .eq("provider", "enphase");
+        
+        if (devices && devices.length > 0) {
+          let totalLifetimeSolarWh = 0;
+          let totalPendingSolarWh = 0;
+          let systemName = "Enphase System";
+          
+          for (const device of devices) {
+            const lifetime = device.lifetime_totals as Record<string, number> || {};
+            const baseline = device.baseline_data as Record<string, number> || {};
+            const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+            const baselineWh = baseline.solar_wh || baseline.solar_production_wh || 0;
+            totalLifetimeSolarWh += solarWh;
+            totalPendingSolarWh += Math.max(0, solarWh - baselineWh);
+            if (device.device_name) systemName = device.device_name;
+          }
+          
+          console.log("Returning fallback data from connected_devices:", { totalLifetimeSolarWh, totalPendingSolarWh });
+          return new Response(JSON.stringify({
+            systems: [{ system_id: "fallback", name: systemName }],
+            totals: {
+              lifetime_solar_wh: totalLifetimeSolarWh,
+              pending_solar_wh: totalPendingSolarWh,
+            },
+            cached: true,
+            stale: true,
+            rate_limited: true,
+            fallback: true,
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+      
       return new Response(JSON.stringify({ error: "Failed to fetch systems. Please try again." }), {
         status: systemsResponse.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
