@@ -213,7 +213,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* Token Price Card - Prominent at top */}
         <AnimatedItem>
-          <TokenPriceCard tokensHeld={activityData.tokensEarned} />
+          <TokenPriceCard tokensHeld={activityData.lifetimeMinted} />
         </AnimatedItem>
         
         {/* Getting Started Guide - show for new users */}
