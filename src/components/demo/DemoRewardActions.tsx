@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, AlertCircle, Sun, Car, Battery, Zap, Wallet } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, AlertCircle, Sun, Car, Battery, Zap, Wallet, Image } from 'lucide-react';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useNavigate } from 'react-router-dom';
@@ -261,13 +261,13 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         </p>
       </div>
 
-      {/* Main action buttons */}
+      {/* Main action buttons - Beta user style */}
       <div className="grid grid-cols-1 gap-3">
-        {/* Mint Tokens Button */}
+        {/* Mint Tokens Button - Light blue gradient */}
         <Button
           size="lg"
-          className="w-full gap-3 h-14 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-          disabled={mintingState.isLoading || !walletAddress || totalPendingTokens === 0}
+          className="w-full gap-3 h-14 text-base font-bold uppercase tracking-wide bg-gradient-to-r from-blue-400 to-blue-300 hover:from-blue-500 hover:to-blue-400 text-white shadow-md"
+          disabled={mintingState.isLoading || !walletAddress}
           onClick={() => setTokenMintDialog(true)}
         >
           {mintingState.isLoading && mintingState.type === 'token' ? (
@@ -275,52 +275,45 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
           ) : (
             <Coins className="h-5 w-5" />
           )}
-          Mint {totalPendingTokens.toLocaleString()} $ZSOLAR
+          MINT $ZSOLAR TOKENS
+          <span className="ml-auto bg-white/20 px-3 py-1 rounded-full text-sm">
+            {totalPendingTokens.toLocaleString()}
+          </span>
         </Button>
 
-        {/* Welcome NFT / NFT Collection */}
-        {!hasWelcomeNFT && walletAddress ? (
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full gap-3 h-14 text-base font-semibold border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
-            disabled={mintingState.isLoading}
-            onClick={handleMintWelcomeNFT}
-          >
-            {mintingState.isLoading && mintingState.type === 'nft' ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Sparkles className="h-5 w-5" />
-            )}
-            Claim Welcome NFT
-          </Button>
-        ) : (
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full gap-3 h-14 text-base font-semibold"
-            onClick={() => navigate('/demo/nft-collection')}
-          >
-            <Award className="h-5 w-5" />
-            View NFT Collection
-            {(eligibleMilestones > 0 || eligibleCombos > 0) && (
-              <Badge variant="secondary" className="ml-2">
-                {eligibleMilestones + eligibleCombos} to mint
-              </Badge>
-            )}
-          </Button>
-        )}
-
-        {/* Refresh Button */}
+        {/* Mint ZenSolar NFTs Button - Blue gradient */}
         <Button
-          variant="ghost"
           size="lg"
-          className="w-full gap-2"
-          disabled={isLoading}
-          onClick={onRefresh}
+          className="w-full gap-3 h-14 text-base font-bold uppercase tracking-wide bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md"
+          disabled={mintingState.isLoading}
+          onClick={() => {
+            if (!hasWelcomeNFT && walletAddress) {
+              handleMintWelcomeNFT();
+            } else {
+              navigate('/demo/nft-collection');
+            }
+          }}
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh Dashboard
+          {mintingState.isLoading && mintingState.type === 'nft' ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Image className="h-5 w-5" />
+          )}
+          {!hasWelcomeNFT && walletAddress ? 'CLAIM WELCOME NFT' : 'MINT ZENSOLAR NFTS'}
+        </Button>
+
+        {/* Mint Combo NFTs Button - Purple/pink gradient */}
+        <Button
+          size="lg"
+          className="w-full gap-3 h-14 text-base font-bold uppercase tracking-wide bg-gradient-to-r from-purple-400 via-pink-400 to-pink-300 hover:from-purple-500 hover:via-pink-500 hover:to-pink-400 text-white shadow-md"
+          disabled={mintingState.isLoading}
+          onClick={() => navigate('/demo/nft-collection')}
+        >
+          <Sparkles className="h-5 w-5" />
+          MINT COMBO NFTS
+          <span className="ml-auto bg-white/20 px-3 py-1 rounded-full text-sm">
+            {eligibleCombos}
+          </span>
         </Button>
       </div>
 
@@ -337,6 +330,18 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
           <span>Owned: {ownedNFTCount} NFTs</span>
         </div>
       )}
+
+      {/* Refresh Button - Outline style */}
+      <Button
+        variant="outline"
+        size="lg"
+        className="w-full gap-2 h-12 font-bold uppercase tracking-wide border-2"
+        disabled={isLoading}
+        onClick={onRefresh}
+      >
+        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+        REFRESH DASHBOARD
+      </Button>
 
       {/* Token Mint Category Dialog */}
       <Dialog open={tokenMintDialog} onOpenChange={setTokenMintDialog}>
