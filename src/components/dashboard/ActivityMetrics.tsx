@@ -72,8 +72,66 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   
   return (
     <div className="space-y-6">
+      {/* Lifetime Activity Section - always show the full lifetime totals */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-foreground">Lifetime Activity</h2>
+        <p className="text-xs text-muted-foreground -mt-2">
+          Total activity pulled from your connected accounts.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <MetricCard
+            icon={Sun}
+            label={solarLabel}
+            value={Math.floor(data.solarEnergyProduced)}
+            unit="kWh"
+            colorClass="bg-solar"
+          />
+
+          <MetricCard
+            icon={Car}
+            label={evLabel}
+            value={Math.floor(data.evMilesDriven)}
+            unit="mi"
+            colorClass="bg-energy"
+          />
+
+          <MetricCard
+            icon={Battery}
+            label={batteryLabel}
+            value={Math.floor(data.batteryStorageDischarged)}
+            unit="kWh"
+            colorClass="bg-secondary"
+          />
+
+          <MetricCard
+            icon={Zap}
+            label="EV Charging (total)"
+            value={Math.floor(data.teslaSuperchargerKwh + data.homeChargerKwh)}
+            unit="kWh"
+            colorClass="bg-accent"
+          />
+
+          <MetricCard
+            icon={Zap}
+            label="Supercharger (lifetime)"
+            value={Math.floor(data.teslaSuperchargerKwh)}
+            unit="kWh"
+            colorClass="bg-accent"
+          />
+
+          <MetricCard
+            icon={Zap}
+            label={`${homeChargerLabel} (lifetime)`}
+            value={Math.floor(data.homeChargerKwh)}
+            unit="kWh"
+            colorClass="bg-accent"
+          />
+        </div>
+      </div>
+
       {/* Pending Rewards Section - What can be minted NOW (delta since last mint) */}
-      {/* PERMANENT RULE: Always show this section when there's any pending activity */}
+      {/* PERMANENT RULE: Always show this section */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
           {activityUnits > 0 && (
@@ -85,10 +143,9 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           {activityUnits > 0 ? 'Pending Rewards' : 'Activity Since Last Mint'}
         </h2>
         <p className="text-xs text-muted-foreground -mt-2">
-          {activityUnits > 0 
+          {activityUnits > 0
             ? 'New activity since your last mint — you receive 93% as tokens'
-            : 'No new activity yet. Connect devices and accumulate energy data to mint tokens.'
-          }
+            : 'No new activity since your last mint yet — your lifetime totals are shown above.'}
         </p>
         
         <div className="grid gap-3">
