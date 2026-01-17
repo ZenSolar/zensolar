@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -10,7 +11,8 @@ import {
   Globe,
   Lock,
   RefreshCw,
-  Coins
+  Coins,
+  Sparkles
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,21 +22,25 @@ const segiFeatures = [
     icon: Globe,
     title: 'Universal API Integration',
     description: 'Connects to Tesla, Enphase, SolarEdge, Wallbox, and more through secure API gateways.',
+    gradient: 'from-blue-500 to-cyan-500',
   },
   {
     icon: RefreshCw,
     title: 'Real-Time Data Collection',
     description: 'Continuously fetches your energy production (kWh), EV miles driven, and battery discharge data.',
+    gradient: 'from-emerald-500 to-green-500',
   },
   {
     icon: Shield,
     title: 'Secure & Encrypted',
     description: 'All data transmission is encrypted end-to-end, with OAuth 2.0 authentication.',
+    gradient: 'from-purple-500 to-pink-500',
   },
   {
     icon: Database,
     title: 'Activity Data Storage',
     description: 'Securely stores verified activity data to calculate your blockchain rewards.',
+    gradient: 'from-amber-500 to-orange-500',
   },
 ];
 
@@ -43,191 +49,250 @@ const blockchainProcess = [
     step: 1,
     title: 'Data Collection',
     description: 'SEGI collects your verified energy production, EV charging, and battery usage data from connected accounts.',
+    color: 'from-blue-500 to-cyan-500',
   },
   {
     step: 2,
     title: 'Activity Calculation',
     description: 'Our algorithms calculate new activity since your last mint, converting kWh and miles into reward eligibility.',
+    color: 'from-emerald-500 to-green-500',
   },
   {
     step: 3,
     title: 'Smart Contract Execution',
     description: 'The blockchain smart contract verifies your activity and mints $ZSOLAR tokens directly to your wallet.',
+    color: 'from-purple-500 to-pink-500',
   },
   {
     step: 4,
     title: 'Milestone Tracking',
     description: 'Our algorithm monitors your cumulative totals and triggers NFT minting when you hit milestone thresholds.',
+    color: 'from-amber-500 to-orange-500',
   },
+];
+
+const securityFeatures = [
+  'OAuth 2.0 authentication with all providers',
+  'End-to-end encryption for all data',
+  'We never store your login credentials',
+  'Blockchain provides immutable transaction records',
 ];
 
 export default function Technology() {
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="container max-w-3xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-          <span className="text-sm">⚡</span>
-          <span className="text-sm font-semibold text-primary">Patent Pending Technology</span>
-        </div>
-        <h1 className="text-2xl font-bold text-foreground">How Our Technology Works</h1>
-        <p className="text-muted-foreground">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center space-y-4"
+      >
+        <Badge className="px-4 py-1.5 bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">
+          <Sparkles className="h-3 w-3 mr-1.5" />
+          Patent Pending Technology
+        </Badge>
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">How Our Technology Works</h1>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           System and Method for Tokenizing and Gamifying Sustainable Behaviors Using Blockchain Technology
         </p>
-      </div>
+      </motion.div>
 
       {/* SEGI Introduction */}
-      <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/20">
-              <Cpu className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Software-Enabled Gateway Interface (SEGI)</CardTitle>
-              <p className="text-sm text-muted-foreground">The core of ZenSolar's patent-pending system</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            SEGI is our proprietary software layer that securely connects to your energy systems 
-            and translates real-world sustainable activities into blockchain-verified rewards. 
-            Unlike hardware-dependent solutions, SEGI works entirely through software, making 
-            setup instant and maintenance-free.
-          </p>
-          
-          <div className="grid gap-3 sm:grid-cols-2">
-            {segiFeatures.map((feature) => (
-              <div key={feature.title} className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border">
-                <feature.icon className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">{feature.title}</p>
-                  <p className="text-xs text-muted-foreground">{feature.description}</p>
-                </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl" />
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-primary to-primary/60 shadow-xl">
+                <Cpu className="h-8 w-8 text-primary-foreground" />
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <div>
+                <CardTitle className="text-xl">Software-Enabled Gateway Interface (SEGI)</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">The core of ZenSolar's patent-pending system</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6 relative z-10">
+            <p className="text-muted-foreground">
+              SEGI is our proprietary software layer that securely connects to your energy systems 
+              and translates real-world sustainable activities into blockchain-verified rewards. 
+              Unlike hardware-dependent solutions, SEGI works entirely through software, making 
+              setup instant and maintenance-free.
+            </p>
+            
+            <div className="grid gap-4 sm:grid-cols-2">
+              {segiFeatures.map((feature, index) => (
+                <motion.div 
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + index * 0.1 }}
+                  className="flex items-start gap-3 p-4 rounded-xl bg-background/80 border border-border/50 hover:border-primary/30 transition-colors"
+                >
+                  <div className={`p-2 rounded-lg bg-gradient-to-br ${feature.gradient} shadow-md`}>
+                    <feature.icon className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">{feature.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{feature.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Blockchain Rewards System */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-accent/20">
-              <Coins className="h-6 w-6 text-accent" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Blockchain Rewards System</CardTitle>
-              <p className="text-sm text-muted-foreground">How your clean energy becomes crypto</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Our smart contracts on the blockchain automatically mint tokens and NFTs based on 
-            your verified sustainable activities. Here's the process:
-          </p>
-          
-          <div className="space-y-3">
-            {blockchainProcess.map((item, index) => (
-              <div key={item.step} className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">
-                    {item.step}
-                  </div>
-                  {index < blockchainProcess.length - 1 && (
-                    <div className="w-0.5 h-full bg-primary/20 mt-1" />
-                  )}
-                </div>
-                <div className="pb-4">
-                  <p className="font-medium text-foreground">{item.title}</p>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-4 bg-gradient-to-r from-muted/50 to-muted/20">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-accent to-accent/60 shadow-xl">
+                <Coins className="h-8 w-8 text-accent-foreground" />
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <div>
+                <CardTitle className="text-xl">Blockchain Rewards System</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">How your clean energy becomes crypto</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <p className="text-muted-foreground">
+              Our smart contracts on the blockchain automatically mint tokens and NFTs based on 
+              your verified sustainable activities. Here's the process:
+            </p>
+            
+            <div className="space-y-4">
+              {blockchainProcess.map((item, index) => (
+                <motion.div 
+                  key={item.step}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white text-sm font-bold shadow-lg`}>
+                      {item.step}
+                    </div>
+                    {index < blockchainProcess.length - 1 && (
+                      <div className="w-0.5 h-full bg-gradient-to-b from-primary/40 to-transparent mt-2" />
+                    )}
+                  </div>
+                  <div className="pb-6 flex-1">
+                    <p className="font-semibold text-foreground">{item.title}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Security */}
-      <Card className="border-emerald-500/20 bg-emerald-500/5">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-emerald-500/20">
-              <Lock className="h-6 w-6 text-emerald-500" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-green-500/5 overflow-hidden relative">
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-emerald-500/10 to-transparent rounded-full blur-3xl" />
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-500 shadow-xl">
+                <Lock className="h-8 w-8 text-white" />
+              </div>
+              <CardTitle className="text-xl">Security & Privacy</CardTitle>
             </div>
-            <CardTitle className="text-lg">Security & Privacy</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-              <span className="text-sm text-muted-foreground">OAuth 2.0 authentication with all providers</span>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {securityFeatures.map((feature, index) => (
+                <motion.div 
+                  key={feature}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10"
+                >
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                  <span className="text-sm text-muted-foreground">{feature}</span>
+                </motion.div>
+              ))}
             </div>
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-              <span className="text-sm text-muted-foreground">End-to-end encryption for all data</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-              <span className="text-sm text-muted-foreground">We never store your login credentials</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-              <span className="text-sm text-muted-foreground">Blockchain provides immutable transaction records</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* What Makes Us Different */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">What Makes ZenSolar Different</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            <strong className="text-foreground">Unified Rewards Platform:</strong> Unlike fragmented solutions 
-            that focus on single behaviors, ZenSolar integrates solar production, EV charging, and battery 
-            storage into one cohesive reward system.
-          </p>
-          <p>
-            <strong className="text-foreground">Real-Time Incentives:</strong> Our system provides immediate 
-            token rewards and milestone NFTs, creating continuous motivation rather than delayed gratification.
-          </p>
-          <p>
-            <strong className="text-foreground">Software-First Approach:</strong> SEGI eliminates the need for 
-            additional hardware, making adoption simple and accessible to anyone with supported energy systems.
-          </p>
-          <p>
-            <strong className="text-foreground">Scalable for Growth:</strong> Built to accommodate residential 
-            users today with plans to expand to commercial and enterprise scale.
-          </p>
-        </CardContent>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-4 bg-gradient-to-r from-muted/50 to-muted/20">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              What Makes ZenSolar Different
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-4">
+            {[
+              { title: 'Unified Rewards Platform', desc: 'Unlike fragmented solutions that focus on single behaviors, ZenSolar integrates solar production, EV charging, and battery storage into one cohesive reward system.' },
+              { title: 'Real-Time Incentives', desc: 'Our system provides immediate token rewards and milestone NFTs, creating continuous motivation rather than delayed gratification.' },
+              { title: 'Software-First Approach', desc: 'SEGI eliminates the need for additional hardware, making adoption simple and accessible to anyone with supported energy systems.' },
+              { title: 'Scalable for Growth', desc: 'Built to accommodate residential users today with plans to expand to commercial and enterprise scale.' },
+            ].map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="p-4 rounded-xl bg-muted/30 border border-border/50"
+              >
+                <p className="font-semibold text-foreground">{item.title}</p>
+                <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* CTA */}
-      <div className="text-center space-y-4 pt-2">
-        <p className="text-sm text-muted-foreground">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="text-center space-y-4 py-4"
+      >
+        <p className="text-muted-foreground">
           Ready to turn your clean energy into blockchain rewards?
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button asChild>
+          <Button asChild size="lg" className="gap-2 shadow-lg">
             <Link to="/">
               Go to Dashboard
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" size="lg">
             <Link to="/how-it-works">
               Learn How It Works
             </Link>
           </Button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
