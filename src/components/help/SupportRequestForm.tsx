@@ -93,23 +93,28 @@ export function SupportRequestForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full touch-target">
-          <Mail className="mr-2 h-4 w-4" />
+        <Button variant="outline" className="w-full touch-target gap-2">
+          <Mail className="h-4 w-4" />
           Contact Support
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Contact Support</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">
+              <Mail className="h-5 w-5 text-primary" />
+            </span>
+            <span>Contact Support</span>
+          </DialogTitle>
+          <DialogDescription className="pt-1">
             Submit your question and we'll respond as soon as possible.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -130,6 +135,7 @@ export function SupportRequestForm() {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               maxLength={200}
+              className="h-11"
             />
           </div>
           
@@ -142,16 +148,17 @@ export function SupportRequestForm() {
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               maxLength={2000}
+              className="resize-none"
             />
             <p className="text-xs text-muted-foreground text-right">
               {message.length}/2000
             </p>
           </div>
           
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20" disabled={loading}>
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Submitting...
               </>
             ) : (
