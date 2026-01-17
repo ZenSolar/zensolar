@@ -790,11 +790,38 @@ Deno.serve(async (req) => {
             if (!deviceIdsToUpdate.includes(device.id)) continue;
             
             const lifetime = device.lifetime_totals as Record<string, any> | null;
+            const currentBaseline = device.baseline_data as Record<string, any> || {};
+            
             if (lifetime) {
-              // Create new baseline from current lifetime totals
-              const newBaseline = { ...lifetime, captured_at: now, updated_at: now };
+              // CRITICAL: Only update baseline fields for the MINTED category
+              // This prevents resetting baselines for un-minted categories
+              const newBaseline: Record<string, any> = { 
+                ...currentBaseline,  // Keep existing baselines for other categories
+                captured_at: now, 
+                updated_at: now,
+                // Preserve last_known_odometer if it exists
+                last_known_odometer: lifetime.odometer || currentBaseline.last_known_odometer,
+              };
               
-              console.log(`Setting baseline for device ${device.id} (${device.device_type}):`, JSON.stringify(newBaseline));
+              // Only update baseline for the category being minted
+              if (mintCategory === 'all') {
+                // All categories - update everything
+                if (lifetime.solar_wh !== undefined) newBaseline.solar_wh = lifetime.solar_wh;
+                if (lifetime.battery_discharge_wh !== undefined) newBaseline.battery_discharge_wh = lifetime.battery_discharge_wh;
+                if (lifetime.odometer !== undefined) newBaseline.odometer = lifetime.odometer;
+                if (lifetime.charging_kwh !== undefined) newBaseline.charging_kwh = lifetime.charging_kwh;
+              } else if (mintCategory === 'solar') {
+                if (lifetime.solar_wh !== undefined) newBaseline.solar_wh = lifetime.solar_wh;
+              } else if (mintCategory === 'battery') {
+                if (lifetime.battery_discharge_wh !== undefined) newBaseline.battery_discharge_wh = lifetime.battery_discharge_wh;
+              } else if (mintCategory === 'ev_miles') {
+                // ONLY update odometer, NOT charging
+                if (lifetime.odometer !== undefined) newBaseline.odometer = lifetime.odometer;
+              } else if (mintCategory === 'charging') {
+                if (lifetime.charging_kwh !== undefined) newBaseline.charging_kwh = lifetime.charging_kwh;
+              }
+              
+              console.log(`Setting baseline for device ${device.id} (${device.device_type}) [category: ${mintCategory}]:`, JSON.stringify(newBaseline));
               
               const { error: updateError } = await supabaseClient
                 .from("connected_devices")
