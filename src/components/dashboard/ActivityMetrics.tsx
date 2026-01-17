@@ -45,25 +45,27 @@ interface ActivityMetricsProps {
 export function ActivityMetrics({ data, currentActivity, refreshInfo }: ActivityMetricsProps) {
   const labels = data.deviceLabels || {};
 
-  // Build dynamic labels based on device names
+  // Build dynamic labels with full activity descriptions
   const evLabel = labels.vehicle 
-    ? `${labels.vehicle}` 
-    : 'EV Miles';
+    ? `${labels.vehicle} Miles Driven` 
+    : 'EV Miles Driven';
 
   const batteryLabel = labels.powerwall 
-    ? `${labels.powerwall}` 
-    : 'Battery';
+    ? `${labels.powerwall} Energy Discharged` 
+    : 'Battery Energy Discharged';
 
+  const superchargerLabel = 'Tesla Supercharger';
+  
   const homeChargerLabel = labels.homeCharger 
-    ? `${labels.homeCharger}` 
+    ? `${labels.homeCharger} Home Charging` 
     : labels.wallConnector
-      ? `${labels.wallConnector}`
+      ? `${labels.wallConnector} Home Charging`
       : 'Home Charger';
 
   // Build solar label from Enphase system name or default
   const solarLabel = labels.solar 
-    ? `${labels.solar}` 
-    : 'Solar';
+    ? `${labels.solar} Solar Energy Produced` 
+    : 'Solar Energy Produced';
 
   // Calculate earned NFTs locally using actual energy data (uses lifetime for NFT progress)
   const solarEarned = calculateEarnedMilestones(data.solarEnergyProduced, SOLAR_MILESTONES);
@@ -84,6 +86,10 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo }: Activity
     batteryKwh: Math.max(0, Math.floor(data.pendingBatteryKwh || 0)),
     chargingKwh: Math.max(0, Math.floor(data.pendingChargingKwh || 0)),
   };
+
+  // Separate charging values
+  const superchargerKwh = Math.max(0, Math.floor(data.pendingSuperchargerKwh || 0));
+  const homeChargerKwh = Math.max(0, Math.floor(data.pendingHomeChargerKwh || 0));
 
   const activityUnits = current.solarKwh + current.evMiles + current.batteryKwh + current.chargingKwh;
   const tokensToReceive = Math.floor(activityUnits * 0.93);
@@ -223,10 +229,19 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo }: Activity
 
             <ActivityCard
               icon={Zap}
-              value={current.chargingKwh}
+              value={superchargerKwh}
               unit="kWh"
-              label="EV Charging"
-              active={current.chargingKwh > 0}
+              label={superchargerLabel}
+              active={superchargerKwh > 0}
+              colorClass="accent"
+            />
+
+            <ActivityCard
+              icon={Zap}
+              value={homeChargerKwh}
+              unit="kWh"
+              label={homeChargerLabel}
+              active={homeChargerKwh > 0}
               colorClass="accent"
             />
           </div>
@@ -248,7 +263,8 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo }: Activity
             <MetricCard icon={Sun} label={solarLabel} value={current.solarKwh} unit="kWh" tone="solar" />
             <MetricCard icon={Car} label={evLabel} value={current.evMiles} unit="mi" tone="energy" />
             <MetricCard icon={Battery} label={batteryLabel} value={current.batteryKwh} unit="kWh" tone="secondary" />
-            <MetricCard icon={Zap} label="EV Charging" value={current.chargingKwh} unit="kWh" tone="accent" />
+            <MetricCard icon={Zap} label={superchargerLabel} value={superchargerKwh} unit="kWh" tone="accent" />
+            <MetricCard icon={Zap} label={homeChargerLabel} value={homeChargerKwh} unit="kWh" tone="accent" />
             <MetricCard icon={Leaf} label="CO2 Offset" value={currentCo2Offset} unit="lbs" tone="eco" />
           </div>
         </CardContent>
