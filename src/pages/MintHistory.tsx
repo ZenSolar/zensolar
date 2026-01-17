@@ -116,8 +116,9 @@ export default function MintHistory() {
           const chargingDelta = Math.max(0, lifetimeChargingKwh - baselineChargingKwh);
           evChargingKwh += chargingDelta;
         } else if (device.device_type === 'wall_connector') {
-          const lifetimeChargingKwh = lifetime.charging_kwh || lifetime.lifetime_charging_kwh || 0;
-          const baselineChargingKwh = baseline?.charging_kwh || 0;
+          // Wall connector: prioritize kWh fields, fall back to Wh conversions
+          const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) || (lifetime.lifetime_charging_wh ? lifetime.lifetime_charging_wh / 1000 : 0) || (lifetime.wall_connector_wh ? lifetime.wall_connector_wh / 1000 : 0);
+          const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0) || (baseline?.wall_connector_wh ? baseline.wall_connector_wh / 1000 : 0);
           const delta = Math.max(0, lifetimeChargingKwh - baselineChargingKwh);
           evChargingKwh += delta;
         }
