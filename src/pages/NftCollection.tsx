@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NFTDetailModal } from '@/components/nft/NFTDetailModal';
 import { BatchMintButton } from '@/components/nft/BatchMintButton';
@@ -27,7 +26,11 @@ import {
   Star, 
   Gift,
   Loader2,
-  Wallet
+  Wallet,
+  Eye,
+  Gem,
+  Flame,
+  Hexagon
 } from 'lucide-react';
 import {
   SOLAR_MILESTONES,
@@ -36,7 +39,6 @@ import {
   BATTERY_MILESTONES,
   COMBO_MILESTONES,
   WELCOME_MILESTONE,
-  NFT_CATEGORIES,
   calculateEarnedMilestones,
   getNextMilestone,
   calculateComboAchievements,
@@ -48,7 +50,76 @@ import { useConfetti } from '@/hooks/useConfetti';
 import { supabase } from '@/integrations/supabase/client';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
 import { toast } from 'sonner';
-function MilestoneCard({ 
+
+// Premium rarity configuration
+const RARITY_CONFIG = {
+  common: {
+    label: 'Common',
+    gradient: 'from-slate-400 to-slate-600',
+    glow: 'shadow-slate-500/20',
+    border: 'border-slate-500/30',
+    bg: 'from-slate-500/10 to-slate-600/5'
+  },
+  uncommon: {
+    label: 'Uncommon',
+    gradient: 'from-emerald-400 to-teal-600',
+    glow: 'shadow-emerald-500/30',
+    border: 'border-emerald-500/40',
+    bg: 'from-emerald-500/15 to-teal-600/5'
+  },
+  rare: {
+    label: 'Rare',
+    gradient: 'from-blue-400 to-indigo-600',
+    glow: 'shadow-blue-500/40',
+    border: 'border-blue-500/50',
+    bg: 'from-blue-500/15 to-indigo-600/5'
+  },
+  epic: {
+    label: 'Epic',
+    gradient: 'from-purple-400 via-pink-500 to-purple-600',
+    glow: 'shadow-purple-500/50',
+    border: 'border-purple-500/60',
+    bg: 'from-purple-500/20 to-pink-600/10'
+  },
+  legendary: {
+    label: 'Legendary',
+    gradient: 'from-amber-300 via-yellow-400 to-orange-500',
+    glow: 'shadow-amber-500/60',
+    border: 'border-amber-500/70',
+    bg: 'from-amber-500/25 to-orange-600/15'
+  },
+  mythic: {
+    label: 'Mythic',
+    gradient: 'from-rose-400 via-amber-300 to-rose-500',
+    glow: 'shadow-rose-500/70',
+    border: 'border-rose-500/80',
+    bg: 'from-rose-500/30 to-amber-500/20'
+  }
+};
+
+function getRarityFromTier(tier: number, isCombo: boolean = false): keyof typeof RARITY_CONFIG {
+  if (isCombo) {
+    if (tier >= 7) return 'mythic';
+    if (tier >= 5) return 'legendary';
+    if (tier >= 3) return 'epic';
+    if (tier >= 2) return 'rare';
+    return 'uncommon';
+  }
+  if (tier >= 8) return 'legendary';
+  if (tier >= 6) return 'epic';
+  if (tier >= 4) return 'rare';
+  if (tier >= 2) return 'uncommon';
+  return 'common';
+}
+
+function getTierFromId(id: string): number {
+  if (id === 'welcome') return 0;
+  const parts = id.split('_');
+  return parseInt(parts[1]) || 1;
+}
+
+// Premium NFT Card with 3D effects
+function PremiumNFTCard({ 
   milestone, 
   isEarned, 
   currentValue,
@@ -75,151 +146,176 @@ function MilestoneCard({
   
   const artwork = getNftArtwork(milestone.id);
   const canMint = isEarned && walletAddress && !isOnChain;
+  const tier = getTierFromId(milestone.id);
+  const rarity = getRarityFromTier(tier);
+  const rarityConfig = RARITY_CONFIG[rarity];
   
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       whileHover={{ 
-        scale: 1.02,
-        y: -4,
-        transition: { duration: 0.2, ease: "easeOut" }
+        scale: 1.03,
+        rotateY: 2,
+        rotateX: -2,
+        transition: { duration: 0.3, ease: "easeOut" }
       }}
       whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.3 }}
-      className={`relative rounded-xl border overflow-hidden transition-all duration-300 cursor-pointer group ${
+      transition={{ duration: 0.4 }}
+      style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
+      className={`relative rounded-2xl overflow-hidden cursor-pointer group ${
         isEarned 
-          ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50' 
+          ? `bg-gradient-to-br ${rarityConfig.bg} ${rarityConfig.border} border-2 shadow-xl ${rarityConfig.glow}` 
           : isNext
-          ? 'bg-accent/5 border-accent/30 ring-2 ring-accent/20 hover:ring-accent/40 hover:shadow-lg'
-          : 'bg-muted/30 border-border/50 opacity-70 hover:opacity-90 hover:border-border'
+          ? 'bg-gradient-to-br from-accent/10 to-accent/5 border-2 border-accent/40 ring-2 ring-accent/20'
+          : 'bg-card/50 border border-border/40 opacity-60'
       }`}
     >
-      {/* Animated glow effect for earned cards */}
+      {/* Animated shimmer overlay for earned cards */}
       {isEarned && (
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"
-          initial={false}
+          className="absolute inset-0 z-20 pointer-events-none opacity-0 group-hover:opacity-100"
+          style={{
+            background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)',
+            backgroundSize: '200% 100%',
+          }}
+          animate={{ backgroundPosition: ['-100% 0', '200% 0'] }}
+          transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
         />
       )}
       
+      {/* Glowing border effect for high-tier */}
+      {isEarned && tier >= 4 && (
+        <div className={`absolute -inset-0.5 rounded-2xl bg-gradient-to-r ${rarityConfig.gradient} opacity-30 blur-sm group-hover:opacity-50 transition-opacity -z-10`} />
+      )}
+      
       {/* NFT Artwork */}
-      {artwork && (
-        <div 
-          className={`relative w-full aspect-square overflow-hidden ${!isEarned && 'grayscale opacity-60'}`}
-          onClick={() => onViewArtwork(milestone)}
-        >
+      <div 
+        className={`relative w-full aspect-square overflow-hidden ${!isEarned && 'grayscale'}`}
+        onClick={() => onViewArtwork(milestone)}
+      >
+        {artwork && (
           <motion.img 
             src={artwork} 
             alt={milestone.name}
             className="w-full h-full object-cover"
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           />
-          
-          {/* Already Minted Overlay */}
-          {isOnChain && (
-            <div className="absolute inset-0 bg-gradient-to-br from-green-600/30 via-green-500/20 to-emerald-600/30 flex items-center justify-center">
-              <div className="bg-green-600/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-green-400/50 transform -rotate-12">
-                <div className="flex items-center gap-2 text-white font-bold text-sm">
-                  <CheckCircle2 className="h-5 w-5" />
-                  <span>ALREADY MINTED</span>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-            <motion.span 
-              className="text-white text-sm font-medium px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-full"
-              initial={{ opacity: 0, y: 10 }}
-              whileHover={{ opacity: 1, y: 0 }}
+        )}
+        
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        
+        {/* Already Minted stamp */}
+        {isOnChain && (
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/40 via-green-500/30 to-emerald-600/40 flex items-center justify-center z-10">
+            <motion.div 
+              initial={{ rotate: -12, scale: 0.8 }}
+              animate={{ rotate: -12, scale: 1 }}
+              className="bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-2.5 rounded-xl shadow-2xl border border-emerald-400/50"
             >
-              View NFT
-            </motion.span>
+              <div className="flex items-center gap-2 text-white font-bold text-sm tracking-wide">
+                <CheckCircle2 className="h-5 w-5" />
+                <span>ON-CHAIN</span>
+              </div>
+            </motion.div>
           </div>
-          {/* Status Badge on image */}
-          <div className="absolute top-2 right-2">
-            {isOnChain ? (
-              <Badge className="bg-green-600 text-white gap-1 text-[10px] shadow-md">
-                <CheckCircle2 className="h-3 w-3" />
-                On-Chain
-              </Badge>
-            ) : isEarned ? (
-              <Badge className="bg-primary text-primary-foreground gap-1 text-[10px]">
-                <CheckCircle2 className="h-3 w-3" />
-                Earned
-              </Badge>
-            ) : isNext ? (
-              <Badge variant="outline" className="gap-1 border-accent text-accent bg-background/80 text-[10px]">
-                <Target className="h-3 w-3" />
-                Next
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="gap-1 opacity-80 text-[10px]">
-                <Lock className="h-3 w-3" />
-                Locked
-              </Badge>
-            )}
-          </div>
+        )}
+        
+        {/* Rarity Badge */}
+        <div className="absolute top-3 left-3 z-10">
+          <Badge className={`bg-gradient-to-r ${rarityConfig.gradient} text-white border-0 gap-1.5 text-[10px] font-bold px-2 py-0.5 shadow-lg`}>
+            <Gem className="h-3 w-3" />
+            {rarityConfig.label}
+          </Badge>
         </div>
-      )}
-
-      <div className="p-4">
-        {/* Name and Description */}
-        <div className="flex items-start gap-2 mb-3">
-          <NFTBadge 
-            milestoneId={milestone.id} 
-            size="md" 
-            isEarned={isEarned}
-            color={milestone.color}
-            showGlow={isEarned}
-          />
-          <div className="flex-1 min-w-0">
-            <h3 className={`font-semibold text-sm ${isEarned ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {milestone.name}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {milestone.description}
-            </p>
-          </div>
+        
+        {/* Status Badge */}
+        <div className="absolute top-3 right-3 z-10">
+          {isOnChain ? (
+            <Badge className="bg-emerald-600/90 backdrop-blur-sm text-white gap-1 text-[10px] shadow-lg border-0">
+              <CheckCircle2 className="h-3 w-3" />
+              Minted
+            </Badge>
+          ) : isEarned ? (
+            <Badge className="bg-primary/90 backdrop-blur-sm text-primary-foreground gap-1 text-[10px] shadow-lg border-0">
+              <Sparkles className="h-3 w-3" />
+              Earned
+            </Badge>
+          ) : isNext ? (
+            <Badge className="bg-accent/90 backdrop-blur-sm text-accent-foreground gap-1 text-[10px] shadow-lg border-0">
+              <Target className="h-3 w-3" />
+              Next
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="gap-1 text-[10px] backdrop-blur-sm opacity-80">
+              <Lock className="h-3 w-3" />
+              Locked
+            </Badge>
+          )}
         </div>
+        
+        {/* View overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20">
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileHover={{ scale: 1, opacity: 1 }}
+            className="flex items-center gap-2 text-white bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full"
+          >
+            <Eye className="h-4 w-4" />
+            <span className="text-sm font-medium">View NFT</span>
+          </motion.div>
+        </div>
+        
+        {/* Name overlay at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+          <h3 className="font-bold text-white text-lg drop-shadow-lg">{milestone.name}</h3>
+          <p className="text-xs text-white/80 line-clamp-1">{milestone.description}</p>
+        </div>
+      </div>
 
+      {/* Card footer */}
+      <div className="p-4 space-y-3">
         {/* Progress */}
         {milestone.threshold > 0 && (
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px]">
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Progress</span>
-              <span className={isEarned ? 'text-primary font-medium' : 'text-muted-foreground'}>
+              <span className={isEarned ? 'text-primary font-semibold' : 'text-muted-foreground'}>
                 {Math.min(currentValue, milestone.threshold).toLocaleString()} / {milestone.threshold.toLocaleString()} {unit}
               </span>
             </div>
-            <Progress 
-              value={progress} 
-              className={`h-1.5 ${isEarned ? '' : 'opacity-60'}`}
-            />
+            <div className="relative h-2 bg-muted/50 rounded-full overflow-hidden">
+              <motion.div 
+                className={`absolute inset-y-0 left-0 bg-gradient-to-r ${isEarned ? rarityConfig.gradient : 'from-muted-foreground/50 to-muted-foreground/30'} rounded-full`}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              />
+            </div>
           </div>
         )}
 
-        {/* Mint Button for earned NFTs */}
+        {/* Mint Button */}
         {canMint && onMintNFT && (
           <Button
             size="sm"
-            className="w-full mt-3 gap-2"
+            className={`w-full gap-2 bg-gradient-to-r ${rarityConfig.gradient} hover:opacity-90 text-white border-0 shadow-lg`}
             onClick={(e) => {
               e.stopPropagation();
               onMintNFT(milestone);
             }}
           >
             <Zap className="h-3.5 w-3.5" />
-            Mint NFT
+            Mint to Wallet
           </Button>
         )}
         
         {isOnChain && (
-          <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-green-600 dark:text-green-400">
+          <div className="flex items-center justify-center gap-2 py-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-lg">
             <CheckCircle2 className="h-3.5 w-3.5" />
-            <span>On-Chain</span>
+            <span className="font-medium">Owned On-Chain</span>
           </div>
         )}
       </div>
@@ -227,7 +323,8 @@ function MilestoneCard({
   );
 }
 
-function ComboMilestoneCard({ 
+// Premium Combo Card with enhanced effects
+function PremiumComboCard({ 
   milestone, 
   isEarned,
   isOnChain,
@@ -244,240 +341,176 @@ function ComboMilestoneCard({
 }) {
   const canMint = isEarned && walletAddress && !isOnChain;
   const artwork = getNftArtwork(milestone.id);
-  
-  // Determine rarity tier based on milestone with enhanced styling
-  const getRarityTier = (id: string) => {
-    if (id === 'combo_7') return { 
-      label: 'ZENITH', 
-      class: 'bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-400 text-black animate-shimmer bg-[length:200%_100%]', 
-      glow: 'shadow-[0_0_30px_rgba(251,191,36,0.5)]',
-      borderGlow: 'border-amber-400/60',
-      bgGlow: 'from-amber-500/30 via-yellow-400/20 to-amber-500/30'
-    };
-    if (id === 'combo_6') return { 
-      label: 'APEX', 
-      class: 'bg-gradient-to-r from-rose-500 via-orange-400 to-rose-500 text-white animate-shimmer bg-[length:200%_100%]', 
-      glow: 'shadow-[0_0_25px_rgba(244,63,94,0.5)]',
-      borderGlow: 'border-rose-500/60',
-      bgGlow: 'from-rose-500/25 via-orange-400/15 to-rose-500/25'
-    };
-    if (id === 'combo_5') return { 
-      label: 'ECOSYSTEM', 
-      class: 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-white', 
-      glow: 'shadow-[0_0_25px_rgba(16,185,129,0.5)]',
-      borderGlow: 'border-emerald-500/60',
-      bgGlow: 'from-emerald-500/25 via-teal-400/15 to-emerald-500/25'
-    };
-    if (id === 'combo_4') return { 
-      label: 'CONSTELLATION', 
-      class: 'bg-gradient-to-r from-violet-500 via-purple-400 to-violet-500 text-white', 
-      glow: 'shadow-[0_0_20px_rgba(139,92,246,0.5)]',
-      borderGlow: 'border-violet-500/50',
-      bgGlow: 'from-violet-500/20 via-purple-400/10 to-violet-500/20'
-    };
-    if (id === 'combo_3') return { 
-      label: 'QUADRANT', 
-      class: 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white', 
-      glow: 'shadow-[0_0_20px_rgba(99,102,241,0.4)]',
-      borderGlow: 'border-indigo-500/50',
-      bgGlow: 'from-indigo-500/20 via-blue-400/10 to-indigo-500/20'
-    };
-    if (id === 'combo_2') return { 
-      label: 'TRIFECTA', 
-      class: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white', 
-      glow: 'shadow-[0_0_15px_rgba(6,182,212,0.4)]',
-      borderGlow: 'border-cyan-500/40',
-      bgGlow: 'from-cyan-500/15 via-blue-400/10 to-cyan-500/15'
-    };
-    return { 
-      label: 'DUALITY', 
-      class: 'bg-gradient-to-r from-slate-500 to-zinc-600 text-white', 
-      glow: 'shadow-[0_0_12px_rgba(100,116,139,0.3)]',
-      borderGlow: 'border-slate-500/30',
-      bgGlow: 'from-slate-500/10 via-zinc-400/5 to-slate-500/10'
-    };
-  };
-  
-  const rarity = getRarityTier(milestone.id);
-  const isTopTier = ['combo_6', 'combo_7'].includes(milestone.id);
+  const tier = getTierFromId(milestone.id);
+  const rarity = getRarityFromTier(tier, true);
+  const rarityConfig = RARITY_CONFIG[rarity];
+  const isTopTier = tier >= 5;
   
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ 
-        scale: 1.03,
-        y: -8,
-        transition: { duration: 0.25, ease: "easeOut" }
+        scale: 1.02,
+        y: -6,
+        transition: { duration: 0.3, ease: "easeOut" }
       }}
       whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.3 }}
-      className={`relative rounded-xl overflow-hidden cursor-pointer group ${
+      transition={{ duration: 0.4 }}
+      className={`relative rounded-2xl overflow-hidden cursor-pointer group ${
         isEarned 
-          ? `border-2 ${rarity.borderGlow} ${rarity.glow} ${isTopTier ? 'animate-float' : ''}` 
-          : 'border border-border/50 bg-muted/30 opacity-50 hover:opacity-70'
+          ? `${rarityConfig.border} border-2 shadow-2xl ${rarityConfig.glow} ${isTopTier ? 'animate-float' : ''}` 
+          : 'border border-border/50 bg-card/30 opacity-50'
       }`}
     >
-      {/* Animated shimmer border for earned combos */}
+      {/* Animated glow ring for earned combos */}
       {isEarned && (
-        <>
-          {/* Outer glow ring */}
-          <div className={`absolute -inset-[2px] rounded-xl bg-gradient-to-r ${rarity.bgGlow} animate-pulse-glow opacity-60 blur-sm pointer-events-none`} />
-          
-          {/* Shimmer overlay */}
-          <motion.div 
-            className="absolute inset-0 rounded-xl pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%)',
-              backgroundSize: '200% 100%',
-            }}
-            animate={{
-              backgroundPosition: ['-100% 0', '200% 0'],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatDelay: 1,
-              ease: "easeInOut"
-            }}
-          />
-        </>
+        <motion.div 
+          className={`absolute -inset-1 rounded-2xl bg-gradient-to-r ${rarityConfig.gradient} blur-md opacity-40 group-hover:opacity-60 transition-opacity -z-10`}
+          animate={isTopTier ? { opacity: [0.3, 0.6, 0.3] } : {}}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+      
+      {/* Sparkle effects for mythic/legendary */}
+      {isEarned && isTopTier && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-30">
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-white rounded-full"
+              style={{ 
+                top: `${20 + i * 15}%`, 
+                left: `${10 + i * 20}%` 
+              }}
+              animate={{ 
+                opacity: [0, 1, 0], 
+                scale: [0.5, 1.2, 0.5],
+                y: [-2, 2, -2]
+              }}
+              transition={{ 
+                duration: 2 + i * 0.3, 
+                repeat: Infinity, 
+                delay: i * 0.4 
+              }}
+            />
+          ))}
+        </div>
       )}
       
       {/* Artwork Section */}
-      {artwork && (
-        <div 
-          className={`relative w-full aspect-[2/1] overflow-hidden ${!isEarned && 'grayscale'}`}
-          onClick={() => onViewArtwork(milestone)}
-        >
+      <div 
+        className={`relative w-full aspect-[2.5/1] overflow-hidden ${!isEarned && 'grayscale'}`}
+        onClick={() => onViewArtwork(milestone)}
+      >
+        {artwork && (
           <motion.img 
             src={artwork} 
             alt={milestone.name}
             className="w-full h-full object-cover"
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
-          
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          {isEarned && !isOnChain && (
+        )}
+        
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        {isEarned && (
+          <div className={`absolute inset-0 bg-gradient-to-br ${rarityConfig.bg} opacity-60 group-hover:opacity-80 transition-opacity`} />
+        )}
+        
+        {/* On-chain stamp */}
+        {isOnChain && (
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/50 via-green-500/40 to-emerald-600/50 flex items-center justify-center z-20">
             <motion.div 
-              className={`absolute inset-0 bg-gradient-to-br ${rarity.bgGlow} opacity-40 group-hover:opacity-60 transition-opacity duration-300`}
-            />
-          )}
-          
-          {/* Already Minted Overlay for Combo */}
-          {isOnChain && (
-            <div className="absolute inset-0 bg-gradient-to-br from-green-600/40 via-green-500/30 to-emerald-600/40 flex items-center justify-center z-20">
-              <div className="bg-green-600/90 backdrop-blur-sm px-5 py-2.5 rounded-lg shadow-lg border border-green-400/50 transform -rotate-6">
-                <div className="flex items-center gap-2 text-white font-bold text-base">
-                  <CheckCircle2 className="h-5 w-5" />
-                  <span>ALREADY MINTED</span>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Rarity Badge - Enhanced with glow */}
-          <div className="absolute top-3 left-3 z-10">
-            <motion.div
-              animate={isEarned && isTopTier ? { 
-                boxShadow: ['0 0 10px rgba(251,191,36,0.5)', '0 0 20px rgba(251,191,36,0.8)', '0 0 10px rgba(251,191,36,0.5)']
-              } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
+              initial={{ rotate: -8, scale: 0.9 }}
+              animate={{ rotate: -8, scale: 1 }}
+              className="bg-gradient-to-r from-emerald-600 to-green-600 px-8 py-3 rounded-xl shadow-2xl border border-emerald-400/50"
             >
-              <Badge className={`${rarity.class} gap-1.5 text-[11px] font-black px-2.5 py-1 shadow-xl tracking-wider`}>
-                <Crown className="h-3.5 w-3.5" />
-                {rarity.label}
-              </Badge>
+              <div className="flex items-center gap-3 text-white font-bold tracking-wider">
+                <CheckCircle2 className="h-6 w-6" />
+                <span className="text-lg">ON-CHAIN</span>
+              </div>
             </motion.div>
           </div>
-          
-          {/* Status Badge */}
-          <div className="absolute top-3 right-3 z-10">
-            {isOnChain ? (
-              <Badge className="bg-green-600 text-white gap-1 text-[10px] backdrop-blur-sm shadow-lg">
-                <CheckCircle2 className="h-3 w-3" />
-                On-Chain
-              </Badge>
-            ) : isEarned ? (
-              <Badge className="bg-primary/90 text-primary-foreground gap-1 text-[10px] backdrop-blur-sm shadow-lg">
-                <CheckCircle2 className="h-3 w-3" />
-                Earned
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="gap-1 opacity-90 text-[10px] backdrop-blur-sm">
-                <Lock className="h-3 w-3" />
-                Locked
-              </Badge>
+        )}
+        
+        {/* Rarity Badge */}
+        <div className="absolute top-4 left-4 z-10">
+          <motion.div
+            animate={isEarned && isTopTier ? { 
+              boxShadow: ['0 0 15px rgba(251,191,36,0.5)', '0 0 30px rgba(251,191,36,0.8)', '0 0 15px rgba(251,191,36,0.5)']
+            } : {}}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Badge className={`bg-gradient-to-r ${rarityConfig.gradient} text-white border-0 gap-2 text-xs font-black px-3 py-1.5 shadow-xl tracking-wider`}>
+              <Crown className="h-4 w-4" />
+              {rarityConfig.label.toUpperCase()}
+            </Badge>
+          </motion.div>
+        </div>
+        
+        {/* Status Badge */}
+        <div className="absolute top-4 right-4 z-10">
+          {isOnChain ? (
+            <Badge className="bg-emerald-600/90 backdrop-blur-sm text-white gap-1.5 text-xs shadow-lg border-0">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Minted
+            </Badge>
+          ) : isEarned ? (
+            <Badge className="bg-primary/90 backdrop-blur-sm text-primary-foreground gap-1.5 text-xs shadow-lg border-0">
+              <Flame className="h-3.5 w-3.5" />
+              Earned
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="gap-1.5 text-xs backdrop-blur-sm opacity-80">
+              <Lock className="h-3.5 w-3.5" />
+              Locked
+            </Badge>
+          )}
+        </div>
+        
+        {/* Name and actions overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
+          <div className="flex items-end justify-between gap-4">
+            <div className="flex-1">
+              <h3 className={`font-bold text-xl drop-shadow-lg ${isEarned ? 'text-white' : 'text-white/70'}`}>
+                {milestone.name}
+              </h3>
+              <p className={`text-sm mt-1 ${isEarned ? 'text-white/90' : 'text-white/50'}`}>
+                {milestone.description}
+              </p>
+            </div>
+            
+            {canMint && onMintNFT && (
+              <Button
+                size="sm"
+                className={`gap-2 bg-gradient-to-r ${rarityConfig.gradient} hover:opacity-90 text-white border-0 shadow-xl shrink-0`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMintNFT(milestone);
+                }}
+              >
+                <Zap className="h-4 w-4" />
+                Mint NFT
+              </Button>
+            )}
+            
+            {isOnChain && (
+              <div className="flex items-center gap-2 text-sm text-emerald-400 bg-emerald-600/30 px-4 py-2 rounded-full backdrop-blur-sm shrink-0">
+                <CheckCircle2 className="h-4 w-4" />
+                <span className="font-medium">On-Chain</span>
+              </div>
             )}
           </div>
-          
-          {/* Sparkle effects for top tiers */}
-          {isEarned && isTopTier && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              <motion.div
-                className="absolute w-1 h-1 bg-white rounded-full"
-                style={{ top: '20%', left: '15%' }}
-                animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 0 }}
-              />
-              <motion.div
-                className="absolute w-1.5 h-1.5 bg-amber-200 rounded-full"
-                style={{ top: '30%', right: '20%' }}
-                animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
-                transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-              />
-              <motion.div
-                className="absolute w-1 h-1 bg-white rounded-full"
-                style={{ bottom: '40%', left: '25%' }}
-                animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.8, repeat: Infinity, delay: 1 }}
-              />
-            </div>
-          )}
-          
-          {/* Name overlay with enhanced styling */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-            <div className="flex items-end justify-between gap-3">
-              <div className="flex-1">
-                <h3 className={`font-bold text-lg drop-shadow-lg ${isEarned ? 'text-white' : 'text-white/70'}`}>
-                  {milestone.name}
-                </h3>
-                <p className={`text-xs ${isEarned ? 'text-white/90' : 'text-white/50'}`}>
-                  {milestone.description}
-                </p>
-              </div>
-              {/* Mint Button for earned combos */}
-              {canMint && onMintNFT && (
-                <Button
-                  size="sm"
-                  className="gap-1.5 bg-primary hover:bg-primary/90 shadow-lg shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMintNFT(milestone);
-                  }}
-                >
-                  <Zap className="h-3.5 w-3.5" />
-                  Mint NFT
-                </Button>
-              )}
-              {isOnChain && (
-                <div className="flex items-center gap-1.5 text-xs text-green-400 bg-green-600/30 px-2 py-1 rounded-full backdrop-blur-sm shrink-0">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>On-Chain</span>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-      )}
+      </div>
     </motion.div>
   );
 }
 
-// Welcome NFT Card - Special prominent display for new users
-function WelcomeNftCard({ 
+// Premium Welcome Card
+function PremiumWelcomeCard({ 
   isEarned,
   onViewArtwork,
   walletAddress,
@@ -510,7 +543,7 @@ function WelcomeNftCard({
         body: { 
           action: 'mint-specific-nft', 
           walletAddress,
-          tokenId: 0 // Welcome NFT token ID
+          tokenId: 0
         },
       });
 
@@ -537,72 +570,59 @@ function WelcomeNftCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ 
-        scale: 1.02,
-        y: -4,
-        transition: { duration: 0.2, ease: "easeOut" }
-      }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.3 }}
-      className={`relative rounded-xl border overflow-hidden transition-all duration-300 cursor-pointer group ${
+      whileHover={{ scale: 1.01, y: -4 }}
+      transition={{ duration: 0.4 }}
+      className={`relative rounded-2xl overflow-hidden cursor-pointer group ${
         isEarned 
-          ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border-amber-500/40 shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 hover:border-amber-500/60' 
-          : 'bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border-amber-500/30 ring-2 ring-amber-500/30 hover:ring-amber-500/50 hover:shadow-lg animate-pulse-glow'
+          ? 'bg-gradient-to-br from-amber-500/20 via-yellow-500/10 to-orange-500/15 border-2 border-amber-500/50 shadow-xl shadow-amber-500/20' 
+          : 'bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/10 border-2 border-amber-500/40 ring-2 ring-amber-500/30'
       }`}
     >
-      {/* Animated glow effect */}
+      {/* Animated background */}
       {!isEarned && (
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-br from-amber-500/30 via-transparent to-yellow-500/20 opacity-50 pointer-events-none z-10"
+          className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-yellow-500/30 to-amber-500/20 pointer-events-none"
           animate={{ opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
       )}
-      {isEarned && (
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"
-          initial={false}
-        />
-      )}
       
       <div className="flex flex-col sm:flex-row">
-        {/* NFT Artwork */}
+        {/* Artwork */}
         {artwork && (
           <div 
-            className={`relative w-full sm:w-48 aspect-square sm:aspect-auto overflow-hidden ${isEarned ? '' : 'opacity-90'}`}
+            className="relative w-full sm:w-56 aspect-square sm:aspect-auto overflow-hidden"
             onClick={() => onViewArtwork(WELCOME_MILESTONE)}
           >
             <motion.img 
               src={artwork} 
               alt="Welcome NFT"
               className="w-full h-full object-cover"
-              whileHover={{ scale: 1.08 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.4 }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/50 sm:block hidden" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/60 sm:block hidden" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent sm:hidden" />
           </div>
         )}
 
         {/* Content */}
-        <div className="flex-1 p-5">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 shadow-lg">
-              <Star className="h-5 w-5 text-white" />
+        <div className="flex-1 p-6">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-xl">
+              <Star className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-lg">Welcome NFT</h3>
-                {isEarned ? (
-                  <Badge className="bg-amber-500 text-white gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Claimed
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="border-amber-500 text-amber-600 dark:text-amber-400 gap-1 animate-pulse">
-                    <Gift className="h-3 w-3" />
-                    Ready to Claim!
-                  </Badge>
-                )}
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <h3 className="font-bold text-xl">Welcome NFT</h3>
+                <Badge className={`${isEarned ? 'bg-amber-500' : 'bg-amber-500/80 animate-pulse'} text-white gap-1.5 border-0`}>
+                  {isEarned ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Gift className="h-3.5 w-3.5" />}
+                  {isEarned ? 'Claimed' : 'Ready to Claim!'}
+                </Badge>
+                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-black border-0 gap-1 text-[10px] font-bold">
+                  <Hexagon className="h-3 w-3" />
+                  GENESIS
+                </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
                 {isEarned 
@@ -614,11 +634,11 @@ function WelcomeNftCard({
           </div>
           
           {!isEarned && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                <Sparkles className="h-4 w-4 text-amber-500 flex-shrink-0" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  <span className="font-medium">No requirements!</span> {walletAddress ? 'Click claim to get your first NFT.' : 'Connect your wallet to claim.'}
+                  <span className="font-semibold">No requirements!</span> {walletAddress ? 'Click claim to get your first NFT.' : 'Connect your wallet to claim.'}
                 </p>
               </div>
               
@@ -628,23 +648,15 @@ function WelcomeNftCard({
                   handleClaimWelcomeNft();
                 }}
                 disabled={isMinting || !walletAddress}
-                className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold shadow-lg"
+                size="lg"
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold shadow-xl border-0"
               >
                 {isMinting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Claiming...
-                  </>
+                  <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Claiming...</>
                 ) : !walletAddress ? (
-                  <>
-                    <Wallet className="h-4 w-4 mr-2" />
-                    Connect Wallet to Claim
-                  </>
+                  <><Wallet className="h-5 w-5 mr-2" /> Connect Wallet to Claim</>
                 ) : (
-                  <>
-                    <Gift className="h-4 w-4 mr-2" />
-                    Claim Welcome NFT
-                  </>
+                  <><Gift className="h-5 w-5 mr-2" /> Claim Your Welcome NFT</>
                 )}
               </Button>
             </div>
@@ -655,6 +667,7 @@ function WelcomeNftCard({
   );
 }
 
+// Category Section with premium styling
 function CategorySection({
   title,
   icon,
@@ -663,7 +676,7 @@ function CategorySection({
   earnedMilestones,
   currentValue,
   unit,
-  accentColor,
+  gradient,
   onViewArtwork,
   onMintNFT,
   ownedTokenIds,
@@ -676,7 +689,7 @@ function CategorySection({
   earnedMilestones: NFTMilestone[];
   currentValue: number;
   unit: string;
-  accentColor: string;
+  gradient: string;
   onViewArtwork: (milestone: NFTMilestone) => void;
   onMintNFT?: (milestone: NFTMilestone) => void;
   ownedTokenIds?: number[];
@@ -687,69 +700,93 @@ function CategorySection({
   const ownedSet = new Set(ownedTokenIds || []);
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Category Header */}
-      <div className="flex items-center gap-3 pb-2 border-b border-border/50">
-        <div className={`p-2 rounded-lg ${accentColor}`}>
+      <div className="flex items-center gap-4 pb-4 border-b border-border/50">
+        <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
           {icon}
         </div>
         <div className="flex-1">
-          <h2 className="font-semibold text-lg">{title}</h2>
+          <h2 className="font-bold text-xl">{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-        <Badge variant="outline" className="text-xs">
-          {earnedMilestones.length}/{milestones.length} Earned
+        <Badge className="bg-primary/10 text-primary border-primary/20 text-sm px-3 py-1">
+          {earnedMilestones.length}/{milestones.length}
         </Badge>
       </div>
 
-      {/* Current Progress Summary */}
-      <Card className="bg-accent/5 border-accent/20">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Current Progress</span>
-            <span className="text-2xl font-bold text-primary">
-              {currentValue.toLocaleString()} <span className="text-sm text-muted-foreground font-normal">{unit}</span>
-            </span>
+      {/* Progress Summary Card */}
+      <Card className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 shadow-lg">
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium text-muted-foreground">Current Progress</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {currentValue.toLocaleString()}
+              </span>
+              <span className="text-sm text-muted-foreground">{unit}</span>
+            </div>
           </div>
+          
           {nextMilestone && (
-            <div className="space-y-1">
-              <div className="flex justify-between items-center text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">Next: <NFTBadge milestoneId={nextMilestone.id} size="sm" color={nextMilestone.color} /> {nextMilestone.name}</span>
-                <span>{nextMilestone.threshold.toLocaleString()} {unit}</span>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <Target className="h-4 w-4 text-accent" />
+                  Next: <span className="font-medium text-foreground">{nextMilestone.name}</span>
+                </span>
+                <span className="text-muted-foreground">
+                  {((currentValue / nextMilestone.threshold) * 100).toFixed(1)}%
+                </span>
               </div>
-              <Progress 
-                value={(currentValue / nextMilestone.threshold) * 100} 
-                className="h-2"
-              />
+              <div className="relative h-3 bg-muted/50 rounded-full overflow-hidden">
+                <motion.div 
+                  className={`absolute inset-y-0 left-0 bg-gradient-to-r ${gradient} rounded-full`}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min((currentValue / nextMilestone.threshold) * 100, 100)}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground text-right">
+                {(nextMilestone.threshold - currentValue).toLocaleString()} {unit} to go
+              </p>
             </div>
           )}
+          
           {!nextMilestone && earnedMilestones.length === milestones.length && (
-            <p className="text-sm text-primary font-medium text-center">
-              🎉 Category Complete!
-            </p>
+            <div className="flex items-center justify-center gap-2 py-2 text-primary">
+              <Trophy className="h-5 w-5" />
+              <span className="font-bold">Category Complete! 🎉</span>
+            </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Milestones Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {milestones.map((milestone) => {
+      {/* NFT Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        {milestones.map((milestone, index) => {
           const tokenId = MILESTONE_TO_TOKEN_ID[milestone.id];
           const isOnChain = tokenId !== undefined && ownedSet.has(tokenId);
           
           return (
-            <MilestoneCard
+            <motion.div
               key={milestone.id}
-              milestone={milestone}
-              isEarned={earnedIds.has(milestone.id)}
-              currentValue={currentValue}
-              unit={unit}
-              isNext={nextMilestone?.id === milestone.id}
-              onViewArtwork={onViewArtwork}
-              onMintNFT={onMintNFT}
-              isOnChain={isOnChain}
-              walletAddress={walletAddress}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <PremiumNFTCard
+                milestone={milestone}
+                isEarned={earnedIds.has(milestone.id)}
+                currentValue={currentValue}
+                unit={unit}
+                isNext={nextMilestone?.id === milestone.id}
+                onViewArtwork={onViewArtwork}
+                onMintNFT={onMintNFT}
+                isOnChain={isOnChain}
+                walletAddress={walletAddress}
+              />
+            </motion.div>
           );
         })}
       </div>
@@ -767,7 +804,6 @@ export default function NftCollection() {
   const { triggerCelebration, triggerGoldBurst } = useConfetti();
   const prevEarnedRef = useRef<Set<string>>(new Set());
 
-  // NFT Mint Flow state
   const [mintFlowOpen, setMintFlowOpen] = useState(false);
   const [mintingMilestone, setMintingMilestone] = useState<NFTMilestone | null>(null);
   const [ownedTokenIds, setOwnedTokenIds] = useState<number[]>([]);
@@ -788,7 +824,6 @@ export default function NftCollection() {
 
         if (!error && data?.ownedNFTTokenIds) {
           setOwnedTokenIds(data.ownedNFTTokenIds);
-          // Check if welcome NFT is owned
           if (data.ownedNFTTokenIds.includes(0)) {
             setWelcomeNftClaimed(true);
           }
@@ -803,7 +838,7 @@ export default function NftCollection() {
     checkOnChainStatus();
   }, [walletAddress]);
 
-  // Calculate all earned milestones
+  // Calculate earned milestones
   const solarKwh = activityData.solarEnergyProduced;
   const evMiles = activityData.evMilesDriven;
   const evChargingKwh = activityData.teslaSuperchargerKwh + activityData.homeChargerKwh;
@@ -815,17 +850,14 @@ export default function NftCollection() {
   const batteryEarned = calculateEarnedMilestones(batteryKwh, BATTERY_MILESTONES);
   const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
 
-  // Total stats (add 1 for welcome NFT)
   const totalEarned = 1 + solarEarned.length + evMilesEarned.length + evChargingEarned.length + batteryEarned.length + comboEarned.length;
   const totalAvailable = 1 + SOLAR_MILESTONES.length + EV_MILES_MILESTONES.length + EV_CHARGING_MILESTONES.length + BATTERY_MILESTONES.length + COMBO_MILESTONES.length;
 
   const comboEarnedIds = new Set(comboEarned.map(m => m.id));
-  
-  // Get all current earned IDs
   const allEarned = [...solarEarned, ...evMilesEarned, ...evChargingEarned, ...batteryEarned, ...comboEarned];
   const currentEarnedIds = new Set(allEarned.map(m => m.id));
 
-  // Check for newly earned NFTs and trigger celebration
+  // Celebration effects
   useEffect(() => {
     const storedCelebrated = localStorage.getItem('celebratedNfts');
     if (storedCelebrated) {
@@ -834,11 +866,9 @@ export default function NftCollection() {
   }, []);
 
   useEffect(() => {
-    // Find newly earned NFTs that haven't been celebrated
     const newlyEarned = allEarned.filter(m => !celebratedNfts.has(m.id));
     
     if (newlyEarned.length > 0 && !isLoading) {
-      // Trigger celebration for new NFTs
       const isCombo = newlyEarned.some(m => m.id.startsWith('combo_'));
       if (isCombo) {
         triggerGoldBurst();
@@ -847,14 +877,12 @@ export default function NftCollection() {
         triggerCelebration();
       }
       
-      // Mark these as celebrated
       const updatedCelebrated = new Set([...celebratedNfts, ...newlyEarned.map(m => m.id)]);
       setCelebratedNfts(updatedCelebrated);
       localStorage.setItem('celebratedNfts', JSON.stringify([...updatedCelebrated]));
     }
   }, [currentEarnedIds.size, isLoading]);
 
-  // Get earned state for selected NFT
   const getIsEarned = (milestone: NFTMilestone | null): boolean => {
     if (!milestone) return false;
     return allEarned.some(m => m.id === milestone.id);
@@ -864,12 +892,8 @@ export default function NftCollection() {
     setSelectedNft(milestone);
     setDialogOpen(true);
     
-    // If it's earned, trigger a small celebration
-    if (getIsEarned(milestone)) {
-      const isCombo = milestone.id.startsWith('combo_');
-      if (isCombo) {
-        setTimeout(() => triggerGoldBurst(), 200);
-      }
+    if (getIsEarned(milestone) && milestone.id.startsWith('combo_')) {
+      setTimeout(() => triggerGoldBurst(), 200);
     }
   };
 
@@ -883,7 +907,6 @@ export default function NftCollection() {
   };
 
   const handleMintSuccess = async () => {
-    // Refresh on-chain status
     if (walletAddress) {
       try {
         const { data, error } = await supabase.functions.invoke('mint-onchain', {
@@ -901,15 +924,20 @@ export default function NftCollection() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        >
+          <Loader2 className="h-10 w-10 text-primary" />
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-6 space-y-8">
-      {/* NFT Detail Modal */}
+    <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+      {/* Modals */}
       <NFTDetailModal
         milestone={selectedNft}
         isEarned={getIsEarned(selectedNft)}
@@ -917,7 +945,6 @@ export default function NftCollection() {
         onOpenChange={setDialogOpen}
       />
 
-      {/* NFT Mint Flow Dialog */}
       {mintingMilestone && walletAddress && (
         <NFTMintFlow
           milestone={mintingMilestone}
@@ -927,22 +954,32 @@ export default function NftCollection() {
           onMintSuccess={handleMintSuccess}
         />
       )}
-      <div className="text-center space-y-2">
-        <div className="flex flex-col items-center justify-center gap-1 mb-4">
-          <div className="flex items-center justify-center gap-2">
-            <Award className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">NFT Collection</h1>
+
+      {/* Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center space-y-4"
+      >
+        <div className="inline-flex items-center justify-center gap-3 mb-2">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-xl">
+            <Award className="h-8 w-8 text-white" />
           </div>
-          <span className="text-xs text-muted-foreground tracking-wide uppercase">(beta)</span>
+          <div className="text-left">
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+              NFT Collection
+            </h1>
+            <Badge variant="outline" className="text-[10px] mt-1">BETA</Badge>
+          </div>
         </div>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           Earn unique NFTs by reaching milestones in solar production, EV driving, charging, and battery usage. 
-          Unlock combo achievements by excelling across multiple categories!
+          Each achievement is minted on-chain as proof of your clean energy journey.
         </p>
-      </div>
+      </motion.div>
 
-      {/* Welcome NFT - Prominent Display for New Users */}
-      <WelcomeNftCard 
+      {/* Welcome NFT */}
+      <PremiumWelcomeCard 
         isEarned={welcomeNftClaimed}
         onViewArtwork={handleViewArtwork}
         walletAddress={profile?.wallet_address || undefined}
@@ -954,61 +991,78 @@ export default function NftCollection() {
       />
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-500/20">
-          <CardContent className="p-4 text-center">
-            <Sun className="h-6 w-6 mx-auto mb-2 text-amber-500" />
-            <p className="text-2xl font-bold">{solarEarned.length}</p>
-            <p className="text-xs text-muted-foreground">Solar NFTs</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
-          <CardContent className="p-4 text-center">
-            <Car className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-            <p className="text-2xl font-bold">{evMilesEarned.length}</p>
-            <p className="text-xs text-muted-foreground">EV Miles NFTs</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border-yellow-500/20">
-          <CardContent className="p-4 text-center">
-            <Zap className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
-            <p className="text-2xl font-bold">{evChargingEarned.length}</p>
-            <p className="text-xs text-muted-foreground">Charging NFTs</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
-          <CardContent className="p-4 text-center">
-            <Battery className="h-6 w-6 mx-auto mb-2 text-green-500" />
-            <p className="text-2xl font-bold">{batteryEarned.length}</p>
-            <p className="text-xs text-muted-foreground">Battery NFTs</p>
-          </CardContent>
-        </Card>
-      </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+      >
+        {[
+          { icon: Sun, label: 'Solar', count: solarEarned.length, gradient: 'from-amber-500 to-orange-600', bg: 'from-amber-500/15 to-orange-500/5' },
+          { icon: Car, label: 'EV Miles', count: evMilesEarned.length, gradient: 'from-blue-500 to-indigo-600', bg: 'from-blue-500/15 to-indigo-500/5' },
+          { icon: Zap, label: 'Charging', count: evChargingEarned.length, gradient: 'from-yellow-500 to-amber-600', bg: 'from-yellow-500/15 to-amber-500/5' },
+          { icon: Battery, label: 'Battery', count: batteryEarned.length, gradient: 'from-emerald-500 to-teal-600', bg: 'from-emerald-500/15 to-teal-500/5' },
+        ].map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 + index * 0.05 }}
+          >
+            <Card className={`bg-gradient-to-br ${stat.bg} border-0 shadow-lg overflow-hidden`}>
+              <CardContent className="p-4 text-center relative">
+                <div className={`absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br ${stat.gradient} rounded-full opacity-10`} />
+                <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} mb-2 shadow-lg`}>
+                  <stat.icon className="h-5 w-5 text-white" />
+                </div>
+                <p className="text-2xl font-bold">{stat.count}</p>
+                <p className="text-xs text-muted-foreground">{stat.label} NFTs</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* Total Progress */}
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-primary" />
-              <span className="font-semibold">Total Collection Progress</span>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className="bg-gradient-to-br from-primary/10 via-background to-accent/10 border-primary/20 shadow-xl overflow-hidden">
+          <CardContent className="p-6 relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
+            <div className="flex items-center justify-between mb-4 relative">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
+                  <Trophy className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-bold text-lg">Collection Progress</span>
+              </div>
+              <Badge className="bg-primary/10 text-primary border-primary/20 gap-1.5 text-sm px-3 py-1">
+                <Sparkles className="h-3.5 w-3.5" />
+                {totalEarned}/{totalAvailable}
+              </Badge>
             </div>
-            <Badge variant="secondary" className="gap-1">
-              <Sparkles className="h-3 w-3" />
-              {totalEarned}/{totalAvailable} NFTs
-            </Badge>
-          </div>
-          <Progress value={(totalEarned / totalAvailable) * 100} className="h-3" />
-          <p className="text-sm text-muted-foreground text-center mt-2">
-            {totalEarned === totalAvailable 
-              ? "🎉 Congratulations! You've collected all NFTs!" 
-              : `${totalAvailable - totalEarned} more NFTs to collect`
-            }
-          </p>
-        </CardContent>
-      </Card>
+            <div className="relative h-4 bg-muted/50 rounded-full overflow-hidden mb-3">
+              <motion.div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-accent to-primary rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${(totalEarned / totalAvailable) * 100}%` }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              {totalEarned === totalAvailable 
+                ? "🎉 Congratulations! You've collected all NFTs!" 
+                : `${totalAvailable - totalEarned} more NFTs to unlock`
+              }
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-      {/* Batch Mint Button */}
+      {/* Batch Mint */}
       <BatchMintButton 
         earnedMilestones={[
           { id: 'welcome', name: 'Welcome', description: 'Welcome NFT', threshold: 0, color: 'zinc', icon: 'award' },
@@ -1018,30 +1072,26 @@ export default function NftCollection() {
 
       {/* Category Tabs */}
       <Tabs defaultValue="solar" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-auto p-1">
-          <TabsTrigger value="solar" className="text-xs px-2 py-2 gap-1 flex-col sm:flex-row">
-            <Sun className="h-4 w-4" />
-            <span className="hidden sm:inline">Solar</span>
-          </TabsTrigger>
-          <TabsTrigger value="ev_miles" className="text-xs px-2 py-2 gap-1 flex-col sm:flex-row">
-            <Car className="h-4 w-4" />
-            <span className="hidden sm:inline">EV Miles</span>
-          </TabsTrigger>
-          <TabsTrigger value="charging" className="text-xs px-2 py-2 gap-1 flex-col sm:flex-row">
-            <Zap className="h-4 w-4" />
-            <span className="hidden sm:inline">Charging</span>
-          </TabsTrigger>
-          <TabsTrigger value="battery" className="text-xs px-2 py-2 gap-1 flex-col sm:flex-row">
-            <Battery className="h-4 w-4" />
-            <span className="hidden sm:inline">Battery</span>
-          </TabsTrigger>
-          <TabsTrigger value="combos" className="text-xs px-2 py-2 gap-1 flex-col sm:flex-row">
-            <Trophy className="h-4 w-4" />
-            <span className="hidden sm:inline">Combos</span>
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1.5 bg-muted/50 rounded-xl">
+          {[
+            { value: 'solar', icon: Sun, label: 'Solar' },
+            { value: 'ev_miles', icon: Car, label: 'EV Miles' },
+            { value: 'charging', icon: Zap, label: 'Charging' },
+            { value: 'battery', icon: Battery, label: 'Battery' },
+            { value: 'combos', icon: Trophy, label: 'Combos' },
+          ].map((tab) => (
+            <TabsTrigger 
+              key={tab.value}
+              value={tab.value} 
+              className="flex-col sm:flex-row gap-1.5 py-2.5 px-2 data-[state=active]:bg-background data-[state=active]:shadow-lg rounded-lg transition-all"
+            >
+              <tab.icon className="h-4 w-4" />
+              <span className="hidden sm:inline text-xs">{tab.label}</span>
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="solar" className="mt-6">
+        <TabsContent value="solar" className="mt-8">
           <CategorySection
             title="Solar Production"
             icon={<Sun className="h-5 w-5 text-white" />}
@@ -1050,7 +1100,7 @@ export default function NftCollection() {
             earnedMilestones={solarEarned}
             currentValue={Math.floor(solarKwh)}
             unit="kWh"
-            accentColor="bg-amber-500"
+            gradient="from-amber-500 to-orange-600"
             onViewArtwork={handleViewArtwork}
             onMintNFT={handleMintNFT}
             ownedTokenIds={ownedTokenIds}
@@ -1058,7 +1108,7 @@ export default function NftCollection() {
           />
         </TabsContent>
 
-        <TabsContent value="ev_miles" className="mt-6">
+        <TabsContent value="ev_miles" className="mt-8">
           <CategorySection
             title="EV Miles Driven"
             icon={<Car className="h-5 w-5 text-white" />}
@@ -1067,7 +1117,7 @@ export default function NftCollection() {
             earnedMilestones={evMilesEarned}
             currentValue={Math.floor(evMiles)}
             unit="miles"
-            accentColor="bg-blue-500"
+            gradient="from-blue-500 to-indigo-600"
             onViewArtwork={handleViewArtwork}
             onMintNFT={handleMintNFT}
             ownedTokenIds={ownedTokenIds}
@@ -1075,7 +1125,7 @@ export default function NftCollection() {
           />
         </TabsContent>
 
-        <TabsContent value="charging" className="mt-6">
+        <TabsContent value="charging" className="mt-8">
           <CategorySection
             title="EV Charging"
             icon={<Zap className="h-5 w-5 text-white" />}
@@ -1084,7 +1134,7 @@ export default function NftCollection() {
             earnedMilestones={evChargingEarned}
             currentValue={Math.floor(evChargingKwh)}
             unit="kWh"
-            accentColor="bg-yellow-500"
+            gradient="from-yellow-500 to-amber-600"
             onViewArtwork={handleViewArtwork}
             onMintNFT={handleMintNFT}
             ownedTokenIds={ownedTokenIds}
@@ -1092,7 +1142,7 @@ export default function NftCollection() {
           />
         </TabsContent>
 
-        <TabsContent value="battery" className="mt-6">
+        <TabsContent value="battery" className="mt-8">
           <CategorySection
             title="Battery Discharge"
             icon={<Battery className="h-5 w-5 text-white" />}
@@ -1101,7 +1151,7 @@ export default function NftCollection() {
             earnedMilestones={batteryEarned}
             currentValue={Math.floor(batteryKwh)}
             unit="kWh"
-            accentColor="bg-green-500"
+            gradient="from-emerald-500 to-teal-600"
             onViewArtwork={handleViewArtwork}
             onMintNFT={handleMintNFT}
             ownedTokenIds={ownedTokenIds}
@@ -1109,39 +1159,45 @@ export default function NftCollection() {
           />
         </TabsContent>
 
-        <TabsContent value="combos" className="mt-6">
-          <div className="space-y-4">
+        <TabsContent value="combos" className="mt-8">
+          <div className="space-y-6">
             {/* Combo Header */}
-            <div className="flex items-center gap-3 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-amber-500 to-rose-500">
+            <div className="flex items-center gap-4 pb-4 border-b border-border/50">
+              <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 shadow-lg">
                 <Trophy className="h-5 w-5 text-white" />
               </div>
               <div className="flex-1">
-                <h2 className="font-semibold text-lg">Combo Achievements</h2>
+                <h2 className="font-bold text-xl">Combo Achievements</h2>
                 <p className="text-sm text-muted-foreground">
                   Special NFTs for excelling across multiple categories
                 </p>
               </div>
-              <Badge variant="outline" className="text-xs">
-                {comboEarned.length}/{COMBO_MILESTONES.length} Earned
+              <Badge className="bg-gradient-to-r from-amber-500/20 to-rose-500/20 text-foreground border-amber-500/30 text-sm px-3 py-1">
+                {comboEarned.length}/{COMBO_MILESTONES.length}
               </Badge>
             </div>
 
             {/* Combo Grid */}
-            <div className="grid grid-cols-1 gap-4">
-              {COMBO_MILESTONES.map((milestone) => {
+            <div className="grid grid-cols-1 gap-5">
+              {COMBO_MILESTONES.map((milestone, index) => {
                 const tokenId = MILESTONE_TO_TOKEN_ID[milestone.id];
                 const isComboOnChain = tokenId !== undefined && ownedTokenIds.includes(tokenId);
                 return (
-                  <ComboMilestoneCard
+                  <motion.div
                     key={milestone.id}
-                    milestone={milestone}
-                    isEarned={comboEarnedIds.has(milestone.id)}
-                    isOnChain={isComboOnChain}
-                    onViewArtwork={handleViewArtwork}
-                    onMintNFT={handleMintNFT}
-                    walletAddress={walletAddress}
-                  />
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.08 }}
+                  >
+                    <PremiumComboCard
+                      milestone={milestone}
+                      isEarned={comboEarnedIds.has(milestone.id)}
+                      isOnChain={isComboOnChain}
+                      onViewArtwork={handleViewArtwork}
+                      onMintNFT={handleMintNFT}
+                      walletAddress={walletAddress}
+                    />
+                  </motion.div>
                 );
               })}
             </div>
@@ -1149,16 +1205,23 @@ export default function NftCollection() {
         </TabsContent>
       </Tabs>
 
-      {/* Info Footer */}
-      <Card className="bg-muted/30 border-dashed">
-        <CardContent className="p-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            <Sparkles className="h-4 w-4 inline mr-1" />
-            NFTs are stored on the blockchain once you mint your rewards. 
-            Keep tracking your clean energy activities to unlock more achievements!
-          </p>
-        </CardContent>
-      </Card>
+      {/* Footer */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-5 text-center">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span>
+                NFTs are stored on Base blockchain. Keep tracking your clean energy activities to unlock more achievements!
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }
