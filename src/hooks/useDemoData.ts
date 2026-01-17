@@ -18,7 +18,7 @@ const demoNftsEarned = getAllEarnedNFTNames(
   true // isRegisteredUser - includes Welcome NFT
 );
 
-const demoActivityData: ActivityData = {
+const createDemoActivityData = (): ActivityData => ({
   // Lifetime minted (demo shows some tokens already minted)
   lifetimeMinted: 31930,
   // Lifetime totals (for NFT milestone progress)
@@ -47,10 +47,7 @@ const demoActivityData: ActivityData = {
     solar: 'Tesla Solar Roof',
     homeCharger: 'Wall Connector Gen 3',
   },
-};
-
-// Calculate CO2 offset
-demoActivityData.co2OffsetPounds = calculateCO2Offset(demoActivityData);
+});
 
 const demoConnectedAccounts: ConnectedAccount[] = [
   { service: 'tesla', connected: true, label: 'Tesla' },
@@ -59,9 +56,9 @@ const demoConnectedAccounts: ConnectedAccount[] = [
   { service: 'wallbox', connected: false, label: 'Wallbox' },
 ];
 
-const demoProfile = {
+const createDemoProfile = () => ({
   display_name: 'Demo User',
-  wallet_address: '0x1234...5678',
+  wallet_address: '0xDemo1234...5678',
   referral_code: 'DEMO2024',
   tesla_connected: true,
   enphase_connected: false,
@@ -77,18 +74,58 @@ const demoProfile = {
   twitter_handle: 'zensolar_demo',
   linkedin_connected: false,
   linkedin_handle: null,
-};
+});
+
+// Demo eligibility data
+const createDemoEligibility = (hasWelcomeNFT: boolean, mintedNfts: number[]) => ({
+  hasWelcomeNFT,
+  ownedNFTs: mintedNfts,
+  eligibleMilestoneNFTs: [
+    { tokenId: 1, category: 'solar', name: 'Sunspark', threshold: 500 },
+    { tokenId: 2, category: 'solar', name: 'Photonic', threshold: 1000 },
+    { tokenId: 3, category: 'solar', name: 'Rayforge', threshold: 2500 },
+  ].filter(nft => !mintedNfts.includes(nft.tokenId)),
+  eligibleComboNFTs: [
+    { tokenId: 34, name: 'Duality', comboType: '2_categories' },
+  ].filter(nft => !mintedNfts.includes(nft.tokenId)),
+  totalEligible: 0, // Will be calculated
+});
+
+export interface DemoMintResult {
+  success: boolean;
+  txHash: string;
+  message: string;
+  tokensMinted?: number;
+  nftsMinted?: number[];
+  nftNames?: string[];
+}
 
 export function useDemoData() {
-  const [activityData] = useState<ActivityData>(demoActivityData);
+  const [activityData, setActivityData] = useState<ActivityData>(() => {
+    const data = createDemoActivityData();
+    data.co2OffsetPounds = calculateCO2Offset(data);
+    return data;
+  });
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>(demoConnectedAccounts);
   const [isLoading, setIsLoading] = useState(false);
-  const [profile] = useState(demoProfile);
+  const [profile, setProfile] = useState(createDemoProfile);
+  const [hasWelcomeNFT, setHasWelcomeNFT] = useState(false);
+  const [mintedNFTs, setMintedNFTs] = useState<number[]>([]);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+  
+  // Provider refresh state for UI indicators
+  const [providerRefresh] = useState({
+    tesla: { status: 'success' as const, updatedAt: new Date().toISOString() },
+    enphase: { status: 'idle' as const },
+    solaredge: { status: 'success' as const, updatedAt: new Date().toISOString() },
+    wallbox: { status: 'idle' as const },
+  });
 
   const refreshDashboard = useCallback(async () => {
     setIsLoading(true);
     // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000));
+    setLastUpdatedAt(new Date().toISOString());
     setIsLoading(false);
   }, []);
 
@@ -108,6 +145,142 @@ export function useDemoData() {
     );
   }, []);
 
+  const connectWallet = useCallback((address: string) => {
+    setProfile(prev => ({ ...prev, wallet_address: address }));
+  }, []);
+
+  const disconnectWallet = useCallback(() => {
+    setProfile(prev => ({ ...prev, wallet_address: null }));
+    setHasWelcomeNFT(false);
+    setMintedNFTs([]);
+  }, []);
+
+  // Fake minting functions
+  const simulateMintWelcomeNFT = useCallback(async (): Promise<DemoMintResult> => {
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate blockchain delay
+    
+    if (hasWelcomeNFT) {
+      return {
+        success: true,
+        txHash: '0xdemo...already',
+        message: "You already have your Welcome NFT! Keep earning to unlock milestone NFTs.",
+      };
+    }
+    
+    setHasWelcomeNFT(true);
+    setMintedNFTs(prev => [...prev, 0]); // Token ID 0 = Welcome NFT
+    
+    return {
+      success: true,
+      txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
+      message: 'Welcome NFT minted successfully! 🎉',
+      nftsMinted: [0],
+      nftNames: ['Welcome NFT'],
+    };
+  }, [hasWelcomeNFT]);
+
+  const simulateMintTokens = useCallback(async (category: string): Promise<DemoMintResult> => {
+    await new Promise(resolve => setTimeout(resolve, 2500)); // Simulate blockchain delay
+    
+    // Calculate tokens based on category
+    let tokens = 0;
+    const breakdown: Record<string, number> = {};
+    
+    if (category === 'all' || category === 'solar') {
+      breakdown.solarKwh = activityData.pendingSolarKwh || 0;
+      tokens += breakdown.solarKwh;
+    }
+    if (category === 'all' || category === 'ev_miles') {
+      breakdown.evMiles = activityData.pendingEvMiles || 0;
+      tokens += breakdown.evMiles;
+    }
+    if (category === 'all' || category === 'battery') {
+      breakdown.batteryKwh = activityData.pendingBatteryKwh || 0;
+      tokens += breakdown.batteryKwh;
+    }
+    if (category === 'all' || category === 'charging') {
+      breakdown.chargingKwh = activityData.pendingChargingKwh || 0;
+      tokens += breakdown.chargingKwh;
+    }
+    
+    // User receives 93% (5% burn, 1% LP, 1% treasury)
+    const userTokens = Math.floor(tokens * 0.93);
+    
+    // Clear pending rewards after mint
+    setActivityData(prev => ({
+      ...prev,
+      pendingSolarKwh: category === 'all' || category === 'solar' ? 0 : prev.pendingSolarKwh,
+      pendingEvMiles: category === 'all' || category === 'ev_miles' ? 0 : prev.pendingEvMiles,
+      pendingBatteryKwh: category === 'all' || category === 'battery' ? 0 : prev.pendingBatteryKwh,
+      pendingChargingKwh: category === 'all' || category === 'charging' ? 0 : prev.pendingChargingKwh,
+      pendingSuperchargerKwh: category === 'all' || category === 'charging' ? 0 : prev.pendingSuperchargerKwh,
+      pendingHomeChargerKwh: category === 'all' || category === 'charging' ? 0 : prev.pendingHomeChargerKwh,
+      lifetimeMinted: prev.lifetimeMinted + userTokens,
+      tokensEarned: prev.tokensEarned + userTokens,
+    }));
+    
+    return {
+      success: true,
+      txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
+      message: `${userTokens.toLocaleString()} $ZSOLAR tokens minted successfully! 🎉`,
+      tokensMinted: userTokens,
+    };
+  }, [activityData]);
+
+  const simulateMintMilestoneNFT = useCallback(async (tokenId: number, name: string): Promise<DemoMintResult> => {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    if (mintedNFTs.includes(tokenId)) {
+      return {
+        success: true,
+        txHash: '0xdemo...already',
+        message: `You already own ${name}!`,
+      };
+    }
+    
+    setMintedNFTs(prev => [...prev, tokenId]);
+    
+    return {
+      success: true,
+      txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
+      message: `${name} NFT minted successfully! 🎉`,
+      nftsMinted: [tokenId],
+      nftNames: [name],
+    };
+  }, [mintedNFTs]);
+
+  const simulateBatchMintNFTs = useCallback(async (tokenIds: number[], names: string[]): Promise<DemoMintResult> => {
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    const newTokens = tokenIds.filter(id => !mintedNFTs.includes(id));
+    const newNames = names.filter((_, i) => !mintedNFTs.includes(tokenIds[i]));
+    
+    if (newTokens.length === 0) {
+      return {
+        success: true,
+        txHash: '0xdemo...already',
+        message: 'All selected NFTs are already owned!',
+      };
+    }
+    
+    setMintedNFTs(prev => [...prev, ...newTokens]);
+    
+    return {
+      success: true,
+      txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
+      message: `${newTokens.length} NFT${newTokens.length > 1 ? 's' : ''} minted successfully! 🎉`,
+      nftsMinted: newTokens,
+      nftNames: newNames,
+    };
+  }, [mintedNFTs]);
+
+  // Get eligibility with current minted state
+  const getEligibility = useCallback(() => {
+    const eligibility = createDemoEligibility(hasWelcomeNFT, mintedNFTs);
+    eligibility.totalEligible = eligibility.eligibleMilestoneNFTs.length + eligibility.eligibleComboNFTs.length;
+    return eligibility;
+  }, [hasWelcomeNFT, mintedNFTs]);
+
   return {
     activityData,
     connectedAccounts,
@@ -116,5 +289,17 @@ export function useDemoData() {
     connectAccount,
     disconnectAccount,
     refreshDashboard,
+    connectWallet,
+    disconnectWallet,
+    lastUpdatedAt,
+    providerRefresh,
+    // Demo minting
+    hasWelcomeNFT,
+    mintedNFTs,
+    getEligibility,
+    simulateMintWelcomeNFT,
+    simulateMintTokens,
+    simulateMintMilestoneNFT,
+    simulateBatchMintNFTs,
   };
 }

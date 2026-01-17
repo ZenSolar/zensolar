@@ -5,11 +5,13 @@ import { ConnectAccounts } from '@/components/dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from '@/components/dashboard/ConnectSocialAccounts';
 import { ConnectWallet } from '@/components/dashboard/ConnectWallet';
 import { ActivityMetrics } from '@/components/dashboard/ActivityMetrics';
-import { RewardActions } from '@/components/dashboard/RewardActions';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
+import { GettingStartedGuide } from '@/components/dashboard/GettingStartedGuide';
+import { HowItWorks } from '@/components/dashboard/HowItWorks';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { DemoOnboardingGuide } from '@/components/demo/DemoOnboardingGuide';
+import { DemoRewardActions } from '@/components/demo/DemoRewardActions';
 import zenLogo from '@/assets/zen-logo.png';
 import { toast } from 'sonner';
 
@@ -45,18 +47,37 @@ const LinkedInIcon = () => (
 );
 
 export function DemoDashboard() {
-  const { activityData, isLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts, profile } = useDemoData();
+  const { 
+    activityData, 
+    isLoading, 
+    refreshDashboard, 
+    connectAccount, 
+    disconnectAccount, 
+    connectedAccounts, 
+    profile,
+    connectWallet,
+    disconnectWallet,
+    lastUpdatedAt,
+    providerRefresh,
+    hasWelcomeNFT,
+    mintedNFTs,
+    getEligibility,
+    simulateMintWelcomeNFT,
+    simulateMintTokens,
+  } = useDemoData();
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
   });
 
-  const handleConnectWallet = async (_address: string) => {
-    toast.info("Demo Mode: Wallet connection simulated");
+  const handleConnectWallet = async (address: string) => {
+    connectWallet(address);
+    toast.success("Demo: Wallet connected!");
   };
 
   const handleDisconnectWallet = async () => {
-    toast.info("Demo Mode: Wallet disconnection simulated");
+    disconnectWallet();
+    toast.info("Demo: Wallet disconnected");
   };
 
   const energyAccounts = connectedAccounts;
@@ -122,6 +143,20 @@ export function DemoDashboard() {
     toast.info(`Demo Mode: ${id} disconnection simulated`);
   };
 
+  const firstName = profile.display_name?.trim().split(/\s+/)[0];
+  const dashboardTitle = firstName ? `Welcome, ${firstName}` : 'Dashboard';
+
+  // Current activity for pending rewards
+  const currentActivity = {
+    solarKwh: Math.max(0, Math.floor(activityData.pendingSolarKwh || 0)),
+    evMiles: Math.max(0, Math.floor(activityData.pendingEvMiles || 0)),
+    batteryKwh: Math.max(0, Math.floor(activityData.pendingBatteryKwh || 0)),
+    chargingKwh: Math.max(0, Math.floor(activityData.pendingChargingKwh || 0)),
+  };
+
+  // Get eligibility for NFT minting
+  const eligibility = getEligibility();
+
   return (
     <div 
       ref={containerRef}
@@ -149,10 +184,31 @@ export function DemoDashboard() {
             className="h-20 w-auto object-contain dark:brightness-110 dark:contrast-110" 
           />
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Welcome, Demo User</h1>
+            <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
             <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFT's from your clean energy use</p>
           </div>
         </AnimatedItem>
+
+        {/* Getting Started Guide */}
+        <AnimatedItem>
+          <GettingStartedGuide
+            energyConnected={energyAccounts.some(acc => acc.connected)}
+            walletConnected={!!profile.wallet_address}
+            onConnectEnergy={() => {
+              document.getElementById('connect-accounts')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            onConnectWallet={() => {
+              document.getElementById('connect-wallet')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
+        </AnimatedItem>
+
+        {/* How It Works - only show if no energy accounts connected */}
+        {!energyAccounts.some(acc => acc.connected) && (
+          <AnimatedItem>
+            <HowItWorks />
+          </AnimatedItem>
+        )}
 
         <AnimatedItem id="connect-wallet">
           <ConnectWallet
@@ -179,6 +235,35 @@ export function DemoDashboard() {
           />
         </AnimatedItem>
         
+        <AnimatedItem>
+          <ActivityMetrics
+            data={activityData}
+            currentActivity={currentActivity}
+            refreshInfo={{ lastUpdatedAt, providers: providerRefresh }}
+          />
+        </AnimatedItem>
+
+        {/* Demo Reward Actions with fake minting */}
+        <AnimatedItem>
+          <DemoRewardActions 
+            onRefresh={refreshDashboard} 
+            isLoading={isLoading}
+            walletAddress={profile.wallet_address}
+            pendingRewards={{
+              solar: currentActivity.solarKwh,
+              evMiles: currentActivity.evMiles,
+              battery: currentActivity.batteryKwh,
+              charging: currentActivity.chargingKwh,
+            }}
+            hasWelcomeNFT={hasWelcomeNFT}
+            eligibleMilestones={eligibility.eligibleMilestoneNFTs.length}
+            eligibleCombos={eligibility.eligibleComboNFTs.length}
+            ownedNFTCount={mintedNFTs.length}
+            onMintWelcomeNFT={simulateMintWelcomeNFT}
+            onMintTokens={simulateMintTokens}
+          />
+        </AnimatedItem>
+        
         {/* NFT Milestones */}
         <AnimatedItem id="reward-progress">
           <RewardProgress
@@ -189,18 +274,6 @@ export function DemoDashboard() {
             batteryDischargedKwh={activityData.batteryStorageDischarged}
             nftsEarned={activityData.nftsEarned}
             isNewUser={false}
-          />
-        </AnimatedItem>
-
-        <AnimatedItem id="activity-metrics">
-          <ActivityMetrics data={activityData} />
-        </AnimatedItem>
-        
-        <AnimatedItem>
-          <RewardActions 
-            onRefresh={refreshDashboard} 
-            isLoading={isLoading}
-            walletAddress={null} // Demo mode - no real wallet
           />
         </AnimatedItem>
       </AnimatedContainer>
