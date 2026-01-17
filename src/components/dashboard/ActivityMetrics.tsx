@@ -11,6 +11,7 @@ import {
   Leaf,
   Users,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react';
 import {
   calculateEarnedMilestones,
@@ -24,6 +25,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators, type ProviderKey, type ProviderRefreshState } from './RefreshIndicators';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 type CurrentActivity = {
   solarKwh: number;
@@ -37,16 +39,17 @@ type RefreshInfo = {
   providers?: Partial<Record<ProviderKey, ProviderRefreshState>>;
 };
 
-export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'supercharger' | 'home_charger';
+export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'supercharger' | 'home_charger' | 'all';
 
 interface ActivityMetricsProps {
   data: ActivityData;
   currentActivity?: CurrentActivity;
   refreshInfo?: RefreshInfo;
   onMintCategory?: (category: MintCategory) => void;
+  onMintSuccess?: () => void;
 }
 
-export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCategory }: ActivityMetricsProps) {
+export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCategory, onMintSuccess }: ActivityMetricsProps) {
   const labels = data.deviceLabels || {};
 
   // Build dynamic labels with full activity descriptions
@@ -180,6 +183,17 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
               )}
               Pending Rewards
             </h2>
+            {activityUnits > 0 && onMintCategory && (
+              <Button
+                size="sm"
+                variant="default"
+                className="gap-1.5 h-8 text-xs font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                onClick={() => onMintCategory('all')}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Mint All
+              </Button>
+            )}
           </div>
 
           <p className="text-xs text-muted-foreground">
