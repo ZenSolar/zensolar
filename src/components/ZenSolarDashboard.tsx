@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -14,10 +14,12 @@ import { RewardProgress } from './dashboard/RewardProgress';
 import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
+import { NFTMintFlow } from './nft/NFTMintFlow';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Loader2 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo.png';
+import type { NFTMilestone } from '@/lib/nftMilestones';
 
 // Simple SVG icons for social platforms
 const FacebookIcon = () => (
@@ -69,12 +71,26 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { isAdmin } = useAdminCheck();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   
+  // State for NFT mint flow from RewardProgress
+  const [selectedMilestone, setSelectedMilestone] = useState<NFTMilestone | null>(null);
+  const [mintFlowOpen, setMintFlowOpen] = useState(false);
+  
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
   });
 
   const handleMintTokens = () => {
     rewardActionsRef.current?.openTokenMintDialog();
+  };
+
+  const handleMintNFTFromProgress = (milestone: NFTMilestone) => {
+    if (!profile?.wallet_address) {
+      // Scroll to wallet connection if not connected
+      document.getElementById('connect-wallet')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    setSelectedMilestone(milestone);
+    setMintFlowOpen(true);
   };
 
   const handleConnectWallet = async (address: string) => {
@@ -277,6 +293,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             batteryDischargedKwh={activityData.batteryStorageDischarged}
             nftsEarned={activityData.nftsEarned}
             isNewUser={true}
+            onMintNFT={handleMintNFTFromProgress}
           />
         </AnimatedItem>
 
@@ -294,6 +311,17 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
       </AnimatedContainer>
+
+      {/* NFT Mint Flow Modal - triggered from RewardProgress badges */}
+      {selectedMilestone && profile?.wallet_address && (
+        <NFTMintFlow
+          milestone={selectedMilestone}
+          walletAddress={profile.wallet_address}
+          open={mintFlowOpen}
+          onOpenChange={setMintFlowOpen}
+          onMintSuccess={refreshDashboard}
+        />
+      )}
     </div>
   );
 }

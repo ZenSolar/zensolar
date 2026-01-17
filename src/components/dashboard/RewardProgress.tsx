@@ -28,6 +28,7 @@ interface RewardProgressProps {
   batteryDischargedKwh: number;
   nftsEarned: string[];
   isNewUser?: boolean;
+  onMintNFT?: (milestone: NFTMilestone) => void;
 }
 
 interface CategoryProgressProps {
@@ -39,6 +40,7 @@ interface CategoryProgressProps {
   earnedMilestones: NFTMilestone[];
   nextMilestone: NFTMilestone | null;
   accentColor: string;
+  onMintNFT?: (milestone: NFTMilestone) => void;
 }
 
 function CategoryProgress({ 
@@ -49,7 +51,8 @@ function CategoryProgress({
   milestones, 
   earnedMilestones, 
   nextMilestone,
-  accentColor 
+  accentColor,
+  onMintNFT
 }: CategoryProgressProps) {
   const progress = nextMilestone
     ? (value / nextMilestone.threshold) * 100
@@ -74,15 +77,19 @@ function CategoryProgress({
         </span>
       </div>
 
-      {/* Earned NFTs */}
+      {/* Earned NFTs - Tappable to mint */}
       {earnedMilestones.length > 0 && (
         <ScrollArea className="w-full">
           <div className="flex gap-2 pb-2">
             {earnedMilestones.map((milestone) => (
-              <motion.div
+              <motion.button
                 key={milestone.id}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onMintNFT?.(milestone)}
+                className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-lg"
               >
                 <NFTBadgeInline
                   milestoneId={milestone.id}
@@ -90,7 +97,7 @@ function CategoryProgress({
                   color={milestone.color}
                   isEarned={true}
                 />
-              </motion.div>
+              </motion.button>
             ))}
           </div>
           <ScrollBar orientation="horizontal" />
@@ -124,7 +131,7 @@ function CategoryProgress({
   );
 }
 
-function ComboAchievements({ combos }: { combos: NFTMilestone[] }) {
+function ComboAchievements({ combos, onMintNFT }: { combos: NFTMilestone[]; onMintNFT?: (milestone: NFTMilestone) => void }) {
   if (combos.length === 0) return null;
   
   return (
@@ -135,10 +142,14 @@ function ComboAchievements({ combos }: { combos: NFTMilestone[] }) {
       </div>
       <div className="flex flex-wrap gap-2">
         {combos.map((combo) => (
-          <motion.div
+          <motion.button
             key={combo.id}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onMintNFT?.(combo)}
+            className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-lg"
           >
             <NFTBadgeInline
               milestoneId={combo.id}
@@ -147,7 +158,7 @@ function ComboAchievements({ combos }: { combos: NFTMilestone[] }) {
               isEarned={true}
               className="shadow-lg"
             />
-          </motion.div>
+          </motion.button>
         ))}
       </div>
     </div>
@@ -161,7 +172,8 @@ export function RewardProgress({
   evChargingKwh,
   batteryDischargedKwh,
   nftsEarned, 
-  isNewUser = true 
+  isNewUser = true,
+  onMintNFT
 }: RewardProgressProps) {
   // Calculate earned milestones for each category
   const solarEarned = calculateEarnedMilestones(solarKwh, SOLAR_MILESTONES);
@@ -240,6 +252,7 @@ export function RewardProgress({
                   earnedMilestones={solarEarned}
                   nextMilestone={solarNext}
                   accentColor="bg-solar"
+                  onMintNFT={onMintNFT}
                 />
               </motion.div>
             </TabsContent>
@@ -259,6 +272,7 @@ export function RewardProgress({
                   earnedMilestones={evMilesEarned}
                   nextMilestone={evMilesNext}
                   accentColor="bg-energy"
+                  onMintNFT={onMintNFT}
                 />
               </motion.div>
             </TabsContent>
@@ -278,6 +292,7 @@ export function RewardProgress({
                   earnedMilestones={evChargingEarned}
                   nextMilestone={evChargingNext}
                   accentColor="bg-accent"
+                  onMintNFT={onMintNFT}
                 />
               </motion.div>
             </TabsContent>
@@ -297,6 +312,7 @@ export function RewardProgress({
                   earnedMilestones={batteryEarned}
                   nextMilestone={batteryNext}
                   accentColor="bg-secondary"
+                  onMintNFT={onMintNFT}
                 />
               </motion.div>
             </TabsContent>
@@ -304,7 +320,7 @@ export function RewardProgress({
         </Tabs>
         
         {/* Combo Achievements */}
-        <ComboAchievements combos={comboEarned} />
+        <ComboAchievements combos={comboEarned} onMintNFT={onMintNFT} />
 
         {/* View Full Collection Link */}
         <div className="pt-2 flex flex-col items-center gap-2">
