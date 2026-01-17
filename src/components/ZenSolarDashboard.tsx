@@ -12,6 +12,7 @@ import { RewardActions, RewardActionsRef } from './dashboard/RewardActions';
 import { HowItWorks } from './dashboard/HowItWorks';
 import { RewardProgress } from './dashboard/RewardProgress';
 import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
+import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Loader2 } from 'lucide-react';
@@ -255,6 +256,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             }}
           />
         </AnimatedItem>
+
+        {/* Admin-only Baseline Reset Tool */}
+        {isAdmin && (
+          <AnimatedItem>
+            <AdminBaselineReset onResetComplete={refreshDashboard} />
+          </AnimatedItem>
+        )}
       </AnimatedContainer>
     </div>
   );
