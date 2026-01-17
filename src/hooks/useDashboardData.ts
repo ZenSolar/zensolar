@@ -2,6 +2,13 @@ import { useState, useCallback, useEffect } from 'react';
 import { ActivityData, ConnectedAccount, calculateCO2Offset, DeviceLabels } from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { 
+  isSolarDevice, 
+  isBatteryDevice, 
+  isVehicleDevice, 
+  isChargerDevice,
+  canHaveSolarData 
+} from '@/lib/deviceTypeNormalizer';
 
 const defaultActivityData: ActivityData = {
   // Lifetime minted (from mint_transactions)
@@ -282,19 +289,20 @@ export function useDashboardData() {
       const labels: DeviceLabels = {};
 
       for (const device of devices || []) {
-        if (device.device_type === 'vehicle' && device.device_name) {
+        // Use normalized device type checks for consistent matching
+        if (isVehicleDevice(device.device_type) && device.device_name) {
           labels.vehicle = device.device_name;
-        } else if (device.device_type === 'powerwall' && device.device_name) {
+        } else if (isBatteryDevice(device.device_type) && device.device_name) {
+          // Battery/Powerwall devices
           labels.powerwall = device.device_name;
-        } else if (device.device_type === 'wall_connector' && device.device_name) {
+        } else if (isChargerDevice(device.device_type) && device.device_name) {
+          // Wall connectors and home chargers (Tesla Wall Connector, Wallbox, etc.)
           labels.wallConnector = device.device_name;
-        } else if (device.device_type === 'charger' && device.provider === 'wallbox' && device.device_name) {
-          // Wallbox chargers
-          labels.homeCharger = device.device_name;
-        } else if (device.device_type === 'solar_system' && device.device_name) {
-          labels.solar = device.device_name;
-        } else if (device.device_type === 'solar' && device.device_name) {
-          // Tesla solar
+          if (device.provider === 'wallbox') {
+            labels.homeCharger = device.device_name;
+          }
+        } else if (isSolarDevice(device.device_type) && device.device_name) {
+          // Solar systems from any provider (Tesla, Enphase, SolarEdge)
           labels.solar = device.device_name;
         }
       }
@@ -420,17 +428,18 @@ export function useDashboardData() {
         const solaredgeLifetimeWh = sum(solaredgeSolarDevices, (d) => lifetimeSolarWh(d.lifetime_totals));
         const solaredgePendingWh = sum(solaredgeSolarDevices, (d) => Math.max(0, lifetimeSolarWh(d.lifetime_totals) - baselineSolarWh(d.baseline_data)));
 
-        const teslaSolarWhTotal = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'solar'), (d) => lifetimeSolarWh(d.lifetime_totals));
-        const teslaSolarWhPending = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'solar'), (d) => Math.max(0, lifetimeSolarWh(d.lifetime_totals) - baselineSolarWh(d.baseline_data)));
+        // Use normalizer for consistent device type matching
+        const teslaSolarWhTotal = sum(teslaDevices.filter((d) => canHaveSolarData(d.device_type)), (d) => lifetimeSolarWh(d.lifetime_totals));
+        const teslaSolarWhPending = sum(teslaDevices.filter((d) => canHaveSolarData(d.device_type)), (d) => Math.max(0, lifetimeSolarWh(d.lifetime_totals) - baselineSolarWh(d.baseline_data)));
 
-        const teslaBatteryWhTotal = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'battery'), (d) => lifetimeBatteryWh(d.lifetime_totals));
-        const teslaBatteryWhPending = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'battery'), (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
+        const teslaBatteryWhTotal = sum(teslaDevices.filter((d) => isBatteryDevice(d.device_type)), (d) => lifetimeBatteryWh(d.lifetime_totals));
+        const teslaBatteryWhPending = sum(teslaDevices.filter((d) => isBatteryDevice(d.device_type)), (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
 
-        const teslaVehicleMilesTotal = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Number(d.lifetime_totals?.odometer || 0));
-        const teslaVehicleMilesPending = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Math.max(0, Number(d.lifetime_totals?.odometer || 0) - Number(d.baseline_data?.odometer || 0)));
+        const teslaVehicleMilesTotal = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Number(d.lifetime_totals?.odometer || 0));
+        const teslaVehicleMilesPending = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Math.max(0, Number(d.lifetime_totals?.odometer || 0) - Number(d.baseline_data?.odometer || 0)));
 
-        const teslaChargingKwhTotal = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Number(d.lifetime_totals?.charging_kwh || 0));
-        const teslaChargingKwhPending = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
+        const teslaChargingKwhTotal = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Number(d.lifetime_totals?.charging_kwh || 0));
+        const teslaChargingKwhPending = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
 
         // Solar provider priority matches the dashboard: Enphase > SolarEdge > Tesla
         const solarLifetimeWh = profileConnections?.enphase_connected && enphaseLifetimeWh > 0

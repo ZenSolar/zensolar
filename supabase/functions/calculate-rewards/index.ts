@@ -7,6 +7,51 @@ const corsHeaders = {
 
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 
+// ============================================
+// Device Type Normalizer (inline for edge functions)
+// ============================================
+type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'unknown';
+
+const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
+  'solar': 'solar',
+  'solar_system': 'solar',
+  'pv_system': 'solar',
+  'inverter': 'solar',
+  'battery': 'battery',
+  'powerwall': 'battery',
+  'energy_storage': 'battery',
+  'storage': 'battery',
+  'vehicle': 'vehicle',
+  'ev': 'vehicle',
+  'car': 'vehicle',
+  'wall_connector': 'wall_connector',
+  'charger': 'wall_connector',
+  'home_charger': 'wall_connector',
+  'evse': 'wall_connector',
+};
+
+function normalizeDeviceType(deviceType: string): CanonicalDeviceType {
+  return DEVICE_TYPE_MAP[deviceType?.toLowerCase()] || 'unknown';
+}
+
+function isSolarDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'solar';
+}
+
+function isBatteryDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'battery';
+}
+
+function isVehicleDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'vehicle';
+}
+
+function isChargerDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'wall_connector';
+}
+
+// ============================================
+
 // Reward rates - 1 $ZSOLAR per unit
 const REWARD_RATES = {
   solar_production: 1,    // 1 $ZSOLAR per kWh produced
@@ -188,26 +233,35 @@ Deno.serve(async (req) => {
       let totalEvMiles = 0;
       let totalEvChargingKwh = 0;
 
-      // Calculate totals from lifetime_totals
+      // Calculate totals from lifetime_totals using normalized device type matching
       for (const device of (devices || [])) {
         const lifetime = device.lifetime_totals as Record<string, number> | null;
         if (!lifetime) continue;
 
-        if (device.device_type === "solar" || device.device_type === "solar_system") {
+        // Solar devices (any provider)
+        if (isSolarDevice(device.device_type)) {
           const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
           totalSolarKwh += Math.floor(solarWh / 1000);
-        } else if (device.device_type === "powerwall" || device.device_type === "battery") {
-          // Powerwalls may have both solar and battery
+        }
+        
+        // Battery devices (may also have solar data from integrated systems)
+        if (isBatteryDevice(device.device_type)) {
           const solarWh = lifetime.solar_wh || 0;
           const batteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
           totalSolarKwh += Math.floor(solarWh / 1000);
           totalBatteryKwh += Math.floor(batteryWh / 1000);
-        } else if (device.device_type === "vehicle") {
+        }
+        
+        // Vehicle devices
+        if (isVehicleDevice(device.device_type)) {
           const odometer = lifetime.odometer || 0;
           const chargingKwh = lifetime.charging_kwh || Math.floor((lifetime.charging_wh || 0) / 1000);
           totalEvMiles += Math.floor(odometer);
           totalEvChargingKwh += Math.floor(chargingKwh);
-        } else if (device.device_type === "wall_connector") {
+        }
+        
+        // Charger devices (wall connectors, Wallbox, etc.)
+        if (isChargerDevice(device.device_type)) {
           const chargingWh = lifetime.charging_wh || lifetime.lifetime_charging_wh || 0;
           totalEvChargingKwh += Math.floor(chargingWh / 1000);
         }

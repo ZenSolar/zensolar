@@ -8,6 +8,56 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// ============================================
+// Device Type Normalizer (inline for edge functions)
+// ============================================
+type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'unknown';
+
+const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
+  'solar': 'solar',
+  'solar_system': 'solar',
+  'pv_system': 'solar',
+  'inverter': 'solar',
+  'battery': 'battery',
+  'powerwall': 'battery',
+  'energy_storage': 'battery',
+  'storage': 'battery',
+  'vehicle': 'vehicle',
+  'ev': 'vehicle',
+  'car': 'vehicle',
+  'wall_connector': 'wall_connector',
+  'charger': 'wall_connector',
+  'home_charger': 'wall_connector',
+  'evse': 'wall_connector',
+};
+
+function normalizeDeviceType(deviceType: string): CanonicalDeviceType {
+  return DEVICE_TYPE_MAP[deviceType?.toLowerCase()] || 'unknown';
+}
+
+function isSolarDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'solar';
+}
+
+function isBatteryDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'battery';
+}
+
+function isVehicleDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'vehicle';
+}
+
+function isChargerDevice(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'wall_connector';
+}
+
+function canHaveSolarData(deviceType: string): boolean {
+  const normalized = normalizeDeviceType(deviceType);
+  return normalized === 'solar' || normalized === 'battery';
+}
+
+// ============================================
+
 // Contract addresses (Base Sepolia - deployed 2026-01-16 with setMinter + transferOwnership)
 const ZSOLAR_TOKEN_ADDRESS = "0xAb13cc345C8a3e88B876512A3fdD93cE334B20FE";
 const ZSOLAR_NFT_ADDRESS = "0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3";
@@ -569,32 +619,41 @@ Deno.serve(async (req) => {
       const deviceIdsToUpdate: string[] = [];
 
       // Calculate real deltas from device data, filtering by category
+      // Uses normalized device type matching for consistency across providers
       for (const device of (devices || [])) {
         const baseline = device.baseline_data as Record<string, number> | null;
         const lifetime = device.lifetime_totals as Record<string, number> | null;
         
         if (!lifetime) continue;
 
-        // Match solar devices - handle both "solar" and "solar_system" device types (Enphase/SolarEdge)
-        if ((device.device_type === "solar" || device.device_type === "solar_system") && (mintCategory === 'all' || mintCategory === 'solar')) {
+        // Solar devices (Tesla solar, Enphase solar_system, SolarEdge solar_system, etc.)
+        if (isSolarDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'solar')) {
           const lifetimeSolarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
           const baselineSolarWh = baseline?.total_solar_produced_wh || baseline?.solar_wh || baseline?.solar_production_wh || baseline?.lifetime_solar_wh || 0;
           const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
-          console.log(`Solar device ${device.id}: lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
+          console.log(`Solar device ${device.id} (${device.device_type}): lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
           if (delta > 0) {
             solarDeltaKwh += delta;
             deviceIdsToUpdate.push(device.id);
           }
-        } else if ((device.device_type === "powerwall" || device.device_type === "battery") && (mintCategory === 'all' || mintCategory === 'battery')) {
+        } 
+        
+        // Battery devices (Tesla Powerwall, battery, energy_storage, etc.)
+        if (isBatteryDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'battery')) {
           const lifetimeBatteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
           const baselineBatteryWh = baseline?.total_energy_discharged_wh || baseline?.battery_discharge_wh || 0;
           const delta = Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
+          console.log(`Battery device ${device.id} (${device.device_type}): lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
           if (delta > 0) {
             batteryDeltaKwh += delta;
-            deviceIdsToUpdate.push(device.id);
+            if (!deviceIdsToUpdate.includes(device.id)) {
+              deviceIdsToUpdate.push(device.id);
+            }
           }
-        } else if (device.device_type === "vehicle") {
-          // Vehicle has both EV miles and charging
+        }
+        
+        // Vehicle devices (EV miles + charging)
+        if (isVehicleDevice(device.device_type)) {
           if (mintCategory === 'all' || mintCategory === 'ev_miles') {
             const lifetimeOdometer = lifetime.odometer || 0;
             const baselineOdometer = baseline?.odometer || 0;
@@ -608,8 +667,6 @@ Deno.serve(async (req) => {
           }
           
           if (mintCategory === 'all' || mintCategory === 'charging') {
-            // FIXED: Vehicle charging data is stored as charging_kwh (already in kWh), not charging_wh
-            // Priority: charging_kwh (kWh) > charging_wh (Wh / 1000)
             const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0);
             const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0);
             const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
@@ -620,14 +677,18 @@ Deno.serve(async (req) => {
               }
             }
           }
-        } else if (device.device_type === "wall_connector" && (mintCategory === 'all' || mintCategory === 'charging')) {
-          // Wall connector: check for kWh first, then Wh
+        } 
+        
+        // Charger devices (Wall connector, Wallbox charger, etc.)
+        if (isChargerDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'charging')) {
           const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) || (lifetime.lifetime_charging_wh ? lifetime.lifetime_charging_wh / 1000 : 0) || (lifetime.wall_connector_wh ? lifetime.wall_connector_wh / 1000 : 0);
           const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0) || (baseline?.wall_connector_wh ? baseline.wall_connector_wh / 1000 : 0);
           const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
           if (delta > 0) {
             chargingDeltaKwh += delta;
-            deviceIdsToUpdate.push(device.id);
+            if (!deviceIdsToUpdate.includes(device.id)) {
+              deviceIdsToUpdate.push(device.id);
+            }
           }
         }
       }
