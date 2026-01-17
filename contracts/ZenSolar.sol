@@ -106,6 +106,8 @@ contract ZenSolar is Ownable {
     event ComboNFTMinted(address indexed user, uint256 tokenId, string comboType);
     event WelcomeNFTMinted(address indexed user, uint256 tokenId);
     event NFTRedeemed(address indexed user, uint256 tokenId, uint256 tokensReceived);
+    event NFTBurned(address indexed user, uint256 tokenId);
+    event UserStatsReset(address indexed user);
     event Burned(uint256 amount);
 
     // =========================================================================
@@ -401,6 +403,54 @@ contract ZenSolar is Ownable {
     // =========================================================================
     // ADMIN FUNCTIONS
     // =========================================================================
+
+    /**
+     * @notice Admin burn a user's NFT (for reset functionality)
+     * @dev Only owner can call. Used for admin NFT reset operations.
+     * @param user The user whose NFT to burn
+     * @param tokenId The token ID to burn
+     */
+    function adminBurnNFT(address user, uint256 tokenId) external onlyOwner {
+        require(user != address(0), "Invalid user address");
+        require(zenSolarNFT.hasToken(user, tokenId), "User does not own this NFT");
+        
+        zenSolarNFT.burn(user, tokenId);
+        
+        emit NFTBurned(user, tokenId);
+    }
+
+    /**
+     * @notice Admin batch burn multiple NFTs from a user
+     * @param user The user whose NFTs to burn
+     * @param tokenIds Array of token IDs to burn
+     */
+    function adminBurnNFTBatch(address user, uint256[] calldata tokenIds) external onlyOwner {
+        require(user != address(0), "Invalid user address");
+        
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            if (zenSolarNFT.hasToken(user, tokenIds[i])) {
+                zenSolarNFT.burn(user, tokenIds[i]);
+                emit NFTBurned(user, tokenIds[i]);
+            }
+        }
+    }
+
+    /**
+     * @notice Reset a user's cumulative stats (for admin reset)
+     * @dev Only owner can call. Resets on-chain cumulative values.
+     * @param user The user to reset
+     */
+    function resetUserStats(address user) external onlyOwner {
+        require(user != address(0), "Invalid user address");
+        
+        cumulativeSolarKwh[user] = 0;
+        cumulativeEvMiles[user] = 0;
+        cumulativeBatteryKwh[user] = 0;
+        cumulativeChargingKwh[user] = 0;
+        hasWelcomeNFT[user] = false;
+        
+        emit UserStatsReset(user);
+    }
 
     function setTreasury(address _treasury) external onlyOwner {
         require(_treasury != address(0), "Invalid address");
