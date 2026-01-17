@@ -335,7 +335,13 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
               size="sm"
               type="button"
               className="w-full flex items-center justify-center gap-2"
-              onClick={() => toast.info('Demo: Add token simulated')}
+              onClick={() => {
+                if (onMintTokens) {
+                  onMintTokens();
+                } else {
+                  toast.info('Demo: Navigate to mint tokens from the actions below');
+                }
+              }}
             >
               <Coins className="h-4 w-4" />
               Add $ZSOLAR to Wallet
