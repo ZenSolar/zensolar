@@ -155,30 +155,18 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-background px-3 text-xs text-muted-foreground uppercase tracking-wider">
-            Since Last Mint
-          </span>
-        </div>
-      </div>
-
-      {/* Activity Data Section - Delta since last mint */}
+      {/* Activity Data Section - Lifetime totals */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground">Activity Data</h2>
         <p className="text-xs text-muted-foreground -mt-2">
-          New activity since your last token mint
+          Lifetime totals from your connected devices
         </p>
         
         <div className="grid gap-3">
           <MetricCard
             icon={Sun}
             label={solarLabel}
-            value={data.pendingSolarKwh}
+            value={data.solarEnergyProduced}
             unit="kWh"
             colorClass="bg-solar"
           />
@@ -186,7 +174,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Car}
             label={evLabel}
-            value={data.pendingEvMiles}
+            value={data.evMilesDriven}
             unit="miles"
             colorClass="bg-energy"
           />
@@ -194,7 +182,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Battery}
             label={batteryLabel}
-            value={data.pendingBatteryKwh}
+            value={data.batteryStorageDischarged}
             unit="kWh"
             colorClass="bg-secondary"
           />
@@ -202,7 +190,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Zap}
             label="Tesla Supercharger"
-            value={data.pendingSuperchargerKwh || 0}
+            value={data.teslaSuperchargerKwh}
             unit="kWh"
             colorClass="bg-accent"
           />
@@ -210,7 +198,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
           <MetricCard
             icon={Zap}
             label={homeChargerLabel}
-            value={data.pendingHomeChargerKwh || 0}
+            value={data.homeChargerKwh}
             unit="kWh"
             colorClass="bg-accent"
           />
