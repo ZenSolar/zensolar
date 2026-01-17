@@ -144,18 +144,19 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     setPendingMintCategory(null);
     setMintingState({ isLoading: true, type: 'token', category });
     setMintingProgressDialog(true);
-    setMintingProgress({ step: 'preparing', message: 'Preparing your transaction...' });
+    setMintingProgress({ step: 'preparing', message: '🔗 Connecting to Base Sepolia...' });
 
     try {
-      setMintingProgress({ step: 'submitting', message: `Minting ${category === 'all' ? 'all categories' : category.replace('_', ' ')} tokens...` });
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setMintingProgress({ step: 'submitting', message: '⚡ Processing $ZSOLAR tokens mint to Blockchain...' });
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setMintingProgress({ step: 'confirming', message: 'Waiting for confirmation...' });
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      setMintingProgress({ step: 'confirming', message: '🔐 Confirming transaction on-chain...' });
       
       const result = await onMintTokens(category);
       
       if (result.success) {
-        setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
+        setMintingProgress({ step: 'complete', message: '✅ Transaction confirmed on Base Sepolia!' });
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
@@ -172,7 +173,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         await onRefresh();
       }
     } catch (error) {
-      setMintingProgress({ step: 'error', message: 'Minting failed' });
+      setMintingProgress({ step: 'error', message: '❌ Transaction failed' });
       await new Promise(resolve => setTimeout(resolve, 1500));
       setMintingProgressDialog(false);
       
@@ -195,16 +196,19 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
     setMintingState({ isLoading: true, type: 'nft' });
     setMintingProgressDialog(true);
-    setMintingProgress({ step: 'preparing', message: 'Minting your Welcome NFT...' });
+    setMintingProgress({ step: 'preparing', message: '🔗 Connecting to Base Sepolia...' });
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setMintingProgress({ step: 'confirming', message: 'Confirming on blockchain...' });
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setMintingProgress({ step: 'submitting', message: '⚡ Processing NFT mint to Blockchain...' });
+      
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      setMintingProgress({ step: 'confirming', message: '🔐 Confirming transaction on-chain...' });
       
       const result = await onMintWelcomeNFT();
       
       if (result.success) {
-        setMintingProgress({ step: 'complete', message: 'NFT minted!' });
+        setMintingProgress({ step: 'complete', message: '✅ NFT minted to Base Sepolia!' });
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
@@ -223,7 +227,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         await onRefresh();
       }
     } catch (error) {
-      setMintingProgress({ step: 'error', message: 'Minting failed' });
+      setMintingProgress({ step: 'error', message: '❌ Transaction failed' });
       await new Promise(resolve => setTimeout(resolve, 1500));
       setMintingProgressDialog(false);
       
@@ -447,35 +451,45 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       <Dialog open={mintingProgressDialog} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center">
-              {mintingProgress.step === 'complete' ? '🎉 Success!' : 
-               mintingProgress.step === 'error' ? '❌ Error' : 
-               '⏳ Processing...'}
+            <DialogTitle className="text-center text-lg">
+              {mintingProgress.step === 'complete' ? '🎉 Transaction Complete!' : 
+               mintingProgress.step === 'error' ? '❌ Transaction Failed' : 
+               '⛓️ Minting to Blockchain...'}
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
             <div className="flex flex-col items-center gap-4">
               {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <div className="relative">
+                  <Loader2 className="h-14 w-14 animate-spin text-primary" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Zap className="h-6 w-6 text-primary animate-pulse" />
+                  </div>
+                </div>
               )}
               {mintingProgress.step === 'complete' && (
-                <CheckCircle2 className="h-12 w-12 text-green-500" />
+                <CheckCircle2 className="h-14 w-14 text-green-500" />
               )}
               {mintingProgress.step === 'error' && (
-                <AlertCircle className="h-12 w-12 text-destructive" />
+                <AlertCircle className="h-14 w-14 text-destructive" />
               )}
-              <p className="text-center text-muted-foreground">{mintingProgress.message}</p>
+              <p className="text-center text-base font-medium">{mintingProgress.message}</p>
+              {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Securing your rewards on Base Sepolia testnet
+                </p>
+              )}
             </div>
             
             <Progress 
               value={
-                mintingProgress.step === 'preparing' ? 25 :
+                mintingProgress.step === 'preparing' ? 20 :
                 mintingProgress.step === 'submitting' ? 50 :
-                mintingProgress.step === 'confirming' ? 75 :
+                mintingProgress.step === 'confirming' ? 80 :
                 mintingProgress.step === 'complete' ? 100 : 0
               } 
-              className="h-2"
+              className="h-3"
             />
           </div>
         </DialogContent>

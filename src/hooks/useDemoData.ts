@@ -76,20 +76,51 @@ const createDemoProfile = () => ({
   linkedin_handle: null,
 });
 
-// Demo eligibility data
-const createDemoEligibility = (hasWelcomeNFT: boolean, mintedNfts: number[]) => ({
-  hasWelcomeNFT,
-  ownedNFTs: mintedNfts,
-  eligibleMilestoneNFTs: [
-    { tokenId: 1, category: 'solar', name: 'Sunspark', threshold: 500 },
-    { tokenId: 2, category: 'solar', name: 'Photonic', threshold: 1000 },
-    { tokenId: 3, category: 'solar', name: 'Rayforge', threshold: 2500 },
-  ].filter(nft => !mintedNfts.includes(nft.tokenId)),
-  eligibleComboNFTs: [
-    { tokenId: 34, name: 'Duality', comboType: '2_categories' },
-  ].filter(nft => !mintedNfts.includes(nft.tokenId)),
-  totalEligible: 0, // Will be calculated
-});
+// Demo eligibility data - calculated based on actual demo activity thresholds
+const createDemoEligibility = (hasWelcomeNFT: boolean, mintedNfts: number[]) => {
+  // Based on demo values: Solar 12847, EV Miles 24532, Battery 3218, Charging 5019
+  const eligibleMilestoneNFTs = [
+    // Solar NFTs earned (500, 1000, 2500, 5000, 10000 thresholds - demo has 12847)
+    { tokenId: 1, category: 'solar', name: 'Sunspark', threshold: 500, description: '500 kWh solar generated' },
+    { tokenId: 2, category: 'solar', name: 'Photonic', threshold: 1000, description: '1,000 kWh solar generated' },
+    { tokenId: 3, category: 'solar', name: 'Rayforge', threshold: 2500, description: '2,500 kWh solar generated' },
+    { tokenId: 4, category: 'solar', name: 'Solaris', threshold: 5000, description: '5,000 kWh solar generated' },
+    { tokenId: 5, category: 'solar', name: 'Helios', threshold: 10000, description: '10,000 kWh solar generated' },
+    // Battery NFTs earned (500, 1000, 2500 thresholds - demo has 3218)
+    { tokenId: 9, category: 'battery', name: 'Voltbank', threshold: 500, description: '500 kWh battery discharged' },
+    { tokenId: 10, category: 'battery', name: 'Gridpulse', threshold: 1000, description: '1,000 kWh battery discharged' },
+    { tokenId: 11, category: 'battery', name: 'Megacell', threshold: 2500, description: '2,500 kWh battery discharged' },
+    // EV Charging NFTs earned (100, 500, 1000, 1500, 2500, 5000 thresholds - demo has 5019)
+    { tokenId: 16, category: 'charging', name: 'Ignite', threshold: 100, description: '100 kWh EV charging' },
+    { tokenId: 17, category: 'charging', name: 'Voltcharge', threshold: 500, description: '500 kWh EV charging' },
+    { tokenId: 18, category: 'charging', name: 'Kilovolt', threshold: 1000, description: '1,000 kWh EV charging' },
+    { tokenId: 19, category: 'charging', name: 'Ampforge', threshold: 1500, description: '1,500 kWh EV charging' },
+    { tokenId: 20, category: 'charging', name: 'Chargeon', threshold: 2500, description: '2,500 kWh EV charging' },
+    { tokenId: 21, category: 'charging', name: 'Gigacharge', threshold: 5000, description: '5,000 kWh EV charging' },
+    // EV Miles NFTs earned (100, 500, 1000, 5000, 10000 thresholds - demo has 24532)
+    { tokenId: 24, category: 'ev_miles', name: 'Ignitor', threshold: 100, description: '100 EV miles driven' },
+    { tokenId: 25, category: 'ev_miles', name: 'Velocity', threshold: 500, description: '500 EV miles driven' },
+    { tokenId: 26, category: 'ev_miles', name: 'Autobahn', threshold: 1000, description: '1,000 EV miles driven' },
+    { tokenId: 27, category: 'ev_miles', name: 'Hyperdrive', threshold: 5000, description: '5,000 EV miles driven' },
+    { tokenId: 28, category: 'ev_miles', name: 'Electra', threshold: 10000, description: '10,000 EV miles driven' },
+  ].filter(nft => !mintedNfts.includes(nft.tokenId));
+
+  const eligibleComboNFTs = [
+    // With 4 categories and 19 category NFTs, user qualifies for these combos
+    { tokenId: 34, name: 'Duality', description: 'Earned NFTs in 2 categories' },
+    { tokenId: 35, name: 'Trifecta', description: 'Earned NFTs in 3 categories' },
+    { tokenId: 36, name: 'Quadrant', description: 'Earned 5+ category NFTs' },
+    { tokenId: 37, name: 'Constellation', description: 'Earned 10+ category NFTs' },
+  ].filter(nft => !mintedNfts.includes(nft.tokenId));
+
+  return {
+    hasWelcomeNFT,
+    ownedNFTs: mintedNfts,
+    eligibleMilestoneNFTs,
+    eligibleComboNFTs,
+    totalEligible: eligibleMilestoneNFTs.length + eligibleComboNFTs.length,
+  };
+};
 
 export interface DemoMintResult {
   success: boolean;
@@ -155,9 +186,9 @@ export function useDemoData() {
     setMintedNFTs([]);
   }, []);
 
-  // Fake minting functions
+  // Fake minting functions with 4-second blockchain simulation
   const simulateMintWelcomeNFT = useCallback(async (): Promise<DemoMintResult> => {
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate blockchain delay
+    await new Promise(resolve => setTimeout(resolve, 4000)); // 4-second blockchain delay
     
     if (hasWelcomeNFT) {
       return {
@@ -173,14 +204,14 @@ export function useDemoData() {
     return {
       success: true,
       txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
-      message: 'Welcome NFT minted successfully! 🎉',
+      message: 'Welcome NFT successfully minted to Base Sepolia! 🎉',
       nftsMinted: [0],
       nftNames: ['Welcome NFT'],
     };
   }, [hasWelcomeNFT]);
 
   const simulateMintTokens = useCallback(async (category: string): Promise<DemoMintResult> => {
-    await new Promise(resolve => setTimeout(resolve, 2500)); // Simulate blockchain delay
+    await new Promise(resolve => setTimeout(resolve, 4000)); // 4-second blockchain delay
     
     // Calculate tokens based on category
     let tokens = 0;
@@ -222,13 +253,13 @@ export function useDemoData() {
     return {
       success: true,
       txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
-      message: `${userTokens.toLocaleString()} $ZSOLAR tokens minted successfully! 🎉`,
+      message: `${userTokens.toLocaleString()} $ZSOLAR tokens successfully minted to Base Sepolia! 🎉`,
       tokensMinted: userTokens,
     };
   }, [activityData]);
 
   const simulateMintMilestoneNFT = useCallback(async (tokenId: number, name: string): Promise<DemoMintResult> => {
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 4000)); // 4-second blockchain delay
     
     if (mintedNFTs.includes(tokenId)) {
       return {
@@ -243,14 +274,14 @@ export function useDemoData() {
     return {
       success: true,
       txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
-      message: `${name} NFT minted successfully! 🎉`,
+      message: `${name} NFT successfully minted to Base Sepolia! 🎉`,
       nftsMinted: [tokenId],
       nftNames: [name],
     };
   }, [mintedNFTs]);
 
   const simulateBatchMintNFTs = useCallback(async (tokenIds: number[], names: string[]): Promise<DemoMintResult> => {
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 4000)); // 4-second blockchain delay
     
     const newTokens = tokenIds.filter(id => !mintedNFTs.includes(id));
     const newNames = names.filter((_, i) => !mintedNFTs.includes(tokenIds[i]));
@@ -268,7 +299,7 @@ export function useDemoData() {
     return {
       success: true,
       txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
-      message: `${newTokens.length} NFT${newTokens.length > 1 ? 's' : ''} minted successfully! 🎉`,
+      message: `${newTokens.length} NFT${newTokens.length > 1 ? 's' : ''} successfully minted to Base Sepolia! 🎉`,
       nftsMinted: newTokens,
       nftNames: newNames,
     };
