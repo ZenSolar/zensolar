@@ -1,4 +1,5 @@
 import type React from 'react';
+import { useState } from 'react';
 import { ActivityData, calculateCO2Offset } from '@/types/dashboard';
 import { MetricCard } from './MetricCard';
 import {
@@ -12,6 +13,8 @@ import {
   Users,
   ChevronRight,
   Sparkles,
+  DollarSign,
+  Settings2,
 } from 'lucide-react';
 import {
   calculateEarnedMilestones,
@@ -26,6 +29,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators, type ProviderKey, type ProviderRefreshState } from './RefreshIndicators';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 type CurrentActivity = {
   solarKwh: number;
@@ -49,7 +58,12 @@ interface ActivityMetricsProps {
   onMintSuccess?: () => void;
 }
 
+// Default token price in USD
+const DEFAULT_TOKEN_PRICE = 0.0025;
+
 export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCategory, onMintSuccess }: ActivityMetricsProps) {
+  const [tokenPrice, setTokenPrice] = useState<number>(DEFAULT_TOKEN_PRICE);
+  const [priceInput, setPriceInput] = useState<string>(DEFAULT_TOKEN_PRICE.toString());
   const labels = data.deviceLabels || {};
 
   // Build dynamic labels with full activity descriptions
@@ -200,18 +214,66 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
             {activityUnits > 0 ? 'Ready to mint — you receive 93% as tokens' : 'No activity to mint yet'}
           </p>
 
-          {/* Tokens to receive - prominent display */}
+          {/* Tokens to receive - prominent display with USD value */}
           <div className={`p-4 rounded-xl ${activityUnits > 0 ? 'bg-gradient-to-r from-primary/15 to-primary/5 border border-primary/30' : 'bg-muted/50 border border-border'}`}>
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-full ${activityUnits > 0 ? 'bg-primary' : 'bg-muted'}`}>
                 <Coins className={`h-6 w-6 ${activityUnits > 0 ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-sm text-muted-foreground">Tokens You'll Receive</p>
                 <p className="text-2xl font-bold text-foreground">
                   {tokensToReceive.toLocaleString()}
                   <span className="text-sm font-normal text-muted-foreground ml-2">$ZSOLAR</span>
                 </p>
+                {/* USD Value Estimate */}
+                <div className="flex items-center gap-2 mt-1">
+                  <DollarSign className="h-3.5 w-3.5 text-eco" />
+                  <span className="text-sm font-medium text-eco">
+                    ≈ ${(tokensToReceive * tokenPrice).toFixed(2)} USD
+                  </span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="p-1 hover:bg-muted rounded transition-colors">
+                        <Settings2 className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 p-3" align="start">
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-foreground">Token Price (USD)</p>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                            <Input
+                              type="number"
+                              step="0.0001"
+                              min="0"
+                              value={priceInput}
+                              onChange={(e) => setPriceInput(e.target.value)}
+                              className="pl-6 h-8 text-sm"
+                              placeholder="0.0025"
+                            />
+                          </div>
+                          <Button 
+                            size="sm" 
+                            className="h-8"
+                            onClick={() => {
+                              const parsed = parseFloat(priceInput);
+                              if (!isNaN(parsed) && parsed >= 0) {
+                                setTokenPrice(parsed);
+                              }
+                            }}
+                          >
+                            Set
+                          </Button>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">
+                          Default: $0.0025 (estimated)
+                        </p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </div>
           </div>

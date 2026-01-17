@@ -296,17 +296,80 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
   }, [address, onConnect]);
 
   if (isDemo) {
+    // Generate a fake wallet address for demo
+    const fakeWalletAddress = walletAddress || '0x7a3F...8E4d';
+    const isConnectedDemo = Boolean(walletAddress);
+    
     return (
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className={`rounded-lg border p-4 ${isConnectedDemo ? 'border-primary/30 bg-card' : 'border-border bg-card'}`}>
         <div className="flex items-center gap-3 mb-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-            <Wallet className="h-5 w-5 text-primary" />
+          <div className={`flex h-10 w-10 items-center justify-center rounded-full ${isConnectedDemo ? 'bg-primary/10' : 'bg-muted'}`}>
+            {isConnectedDemo ? (
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+            ) : (
+              <Wallet className="h-5 w-5 text-muted-foreground" />
+            )}
           </div>
-          <div>
-            <p className="text-sm font-medium text-foreground">Connect Wallet</p>
-            <p className="text-xs text-muted-foreground">Disabled in demo mode</p>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">
+              {isConnectedDemo ? 'Wallet Connected!' : 'Connect Wallet'}
+            </p>
+            {isConnectedDemo ? (
+              <p className="text-xs text-muted-foreground font-mono">{fakeWalletAddress}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">Demo mode</p>
+            )}
           </div>
         </div>
+        
+        {isConnectedDemo ? (
+          <div className="flex flex-col gap-2">
+            {/* Base Sepolia indicator */}
+            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 rounded-lg text-sm text-primary font-medium">
+              <div className="h-4 w-4 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">B</div>
+              Base Sepolia
+            </div>
+            
+            <Button
+              variant="secondary"
+              size="sm"
+              type="button"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={() => toast.info('Demo: Add token simulated')}
+            >
+              <Coins className="h-4 w-4" />
+              Add $ZSOLAR to Wallet
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => {
+                if (onDisconnect) {
+                  onDisconnect();
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Disconnect Wallet
+            </Button>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            className="w-full"
+            onClick={() => {
+              // Generate a fake wallet address
+              const fakeAddr = '0x7a3F' + Math.random().toString(16).slice(2, 6).toUpperCase() + '...8E4d';
+              onConnect(fakeAddr);
+            }}
+          >
+            <Wallet className="h-4 w-4 mr-2" />
+            Connect Wallet (Demo)
+          </Button>
+        )}
       </div>
     );
   }
