@@ -34,11 +34,14 @@ export function PullToRefreshIndicator({
     setWasReady(isReady);
   }, [isReady, wasReady, isRefreshing]);
 
-  // Show success state briefly after refresh completes
+  // Show success state briefly after refresh completes, then auto-hide
   useEffect(() => {
     if (!isRefreshing && wasReady) {
       setShowSuccess(true);
-      const timer = setTimeout(() => setShowSuccess(false), 800);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        setWasReady(false); // Reset for next refresh
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [isRefreshing, wasReady]);
