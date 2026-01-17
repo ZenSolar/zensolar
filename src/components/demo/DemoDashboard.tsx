@@ -208,7 +208,7 @@ export function DemoDashboard() {
 
         {/* Token Price Card - Prominent at top */}
         <AnimatedItem>
-          <TokenPriceCard tokensHeld={activityData.tokensEarned} />
+          <TokenPriceCard tokensHeld={activityData.lifetimeMinted} />
         </AnimatedItem>
 
         {/* Getting Started Guide */}
