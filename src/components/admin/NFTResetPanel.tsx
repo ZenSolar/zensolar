@@ -22,12 +22,10 @@ interface ResetResult {
   onChainBurns: { tokenId: number; name: string; txHash: string }[];
   onChainErrors: { tokenId: number; name: string; error: string }[];
   dbTransactionsDeleted: number;
-  baselinesReset: number;
 }
 
 export function NFTResetPanel() {
   const [walletAddress, setWalletAddress] = useState('');
-  const [resetBaselines, setResetBaselines] = useState(true);
   const [preview, setPreview] = useState<NFTPreview | null>(null);
   const [result, setResult] = useState<ResetResult | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'previewing' | 'resetting' | 'success' | 'error'>('idle');
@@ -91,7 +89,6 @@ export function NFTResetPanel() {
         body: { 
           action: 'reset', 
           targetUserId: preview.userId,
-          resetBaselines,
         },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -193,17 +190,10 @@ export function NFTResetPanel() {
               </div>
             )}
 
-            {/* Options */}
-            <div className="flex items-center space-x-2 pt-2 border-t">
-              <Checkbox 
-                id="reset-baselines" 
-                checked={resetBaselines}
-                onCheckedChange={(checked) => setResetBaselines(checked === true)}
-              />
-              <Label htmlFor="reset-baselines" className="text-sm cursor-pointer">
-                Also reset device baselines (allows re-earning tokens)
-              </Label>
-            </div>
+            {/* Note: Activity data is never affected */}
+            <p className="text-xs text-muted-foreground pt-2 border-t">
+              ⚡ Activity data (solar, EV, battery metrics) will NOT be affected
+            </p>
 
             {/* Reset Button */}
             <div className="flex gap-2 pt-2">
@@ -246,9 +236,7 @@ export function NFTResetPanel() {
           <div className="space-y-2 p-3 bg-green-500/10 rounded-md">
             <div className="text-sm space-y-1">
               <p>✓ Deleted <strong>{result.dbTransactionsDeleted}</strong> mint transaction records</p>
-              {result.baselinesReset > 0 && (
-                <p>✓ Reset baselines for <strong>{result.baselinesReset}</strong> devices</p>
-              )}
+              <p className="text-muted-foreground">✓ Activity data preserved</p>
             </div>
             {result.onChainErrors.length > 0 && (
               <div className="flex items-start gap-2 mt-2 p-2 bg-amber-500/10 rounded">
