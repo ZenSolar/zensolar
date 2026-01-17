@@ -191,7 +191,7 @@ function MilestoneCard({
             <div className="flex justify-between text-[10px]">
               <span className="text-muted-foreground">Progress</span>
               <span className={isEarned ? 'text-primary font-medium' : 'text-muted-foreground'}>
-                {currentValue.toLocaleString()} / {milestone.threshold.toLocaleString()} {unit}
+                {Math.min(currentValue, milestone.threshold).toLocaleString()} / {milestone.threshold.toLocaleString()} {unit}
               </span>
             </div>
             <Progress 
