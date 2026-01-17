@@ -120,38 +120,76 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { action, targetUserId } = body;
+    const { action, walletAddress, targetUserId } = body;
 
-    console.log(`Admin ${user.id} performing ${action} for target user ${targetUserId}`);
+    console.log(`Admin ${user.id} performing ${action}`);
+
+    // Helper to find user by wallet address
+    async function findUserByWallet(wallet: string) {
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("user_id, wallet_address, display_name")
+        .eq("wallet_address", wallet.toLowerCase())
+        .maybeSingle();
+
+      // Try case-insensitive match if exact match fails
+      if (!profile) {
+        const { data: profiles } = await supabaseClient
+          .from("profiles")
+          .select("user_id, wallet_address, display_name")
+          .not("wallet_address", "is", null);
+
+        if (profiles) {
+          const match = profiles.find(p => 
+            p.wallet_address?.toLowerCase() === wallet.toLowerCase()
+          );
+          if (match) return match;
+        }
+      }
+
+      return profile;
+    }
 
     if (action === "preview") {
       // Preview what would be reset for a user
-      if (!targetUserId) {
-        return new Response(JSON.stringify({ error: "targetUserId required" }), {
+      const lookupWallet = walletAddress || null;
+      const lookupUserId = targetUserId || null;
+
+      if (!lookupWallet && !lookupUserId) {
+        return new Response(JSON.stringify({ error: "walletAddress or targetUserId required" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // Get target user's wallet address
-      const { data: profile, error: profileError } = await supabaseClient
-        .from("profiles")
-        .select("wallet_address, display_name")
-        .eq("user_id", targetUserId)
-        .single();
+      // Find user by wallet address or user ID
+      let profile: { user_id: string; wallet_address: string | null; display_name: string | null } | null = null;
+      
+      if (lookupWallet) {
+        profile = await findUserByWallet(lookupWallet);
+      } else if (lookupUserId) {
+        const { data } = await supabaseClient
+          .from("profiles")
+          .select("user_id, wallet_address, display_name")
+          .eq("user_id", lookupUserId)
+          .single();
+        profile = data;
+      }
 
-      if (profileError || !profile) {
-        return new Response(JSON.stringify({ error: "User not found" }), {
+      if (!profile) {
+        return new Response(JSON.stringify({ error: "User not found with that wallet address" }), {
           status: 404,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
+      const userId = profile.user_id;
+
       // Get mint history from database
       const { data: mintTransactions } = await supabaseClient
         .from("mint_transactions")
         .select("id, nfts_minted, nft_names, tokens_minted, created_at, tx_hash")
-        .eq("user_id", targetUserId)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
       // Get on-chain NFTs if wallet connected
@@ -180,7 +218,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({
         success: true,
         preview: {
-          userId: targetUserId,
+          userId,
           displayName: profile.display_name,
           walletAddress: profile.wallet_address,
           onChainNFTs: onChainNFTs.map(id => ({ id, name: NFT_NAMES[id] || `Token #${id}` })),
@@ -194,26 +232,38 @@ Deno.serve(async (req) => {
 
     if (action === "reset") {
       // Full reset: burn on-chain NFTs + clear database records
-      if (!targetUserId) {
-        return new Response(JSON.stringify({ error: "targetUserId required" }), {
+      const lookupWallet = walletAddress || null;
+      const lookupUserId = targetUserId || null;
+
+      if (!lookupWallet && !lookupUserId) {
+        return new Response(JSON.stringify({ error: "walletAddress or targetUserId required" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // Get target user's wallet address
-      const { data: profile, error: profileError } = await supabaseClient
-        .from("profiles")
-        .select("wallet_address, display_name")
-        .eq("user_id", targetUserId)
-        .single();
+      // Find user by wallet address or user ID
+      let profile: { user_id: string; wallet_address: string | null; display_name: string | null } | null = null;
+      
+      if (lookupWallet) {
+        profile = await findUserByWallet(lookupWallet);
+      } else if (lookupUserId) {
+        const { data } = await supabaseClient
+          .from("profiles")
+          .select("user_id, wallet_address, display_name")
+          .eq("user_id", lookupUserId)
+          .single();
+        profile = data;
+      }
 
-      if (profileError || !profile) {
-        return new Response(JSON.stringify({ error: "User not found" }), {
+      if (!profile) {
+        return new Response(JSON.stringify({ error: "User not found with that wallet address" }), {
           status: 404,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
+      const userId = profile.user_id;
 
       const results = {
         onChainBurns: [] as { tokenId: number; name: string; txHash: string }[],
@@ -284,7 +334,7 @@ Deno.serve(async (req) => {
       const { data: deletedTxs, error: deleteTxError } = await supabaseClient
         .from("mint_transactions")
         .delete()
-        .eq("user_id", targetUserId)
+        .eq("user_id", userId)
         .select("id");
 
       if (deleteTxError) {
@@ -303,7 +353,7 @@ Deno.serve(async (req) => {
             baseline_data: null,
             last_minted_at: null 
           })
-          .eq("user_id", targetUserId)
+          .eq("user_id", userId)
           .select("id");
 
         if (baselineError) {
@@ -316,7 +366,7 @@ Deno.serve(async (req) => {
 
       return new Response(JSON.stringify({
         success: true,
-        message: `NFT reset completed for ${profile.display_name || targetUserId}`,
+        message: `NFT reset completed for ${profile.display_name || profile.wallet_address}`,
         results,
         note: results.onChainErrors.length > 0 
           ? "On-chain NFTs could not be burned automatically. The database has been cleared so the user can re-earn and re-mint NFTs. The old on-chain NFTs will remain but won't affect new minting."

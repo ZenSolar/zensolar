@@ -26,7 +26,7 @@ interface ResetResult {
 }
 
 export function NFTResetPanel() {
-  const [targetUserId, setTargetUserId] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
   const [resetBaselines, setResetBaselines] = useState(true);
   const [preview, setPreview] = useState<NFTPreview | null>(null);
   const [result, setResult] = useState<ResetResult | null>(null);
@@ -34,8 +34,15 @@ export function NFTResetPanel() {
   const [message, setMessage] = useState('');
 
   const handlePreview = async () => {
-    if (!targetUserId.trim()) {
-      toast.error('Please enter a user ID');
+    const trimmedAddress = walletAddress.trim();
+    if (!trimmedAddress) {
+      toast.error('Please enter a wallet address');
+      return;
+    }
+
+    // Basic wallet address validation
+    if (!trimmedAddress.startsWith('0x') || trimmedAddress.length !== 42) {
+      toast.error('Invalid wallet address format');
       return;
     }
 
@@ -49,7 +56,7 @@ export function NFTResetPanel() {
       if (!session) throw new Error('Not authenticated');
 
       const response = await supabase.functions.invoke('reset-user-nfts', {
-        body: { action: 'preview', targetUserId: targetUserId.trim() },
+        body: { action: 'preview', walletAddress: trimmedAddress },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
@@ -105,7 +112,7 @@ export function NFTResetPanel() {
   };
 
   const clearAll = () => {
-    setTargetUserId('');
+    setWalletAddress('');
     setPreview(null);
     setResult(null);
     setStatus('idle');
@@ -124,21 +131,21 @@ export function NFTResetPanel() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* User ID Input */}
+        {/* Wallet Address Input */}
         <div className="space-y-2">
-          <Label htmlFor="nft-reset-user-id">Target User ID</Label>
+          <Label htmlFor="nft-reset-wallet">Target Wallet Address</Label>
           <div className="flex gap-2">
             <Input
-              id="nft-reset-user-id"
-              placeholder="Enter user UUID..."
-              value={targetUserId}
-              onChange={(e) => setTargetUserId(e.target.value)}
+              id="nft-reset-wallet"
+              placeholder="0x..."
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
               className="font-mono text-sm"
             />
             <Button 
               variant="outline" 
               onClick={handlePreview}
-              disabled={status === 'previewing' || status === 'resetting' || !targetUserId.trim()}
+              disabled={status === 'previewing' || status === 'resetting' || !walletAddress.trim()}
             >
               {status === 'previewing' ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -148,7 +155,7 @@ export function NFTResetPanel() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Get the user ID from the Users table above
+            Enter the user's connected wallet address (e.g., 0x1234...abcd)
           </p>
         </div>
 
