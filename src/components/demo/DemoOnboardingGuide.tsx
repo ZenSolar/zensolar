@@ -112,6 +112,10 @@ export function DemoOnboardingGuide({ onComplete }: DemoOnboardingGuideProps) {
     setIsVisible(false);
     setHasCompleted(true);
     localStorage.setItem('demo-guide-seen', 'true');
+    
+    // Scroll to top of dashboard after completing tour
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     onComplete?.();
   };
 
