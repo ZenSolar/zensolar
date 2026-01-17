@@ -21,6 +21,7 @@ const Install = lazy(() => import("./pages/Install"));
 const Demo = lazy(() => import("./pages/Demo"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboard").then(m => ({ default: m.DemoDashboard })));
+const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminContracts = lazy(() => import("./pages/AdminContracts"));
 const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
@@ -90,7 +91,7 @@ const App = () => {
                     {/* Demo routes with full sidebar */}
                     <Route path="/demo" element={<DemoLayout />}>
                       <Route index element={<DemoDashboard />} />
-                      <Route path="nft-collection" element={<NftCollection />} />
+                      <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="how-it-works" element={<HowItWorks />} />
                       <Route path="technology" element={<Technology />} />
                       <Route path="store" element={<Store />} />
