@@ -66,13 +66,13 @@ function CopyButton({
   return (
     <button
       onClick={handleCopy}
-      className={`flex items-center justify-between gap-2 px-4 py-3 bg-background rounded-lg border border-border text-sm font-mono hover:bg-muted transition-colors w-full ${className}`}
+      className={`flex items-center justify-between gap-2 px-4 py-3 bg-background/80 rounded-xl border border-border/50 text-sm font-mono hover:bg-muted/50 hover:border-primary/30 transition-all w-full group shadow-sm ${className}`}
     >
       <span className="truncate">{text}</span>
       {copied ? (
         <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
       ) : (
-        <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors" />
       )}
     </button>
   );
@@ -255,7 +255,7 @@ export function NFTMintFlow({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md overflow-hidden">
+      <DialogContent className="sm:max-w-md overflow-hidden p-0">
         <AnimatePresence mode="wait">
           {/* STEP 1: Confirmation */}
           {step === 'confirm' && (
@@ -264,21 +264,23 @@ export function NFTMintFlow({
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="space-y-4"
+              className="p-6 space-y-5"
             >
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-primary" />
-                  Mint NFT
+                <DialogTitle className="flex items-center gap-3">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">
+                    <Zap className="h-5 w-5 text-primary" />
+                  </span>
+                  <span>Mint NFT</span>
                 </DialogTitle>
-                <DialogDescription>
-                  You're about to mint this NFT to your wallet on Base Sepolia
+                <DialogDescription className="pt-1">
+                  You're about to mint this collectible to your wallet on Base Sepolia
                 </DialogDescription>
               </DialogHeader>
 
               {/* NFT Preview */}
-              <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-border/50">
-                <div className="w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex-shrink-0">
+              <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50 shadow-sm">
+                <div className="w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex-shrink-0 shadow-lg ring-2 ring-primary/10">
                   {artwork && (
                     <img 
                       src={artwork} 
@@ -288,27 +290,30 @@ export function NFTMintFlow({
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-lg">{milestone.name}</h3>
-                  <p className="text-sm text-muted-foreground">{milestone.description}</p>
-                  <Badge variant="secondary" className="mt-2 text-xs">
+                  <h3 className="font-bold text-lg leading-tight">{milestone.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{milestone.description}</p>
+                  <Badge variant="secondary" className="mt-2 text-xs font-mono">
                     Token ID: {tokenId}
                   </Badge>
                 </div>
               </div>
 
               {/* Wallet Info */}
-              <div className="p-3 bg-accent/10 rounded-lg border border-accent/20 flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-accent" />
-                <span className="text-xs text-muted-foreground">
-                  Minting to: <span className="font-mono text-foreground">{walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</span>
-                </span>
+              <div className="p-3.5 bg-primary/5 rounded-xl border border-primary/20 flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Wallet className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground">Minting to wallet</p>
+                  <p className="font-mono text-sm font-medium truncate">{walletAddress.slice(0, 8)}...{walletAddress.slice(-6)}</p>
+                </div>
               </div>
 
-              <DialogFooter className="flex gap-2 sm:gap-0">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
+              <DialogFooter className="pt-2">
+                <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">
                   Cancel
                 </Button>
-                <Button onClick={handleMint} className="gap-2">
+                <Button onClick={handleMint} className="gap-2 flex-1 sm:flex-none bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow">
                   <Zap className="h-4 w-4" />
                   Confirm Mint
                 </Button>
@@ -323,17 +328,17 @@ export function NFTMintFlow({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="py-8 text-center space-y-6"
+              className="py-12 px-6 text-center space-y-8"
             >
               {/* Animated NFT */}
-              <div className="relative w-32 h-32 mx-auto">
+              <div className="relative w-36 h-36 mx-auto">
                 <motion.div
-                  className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden"
+                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden shadow-2xl ring-4 ring-primary/10"
                   animate={{ 
                     boxShadow: [
-                      '0 0 0 0 rgba(var(--primary), 0)',
-                      '0 0 30px 10px rgba(var(--primary), 0.3)',
-                      '0 0 0 0 rgba(var(--primary), 0)'
+                      '0 0 0 0 hsl(var(--primary) / 0)',
+                      '0 0 40px 15px hsl(var(--primary) / 0.2)',
+                      '0 0 0 0 hsl(var(--primary) / 0)'
                     ]
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -347,39 +352,43 @@ export function NFTMintFlow({
                   )}
                 </motion.div>
                 <motion.div 
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2"
+                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-background rounded-full p-2 shadow-lg"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 >
-                  <Loader2 className="h-8 w-8 text-primary" />
+                  <Loader2 className="h-6 w-6 text-primary" />
                 </motion.div>
               </div>
 
               <div>
-                <h3 className="text-xl font-bold mb-2">Minting on Blockchain</h3>
+                <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Minting on Blockchain</h3>
                 <p className="text-sm text-muted-foreground">
                   Transaction in progress. Please wait...
                 </p>
               </div>
 
               {/* Transaction Steps */}
-              <div className="space-y-2 text-left max-w-xs mx-auto">
+              <div className="space-y-3 text-left max-w-xs mx-auto bg-muted/30 rounded-xl p-4 border border-border/50">
                 <motion.div 
-                  className="flex items-center gap-2 text-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-3 text-sm"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span>Verifying eligibility</span>
+                  <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  </div>
+                  <span className="font-medium">Verifying eligibility</span>
                 </motion.div>
                 <motion.div 
-                  className="flex items-center gap-2 text-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-3 text-sm"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                  <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                  </div>
                   <span className="text-muted-foreground">Submitting transaction...</span>
                 </motion.div>
               </div>
@@ -393,22 +402,22 @@ export function NFTMintFlow({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="py-4 text-center space-y-5"
+              className="py-8 px-6 text-center space-y-6"
             >
               {/* Animated Success Icon */}
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', damping: 10 }}
-                className="relative w-24 h-24 mx-auto"
+                className="relative w-28 h-28 mx-auto"
               >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center shadow-xl ring-4 ring-green-500/10">
                   <motion.div
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: 'spring', delay: 0.2 }}
                   >
-                    <CheckCircle2 className="h-12 w-12 text-green-500" />
+                    <CheckCircle2 className="h-14 w-14 text-green-500" />
                   </motion.div>
                 </div>
                 <motion.div
@@ -416,16 +425,16 @@ export function NFTMintFlow({
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
                 >
-                  <Sparkles className="absolute top-0 right-0 h-4 w-4 text-amber-400" />
-                  <Sparkles className="absolute bottom-0 left-0 h-3 w-3 text-primary" />
+                  <Sparkles className="absolute top-0 right-0 h-5 w-5 text-amber-400" />
+                  <Sparkles className="absolute bottom-0 left-0 h-4 w-4 text-primary" />
                 </motion.div>
               </motion.div>
 
               <div>
-                <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mb-1">
+                <h3 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
                   {mintResult.txHash ? 'NFT Minted Successfully!' : 'NFT Already On-Chain'}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                   {mintResult.txHash ? milestone.name : 'This collectible is already in your wallet. Add it to MetaMask below.'}
                 </p>
               </div>
@@ -436,17 +445,22 @@ export function NFTMintFlow({
                   href={`https://sepolia.basescan.org/tx/${mintResult.txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                  className="inline-flex items-center gap-2 text-sm text-primary hover:underline bg-primary/5 px-4 py-2 rounded-full transition-colors hover:bg-primary/10"
                 >
-                  View Transaction <ExternalLink className="h-3 w-3" />
+                  View Transaction <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
 
               {/* MetaMask Import Info */}
-              <div className="p-4 bg-muted/50 rounded-xl border border-border/50 space-y-4 text-left">
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Add to MetaMask</span>
+              <div className="p-5 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50 space-y-4 text-left shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Wallet className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="font-semibold">Add to MetaMask</span>
+                    <p className="text-xs text-muted-foreground">Copy these values to import your NFT</p>
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
@@ -461,12 +475,12 @@ export function NFTMintFlow({
                   </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground text-center">
-                  Redirecting to instructions in {countdown}s...
+                <p className="text-xs text-muted-foreground text-center pt-1">
+                  Redirecting to instructions in <span className="font-mono font-semibold text-foreground">{countdown}s</span>
                 </p>
               </div>
 
-              <Button onClick={openMetaMaskInfo} className="w-full gap-2">
+              <Button onClick={openMetaMaskInfo} className="w-full gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20">
                 <Wallet className="h-4 w-4" />
                 Open MetaMask Instructions
               </Button>
@@ -480,24 +494,29 @@ export function NFTMintFlow({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="py-6 text-center space-y-4"
+              className="py-10 px-6 text-center space-y-6"
             >
-              <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-                <AlertCircle className="h-8 w-8 text-destructive" />
-              </div>
+              <motion.div 
+                className="w-20 h-20 mx-auto rounded-full bg-destructive/10 flex items-center justify-center ring-4 ring-destructive/10"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring' }}
+              >
+                <AlertCircle className="h-10 w-10 text-destructive" />
+              </motion.div>
 
               <div>
-                <h3 className="text-xl font-bold text-destructive mb-2">
+                <h3 className="text-2xl font-bold text-destructive mb-3">
                   Minting Failed
                 </h3>
-                <p className="text-sm text-muted-foreground">{error}</p>
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto bg-muted/30 rounded-lg p-3 border border-border/50">{error}</p>
               </div>
 
-              <DialogFooter className="flex gap-2 sm:gap-0 justify-center">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
+              <DialogFooter className="justify-center pt-2">
+                <Button variant="outline" onClick={() => onOpenChange(false)} className="min-w-[100px]">
                   Close
                 </Button>
-                <Button onClick={() => setStep('confirm')}>
+                <Button onClick={() => setStep('confirm')} className="min-w-[100px] bg-gradient-to-r from-primary to-primary/90">
                   Try Again
                 </Button>
               </DialogFooter>

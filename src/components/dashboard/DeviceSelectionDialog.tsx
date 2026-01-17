@@ -222,10 +222,13 @@ export function DeviceSelectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            Select Your {provider === 'tesla' ? 'Tesla' : 'Enphase'} Devices
+          <DialogTitle className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">
+              {provider === 'tesla' ? <Car className="h-5 w-5 text-primary" /> : <Sun className="h-5 w-5 text-primary" />}
+            </span>
+            <span>Select Your {provider === 'tesla' ? 'Tesla' : 'Enphase'} Devices</span>
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="pt-1">
             Choose which devices to connect to your ZenSolar account. 
             Each device can only be connected to one account.
           </DialogDescription>
@@ -233,25 +236,32 @@ export function DeviceSelectionDialog({
         
         <div className="py-4 space-y-4">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              <span className="ml-2 text-muted-foreground">Loading devices...</span>
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+              <span className="text-sm text-muted-foreground">Loading devices...</span>
             </div>
           ) : error ? (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="border-destructive/30 bg-destructive/5">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : devices.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">
-              No devices found on your {provider === 'tesla' ? 'Tesla' : 'Enphase'} account.
-            </p>
+            <div className="text-center py-8">
+              <div className="h-16 w-16 mx-auto rounded-full bg-muted/50 flex items-center justify-center mb-3">
+                {provider === 'tesla' ? <Car className="h-8 w-8 text-muted-foreground" /> : <Sun className="h-8 w-8 text-muted-foreground" />}
+              </div>
+              <p className="text-muted-foreground">
+                No devices found on your {provider === 'tesla' ? 'Tesla' : 'Enphase'} account.
+              </p>
+            </div>
           ) : (
             <>
               {/* Available devices */}
               {availableDevices.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium">Available Devices</h4>
+                  <h4 className="text-sm font-medium text-foreground">Available Devices</h4>
                   {availableDevices.map(device => {
                     const isVehicle = device.device_type === 'vehicle';
                     const vehicleState = device.metadata?.state;
@@ -259,57 +269,59 @@ export function DeviceSelectionDialog({
                     const apiOdometer = device.metadata?.odometer;
                     const needsWake = isVehicle && isAsleepOrOffline && !apiOdometer && !device.claimed_by_current_user;
                     const isWaking = wakingDevices.has(device.device_id);
+                    const isSelected = selectedDevices.has(device.device_id);
                     
                     return (
                       <div
                         key={device.device_id}
-                        className="p-3 rounded-lg border bg-card"
+                        className={`p-3 rounded-xl border transition-all ${isSelected ? 'bg-primary/5 border-primary/30 shadow-sm' : 'bg-card border-border/50 hover:border-border'}`}
                       >
                         <div 
-                          className="flex items-center space-x-3 cursor-pointer hover:bg-accent/50 -m-3 p-3 rounded-lg transition-colors"
+                          className="flex items-center space-x-3 cursor-pointer -m-3 p-3 rounded-xl transition-colors"
                           onClick={() => handleToggleDevice(device.device_id, device)}
                         >
                           <Checkbox
                             id={device.device_id}
-                            checked={selectedDevices.has(device.device_id)}
+                            checked={isSelected}
                             onCheckedChange={() => handleToggleDevice(device.device_id, device)}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <div className="text-muted-foreground">
-                            {deviceIcons[device.device_type] || <Sun className="h-5 w-5" />}
+                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${isSelected ? 'bg-primary/10' : 'bg-muted/50'} transition-colors`}>
+                            {deviceIcons[device.device_type] || <Sun className="h-5 w-5 text-muted-foreground" />}
                           </div>
                           <div className="flex-1">
-                            <Label htmlFor={device.device_id} className="font-medium cursor-pointer">
+                            <Label htmlFor={device.device_id} className="font-medium cursor-pointer text-base">
                               {device.device_name}
                             </Label>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
                               <span className="capitalize">{device.device_type.replace('_', ' ')}</span>
                               {isVehicle && vehicleState && (
-                                <span className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded ${
+                                <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
                                   vehicleState === 'online' 
-                                    ? 'bg-green-500/20 text-green-600' 
-                                    : 'bg-yellow-500/20 text-yellow-600'
+                                    ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
+                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                                 }`}>
                                   {vehicleState === 'online' ? <Wifi className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
                                   {vehicleState}
                                 </span>
                               )}
                               {apiOdometer && (
-                                <span className="text-xs">({apiOdometer.toLocaleString()} mi)</span>
+                                <span className="text-xs font-mono">({apiOdometer.toLocaleString()} mi)</span>
                               )}
                             </div>
                           </div>
                           {device.claimed_by_current_user && (
-                            <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                            <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium">
                               Connected
                             </span>
                           )}
                         </div>
                         
                         {/* Wake vehicle button for sleeping vehicles without odometer */}
-                        {needsWake && selectedDevices.has(device.device_id) && (
-                          <div className="mt-3 pt-3 border-t">
-                            <Alert className="mb-3">
-                              <AlertTriangle className="h-4 w-4" />
+                        {needsWake && isSelected && (
+                          <div className="mt-3 pt-3 border-t border-border/50">
+                            <Alert className="mb-3 bg-amber-500/5 border-amber-500/20">
+                              <AlertTriangle className="h-4 w-4 text-amber-500" />
                               <AlertDescription className="text-sm">
                                 Vehicle is {vehicleState}. Tap "Wake Vehicle" to retrieve odometer data before connecting.
                               </AlertDescription>
@@ -317,7 +329,7 @@ export function DeviceSelectionDialog({
                             <Button
                               variant="outline"
                               size="sm"
-                              className="w-full"
+                              className="w-full gap-2"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleWakeVehicle(device.device_id);
@@ -326,12 +338,12 @@ export function DeviceSelectionDialog({
                             >
                               {isWaking ? (
                                 <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  <Loader2 className="h-4 w-4 animate-spin" />
                                   Waking Vehicle...
                                 </>
                               ) : (
                                 <>
-                                  <Zap className="mr-2 h-4 w-4" />
+                                  <Zap className="h-4 w-4" />
                                   Wake Vehicle
                                 </>
                               )}
@@ -346,18 +358,18 @@ export function DeviceSelectionDialog({
               
               {/* Devices claimed by others */}
               {claimedByOthers.length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                   <h4 className="text-sm font-medium text-muted-foreground">
                     Unavailable (Already in use)
                   </h4>
                   {claimedByOthers.map(device => (
                     <div
                       key={device.device_id}
-                      className="flex items-center space-x-3 p-3 rounded-lg border bg-muted/50 opacity-60"
+                      className="flex items-center space-x-3 p-3 rounded-xl border border-border/30 bg-muted/30 opacity-60"
                     >
                       <div className="w-4" />
-                      <div className="text-muted-foreground">
-                        {deviceIcons[device.device_type] || <Sun className="h-5 w-5" />}
+                      <div className="h-10 w-10 rounded-xl bg-muted/50 flex items-center justify-center">
+                        {deviceIcons[device.device_type] || <Sun className="h-5 w-5 text-muted-foreground" />}
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{device.device_name}</p>
@@ -365,8 +377,8 @@ export function DeviceSelectionDialog({
                           {device.device_type.replace('_', ' ')}
                         </p>
                       </div>
-                      <span className="text-xs bg-destructive/20 text-destructive px-2 py-1 rounded">
-                        In use by another account
+                      <span className="text-xs bg-destructive/10 text-destructive px-3 py-1.5 rounded-full font-medium">
+                        In use
                       </span>
                     </div>
                   ))}
@@ -374,10 +386,10 @@ export function DeviceSelectionDialog({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full"
+                    className="w-full gap-2 mt-2"
                     onClick={handleContactSupport}
                   >
-                    <Mail className="mr-2 h-4 w-4" />
+                    <Mail className="h-4 w-4" />
                     Contact Support for Ownership Dispute
                   </Button>
                 </div>
@@ -386,22 +398,24 @@ export function DeviceSelectionDialog({
           )}
         </div>
         
-        <DialogFooter>
+        <DialogFooter className="pt-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
+            className="flex-1 sm:flex-none"
           >
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit} 
             disabled={isLoading || isSubmitting || selectedDevices.size === 0}
+            className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Connecting...
               </>
             ) : (

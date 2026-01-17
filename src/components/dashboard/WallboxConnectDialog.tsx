@@ -60,20 +60,20 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-              <Zap className="h-4 w-4 text-primary" />
+          <DialogTitle className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">
+              <Zap className="h-5 w-5 text-primary" />
             </span>
-            Connect Wallbox
+            <span>Connect Wallbox</span>
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="pt-1">
             Enter your Wallbox account credentials to connect your home EV charger.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        <form onSubmit={handleSubmit} className="space-y-4 py-2">
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="border-destructive/30 bg-destructive/5">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -122,9 +122,9 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
             </div>
           </div>
 
-          <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+          <div className="bg-primary/5 rounded-xl p-4 text-sm text-muted-foreground border border-primary/10">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 mt-0.5 text-primary shrink-0" />
               <p>
                 Your credentials are securely transmitted and only used to connect to your Wallbox account.
                 We never store your password.
@@ -132,31 +132,31 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
             </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <DialogFooter className="pt-2">
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
               onClick={() => handleClose(false)}
               disabled={isSubmitting}
+              className="flex-1 sm:flex-none"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="flex-1"
               disabled={!email.trim() || !password || isSubmitting}
+              className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Connecting...
                 </>
               ) : (
                 'Connect Account'
               )}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
