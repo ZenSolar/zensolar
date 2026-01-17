@@ -46,6 +46,23 @@ export function useDashboardData() {
   const [isLoading, setIsLoading] = useState(true);
   const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(null);
 
+  type ProviderKey = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
+  type ProviderRefreshState = {
+    status: 'idle' | 'loading' | 'success' | 'error';
+    updatedAt?: string;
+    cached?: boolean;
+    stale?: boolean;
+    rateLimited?: boolean;
+    error?: string;
+  };
+
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+  const [providerRefresh, setProviderRefresh] = useState<Record<ProviderKey, ProviderRefreshState>>({
+    tesla: { status: 'idle' },
+    enphase: { status: 'idle' },
+    solaredge: { status: 'idle' },
+    wallbox: { status: 'idle' },
+  });
   // Fetch profile connections separately
   useEffect(() => {
     const fetchConnections = async () => {
@@ -297,8 +314,40 @@ export function useDashboardData() {
     }
   }, []);
 
+  const fetchDevicesSnapshot = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('connected_devices')
+        .select('provider, device_type, baseline_data, lifetime_totals, last_minted_at')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Device snapshot fetch error:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch device snapshot:', error);
+      return [];
+    }
+  }, []);
+
   const refreshDashboard = useCallback(async () => {
     setIsLoading(true);
+
+    const nowIso = new Date().toISOString();
+
+    // Mark connected providers as loading for UI indicators
+    setProviderRefresh((prev) => ({
+      tesla: profileConnections?.tesla_connected ? { ...prev.tesla, status: 'loading', updatedAt: nowIso } : prev.tesla,
+      enphase: profileConnections?.enphase_connected ? { ...prev.enphase, status: 'loading', updatedAt: nowIso } : prev.enphase,
+      solaredge: profileConnections?.solaredge_connected ? { ...prev.solaredge, status: 'loading', updatedAt: nowIso } : prev.solaredge,
+      wallbox: profileConnections?.wallbox_connected ? { ...prev.wallbox, status: 'loading', updatedAt: nowIso } : prev.wallbox,
+    }));
     
     try {
       // Lifetime totals
@@ -317,7 +366,7 @@ export function useDashboardData() {
       let pendingHomeCharger = 0;
 
       // Fetch data in parallel (including device labels and minted tokens)
-      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted] = await Promise.all([
+      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot] = await Promise.all([
         profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         profileConnections?.tesla_connected ? fetchTeslaData() : null,
@@ -326,29 +375,122 @@ export function useDashboardData() {
         fetchReferralTokens(),
         fetchDeviceLabels(),
         fetchMintedTokens(),
+        fetchDevicesSnapshot(),
       ]);
 
+      // Update provider refresh state
+      setProviderRefresh((prev) => {
+        const toState = (d: any, connected?: boolean): ProviderRefreshState => {
+          if (!connected) return { status: 'idle' };
+          if (!d) return { status: 'error', updatedAt: nowIso, error: 'no_data' };
+          return {
+            status: 'success',
+            updatedAt: nowIso,
+            cached: Boolean(d.cached),
+            stale: Boolean(d.stale),
+            rateLimited: Boolean((d as any).rate_limited),
+          };
+        };
+
+        return {
+          tesla: toState(teslaData, profileConnections?.tesla_connected),
+          enphase: toState(enphaseData, profileConnections?.enphase_connected),
+          solaredge: toState(solarEdgeData, profileConnections?.solaredge_connected),
+          wallbox: toState(wallboxData, profileConnections?.wallbox_connected),
+        };
+      });
+
+      // Fallback totals from backend snapshot (used when providers are cached/rate-limited)
+      const fallback = (() => {
+        const devices = (devicesSnapshot || []) as any[];
+
+        const sum = (arr: any[], fn: (d: any) => number) => arr.reduce((acc, d) => acc + (Number(fn(d)) || 0), 0);
+        const baselineSolarWh = (b: any) => Number(b?.solar_wh || b?.solar_production_wh || b?.total_solar_produced_wh || b?.lifetime_solar_wh || 0);
+        const lifetimeSolarWh = (l: any) => Number(l?.solar_wh || l?.lifetime_solar_wh || 0);
+        const baselineBatteryWh = (b: any) => Number(b?.battery_discharge_wh || b?.total_energy_discharged_wh || 0);
+        const lifetimeBatteryWh = (l: any) => Number(l?.battery_discharge_wh || l?.lifetime_battery_discharge_wh || 0);
+
+        const enphaseSolarDevices = devices.filter((d) => d.provider === 'enphase');
+        const solaredgeSolarDevices = devices.filter((d) => d.provider === 'solaredge');
+        const teslaDevices = devices.filter((d) => d.provider === 'tesla');
+
+        const enphaseLifetimeWh = sum(enphaseSolarDevices, (d) => lifetimeSolarWh(d.lifetime_totals));
+        const enphasePendingWh = sum(enphaseSolarDevices, (d) => Math.max(0, lifetimeSolarWh(d.lifetime_totals) - baselineSolarWh(d.baseline_data)));
+
+        const solaredgeLifetimeWh = sum(solaredgeSolarDevices, (d) => lifetimeSolarWh(d.lifetime_totals));
+        const solaredgePendingWh = sum(solaredgeSolarDevices, (d) => Math.max(0, lifetimeSolarWh(d.lifetime_totals) - baselineSolarWh(d.baseline_data)));
+
+        const teslaSolarWhTotal = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'solar'), (d) => lifetimeSolarWh(d.lifetime_totals));
+        const teslaSolarWhPending = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'solar'), (d) => Math.max(0, lifetimeSolarWh(d.lifetime_totals) - baselineSolarWh(d.baseline_data)));
+
+        const teslaBatteryWhTotal = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'battery'), (d) => lifetimeBatteryWh(d.lifetime_totals));
+        const teslaBatteryWhPending = sum(teslaDevices.filter((d) => d.device_type === 'powerwall' || d.device_type === 'battery'), (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
+
+        const teslaVehicleMilesTotal = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Number(d.lifetime_totals?.odometer || 0));
+        const teslaVehicleMilesPending = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Math.max(0, Number(d.lifetime_totals?.odometer || 0) - Number(d.baseline_data?.odometer || 0)));
+
+        const teslaChargingKwhTotal = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Number(d.lifetime_totals?.charging_kwh || 0));
+        const teslaChargingKwhPending = sum(teslaDevices.filter((d) => d.device_type === 'vehicle'), (d) => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
+
+        // Solar provider priority matches the dashboard: Enphase > SolarEdge > Tesla
+        const solarLifetimeWh = profileConnections?.enphase_connected && enphaseLifetimeWh > 0
+          ? enphaseLifetimeWh
+          : profileConnections?.solaredge_connected && solaredgeLifetimeWh > 0
+            ? solaredgeLifetimeWh
+            : teslaSolarWhTotal;
+
+        const solarPendingWh = profileConnections?.enphase_connected && enphaseLifetimeWh > 0
+          ? enphasePendingWh
+          : profileConnections?.solaredge_connected && solaredgeLifetimeWh > 0
+            ? solaredgePendingWh
+            : teslaSolarWhPending;
+
+        return {
+          solarLifetimeKwh: solarLifetimeWh / 1000,
+          solarPendingKwh: solarPendingWh / 1000,
+          batteryLifetimeKwh: teslaBatteryWhTotal / 1000,
+          batteryPendingKwh: teslaBatteryWhPending / 1000,
+          evMilesLifetime: teslaVehicleMilesTotal,
+          evMilesPending: teslaVehicleMilesPending,
+          chargingKwhLifetime: teslaChargingKwhTotal,
+          chargingKwhPending: teslaChargingKwhPending,
+        };
+      })();
       // Solar source priority: Enphase > SolarEdge > Tesla
       // If Enphase or SolarEdge is connected, use that for solar (NOT Tesla)
       const hasDedicatedSolarProvider = profileConnections?.enphase_connected || profileConnections?.solaredge_connected;
 
       // Process Enphase data - use lifetime energy for solar
       if (enphaseData?.totals) {
-        solarEnergy = (enphaseData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
-        // Use pending from API if available, otherwise use lifetime (no baseline yet)
-        pendingSolar = enphaseData.totals.pending_solar_wh !== undefined 
-          ? (enphaseData.totals.pending_solar_wh / 1000)
-          : solarEnergy; // If no pending, use lifetime (means no baseline set yet)
+        const apiLifetimeWh = Number(enphaseData.totals.lifetime_solar_wh || 0);
+        const apiPendingWh = Number((enphaseData.totals as any).pending_solar_wh || 0);
+
+        // If provider is cached/rate-limited and returns 0, fall back to last known backend totals
+        const effectiveLifetimeKwh = apiLifetimeWh > 0 ? apiLifetimeWh / 1000 : fallback.solarLifetimeKwh;
+        const effectivePendingKwh = apiLifetimeWh > 0
+          ? (apiPendingWh > 0 ? apiPendingWh / 1000 : effectiveLifetimeKwh)
+          : fallback.solarPendingKwh;
+
+        solarEnergy = effectiveLifetimeKwh;
+        pendingSolar = effectivePendingKwh;
+
         console.log('Enphase solar:', solarEnergy, 'kWh, pending:', pendingSolar, 'kWh');
       }
 
       // Process SolarEdge data - use lifetime energy for solar
       if (solarEdgeData?.totals && !enphaseData?.totals) {
         // Only use SolarEdge if Enphase not available (Enphase takes priority)
-        solarEnergy = (solarEdgeData.totals.lifetime_solar_wh || 0) / 1000; // Wh to kWh
-        pendingSolar = solarEdgeData.totals.pending_solar_wh !== undefined
-          ? (solarEdgeData.totals.pending_solar_wh / 1000)
-          : solarEnergy;
+        const apiLifetimeWh = Number(solarEdgeData.totals.lifetime_solar_wh || 0);
+        const apiPendingWh = Number((solarEdgeData.totals as any).pending_solar_wh || 0);
+
+        const effectiveLifetimeKwh = apiLifetimeWh > 0 ? apiLifetimeWh / 1000 : fallback.solarLifetimeKwh;
+        const effectivePendingKwh = apiLifetimeWh > 0
+          ? (apiPendingWh > 0 ? apiPendingWh / 1000 : effectiveLifetimeKwh)
+          : fallback.solarPendingKwh;
+
+        solarEnergy = effectiveLifetimeKwh;
+        pendingSolar = effectivePendingKwh;
+
         console.log('SolarEdge solar:', solarEnergy, 'kWh, pending:', pendingSolar, 'kWh');
       }
 
@@ -360,7 +502,7 @@ export function useDashboardData() {
         evMiles = teslaData.totals.ev_miles || 0;
         superchargerKwh = teslaData.totals.supercharger_kwh || 0;
         homeChargerKwh = teslaData.totals.wall_connector_kwh || 0;
-        
+
         // Pending values (since last mint baseline)
         // If pending not returned, use lifetime (no baseline set yet means all is pending)
         const teslaPendingSolar = teslaData.totals.pending_solar_wh !== undefined
@@ -378,32 +520,37 @@ export function useDashboardData() {
         const teslaPendingHomeCharger = teslaData.totals.pending_wall_connector_kwh !== undefined
           ? teslaData.totals.pending_wall_connector_kwh
           : homeChargerKwh;
-        
+
         // Only use Tesla solar/pending if no dedicated solar provider
         if (!hasDedicatedSolarProvider) {
           solarEnergy += (teslaData.totals.solar_production_wh || 0) / 1000;
           pendingSolar = teslaPendingSolar;
         }
-        
+
         pendingBattery = teslaPendingBattery;
         pendingEvMiles = teslaPendingEvMiles;
         pendingSupercharger = teslaPendingSupercharger;
         pendingHomeCharger = teslaPendingHomeCharger;
         pendingCharging = pendingSupercharger + pendingHomeCharger;
-        
+
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
       }
 
-      // Process Wallbox data - home charger kWh
-      if (wallboxData?.totals) {
-        homeChargerKwh += wallboxData.totals.home_charger_kwh || 0;
-        // Add Wallbox pending to home charger specifically
-        const wallboxPending = wallboxData.totals.pending_charging_kwh !== undefined
-          ? wallboxData.totals.pending_charging_kwh
-          : wallboxData.totals.home_charger_kwh || 0;
-        pendingHomeCharger += wallboxPending;
-        pendingCharging += wallboxPending;
-        console.log('Wallbox data:', { homeChargerKwh: wallboxData.totals.home_charger_kwh });
+      // Provider fallback when APIs fail but backend has last-known totals
+      if (!teslaData?.totals && profileConnections?.tesla_connected) {
+        evMiles = fallback.evMilesLifetime;
+        batteryDischarge = fallback.batteryLifetimeKwh;
+        pendingEvMiles = fallback.evMilesPending;
+        pendingBattery = fallback.batteryPendingKwh;
+        superchargerKwh = fallback.chargingKwhLifetime;
+        pendingSupercharger = fallback.chargingKwhPending;
+        pendingCharging = fallback.chargingKwhPending;
+      }
+
+      // If dedicated solar provider is connected but returned 0 (rate-limited), use backend fallback
+      if (hasDedicatedSolarProvider && solarEnergy <= 0 && fallback.solarLifetimeKwh > 0) {
+        solarEnergy = fallback.solarLifetimeKwh;
+        pendingSolar = fallback.solarPendingKwh;
       }
 
       // Total lifetime tokens (calculated from all activity - 1:1 rate)
@@ -457,17 +604,11 @@ export function useDashboardData() {
 
       
       setActivityData(newData);
-      
+      setLastUpdatedAt(nowIso);
+
       if (solarEnergy > 0 || tokensEarned > 0) {
         toast.success('Dashboard updated with real data!');
       }
-    } catch (error) {
-      console.error('Dashboard refresh error:', error);
-      toast.error('Failed to refresh dashboard');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels, fetchMintedTokens]);
 
   // Auto-refresh when connections change
   useEffect(() => {
@@ -502,5 +643,7 @@ export function useDashboardData() {
     connectAccount,
     disconnectAccount,
     refreshDashboard,
+    lastUpdatedAt,
+    providerRefresh,
   };
 }

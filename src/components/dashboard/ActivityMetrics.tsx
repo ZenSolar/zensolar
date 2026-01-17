@@ -1,27 +1,28 @@
 import type React from 'react';
 import { ActivityData, calculateCO2Offset } from '@/types/dashboard';
 import { MetricCard } from './MetricCard';
-import { 
-  Sun, 
-  Car, 
-  Battery, 
-  Zap, 
-  Coins, 
+import {
+  Sun,
+  Car,
+  Battery,
+  Zap,
+  Coins,
   Award,
   Leaf,
   Users,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
-import { 
+import {
   calculateEarnedMilestones,
   calculateComboAchievements,
   SOLAR_MILESTONES,
   BATTERY_MILESTONES,
   EV_CHARGING_MILESTONES,
   EV_MILES_MILESTONES,
-  getTotalNftCount
+  getTotalNftCount,
 } from '@/lib/nftMilestones';
 import { Card, CardContent } from '@/components/ui/card';
+import { RefreshIndicators, type ProviderKey, type ProviderRefreshState } from './RefreshIndicators';
 
 type CurrentActivity = {
   solarKwh: number;
@@ -30,12 +31,18 @@ type CurrentActivity = {
   chargingKwh: number;
 };
 
+type RefreshInfo = {
+  lastUpdatedAt?: string | null;
+  providers?: Partial<Record<ProviderKey, ProviderRefreshState>>;
+};
+
 interface ActivityMetricsProps {
   data: ActivityData;
   currentActivity?: CurrentActivity;
+  refreshInfo?: RefreshInfo;
 }
 
-export function ActivityMetrics({ data, currentActivity }: ActivityMetricsProps) {
+export function ActivityMetrics({ data, currentActivity, refreshInfo }: ActivityMetricsProps) {
   const labels = data.deviceLabels || {};
 
   // Build dynamic labels based on device names
@@ -101,30 +108,10 @@ export function ActivityMetrics({ data, currentActivity }: ActivityMetricsProps)
             Rewards Summary
           </h2>
           
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
-              <div className="p-2.5 rounded-full bg-primary/20">
-                <Award className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">NFTs Earned</p>
-                <p className="text-lg font-bold text-foreground">{totalEarned} / {totalPossible}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
-              <div className="p-2.5 rounded-full bg-accent/20">
-                <Users className="h-5 w-5 text-accent-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">Referral Tokens</p>
-                <p className="text-lg font-bold text-foreground">{data.referralTokens.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">$ZSOLAR</span></p>
-              </div>
-            </div>
-          </div>
-          
+          <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} providers={refreshInfo?.providers} />
+
           {/* Lifetime Minted - Links to Mint History */}
-          <div 
+          <div
             className="p-3 rounded-xl bg-muted/50 border border-border cursor-pointer hover:bg-muted/80 transition-all hover:border-primary/30 group"
             onClick={() => window.location.href = '/mint-history'}
           >
@@ -142,6 +129,28 @@ export function ActivityMetrics({ data, currentActivity }: ActivityMetricsProps)
                 <span className="text-lg font-bold text-foreground">{data.lifetimeMinted.toLocaleString()}</span>
                 <span className="text-xs text-muted-foreground">$ZSOLAR</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
+              <div className="p-2.5 rounded-full bg-primary/20">
+                <Award className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">NFTs Earned</p>
+                <p className="text-lg font-bold text-foreground">{totalEarned} / {totalPossible}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
+              <div className="p-2.5 rounded-full bg-accent/20">
+                <Users className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">Referral Tokens</p>
+                <p className="text-lg font-bold text-foreground">{data.referralTokens.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">$ZSOLAR</span></p>
               </div>
             </div>
           </div>
