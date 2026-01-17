@@ -93,20 +93,6 @@ function getRarity(milestone: NFTMilestone): { label: string; class: string } {
   return { label: 'Common', class: 'bg-slate-500 text-white' };
 }
 
-// Get redemption token value for redeemable NFTs
-function getRedemptionValue(milestone: NFTMilestone): number | null {
-  // Combo NFTs and Welcome NFT are non-redeemable
-  if (milestone.id === 'welcome' || milestone.id.startsWith('combo_')) {
-    return null;
-  }
-  // Category NFTs have token value equal to their threshold
-  return milestone.threshold;
-}
-
-// Check if NFT is redeemable
-function isRedeemable(milestone: NFTMilestone): boolean {
-  return getRedemptionValue(milestone) !== null;
-}
 
 export function NFTDetailModal({ milestone, isEarned, open, onOpenChange, onMintSuccess }: NFTDetailModalProps) {
   const { user } = useAuth();
@@ -251,8 +237,6 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange, onMint
   const category = getCategoryFromMilestoneId(milestone.id);
   const tier = getTierFromMilestoneId(milestone.id);
   const rarity = getRarity(milestone);
-  const redemptionValue = getRedemptionValue(milestone);
-  const redeemable = isRedeemable(milestone);
 
   const canMint = isEarned && walletAddress && !isOnChain && !isMinting;
 
@@ -539,52 +523,25 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange, onMint
 
             {/* Value Tab */}
             <TabsContent value="value" className="p-4 space-y-4 mt-0">
-              {redeemable ? (
-                <>
-                  <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 rounded-xl p-4 text-center">
-                    <Coins className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <p className="text-xs text-muted-foreground mb-1">Redemption Value</p>
-                    <p className="text-3xl font-bold text-primary">
-                      {redemptionValue?.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-muted-foreground">ZSOLAR Tokens</p>
-                  </div>
-                  
-                  <div className="bg-muted/50 rounded-lg p-3">
-                    <p className="text-sm font-medium mb-1">How Redemption Works</p>
-                    <p className="text-xs text-muted-foreground">
-                      When you redeem this NFT, it will be burned and you'll receive{' '}
-                      <span className="text-primary font-semibold">{redemptionValue?.toLocaleString()} ZSOLAR</span> tokens 
-                      directly to your connected wallet. This action is irreversible.
-                    </p>
-                  </div>
-                  
-                  {isEarned && (
-                    <Button className="w-full gap-2" disabled>
-                      <Sparkles className="h-4 w-4" />
-                      Redeem for Tokens (Coming Soon)
-                    </Button>
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-6">
-                  <div className="bg-muted/50 rounded-xl p-6">
-                    <Award className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="font-semibold mb-1">Non-Redeemable NFT</p>
-                    <p className="text-sm text-muted-foreground">
-                      {milestone.id === 'welcome' 
-                        ? 'The Welcome NFT is a commemorative token marking your entry into the ZenSolar ecosystem.'
-                        : 'Combo NFTs are achievement badges that celebrate your cross-category accomplishments. They cannot be redeemed for tokens but showcase your sustainability mastery!'}
-                    </p>
-                  </div>
-                  
-                  <div className="mt-4 bg-primary/10 border border-primary/20 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-semibold text-foreground">Pro tip:</span> Keep earning category NFTs (Solar, Battery, Charging, EV Miles) — these are redeemable for ZSOLAR tokens!
-                    </p>
-                  </div>
+              <div className="text-center py-6">
+                <div className="bg-gradient-to-br from-primary/10 to-muted/50 rounded-xl p-6">
+                  <Award className="h-10 w-10 text-primary mx-auto mb-3" />
+                  <p className="font-semibold mb-1">Collectible Only</p>
+                  <p className="text-sm text-muted-foreground">
+                    {milestone.id === 'welcome' 
+                      ? 'The Welcome NFT is a commemorative token marking your entry into the ZenSolar ecosystem.'
+                      : milestone.id.startsWith('combo_')
+                        ? 'This Combo NFT is an achievement badge celebrating your cross-category accomplishments and sustainability mastery!'
+                        : 'This NFT commemorates your clean energy milestone and showcases your commitment to sustainability.'}
+                  </p>
                 </div>
-              )}
+                
+                <div className="mt-4 bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground">Note:</span> All ZenSolar NFTs are collectible achievements. Keep earning milestones to grow your collection!
+                  </p>
+                </div>
+              </div>
             </TabsContent>
           </ScrollArea>
         </Tabs>
