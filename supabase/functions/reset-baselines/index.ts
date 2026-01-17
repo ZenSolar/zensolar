@@ -108,15 +108,21 @@ serve(async (req) => {
         // Solar devices
         if (shouldResetAll || categories.includes('solar')) {
           // Set baseline to current lifetime (makes pending = 0)
-          const lifetimeSolarWh = lifetime.lifetime_solar_wh || lifetime.solar_production_wh || 0;
+          // IMPORTANT: Write all known baseline keys used across the app (legacy + new)
+          const lifetimeSolarWh =
+            (lifetime.lifetime_solar_wh ?? lifetime.solar_production_wh ?? lifetime.solar_wh ?? 0) as number;
+
           newBaseline.solar_production_wh = lifetimeSolarWh;
           newBaseline.lifetime_solar_wh = lifetimeSolarWh;
+          newBaseline.solar_wh = lifetimeSolarWh;
+          newBaseline.total_solar_produced_wh = lifetimeSolarWh;
+
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
             deviceType,
             category: 'solar',
-            baselineSet: { solar_production_wh: lifetimeSolarWh }
+            baselineSet: { solar_wh: lifetimeSolarWh }
           });
         }
       }
@@ -137,8 +143,18 @@ serve(async (req) => {
 
         // EV Charging (supercharger portion)
         if (shouldResetAll || categories.includes('charging')) {
-          const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) || 0;
+          // IMPORTANT: Tesla-related code paths historically use multiple baseline keys.
+          // To keep dashboard pending + minting deltas consistent, write all commonly-used keys.
+          const lifetimeChargingKwh =
+            (lifetime.charging_kwh ?? (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) ?? 0) as number;
+
           newBaseline.charging_kwh = lifetimeChargingKwh;
+          newBaseline.charging_wh = lifetimeChargingKwh * 1000;
+
+          // Keys used by tesla-data pending charging calculations
+          newBaseline.total_charge_energy_added_kwh = lifetimeChargingKwh;
+          newBaseline.supercharger_kwh = lifetimeChargingKwh;
+
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
@@ -152,8 +168,13 @@ serve(async (req) => {
       if (deviceType === 'powerwall') {
         // Battery storage
         if (shouldResetAll || categories.includes('battery')) {
-          const lifetimeBatteryWh = lifetime.battery_discharge_wh || 0;
+          // IMPORTANT: Write all known baseline keys used across the app (legacy + new)
+          const lifetimeBatteryWh = (lifetime.battery_discharge_wh ?? lifetime.lifetime_battery_discharge_wh ?? 0) as number;
+
           newBaseline.battery_discharge_wh = lifetimeBatteryWh;
+          newBaseline.lifetime_battery_discharge_wh = lifetimeBatteryWh;
+          newBaseline.total_energy_discharged_wh = lifetimeBatteryWh;
+
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
@@ -167,9 +188,20 @@ serve(async (req) => {
       if (deviceType === 'wall_connector') {
         // Wall connector charging
         if (shouldResetAll || categories.includes('charging')) {
-          const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) || (lifetime.lifetime_charging_wh ? lifetime.lifetime_charging_wh / 1000 : 0) || (lifetime.wall_connector_wh ? lifetime.wall_connector_wh / 1000 : 0) || 0;
+          const lifetimeChargingKwh =
+            (lifetime.charging_kwh ??
+              (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) ??
+              (lifetime.lifetime_charging_wh ? lifetime.lifetime_charging_wh / 1000 : 0) ??
+              (lifetime.wall_connector_wh ? lifetime.wall_connector_wh / 1000 : 0) ??
+              0) as number;
+
           newBaseline.charging_kwh = lifetimeChargingKwh;
           newBaseline.charging_wh = lifetimeChargingKwh * 1000;
+
+          // Keys used by tesla-data pending charging calculations
+          newBaseline.wall_connector_kwh = lifetimeChargingKwh;
+          newBaseline.wall_connector_wh = lifetimeChargingKwh * 1000;
+
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
