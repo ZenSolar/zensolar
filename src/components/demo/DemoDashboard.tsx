@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { useDemoData } from '@/hooks/useDemoData';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { useConfetti } from '@/hooks/useConfetti';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ConnectAccounts } from '@/components/dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from '@/components/dashboard/ConnectSocialAccounts';
@@ -68,6 +69,7 @@ export function DemoDashboard() {
   } = useDemoData();
   
   const demoRewardActionsRef = useRef<DemoRewardActionsRef>(null);
+  const { triggerConfetti } = useConfetti();
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
@@ -78,6 +80,11 @@ export function DemoDashboard() {
       category === 'supercharger' || category === 'home_charger' ? 'charging' : category;
     demoRewardActionsRef.current?.openMintDialogForCategory?.(mappedCategory);
   };
+
+  // Celebration animation when tokens are minted from Pending Rewards
+  const handleMintSuccess = useCallback(() => {
+    triggerConfetti();
+  }, [triggerConfetti]);
 
   const handleConnectWallet = async (address: string) => {
     connectWallet(address);
@@ -250,6 +257,7 @@ export function DemoDashboard() {
             currentActivity={currentActivity}
             refreshInfo={{ lastUpdatedAt, providers: providerRefresh }}
             onMintCategory={profile.wallet_address ? handleMintCategory : undefined}
+            onMintSuccess={handleMintSuccess}
           />
         </AnimatedItem>
 

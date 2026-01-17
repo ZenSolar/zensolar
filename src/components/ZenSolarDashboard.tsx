@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { useConfetti } from '@/hooks/useConfetti';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { ConnectAccounts } from './dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from './dashboard/ConnectSocialAccounts';
@@ -67,6 +68,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   } = useDashboardData();
   const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
   const { isAdmin } = useAdminCheck();
+  const { triggerConfetti } = useConfetti();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
@@ -83,6 +85,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       category === 'supercharger' || category === 'home_charger' ? 'charging' : category;
     rewardActionsRef.current?.openTokenMintDialogForCategory?.(mappedCategory);
   };
+
+  // Celebration animation when tokens are minted from Pending Rewards
+  const handleMintSuccess = useCallback(() => {
+    triggerConfetti();
+  }, [triggerConfetti]);
 
   const handleConnectWallet = async (address: string) => {
     await updateProfile({ wallet_address: address });
@@ -257,6 +264,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             currentActivity={currentActivity}
             refreshInfo={{ lastUpdatedAt, providers: providerRefresh }}
             onMintCategory={profile?.wallet_address ? handleMintCategory : undefined}
+            onMintSuccess={handleMintSuccess}
           />
         </AnimatedItem>
 
