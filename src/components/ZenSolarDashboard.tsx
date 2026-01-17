@@ -13,6 +13,7 @@ import { HowItWorks } from './dashboard/HowItWorks';
 import { RewardProgress } from './dashboard/RewardProgress';
 import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
+import { NFTResetPanel } from './admin/NFTResetPanel';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Loader2 } from 'lucide-react';
@@ -283,6 +284,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {isAdmin && (
           <AnimatedItem>
             <AdminBaselineReset onResetComplete={refreshDashboard} />
+          </AnimatedItem>
+        )}
+
+        {/* Admin-only NFT Reset Tool */}
+        {isAdmin && (
+          <AnimatedItem>
+            <NFTResetPanel />
           </AnimatedItem>
         )}
       </AnimatedContainer>
