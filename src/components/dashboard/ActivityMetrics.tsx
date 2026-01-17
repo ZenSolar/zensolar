@@ -248,11 +248,16 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
                   <span className="text-sm font-normal text-muted-foreground ml-2">$ZSOLAR</span>
                 </motion.p>
                 {/* USD Value Estimate - Enhanced */}
-                <div className="flex items-center gap-2 mt-2 p-2 bg-eco/10 rounded-lg w-fit">
+                <div className="flex items-center gap-2 mt-2 p-2.5 bg-eco/10 rounded-lg w-fit">
                   <DollarSign className="h-4 w-4 text-eco" />
-                  <span className="text-base font-bold text-eco">
-                    ≈ ${(tokensToReceive * tokenPrice).toFixed(2)} USD
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-base font-bold text-eco">
+                      ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+                    </span>
+                    <span className="text-[10px] text-eco/70">
+                      @ ${tokenPrice.toFixed(2)} per token
+                    </span>
+                  </div>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button className="p-1 hover:bg-eco/20 rounded transition-colors">
