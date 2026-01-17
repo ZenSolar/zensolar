@@ -575,10 +575,12 @@ Deno.serve(async (req) => {
         
         if (!lifetime) continue;
 
-        if (device.device_type === "solar" && (mintCategory === 'all' || mintCategory === 'solar')) {
+        // Match solar devices - handle both "solar" and "solar_system" device types (Enphase/SolarEdge)
+        if ((device.device_type === "solar" || device.device_type === "solar_system") && (mintCategory === 'all' || mintCategory === 'solar')) {
           const lifetimeSolarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-          const baselineSolarWh = baseline?.total_solar_produced_wh || baseline?.solar_wh || 0;
+          const baselineSolarWh = baseline?.total_solar_produced_wh || baseline?.solar_wh || baseline?.solar_production_wh || baseline?.lifetime_solar_wh || 0;
           const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
+          console.log(`Solar device ${device.id}: lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
           if (delta > 0) {
             solarDeltaKwh += delta;
             deviceIdsToUpdate.push(device.id);
