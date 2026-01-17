@@ -185,57 +185,78 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
       </Card>
 
       {/* 2. PENDING REWARDS - What can be minted NOW */}
-      <Card className={`overflow-hidden transition-all ${activityUnits > 0 ? 'border-primary/40 shadow-lg shadow-primary/5' : 'border-border'}`}>
+      <Card className={`overflow-hidden transition-all ${activityUnits > 0 ? 'border-primary/40 shadow-xl shadow-primary/10 ring-1 ring-primary/20' : 'border-border'}`}>
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
               {activityUnits > 0 && (
-                <span className="relative flex h-2.5 w-2.5">
+                <motion.span 
+                  className="relative flex h-3 w-3"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-                </span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                </motion.span>
               )}
               Pending Rewards
             </h2>
             {activityUnits > 0 && onMintCategory && (
-              <Button
-                size="sm"
-                variant="default"
-                className="gap-1.5 h-8 text-xs font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-                onClick={() => onMintCategory('all')}
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                Mint All
-              </Button>
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="gap-1.5 h-9 text-xs font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+                  onClick={() => onMintCategory('all')}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  MINT ALL
+                </Button>
+              </motion.div>
             )}
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {activityUnits > 0 ? 'Ready to mint — you receive 93% as tokens' : 'No activity to mint yet'}
+            {activityUnits > 0 ? '🔥 Ready to mint — you receive 93% as tokens' : 'No activity to mint yet'}
           </p>
 
           {/* Tokens to receive - prominent display with USD value */}
-          <div className={`p-4 rounded-xl ${activityUnits > 0 ? 'bg-gradient-to-r from-primary/15 to-primary/5 border border-primary/30' : 'bg-muted/50 border border-border'}`}>
+          <motion.div 
+            className={`p-5 rounded-2xl ${activityUnits > 0 ? 'bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border-2 border-primary/30' : 'bg-muted/50 border border-border'}`}
+            animate={activityUnits > 0 ? { scale: [1, 1.005, 1] } : {}}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-full ${activityUnits > 0 ? 'bg-primary' : 'bg-muted'}`}>
-                <Coins className={`h-6 w-6 ${activityUnits > 0 ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
-              </div>
+              <motion.div 
+                className={`p-3.5 rounded-2xl ${activityUnits > 0 ? 'bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30' : 'bg-muted'}`}
+                animate={activityUnits > 0 ? { rotate: [0, 5, 0, -5, 0] } : {}}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <Coins className={`h-7 w-7 ${activityUnits > 0 ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+              </motion.div>
               <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Tokens You'll Receive</p>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-sm text-muted-foreground font-medium">Tokens You'll Receive</p>
+                <motion.p 
+                  className="text-3xl font-bold text-foreground"
+                  animate={activityUnits > 0 ? { scale: [1, 1.02, 1] } : {}}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                >
                   {tokensToReceive.toLocaleString()}
                   <span className="text-sm font-normal text-muted-foreground ml-2">$ZSOLAR</span>
-                </p>
-                {/* USD Value Estimate */}
-                <div className="flex items-center gap-2 mt-1">
-                  <DollarSign className="h-3.5 w-3.5 text-eco" />
-                  <span className="text-sm font-medium text-eco">
+                </motion.p>
+                {/* USD Value Estimate - Enhanced */}
+                <div className="flex items-center gap-2 mt-2 p-2 bg-eco/10 rounded-lg w-fit">
+                  <DollarSign className="h-4 w-4 text-eco" />
+                  <span className="text-base font-bold text-eco">
                     ≈ ${(tokensToReceive * tokenPrice).toFixed(2)} USD
                   </span>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <button className="p-1 hover:bg-muted rounded transition-colors">
-                        <Settings2 className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                      <button className="p-1 hover:bg-eco/20 rounded transition-colors">
+                        <Settings2 className="h-3.5 w-3.5 text-eco/70 hover:text-eco" />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-56 p-3" align="start">
@@ -251,7 +272,7 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
                               value={priceInput}
                               onChange={(e) => setPriceInput(e.target.value)}
                               className="pl-6 h-8 text-sm"
-                              placeholder="0.0025"
+                              placeholder="0.23"
                             />
                           </div>
                           <Button 
@@ -268,7 +289,7 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
                           </Button>
                         </div>
                         <p className="text-[10px] text-muted-foreground">
-                          Default: $0.0025 (estimated)
+                          Default: $0.23 (estimated)
                         </p>
                       </div>
                     </PopoverContent>
@@ -276,7 +297,7 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Activity breakdown - compact grid with tap-to-mint */}
           <div className="grid grid-cols-2 gap-2">
@@ -334,7 +355,7 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
       </Card>
 
       {/* 3. CURRENT ACTIVITY (Mintable activity units) */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden border-eco/20">
         <CardContent className="p-4 space-y-4">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Leaf className="h-5 w-5 text-eco" />
@@ -352,6 +373,26 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
             <MetricCard icon={Zap} label={homeChargerLabel} value={homeChargerKwh} unit="kWh" tone="accent" />
             <MetricCard icon={Leaf} label="CO2 Offset" value={currentCo2Offset} unit="lbs" tone="eco" />
           </div>
+
+          {/* Total Activity Summary */}
+          <motion.div 
+            className="mt-4 pt-4 border-t border-border/50"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-eco/10 to-eco/5 border border-eco/20">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-eco/20">
+                  <Sparkles className="h-4 w-4 text-eco" />
+                </div>
+                <span className="text-sm font-medium text-foreground">Total Activity Units</span>
+              </div>
+              <span className="text-lg font-bold text-eco">
+                {(current.solarKwh + current.evMiles + current.batteryKwh + superchargerKwh + homeChargerKwh).toLocaleString()}
+              </span>
+            </div>
+          </motion.div>
         </CardContent>
       </Card>
     </div>
