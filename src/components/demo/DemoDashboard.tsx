@@ -1,17 +1,18 @@
+import { useRef } from 'react';
 import { useDemoData } from '@/hooks/useDemoData';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ConnectAccounts } from '@/components/dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from '@/components/dashboard/ConnectSocialAccounts';
 import { ConnectWallet } from '@/components/dashboard/ConnectWallet';
-import { ActivityMetrics } from '@/components/dashboard/ActivityMetrics';
+import { ActivityMetrics, MintCategory } from '@/components/dashboard/ActivityMetrics';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { GettingStartedGuide } from '@/components/dashboard/GettingStartedGuide';
 import { HowItWorks } from '@/components/dashboard/HowItWorks';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { DemoOnboardingGuide } from '@/components/demo/DemoOnboardingGuide';
-import { DemoRewardActions } from '@/components/demo/DemoRewardActions';
+import { DemoRewardActions, DemoRewardActionsRef, MintCategory as DemoMintCategory } from '@/components/demo/DemoRewardActions';
 import zenLogo from '@/assets/zen-logo.png';
 import { toast } from 'sonner';
 
@@ -66,9 +67,17 @@ export function DemoDashboard() {
     simulateMintTokens,
   } = useDemoData();
   
+  const demoRewardActionsRef = useRef<DemoRewardActionsRef>(null);
+  
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
   });
+
+  const handleMintCategory = (category: MintCategory) => {
+    const mappedCategory: DemoMintCategory = 
+      category === 'supercharger' || category === 'home_charger' ? 'charging' : category;
+    demoRewardActionsRef.current?.openMintDialogForCategory?.(mappedCategory);
+  };
 
   const handleConnectWallet = async (address: string) => {
     connectWallet(address);
@@ -240,12 +249,14 @@ export function DemoDashboard() {
             data={activityData}
             currentActivity={currentActivity}
             refreshInfo={{ lastUpdatedAt, providers: providerRefresh }}
+            onMintCategory={profile.wallet_address ? handleMintCategory : undefined}
           />
         </AnimatedItem>
 
         {/* Demo Reward Actions with fake minting */}
         <AnimatedItem>
           <DemoRewardActions 
+            ref={demoRewardActionsRef}
             onRefresh={refreshDashboard} 
             isLoading={isLoading}
             walletAddress={profile.wallet_address}

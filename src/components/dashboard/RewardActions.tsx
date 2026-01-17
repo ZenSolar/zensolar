@@ -46,6 +46,7 @@ interface RewardActionsProps {
 
 export interface RewardActionsRef {
   openTokenMintDialog: () => void;
+  openTokenMintDialogForCategory?: (category: MintCategory) => void;
 }
 
 interface MintResult {
@@ -180,6 +181,15 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   // Expose openTokenMintDialog to parent via ref
   useImperativeHandle(ref, () => ({
     openTokenMintDialog: () => setTokenMintDialog(true),
+    openTokenMintDialogForCategory: (category: MintCategory) => {
+      // Pre-select the category and open confirmation dialog directly
+      if (walletAddress) {
+        setPendingMintCategory(category);
+        setConfirmMintDialog(true);
+      } else {
+        setTokenMintDialog(true);
+      }
+    },
   }));
 
   // Check NFT eligibility when wallet is connected
