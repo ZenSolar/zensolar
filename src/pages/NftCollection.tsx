@@ -207,21 +207,7 @@ function PremiumNFTCard({
         {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         
-        {/* Already Minted stamp */}
-        {isOnChain && (
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/40 via-green-500/30 to-emerald-600/40 flex items-center justify-center z-10">
-            <motion.div 
-              initial={{ rotate: -12, scale: 0.8 }}
-              animate={{ rotate: -12, scale: 1 }}
-              className="bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-2.5 rounded-xl shadow-2xl border border-emerald-400/50"
-            >
-              <div className="flex items-center gap-2 text-white font-bold text-sm tracking-wide">
-                <CheckCircle2 className="h-5 w-5" />
-                <span>ON-CHAIN</span>
-              </div>
-            </motion.div>
-          </div>
-        )}
+        {/* Large ON-CHAIN stamp removed - keeping only the small Minted badge */}
         
         {/* Rarity Badge */}
         <div className="absolute top-3 left-3 z-10">
@@ -419,21 +405,7 @@ function PremiumComboCard({
           <div className={`absolute inset-0 bg-gradient-to-br ${rarityConfig.bg} opacity-60 group-hover:opacity-80 transition-opacity`} />
         )}
         
-        {/* On-chain stamp */}
-        {isOnChain && (
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/50 via-green-500/40 to-emerald-600/50 flex items-center justify-center z-20">
-            <motion.div 
-              initial={{ rotate: -8, scale: 0.9 }}
-              animate={{ rotate: -8, scale: 1 }}
-              className="bg-gradient-to-r from-emerald-600 to-green-600 px-8 py-3 rounded-xl shadow-2xl border border-emerald-400/50"
-            >
-              <div className="flex items-center gap-3 text-white font-bold tracking-wider">
-                <CheckCircle2 className="h-6 w-6" />
-                <span className="text-lg">ON-CHAIN</span>
-              </div>
-            </motion.div>
-          </div>
-        )}
+        {/* Large ON-CHAIN stamp removed - keeping only the small Minted badge */}
         
         {/* Rarity Badge */}
         <div className="absolute top-4 left-4 z-10">
