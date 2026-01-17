@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, AlertCircle, Sun, Car, Battery, Zap, Wallet } from 'lucide-react';
-import { useState, useCallback } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -39,7 +39,11 @@ interface DemoRewardActionsProps {
   onMintTokens: (category: string) => Promise<DemoMintResult>;
 }
 
-export function DemoRewardActions({ 
+export interface DemoRewardActionsRef {
+  openMintDialogForCategory?: (category: MintCategory) => void;
+}
+
+export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActionsProps>(function DemoRewardActions({ 
   onRefresh, 
   isLoading, 
   walletAddress, 
@@ -50,7 +54,7 @@ export function DemoRewardActions({
   ownedNFTCount,
   onMintWelcomeNFT,
   onMintTokens,
-}: DemoRewardActionsProps) {
+}, ref) {
   const navigate = useNavigate();
   const { triggerConfetti } = useConfetti();
   
@@ -81,6 +85,18 @@ export function DemoRewardActions({
     message: '',
     type: null,
   });
+
+  // Expose openMintDialogForCategory to parent via ref
+  useImperativeHandle(ref, () => ({
+    openMintDialogForCategory: (category: MintCategory) => {
+      if (walletAddress) {
+        setPendingMintCategory(category);
+        setConfirmMintDialog(true);
+      } else {
+        setTokenMintDialog(true);
+      }
+    },
+  }));
 
   // Total activity units from pending rewards
   const totalActivityUnits = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
@@ -503,4 +519,4 @@ export function DemoRewardActions({
       </Dialog>
     </div>
   );
-}
+});
