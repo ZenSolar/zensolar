@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useConfetti } from '@/hooks/useConfetti';
+import { useHaptics } from '@/hooks/useHaptics';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import type { NFTMilestone } from '@/lib/nftMilestones';
@@ -86,6 +87,7 @@ export function NFTMintFlow({
   onMintSuccess 
 }: NFTMintFlowProps) {
   const { triggerCelebration, triggerGoldBurst } = useConfetti();
+  const { success: hapticSuccess } = useHaptics();
   
   const [step, setStep] = useState<MintStep>('confirm');
   const [mintResult, setMintResult] = useState<MintResult | null>(null);
@@ -233,9 +235,10 @@ export function NFTMintFlow({
       });
       setStep('success');
 
-      // Trigger confetti
+      // Trigger confetti and haptic feedback
       triggerGoldBurst();
       setTimeout(() => triggerCelebration(), 200);
+      hapticSuccess();
 
       onMintSuccess?.();
 

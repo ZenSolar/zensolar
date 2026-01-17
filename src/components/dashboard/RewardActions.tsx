@@ -611,6 +611,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           type: 'token',
         });
         
+        // Trigger haptic feedback on success
+        hapticSuccess();
+        
         // Wait for baseline updates to propagate before refreshing
         console.log('Waiting for baseline updates to propagate...');
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -737,7 +740,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
     setMintingState({ isLoading: true, type: 'milestone' });
     setSelectedNft(nft);
-    hapticSuccess();
 
     try {
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
@@ -757,8 +759,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         const wasMinted = result.nftsMinted?.includes(nft.tokenId);
         
         if (wasMinted) {
-          // Only trigger confetti AFTER confirming the NFT was actually minted
+          // Only trigger confetti and haptic AFTER confirming the NFT was actually minted
           triggerConfetti();
+          hapticSuccess();
           
           setNftMintResult({
             success: true,
@@ -795,7 +798,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
     setMintingState({ isLoading: true, type: 'combo' });
     setSelectedNft(combo);
-    hapticSuccess();
 
     try {
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
@@ -812,8 +814,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       const result = data as MintResult;
 
       if (result.success) {
+        // Trigger confetti and haptic on success
         triggerConfetti();
-        
+        hapticSuccess();
         setNftMintResult({
           success: true,
           txHash: result.txHash,
