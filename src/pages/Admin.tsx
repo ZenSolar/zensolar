@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { FeedbackCard } from '@/components/admin/FeedbackCard';
 import { SupportRequestsTab } from '@/components/admin/SupportRequestsTab';
 import { NotificationTemplatesTab } from '@/components/admin/NotificationTemplatesTab';
+import { NFTResetPanel } from '@/components/admin/NFTResetPanel';
 import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenIconOnly from '@/assets/zen-icon-only.png';
 
