@@ -261,26 +261,38 @@ export function NFTMintFlow({
           {step === 'confirm' && (
             <motion.div
               key="confirm"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
               className="p-6 space-y-5"
             >
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">
+                  <motion.span 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
+                  >
                     <Zap className="h-5 w-5 text-primary" />
-                  </span>
-                  <span>Mint NFT</span>
+                  </motion.span>
+                  <span className="text-xl">Mint NFT</span>
                 </DialogTitle>
-                <DialogDescription className="pt-1">
-                  You're about to mint this collectible to your wallet on Base Sepolia
+                <DialogDescription className="pt-1.5 text-muted-foreground/80">
+                  Claim this collectible to your wallet on Base Sepolia
                 </DialogDescription>
               </DialogHeader>
 
-              {/* NFT Preview */}
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50 shadow-sm">
-                <div className="w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex-shrink-0 shadow-lg ring-2 ring-primary/10">
+              {/* NFT Preview Card */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="relative flex items-center gap-4 p-4 bg-gradient-to-br from-muted/60 via-muted/40 to-muted/20 rounded-2xl border border-border/60 shadow-sm overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex-shrink-0 shadow-xl ring-2 ring-white/10 dark:ring-white/5">
                   {artwork && (
                     <img 
                       src={artwork} 
@@ -289,31 +301,43 @@ export function NFTMintFlow({
                     />
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="relative flex-1 min-w-0">
                   <h3 className="font-bold text-lg leading-tight">{milestone.name}</h3>
                   <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{milestone.description}</p>
-                  <Badge variant="secondary" className="mt-2 text-xs font-mono">
+                  <Badge variant="secondary" className="mt-2.5 text-xs font-mono bg-background/60 backdrop-blur-sm">
                     Token ID: {tokenId}
                   </Badge>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Wallet Info */}
-              <div className="p-3.5 bg-primary/5 rounded-xl border border-primary/20 flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="p-3.5 bg-gradient-to-r from-primary/8 via-primary/5 to-primary/3 rounded-xl border border-primary/15 flex items-center gap-3"
+              >
+                <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-sm">
                   <Wallet className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground">Minting to wallet</p>
-                  <p className="font-mono text-sm font-medium truncate">{walletAddress.slice(0, 8)}...{walletAddress.slice(-6)}</p>
+                  <p className="text-xs text-muted-foreground font-medium">Minting to wallet</p>
+                  <p className="font-mono text-sm font-semibold truncate">{walletAddress.slice(0, 8)}...{walletAddress.slice(-6)}</p>
                 </div>
-              </div>
+              </motion.div>
 
-              <DialogFooter className="pt-2">
-                <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">
+              <DialogFooter className="pt-3 gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => onOpenChange(false)} 
+                  className="flex-1 sm:flex-none h-11 rounded-xl border-border/60 hover:bg-muted/60"
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleMint} className="gap-2 flex-1 sm:flex-none bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow">
+                <Button 
+                  onClick={handleMint} 
+                  className="gap-2 flex-1 sm:flex-none h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.02] transition-all duration-200"
+                >
                   <Zap className="h-4 w-4" />
                   Confirm Mint
                 </Button>
@@ -328,20 +352,31 @@ export function NFTMintFlow({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="py-12 px-6 text-center space-y-8"
+              transition={{ duration: 0.25 }}
+              className="py-14 px-6 text-center space-y-8"
             >
-              {/* Animated NFT */}
-              <div className="relative w-36 h-36 mx-auto">
+              {/* Animated NFT with Glow */}
+              <div className="relative w-40 h-40 mx-auto">
+                {/* Outer glow ring */}
                 <motion.div
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden shadow-2xl ring-4 ring-primary/10"
+                  className="absolute inset-[-8px] rounded-3xl"
                   animate={{ 
                     boxShadow: [
-                      '0 0 0 0 hsl(var(--primary) / 0)',
-                      '0 0 40px 15px hsl(var(--primary) / 0.2)',
-                      '0 0 0 0 hsl(var(--primary) / 0)'
+                      '0 0 20px 0 hsl(var(--primary) / 0.15)',
+                      '0 0 50px 10px hsl(var(--primary) / 0.25)',
+                      '0 0 20px 0 hsl(var(--primary) / 0.15)'
                     ]
                   }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                
+                {/* NFT Image Container */}
+                <motion.div
+                  className="relative w-full h-full rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 overflow-hidden shadow-2xl ring-2 ring-primary/20"
+                  animate={{ 
+                    scale: [1, 1.02, 1],
+                  }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                 >
                   {artwork && (
                     <img 
@@ -350,46 +385,80 @@ export function NFTMintFlow({
                       className="w-full h-full object-cover"
                     />
                   )}
+                  
+                  {/* Shimmer overlay */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '200%' }}
+                    transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
+                  />
                 </motion.div>
+                
+                {/* Spinning loader badge */}
                 <motion.div 
-                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-background rounded-full p-2 shadow-lg"
+                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-background rounded-full p-2.5 shadow-xl ring-2 ring-primary/20"
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
                 >
                   <Loader2 className="h-6 w-6 text-primary" />
                 </motion.div>
               </div>
 
-              <div>
-                <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Minting on Blockchain</h3>
+              <div className="space-y-2">
+                <motion.h3 
+                  className="text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  Minting on Blockchain
+                </motion.h3>
                 <p className="text-sm text-muted-foreground">
-                  Transaction in progress. Please wait...
+                  Your transaction is being processed...
                 </p>
               </div>
 
-              {/* Transaction Steps */}
-              <div className="space-y-3 text-left max-w-xs mx-auto bg-muted/30 rounded-xl p-4 border border-border/50">
+              {/* Transaction Progress Steps */}
+              <div className="space-y-3 text-left max-w-xs mx-auto bg-gradient-to-br from-muted/40 to-muted/20 rounded-2xl p-5 border border-border/50 shadow-sm">
                 <motion.div 
                   className="flex items-center gap-3 text-sm"
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
                 >
-                  <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <motion.div 
+                    className="h-7 w-7 rounded-full bg-gradient-to-br from-green-500/25 to-green-500/10 flex items-center justify-center ring-1 ring-green-500/30"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.4, type: 'spring' }}
+                  >
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  </div>
-                  <span className="font-medium">Verifying eligibility</span>
+                  </motion.div>
+                  <span className="font-medium text-foreground">Eligibility verified</span>
                 </motion.div>
+                
                 <motion.div 
                   className="flex items-center gap-3 text-sm"
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 }}
+                  transition={{ delay: 0.6, duration: 0.3 }}
                 >
-                  <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary/25 to-primary/10 flex items-center justify-center ring-1 ring-primary/30">
                     <Loader2 className="h-4 w-4 text-primary animate-spin" />
                   </div>
-                  <span className="text-muted-foreground">Submitting transaction...</span>
+                  <span className="text-muted-foreground">Submitting to blockchain...</span>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex items-center gap-3 text-sm"
+                  initial={{ opacity: 0, x: -15 }}
+                  animate={{ opacity: 0.4, x: 0 }}
+                  transition={{ delay: 0.8, duration: 0.3 }}
+                >
+                  <div className="h-7 w-7 rounded-full bg-muted/50 flex items-center justify-center ring-1 ring-border/50">
+                    <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+                  </div>
+                  <span className="text-muted-foreground/50">Confirming transaction</span>
                 </motion.div>
               </div>
             </motion.div>
@@ -402,88 +471,125 @@ export function NFTMintFlow({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="py-8 px-6 text-center space-y-6"
+              transition={{ duration: 0.3, type: 'spring', damping: 20 }}
+              className="py-10 px-6 text-center space-y-6"
             >
               {/* Animated Success Icon */}
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', damping: 10 }}
+                initial={{ scale: 0, rotate: -90 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', damping: 12, delay: 0.1 }}
                 className="relative w-28 h-28 mx-auto"
               >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center shadow-xl ring-4 ring-green-500/10">
+                {/* Glow effect */}
+                <div className="absolute inset-[-4px] rounded-full bg-gradient-to-br from-green-500/20 via-green-500/10 to-transparent blur-lg" />
+                
+                <div className="relative w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center shadow-2xl ring-2 ring-green-500/20">
                   <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: 'spring', delay: 0.2 }}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', delay: 0.3, damping: 10 }}
                   >
-                    <CheckCircle2 className="h-14 w-14 text-green-500" />
+                    <CheckCircle2 className="h-14 w-14 text-green-500 drop-shadow-lg" />
                   </motion.div>
                 </div>
+                
+                {/* Orbiting sparkles */}
                 <motion.div
                   className="absolute inset-0"
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                  transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
                 >
-                  <Sparkles className="absolute top-0 right-0 h-5 w-5 text-amber-400" />
-                  <Sparkles className="absolute bottom-0 left-0 h-4 w-4 text-primary" />
+                  <Sparkles className="absolute -top-1 right-1 h-5 w-5 text-amber-400 drop-shadow-lg" />
+                  <Sparkles className="absolute bottom-2 -left-1 h-4 w-4 text-primary drop-shadow-lg" />
+                  <Sparkles className="absolute top-1/2 -right-2 h-3 w-3 text-green-400 drop-shadow-lg" />
                 </motion.div>
               </motion.div>
 
-              <div>
-                <h3 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-2"
+              >
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-500 dark:from-green-400 dark:to-green-300 bg-clip-text text-transparent">
                   {mintResult.txHash ? 'NFT Minted Successfully!' : 'NFT Already On-Chain'}
                 </h3>
-                <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                  {mintResult.txHash ? milestone.name : 'This collectible is already in your wallet. Add it to MetaMask below.'}
+                <p className="text-sm text-muted-foreground max-w-[280px] mx-auto leading-relaxed">
+                  {mintResult.txHash 
+                    ? `${milestone.name} has been minted to your wallet`
+                    : 'This collectible is already in your wallet. Add it to MetaMask below.'
+                  }
                 </p>
-              </div>
+              </motion.div>
 
-              {/* Transaction Hash */}
+              {/* Transaction Hash Link */}
               {mintResult.txHash && (
-                <a
+                <motion.a
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
                   href={`https://sepolia.basescan.org/tx/${mintResult.txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-primary hover:underline bg-primary/5 px-4 py-2 rounded-full transition-colors hover:bg-primary/10"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 bg-primary/8 hover:bg-primary/12 px-5 py-2.5 rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
                 >
-                  View Transaction <ExternalLink className="h-3.5 w-3.5" />
-                </a>
+                  View on BaseScan <ExternalLink className="h-3.5 w-3.5" />
+                </motion.a>
               )}
 
-              {/* MetaMask Import Info */}
-              <div className="p-5 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50 space-y-4 text-left shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              {/* MetaMask Import Card */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="relative p-5 bg-gradient-to-br from-muted/60 via-muted/40 to-muted/20 rounded-2xl border border-border/60 space-y-4 text-left shadow-sm overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
+                
+                <div className="relative flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-sm ring-1 ring-primary/20">
                     <Wallet className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <span className="font-semibold">Add to MetaMask</span>
-                    <p className="text-xs text-muted-foreground">Copy these values to import your NFT</p>
+                    <span className="font-semibold text-base">Add to MetaMask</span>
+                    <p className="text-xs text-muted-foreground">Copy these to import your NFT</p>
                   </div>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="relative space-y-3">
                   <div className="space-y-1.5">
-                    <label className="text-xs text-muted-foreground font-medium">Contract Address</label>
+                    <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Contract Address</label>
                     <CopyButton text={NFT_CONTRACT_ADDRESS} label="Contract Address" />
                   </div>
                   
                   <div className="space-y-1.5">
-                    <label className="text-xs text-muted-foreground font-medium">Collectible ID</label>
-                    <CopyButton text={String(mintResult.tokenId)} label="Collectible ID" />
+                    <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Token ID</label>
+                    <CopyButton text={String(mintResult.tokenId)} label="Token ID" />
                   </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground text-center pt-1">
-                  Redirecting to instructions in <span className="font-mono font-semibold text-foreground">{countdown}s</span>
-                </p>
-              </div>
+                <div className="relative flex items-center justify-center gap-2 pt-2 text-xs text-muted-foreground">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                  <span>
+                    Auto-redirect in <span className="font-mono font-semibold text-foreground">{countdown}s</span>
+                  </span>
+                </div>
+              </motion.div>
 
-              <Button onClick={openMetaMaskInfo} className="w-full gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20">
-                <Wallet className="h-4 w-4" />
-                Open MetaMask Instructions
-              </Button>
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Button 
+                  onClick={openMetaMaskInfo} 
+                  className="w-full h-12 gap-2 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200"
+                >
+                  <Wallet className="h-4 w-4" />
+                  Open MetaMask Instructions
+                </Button>
+              </motion.div>
             </motion.div>
           )}
 
@@ -494,32 +600,66 @@ export function NFTMintFlow({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="py-10 px-6 text-center space-y-6"
+              transition={{ duration: 0.25 }}
+              className="py-12 px-6 text-center space-y-6"
             >
+              {/* Error Icon with shake animation */}
               <motion.div 
-                className="w-20 h-20 mx-auto rounded-full bg-destructive/10 flex items-center justify-center ring-4 ring-destructive/10"
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring' }}
+                className="relative w-24 h-24 mx-auto"
+                initial={{ scale: 0.8, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', damping: 10 }}
               >
-                <AlertCircle className="h-10 w-10 text-destructive" />
+                {/* Glow effect */}
+                <div className="absolute inset-[-4px] rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-transparent blur-lg" />
+                
+                <div className="relative w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
+                  <motion.div
+                    animate={{ 
+                      x: [0, -3, 3, -3, 3, 0],
+                    }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <AlertCircle className="h-12 w-12 text-destructive drop-shadow-lg" />
+                  </motion.div>
+                </div>
               </motion.div>
 
-              <div>
-                <h3 className="text-2xl font-bold text-destructive mb-3">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="space-y-4"
+              >
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-destructive to-destructive/80 bg-clip-text text-transparent">
                   Minting Failed
                 </h3>
-                <p className="text-sm text-muted-foreground max-w-xs mx-auto bg-muted/30 rounded-lg p-3 border border-border/50">{error}</p>
-              </div>
+                <div className="max-w-sm mx-auto bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent rounded-xl p-4 border border-destructive/20">
+                  <p className="text-sm text-muted-foreground leading-relaxed">{error}</p>
+                </div>
+              </motion.div>
 
-              <DialogFooter className="justify-center pt-2">
-                <Button variant="outline" onClick={() => onOpenChange(false)} className="min-w-[100px]">
-                  Close
-                </Button>
-                <Button onClick={() => setStep('confirm')} className="min-w-[100px] bg-gradient-to-r from-primary to-primary/90">
-                  Try Again
-                </Button>
-              </DialogFooter>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+              >
+                <DialogFooter className="justify-center pt-2 gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => onOpenChange(false)} 
+                    className="min-w-[110px] h-11 rounded-xl border-border/60 hover:bg-muted/60"
+                  >
+                    Close
+                  </Button>
+                  <Button 
+                    onClick={() => setStep('confirm')} 
+                    className="min-w-[110px] h-11 rounded-xl bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-200"
+                  >
+                    Try Again
+                  </Button>
+                </DialogFooter>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
