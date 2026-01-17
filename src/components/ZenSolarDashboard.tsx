@@ -124,6 +124,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const firstName = profile?.display_name?.trim().split(/\s+/)[0];
   const dashboardTitle = firstName ? `Welcome, ${firstName}` : 'Dashboard';
 
+  // "Current Activity" is what is mintable: lifetime until first mint, then delta since last mint.
+  // We centralize rounding here so Pending Rewards and Current Activity always match.
+  const currentActivity = {
+    solarKwh: Math.max(0, Math.floor(activityData.pendingSolarKwh || 0)),
+    evMiles: Math.max(0, Math.floor(activityData.pendingEvMiles || 0)),
+    batteryKwh: Math.max(0, Math.floor(activityData.pendingBatteryKwh || 0)),
+    chargingKwh: Math.max(0, Math.floor(activityData.pendingChargingKwh || 0)),
+  };
+
   const handleConnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge') => {
     connectAccount(service);
   };
@@ -225,6 +234,25 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
         
+        <AnimatedItem>
+          <ActivityMetrics data={activityData} currentActivity={currentActivity} />
+        </AnimatedItem>
+
+        <AnimatedItem>
+          <RewardActions 
+            ref={rewardActionsRef}
+            onRefresh={refreshDashboard} 
+            isLoading={dataLoading}
+            walletAddress={profile?.wallet_address}
+            pendingRewards={{
+              solar: currentActivity.solarKwh,
+              evMiles: currentActivity.evMiles,
+              battery: currentActivity.batteryKwh,
+              charging: currentActivity.chargingKwh,
+            }}
+          />
+        </AnimatedItem>
+
         {/* NFT Milestones - Beta */}
         <AnimatedItem>
           <RewardProgress
@@ -235,34 +263,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             batteryDischargedKwh={activityData.batteryStorageDischarged}
             nftsEarned={activityData.nftsEarned}
             isNewUser={true}
-          />
-        </AnimatedItem>
-
-        <AnimatedItem>
-          <ActivityMetrics data={activityData} />
-        </AnimatedItem>
-        
-        <AnimatedItem>
-          <RewardActions 
-            ref={rewardActionsRef}
-            onRefresh={refreshDashboard} 
-            isLoading={dataLoading}
-            walletAddress={profile?.wallet_address}
-            pendingRewards={{
-              // PERMANENT RULE: For new users (lifetimeMinted = 0), pending = lifetime
-              solar: Math.floor(activityData.pendingSolarKwh > 0 
-                ? activityData.pendingSolarKwh 
-                : (activityData.lifetimeMinted === 0 ? activityData.solarEnergyProduced : 0)),
-              evMiles: Math.floor(activityData.pendingEvMiles > 0 
-                ? activityData.pendingEvMiles 
-                : (activityData.lifetimeMinted === 0 ? activityData.evMilesDriven : 0)),
-              battery: Math.floor(activityData.pendingBatteryKwh > 0 
-                ? activityData.pendingBatteryKwh 
-                : (activityData.lifetimeMinted === 0 ? activityData.batteryStorageDischarged : 0)),
-              charging: Math.floor(activityData.pendingChargingKwh > 0 
-                ? activityData.pendingChargingKwh 
-                : (activityData.lifetimeMinted === 0 ? (activityData.teslaSuperchargerKwh + activityData.homeChargerKwh) : 0)),
-            }}
           />
         </AnimatedItem>
 

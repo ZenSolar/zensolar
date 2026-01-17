@@ -1,4 +1,5 @@
-import { ActivityData } from '@/types/dashboard';
+import type React from 'react';
+import { ActivityData, calculateCO2Offset } from '@/types/dashboard';
 import { MetricCard } from './MetricCard';
 import { 
   Sun, 
@@ -22,22 +23,30 @@ import {
 } from '@/lib/nftMilestones';
 import { Card, CardContent } from '@/components/ui/card';
 
+type CurrentActivity = {
+  solarKwh: number;
+  evMiles: number;
+  batteryKwh: number;
+  chargingKwh: number;
+};
+
 interface ActivityMetricsProps {
   data: ActivityData;
+  currentActivity?: CurrentActivity;
 }
 
-export function ActivityMetrics({ data }: ActivityMetricsProps) {
+export function ActivityMetrics({ data, currentActivity }: ActivityMetricsProps) {
   const labels = data.deviceLabels || {};
-  
+
   // Build dynamic labels based on device names
   const evLabel = labels.vehicle 
     ? `${labels.vehicle}` 
     : 'EV Miles';
-  
+
   const batteryLabel = labels.powerwall 
     ? `${labels.powerwall}` 
     : 'Battery';
-  
+
   const homeChargerLabel = labels.homeCharger 
     ? `${labels.homeCharger}` 
     : labels.wallConnector
@@ -52,49 +61,36 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   // Calculate earned NFTs locally using actual energy data (uses lifetime for NFT progress)
   const solarEarned = calculateEarnedMilestones(data.solarEnergyProduced, SOLAR_MILESTONES);
   const batteryEarned = calculateEarnedMilestones(data.batteryStorageDischarged, BATTERY_MILESTONES);
-  const chargingKwh = data.teslaSuperchargerKwh + data.homeChargerKwh;
-  const chargingEarned = calculateEarnedMilestones(chargingKwh, EV_CHARGING_MILESTONES);
+  const chargingKwhLifetime = data.teslaSuperchargerKwh + data.homeChargerKwh;
+  const chargingEarned = calculateEarnedMilestones(chargingKwhLifetime, EV_CHARGING_MILESTONES);
   const evMilesEarned = calculateEarnedMilestones(data.evMilesDriven, EV_MILES_MILESTONES);
   const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, chargingEarned, batteryEarned);
-  
+
   // Total earned (including Welcome NFT)
   const totalEarned = 1 + solarEarned.length + evMilesEarned.length + chargingEarned.length + batteryEarned.length + comboEarned.length;
   const totalPossible = getTotalNftCount();
 
-  // PERMANENT RULE: For new users who haven't minted, pending MUST equal lifetime
-  // If lifetime > 0 but pending = 0, use lifetime as pending
-  const effectivePendingSolar = data.pendingSolarKwh > 0 
-    ? data.pendingSolarKwh 
-    : (data.lifetimeMinted === 0 ? data.solarEnergyProduced : 0);
-  
-  const effectivePendingEvMiles = data.pendingEvMiles > 0 
-    ? data.pendingEvMiles 
-    : (data.lifetimeMinted === 0 ? data.evMilesDriven : 0);
-  
-  const effectivePendingBattery = data.pendingBatteryKwh > 0 
-    ? data.pendingBatteryKwh 
-    : (data.lifetimeMinted === 0 ? data.batteryStorageDischarged : 0);
-  
-  const effectivePendingCharging = data.pendingChargingKwh > 0 
-    ? data.pendingChargingKwh 
-    : (data.lifetimeMinted === 0 ? (data.teslaSuperchargerKwh + data.homeChargerKwh) : 0);
+  // "Current Activity" is what is mintable: lifetime until first mint, then delta since last mint.
+  const current: CurrentActivity = currentActivity ?? {
+    solarKwh: Math.max(0, Math.floor(data.pendingSolarKwh || 0)),
+    evMiles: Math.max(0, Math.floor(data.pendingEvMiles || 0)),
+    batteryKwh: Math.max(0, Math.floor(data.pendingBatteryKwh || 0)),
+    chargingKwh: Math.max(0, Math.floor(data.pendingChargingKwh || 0)),
+  };
 
-  // Calculate activity units from effective pending values
-  const activityUnits = 
-    Math.floor(effectivePendingSolar) + 
-    Math.floor(effectivePendingEvMiles) + 
-    Math.floor(effectivePendingBattery) + 
-    Math.floor(effectivePendingCharging);
-  
-  // User receives 93% of activity units as tokens (5% burn, 1% LP, 1% treasury)
+  const activityUnits = current.solarKwh + current.evMiles + current.batteryKwh + current.chargingKwh;
   const tokensToReceive = Math.floor(activityUnits * 0.93);
 
-  // Calculate lifetime totals for display
-  const lifetimeSolar = Math.floor(data.solarEnergyProduced);
-  const lifetimeEvMiles = Math.floor(data.evMilesDriven);
-  const lifetimeBattery = Math.floor(data.batteryStorageDischarged);
-  const lifetimeCharging = Math.floor(data.teslaSuperchargerKwh + data.homeChargerKwh);
-  
+  // CO2 should reflect the same "current activity" basis shown in the UI
+  const currentCo2Offset = Math.floor(
+    calculateCO2Offset({
+      ...data,
+      solarEnergyProduced: current.solarKwh,
+      evMilesDriven: current.evMiles,
+      batteryStorageDischarged: current.batteryKwh,
+    })
+  );
+
   return (
     <div className="space-y-6">
       {/* 1. REWARDS SUMMARY - At the top */}
@@ -163,16 +159,14 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
                 </span>
               )}
-              {activityUnits > 0 ? 'Pending Rewards' : 'Activity Since Last Mint'}
+              Pending Rewards
             </h2>
           </div>
-          
+
           <p className="text-xs text-muted-foreground">
-            {activityUnits > 0
-              ? 'Ready to mint — you receive 93% as tokens'
-              : 'No activity to mint yet'}
+            {activityUnits > 0 ? 'Ready to mint — you receive 93% as tokens' : 'No activity to mint yet'}
           </p>
-          
+
           {/* Tokens to receive - prominent display */}
           <div className={`p-4 rounded-xl ${activityUnits > 0 ? 'bg-gradient-to-r from-primary/15 to-primary/5 border border-primary/30' : 'bg-muted/50 border border-border'}`}>
             <div className="flex items-center gap-4">
@@ -180,7 +174,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
                 <Coins className={`h-6 w-6 ${activityUnits > 0 ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">{activityUnits > 0 ? "Tokens You'll Receive" : "Pending Tokens"}</p>
+                <p className="text-sm text-muted-foreground">Tokens You'll Receive</p>
                 <p className="text-2xl font-bold text-foreground">
                   {tokensToReceive.toLocaleString()}
                   <span className="text-sm font-normal text-muted-foreground ml-2">$ZSOLAR</span>
@@ -188,49 +182,49 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
               </div>
             </div>
           </div>
-          
+
           {/* Activity breakdown - compact grid */}
           <div className="grid grid-cols-2 gap-2">
             <ActivityCard
               icon={Sun}
-              value={Math.floor(effectivePendingSolar)}
+              value={current.solarKwh}
               unit="kWh"
               label={solarLabel}
-              active={effectivePendingSolar > 0}
+              active={current.solarKwh > 0}
               colorClass="solar"
             />
-            
+
             <ActivityCard
               icon={Car}
-              value={Math.floor(effectivePendingEvMiles)}
+              value={current.evMiles}
               unit="mi"
               label={evLabel}
-              active={effectivePendingEvMiles > 0}
+              active={current.evMiles > 0}
               colorClass="energy"
             />
-            
+
             <ActivityCard
               icon={Battery}
-              value={Math.floor(effectivePendingBattery)}
+              value={current.batteryKwh}
               unit="kWh"
               label={batteryLabel}
-              active={effectivePendingBattery > 0}
+              active={current.batteryKwh > 0}
               colorClass="secondary"
             />
-            
+
             <ActivityCard
               icon={Zap}
-              value={Math.floor(effectivePendingCharging)}
+              value={current.chargingKwh}
               unit="kWh"
               label="EV Charging"
-              active={effectivePendingCharging > 0}
+              active={current.chargingKwh > 0}
               colorClass="accent"
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* 3. CURRENT ACTIVITY (Lifetime Totals) */}
+      {/* 3. CURRENT ACTIVITY (Mintable activity units) */}
       <Card className="overflow-hidden">
         <CardContent className="p-4 space-y-4">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -238,49 +232,15 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
             Current Activity
           </h2>
           <p className="text-xs text-muted-foreground -mt-2">
-            Lifetime totals from your connected accounts
+            Since your last mint (or lifetime totals until your first mint)
           </p>
 
-          <div className="grid gap-2 sm:grid-cols-2">
-            <MetricCard
-              icon={Sun}
-              label={solarLabel}
-              value={lifetimeSolar}
-              unit="kWh"
-              colorClass="bg-solar"
-            />
-
-            <MetricCard
-              icon={Car}
-              label={evLabel}
-              value={lifetimeEvMiles}
-              unit="mi"
-              colorClass="bg-energy"
-            />
-
-            <MetricCard
-              icon={Battery}
-              label={batteryLabel}
-              value={lifetimeBattery}
-              unit="kWh"
-              colorClass="bg-secondary"
-            />
-
-            <MetricCard
-              icon={Zap}
-              label="EV Charging"
-              value={lifetimeCharging}
-              unit="kWh"
-              colorClass="bg-accent"
-            />
-
-            <MetricCard
-              icon={Leaf}
-              label="CO2 Offset"
-              value={data.co2OffsetPounds}
-              unit="lbs"
-              colorClass="bg-eco"
-            />
+          <div className="space-y-2">
+            <MetricCard icon={Sun} label={solarLabel} value={current.solarKwh} unit="kWh" tone="solar" />
+            <MetricCard icon={Car} label={evLabel} value={current.evMiles} unit="mi" tone="energy" />
+            <MetricCard icon={Battery} label={batteryLabel} value={current.batteryKwh} unit="kWh" tone="secondary" />
+            <MetricCard icon={Zap} label="EV Charging" value={current.chargingKwh} unit="kWh" tone="accent" />
+            <MetricCard icon={Leaf} label="CO2 Offset" value={currentCo2Offset} unit="lbs" tone="eco" />
           </div>
         </CardContent>
       </Card>

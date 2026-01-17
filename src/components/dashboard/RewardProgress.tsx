@@ -130,7 +130,7 @@ function ComboAchievements({ combos }: { combos: NFTMilestone[] }) {
   return (
     <div className="space-y-3 pt-3 border-t border-border/50">
       <div className="flex items-center gap-2">
-        <Trophy className="h-4 w-4 text-amber-500" />
+        <Trophy className="h-4 w-4 text-accent" />
         <span className="font-medium text-sm">Combo Achievements</span>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -206,19 +206,19 @@ export function RewardProgress({
       <CardContent className="space-y-4">
         <Tabs defaultValue="solar" className="w-full">
           <TabsList className="grid w-full grid-cols-4 h-auto p-1">
-            <TabsTrigger value="solar" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-amber-500/20">
+            <TabsTrigger value="solar" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-solar/15">
               <Sun className="h-3 w-3" />
               <span className="hidden sm:inline">Solar</span>
             </TabsTrigger>
-            <TabsTrigger value="ev_miles" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-blue-500/20">
+            <TabsTrigger value="ev_miles" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-energy/15">
               <Car className="h-3 w-3" />
               <span className="hidden sm:inline">EV Miles</span>
             </TabsTrigger>
-            <TabsTrigger value="charging" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-yellow-500/20">
+            <TabsTrigger value="charging" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-accent/15">
               <Zap className="h-3 w-3" />
               <span className="hidden sm:inline">Charging</span>
             </TabsTrigger>
-            <TabsTrigger value="battery" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-green-500/20">
+            <TabsTrigger value="battery" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-secondary/15">
               <Battery className="h-3 w-3" />
               <span className="hidden sm:inline">Battery</span>
             </TabsTrigger>
@@ -233,13 +233,13 @@ export function RewardProgress({
               >
                 <CategoryProgress
                   title="Solar Production"
-                  icon={<Sun className="h-3.5 w-3.5 text-white" />}
+                  icon={<Sun className="h-3.5 w-3.5 text-solar-foreground" />}
                   value={Math.floor(solarKwh)}
                   unit="kWh"
                   milestones={SOLAR_MILESTONES}
                   earnedMilestones={solarEarned}
                   nextMilestone={solarNext}
-                  accentColor="bg-amber-500"
+                  accentColor="bg-solar"
                 />
               </motion.div>
             </TabsContent>
@@ -252,13 +252,13 @@ export function RewardProgress({
               >
                 <CategoryProgress
                   title="EV Miles Driven"
-                  icon={<Car className="h-3.5 w-3.5 text-white" />}
+                  icon={<Car className="h-3.5 w-3.5 text-energy-foreground" />}
                   value={Math.floor(evMilesDriven)}
                   unit="miles"
                   milestones={EV_MILES_MILESTONES}
                   earnedMilestones={evMilesEarned}
                   nextMilestone={evMilesNext}
-                  accentColor="bg-blue-500"
+                  accentColor="bg-energy"
                 />
               </motion.div>
             </TabsContent>
@@ -271,13 +271,13 @@ export function RewardProgress({
               >
                 <CategoryProgress
                   title="EV Charging"
-                  icon={<Zap className="h-3.5 w-3.5 text-white" />}
+                  icon={<Zap className="h-3.5 w-3.5 text-accent-foreground" />}
                   value={Math.floor(evChargingKwh)}
                   unit="kWh"
                   milestones={EV_CHARGING_MILESTONES}
                   earnedMilestones={evChargingEarned}
                   nextMilestone={evChargingNext}
-                  accentColor="bg-yellow-500"
+                  accentColor="bg-accent"
                 />
               </motion.div>
             </TabsContent>
@@ -290,13 +290,13 @@ export function RewardProgress({
               >
                 <CategoryProgress
                   title="Battery Discharge"
-                  icon={<Battery className="h-3.5 w-3.5 text-white" />}
+                  icon={<Battery className="h-3.5 w-3.5 text-secondary-foreground" />}
                   value={Math.floor(batteryDischargedKwh)}
                   unit="kWh"
                   milestones={BATTERY_MILESTONES}
                   earnedMilestones={batteryEarned}
                   nextMilestone={batteryNext}
-                  accentColor="bg-green-500"
+                  accentColor="bg-secondary"
                 />
               </motion.div>
             </TabsContent>
