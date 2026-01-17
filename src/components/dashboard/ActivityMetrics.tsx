@@ -29,25 +29,25 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   
   // Build dynamic labels based on device names
   const evLabel = labels.vehicle 
-    ? `${labels.vehicle} Miles Driven` 
-    : 'EV Miles Driven';
+    ? `${labels.vehicle} Miles` 
+    : 'EV Miles';
   
   const batteryLabel = labels.powerwall 
-    ? `${labels.powerwall} Discharged kWh` 
-    : 'Battery Storage Discharged';
+    ? `${labels.powerwall} kWh` 
+    : 'Battery Discharged';
   
   const homeChargerLabel = labels.homeCharger 
-    ? `${labels.homeCharger} kWh` 
+    ? `${labels.homeCharger}` 
     : labels.wallConnector
-      ? `${labels.wallConnector} kWh`
-      : 'Home Charger kWh';
+      ? `${labels.wallConnector}`
+      : 'Home Charger';
 
   // Build solar label from Enphase system name or default
   const solarLabel = labels.solar 
-    ? `${labels.solar} Solar Energy Produced` 
-    : 'Solar Energy Produced';
+    ? `${labels.solar} Solar` 
+    : 'Solar Energy';
 
-  // Calculate earned NFTs locally using actual energy data
+  // Calculate earned NFTs locally using actual energy data (uses lifetime for NFT progress)
   const solarEarned = calculateEarnedMilestones(data.solarEnergyProduced, SOLAR_MILESTONES);
   const batteryEarned = calculateEarnedMilestones(data.batteryStorageDischarged, BATTERY_MILESTONES);
   const chargingKwh = data.teslaSuperchargerKwh + data.homeChargerKwh;
@@ -60,6 +60,7 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   const totalPossible = getTotalNftCount();
 
   // Calculate activity units from PENDING activity values (since last mint)
+  // These are the values that can be minted NOW
   const activityUnits = 
     Math.floor(data.pendingSolarKwh) + 
     Math.floor(data.pendingEvMiles) + 
@@ -72,70 +73,81 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
   return (
     <div className="space-y-6">
       {/* Pending Rewards Section - What can be minted NOW (delta since last mint) */}
-      {activityUnits > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+      {/* PERMANENT RULE: Always show this section when there's any pending activity */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          {activityUnits > 0 && (
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
-            Pending Rewards
-          </h2>
-          <p className="text-xs text-muted-foreground -mt-2">
-            Activity since your last mint — you receive 93% as tokens
-          </p>
+          )}
+          {activityUnits > 0 ? 'Pending Rewards' : 'Activity Since Last Mint'}
+        </h2>
+        <p className="text-xs text-muted-foreground -mt-2">
+          {activityUnits > 0 
+            ? 'New activity since your last mint — you receive 93% as tokens'
+            : 'No new activity yet. Connect devices and accumulate energy data to mint tokens.'
+          }
+        </p>
+        
+        <div className="grid gap-3">
+          {/* Always show pending tokens card */}
+          <MetricCard
+            icon={Coins}
+            label={activityUnits > 0 ? "Tokens You'll Receive" : "Pending Tokens"}
+            value={tokensToReceive}
+            unit="$ZSOLAR"
+            colorClass="bg-primary"
+          />
           
-          <div className="grid gap-3">
-            <MetricCard
-              icon={Coins}
-              label="Tokens You'll Receive"
-              value={tokensToReceive}
-              unit="$ZSOLAR"
-              colorClass="bg-primary"
-            />
+          {/* Activity breakdown - show current pending values */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className={`flex items-center gap-2 p-2 rounded-md ${data.pendingSolarKwh > 0 ? 'bg-solar/10 border border-solar/20' : 'bg-muted/50 border border-border'}`}>
+              <Sun className={`h-4 w-4 ${data.pendingSolarKwh > 0 ? 'text-solar' : 'text-muted-foreground'}`} />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{Math.floor(data.pendingSolarKwh).toLocaleString()} kWh</span>
+                <span className="text-[10px] text-muted-foreground">{solarLabel}</span>
+              </div>
+            </div>
             
-            {/* Breakdown of pending by category */}
-            <div className="grid grid-cols-2 gap-2">
-              {data.pendingSolarKwh > 0 && (
-                <div className="flex items-center gap-2 p-2 rounded-md bg-solar/10 border border-solar/20">
-                  <Sun className="h-4 w-4 text-solar" />
-                  <span className="text-sm font-medium">{Math.floor(data.pendingSolarKwh).toLocaleString()} kWh</span>
-                </div>
-              )}
-              {data.pendingEvMiles > 0 && (
-                <div className="flex items-center gap-2 p-2 rounded-md bg-energy/10 border border-energy/20">
-                  <Car className="h-4 w-4 text-energy" />
-                  <span className="text-sm font-medium">{Math.floor(data.pendingEvMiles).toLocaleString()} mi</span>
-                </div>
-              )}
-              {data.pendingBatteryKwh > 0 && (
-                <div className="flex items-center gap-2 p-2 rounded-md bg-secondary/10 border border-secondary/20">
-                  <Battery className="h-4 w-4 text-secondary" />
-                  <span className="text-sm font-medium">{Math.floor(data.pendingBatteryKwh).toLocaleString()} kWh</span>
-                </div>
-              )}
-              {data.pendingChargingKwh > 0 && (
-                <div className="flex items-center gap-2 p-2 rounded-md bg-accent/10 border border-accent/20">
-                  <Zap className="h-4 w-4 text-accent" />
-                  <span className="text-sm font-medium">{Math.floor(data.pendingChargingKwh).toLocaleString()} kWh</span>
-                </div>
-              )}
+            <div className={`flex items-center gap-2 p-2 rounded-md ${data.pendingEvMiles > 0 ? 'bg-energy/10 border border-energy/20' : 'bg-muted/50 border border-border'}`}>
+              <Car className={`h-4 w-4 ${data.pendingEvMiles > 0 ? 'text-energy' : 'text-muted-foreground'}`} />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{Math.floor(data.pendingEvMiles).toLocaleString()} mi</span>
+                <span className="text-[10px] text-muted-foreground">{evLabel}</span>
+              </div>
+            </div>
+            
+            <div className={`flex items-center gap-2 p-2 rounded-md ${data.pendingBatteryKwh > 0 ? 'bg-secondary/10 border border-secondary/20' : 'bg-muted/50 border border-border'}`}>
+              <Battery className={`h-4 w-4 ${data.pendingBatteryKwh > 0 ? 'text-secondary' : 'text-muted-foreground'}`} />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{Math.floor(data.pendingBatteryKwh).toLocaleString()} kWh</span>
+                <span className="text-[10px] text-muted-foreground">{batteryLabel}</span>
+              </div>
+            </div>
+            
+            <div className={`flex items-center gap-2 p-2 rounded-md ${data.pendingChargingKwh > 0 ? 'bg-accent/10 border border-accent/20' : 'bg-muted/50 border border-border'}`}>
+              <Zap className={`h-4 w-4 ${data.pendingChargingKwh > 0 ? 'text-accent' : 'text-muted-foreground'}`} />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{Math.floor(data.pendingChargingKwh).toLocaleString()} kWh</span>
+                <span className="text-[10px] text-muted-foreground">EV Charging</span>
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Total Rewards Section - Tokens & NFTs */}
+      {/* Total Rewards Section - NFTs & Referrals */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-foreground">Total Rewards</h2>
+        <h2 className="text-lg font-semibold text-foreground">Rewards Summary</h2>
         
         <div className="grid gap-3">
           <MetricCard
-            icon={Coins}
-            label="Lifetime Tokens Earned"
-            value={data.tokensEarned}
-            unit="$ZSOLAR"
-            colorClass="bg-token"
+            icon={Award}
+            label="NFTs Earned"
+            value={`${totalEarned} / ${totalPossible}`}
+            colorClass="bg-primary"
           />
           
           <MetricCard
@@ -143,63 +155,6 @@ export function ActivityMetrics({ data }: ActivityMetricsProps) {
             label="Referral Tokens"
             value={data.referralTokens}
             unit="$ZSOLAR"
-            colorClass="bg-accent"
-          />
-          
-          <MetricCard
-            icon={Award}
-            label="NFTs Earned"
-            value={`${totalEarned} / ${totalPossible}`}
-            colorClass="bg-primary"
-          />
-        </div>
-      </div>
-
-      {/* Activity Data Section - Lifetime totals */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-foreground">Activity Data</h2>
-        <p className="text-xs text-muted-foreground -mt-2">
-          Lifetime totals from your connected devices
-        </p>
-        
-        <div className="grid gap-3">
-          <MetricCard
-            icon={Sun}
-            label={solarLabel}
-            value={data.solarEnergyProduced}
-            unit="kWh"
-            colorClass="bg-solar"
-          />
-          
-          <MetricCard
-            icon={Car}
-            label={evLabel}
-            value={data.evMilesDriven}
-            unit="miles"
-            colorClass="bg-energy"
-          />
-          
-          <MetricCard
-            icon={Battery}
-            label={batteryLabel}
-            value={data.batteryStorageDischarged}
-            unit="kWh"
-            colorClass="bg-secondary"
-          />
-          
-          <MetricCard
-            icon={Zap}
-            label="Tesla Supercharger"
-            value={data.teslaSuperchargerKwh}
-            unit="kWh"
-            colorClass="bg-accent"
-          />
-          
-          <MetricCard
-            icon={Zap}
-            label={homeChargerLabel}
-            value={data.homeChargerKwh}
-            unit="kWh"
             colorClass="bg-accent"
           />
           
