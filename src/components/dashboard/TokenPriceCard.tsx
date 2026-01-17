@@ -137,7 +137,7 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.23 }: TokenPriceCa
                 animate={showPulse ? { scale: [1, 1.05, 1] } : {}}
                 transition={{ duration: 0.3 }}
               >
-                <DollarSign className="h-5 w-5 text-eco" />
+                <span className="text-xl font-bold text-eco">$</span>
                 <span className="text-3xl font-bold text-eco">
                   {totalValueUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
