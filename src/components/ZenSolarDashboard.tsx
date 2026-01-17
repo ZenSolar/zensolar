@@ -54,7 +54,16 @@ interface ZenSolarDashboardProps {
 }
 
 export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
-  const { activityData, isLoading: dataLoading, refreshDashboard, connectAccount, disconnectAccount, connectedAccounts } = useDashboardData();
+  const {
+    activityData,
+    isLoading: dataLoading,
+    refreshDashboard,
+    connectAccount,
+    disconnectAccount,
+    connectedAccounts,
+    lastUpdatedAt,
+    providerRefresh,
+  } = useDashboardData();
   const { profile, isLoading: profileLoading, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
   const { isAdmin } = useAdminCheck();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
@@ -235,7 +244,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
         
         <AnimatedItem>
-          <ActivityMetrics data={activityData} currentActivity={currentActivity} />
+          <ActivityMetrics
+            data={activityData}
+            currentActivity={currentActivity}
+            refreshInfo={{ lastUpdatedAt, providers: providerRefresh }}
+          />
         </AnimatedItem>
 
         <AnimatedItem>
