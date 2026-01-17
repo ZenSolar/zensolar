@@ -609,6 +609,13 @@ export function useDashboardData() {
       if (solarEnergy > 0 || tokensEarned > 0) {
         toast.success('Dashboard updated with real data!');
       }
+    } catch (error) {
+      console.error('Dashboard refresh error:', error);
+      toast.error('Failed to refresh dashboard data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels, fetchMintedTokens, fetchDevicesSnapshot]);
 
   // Auto-refresh when connections change
   useEffect(() => {
