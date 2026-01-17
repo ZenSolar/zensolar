@@ -606,9 +606,11 @@ Deno.serve(async (req) => {
           }
           
           if (mintCategory === 'all' || mintCategory === 'charging') {
-            const lifetimeChargingWh = lifetime.charging_wh || 0;
-            const baselineChargingWh = baseline?.charging_wh || 0;
-            const delta = Math.max(0, Math.floor((lifetimeChargingWh - baselineChargingWh) / 1000));
+            // FIXED: Vehicle charging data is stored as charging_kwh (already in kWh), not charging_wh
+            // Priority: charging_kwh (kWh) > charging_wh (Wh / 1000)
+            const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0);
+            const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0);
+            const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
             if (delta > 0) {
               chargingDeltaKwh += delta;
               if (!deviceIdsToUpdate.includes(device.id)) {
@@ -617,9 +619,10 @@ Deno.serve(async (req) => {
             }
           }
         } else if (device.device_type === "wall_connector" && (mintCategory === 'all' || mintCategory === 'charging')) {
-          const lifetimeChargingWh = lifetime.charging_wh || lifetime.lifetime_charging_wh || 0;
-          const baselineChargingWh = baseline?.charging_wh || 0;
-          const delta = Math.max(0, Math.floor((lifetimeChargingWh - baselineChargingWh) / 1000));
+          // Wall connector: check for kWh first, then Wh
+          const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) || (lifetime.lifetime_charging_wh ? lifetime.lifetime_charging_wh / 1000 : 0) || (lifetime.wall_connector_wh ? lifetime.wall_connector_wh / 1000 : 0);
+          const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0) || (baseline?.wall_connector_wh ? baseline.wall_connector_wh / 1000 : 0);
+          const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
           if (delta > 0) {
             chargingDeltaKwh += delta;
             deviceIdsToUpdate.push(device.id);
