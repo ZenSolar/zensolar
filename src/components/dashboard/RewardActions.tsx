@@ -988,20 +988,24 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       <Dialog open={tokenMintDialog} onOpenChange={setTokenMintDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl flex items-center gap-2">
-              <Coins className="h-6 w-6 text-primary" />
-              Mint $ZSOLAR Tokens
+            <DialogTitle className="flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20">
+                <Coins className="h-5 w-5 text-primary" />
+              </span>
+              <span className="text-xl">Mint $ZSOLAR Tokens</span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="pt-1.5 text-muted-foreground/80">
               Mint your pending rewards by category or all at once.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-3 py-4">
             {totalPendingTokens === 0 ? (
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+              <div className="bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="h-9 w-9 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-amber-500" />
+                  </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">No tokens available to mint</p>
                     <p className="text-xs text-muted-foreground">
@@ -1015,9 +1019,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 {/* Category breakdown */}
                 <div className="space-y-2">
                   {/* Solar Energy */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-solar/30 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-solar/10">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-solar/20 to-solar/10 shadow-sm">
                         <Sun className="h-4 w-4 text-solar" />
                       </div>
                       <div>
@@ -1030,6 +1034,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       variant="outline"
                       onClick={() => handleRequestMint('solar')}
                       disabled={pendingRewards.solar === 0 || isMinting}
+                      className="rounded-lg h-9 px-4 hover:bg-solar/10 hover:border-solar/30 hover:text-solar transition-colors"
                     >
                       {mintingState.category === 'solar' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1040,9 +1045,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </div>
 
                   {/* Battery Storage */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-secondary/30 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-secondary/10">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 shadow-sm">
                         <Battery className="h-4 w-4 text-secondary" />
                       </div>
                       <div>
@@ -1055,6 +1060,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       variant="outline"
                       onClick={() => handleRequestMint('battery')}
                       disabled={pendingRewards.battery === 0 || isMinting}
+                      className="rounded-lg h-9 px-4 hover:bg-secondary/10 hover:border-secondary/30 hover:text-secondary transition-colors"
                     >
                       {mintingState.category === 'battery' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1065,9 +1071,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </div>
 
                   {/* EV Miles */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-energy/30 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-energy/10">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-energy/20 to-energy/10 shadow-sm">
                         <Car className="h-4 w-4 text-energy" />
                       </div>
                       <div>
@@ -1080,6 +1086,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       variant="outline"
                       onClick={() => handleRequestMint('ev_miles')}
                       disabled={pendingRewards.evMiles === 0 || isMinting}
+                      className="rounded-lg h-9 px-4 hover:bg-energy/10 hover:border-energy/30 hover:text-energy transition-colors"
                     >
                       {mintingState.category === 'ev_miles' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1090,9 +1097,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </div>
 
                   {/* EV Charging */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-accent/30 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-accent/10">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm">
                         <Zap className="h-4 w-4 text-accent" />
                       </div>
                       <div>
@@ -1105,6 +1112,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       variant="outline"
                       onClick={() => handleRequestMint('charging')}
                       disabled={pendingRewards.charging === 0 || isMinting}
+                      className="rounded-lg h-9 px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-colors"
                     >
                       {mintingState.category === 'charging' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1116,23 +1124,26 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 </div>
 
                 {/* Divider */}
-                <div className="relative py-2">
+                <div className="relative py-3">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border" />
+                    <div className="w-full border-t border-border/60" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-background px-2 text-xs text-muted-foreground">or</span>
+                    <span className="bg-background px-3 text-xs text-muted-foreground font-medium">or mint everything</span>
                   </div>
                 </div>
 
                 {/* Total & Mint All */}
-                <div className="p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold">Total Pending</span>
-                    <span className="text-xl font-bold text-primary">{totalPendingTokens.toLocaleString()} $ZSOLAR</span>
+                <div className="relative p-5 rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
+                  <div className="relative flex items-center justify-between mb-4">
+                    <span className="font-semibold text-foreground">Total Pending</span>
+                    <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      {totalPendingTokens.toLocaleString()} $ZSOLAR
+                    </span>
                   </div>
                   <Button
-                    className="w-full bg-primary hover:bg-primary/90"
+                    className="relative w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200"
                     onClick={() => handleRequestMint('all')}
                     disabled={isMinting}
                   >
@@ -1152,7 +1163,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             <Button
               variant="outline"
               onClick={() => setTokenMintDialog(false)}
-              className="w-full"
+              className="w-full h-11 rounded-xl border-border/60 hover:bg-muted/60"
             >
               Cancel
             </Button>
@@ -1164,9 +1175,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl flex items-center gap-2">
-              <Coins className="h-6 w-6 text-primary" />
-              Confirm Minting
+            <DialogTitle className="flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20">
+                <Coins className="h-5 w-5 text-primary" />
+              </span>
+              <span className="text-xl">Confirm Minting</span>
             </DialogTitle>
             <DialogDescription className="pt-4">
               <div className="space-y-4">
@@ -1175,11 +1188,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 </p>
                 
                 {pendingMintCategory && (
-                  <div className="p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
-                    <div className="flex flex-col gap-1">
+                  <div className="relative p-5 rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
+                    <div className="relative flex flex-col gap-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium">{getCategoryLabel(pendingMintCategory)}</span>
-                        <span className="text-xl font-bold text-primary">
+                        <span className="font-semibold">{getCategoryLabel(pendingMintCategory)}</span>
+                        <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                           {getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR
                         </span>
                       </div>
@@ -1190,29 +1204,34 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </div>
                 )}
                 
-                <div className="bg-muted/50 rounded-lg p-3 border">
-                  <p className="text-sm text-muted-foreground">
-                    This will submit a transaction to the Base Sepolia blockchain. 
-                    The tokens will be minted directly to your connected wallet.
-                  </p>
+                <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-4 border border-border/60">
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Wallet className="h-4 w-4 text-primary" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      This will submit a transaction to the Base Sepolia blockchain. 
+                      The tokens will be minted directly to your connected wallet.
+                    </p>
+                  </div>
                 </div>
               </div>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex gap-2 sm:gap-2">
+          <DialogFooter className="pt-4 gap-3">
             <Button
               variant="outline"
               onClick={() => {
                 setConfirmMintDialog(false);
                 setPendingMintCategory(null);
               }}
-              className="flex-1"
+              className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/60"
             >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmMint}
-              className="flex-1 bg-primary hover:bg-primary/90"
+              className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200"
             >
               <Coins className="mr-2 h-4 w-4" />
               Confirm Mint
@@ -1224,118 +1243,140 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       {/* Minting Progress Dialog */}
       <Dialog open={mintingProgressDialog} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle className="text-xl flex items-center gap-2">
+          <div className="py-10 text-center space-y-6">
+            {/* Animated Icon */}
+            <div className="relative w-24 h-24 mx-auto">
               {mintingProgress.step === 'error' ? (
-                <AlertCircle className="h-6 w-6 text-destructive" />
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
+                  <AlertCircle className="h-12 w-12 text-destructive" />
+                </div>
               ) : mintingProgress.step === 'complete' ? (
-                <CheckCircle2 className="h-6 w-6 text-primary" />
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
+                  <CheckCircle2 className="h-12 w-12 text-green-500" />
+                </div>
               ) : (
-                <Loader2 className="h-6 w-6 text-primary animate-spin" />
+                <>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 animate-pulse" />
+                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-2 ring-primary/20 shadow-xl">
+                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                  </div>
+                </>
               )}
-              {mintingProgress.step === 'preparing' && 'Preparing Transaction'}
-              {mintingProgress.step === 'submitting' && 'Submitting to Blockchain'}
-              {mintingProgress.step === 'confirming' && 'Confirming Transaction'}
-              {mintingProgress.step === 'complete' && 'Transaction Complete!'}
-              {mintingProgress.step === 'error' && 'Transaction Failed'}
-            </DialogTitle>
-            <DialogDescription className="pt-4">
-              <div className="space-y-4">
-                <p className="text-base text-foreground">{mintingProgress.message}</p>
-                
-                {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
-                  <div className="bg-muted/50 rounded-lg p-4 border">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary transition-all duration-500 ease-out"
-                            style={{
-                              width: mintingProgress.step === 'preparing' ? '25%' : 
-                                     mintingProgress.step === 'submitting' ? '50%' : 
-                                     mintingProgress.step === 'confirming' ? '75%' : '100%'
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Please wait while your transaction is being processed...
-                    </p>
-                  </div>
-                )}
-                
-                {mintingProgress.step === 'complete' && (
-                  <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
-                    <p className="text-sm text-primary font-medium">
-                      ✨ Your tokens have been minted successfully!
-                    </p>
-                  </div>
-                )}
+            </div>
+
+            {/* Title */}
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold">
+                {mintingProgress.step === 'preparing' && 'Preparing Transaction'}
+                {mintingProgress.step === 'submitting' && 'Submitting to Blockchain'}
+                {mintingProgress.step === 'confirming' && 'Confirming Transaction'}
+                {mintingProgress.step === 'complete' && 'Transaction Complete!'}
+                {mintingProgress.step === 'error' && 'Transaction Failed'}
+              </h3>
+              <p className="text-sm text-muted-foreground">{mintingProgress.message}</p>
+            </div>
+            
+            {/* Progress bar */}
+            {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
+              <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-5 border border-border/60 max-w-xs mx-auto">
+                <div className="h-2.5 bg-muted rounded-full overflow-hidden ring-1 ring-border/50">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out rounded-full"
+                    style={{
+                      width: mintingProgress.step === 'preparing' ? '25%' : 
+                             mintingProgress.step === 'submitting' ? '50%' : 
+                             mintingProgress.step === 'confirming' ? '75%' : '100%'
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Please wait while your transaction is being processed...
+                </p>
               </div>
-            </DialogDescription>
-          </DialogHeader>
+            )}
+            
+            {/* Success message */}
+            {mintingProgress.step === 'complete' && (
+              <div className="bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl p-4 border border-green-500/20 max-w-xs mx-auto">
+                <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                  ✨ Your tokens have been minted successfully!
+                </p>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Result Dialog */}
       <Dialog open={resultDialog.open} onOpenChange={(open) => setResultDialog({ ...resultDialog, open })}>
         <DialogContent className="max-w-[calc(100vw-24px)] max-h-[calc(100dvh-48px)] overflow-y-auto sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className={`text-xl flex items-center gap-2 ${resultDialog.success ? 'text-primary' : 'text-destructive'}`}>
+          <div className="py-6 space-y-5">
+            {/* Success/Error Icon */}
+            <div className="relative w-20 h-20 mx-auto">
               {resultDialog.success ? (
-                <>
-                  <CheckCircle2 className="h-6 w-6" />
-                  {resultDialog.type === 'token' && 'Tokens Minted!'}
-                  {resultDialog.type === 'nft' && 'Welcome NFT Minted!'}
-                  {resultDialog.type === 'milestone' && 'Milestone NFTs Claimed!'}
-                  {resultDialog.type === 'combo' && 'Combo NFTs Minted!'}
-                </>
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
+                  <CheckCircle2 className="h-10 w-10 text-green-500" />
+                </div>
               ) : (
-                'Minting Failed'
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
+                  <AlertCircle className="h-10 w-10 text-destructive" />
+                </div>
               )}
-            </DialogTitle>
-            <DialogDescription className="pt-3 space-y-4">
-              <p className="text-base text-foreground">
+            </div>
+
+            {/* Title */}
+            <div className="text-center space-y-2">
+              <h3 className={`text-xl font-bold ${resultDialog.success ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+                {resultDialog.success ? (
+                  <>
+                    {resultDialog.type === 'token' && 'Tokens Minted!'}
+                    {resultDialog.type === 'nft' && 'Welcome NFT Minted!'}
+                    {resultDialog.type === 'milestone' && 'Milestone NFTs Claimed!'}
+                    {resultDialog.type === 'combo' && 'Combo NFTs Minted!'}
+                  </>
+                ) : (
+                  'Minting Failed'
+                )}
+              </h3>
+              <p className="text-sm text-muted-foreground">
                 {resultDialog.message}
               </p>
-              
-              {resultDialog.success && resultDialog.txHash && (
-                <div className="bg-muted/50 rounded-lg p-4 border">
-                  <p className="text-sm text-muted-foreground mb-2">Transaction Hash:</p>
-                  <code className="text-xs break-all text-foreground">{resultDialog.txHash}</code>
-                  <a
-                    href={getExplorerUrl(resultDialog.txHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 flex items-center gap-2 text-primary hover:underline text-sm"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    View on BaseScan
-                  </a>
-                </div>
-              )}
+            </div>
+            
+            {/* Transaction Hash */}
+            {resultDialog.success && resultDialog.txHash && (
+              <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-4 border border-border/60">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-2">Transaction Hash</p>
+                <code className="text-xs break-all text-foreground font-mono">{resultDialog.txHash}</code>
+                <a
+                  href={getExplorerUrl(resultDialog.txHash)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 bg-primary/8 hover:bg-primary/12 px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                  View on BaseScan <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            )}
 
-              {resultDialog.success && (
-                <div className="bg-gradient-to-br from-primary/10 via-secondary/5 to-token/10 rounded-lg p-4 border border-primary/20">
-                  <p className="text-sm text-muted-foreground">
-                    {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet!'}
-                    {resultDialog.type === 'nft' && 'Your Welcome NFT has been minted! Check your wallet or OpenSea to view it.'}
-                    {resultDialog.type === 'milestone' && 'Your milestone NFTs have been claimed! View them in your wallet or on OpenSea.'}
-                    {resultDialog.type === 'combo' && 'Your combo achievement NFTs have been minted! These celebrate your multi-category progress.'}
-                  </p>
-                </div>
-              )}
-              
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2 pt-2">
+            {/* Success message */}
+            {resultDialog.success && (
+              <div className="bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl p-4 border border-green-500/20">
+                <p className="text-sm text-muted-foreground">
+                  {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet!'}
+                  {resultDialog.type === 'nft' && 'Your Welcome NFT has been minted! Check your wallet or OpenSea to view it.'}
+                  {resultDialog.type === 'milestone' && 'Your milestone NFTs have been claimed! View them in your wallet or on OpenSea.'}
+                  {resultDialog.type === 'combo' && 'Your combo achievement NFTs have been minted! These celebrate your multi-category progress.'}
+                </p>
+              </div>
+            )}
+            
             {/* Manual Token Add Instructions - shows after 4 second delay */}
             {resultDialog.success && resultDialog.type === 'token' && (
               showTokenAddPanel ? (
                 <ManualTokenAddPanel />
               ) : (
-                <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-center gap-2">
+                <div className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   <span className="text-sm text-muted-foreground">Preparing wallet instructions...</span>
                 </div>
@@ -1349,9 +1390,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 onClear={clearWatchAssetDiagnostics} 
               />
             )}
+            
             <Button 
               onClick={() => setResultDialog({ ...resultDialog, open: false })}
-              className="w-full mt-2"
+              className={`w-full h-11 rounded-xl ${resultDialog.success ? 'bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25' : ''}`}
               variant={resultDialog.success ? "default" : "outline"}
             >
               {resultDialog.success ? 'Awesome!' : 'Close'}
@@ -1373,20 +1415,21 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       >
         <DialogContent className="max-w-[calc(100vw-24px)] max-h-[calc(100dvh-48px)] sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-3">
               {nftMintDialog.type === 'milestone' ? (
-                <>
-                  <Trophy className="h-6 w-6 text-emerald-500" />
-                  Mint Milestone NFTs
-                </>
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-emerald-500/5 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/20">
+                  <Trophy className="h-5 w-5 text-emerald-500" />
+                </span>
               ) : (
-                <>
-                  <Sparkles className="h-6 w-6 text-purple-500" />
-                  Mint Combo NFTs
-                </>
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-purple-500/5 shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/20">
+                  <Sparkles className="h-5 w-5 text-purple-500" />
+                </span>
               )}
+              <span className="text-xl">
+                {nftMintDialog.type === 'milestone' ? 'Mint Milestone NFTs' : 'Mint Combo NFTs'}
+              </span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="pt-1.5 text-muted-foreground/80">
               {nftMintResult 
                 ? 'NFT minted successfully! Copy the info below to add it to MetaMask.'
                 : 'Select an NFT to mint. Each NFT must be minted individually.'}
@@ -1395,66 +1438,82 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           
           {/* Success state with MetaMask import info */}
           {nftMintResult ? (
-            <div className="space-y-4 py-2">
+            <div className="space-y-5 py-2">
               {/* Success header */}
-              <div className="flex items-center gap-2 text-emerald-500">
-                <CheckCircle2 className="h-5 w-5" />
-                <span className="font-medium">{nftMintResult.nftName} minted!</span>
+              <div className="relative w-20 h-20 mx-auto">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
+                  <CheckCircle2 className="h-10 w-10 text-green-500" />
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <h4 className="font-bold text-lg text-green-600 dark:text-green-400">
+                  {nftMintResult.nftName} minted!
+                </h4>
               </div>
 
               {/* Transaction link */}
               {nftMintResult.txHash && (
-                <a
-                  href={`https://sepolia.basescan.org/tx/${nftMintResult.txHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                >
-                  View transaction <ExternalLink className="h-3 w-3" />
-                </a>
+                <div className="text-center">
+                  <a
+                    href={`https://sepolia.basescan.org/tx/${nftMintResult.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 bg-primary/8 hover:bg-primary/12 px-4 py-2 rounded-lg transition-all duration-200"
+                  >
+                    View transaction <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
               )}
 
               {/* MetaMask Import Section - shows after 4 second delay */}
               {showNftImportPanel ? (
-                <div className="p-4 bg-muted/50 rounded-lg border border-border/50 space-y-3">
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <Wallet className="h-4 w-4 text-primary" />
-                    <span>Add to MetaMask</span>
+                <div className="relative p-5 bg-gradient-to-br from-muted/60 via-muted/40 to-muted/20 rounded-2xl border border-border/60 space-y-4 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
+                  
+                  <div className="relative flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-sm ring-1 ring-primary/20">
+                      <Wallet className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-semibold">Add to MetaMask</span>
+                      <p className="text-xs text-muted-foreground">Copy these to import your NFT</p>
+                    </div>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <label className="text-xs text-muted-foreground">Contract Address</label>
+                  <div className="relative space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Contract Address</label>
                       <button
                         onClick={() => handleCopyNftInfo(NFT_CONTRACT_ADDRESS, 'Contract address')}
-                        className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
+                        className="flex items-center justify-between gap-2 px-4 py-3 bg-background/80 rounded-xl border border-border/50 text-sm font-mono hover:bg-muted/50 hover:border-primary/30 transition-all w-full group shadow-sm"
                       >
                         <span className="truncate">{NFT_CONTRACT_ADDRESS}</span>
-                        <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                        <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors" />
                       </button>
                     </div>
                     
-                    <div className="space-y-1">
-                      <label className="text-xs text-muted-foreground">Token ID for {nftMintResult.nftName}</label>
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Token ID</label>
                       <button
                         onClick={() => handleCopyNftInfo(String(nftMintResult.tokenId), 'Token ID')}
-                        className="flex items-center justify-between gap-2 px-3 py-2 bg-background rounded-md border border-border text-xs font-mono hover:bg-muted transition-colors w-full"
+                        className="flex items-center justify-between gap-2 px-4 py-3 bg-background/80 rounded-xl border border-border/50 text-sm font-mono hover:bg-muted/50 hover:border-primary/30 transition-all w-full group shadow-sm"
                       >
                         <span>{nftMintResult.tokenId}</span>
-                        <Copy className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                        <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors" />
                       </button>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-center gap-2">
+                <div className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   <span className="text-sm text-muted-foreground">Preparing wallet instructions...</span>
                 </div>
               )}
 
               {/* Continue minting or close */}
-              <div className="flex gap-2">
+              <div className="flex gap-3 pt-2">
                 {((nftMintDialog.type === 'milestone' && eligibility && eligibility.eligibleMilestoneNFTs.length > 0) ||
                   (nftMintDialog.type === 'combo' && eligibility && eligibility.eligibleComboNFTs.length > 0)) ? (
                   <Button
@@ -1463,7 +1522,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       setNftMintResult(null);
                       setSelectedNft(null);
                     }}
-                    className="flex-1"
+                    className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/60"
                   >
                     Mint Another
                   </Button>
@@ -1474,7 +1533,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     setNftMintResult(null);
                     setSelectedNft(null);
                   }}
-                  className="flex-1"
+                  className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25"
                 >
                   Done
                 </Button>
