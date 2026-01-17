@@ -17,11 +17,16 @@ interface UsePullToRefreshReturn {
   containerRef: React.RefObject<HTMLDivElement>;
 }
 
+// Smooth easing function for natural feel
+function easeOutCubic(x: number): number {
+  return 1 - Math.pow(1 - x, 3);
+}
+
 export function usePullToRefresh({
   onRefresh,
-  threshold = 100,
-  maxPull = 150,
-  activationDelay = 50,
+  threshold = 80,
+  maxPull = 140,
+  activationDelay = 30,
 }: UsePullToRefreshOptions): UsePullToRefreshReturn {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -34,6 +39,25 @@ export function usePullToRefresh({
   const currentY = useRef(0);
   const hasTriggeredThresholdHaptic = useRef(false);
   const initialScrollTop = useRef(0);
+  const animationFrameId = useRef<number | null>(null);
+  const targetPullDistance = useRef(0);
+
+  // Smooth animation for pull distance
+  const animatePullDistance = useCallback(() => {
+    const current = pullDistance;
+    const target = targetPullDistance.current;
+    const diff = target - current;
+    
+    if (Math.abs(diff) < 0.5) {
+      setPullDistance(target);
+      return;
+    }
+    
+    // Smooth interpolation
+    const newDistance = current + diff * 0.15;
+    setPullDistance(newDistance);
+    animationFrameId.current = requestAnimationFrame(animatePullDistance);
+  }, [pullDistance]);
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     const container = containerRef.current;
@@ -42,7 +66,7 @@ export function usePullToRefresh({
     initialScrollTop.current = container.scrollTop;
     
     // Only enable pull-to-refresh when completely at the top
-    if (container.scrollTop === 0) {
+    if (container.scrollTop <= 0) {
       startY.current = e.touches[0].clientY;
       startTime.current = Date.now();
       setIsPulling(true);
@@ -58,6 +82,7 @@ export function usePullToRefresh({
     // If user scrolled away from top, cancel pull-to-refresh
     if (container.scrollTop > 0) {
       setIsPulling(false);
+      targetPullDistance.current = 0;
       setPullDistance(0);
       setIsReady(false);
       setIsActive(false);
@@ -69,12 +94,17 @@ export function usePullToRefresh({
     const elapsed = Date.now() - startTime.current;
     
     // Only activate after a small delay and with downward motion
-    if (diff > 10 && elapsed > activationDelay) {
+    if (diff > 5 && elapsed > activationDelay) {
       setIsActive(true);
       
-      // Apply stronger resistance - requires more intentional pull
-      const resistance = Math.max(0.25, 0.5 - (diff / maxPull) * 0.25);
-      const distance = Math.min((diff - 10) * resistance, maxPull);
+      // Apply smooth rubber-band resistance using easing
+      const normalizedPull = Math.min((diff - 5) / maxPull, 1);
+      const easedPull = easeOutCubic(normalizedPull);
+      const distance = easedPull * maxPull;
+      
+      targetPullDistance.current = Math.max(0, distance);
+      
+      // Directly set for responsiveness during active pull
       setPullDistance(Math.max(0, distance));
       
       // Track ready state and trigger haptic when crossing threshold
@@ -104,16 +134,40 @@ export function usePullToRefresh({
       // Medium haptic on refresh trigger
       triggerMediumTap();
       setIsRefreshing(true);
+      
+      // Animate to a consistent refreshing position
+      targetPullDistance.current = 60;
+      
       try {
         await onRefresh();
       } finally {
         // Success haptic when done
         triggerSuccess();
+        
+        // Smooth animate back to zero
+        targetPullDistance.current = 0;
+        
+        // Small delay for success state to show
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         setIsRefreshing(false);
       }
     }
     
-    setPullDistance(0);
+    // Smooth animate back to zero
+    targetPullDistance.current = 0;
+    
+    // Animate pull distance back to 0
+    const animateBack = () => {
+      setPullDistance(prev => {
+        const newVal = prev * 0.85;
+        if (newVal < 1) return 0;
+        requestAnimationFrame(animateBack);
+        return newVal;
+      });
+    };
+    requestAnimationFrame(animateBack);
+    
     setIsReady(false);
   }, [isPulling, pullDistance, threshold, isRefreshing, onRefresh]);
 
@@ -129,6 +183,9 @@ export function usePullToRefresh({
       container.removeEventListener('touchstart', handleTouchStart);
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
     };
   }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
