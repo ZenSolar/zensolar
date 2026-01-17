@@ -812,6 +812,36 @@ Deno.serve(async (req) => {
             }
           }
           console.log(`Baseline updates complete for ${deviceIdsToUpdate.length} devices`);
+          
+          // CRITICAL: Clear cached responses from energy_tokens to force fresh data on next dashboard refresh
+          // This ensures pending values show 0 after minting
+          const providers = [...new Set((devices || []).filter(d => deviceIdsToUpdate.includes(d.id)).map(d => d.provider))];
+          if (providers.length > 0) {
+            console.log(`Clearing cached responses for providers: ${providers.join(', ')}`);
+            for (const provider of providers) {
+              const { data: tokenData } = await supabaseClient
+                .from("energy_tokens")
+                .select("extra_data")
+                .eq("user_id", user.id)
+                .eq("provider", provider)
+                .single();
+              
+              if (tokenData?.extra_data) {
+                const extraData = tokenData.extra_data as Record<string, unknown>;
+                // Clear cached_response and cached_at to force fresh API call
+                const { cached_response, cached_at, ...restExtraData } = extraData;
+                await supabaseClient
+                  .from("energy_tokens")
+                  .update({
+                    extra_data: restExtraData,
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq("user_id", user.id)
+                  .eq("provider", provider);
+                console.log(`Cleared cache for ${provider}`);
+              }
+            }
+          }
         } else {
           console.log("No devices to update baselines for (deviceIdsToUpdate is empty)");
         }
