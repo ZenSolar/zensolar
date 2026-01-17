@@ -10,6 +10,7 @@ import { ActivityMetrics, MintCategory } from '@/components/dashboard/ActivityMe
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { GettingStartedGuide } from '@/components/dashboard/GettingStartedGuide';
 import { HowItWorks } from '@/components/dashboard/HowItWorks';
+import { TokenPriceCard } from '@/components/dashboard/TokenPriceCard';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { DemoOnboardingGuide } from '@/components/demo/DemoOnboardingGuide';
@@ -203,6 +204,11 @@ export function DemoDashboard() {
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
             <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFT's from your clean energy use</p>
           </div>
+        </AnimatedItem>
+
+        {/* Token Price Card - Prominent at top */}
+        <AnimatedItem>
+          <TokenPriceCard tokensHeld={activityData.tokensEarned} />
         </AnimatedItem>
 
         {/* Getting Started Guide */}

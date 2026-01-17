@@ -15,6 +15,7 @@ import { RewardProgress } from './dashboard/RewardProgress';
 import { GettingStartedGuide } from './dashboard/GettingStartedGuide';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
+import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Loader2 } from 'lucide-react';
@@ -208,6 +209,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
             <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFT's from your clean energy use</p>
           </div>
+        </AnimatedItem>
+
+        {/* Token Price Card - Prominent at top */}
+        <AnimatedItem>
+          <TokenPriceCard tokensHeld={activityData.tokensEarned} />
         </AnimatedItem>
         
         {/* Getting Started Guide - show for new users */}
