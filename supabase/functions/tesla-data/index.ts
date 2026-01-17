@@ -311,8 +311,9 @@ Deno.serve(async (req) => {
           }
           
           // Calculate pending (since last mint or initial connection)
-          const baselineSolar = site.baseline?.total_solar_produced_wh || 0;
-          const baselineBattery = site.baseline?.total_energy_discharged_wh || 0;
+          // Check all possible baseline keys used across the app
+          const baselineSolar = site.baseline?.total_solar_produced_wh || site.baseline?.solar_wh || site.baseline?.solar_production_wh || 0;
+          const baselineBattery = site.baseline?.total_energy_discharged_wh || site.baseline?.battery_discharge_wh || 0;
           
           const pendingSolar = Math.max(0, lifetimeSolar - baselineSolar);
           const pendingBattery = Math.max(0, lifetimeBatteryDischarge - baselineBattery);
@@ -427,9 +428,10 @@ Deno.serve(async (req) => {
         console.log(`Charging history complete: ${totalSessions} sessions, total kWh: ${totalChargingKwh}`);
         
         // Get baseline from first vehicle's baseline data
+        // Check all possible baseline keys used across the app
         const vehicleBaseline = vehicleDevices[0]?.baseline || {};
-        baselineChargingKwh = vehicleBaseline.total_charge_energy_added_kwh || 0;
-        baselineSuperchargerKwh = vehicleBaseline.supercharger_kwh || 0;
+        baselineChargingKwh = vehicleBaseline.total_charge_energy_added_kwh || vehicleBaseline.charging_kwh || 0;
+        baselineSuperchargerKwh = vehicleBaseline.supercharger_kwh || vehicleBaseline.charging_kwh || 0;
         baselineWallConnectorKwh = vehicleBaseline.wall_connector_kwh || 0;
       } catch (error) {
         console.error("Error fetching charging history:", error);

@@ -157,6 +157,24 @@ Deno.serve(async (req) => {
     const monthEnergyWh = (overview.lastMonthData?.energy || 0);
     const yearEnergyWh = (overview.lastYearData?.energy || 0);
 
+    // Get baseline from connected_devices to calculate pending
+    let pendingSolarWh = lifetimeEnergyWh; // Default to lifetime if no baseline
+    const { data: deviceData } = await supabaseClient
+      .from("connected_devices")
+      .select("baseline_data")
+      .eq("user_id", user.id)
+      .eq("device_id", siteId)
+      .eq("provider", "solaredge")
+      .single();
+    
+    if (deviceData?.baseline_data) {
+      const baseline = deviceData.baseline_data as Record<string, number>;
+      // Check all possible baseline keys used across the app
+      const baselineSolarWh = baseline.solar_wh || baseline.solar_production_wh || baseline.total_solar_produced_wh || baseline.lifetime_solar_wh || 0;
+      pendingSolarWh = Math.max(0, lifetimeEnergyWh - baselineSolarWh);
+      console.log(`SolarEdge pending calculation: lifetime=${lifetimeEnergyWh}, baseline=${baselineSolarWh}, pending=${pendingSolarWh}`);
+    }
+
     // Store production data for rewards calculation
     if (todayEnergyWh > 0) {
       const now = new Date();
@@ -171,6 +189,22 @@ Deno.serve(async (req) => {
           production_wh: todayEnergyWh,
           recorded_at: recordedAt,
         }, { onConflict: "device_id,provider,recorded_at" });
+    }
+
+    // Store lifetime totals in connected_devices
+    if (lifetimeEnergyWh > 0) {
+      await supabaseClient
+        .from("connected_devices")
+        .update({
+          lifetime_totals: {
+            solar_wh: lifetimeEnergyWh,
+            lifetime_solar_wh: lifetimeEnergyWh,
+            updated_at: new Date().toISOString(),
+          }
+        })
+        .eq("user_id", user.id)
+        .eq("device_id", siteId)
+        .eq("provider", "solaredge");
     }
 
     const responseData = {
@@ -192,6 +226,7 @@ Deno.serve(async (req) => {
       powerFlow: powerFlowData?.siteCurrentPowerFlow || null,
       totals: {
         lifetime_solar_wh: lifetimeEnergyWh,
+        pending_solar_wh: pendingSolarWh,
         energy_today_wh: todayEnergyWh,
         current_power_w: currentPowerW,
       },
