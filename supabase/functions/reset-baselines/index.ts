@@ -104,25 +104,22 @@ serve(async (req) => {
       let updated = false;
 
       // Determine which categories this device contributes to
+      // ADMIN RESET: Set baselines to ZERO so all lifetime values become mintable
       if (deviceType === 'solar_system' || deviceType === 'solar') {
         // Solar devices
         if (shouldResetAll || categories.includes('solar')) {
-          // Set baseline to current lifetime (makes pending = 0)
-          // IMPORTANT: Write all known baseline keys used across the app (legacy + new)
-          const lifetimeSolarWh =
-            (lifetime.lifetime_solar_wh ?? lifetime.solar_production_wh ?? lifetime.solar_wh ?? 0) as number;
-
-          newBaseline.solar_production_wh = lifetimeSolarWh;
-          newBaseline.lifetime_solar_wh = lifetimeSolarWh;
-          newBaseline.solar_wh = lifetimeSolarWh;
-          newBaseline.total_solar_produced_wh = lifetimeSolarWh;
+          // Set baseline to ZERO (makes all lifetime solar mintable)
+          newBaseline.solar_production_wh = 0;
+          newBaseline.lifetime_solar_wh = 0;
+          newBaseline.solar_wh = 0;
+          newBaseline.total_solar_produced_wh = 0;
 
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
             deviceType,
             category: 'solar',
-            baselineSet: { solar_wh: lifetimeSolarWh }
+            baselineSet: { solar_wh: 0 }
           });
         }
       }
@@ -130,41 +127,31 @@ serve(async (req) => {
       if (deviceType === 'vehicle') {
         // EV Miles
         if (shouldResetAll || categories.includes('ev_miles')) {
-          const lifetimeOdometer = lifetime.odometer || lifetime.last_known_odometer || 0;
-          newBaseline.odometer = lifetimeOdometer;
+          // Set baseline to ZERO (makes all lifetime miles mintable)
+          newBaseline.odometer = 0;
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
             deviceType,
             category: 'ev_miles',
-            baselineSet: { odometer: lifetimeOdometer }
+            baselineSet: { odometer: 0 }
           });
         }
 
         // EV Charging (supercharger portion)
         if (shouldResetAll || categories.includes('charging')) {
-          // IMPORTANT: Tesla-related code paths historically use multiple baseline keys.
-          // To keep dashboard pending + minting deltas consistent, write all commonly-used keys.
-          let lifetimeChargingKwh = 0;
-          if (lifetime.charging_kwh != null) {
-            lifetimeChargingKwh = Number(lifetime.charging_kwh);
-          } else if (lifetime.charging_wh != null) {
-            lifetimeChargingKwh = Number(lifetime.charging_wh) / 1000;
-          }
-
-          newBaseline.charging_kwh = lifetimeChargingKwh;
-          newBaseline.charging_wh = lifetimeChargingKwh * 1000;
-
-          // Keys used by tesla-data pending charging calculations
-          newBaseline.total_charge_energy_added_kwh = lifetimeChargingKwh;
-          newBaseline.supercharger_kwh = lifetimeChargingKwh;
+          // Set baseline to ZERO (makes all lifetime charging mintable)
+          newBaseline.charging_kwh = 0;
+          newBaseline.charging_wh = 0;
+          newBaseline.total_charge_energy_added_kwh = 0;
+          newBaseline.supercharger_kwh = 0;
 
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
             deviceType,
             category: 'charging',
-            baselineSet: { charging_kwh: lifetimeChargingKwh }
+            baselineSet: { charging_kwh: 0 }
           });
         }
       }
@@ -172,19 +159,17 @@ serve(async (req) => {
       if (deviceType === 'powerwall') {
         // Battery storage
         if (shouldResetAll || categories.includes('battery')) {
-          // IMPORTANT: Write all known baseline keys used across the app (legacy + new)
-          const lifetimeBatteryWh = (lifetime.battery_discharge_wh ?? lifetime.lifetime_battery_discharge_wh ?? 0) as number;
-
-          newBaseline.battery_discharge_wh = lifetimeBatteryWh;
-          newBaseline.lifetime_battery_discharge_wh = lifetimeBatteryWh;
-          newBaseline.total_energy_discharged_wh = lifetimeBatteryWh;
+          // Set baseline to ZERO (makes all lifetime battery discharge mintable)
+          newBaseline.battery_discharge_wh = 0;
+          newBaseline.lifetime_battery_discharge_wh = 0;
+          newBaseline.total_energy_discharged_wh = 0;
 
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
             deviceType,
             category: 'battery',
-            baselineSet: { battery_discharge_wh: lifetimeBatteryWh }
+            baselineSet: { battery_discharge_wh: 0 }
           });
         }
       }
@@ -192,30 +177,18 @@ serve(async (req) => {
       if (deviceType === 'wall_connector') {
         // Wall connector charging
         if (shouldResetAll || categories.includes('charging')) {
-          let lifetimeChargingKwh = 0;
-          if (lifetime.charging_kwh != null) {
-            lifetimeChargingKwh = Number(lifetime.charging_kwh);
-          } else if (lifetime.charging_wh != null) {
-            lifetimeChargingKwh = Number(lifetime.charging_wh) / 1000;
-          } else if (lifetime.lifetime_charging_wh != null) {
-            lifetimeChargingKwh = Number(lifetime.lifetime_charging_wh) / 1000;
-          } else if (lifetime.wall_connector_wh != null) {
-            lifetimeChargingKwh = Number(lifetime.wall_connector_wh) / 1000;
-          }
-
-          newBaseline.charging_kwh = lifetimeChargingKwh;
-          newBaseline.charging_wh = lifetimeChargingKwh * 1000;
-
-          // Keys used by tesla-data pending charging calculations
-          newBaseline.wall_connector_kwh = lifetimeChargingKwh;
-          newBaseline.wall_connector_wh = lifetimeChargingKwh * 1000;
+          // Set baseline to ZERO (makes all lifetime charging mintable)
+          newBaseline.charging_kwh = 0;
+          newBaseline.charging_wh = 0;
+          newBaseline.wall_connector_kwh = 0;
+          newBaseline.wall_connector_wh = 0;
 
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
             deviceType,
             category: 'charging',
-            baselineSet: { charging_kwh: lifetimeChargingKwh }
+            baselineSet: { charging_kwh: 0 }
           });
         }
       }
@@ -223,15 +196,15 @@ serve(async (req) => {
       if (deviceType === 'charger' && device.provider === 'wallbox') {
         // Wallbox charger
         if (shouldResetAll || categories.includes('charging')) {
-          const lifetimeChargingKwh = lifetime.home_charger_kwh || lifetime.charging_kwh || 0;
-          newBaseline.charging_kwh = lifetimeChargingKwh;
-          newBaseline.home_charger_kwh = lifetimeChargingKwh;
+          // Set baseline to ZERO (makes all lifetime charging mintable)
+          newBaseline.charging_kwh = 0;
+          newBaseline.home_charger_kwh = 0;
           updated = true;
           resetResults.push({
             deviceId: device.device_id,
             deviceType,
             category: 'charging',
-            baselineSet: { charging_kwh: lifetimeChargingKwh }
+            baselineSet: { charging_kwh: 0 }
           });
         }
       }
