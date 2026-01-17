@@ -145,8 +145,12 @@ serve(async (req) => {
         if (shouldResetAll || categories.includes('charging')) {
           // IMPORTANT: Tesla-related code paths historically use multiple baseline keys.
           // To keep dashboard pending + minting deltas consistent, write all commonly-used keys.
-          const lifetimeChargingKwh =
-            (lifetime.charging_kwh ?? (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) ?? 0) as number;
+          let lifetimeChargingKwh = 0;
+          if (lifetime.charging_kwh != null) {
+            lifetimeChargingKwh = Number(lifetime.charging_kwh);
+          } else if (lifetime.charging_wh != null) {
+            lifetimeChargingKwh = Number(lifetime.charging_wh) / 1000;
+          }
 
           newBaseline.charging_kwh = lifetimeChargingKwh;
           newBaseline.charging_wh = lifetimeChargingKwh * 1000;
@@ -188,12 +192,16 @@ serve(async (req) => {
       if (deviceType === 'wall_connector') {
         // Wall connector charging
         if (shouldResetAll || categories.includes('charging')) {
-          const lifetimeChargingKwh =
-            (lifetime.charging_kwh ??
-              (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) ??
-              (lifetime.lifetime_charging_wh ? lifetime.lifetime_charging_wh / 1000 : 0) ??
-              (lifetime.wall_connector_wh ? lifetime.wall_connector_wh / 1000 : 0) ??
-              0) as number;
+          let lifetimeChargingKwh = 0;
+          if (lifetime.charging_kwh != null) {
+            lifetimeChargingKwh = Number(lifetime.charging_kwh);
+          } else if (lifetime.charging_wh != null) {
+            lifetimeChargingKwh = Number(lifetime.charging_wh) / 1000;
+          } else if (lifetime.lifetime_charging_wh != null) {
+            lifetimeChargingKwh = Number(lifetime.lifetime_charging_wh) / 1000;
+          } else if (lifetime.wall_connector_wh != null) {
+            lifetimeChargingKwh = Number(lifetime.wall_connector_wh) / 1000;
+          }
 
           newBaseline.charging_kwh = lifetimeChargingKwh;
           newBaseline.charging_wh = lifetimeChargingKwh * 1000;

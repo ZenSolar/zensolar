@@ -270,6 +270,24 @@ Deno.serve(async (req) => {
     // Return lifetime energy from summary (in Wh)
     const lifetimeEnergyWh = summaryData?.energy_lifetime || 0;
     
+    // Get baseline from connected_devices to calculate pending
+    let pendingSolarWh = lifetimeEnergyWh; // Default to lifetime if no baseline
+    const { data: deviceData } = await supabaseClient
+      .from("connected_devices")
+      .select("baseline_data")
+      .eq("user_id", user.id)
+      .eq("device_id", String(systemId))
+      .eq("provider", "enphase")
+      .single();
+    
+    if (deviceData?.baseline_data) {
+      const baseline = deviceData.baseline_data as Record<string, number>;
+      // Check all possible baseline keys used across the app
+      const baselineSolarWh = baseline.solar_wh || baseline.solar_production_wh || baseline.total_solar_produced_wh || baseline.lifetime_solar_wh || 0;
+      pendingSolarWh = Math.max(0, lifetimeEnergyWh - baselineSolarWh);
+      console.log(`Enphase pending calculation: lifetime=${lifetimeEnergyWh}, baseline=${baselineSolarWh}, pending=${pendingSolarWh}`);
+    }
+    
     // Store lifetime totals in connected_devices for admin reporting
     if (lifetimeEnergyWh > 0) {
       await supabaseClient
@@ -277,6 +295,7 @@ Deno.serve(async (req) => {
         .update({
           lifetime_totals: {
             solar_wh: lifetimeEnergyWh,
+            lifetime_solar_wh: lifetimeEnergyWh,
             updated_at: new Date().toISOString(),
           }
         })
@@ -293,6 +312,7 @@ Deno.serve(async (req) => {
       energy: energyData,
       totals: {
         lifetime_solar_wh: lifetimeEnergyWh,
+        pending_solar_wh: pendingSolarWh,
         energy_today_wh: summaryData?.energy_today || 0,
       },
     };
