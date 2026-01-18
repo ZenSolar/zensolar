@@ -129,42 +129,83 @@ Deno.serve(async (req) => {
 
       if (statusResponse.ok) {
         const statusData = await statusResponse.json();
+        console.log(`Charger ${chargerId} status:`, JSON.stringify(statusData));
         
-        // Get session history for last 30 days
+        // Fetch ALL session history to get true lifetime total
+        // Use a very early start date to capture all historical sessions
         const endDate = new Date().toISOString().split('T')[0];
-        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const startDate = "2020-01-01"; // Wallbox launched around 2015, this captures all history
         
-        const sessionsResponse = await fetch(
-          `${WALLBOX_API_BASE}/chargers/${chargerId}/sessions?start_date=${startDate}&end_date=${endDate}`,
-          {
-            headers: {
-              "Authorization": `Bearer ${accessToken}`,
-              "Accept": "application/json",
-            },
-          }
-        );
+        console.log(`Fetching sessions for charger ${chargerId} from ${startDate} to ${endDate}`);
+        
+        let allSessions: any[] = [];
+        let page = 1;
+        let hasMore = true;
+        
+        // Paginate through all sessions
+        while (hasMore) {
+          const sessionsResponse = await fetch(
+            `${WALLBOX_API_BASE}/v4/chargers/${chargerId}/sessions?start_date=${startDate}&end_date=${endDate}&page=${page}&per_page=100`,
+            {
+              headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Accept": "application/json",
+              },
+            }
+          );
 
-        let sessionEnergy = 0;
-        let sessionCount = 0;
-
-        if (sessionsResponse.ok) {
-          const sessionsData = await sessionsResponse.json();
-          sessionCount = sessionsData?.data?.length || 0;
-          
-          // Sum up energy from all sessions
-          for (const session of (sessionsData?.data || [])) {
-            sessionEnergy += session.energy || 0;
+          if (sessionsResponse.ok) {
+            const sessionsData = await sessionsResponse.json();
+            const sessions = sessionsData?.data || [];
+            console.log(`Page ${page}: found ${sessions.length} sessions`);
+            
+            if (sessions.length === 0) {
+              hasMore = false;
+            } else {
+              allSessions = allSessions.concat(sessions);
+              page++;
+              // Safety limit to prevent infinite loops
+              if (page > 50) hasMore = false;
+            }
+          } else {
+            console.log(`Sessions fetch failed on page ${page}, trying v3 endpoint`);
+            // Fallback to v3 endpoint if v4 fails
+            const v3Response = await fetch(
+              `${WALLBOX_API_BASE}/chargers/${chargerId}/sessions?start_date=${startDate}&end_date=${endDate}`,
+              {
+                headers: {
+                  "Authorization": `Bearer ${accessToken}`,
+                  "Accept": "application/json",
+                },
+              }
+            );
+            if (v3Response.ok) {
+              const v3Data = await v3Response.json();
+              allSessions = v3Data?.data || [];
+              console.log(`V3 fallback: found ${allSessions.length} sessions`);
+            }
+            hasMore = false;
           }
         }
 
-        totalEnergyKwh += statusData.added_energy || sessionEnergy / 1000;
-        totalSessions += sessionCount;
+        // Sum up energy from ALL sessions for true lifetime total
+        let lifetimeEnergyKwh = 0;
+        for (const session of allSessions) {
+          // Energy is typically in Wh, convert to kWh
+          const sessionEnergy = session.energy || 0;
+          lifetimeEnergyKwh += sessionEnergy > 100 ? sessionEnergy / 1000 : sessionEnergy; // Handle both Wh and kWh
+        }
+        
+        console.log(`Charger ${chargerId} lifetime total: ${lifetimeEnergyKwh} kWh from ${allSessions.length} sessions`);
+
+        totalEnergyKwh += lifetimeEnergyKwh;
+        totalSessions += allSessions.length;
 
         chargerDetails.push({
           id: chargerId,
           name: statusData.name || `Charger ${chargerId}`,
           status: statusData.status_description || 'Unknown',
-          addedEnergy: statusData.added_energy || sessionEnergy / 1000,
+          addedEnergy: lifetimeEnergyKwh,
           addedRange: statusData.added_range || 0,
         });
       }
