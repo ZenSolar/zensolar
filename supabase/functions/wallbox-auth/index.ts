@@ -114,9 +114,34 @@ Deno.serve(async (req) => {
 
       if (tokenError) {
         console.error("Failed to store Wallbox tokens:", tokenError);
+        // CRITICAL: Don't mark as connected if token storage failed
+        return new Response(JSON.stringify({ 
+          error: "Failed to save connection. Please try again." 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
-      // Update user profile to mark Wallbox as connected
+      // Verify token was actually stored before marking connected
+      const { data: verifyToken } = await supabaseClient
+        .from("energy_tokens")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("provider", "wallbox")
+        .single();
+
+      if (!verifyToken) {
+        console.error("Token verification failed - token not found after insert");
+        return new Response(JSON.stringify({ 
+          error: "Connection verification failed. Please try again." 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Only update profile AFTER confirming token is stored
       const { error: updateError } = await supabaseClient
         .from("profiles")
         .update({ wallbox_connected: true })
@@ -124,7 +149,10 @@ Deno.serve(async (req) => {
 
       if (updateError) {
         console.error("Failed to update profile:", updateError);
+        // Token is stored, so this is non-critical - continue
       }
+      
+      console.log("Wallbox connection fully verified for user:", user.id);
 
       // Notify admins of the new account connection
       try {
