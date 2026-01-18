@@ -43,6 +43,10 @@ interface UserKPIs {
   total_production_kwh: number;
   total_consumption_kwh: number;
   total_tokens: number;
+  lifetime_solar_kwh: number;
+  lifetime_ev_miles: number;
+  lifetime_charging_kwh: number;
+  lifetime_battery_kwh: number;
 }
 
 interface UserPushStatus {
@@ -104,10 +108,10 @@ export default function Admin() {
 
     setProfiles(data || []);
 
-    // Fetch push subscription status, devices, production, and rewards in parallel
+    // Fetch push subscription status, devices (with lifetime_totals), production, and rewards in parallel
     const [pushResult, devicesResult, productionResult, rewardsResult] = await Promise.all([
       supabase.from('push_subscriptions').select('user_id'),
-      supabase.from('connected_devices').select('user_id, id, provider, device_type'),
+      supabase.from('connected_devices').select('user_id, id, provider, device_type, lifetime_totals'),
       supabase.from('energy_production').select('user_id, production_wh, consumption_wh'),
       supabase.from('user_rewards').select('user_id, tokens_earned'),
     ]);
@@ -132,20 +136,45 @@ export default function Admin() {
         total_production_kwh: 0,
         total_consumption_kwh: 0,
         total_tokens: 0,
+        lifetime_solar_kwh: 0,
+        lifetime_ev_miles: 0,
+        lifetime_charging_kwh: 0,
+        lifetime_battery_kwh: 0,
       });
     });
 
-    // Count devices per user
+    // Count devices per user AND extract lifetime totals
     if (!devicesResult.error && devicesResult.data) {
-      devicesResult.data.forEach(device => {
+      devicesResult.data.forEach((device: any) => {
         const existing = kpiMap.get(device.user_id);
         if (existing) {
           existing.device_count++;
+          
+          // Extract lifetime totals from device data
+          const totals = device.lifetime_totals as Record<string, number> | null;
+          if (totals) {
+            // Solar (from Enphase, SolarEdge, Tesla solar)
+            const solarWh = totals.solar_wh || totals.lifetime_solar_wh || totals.total_solar_produced_wh || 0;
+            existing.lifetime_solar_kwh += solarWh / 1000;
+            
+            // EV miles (from Tesla vehicles)
+            const evMiles = totals.odometer || totals.ev_miles || 0;
+            existing.lifetime_ev_miles += evMiles;
+            
+            // Charging kWh (from Wallbox, Tesla Supercharger)
+            const chargingWh = totals.charging_kwh || totals.lifetime_charging_kwh || totals.total_energy_kwh || 0;
+            // Some providers store in kWh, others in Wh - normalize
+            existing.lifetime_charging_kwh += chargingWh > 10000 ? chargingWh / 1000 : chargingWh;
+            
+            // Battery discharge (from Tesla Powerwall)
+            const batteryWh = totals.battery_discharge_wh || totals.lifetime_battery_wh || 0;
+            existing.lifetime_battery_kwh += batteryWh / 1000;
+          }
         }
       });
     }
 
-    // Sum production per user
+    // Sum production per user (daily increments - for reference, but lifetime_totals is more accurate)
     if (!productionResult.error && productionResult.data) {
       productionResult.data.forEach(prod => {
         const existing = kpiMap.get(prod.user_id);
@@ -171,14 +200,18 @@ export default function Admin() {
     // Calculate aggregate KPIs
     let totalDevices = 0;
     let totalProductionKwh = 0;
+    let totalLifetimeSolarKwh = 0;
     let totalTokens = 0;
     let usersWithEnergy = 0;
 
     kpiMap.forEach((kpi) => {
       totalDevices += kpi.device_count;
       totalProductionKwh += kpi.total_production_kwh;
+      totalLifetimeSolarKwh += kpi.lifetime_solar_kwh;
       totalTokens += kpi.total_tokens;
-      if (kpi.device_count > 0 || kpi.total_production_kwh > 0) {
+      // Use lifetime solar if available, otherwise fall back to production records
+      const userEnergy = kpi.lifetime_solar_kwh > 0 ? kpi.lifetime_solar_kwh : kpi.total_production_kwh;
+      if (kpi.device_count > 0 || userEnergy > 0) {
         usersWithEnergy++;
       }
     });
@@ -187,7 +220,8 @@ export default function Admin() {
       totalUsers: data?.length || 0,
       usersWithEnergy,
       totalDevices,
-      totalProductionKwh,
+      // Use lifetime solar totals as the primary metric
+      totalProductionKwh: totalLifetimeSolarKwh > 0 ? totalLifetimeSolarKwh : totalProductionKwh,
       totalTokens,
     });
   };
@@ -1054,16 +1088,18 @@ export default function Admin() {
                     <TableHead>Wallet</TableHead>
                     <TableHead>Energy Accounts</TableHead>
                     <TableHead className="text-right">Devices</TableHead>
-                    <TableHead className="text-right">Production</TableHead>
+                    <TableHead className="text-right">Solar (kWh)</TableHead>
+                    <TableHead className="text-right">EV Miles</TableHead>
+                    <TableHead className="text-right">Charging (kWh)</TableHead>
                     <TableHead className="text-right">Tokens</TableHead>
-                    <TableHead>Notifications</TableHead>
+                    <TableHead>Push</TableHead>
                     <TableHead>Joined</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {profiles.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                         No users registered yet
                       </TableCell>
                     </TableRow>
@@ -1104,14 +1140,42 @@ export default function Admin() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            {kpi && kpi.total_production_kwh > 0 ? (
+                            {kpi && kpi.lifetime_solar_kwh > 0 ? (
                               <span className="font-medium text-primary">
-                                {kpi.total_production_kwh >= 1000000 
-                                  ? `${(kpi.total_production_kwh / 1000000).toFixed(1)}M`
-                                  : kpi.total_production_kwh >= 1000
-                                  ? `${(kpi.total_production_kwh / 1000).toFixed(1)}k`
-                                  : kpi.total_production_kwh.toFixed(0)
-                                } kWh
+                                {kpi.lifetime_solar_kwh >= 1000000 
+                                  ? `${(kpi.lifetime_solar_kwh / 1000000).toFixed(1)}M`
+                                  : kpi.lifetime_solar_kwh >= 1000
+                                  ? `${(kpi.lifetime_solar_kwh / 1000).toFixed(1)}k`
+                                  : kpi.lifetime_solar_kwh.toFixed(0)
+                                }
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {kpi && kpi.lifetime_ev_miles > 0 ? (
+                              <span className="font-medium text-blue-500">
+                                {kpi.lifetime_ev_miles >= 1000000 
+                                  ? `${(kpi.lifetime_ev_miles / 1000000).toFixed(1)}M`
+                                  : kpi.lifetime_ev_miles >= 1000
+                                  ? `${(kpi.lifetime_ev_miles / 1000).toFixed(1)}k`
+                                  : kpi.lifetime_ev_miles.toFixed(0)
+                                }
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {kpi && kpi.lifetime_charging_kwh > 0 ? (
+                              <span className="font-medium text-green-500">
+                                {kpi.lifetime_charging_kwh >= 1000000 
+                                  ? `${(kpi.lifetime_charging_kwh / 1000000).toFixed(1)}M`
+                                  : kpi.lifetime_charging_kwh >= 1000
+                                  ? `${(kpi.lifetime_charging_kwh / 1000).toFixed(1)}k`
+                                  : kpi.lifetime_charging_kwh.toFixed(0)
+                                }
                               </span>
                             ) : (
                               <span className="text-muted-foreground text-xs">—</span>
