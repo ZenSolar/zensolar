@@ -66,20 +66,20 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch user's chargers list
-    console.log("Fetching Wallbox chargers list");
-    const chargersResponse = await fetch(`${WALLBOX_USER_API}/users/${tokenData.extra_data?.user_id}/chargers`, {
+    // Fetch user's chargers via groups endpoint (correct API)
+    console.log("Fetching Wallbox chargers via groups endpoint");
+    const groupsResponse = await fetch(`${WALLBOX_API_BASE}/v3/chargers/groups`, {
       headers: {
         "Authorization": `Bearer ${accessToken}`,
         "Accept": "application/json",
       },
     });
 
-    if (!chargersResponse.ok) {
-      const errorText = await chargersResponse.text();
-      console.error("Wallbox chargers fetch failed:", chargersResponse.status, errorText);
+    if (!groupsResponse.ok) {
+      const errorText = await groupsResponse.text();
+      console.error("Wallbox groups fetch failed:", groupsResponse.status, errorText);
       
-      if (chargersResponse.status === 401) {
+      if (groupsResponse.status === 401) {
         return new Response(JSON.stringify({ error: "Token expired", needsReauth: true }), {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -92,10 +92,20 @@ Deno.serve(async (req) => {
       });
     }
 
-    const chargersData = await chargersResponse.json();
-    console.log("Wallbox chargers data received:", { 
-      chargerCount: chargersData?.data?.length || 0 
-    });
+    const groupsData = await groupsResponse.json();
+    console.log("Wallbox groups response:", JSON.stringify(groupsData));
+    
+    // Extract charger IDs from groups
+    const chargerIds: number[] = [];
+    for (const group of (groupsData?.result?.groups || [])) {
+      for (const charger of (group?.chargers || [])) {
+        if (charger?.id) {
+          chargerIds.push(charger.id);
+        }
+      }
+    }
+    
+    console.log("Found charger IDs:", chargerIds);
 
     let totalEnergyKwh = 0;
     let totalSessions = 0;
@@ -108,9 +118,7 @@ Deno.serve(async (req) => {
     }> = [];
 
     // Fetch detailed data for each charger
-    for (const charger of (chargersData?.data || [])) {
-      const chargerId = charger.id;
-      
+    for (const chargerId of chargerIds) {
       // Get charger status
       const statusResponse = await fetch(`${WALLBOX_API_BASE}/chargers/status/${chargerId}`, {
         headers: {
@@ -162,17 +170,83 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Store energy production data
+    // Store or update connected device with lifetime totals
+    const primaryChargerId = chargerDetails[0]?.id?.toString() || "unknown";
+    const primaryChargerName = chargerDetails[0]?.name || "Wallbox Charger";
+    
+    // First, try to get existing device
+    const { data: existingDevice } = await supabaseClient
+      .from("connected_devices")
+      .select("id, baseline_data, lifetime_totals")
+      .eq("user_id", user.id)
+      .eq("provider", "wallbox")
+      .eq("device_id", primaryChargerId)
+      .maybeSingle();
+
+    const now = new Date().toISOString();
+    
+    if (existingDevice) {
+      // Update existing device with lifetime totals
+      const currentBaseline = (existingDevice.baseline_data as Record<string, any>) || {};
+      const baselineCharging = currentBaseline.charging_kwh || 0;
+      
+      await supabaseClient
+        .from("connected_devices")
+        .update({
+          lifetime_totals: {
+            charging_kwh: totalEnergyKwh,
+            lifetime_charging_kwh: totalEnergyKwh,
+            total_sessions: totalSessions,
+            updated_at: now,
+          },
+          updated_at: now,
+        })
+        .eq("id", existingDevice.id);
+      
+      console.log(`Updated Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
+    } else {
+      // Create new device record
+      const { error: deviceError } = await supabaseClient
+        .from("connected_devices")
+        .insert({
+          user_id: user.id,
+          provider: "wallbox",
+          device_id: primaryChargerId,
+          device_type: "home_charger",
+          device_name: primaryChargerName,
+          baseline_data: {
+            charging_kwh: 0,
+            captured_at: now,
+          },
+          lifetime_totals: {
+            charging_kwh: totalEnergyKwh,
+            lifetime_charging_kwh: totalEnergyKwh,
+            total_sessions: totalSessions,
+            updated_at: now,
+          },
+          device_metadata: {
+            charger_count: chargerDetails.length,
+          },
+        });
+      
+      if (deviceError) {
+        console.error("Failed to create Wallbox device:", deviceError);
+      } else {
+        console.log(`Created Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
+      }
+    }
+
+    // Store energy production data for daily tracking
     const { error: insertError } = await supabaseClient
       .from("energy_production")
-      .insert({
+      .upsert({
         user_id: user.id,
         provider: "wallbox",
-        device_id: chargerDetails[0]?.id?.toString() || "unknown",
+        device_id: primaryChargerId,
         production_wh: 0, // Wallbox doesn't produce energy, only consumes
         consumption_wh: totalEnergyKwh * 1000, // Convert kWh to Wh
-        recorded_at: new Date().toISOString(),
-      });
+        recorded_at: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
+      }, { onConflict: "device_id,provider,recorded_at" });
 
     if (insertError) {
       console.error("Failed to store energy data:", insertError);
