@@ -227,13 +227,14 @@ Deno.serve(async (req) => {
     const now = new Date().toISOString();
     
     if (existingDevice) {
-      // Update existing device with lifetime totals
+      // Update existing device with lifetime totals AND sync the charger name
       const currentBaseline = (existingDevice.baseline_data as Record<string, any>) || {};
       const baselineCharging = currentBaseline.charging_kwh || 0;
       
       await supabaseClient
         .from("connected_devices")
         .update({
+          device_name: primaryChargerName, // Always sync the charger name from Wallbox
           lifetime_totals: {
             charging_kwh: totalEnergyKwh,
             lifetime_charging_kwh: totalEnergyKwh,
@@ -244,7 +245,7 @@ Deno.serve(async (req) => {
         })
         .eq("id", existingDevice.id);
       
-      console.log(`Updated Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
+      console.log(`Updated Wallbox device ${primaryChargerId} "${primaryChargerName}" with ${totalEnergyKwh} kWh lifetime charging`);
     } else {
       // Create new device record
       const { error: deviceError } = await supabaseClient
