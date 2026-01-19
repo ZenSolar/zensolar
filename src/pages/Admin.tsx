@@ -16,6 +16,7 @@ import { FeedbackCard } from '@/components/admin/FeedbackCard';
 import { SupportRequestsTab } from '@/components/admin/SupportRequestsTab';
 import { NotificationTemplatesTab } from '@/components/admin/NotificationTemplatesTab';
 import { NFTResetPanel } from '@/components/admin/NFTResetPanel';
+import { ProviderResyncPanel } from '@/components/admin/ProviderResyncPanel';
 import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenIconOnly from '@/assets/zen-icon-only.png';
 
@@ -1008,6 +1009,9 @@ export default function Admin() {
             )}
           </CardContent>
         </Card>
+
+        {/* Provider Resync Panel */}
+        <ProviderResyncPanel profiles={profiles} />
 
         {/* KPI Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">

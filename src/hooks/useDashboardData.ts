@@ -512,6 +512,15 @@ export function useDashboardData() {
         console.log('SolarEdge solar:', solarEnergy, 'kWh, pending:', pendingSolar, 'kWh');
       }
 
+      // Process Wallbox data - home charger kWh
+      // Wallbox API returns lifetime charging totals
+      let wallboxChargerKwh = 0;
+      if (wallboxData?.totals) {
+        wallboxChargerKwh = wallboxData.totals.home_charger_kwh || 
+                           wallboxData.totals.lifetime_charging_kwh || 0;
+        console.log('Wallbox charging:', wallboxChargerKwh, 'kWh');
+      }
+
       // Process Tesla data - EV miles, battery storage, EV charging
       // Tesla API returns both lifetime and pending values
       if (teslaData?.totals) {
@@ -519,7 +528,10 @@ export function useDashboardData() {
         batteryDischarge = (teslaData.totals.battery_discharge_wh || 0) / 1000;
         evMiles = teslaData.totals.ev_miles || 0;
         superchargerKwh = teslaData.totals.supercharger_kwh || 0;
-        homeChargerKwh = teslaData.totals.wall_connector_kwh || 0;
+        // Tesla Wall Connector kWh
+        const teslaWallConnectorKwh = teslaData.totals.wall_connector_kwh || 0;
+        // Combine Tesla Wall Connector + Wallbox for total home charging
+        homeChargerKwh = teslaWallConnectorKwh + wallboxChargerKwh;
 
         // Pending values (since last mint baseline)
         // If pending not returned, use lifetime (no baseline set yet means all is pending)
@@ -552,6 +564,15 @@ export function useDashboardData() {
         pendingCharging = pendingSupercharger + pendingHomeCharger;
 
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
+      }
+
+      // If only Wallbox connected (no Tesla), set home charger from Wallbox data
+      if (!teslaData?.totals && wallboxData?.totals) {
+        homeChargerKwh = wallboxChargerKwh;
+        // Pending home charger calculation from Wallbox
+        // For now, treat all Wallbox kWh as lifetime (no baseline subtraction in API)
+        pendingHomeCharger = wallboxChargerKwh;
+        pendingCharging = pendingHomeCharger;
       }
 
       // Provider fallback when APIs fail but backend has last-known totals
