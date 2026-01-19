@@ -1,16 +1,7 @@
-import { getDefaultConfig, Wallet } from '@rainbow-me/rainbowkit';
-import { baseSepolia } from 'wagmi/chains';
-import { http } from 'wagmi';
-import {
-  metaMaskWallet,
-  walletConnectWallet,
-  injectedWallet,
-  trustWallet,
-  rainbowWallet,
-} from '@rainbow-me/rainbowkit/wallets';
-
-// Base Wallet logo (formerly Coinbase Wallet)
-import baseWalletIcon from '@/assets/wallets/base-wallet.png';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { baseSepolia } from '@reown/appkit/networks';
+import { createAppKit } from '@reown/appkit/react';
+import type { AppKitNetwork } from '@reown/appkit/networks';
 
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
 // Note: this is a public identifier (safe to ship to the client).
@@ -23,54 +14,56 @@ const projectId =
 export const WALLETCONNECT_PROJECT_ID = projectId;
 export const HAS_WALLETCONNECT_PROJECT_ID = projectId !== 'demo-project-id';
 
-// Base Wallet uses WalletConnect (reliable on mobile/PWA)
-const baseWallet = (params: Parameters<typeof walletConnectWallet>[0]): Wallet => {
-  const wallet = walletConnectWallet(params);
-  return {
-    ...wallet,
-    id: 'base',
-    name: 'Base Wallet',
-    shortName: 'Base',
-    iconUrl: baseWalletIcon,
-    iconBackground: '#0052FF',
-  };
-};
-
-export const config = getDefaultConfig({
-  appName: 'ZenSolar',
-  projectId,
-  chains: [baseSepolia],
-  transports: {
-    [baseSepolia.id]: http(),
-  },
-  wallets: [
-    {
-      groupName: 'Recommended',
-      wallets: [
-        // MetaMask first (most popular wallet)
-        metaMaskWallet,
-        // Base Wallet (formerly Coinbase Wallet) - this is the self-custody wallet
-        // Note: The Coinbase exchange app does NOT support WalletConnect/dApp connections
-        baseWallet,
-        // WalletConnect for connecting other mobile wallets
-        walletConnectWallet,
-      ],
-    },
-    {
-      groupName: 'Other Wallets',
-      wallets: [
-        // Generic injected wallets (Brave, etc.)
-        injectedWallet,
-        trustWallet,
-        rainbowWallet,
-      ],
-    },
-  ],
-  ssr: false,
-});
+// Networks configuration - Base Sepolia as the only chain
+export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [baseSepolia];
 
 // Base Sepolia Chain ID
 export const CHAIN_ID = baseSepolia.id;
+
+// App metadata
+const metadata = {
+  name: 'ZenSolar',
+  description: 'Earn $ZSOLAR tokens for your green energy production',
+  url: typeof window !== 'undefined' ? window.location.origin : 'https://zensolar.lovable.app',
+  icons: ['/zs-icon-192.png'],
+};
+
+// Create the Wagmi adapter for AppKit
+export const wagmiAdapter = new WagmiAdapter({
+  networks,
+  projectId,
+  ssr: false,
+});
+
+// Export wagmi config for use with WagmiProvider
+export const config = wagmiAdapter.wagmiConfig;
+
+// Create and export the AppKit modal instance
+export const appKit = createAppKit({
+  adapters: [wagmiAdapter],
+  networks,
+  projectId,
+  metadata,
+  features: {
+    analytics: true,
+    email: false,
+    socials: false,
+  },
+  themeMode: 'dark',
+  themeVariables: {
+    '--w3m-accent': '#22c55e', // ZenSolar green
+    '--w3m-border-radius-master': '8px',
+  },
+  // Feature MetaMask and Base Wallet (Coinbase) prominently
+  featuredWalletIds: [
+    'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask
+    'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase Wallet / Base Wallet
+  ],
+  // Include all wallet types
+  includeWalletIds: undefined, // Show all wallets
+  enableCoinbase: true,
+  coinbasePreference: 'all', // Show both smart wallet and regular wallet options
+});
 
 // Contract addresses for $ZSOLAR token and NFT (Base Sepolia testnet)
 // Deployed 2026-01-16 on Base Sepolia (with setMinter + transferOwnership configured)

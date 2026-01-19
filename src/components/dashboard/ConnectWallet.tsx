@@ -1,14 +1,13 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useChainId, useSwitchChain, useDisconnect, useConnect } from 'wagmi';
+import { useAppKit, useAppKitAccount, useAppKitState } from '@reown/appkit/react';
+import { useChainId, useSwitchChain, useDisconnect } from 'wagmi';
 import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Coins } from 'lucide-react';
+import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Coins, ExternalLink } from 'lucide-react';
 import { CHAIN_ID, HAS_WALLETCONNECT_PROJECT_ID } from '@/lib/wagmi';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WalletConnectDiagnostics, type WalletDiagEvents } from './WalletConnectDiagnostics';
-import { WalletDeepLinks, getWalletConnectDeepLink, type WalletDeepLinkWalletId } from './WalletDeepLinks';
 import { hardResetWalletStorage } from '@/lib/walletStorage';
 import { autoPromptAddToken, resetTokenPromptFlag } from '@/lib/walletAssets';
 
@@ -25,37 +24,22 @@ function normalizeAddress(addr?: string | null) {
   return (addr ?? '').toLowerCase();
 }
 
-function markForWallet(set: (key: keyof WalletDiagEvents) => void, wallet: WalletDeepLinkWalletId) {
-  switch (wallet) {
-    case 'metamask':
-      set('deepLinkMetaMaskTap');
-      break;
-    case 'coinbase':
-      set('deepLinkCoinbaseTap');
-      break;
-    case 'trust':
-      set('deepLinkTrustTap');
-      break;
-    case 'rainbow':
-      set('deepLinkRainbowTap');
-      break;
-  }
-}
-
 export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTokens, isDemo = false, showDiagnostics = false }: ConnectWalletProps) {
-  const { address, isConnected } = useAccount();
+  // AppKit hooks
+  const { open } = useAppKit();
+  const { address, isConnected } = useAppKitAccount();
+  const { open: isModalOpen } = useAppKitState();
+  
+  // Wagmi hooks
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { disconnect } = useDisconnect();
-  const { connectAsync, connectors } = useConnect();
 
   const hasHandledConnection = useRef(false);
   const prevConnectedRef = useRef(false);
 
   const [events, setEvents] = useState<WalletDiagEvents>({});
   const [lastSaveError, setLastSaveError] = useState<string | null>(null);
-  const [wcUri, setWcUri] = useState<string | undefined>(undefined);
-  const [isStartingWc, setIsStartingWc] = useState(false);
   const [wcProjectIdDraft, setWcProjectIdDraft] = useState('');
 
   const mark = useCallback((key: keyof WalletDiagEvents) => {
@@ -87,10 +71,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     return normalizeAddress(address) === normalizeAddress(walletAddress);
   }, [address, walletAddress]);
 
-  useEffect(() => {
-    if (isConnected) setIsStartingWc(false);
-  }, [isConnected]);
-
   // Auto-switch to Base Sepolia when wallet connects on wrong network
   const ensureCorrectNetwork = useCallback(async () => {
     if (isConnected && chainId !== CHAIN_ID) {
@@ -109,72 +89,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     }
   }, [isConnected, chainId, switchChain]);
 
-  const startWalletConnectDeepLink = useCallback(
-    async (wallet: WalletDeepLinkWalletId) => {
-      // This is the critical fix: we first start a WalletConnect pairing (to obtain a WC URI),
-      // then deep-link into the wallet with that URI so the session persists back to the PWA.
-      const wcConnector = connectors.find((c) => (c as any)?.id === 'walletConnect') ?? connectors.find((c) => (c as any)?.type === 'walletConnect');
-
-      if (!wcConnector) {
-        toast.error('WalletConnect is not available on this device.');
-        return;
-      }
-
-      setLastSaveError(null);
-      setIsStartingWc(true);
-
-      try {
-        const provider: any = await (wcConnector as any).getProvider?.();
-        if (!provider?.on) {
-          toast.error('WalletConnect provider not available.');
-          setIsStartingWc(false);
-          return;
-        }
-
-        let opened = false;
-        const handleUri = (uri: string) => {
-          if (opened) return;
-          opened = true;
-          setWcUri(uri);
-
-          const deepLink = getWalletConnectDeepLink(wallet, uri);
-          if (deepLink) {
-            // Give React a tick to flush state (diagnostics timestamps, etc.)
-            setTimeout(() => {
-              window.location.href = deepLink;
-            }, 50);
-          }
-        };
-
-        provider.on('display_uri', handleUri);
-
-        // Trigger pairing (do not await; the user will jump to the wallet app)
-        void connectAsync({ connector: wcConnector, chainId: CHAIN_ID }).catch((err) => {
-          const msg = err instanceof Error ? err.message : String(err);
-          setLastSaveError(msg);
-          setIsStartingWc(false);
-        });
-
-        // Cleanup / safety timeout
-        setTimeout(() => {
-          try {
-            provider.off?.('display_uri', handleUri);
-          } catch {
-            // ignore
-          }
-          setIsStartingWc(false);
-        }, 30000);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setLastSaveError(msg);
-        setIsStartingWc(false);
-        toast.error('Failed to start WalletConnect.');
-        console.error('[ConnectWallet] WalletConnect start error:', err);
-      }
-    },
-    [connectAsync, connectors]
-  );
-
   // Detect connect/disconnect transitions and auto-save to profile
   useEffect(() => {
     const justConnected = isConnected && !prevConnectedRef.current;
@@ -187,11 +101,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
       if (address) {
         console.log('[ConnectWallet] Wallet connected:', address);
       }
-
-      // Close any RainbowKit modals
-      setTimeout(() => {
-        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-      }, 200);
 
       // Auto-save wallet to profile if not already saved
       if (address && !hasHandledConnection.current) {
@@ -258,7 +167,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     // allow a clean retry
     hasHandledConnection.current = false;
     prevConnectedRef.current = false;
-    setWcUri(undefined);
 
     toast.success('Wallet state cleared. Try connecting again.');
   }, [disconnect, onDisconnect, mark]);
@@ -296,6 +204,15 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
       toast.error('Failed to link wallet to your profile');
     }
   }, [address, onConnect]);
+
+  const handleOpenConnect = useCallback(() => {
+    mark('connectButtonTap');
+    open({ view: 'Connect' });
+  }, [open, mark]);
+
+  const handleOpenAccount = useCallback(() => {
+    open({ view: 'Account' });
+  }, [open]);
 
   if (isDemo) {
     // Generate a fake wallet address for demo
@@ -431,7 +348,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
         )}
 
         <div className="flex flex-col gap-2">
-          {/* Network button - use chainId directly since RainbowKit chain data may not hydrate properly in PWA */}
+          {/* Network button - use chainId directly */}
           {chainId === CHAIN_ID ? (
             <div className="flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 rounded-lg text-sm text-primary font-medium">
               <div className="h-4 w-4 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">B</div>
@@ -450,21 +367,14 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
             </Button>
           )}
 
-          <ConnectButton.Custom>
-            {({ openAccountModal, mounted }) => {
-              if (!mounted) return null;
-
-              return (
-                <button
-                  onClick={openAccountModal}
-                  type="button"
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary/30 rounded-lg text-sm hover:bg-secondary/50 transition-colors"
-                >
-                  View Account Details
-                </button>
-              );
-            }}
-          </ConnectButton.Custom>
+          {/* View Account Details - opens AppKit modal */}
+          <button
+            onClick={handleOpenAccount}
+            type="button"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary/30 rounded-lg text-sm hover:bg-secondary/50 transition-colors"
+          >
+            View Account Details
+          </button>
 
           <Button
             variant="secondary"
@@ -533,28 +443,19 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
           </p>
         </div>
 
-        <ConnectButton.Custom>
-          {({ openConnectModal, mounted }) => {
-            if (!mounted) return null;
-            
-            return (
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  mark('reconnectButtonTap');
-                  openConnectModal();
-                }}
-              >
-                <Wallet className="h-4 w-4 mr-2" />
-                Reconnect Wallet
-              </Button>
-            );
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="w-full"
+          onClick={() => {
+            mark('reconnectButtonTap');
+            handleOpenConnect();
           }}
-        </ConnectButton.Custom>
-
+        >
+          <Wallet className="h-4 w-4 mr-2" />
+          Reconnect Wallet
+        </Button>
 
         {showDiagnostics && (
           <WalletConnectDiagnostics
@@ -574,6 +475,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     );
   }
 
+  // Default: Not connected state
   return (
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-center gap-3 mb-3">
@@ -586,150 +488,62 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
         </div>
       </div>
 
-      <ConnectButton.Custom>
-        {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
-          const ready = mounted;
-          const connected = ready && account && chain;
+      <div className="flex flex-col gap-2">
+        <button
+          onClick={handleOpenConnect}
+          type="button"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
+        >
+          <Wallet className="h-4 w-4" />
+          Connect Wallet
+        </button>
 
-          const handleOpenConnect = () => {
-            mark('connectButtonTap');
-            try {
-              openConnectModal();
-            } catch (err) {
-              console.error('[ConnectWallet] openConnectModal error:', err);
-            }
-          };
-
-          if (!ready) {
-            return (
-              <div className="opacity-60">
-                <Button type="button" className="w-full" disabled>
-                  Loading wallets…
+        {device.isMobile && !HAS_WALLETCONNECT_PROJECT_ID && (
+          <div className="rounded-md border border-border bg-muted/30 p-3 text-xs">
+            <p className="text-foreground font-medium">WalletConnect Setup</p>
+            <div className="mt-2 space-y-2">
+              <p className="text-muted-foreground">
+                WalletConnect Project ID isn't configured yet.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  className="flex-1"
+                  value={wcProjectIdDraft}
+                  onChange={(e) => setWcProjectIdDraft(e.target.value)}
+                  placeholder="Paste WalletConnect Project ID"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    const v = wcProjectIdDraft.trim();
+                    if (!v) {
+                      toast.error('Please paste a WalletConnect Project ID');
+                      return;
+                    }
+                    try {
+                      window.localStorage.setItem('walletconnect_project_id', v);
+                      toast.success('Saved. Reloading…');
+                      window.location.reload();
+                    } catch {
+                      toast.error('Could not save to device storage');
+                    }
+                  }}
+                >
+                  Save
                 </Button>
               </div>
-            );
-          }
-
-          if (!connected) {
-            return (
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={handleOpenConnect}
-                  type="button"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
-                >
-                  <Wallet className="h-4 w-4" />
-                  Connect Wallet
-                </button>
-
-                {device.isMobile ? (
-                  <div className="rounded-md border border-border bg-muted/30 p-3 text-xs">
-                    <p className="text-foreground font-medium">Mobile wallet options</p>
-
-                    {!HAS_WALLETCONNECT_PROJECT_ID ? (
-                      <div className="mt-2 space-y-2">
-                        <p className="text-muted-foreground">
-                          WalletConnect Project ID isn’t available in this build yet, so most mobile wallets won’t open.
-                        </p>
-                        <div className="flex gap-2">
-                          <Input
-                            className="flex-1"
-                            value={wcProjectIdDraft}
-                            onChange={(e) => setWcProjectIdDraft(e.target.value)}
-                            placeholder="Paste WalletConnect Project ID"
-                          />
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => {
-                              const v = wcProjectIdDraft.trim();
-                              if (!v) {
-                                toast.error('Please paste a WalletConnect Project ID');
-                                return;
-                              }
-                              try {
-                                window.localStorage.setItem('walletconnect_project_id', v);
-                                toast.success('Saved. Reloading…');
-                                window.location.reload();
-                              } catch {
-                                toast.error('Could not save to device storage');
-                              }
-                            }}
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-2 space-y-2">
-                        <p className="text-muted-foreground">
-                          If a wallet button in the modal does nothing, use these deep links (recommended on iOS).
-                        </p>
-                        <WalletDeepLinks
-                          disabled={isStartingWc}
-                          wcUri={wcUri}
-                          onSelect={(wallet) => {
-                            markForWallet(mark, wallet);
-                            void startWalletConnectDeepLink(wallet);
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {lastSaveError ? (
-                      <p className="mt-2 text-[10px] text-destructive break-words">{lastSaveError}</p>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-            );
-          }
-
-          if (chain?.unsupported) {
-            return (
-              <button
-                onClick={openChainModal}
-                type="button"
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors"
-              >
-                Wrong Network - Click to Switch
-              </button>
-            );
-          }
-
-          return (
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={openChainModal}
-                type="button"
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary/50 rounded-lg text-sm hover:bg-secondary/70 transition-colors"
-              >
-                {chain?.hasIcon && chain.iconUrl && (
-                  <img alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} className="h-4 w-4 rounded-full" />
-                )}
-                {chain?.name}
-              </button>
-
-              <button
-                onClick={openAccountModal}
-                type="button"
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors"
-              >
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
-                  ✓
-                </div>
-                {account?.displayName}
-                {account?.displayBalance && (
-                  <span className="text-muted-foreground text-sm">({account.displayBalance})</span>
-                )}
-              </button>
             </div>
-          );
-        }}
-      </ConnectButton.Custom>
 
-      <p className="mt-3 text-xs text-muted-foreground text-center">💡 Tap a wallet to connect • Base Sepolia testnet</p>
+            {lastSaveError ? (
+              <p className="mt-2 text-[10px] text-destructive break-words">{lastSaveError}</p>
+            ) : null}
+          </div>
+        )}
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground text-center">💡 Tap to connect • MetaMask, Base Wallet & more</p>
 
       {showDiagnostics && (
         <WalletConnectDiagnostics
