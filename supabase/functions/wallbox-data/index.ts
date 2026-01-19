@@ -189,13 +189,21 @@ Deno.serve(async (req) => {
           console.log(`Charger ${chargerId} /v2/charger response:`, JSON.stringify(v2Data));
           const chargerData = v2Data?.data?.chargerData || v2Data;
           
-          // Check resume.totalEnergy (string in Wh despite saying kWh)
+          // Check resume.totalEnergy - TRUST the energyUnit field from the API
           if (chargerData?.resume?.totalEnergy) {
             const totalEnergyVal = parseFloat(chargerData.resume.totalEnergy);
+            const energyUnit = chargerData?.resume?.energyUnit?.toLowerCase() || 'kwh';
+            
             if (Number.isFinite(totalEnergyVal) && totalEnergyVal > 0) {
-              // If > 1000, it's definitely Wh
-              lifetimeEnergyKwh = totalEnergyVal >= 1000 ? totalEnergyVal / 1000 : totalEnergyVal;
-              console.log(`Found resume.totalEnergy=${totalEnergyVal}, treating as ${lifetimeEnergyKwh} kWh`);
+              // Trust the API's unit label
+              if (energyUnit === 'wh') {
+                lifetimeEnergyKwh = totalEnergyVal / 1000;
+                console.log(`Found resume.totalEnergy=${totalEnergyVal} Wh = ${lifetimeEnergyKwh} kWh`);
+              } else {
+                // API says kWh, trust it
+                lifetimeEnergyKwh = totalEnergyVal;
+                console.log(`Found resume.totalEnergy=${totalEnergyVal} kWh (unit: ${energyUnit})`);
+              }
             }
             
             // Sessions from resume
@@ -222,6 +230,54 @@ Deno.serve(async (req) => {
         } else {
           console.error(`/v2/charger/${chargerId} failed:`, v2Response.status);
         }
+      }
+      
+      // ADDITIONAL: Try /v4/sessions/stats to get accurate session history totals
+      // This endpoint returns individual sessions which we can sum for true lifetime
+      console.log(`Fetching session stats from /v4/sessions/stats for charger ${chargerId}`);
+      const now = Math.floor(Date.now() / 1000);
+      const fiveYearsAgo = now - (5 * 365 * 24 * 60 * 60); // Go back 5 years
+      const statsUrl = `${WALLBOX_API_BASE}/v4/sessions/stats?charger=${chargerId}&start_date=${fiveYearsAgo}&end_date=${now}&limit=10000`;
+      
+      const statsResponse = await fetch(statsUrl, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/json",
+        },
+      });
+      
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        console.log(`Charger ${chargerId} /v4/sessions/stats response (first 500 chars):`, JSON.stringify(statsData).substring(0, 500));
+        
+        // Sum up energy from all sessions
+        let sessionsTotalEnergyKwh = 0;
+        let sessionCount = 0;
+        
+        if (Array.isArray(statsData?.data)) {
+          for (const session of statsData.data) {
+            // Each session should have attributes.energy (in kWh typically)
+            const sessionEnergy = session?.attributes?.energy || session?.energy || 0;
+            if (typeof sessionEnergy === 'number' && sessionEnergy > 0) {
+              sessionsTotalEnergyKwh += sessionEnergy;
+              sessionCount++;
+            }
+          }
+          
+          console.log(`Computed from ${sessionCount} sessions: ${sessionsTotalEnergyKwh} kWh total`);
+          
+          // Use session-computed total if it's larger than what resume reported
+          if (sessionsTotalEnergyKwh > lifetimeEnergyKwh) {
+            console.log(`Using session-computed total (${sessionsTotalEnergyKwh} kWh) instead of resume total (${lifetimeEnergyKwh} kWh)`);
+            lifetimeEnergyKwh = sessionsTotalEnergyKwh;
+          }
+          
+          if (sessionCount > totalSessions) {
+            totalSessions = sessionCount;
+          }
+        }
+      } else {
+        console.warn(`/v4/sessions/stats failed for charger ${chargerId}:`, statsResponse.status);
       }
       
       console.log(`Charger ${chargerId} final lifetime energy: ${lifetimeEnergyKwh} kWh`);
