@@ -11,6 +11,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 // Eagerly load critical path pages
 import Auth from "./pages/Auth";
@@ -83,6 +84,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <GoogleAnalytics />
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     <Route path="/auth" element={<Auth />} />
