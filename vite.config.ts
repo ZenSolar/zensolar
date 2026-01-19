@@ -92,4 +92,18 @@ export default defineConfig(({ mode }) => ({
       "react/jsx-dev-runtime",
     ],
   },
+  build: {
+    // Optimize chunking for faster builds
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split AppKit into its own chunk for better caching
+          'appkit': ['@reown/appkit', '@reown/appkit-adapter-wagmi'],
+          'wagmi': ['wagmi', 'viem'],
+        },
+      },
+    },
+    // Increase chunk size warning limit (AppKit is large)
+    chunkSizeWarningLimit: 2000,
+  },
 }));
