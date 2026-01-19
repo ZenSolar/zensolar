@@ -183,51 +183,68 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Extract the addedEnergy (lifetime total in kWh)
-      // The Wallbox API returns this as a float in kWh directly
-      // Check multiple possible field names since API versions differ
-      let lifetimeEnergyKwh = 0;
-      
-      // Try different field names used by Wallbox API
-      const possibleFields = [
-        chargerData.addedEnergy,
-        chargerData.added_energy,
-        chargerData.totalEnergy,
-        chargerData.total_energy,
-        chargerData.lifetimeEnergy,
-        chargerData.lifetime_energy,
-      ];
-      
-      for (const value of possibleFields) {
-        if (typeof value === 'number' && value > 0) {
-          lifetimeEnergyKwh = value;
-          break;
-        }
+      // Extract lifetime energy (best-effort across multiple API versions)
+      // NOTE: Some endpoints return lifetime cumulative energy in Wh (e.g. cumulative_added_energy)
+      // while others return lifetime in kWh (e.g. addedEnergy / totalEnergyKwh).
+      const kwhCandidates: number[] = [];
+      const whCandidates: number[] = [];
+
+      const pushKwh = (v: unknown) => {
+        if (typeof v === 'number' && Number.isFinite(v) && v > 0) kwhCandidates.push(v);
+      };
+      const pushWh = (v: unknown) => {
+        if (typeof v === 'number' && Number.isFinite(v) && v > 0) whCandidates.push(v);
+      };
+
+      // Common kWh fields
+      pushKwh(chargerData.addedEnergy);
+      pushKwh(chargerData.added_energy);
+      pushKwh(chargerData.totalEnergyKwh);
+      pushKwh(chargerData.total_energy_kwh);
+      pushKwh(chargerData.totalEnergy);
+      pushKwh(chargerData.total_energy);
+      pushKwh(chargerData.addedEnergyTotal);
+      pushKwh(chargerData.added_energy_total);
+      pushKwh(chargerData.lifetimeEnergy);
+      pushKwh(chargerData.lifetime_energy);
+
+      // Common Wh cumulative fields (convert later)
+      pushWh(chargerData.cumulativeAddedEnergy);
+      pushWh(chargerData.cumulative_added_energy);
+      pushWh(chargerData.cumulative_added_energy_wh);
+      pushWh(chargerData.totalEnergyWh);
+      pushWh(chargerData.total_energy_wh);
+
+      // Nested variants
+      if (chargerData.data) {
+        const d = chargerData.data;
+        pushKwh(d.addedEnergy);
+        pushKwh(d.added_energy);
+        pushKwh(d.totalEnergyKwh);
+        pushKwh(d.total_energy_kwh);
+        pushWh(d.cumulativeAddedEnergy);
+        pushWh(d.cumulative_added_energy);
+        pushWh(d.totalEnergyWh);
+        pushWh(d.total_energy_wh);
       }
-      
-      // Also check nested data structures
-      if (lifetimeEnergyKwh === 0 && chargerData.data) {
-        const nestedData = chargerData.data;
-        const nestedFields = [
-          nestedData.addedEnergy,
-          nestedData.added_energy,
-          nestedData.totalEnergy,
-        ];
-        for (const value of nestedFields) {
-          if (typeof value === 'number' && value > 0) {
-            lifetimeEnergyKwh = value;
-            break;
-          }
-        }
+      if (chargerData.statistics) {
+        const s = chargerData.statistics;
+        pushKwh(s.addedEnergy);
+        pushKwh(s.totalEnergyKwh);
+        pushWh(s.cumulativeAddedEnergy);
+        pushWh(s.cumulative_added_energy);
       }
 
-      // The value should already be in kWh, but verify it's reasonable
-      // If the value is very large (>10000), it might be in Wh
-      if (lifetimeEnergyKwh > 10000) {
-        console.log(`Converting ${lifetimeEnergyKwh} Wh to kWh`);
+      const lifetimeFromKwh = kwhCandidates.length ? Math.max(...kwhCandidates) : 0;
+      const lifetimeFromWhKwh = whCandidates.length ? Math.max(...whCandidates) / 1000 : 0;
+
+      let lifetimeEnergyKwh = Math.max(lifetimeFromKwh, lifetimeFromWhKwh);
+
+      // Final sanity fallback: if something was returned in Wh but not tagged as such
+      if (lifetimeEnergyKwh > 0 && lifetimeEnergyKwh > 100000) {
         lifetimeEnergyKwh = lifetimeEnergyKwh / 1000;
       }
-      
+
       console.log(`Charger ${chargerId} lifetime energy: ${lifetimeEnergyKwh} kWh`);
 
       totalEnergyKwh += lifetimeEnergyKwh;
@@ -248,105 +265,76 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Store or update connected device with lifetime totals
+    // Store or update connected device(s) with lifetime totals
     const primaryChargerId = chargerDetails[0]?.id?.toString() || "unknown";
     const primaryChargerName = chargerDetails[0]?.name || "Wallbox Charger";
-    
+
     console.log(`Total across all chargers: ${totalEnergyKwh} kWh`);
-    
-    // First, try to get existing device with this specific charger ID
-    const { data: existingDevice } = await supabaseClient
-      .from("connected_devices")
-      .select("id, baseline_data, lifetime_totals")
-      .eq("user_id", targetUserId)
-      .eq("provider", "wallbox")
-      .eq("device_id", primaryChargerId)
-      .maybeSingle();
 
     const now = new Date().toISOString();
-    
-    if (existingDevice) {
-      // Update existing device with lifetime totals
+
+    // Update ALL existing Wallbox devices for the user (older versions created duplicates).
+    const { data: existingWallboxDevices, error: existingWallboxDevicesError } = await supabaseClient
+      .from("connected_devices")
+      .select("id")
+      .eq("user_id", targetUserId)
+      .eq("provider", "wallbox");
+
+    if (existingWallboxDevicesError) {
+      console.error('Failed to list existing Wallbox devices:', existingWallboxDevicesError);
+    }
+
+    const lifetimeTotals = {
+      charging_kwh: totalEnergyKwh,
+      lifetime_charging_kwh: totalEnergyKwh,
+      total_sessions: totalSessions,
+      updated_at: now,
+    };
+
+    if (existingWallboxDevices && existingWallboxDevices.length > 0) {
       const updateResult = await supabaseClient
         .from("connected_devices")
         .update({
+          device_id: primaryChargerId,
+          device_type: "home_charger",
           device_name: primaryChargerName,
-          lifetime_totals: {
-            charging_kwh: totalEnergyKwh,
-            lifetime_charging_kwh: totalEnergyKwh,
-            total_sessions: totalSessions,
-            updated_at: now,
+          lifetime_totals: lifetimeTotals,
+          device_metadata: {
+            charger_count: chargerDetails.length,
           },
           updated_at: now,
         })
-        .eq("id", existingDevice.id);
-      
+        .eq("user_id", targetUserId)
+        .eq("provider", "wallbox");
+
       if (updateResult.error) {
-        console.error(`Failed to update Wallbox device:`, updateResult.error);
+        console.error(`Failed to update Wallbox devices:`, updateResult.error);
       } else {
-        console.log(`Updated Wallbox device ${primaryChargerId} "${primaryChargerName}" with ${totalEnergyKwh} kWh lifetime charging`);
+        console.log(`Updated ${existingWallboxDevices.length} Wallbox device record(s) with ${totalEnergyKwh} kWh lifetime charging`);
       }
     } else {
-      // Check if there's an "unknown" device we should clean up or a mismatched device_id
-      const { data: anyWallboxDevice } = await supabaseClient
+      const { error: deviceError } = await supabaseClient
         .from("connected_devices")
-        .select("id, device_id")
-        .eq("user_id", targetUserId)
-        .eq("provider", "wallbox")
-        .maybeSingle();
-      
-      if (anyWallboxDevice) {
-        // Update the existing record with the correct device_id
-        const updateResult = await supabaseClient
-          .from("connected_devices")
-          .update({
-            device_id: primaryChargerId,
-            device_name: primaryChargerName,
-            lifetime_totals: {
-              charging_kwh: totalEnergyKwh,
-              lifetime_charging_kwh: totalEnergyKwh,
-              total_sessions: totalSessions,
-              updated_at: now,
-            },
-            updated_at: now,
-          })
-          .eq("id", anyWallboxDevice.id);
-        
-        if (updateResult.error) {
-          console.error(`Failed to update Wallbox device:`, updateResult.error);
-        } else {
-          console.log(`Updated mismatched Wallbox device to ${primaryChargerId} with ${totalEnergyKwh} kWh`);
-        }
+        .insert({
+          user_id: targetUserId,
+          provider: "wallbox",
+          device_id: primaryChargerId,
+          device_type: "home_charger",
+          device_name: primaryChargerName,
+          baseline_data: {
+            charging_kwh: 0,
+            captured_at: now,
+          },
+          lifetime_totals: lifetimeTotals,
+          device_metadata: {
+            charger_count: chargerDetails.length,
+          },
+        });
+
+      if (deviceError) {
+        console.error("Failed to create Wallbox device:", deviceError);
       } else {
-        // Create new device record
-        const { error: deviceError } = await supabaseClient
-          .from("connected_devices")
-          .insert({
-            user_id: targetUserId,
-            provider: "wallbox",
-            device_id: primaryChargerId,
-            device_type: "home_charger",
-            device_name: primaryChargerName,
-            baseline_data: {
-              charging_kwh: 0,
-              captured_at: now,
-            },
-            lifetime_totals: {
-              charging_kwh: totalEnergyKwh,
-              lifetime_charging_kwh: totalEnergyKwh,
-              total_sessions: totalSessions,
-              updated_at: now,
-            },
-            device_metadata: {
-              charger_count: chargerDetails.length,
-            },
-          });
-        
-        if (deviceError) {
-          console.error("Failed to create Wallbox device:", deviceError);
-        } else {
-          console.log(`Created Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
-        }
+        console.log(`Created Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
       }
     }
 

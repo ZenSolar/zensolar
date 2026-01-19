@@ -87,24 +87,11 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
         throw new Error('Not authenticated');
       }
 
-      // Get the user's token to make the API call on their behalf
-      const { data: tokenData, error: tokenError } = await supabase
-        .from('energy_tokens')
-        .select('access_token')
-        .eq('user_id', selectedUserId)
-        .eq('provider', provider)
-        .single();
-
-      if (tokenError || !tokenData) {
-        throw new Error(`No ${config.name} token found for this user`);
-      }
-
-      // For admin resync, we need to use a service call approach
-      // Call the edge function with the target user's context
+      // Call the backend function with the target user's context (admin override)
       const response = await supabase.functions.invoke(config.function, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${session.access_token}`,
-          'X-Target-User-Id': selectedUserId, // Custom header for admin override
+          'X-Target-User-Id': selectedUserId,
         },
       });
 
@@ -112,13 +99,20 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
         throw new Error(response.error.message || `Failed to sync ${config.name}`);
       }
 
-      // Fetch updated device data
-      const { data: deviceData } = await supabase
+      // Fetch updated device data (avoid .single() because duplicates can exist)
+      const { data: deviceRows, error: deviceError } = await supabase
         .from('connected_devices')
         .select('lifetime_totals, device_name, updated_at')
         .eq('user_id', selectedUserId)
         .eq('provider', provider)
-        .maybeSingle();
+        .order('updated_at', { ascending: false })
+        .limit(1);
+
+      if (deviceError) {
+        console.warn('Failed to fetch updated device data:', deviceError);
+      }
+
+      const deviceData = deviceRows?.[0] ?? null;
 
       setResyncResults(prev => ({
         ...prev,
