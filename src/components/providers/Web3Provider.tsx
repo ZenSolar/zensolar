@@ -23,7 +23,10 @@ function useInitAppKit() {
       adapters: [wagmiAdapter],
       networks,
       projectId: WALLETCONNECT_PROJECT_ID,
-      metadata,
+      metadata: {
+        ...metadata,
+        icons: ['/zs-icon-192.png'],
+      },
       features: {
         analytics: true,
         email: false,
@@ -31,8 +34,12 @@ function useInitAppKit() {
       },
       themeMode: 'dark',
       themeVariables: {
-        '--w3m-accent': '#22c55e', // ZenSolar green
-        '--w3m-border-radius-master': '8px',
+        '--w3m-accent': 'hsl(142, 76%, 36%)', // ZenSolar primary green
+        '--w3m-color-mix': 'hsl(142, 76%, 36%)',
+        '--w3m-color-mix-strength': 15,
+        '--w3m-border-radius-master': '12px',
+        '--w3m-font-family': 'Inter, system-ui, sans-serif',
+        '--w3m-z-index': 1000,
       },
       // Feature MetaMask and Base Wallet (Coinbase) prominently
       featuredWalletIds: [
@@ -40,7 +47,7 @@ function useInitAppKit() {
         'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase Wallet / Base Wallet
       ],
       enableCoinbase: true,
-      coinbasePreference: 'all', // Show both smart wallet and regular wallet options
+      coinbasePreference: 'all',
     });
   }, []);
 }
