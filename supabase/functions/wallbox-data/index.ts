@@ -235,6 +235,32 @@ Deno.serve(async (req) => {
         pushWh(s.cumulative_added_energy);
       }
 
+      // CRITICAL: The /v2/charger/{id} response nests lifetime totals in chargerData.resume
+      // resume.totalEnergy is a STRING representing Wh (despite energyUnit saying "kWh")
+      // e.g. {"resume":{"totalEnergy":"87419","totalSessions":2,"energyUnit":"kWh"}}
+      if (chargerData.resume) {
+        const r = chargerData.resume;
+        // totalEnergy is often a string; parse and treat as Wh
+        const totalEnergyVal = parseFloat(r.totalEnergy);
+        if (Number.isFinite(totalEnergyVal) && totalEnergyVal > 0) {
+          // If energyUnit says kWh but value > 1000, it's likely Wh
+          // If value < 1000, assume it's already kWh
+          if (totalEnergyVal >= 1000) {
+            whCandidates.push(totalEnergyVal);
+            console.log(`Found resume.totalEnergy=${totalEnergyVal} (treating as Wh)`);
+          } else {
+            kwhCandidates.push(totalEnergyVal);
+            console.log(`Found resume.totalEnergy=${totalEnergyVal} (treating as kWh)`);
+          }
+        }
+        // Also check totalSessions
+        const sessionsVal = parseInt(r.totalSessions, 10);
+        if (Number.isFinite(sessionsVal) && sessionsVal > 0) {
+          totalSessions = Math.max(totalSessions, sessionsVal);
+        }
+      }
+
+
       const lifetimeFromKwh = kwhCandidates.length ? Math.max(...kwhCandidates) : 0;
       const lifetimeFromWhKwh = whCandidates.length ? Math.max(...whCandidates) / 1000 : 0;
 
