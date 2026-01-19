@@ -1,10 +1,21 @@
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config, wagmiAdapter, networks, metadata, WALLETCONNECT_PROJECT_ID } from '@/lib/wagmi';
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef, useState, createContext, useContext } from 'react';
 import { createAppKit } from '@reown/appkit/react';
 
 const queryClient = new QueryClient();
+
+// Context to share AppKit initialization state
+interface AppKitContextValue {
+  isInitialized: boolean;
+}
+
+const AppKitContext = createContext<AppKitContextValue>({ isInitialized: false });
+
+export function useAppKitInitialized() {
+  return useContext(AppKitContext);
+}
 
 interface Web3ProviderProps {
   children: ReactNode;
@@ -13,6 +24,7 @@ interface Web3ProviderProps {
 // Initialize AppKit once when the provider mounts
 function useInitAppKit() {
   const initialized = useRef(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   useEffect(() => {
     if (initialized.current) return;
@@ -49,17 +61,24 @@ function useInitAppKit() {
       enableCoinbase: true,
       coinbasePreference: 'all',
     });
+    
+    // Mark as initialized after a short delay to ensure AppKit is ready
+    setTimeout(() => setIsInitialized(true), 100);
   }, []);
+  
+  return isInitialized;
 }
 
 export function Web3Provider({ children }: Web3ProviderProps) {
-  useInitAppKit();
+  const isInitialized = useInitAppKit();
   
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    </WagmiProvider>
+    <AppKitContext.Provider value={{ isInitialized }}>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </WagmiProvider>
+    </AppKitContext.Provider>
   );
 }
