@@ -107,5 +107,17 @@ export default defineConfig(({ mode }) => ({
     },
     // Increase chunk size warning limit (AppKit is large)
     chunkSizeWarningLimit: 2000,
+    // Speed up builds by skipping source maps in production
+    sourcemap: false,
+    // Use terser for better minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
   },
+  // Optimize asset handling - exclude large files from processing
+  assetsInclude: [],
 }));

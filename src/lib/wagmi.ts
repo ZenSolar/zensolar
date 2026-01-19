@@ -4,14 +4,22 @@ import type { AppKitNetwork } from '@reown/appkit/networks';
 
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
 // Note: this is a public identifier (safe to ship to the client).
-const projectId =
-  import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ||
-  (typeof window !== 'undefined' ? window.localStorage.getItem('walletconnect_project_id') : null) ||
-  'demo-project-id';
+const envProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
+const localStorageProjectId = typeof window !== 'undefined' 
+  ? window.localStorage.getItem('walletconnect_project_id') 
+  : null;
+
+// Use env variable first, then localStorage fallback, then demo ID
+const projectId = (envProjectId && envProjectId.trim() !== '') 
+  ? envProjectId 
+  : (localStorageProjectId && localStorageProjectId.trim() !== '') 
+    ? localStorageProjectId 
+    : 'demo-project-id';
 
 // Exported for UI diagnostics / fallbacks
 export const WALLETCONNECT_PROJECT_ID = projectId;
-export const HAS_WALLETCONNECT_PROJECT_ID = projectId !== 'demo-project-id';
+// Consider it configured if it's not the demo placeholder
+export const HAS_WALLETCONNECT_PROJECT_ID = projectId !== 'demo-project-id' && projectId.length > 10;
 
 // Networks configuration - Base Sepolia as the only chain
 export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [baseSepolia];
