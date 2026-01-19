@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { StoreSkeleton } from "@/components/ui/loading-skeleton";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import merchTshirt from "@/assets/merch-tshirt.jpg";
 import merchHoodie from "@/assets/merch-hoodie.jpg";
 import merchCap from "@/assets/merch-cap.jpg";
@@ -143,11 +144,17 @@ export default function Store() {
         {filteredItems.map((item, index) => (
           <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} whileHover={{ y: -4 }}>
             <Card className={`overflow-hidden h-full flex flex-col transition-all shadow-lg hover:shadow-xl ${item.featured ? "ring-2 ring-primary/50" : ""} ${!item.inStock ? "opacity-75" : ""}`}>
-              <div className="relative aspect-[4/3]">
-                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                {item.featured && <Badge className="absolute top-3 right-3 bg-gradient-to-r from-primary to-accent border-0">Featured</Badge>}
+              <div className="relative">
+                <OptimizedImage
+                  src={item.image}
+                  alt={item.name}
+                  aspectRatio="4/3"
+                  priority={item.featured}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                {item.featured && <Badge className="absolute top-3 right-3 bg-gradient-to-r from-primary to-accent border-0 z-10">Featured</Badge>}
                 {!item.inStock && (
-                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
                     <Badge variant="secondary" className="gap-1"><Lock className="h-3 w-3" />Out of Stock</Badge>
                   </div>
                 )}
