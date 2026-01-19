@@ -1014,8 +1014,7 @@ Deno.serve(async (req) => {
       // Welcome NFT is ALWAYS eligible for authenticated users if not already owned
       const welcomeEligible = !hasWelcome && !ownedSet.has(0);
       
-      // TEMP: Gigasun threshold lowered from 50000 to 1 for testing
-      const solarThresholds = [500, 1000, 2500, 5000, 10000, 25000, 1, 100000];
+      const solarThresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
       const solarNames = ["Sunspark", "Photonic", "Rayforge", "Solaris", "Helios", "Sunforge", "Gigasun", "Starforge"];
       for (let i = 0; i < solarThresholds.length; i++) {
         const tokenId = i + 1;
