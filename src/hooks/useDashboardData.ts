@@ -515,10 +515,32 @@ export function useDashboardData() {
       // Process Wallbox data - home charger kWh
       // Wallbox API returns lifetime charging totals
       let wallboxChargerKwh = 0;
+      let wallboxPendingKwh = 0;
       if (wallboxData?.totals) {
         wallboxChargerKwh = wallboxData.totals.home_charger_kwh || 
                            wallboxData.totals.lifetime_charging_kwh || 0;
-        console.log('Wallbox charging:', wallboxChargerKwh, 'kWh');
+        
+        // Calculate pending from connected_devices baseline
+        // Find the Wallbox device in the snapshot to get baseline
+        const wallboxDevice = (devicesSnapshot || []).find(
+          (d: any) => d.provider === 'wallbox' && isChargerDevice(d.device_type)
+        );
+        
+        if (wallboxDevice) {
+          const baseline = wallboxDevice.baseline_data as Record<string, any> | null;
+          const baselineKwh = Number(baseline?.charging_kwh || 0);
+          wallboxPendingKwh = Math.max(0, wallboxChargerKwh - baselineKwh);
+          console.log('Wallbox pending calculation:', { 
+            lifetime: wallboxChargerKwh, 
+            baseline: baselineKwh, 
+            pending: wallboxPendingKwh 
+          });
+        } else {
+          // No baseline set yet, all is pending
+          wallboxPendingKwh = wallboxChargerKwh;
+        }
+        
+        console.log('Wallbox charging:', wallboxChargerKwh, 'kWh, pending:', wallboxPendingKwh, 'kWh');
       }
 
       // Process Tesla data - EV miles, battery storage, EV charging
@@ -547,9 +569,9 @@ export function useDashboardData() {
         const teslaPendingSupercharger = teslaData.totals.pending_supercharger_kwh !== undefined
           ? teslaData.totals.pending_supercharger_kwh
           : superchargerKwh;
-        const teslaPendingHomeCharger = teslaData.totals.pending_wall_connector_kwh !== undefined
+        const teslaPendingWallConnector = teslaData.totals.pending_wall_connector_kwh !== undefined
           ? teslaData.totals.pending_wall_connector_kwh
-          : homeChargerKwh;
+          : teslaWallConnectorKwh;
 
         // Only use Tesla solar/pending if no dedicated solar provider
         if (!hasDedicatedSolarProvider) {
@@ -560,7 +582,8 @@ export function useDashboardData() {
         pendingBattery = teslaPendingBattery;
         pendingEvMiles = teslaPendingEvMiles;
         pendingSupercharger = teslaPendingSupercharger;
-        pendingHomeCharger = teslaPendingHomeCharger;
+        // Combine Tesla Wall Connector pending + Wallbox pending
+        pendingHomeCharger = teslaPendingWallConnector + wallboxPendingKwh;
         pendingCharging = pendingSupercharger + pendingHomeCharger;
 
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
@@ -569,9 +592,8 @@ export function useDashboardData() {
       // If only Wallbox connected (no Tesla), set home charger from Wallbox data
       if (!teslaData?.totals && wallboxData?.totals) {
         homeChargerKwh = wallboxChargerKwh;
-        // Pending home charger calculation from Wallbox
-        // For now, treat all Wallbox kWh as lifetime (no baseline subtraction in API)
-        pendingHomeCharger = wallboxChargerKwh;
+        // Use the properly calculated pending value
+        pendingHomeCharger = wallboxPendingKwh;
         pendingCharging = pendingHomeCharger;
       }
 
