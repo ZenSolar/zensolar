@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.reset-user-nfts]
 verify_jwt = false
+
+[functions.wallbox-debug]
+verify_jwt = false
