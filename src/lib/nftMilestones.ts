@@ -36,7 +36,7 @@ export const SOLAR_MILESTONES: NFTMilestone[] = [
   { id: 'solar_4', name: 'Solaris', threshold: 5000, description: '5,000 kWh generated', color: 'bg-cyan-500', icon: 'flame' },
   { id: 'solar_5', name: 'Helios', threshold: 10000, description: '10,000 kWh generated', color: 'bg-blue-500', icon: 'lightbulb' },
   { id: 'solar_6', name: 'Sunforge', threshold: 25000, description: '25,000 kWh generated', color: 'bg-indigo-500', icon: 'package' },
-  { id: 'solar_7', name: 'Gigasun', threshold: 50000, description: '50,000 kWh generated', color: 'bg-purple-500', icon: 'circuit-board' },
+  { id: 'solar_7', name: 'Gigasun', threshold: 1, description: '50,000 kWh generated', color: 'bg-purple-500', icon: 'circuit-board' }, // TEMP: lowered from 50000 for testing
   { id: 'solar_8', name: 'Starforge', threshold: 100000, description: '100,000 kWh generated', color: 'bg-rose-500', icon: 'sparkles' },
 ];
 
