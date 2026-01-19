@@ -1,4 +1,4 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { getDefaultConfig, Wallet } from '@rainbow-me/rainbowkit';
 import { baseSepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import {
@@ -10,17 +10,23 @@ import {
   rainbowWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 
+// Base Wallet logo (formerly Coinbase Wallet)
+import baseWalletIcon from '@/assets/wallets/base-wallet.png';
+
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id';
 
-// Detect if we're in a mobile PWA standalone mode
-const isMobilePWA = () => {
-  if (typeof window === 'undefined') return false;
-  const ua = navigator.userAgent;
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
-  const isStandalone = (navigator as any)?.standalone === true || 
-    window.matchMedia?.('(display-mode: standalone)')?.matches === true;
-  return isMobile && isStandalone;
+// Custom Base Wallet configuration (wraps coinbaseWallet with updated branding)
+const baseWallet = (params: Parameters<typeof coinbaseWallet>[0]): Wallet => {
+  const wallet = coinbaseWallet(params);
+  return {
+    ...wallet,
+    id: 'base',
+    name: 'Base Wallet',
+    shortName: 'Base',
+    iconUrl: baseWalletIcon,
+    iconBackground: '#0052FF',
+  };
 };
 
 export const config = getDefaultConfig({
@@ -38,10 +44,9 @@ export const config = getDefaultConfig({
         walletConnectWallet,
         // MetaMask (extension on desktop, deep-link on mobile)
         metaMaskWallet,
-        // Coinbase Wallet (now called "Base" - this is the self-custody wallet, not the exchange app)
+        // Base Wallet (formerly Coinbase Wallet) - this is the self-custody wallet
         // Note: The Coinbase exchange app does NOT support WalletConnect/dApp connections
-        // Users need "Coinbase Wallet" (rebranded to "Base") for Web3 connections
-        coinbaseWallet,
+        baseWallet,
       ],
     },
     {
