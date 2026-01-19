@@ -7,7 +7,6 @@ const corsHeaders = {
 
 // Wallbox API endpoints
 const WALLBOX_API_BASE = "https://api.wall-box.com";
-const WALLBOX_USER_API = "https://user-api.wall-box.com";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -66,7 +65,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch user's chargers via groups endpoint (correct API)
+    // Fetch user's chargers via groups endpoint
     console.log("Fetching Wallbox chargers via groups endpoint");
     const groupsResponse = await fetch(`${WALLBOX_API_BASE}/v3/chargers/groups`, {
       headers: {
@@ -119,7 +118,7 @@ Deno.serve(async (req) => {
 
     // Fetch detailed data for each charger
     for (const chargerId of chargerIds) {
-      // Get charger status
+      // Get charger status - this includes added_energy which may be lifetime total
       const statusResponse = await fetch(`${WALLBOX_API_BASE}/chargers/status/${chargerId}`, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
@@ -131,83 +130,86 @@ Deno.serve(async (req) => {
         const statusData = await statusResponse.json();
         console.log(`Charger ${chargerId} status:`, JSON.stringify(statusData));
         
-        // Fetch ALL session history to get true lifetime total
-        // Use a very early start date to capture all historical sessions
-        const endDate = new Date().toISOString().split('T')[0];
-        const startDate = "2020-01-01"; // Wallbox launched around 2015, this captures all history
+        // The status endpoint returns added_energy which is the LIFETIME total in kWh
+        // This is the most reliable source for lifetime energy
+        const statusAddedEnergy = statusData.added_energy || statusData.addedEnergy || 0;
+        console.log(`Charger ${chargerId} status added_energy: ${statusAddedEnergy} kWh`);
         
-        console.log(`Fetching sessions for charger ${chargerId} from ${startDate} to ${endDate}`);
+        // Also try to get session stats for more detailed info
+        // Using the correct endpoint: /v4/sessions/stats with timestamp parameters
+        const endDate = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+        const startDate = Math.floor(new Date("2020-01-01").getTime() / 1000); // Early date to capture all history
         
-        let allSessions: any[] = [];
-        let page = 1;
-        let hasMore = true;
+        console.log(`Fetching session stats for charger ${chargerId} from ${startDate} to ${endDate}`);
         
-        // Paginate through all sessions
-        while (hasMore) {
-          const sessionsResponse = await fetch(
-            `${WALLBOX_API_BASE}/v4/chargers/${chargerId}/sessions?start_date=${startDate}&end_date=${endDate}&page=${page}&per_page=100`,
-            {
-              headers: {
-                "Authorization": `Bearer ${accessToken}`,
-                "Accept": "application/json",
-              },
-            }
-          );
+        let sessionStats: any = null;
+        let sessionsTotalEnergy = 0;
+        let sessionsCount = 0;
+        
+        try {
+          const statsUrl = `${WALLBOX_API_BASE}/v4/sessions/stats?charger=${chargerId}&start_date=${startDate}&end_date=${endDate}`;
+          console.log(`Stats URL: ${statsUrl}`);
+          
+          const statsResponse = await fetch(statsUrl, {
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Accept": "application/json",
+            },
+          });
 
-          if (sessionsResponse.ok) {
-            const sessionsData = await sessionsResponse.json();
-            const sessions = sessionsData?.data || [];
-            console.log(`Page ${page}: found ${sessions.length} sessions`);
+          if (statsResponse.ok) {
+            sessionStats = await statsResponse.json();
+            console.log(`Session stats response:`, JSON.stringify(sessionStats));
             
-            if (sessions.length === 0) {
-              hasMore = false;
-            } else {
-              allSessions = allSessions.concat(sessions);
-              page++;
-              // Safety limit to prevent infinite loops
-              if (page > 50) hasMore = false;
+            // Extract total energy from stats response
+            // The response format may vary - try common patterns
+            if (sessionStats?.data?.attributes) {
+              sessionsTotalEnergy = sessionStats.data.attributes.total_energy || 
+                                    sessionStats.data.attributes.totalEnergy || 
+                                    sessionStats.data.attributes.energy || 0;
+              sessionsCount = sessionStats.data.attributes.total_sessions ||
+                             sessionStats.data.attributes.sessions_count ||
+                             sessionStats.data.attributes.count || 0;
+            } else if (sessionStats?.total_energy !== undefined) {
+              sessionsTotalEnergy = sessionStats.total_energy;
+              sessionsCount = sessionStats.total_sessions || sessionStats.sessions_count || 0;
+            } else if (sessionStats?.energy !== undefined) {
+              sessionsTotalEnergy = sessionStats.energy;
+              sessionsCount = sessionStats.sessions || 0;
             }
+            
+            // Energy from stats may be in Wh - convert if needed
+            if (sessionsTotalEnergy > 1000) {
+              sessionsTotalEnergy = sessionsTotalEnergy / 1000; // Convert Wh to kWh
+            }
+            
+            console.log(`Stats parsed: ${sessionsTotalEnergy} kWh from ${sessionsCount} sessions`);
           } else {
-            console.log(`Sessions fetch failed on page ${page}, trying v3 endpoint`);
-            // Fallback to v3 endpoint if v4 fails
-            const v3Response = await fetch(
-              `${WALLBOX_API_BASE}/chargers/${chargerId}/sessions?start_date=${startDate}&end_date=${endDate}`,
-              {
-                headers: {
-                  "Authorization": `Bearer ${accessToken}`,
-                  "Accept": "application/json",
-                },
-              }
-            );
-            if (v3Response.ok) {
-              const v3Data = await v3Response.json();
-              allSessions = v3Data?.data || [];
-              console.log(`V3 fallback: found ${allSessions.length} sessions`);
-            }
-            hasMore = false;
+            const errorText = await statsResponse.text();
+            console.log(`Session stats fetch failed (${statsResponse.status}):`, errorText);
           }
+        } catch (statsError) {
+          console.log(`Session stats error:`, statsError);
         }
 
-        // Sum up energy from ALL sessions for true lifetime total
-        let lifetimeEnergyKwh = 0;
-        for (const session of allSessions) {
-          // Energy is typically in Wh, convert to kWh
-          const sessionEnergy = session.energy || 0;
-          lifetimeEnergyKwh += sessionEnergy > 100 ? sessionEnergy / 1000 : sessionEnergy; // Handle both Wh and kWh
-        }
+        // Use the LARGER of status added_energy or session stats
+        // Status added_energy is typically the lifetime total and most reliable
+        const lifetimeEnergyKwh = Math.max(statusAddedEnergy, sessionsTotalEnergy);
         
-        console.log(`Charger ${chargerId} lifetime total: ${lifetimeEnergyKwh} kWh from ${allSessions.length} sessions`);
+        console.log(`Charger ${chargerId} final lifetime total: ${lifetimeEnergyKwh} kWh (status: ${statusAddedEnergy}, stats: ${sessionsTotalEnergy})`);
 
         totalEnergyKwh += lifetimeEnergyKwh;
-        totalSessions += allSessions.length;
+        totalSessions += sessionsCount;
 
         chargerDetails.push({
           id: chargerId,
           name: statusData.name || `Charger ${chargerId}`,
           status: statusData.status_description || 'Unknown',
           addedEnergy: lifetimeEnergyKwh,
-          addedRange: statusData.added_range || 0,
+          addedRange: statusData.added_range || statusData.addedRange || 0,
         });
+      } else {
+        console.error(`Failed to fetch status for charger ${chargerId}:`, statusResponse.status);
       }
     }
 
@@ -226,15 +228,17 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString();
     
+    console.log(`Total across all chargers: ${totalEnergyKwh} kWh, ${totalSessions} sessions`);
+    
     if (existingDevice) {
       // Update existing device with lifetime totals AND sync the charger name
       const currentBaseline = (existingDevice.baseline_data as Record<string, any>) || {};
       const baselineCharging = currentBaseline.charging_kwh || 0;
       
-      await supabaseClient
+      const updateResult = await supabaseClient
         .from("connected_devices")
         .update({
-          device_name: primaryChargerName, // Always sync the charger name from Wallbox
+          device_name: primaryChargerName,
           lifetime_totals: {
             charging_kwh: totalEnergyKwh,
             lifetime_charging_kwh: totalEnergyKwh,
@@ -245,7 +249,11 @@ Deno.serve(async (req) => {
         })
         .eq("id", existingDevice.id);
       
-      console.log(`Updated Wallbox device ${primaryChargerId} "${primaryChargerName}" with ${totalEnergyKwh} kWh lifetime charging`);
+      if (updateResult.error) {
+        console.error(`Failed to update Wallbox device:`, updateResult.error);
+      } else {
+        console.log(`Updated Wallbox device ${primaryChargerId} "${primaryChargerName}" with ${totalEnergyKwh} kWh lifetime charging`);
+      }
     } else {
       // Create new device record
       const { error: deviceError } = await supabaseClient
@@ -285,8 +293,8 @@ Deno.serve(async (req) => {
         user_id: user.id,
         provider: "wallbox",
         device_id: primaryChargerId,
-        production_wh: 0, // Wallbox doesn't produce energy, only consumes
-        consumption_wh: totalEnergyKwh * 1000, // Convert kWh to Wh
+        production_wh: 0,
+        consumption_wh: totalEnergyKwh * 1000,
         recorded_at: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
       }, { onConflict: "device_id,provider,recorded_at" });
 
