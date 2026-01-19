@@ -1283,83 +1283,18 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } else {
-        // Milestone NFT (1-33) - need to calculate delta from database totals vs on-chain stats
-        // First get the user's on-chain stats
-        const userStats = await publicClient.readContract({
-          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
-          abi: CONTROLLER_ABI,
-          functionName: "getUserStats",
-          args: [walletAddress as `0x${string}`],
-        }) as [bigint, bigint, bigint, bigint, boolean];
-
-        const [onChainSolar, onChainEvMiles, onChainBattery, onChainCharging] = userStats;
-
-        // Get database lifetime totals
-        const { data: devices } = await supabaseClient
-          .from("connected_devices")
-          .select("device_type, provider, lifetime_totals, baseline_data")
-          .eq("user_id", user.id);
-
-        let dbSolarKwh = 0;
-        let dbBatteryKwh = 0;
-        let dbEvMiles = 0;
-        let dbChargingKwh = 0;
-
-        for (const device of (devices || [])) {
-          const lifetime = device.lifetime_totals as Record<string, number> | null;
-          if (!lifetime) continue;
-
-          const deviceType = normalizeDeviceType(device.device_type);
-
-          if (deviceType === "solar") {
-            const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-            dbSolarKwh += Math.floor(solarWh / 1000);
-          } else if (deviceType === "battery") {
-            const batteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
-            dbBatteryKwh += Math.floor(batteryWh / 1000);
-          } else if (deviceType === "vehicle") {
-            const odometer = lifetime.odometer || 0;
-            dbEvMiles += Math.floor(odometer);
-            // Tesla vehicles have charging_wh in Wh
-            const chargingWh = lifetime.charging_wh || 0;
-            dbChargingKwh += Math.floor(chargingWh / 1000);
-          } else if (deviceType === "wall_connector") {
-            // Wallbox returns kWh directly
-            const chargingKwh = lifetime.charging_kwh || Math.floor((lifetime.charging_wh || lifetime.lifetime_charging_wh || 0) / 1000);
-            dbChargingKwh += Math.floor(chargingKwh);
-          }
-        }
-
-        // Calculate deltas - how much more in database vs on-chain
-        const solarDelta = Math.max(0, dbSolarKwh - Number(onChainSolar));
-        const batteryDelta = Math.max(0, dbBatteryKwh - Number(onChainBattery));
-        const evMilesDelta = Math.max(0, dbEvMiles - Number(onChainEvMiles));
-        const chargingDelta = Math.max(0, dbChargingKwh - Number(onChainCharging));
-
-        console.log(`Minting specific NFT ${tokenId} with deltas: solar=${solarDelta}, battery=${batteryDelta}, evMiles=${evMilesDelta}, charging=${chargingDelta}`);
-        console.log(`On-chain stats: solar=${onChainSolar}, battery=${onChainBattery}, evMiles=${onChainEvMiles}, charging=${onChainCharging}`);
-        console.log(`Database totals: solar=${dbSolarKwh}, battery=${dbBatteryKwh}, evMiles=${dbEvMiles}, charging=${dbChargingKwh}`);
-
+        // Milestone NFT (1-33) - trigger mintRewards with 0 delta to claim eligible NFTs
         const nftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
         const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
-        // Send the deltas to update on-chain stats and mint eligible NFTs
         const hash = await walletClient.writeContract({
           address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
           abi: CONTROLLER_ABI,
           functionName: "mintRewards",
-          args: [
-            walletAddress as `0x${string}`, 
-            BigInt(solarDelta), 
-            BigInt(evMilesDelta), 
-            BigInt(batteryDelta), 
-            BigInt(chargingDelta)
-          ],
+          args: [walletAddress as `0x${string}`, BigInt(0), BigInt(0), BigInt(0), BigInt(0)],
         });
 
-        console.log("Mint specific NFT tx hash:", hash);
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        console.log("Mint specific NFT tx confirmed, status:", receipt.status);
         
         let newNfts: number[] = [];
         if (receipt.status === "success") {
@@ -1394,7 +1329,7 @@ Deno.serve(async (req) => {
               ? `${NFT_NAMES[tokenId]} minted successfully!`
               : newNfts.length > 0 
                 ? `Minted ${newNfts.length} NFT(s), but ${NFT_NAMES[tokenId]} was not eligible.`
-                : `No new NFTs to claim. On-chain stats: solar=${Number(onChainSolar) + solarDelta}kWh. Check threshold requirements.`
+                : `${NFT_NAMES[tokenId]} is not eligible yet. Increase your activity!`
             : "Transaction failed",
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
