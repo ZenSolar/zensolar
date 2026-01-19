@@ -136,158 +136,103 @@ Deno.serve(async (req) => {
       addedRange: number;
     }> = [];
 
-    // Fetch detailed data for each charger using the v2 endpoint
-    // The /v2/charger/{id} endpoint returns the most complete data including lifetime addedEnergy
+    // Fetch detailed data for each charger
+    // Per Wallbox API docs: /chargers/status/{charger_id} returns cumulative_added_energy in Wh
     for (const chargerId of chargerIds) {
-      console.log(`Fetching detailed data for charger ${chargerId}`);
+      console.log(`Fetching data for charger ${chargerId}`);
       
-      // Try the v2 charger endpoint first - this returns the most complete data
-      let chargerData: any = null;
+      let lifetimeEnergyKwh = 0;
+      let chargerName = `Charger ${chargerId}`;
+      let chargerStatus = 'Unknown';
+      let addedRange = 0;
       
-      // Try /v2/charger/{id} - most reliable for lifetime data
-      const v2Response = await fetch(`${WALLBOX_API_BASE}/v2/charger/${chargerId}`, {
+      // PRIMARY: Call /chargers/status/{charger_id} - this has cumulative_added_energy in Wh
+      console.log(`Calling /chargers/status/${chargerId} for lifetime data`);
+      const statusResponse = await fetch(`${WALLBOX_API_BASE}/chargers/status/${chargerId}`, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Accept": "application/json",
         },
       });
 
-      if (v2Response.ok) {
-        const v2Data = await v2Response.json();
-        console.log(`Charger ${chargerId} v2 response:`, JSON.stringify(v2Data));
-        chargerData = v2Data?.data?.chargerData || v2Data;
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        console.log(`Charger ${chargerId} /chargers/status response:`, JSON.stringify(statusData));
+        
+        // The key field: cumulative_added_energy is in Wh, divide by 1000 for kWh
+        if (typeof statusData.cumulative_added_energy === 'number' && statusData.cumulative_added_energy > 0) {
+          lifetimeEnergyKwh = statusData.cumulative_added_energy / 1000;
+          console.log(`Found cumulative_added_energy=${statusData.cumulative_added_energy} Wh = ${lifetimeEnergyKwh} kWh`);
+        }
+        
+        // Extract name/status from status endpoint if available
+        chargerName = statusData.name || statusData.charger_name || chargerName;
+        chargerStatus = statusData.status_description || statusData.statusDescription || 
+                       (statusData.status_id ? `Status ${statusData.status_id}` : chargerStatus);
+        addedRange = statusData.added_range || statusData.addedRange || 0;
       } else {
-        console.log(`v2/charger failed (${v2Response.status}), trying status endpoint`);
+        console.error(`/chargers/status/${chargerId} failed:`, statusResponse.status);
       }
       
-      // Fallback to /chargers/status/{id} 
-      if (!chargerData) {
-        const statusResponse = await fetch(`${WALLBOX_API_BASE}/chargers/status/${chargerId}`, {
+      // FALLBACK: If /chargers/status didn't work or returned 0, try /v2/charger/{id}
+      if (lifetimeEnergyKwh === 0) {
+        console.log(`Trying fallback /v2/charger/${chargerId}`);
+        const v2Response = await fetch(`${WALLBOX_API_BASE}/v2/charger/${chargerId}`, {
           headers: {
             "Authorization": `Bearer ${accessToken}`,
             "Accept": "application/json",
           },
         });
 
-        if (statusResponse.ok) {
-          chargerData = await statusResponse.json();
-          console.log(`Charger ${chargerId} status response:`, JSON.stringify(chargerData));
-        } else {
-          console.error(`Failed to fetch charger ${chargerId} status:`, statusResponse.status);
-          continue;
-        }
-      }
-
-      if (!chargerData) {
-        console.error(`No data available for charger ${chargerId}`);
-        continue;
-      }
-
-      // Extract lifetime energy (best-effort across multiple API versions)
-      // NOTE: Some endpoints return lifetime cumulative energy in Wh (e.g. cumulative_added_energy)
-      // while others return lifetime in kWh (e.g. addedEnergy / totalEnergyKwh).
-      const kwhCandidates: number[] = [];
-      const whCandidates: number[] = [];
-
-      const pushKwh = (v: unknown) => {
-        if (typeof v === 'number' && Number.isFinite(v) && v > 0) kwhCandidates.push(v);
-      };
-      const pushWh = (v: unknown) => {
-        if (typeof v === 'number' && Number.isFinite(v) && v > 0) whCandidates.push(v);
-      };
-
-      // Common kWh fields
-      pushKwh(chargerData.addedEnergy);
-      pushKwh(chargerData.added_energy);
-      pushKwh(chargerData.totalEnergyKwh);
-      pushKwh(chargerData.total_energy_kwh);
-      pushKwh(chargerData.totalEnergy);
-      pushKwh(chargerData.total_energy);
-      pushKwh(chargerData.addedEnergyTotal);
-      pushKwh(chargerData.added_energy_total);
-      pushKwh(chargerData.lifetimeEnergy);
-      pushKwh(chargerData.lifetime_energy);
-
-      // Common Wh cumulative fields (convert later)
-      pushWh(chargerData.cumulativeAddedEnergy);
-      pushWh(chargerData.cumulative_added_energy);
-      pushWh(chargerData.cumulative_added_energy_wh);
-      pushWh(chargerData.totalEnergyWh);
-      pushWh(chargerData.total_energy_wh);
-
-      // Nested variants
-      if (chargerData.data) {
-        const d = chargerData.data;
-        pushKwh(d.addedEnergy);
-        pushKwh(d.added_energy);
-        pushKwh(d.totalEnergyKwh);
-        pushKwh(d.total_energy_kwh);
-        pushWh(d.cumulativeAddedEnergy);
-        pushWh(d.cumulative_added_energy);
-        pushWh(d.totalEnergyWh);
-        pushWh(d.total_energy_wh);
-      }
-      if (chargerData.statistics) {
-        const s = chargerData.statistics;
-        pushKwh(s.addedEnergy);
-        pushKwh(s.totalEnergyKwh);
-        pushWh(s.cumulativeAddedEnergy);
-        pushWh(s.cumulative_added_energy);
-      }
-
-      // CRITICAL: The /v2/charger/{id} response nests lifetime totals in chargerData.resume
-      // resume.totalEnergy is a STRING representing Wh (despite energyUnit saying "kWh")
-      // e.g. {"resume":{"totalEnergy":"87419","totalSessions":2,"energyUnit":"kWh"}}
-      if (chargerData.resume) {
-        const r = chargerData.resume;
-        // totalEnergy is often a string; parse and treat as Wh
-        const totalEnergyVal = parseFloat(r.totalEnergy);
-        if (Number.isFinite(totalEnergyVal) && totalEnergyVal > 0) {
-          // If energyUnit says kWh but value > 1000, it's likely Wh
-          // If value < 1000, assume it's already kWh
-          if (totalEnergyVal >= 1000) {
-            whCandidates.push(totalEnergyVal);
-            console.log(`Found resume.totalEnergy=${totalEnergyVal} (treating as Wh)`);
-          } else {
-            kwhCandidates.push(totalEnergyVal);
-            console.log(`Found resume.totalEnergy=${totalEnergyVal} (treating as kWh)`);
+        if (v2Response.ok) {
+          const v2Data = await v2Response.json();
+          console.log(`Charger ${chargerId} /v2/charger response:`, JSON.stringify(v2Data));
+          const chargerData = v2Data?.data?.chargerData || v2Data;
+          
+          // Check resume.totalEnergy (string in Wh despite saying kWh)
+          if (chargerData?.resume?.totalEnergy) {
+            const totalEnergyVal = parseFloat(chargerData.resume.totalEnergy);
+            if (Number.isFinite(totalEnergyVal) && totalEnergyVal > 0) {
+              // If > 1000, it's definitely Wh
+              lifetimeEnergyKwh = totalEnergyVal >= 1000 ? totalEnergyVal / 1000 : totalEnergyVal;
+              console.log(`Found resume.totalEnergy=${totalEnergyVal}, treating as ${lifetimeEnergyKwh} kWh`);
+            }
+            
+            // Sessions from resume
+            const sessionsVal = parseInt(chargerData.resume.totalSessions, 10);
+            if (Number.isFinite(sessionsVal) && sessionsVal > 0) {
+              totalSessions = Math.max(totalSessions, sessionsVal);
+            }
           }
-        }
-        // Also check totalSessions
-        const sessionsVal = parseInt(r.totalSessions, 10);
-        if (Number.isFinite(sessionsVal) && sessionsVal > 0) {
-          totalSessions = Math.max(totalSessions, sessionsVal);
+          
+          // Fallback to addedEnergy field (typically kWh)
+          if (lifetimeEnergyKwh === 0 && typeof chargerData?.addedEnergy === 'number' && chargerData.addedEnergy > 0) {
+            lifetimeEnergyKwh = chargerData.addedEnergy;
+            console.log(`Found addedEnergy=${chargerData.addedEnergy} kWh`);
+          }
+          
+          // Get name/status if not already set
+          if (chargerName === `Charger ${chargerId}`) {
+            chargerName = chargerData?.name || chargerData?.chargerName || chargerName;
+          }
+          if (chargerStatus === 'Unknown') {
+            chargerStatus = chargerData?.status_description || chargerData?.statusDescription || chargerStatus;
+          }
+          addedRange = chargerData?.addedRange || chargerData?.added_range || addedRange;
+        } else {
+          console.error(`/v2/charger/${chargerId} failed:`, v2Response.status);
         }
       }
-
-
-      const lifetimeFromKwh = kwhCandidates.length ? Math.max(...kwhCandidates) : 0;
-      const lifetimeFromWhKwh = whCandidates.length ? Math.max(...whCandidates) / 1000 : 0;
-
-      let lifetimeEnergyKwh = Math.max(lifetimeFromKwh, lifetimeFromWhKwh);
-
-      // Final sanity fallback: if something was returned in Wh but not tagged as such
-      if (lifetimeEnergyKwh > 0 && lifetimeEnergyKwh > 100000) {
-        lifetimeEnergyKwh = lifetimeEnergyKwh / 1000;
-      }
-
-      console.log(`Charger ${chargerId} lifetime energy: ${lifetimeEnergyKwh} kWh`);
-
+      
+      console.log(`Charger ${chargerId} final lifetime energy: ${lifetimeEnergyKwh} kWh`);
       totalEnergyKwh += lifetimeEnergyKwh;
-
-      // Get charger name and status
-      const chargerName = chargerData.name || chargerData.chargerName || `Charger ${chargerId}`;
-      const chargerStatus = chargerData.status_description || 
-                           chargerData.statusDescription || 
-                           chargerData.status?.toString() || 
-                           'Unknown';
 
       chargerDetails.push({
         id: chargerId,
         name: chargerName,
         status: chargerStatus,
         addedEnergy: lifetimeEnergyKwh,
-        addedRange: chargerData.addedRange || chargerData.added_range || 0,
+        addedRange: addedRange,
       });
     }
 
