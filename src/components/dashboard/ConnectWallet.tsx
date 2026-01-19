@@ -481,12 +481,12 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     );
   }
 
-  // Wallet saved in profile but wagmi session not active (common in PWA standalone mode)
+  // Wallet saved in profile but wagmi session not active (common in PWA standalone mode or after browser refresh)
   if (showAsSavedButNotLive) {
     const shortAddress = `${walletAddress!.slice(0, 6)}...${walletAddress!.slice(-4)}`;
 
     return (
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-lg border border-primary/30 bg-card p-4">
         <div className="flex items-center gap-3 mb-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
             <CheckCircle2 className="h-5 w-5 text-primary" />
@@ -497,21 +497,19 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
           </div>
         </div>
 
-        <div className="rounded-md border border-border bg-muted/30 p-3 text-xs mb-3">
+        <div className="rounded-md border border-primary/20 bg-primary/5 p-3 text-xs mb-3">
           <p className="text-foreground font-medium flex items-center gap-2">
-            <Link2 className="h-4 w-4" />
-            Your wallet is saved to your profile
+            <Link2 className="h-4 w-4 text-primary" />
+            Your wallet is saved to your profile ✓
           </p>
-          <p className="mt-1 text-muted-foreground">
-            Reconnect your wallet to perform on-chain actions like minting NFTs.
+          <p className="mt-1.5 text-muted-foreground">
+            Tap below to reconnect your wallet session for on-chain actions like minting tokens and NFTs.
           </p>
         </div>
 
         <Button
           type="button"
-          variant="secondary"
-          size="sm"
-          className="w-full"
+          className="w-full bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all"
           onClick={() => {
             mark('reconnectButtonTap');
             handleOpenConnect();
