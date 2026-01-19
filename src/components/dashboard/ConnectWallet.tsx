@@ -107,6 +107,13 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
       mark('walletConnectedDetected');
       if (address) {
         console.log('[ConnectWallet] Wallet connected:', address);
+        // Track wallet connection in GA
+        import('@/hooks/useGoogleAnalytics').then(({ trackEvent }) => {
+          trackEvent('wallet_connect', {
+            wallet_address: address.slice(0, 10) + '...',
+            event_category: 'engagement',
+          });
+        });
       }
 
       // Auto-save wallet to profile if not already saved
@@ -118,6 +125,12 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
           onConnect(address)
             .then(() => {
               toast.success('Wallet linked to your profile!');
+              // Track wallet linked to profile
+              import('@/hooks/useGoogleAnalytics').then(({ trackEvent }) => {
+                trackEvent('wallet_linked', {
+                  event_category: 'conversion',
+                });
+              });
               // Auto-prompt to add ZSOLAR token after successful connection
               autoPromptAddToken();
             })
@@ -138,6 +151,12 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     if (justDisconnected) {
       mark('walletDisconnectedDetected');
       console.log('[ConnectWallet] Wallet disconnected');
+      // Track wallet disconnect in GA
+      import('@/hooks/useGoogleAnalytics').then(({ trackEvent }) => {
+        trackEvent('wallet_disconnect', {
+          event_category: 'engagement',
+        });
+      });
       hasHandledConnection.current = false;
       resetTokenPromptFlag();
     }

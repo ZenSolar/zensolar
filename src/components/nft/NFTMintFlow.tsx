@@ -232,6 +232,17 @@ export function NFTMintFlow({
       });
       setStep('success');
 
+      // Track NFT mint in GA
+      import('@/hooks/useGoogleAnalytics').then(({ trackEvent }) => {
+        trackEvent('nft_mint', {
+          nft_name: milestone.name,
+          nft_id: milestone.id,
+          token_id: tokenId,
+          event_category: 'conversion',
+          value: 1,
+        });
+      });
+
       // Trigger confetti and haptic feedback
       triggerGoldBurst();
       setTimeout(() => triggerCelebration(), 200);

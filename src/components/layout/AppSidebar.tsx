@@ -15,7 +15,8 @@ import {
   Car,
   BookOpen,
   Cpu,
-  Award
+  Award,
+  BarChart3
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -200,6 +201,22 @@ export function AppSidebar() {
                     >
                       <Shield className="h-4 w-4" />
                       <span>Admin Panel</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Analytics">
+                    <NavLink 
+                      to="/admin/analytics"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                      <span>Analytics</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
