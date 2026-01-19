@@ -5,8 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
-import { useAccount, useWalletClient, useWatchAsset, useChainId, useSwitchChain } from 'wagmi';
-import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE, CHAIN_ID } from '@/lib/wagmi';
+import { useAccount, useWalletClient, useWatchAsset } from 'wagmi';
+import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE } from '@/lib/wagmi';
 import { hasTokenBeenAdded, hasNFTsBeenAdded, markTokenAsAdded as markTokenAdded, markNFTsAsAdded as markNFTsAdded, resetAssetPromptFlags } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -105,8 +105,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const { triggerConfetti } = useConfetti();
   const { success: hapticSuccess } = useHaptics();
   const { isConnected } = useAccount();
-  const chainId = useChainId();
-  const { switchChainAsync } = useSwitchChain();
   const { data: walletClient } = useWalletClient();
   const { watchAssetAsync } = useWatchAsset();
   const { isAdmin } = useAdminCheck();
@@ -259,6 +257,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   // Add the ZSOLAR token to the connected wallet using wallet_watchAsset (best-effort)
   // IMPORTANT: Only tries ONE method to avoid triggering multiple wallet prompts
+  // NOTE: Base Wallet handles network switching internally - we don't force it externally
   const addZsolarToWallet = async (): Promise<boolean> => {
     // Skip if already added - prevents duplicate prompts
     if (hasTokenBeenAdded()) {
@@ -282,140 +281,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       console.log('$ZSOLAR token added to wallet successfully');
     };
 
-    // If the wallet app was just opened (mobile deep-link), wait until user returns
-    // so the request can be shown reliably.
-    const waitForForeground = async () => {
-      if (typeof document === 'undefined') return;
-      if (!document.hidden) return;
-
-      await new Promise<void>((resolve) => {
-        const timeout = window.setTimeout(() => {
-          cleanup();
-          resolve();
-        }, 8000);
-
-        const onVis = () => {
-          if (!document.hidden) {
-            cleanup();
-            resolve();
-          }
-        };
-
-        const cleanup = () => {
-          window.clearTimeout(timeout);
-          document.removeEventListener('visibilitychange', onVis);
-        };
-
-        document.addEventListener('visibilitychange', onVis);
-      });
-    };
-
-    // Force MetaMask to switch to Base Sepolia using low-level RPC calls
-    // This is more reliable than wagmi's switchChain for WalletConnect sessions
-    const forceNetworkSwitch = async (): Promise<boolean> => {
-      const baseSepoliaChainIdHex = `0x${CHAIN_ID.toString(16)}`; // 0x14a34 for 84532
-      
-      // Try wallet_switchEthereumChain first
-      const trySwitchChain = async (): Promise<boolean> => {
-        try {
-          if (walletClient?.request) {
-            await walletClient.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: baseSepoliaChainIdHex }],
-            });
-            console.log('wallet_switchEthereumChain succeeded');
-            return true;
-          }
-          if ((window as any).ethereum?.request) {
-            await (window as any).ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: baseSepoliaChainIdHex }],
-            });
-            console.log('window.ethereum wallet_switchEthereumChain succeeded');
-            return true;
-          }
-          return false;
-        } catch (switchError: any) {
-          // Error code 4902 means the chain is not added to MetaMask
-          if (switchError?.code === 4902 || switchError?.message?.includes('Unrecognized chain')) {
-            console.log('Chain not found, attempting wallet_addEthereumChain...');
-            return tryAddChain();
-          }
-          console.log('wallet_switchEthereumChain error:', switchError);
-          return false;
-        }
-      };
-
-      // Add the chain if it doesn't exist
-      const tryAddChain = async (): Promise<boolean> => {
-        const chainParams = {
-          chainId: baseSepoliaChainIdHex,
-          chainName: 'Base Sepolia',
-          nativeCurrency: {
-            name: 'Ethereum',
-            symbol: 'ETH',
-            decimals: 18,
-          },
-          rpcUrls: ['https://sepolia.base.org'],
-          blockExplorerUrls: ['https://sepolia.basescan.org'],
-        };
-
-        try {
-          if (walletClient?.request) {
-            await walletClient.request({
-              method: 'wallet_addEthereumChain',
-              params: [chainParams],
-            });
-            console.log('wallet_addEthereumChain succeeded');
-            return true;
-          }
-          if ((window as any).ethereum?.request) {
-            await (window as any).ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [chainParams],
-            });
-            console.log('window.ethereum wallet_addEthereumChain succeeded');
-            return true;
-          }
-          return false;
-        } catch (addError) {
-          console.log('wallet_addEthereumChain error:', addError);
-          return false;
-        }
-      };
-
-      await waitForForeground();
-      return trySwitchChain();
-    };
-
-    // Ensure we're on Base Sepolia before watchAsset
-    const ensureBaseSepolia = async (): Promise<boolean> => {
-      // Always force the network switch for reliability with WalletConnect
-      console.log(`Forcing network switch to Base Sepolia (chainId: ${CHAIN_ID}) before watchAsset...`);
-      const switched = await forceNetworkSwitch();
-      if (!switched) {
-        console.log('Network switch failed or was rejected');
-        logWatchAssetAttempt({
-          provider: 'wagmi',
-          success: false,
-          error: 'Failed to switch to Base Sepolia network',
-          params: paramsOptions,
-        });
-      }
-      // Small delay to let MetaMask stabilize after network switch
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return switched;
-    };
-
-    // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector (works for WalletConnect)
-    // Only try ONE method to avoid multiple wallet prompts
+    // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector (works for WalletConnect & Base Wallet)
+    // Base Wallet and most modern wallets handle network context internally for watchAsset
     if (watchAssetAsync && isConnected) {
       console.log('Attempting to add $ZSOLAR token via wagmi watchAssetAsync...');
       try {
-        // Token exists on Base Sepolia only; ensure wallet is on the same chain before requesting watchAsset.
-        await ensureBaseSepolia();
-
-        await waitForForeground();
         const success = await watchAssetAsync({
           type: 'ERC20',
           options: paramsOptions,
@@ -440,8 +310,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (walletClient) {
       console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
       try {
-        await ensureBaseSepolia();
-        await waitForForeground();
         const success = await walletClient.watchAsset({
           type: 'ERC20',
           options: paramsOptions,
@@ -466,8 +334,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (ethereum) {
       console.log('Attempting to add $ZSOLAR token via window.ethereum.request(wallet_watchAsset)...');
       try {
-        await ensureBaseSepolia();
-        await waitForForeground();
         const wasAdded = await ethereum.request({
           method: 'wallet_watchAsset',
           params: {
