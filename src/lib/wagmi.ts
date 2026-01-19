@@ -8,11 +8,20 @@ import {
   injectedWallet,
   trustWallet,
   rainbowWallet,
-  phantomWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id';
+
+// Detect if we're in a mobile PWA standalone mode
+const isMobilePWA = () => {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+  const isStandalone = (navigator as any)?.standalone === true || 
+    window.matchMedia?.('(display-mode: standalone)')?.matches === true;
+  return isMobile && isStandalone;
+};
 
 export const config = getDefaultConfig({
   appName: 'ZenSolar',
@@ -25,12 +34,14 @@ export const config = getDefaultConfig({
     {
       groupName: 'Recommended',
       wallets: [
-        // MetaMask first (extension on desktop, deep-link on mobile)
-        metaMaskWallet,
-        // Coinbase second
-        coinbaseWallet,
-        // WalletConnect QR for connecting MetaMask Mobile (and other mobile wallets)
+        // WalletConnect first on mobile PWA (most reliable for deep linking)
         walletConnectWallet,
+        // MetaMask (extension on desktop, deep-link on mobile)
+        metaMaskWallet,
+        // Coinbase Wallet (now called "Base" - this is the self-custody wallet, not the exchange app)
+        // Note: The Coinbase exchange app does NOT support WalletConnect/dApp connections
+        // Users need "Coinbase Wallet" (rebranded to "Base") for Web3 connections
+        coinbaseWallet,
       ],
     },
     {
@@ -40,7 +51,6 @@ export const config = getDefaultConfig({
         injectedWallet,
         trustWallet,
         rainbowWallet,
-        phantomWallet,
       ],
     },
   ],
