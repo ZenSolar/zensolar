@@ -3,9 +3,10 @@ import { useAccount, useChainId, useSwitchChain, useDisconnect, useConnect } fro
 import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Coins } from 'lucide-react';
-import { CHAIN_ID } from '@/lib/wagmi';
+import { CHAIN_ID, HAS_WALLETCONNECT_PROJECT_ID } from '@/lib/wagmi';
 
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { WalletConnectDiagnostics, type WalletDiagEvents } from './WalletConnectDiagnostics';
 import { WalletDeepLinks, getWalletConnectDeepLink, type WalletDeepLinkWalletId } from './WalletDeepLinks';
 import { hardResetWalletStorage } from '@/lib/walletStorage';
@@ -55,6 +56,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
   const [lastSaveError, setLastSaveError] = useState<string | null>(null);
   const [wcUri, setWcUri] = useState<string | undefined>(undefined);
   const [isStartingWc, setIsStartingWc] = useState(false);
+  const [wcProjectIdDraft, setWcProjectIdDraft] = useState('');
 
   const mark = useCallback((key: keyof WalletDiagEvents) => {
     setEvents((prev) => ({ ...prev, [key]: Date.now() }));
@@ -620,6 +622,66 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
                   Connect Wallet
                 </button>
 
+                {device.isMobile ? (
+                  <div className="rounded-md border border-border bg-muted/30 p-3 text-xs">
+                    <p className="text-foreground font-medium">Mobile wallet options</p>
+
+                    {!HAS_WALLETCONNECT_PROJECT_ID ? (
+                      <div className="mt-2 space-y-2">
+                        <p className="text-muted-foreground">
+                          WalletConnect Project ID isn’t available in this build yet, so most mobile wallets won’t open.
+                        </p>
+                        <div className="flex gap-2">
+                          <Input
+                            className="flex-1"
+                            value={wcProjectIdDraft}
+                            onChange={(e) => setWcProjectIdDraft(e.target.value)}
+                            placeholder="Paste WalletConnect Project ID"
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              const v = wcProjectIdDraft.trim();
+                              if (!v) {
+                                toast.error('Please paste a WalletConnect Project ID');
+                                return;
+                              }
+                              try {
+                                window.localStorage.setItem('walletconnect_project_id', v);
+                                toast.success('Saved. Reloading…');
+                                window.location.reload();
+                              } catch {
+                                toast.error('Could not save to device storage');
+                              }
+                            }}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-2 space-y-2">
+                        <p className="text-muted-foreground">
+                          If a wallet button in the modal does nothing, use these deep links (recommended on iOS).
+                        </p>
+                        <WalletDeepLinks
+                          disabled={isStartingWc}
+                          wcUri={wcUri}
+                          onSelect={(wallet) => {
+                            markForWallet(mark, wallet);
+                            void startWalletConnectDeepLink(wallet);
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {lastSaveError ? (
+                      <p className="mt-2 text-[10px] text-destructive break-words">{lastSaveError}</p>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             );
           }

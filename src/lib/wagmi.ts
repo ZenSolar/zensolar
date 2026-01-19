@@ -3,7 +3,6 @@ import { baseSepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import {
   metaMaskWallet,
-  coinbaseWallet,
   walletConnectWallet,
   injectedWallet,
   trustWallet,
@@ -14,11 +13,19 @@ import {
 import baseWalletIcon from '@/assets/wallets/base-wallet.png';
 
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id';
+// Note: this is a public identifier (safe to ship to the client).
+const projectId =
+  import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ||
+  (typeof window !== 'undefined' ? window.localStorage.getItem('walletconnect_project_id') : null) ||
+  'demo-project-id';
 
-// Custom Base Wallet configuration (wraps coinbaseWallet with updated branding)
-const baseWallet = (params: Parameters<typeof coinbaseWallet>[0]): Wallet => {
-  const wallet = coinbaseWallet(params);
+// Exported for UI diagnostics / fallbacks
+export const WALLETCONNECT_PROJECT_ID = projectId;
+export const HAS_WALLETCONNECT_PROJECT_ID = projectId !== 'demo-project-id';
+
+// Base Wallet uses WalletConnect (reliable on mobile/PWA)
+const baseWallet = (params: Parameters<typeof walletConnectWallet>[0]): Wallet => {
+  const wallet = walletConnectWallet(params);
   return {
     ...wallet,
     id: 'base',
