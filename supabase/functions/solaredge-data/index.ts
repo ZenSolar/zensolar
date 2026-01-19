@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-target-user-id",
 };
 
 const SOLAREDGE_API_BASE = "https://monitoringapi.solaredge.com";
@@ -40,11 +40,31 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check for admin override - allows admins to sync on behalf of other users
+    let targetUserId = user.id;
+    const targetUserIdHeader = req.headers.get("X-Target-User-Id");
+    
+    if (targetUserIdHeader && targetUserIdHeader !== user.id) {
+      // Verify the caller is an admin
+      const { data: isAdmin } = await supabaseClient.rpc('is_admin', { _user_id: user.id });
+      
+      if (!isAdmin) {
+        console.log(`User ${user.id} attempted admin override but is not admin`);
+        return new Response(JSON.stringify({ error: "Admin access required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      targetUserId = targetUserIdHeader;
+      console.log(`Admin ${user.id} syncing SolarEdge data for user ${targetUserId}`);
+    }
+
     // Get user's SolarEdge credentials
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from("energy_tokens")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "solaredge")
       .single();
 
@@ -162,7 +182,7 @@ Deno.serve(async (req) => {
     const { data: deviceData } = await supabaseClient
       .from("connected_devices")
       .select("baseline_data")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("device_id", siteId)
       .eq("provider", "solaredge")
       .single();
@@ -183,7 +203,7 @@ Deno.serve(async (req) => {
       await supabaseClient
         .from("energy_production")
         .upsert({
-          user_id: user.id,
+          user_id: targetUserId,
           device_id: siteId,
           provider: "solaredge",
           production_wh: todayEnergyWh,
@@ -202,7 +222,7 @@ Deno.serve(async (req) => {
             updated_at: new Date().toISOString(),
           }
         })
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .eq("device_id", siteId)
         .eq("provider", "solaredge");
     }
@@ -243,7 +263,7 @@ Deno.serve(async (req) => {
         },
         updated_at: new Date().toISOString(),
       })
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "solaredge");
     
     console.log("Cached SolarEdge data for future requests");

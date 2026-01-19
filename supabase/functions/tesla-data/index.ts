@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-target-user-id",
 };
 
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
@@ -94,11 +94,31 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check for admin override - allows admins to sync on behalf of other users
+    let targetUserId = user.id;
+    const targetUserIdHeader = req.headers.get("X-Target-User-Id");
+    
+    if (targetUserIdHeader && targetUserIdHeader !== user.id) {
+      // Verify the caller is an admin
+      const { data: isAdmin } = await supabaseClient.rpc('is_admin', { _user_id: user.id });
+      
+      if (!isAdmin) {
+        console.log(`User ${user.id} attempted admin override but is not admin`);
+        return new Response(JSON.stringify({ error: "Admin access required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      targetUserId = targetUserIdHeader;
+      console.log(`Admin ${user.id} syncing Tesla data for user ${targetUserId}`);
+    }
+
     // Get user's Tesla tokens
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from("energy_tokens")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "tesla")
       .single();
 
@@ -142,7 +162,7 @@ Deno.serve(async (req) => {
     const { data: claimedDevices } = await supabaseClient
       .from("connected_devices")
       .select("device_id, device_type, device_metadata, baseline_data, last_minted_at")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "tesla");
 
     const energySiteIds = claimedDevices
@@ -653,7 +673,7 @@ Deno.serve(async (req) => {
             updated_at: new Date().toISOString(),
           }
         })
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .eq("device_id", site.site_id)
         .eq("provider", "tesla");
     }
@@ -674,7 +694,7 @@ Deno.serve(async (req) => {
         const { data: currentDevice } = await supabaseClient
           .from("connected_devices")
           .select("baseline_data")
-          .eq("user_id", user.id)
+          .eq("user_id", targetUserId)
           .eq("device_id", vehicle.vin)
           .eq("provider", "tesla")
           .single();
@@ -692,7 +712,7 @@ Deno.serve(async (req) => {
       await supabaseClient
         .from("connected_devices")
         .update(updateData)
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .eq("device_id", vehicle.vin)
         .eq("provider", "tesla");
     }
