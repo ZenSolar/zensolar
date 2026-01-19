@@ -4,6 +4,21 @@ import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLA
 const TOKEN_ADDED_KEY = 'zsolar_token_added';
 const NFT_ADDED_KEY = 'zsolar_nfts_added';
 
+// Helper to get ethereum provider with proper typing
+function getEthereumProvider(): { 
+  request: (args: { method: string; params?: unknown }) => Promise<unknown>;
+  isMetaMask?: boolean;
+} | null {
+  const ethereum = (window as { ethereum?: unknown }).ethereum;
+  if (ethereum && typeof ethereum === 'object' && 'request' in ethereum && typeof (ethereum as { request: unknown }).request === 'function') {
+    return ethereum as { 
+      request: (args: { method: string; params?: unknown }) => Promise<unknown>;
+      isMetaMask?: boolean;
+    };
+  }
+  return null;
+}
+
 /**
  * Check if the token has already been added to wallet
  */
@@ -60,13 +75,14 @@ export async function promptAddZsolarToken(force: boolean = false): Promise<bool
     return true;
   }
 
-  if (!window.ethereum) {
+  const ethereum = getEthereumProvider();
+  if (!ethereum) {
     console.warn('No ethereum provider found');
     return false;
   }
 
   try {
-    const wasAdded = await window.ethereum.request({
+    const wasAdded = await ethereum.request({
       method: 'wallet_watchAsset',
       params: {
         type: 'ERC20',
@@ -126,10 +142,6 @@ export function resetAssetPromptFlags(): void {
 export const resetTokenPromptFlag = resetAssetPromptFlags;
 
 /**
- * Prompts the user to add a ZenSolar NFT to their wallet
- * Uses EIP-747 wallet_watchAsset for seamless NFT addition
- */
-/**
  * Prompts the user to add ZenSolar NFTs to their wallet
  * Uses EIP-747 wallet_watchAsset for ERC-1155 tokens
  * Note: ERC-1155 support is limited in most wallets, so this is best-effort
@@ -141,7 +153,8 @@ export async function promptAddZsolarNFT(tokenIds: number[] = []): Promise<boole
     return true;
   }
 
-  if (!window.ethereum) {
+  const ethereum = getEthereumProvider();
+  if (!ethereum) {
     console.warn('No ethereum provider found');
     return false;
   }
@@ -154,7 +167,7 @@ export async function promptAddZsolarNFT(tokenIds: number[] = []): Promise<boole
     
     // First try as ERC1155 (newer standard)
     try {
-      const wasAdded = await window.ethereum.request({
+      const wasAdded = await ethereum.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC1155',
@@ -175,7 +188,7 @@ export async function promptAddZsolarNFT(tokenIds: number[] = []): Promise<boole
     }
 
     // Fallback: try as ERC721
-    const wasAdded = await window.ethereum.request({
+    const wasAdded = await ethereum.request({
       method: 'wallet_watchAsset',
       params: {
         type: 'ERC721',
@@ -205,14 +218,15 @@ export async function promptAddZsolarNFT(tokenIds: number[] = []): Promise<boole
  * and prompts to switch if needed
  */
 export async function ensureBaseSepoliaNetwork(): Promise<boolean> {
-  if (!window.ethereum) {
+  const ethereum = getEthereumProvider();
+  if (!ethereum) {
     return false;
   }
 
   const BASE_SEPOLIA_CHAIN_ID = '0x14a34'; // 84532 in hex
 
   try {
-    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    const chainId = await ethereum.request({ method: 'eth_chainId' }) as string;
     
     if (chainId === BASE_SEPOLIA_CHAIN_ID) {
       return true;
@@ -220,15 +234,15 @@ export async function ensureBaseSepoliaNetwork(): Promise<boolean> {
 
     // Try to switch to Base Sepolia
     try {
-      await window.ethereum.request({
+      await ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: BASE_SEPOLIA_CHAIN_ID }],
       });
       return true;
-    } catch (switchError: any) {
+    } catch (switchError: unknown) {
       // If Base Sepolia is not added to wallet, add it
-      if (switchError.code === 4902) {
-        await window.ethereum.request({
+      if (typeof switchError === 'object' && switchError !== null && 'code' in switchError && (switchError as { code: number }).code === 4902) {
+        await ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [{
             chainId: BASE_SEPOLIA_CHAIN_ID,
@@ -249,15 +263,5 @@ export async function ensureBaseSepoliaNetwork(): Promise<boolean> {
   } catch (error) {
     console.error('Failed to switch network:', error);
     return false;
-  }
-}
-
-// Type declaration for window.ethereum
-declare global {
-  interface Window {
-    ethereum?: {
-      request: (args: { method: string; params?: any }) => Promise<any>;
-      isMetaMask?: boolean;
-    };
   }
 }

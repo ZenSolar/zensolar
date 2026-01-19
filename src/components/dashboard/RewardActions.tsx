@@ -81,7 +81,20 @@ interface EligibilityData {
   totalEligible: number;
 }
 
-export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(function RewardActions({ 
+// Helper to get ethereum provider with proper typing (avoids conflicts with wagmi types)
+function getEthereumProvider(): { 
+  request: (args: { method: string; params?: unknown }) => Promise<unknown>;
+} | null {
+  const ethereum = (window as { ethereum?: unknown }).ethereum;
+  if (ethereum && typeof ethereum === 'object' && 'request' in ethereum && typeof (ethereum as { request: unknown }).request === 'function') {
+    return ethereum as { 
+      request: (args: { method: string; params?: unknown }) => Promise<unknown>;
+    };
+  }
+  return null;
+}
+
+export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(function RewardActions({
   onRefresh, 
   isLoading, 
   walletAddress, 
@@ -449,12 +462,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     }
 
     // 3) Final fallback to injected provider - only if neither wagmi nor walletClient worked
-    if (window.ethereum?.request) {
+    const ethereum = getEthereumProvider();
+    if (ethereum) {
       console.log('Attempting to add $ZSOLAR token via window.ethereum.request(wallet_watchAsset)...');
       try {
         await ensureBaseSepolia();
         await waitForForeground();
-        const wasAdded = await window.ethereum.request({
+        const wasAdded = await ethereum.request({
           method: 'wallet_watchAsset',
           params: {
             type: 'ERC20',
