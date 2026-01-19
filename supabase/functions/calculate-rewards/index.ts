@@ -418,7 +418,7 @@ Deno.serve(async (req) => {
       // Reset baselines on all connected devices to current lifetime values
       const { data: devices } = await supabaseClient
         .from("connected_devices")
-        .select("id, device_id, device_type, provider, baseline_data")
+        .select("id, device_id, device_type, provider, baseline_data, lifetime_totals")
         .eq("user_id", user.id);
 
       if (devices && devices.length > 0) {
@@ -486,13 +486,39 @@ Deno.serve(async (req) => {
           }
         }
         
-        // Update last_minted_at for non-Tesla devices
+        // Update baselines for non-Tesla devices using their current lifetime_totals
         const nonTeslaDevices = devices.filter(d => d.provider !== "tesla");
-        if (nonTeslaDevices.length > 0) {
-          await supabaseClient
-            .from("connected_devices")
-            .update({ last_minted_at: now })
-            .in("id", nonTeslaDevices.map(d => d.id));
+        for (const device of nonTeslaDevices) {
+          try {
+            const lifetime = device.lifetime_totals as Record<string, any> || {};
+            let newBaseline: Record<string, any> = { captured_at: now };
+            
+            // Copy relevant lifetime values to baseline based on device type
+            if (device.provider === "wallbox" || isChargerDevice(device.device_type)) {
+              // Wallbox stores charging in kWh directly
+              newBaseline.charging_kwh = lifetime.charging_kwh || lifetime.lifetime_charging_kwh || 0;
+              console.log(`Updated Wallbox ${device.device_id} baseline charging_kwh: ${newBaseline.charging_kwh}`);
+            } else if (device.provider === "enphase" || isSolarDevice(device.device_type)) {
+              // Enphase stores solar in Wh
+              newBaseline.solar_wh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+              console.log(`Updated Enphase ${device.device_id} baseline solar_wh: ${newBaseline.solar_wh}`);
+            } else if (device.provider === "solaredge") {
+              // SolarEdge stores solar in Wh
+              newBaseline.solar_wh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+              console.log(`Updated SolarEdge ${device.device_id} baseline solar_wh: ${newBaseline.solar_wh}`);
+            }
+            
+            await supabaseClient
+              .from("connected_devices")
+              .update({ 
+                baseline_data: newBaseline, 
+                last_minted_at: now 
+              })
+              .eq("id", device.id);
+              
+          } catch (error) {
+            console.error(`Error updating baseline for ${device.provider} device ${device.device_id}:`, error);
+          }
         }
         
         console.log(`Reset baselines for ${devices.length} devices after minting`);
