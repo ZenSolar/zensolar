@@ -63,7 +63,9 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,webp}"],
+        // Keep precache manifest small to speed up builds/publishing.
+        // Large images are still served normally and can be cached at runtime.
+        globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,

@@ -212,6 +212,12 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
 
   const handleOpenConnect = useCallback(() => {
     mark('connectButtonTap');
+
+    if (!HAS_WALLETCONNECT_PROJECT_ID) {
+      toast.error('WalletConnect is not configured yet. Add your Project ID to continue.');
+      return;
+    }
+
     open({ view: 'Connect' });
   }, [open, mark]);
 
@@ -517,13 +523,18 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
         <button
           onClick={handleOpenConnect}
           type="button"
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
+          disabled={!HAS_WALLETCONNECT_PROJECT_ID}
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors active:scale-[0.98] ${
+            HAS_WALLETCONNECT_PROJECT_ID
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              : 'bg-muted text-muted-foreground cursor-not-allowed'
+          }`}
         >
           <Wallet className="h-4 w-4" />
-          Connect Wallet
+          {HAS_WALLETCONNECT_PROJECT_ID ? 'Connect Wallet' : 'Configure WalletConnect'}
         </button>
 
-        {device.isMobile && !HAS_WALLETCONNECT_PROJECT_ID && (
+        {!HAS_WALLETCONNECT_PROJECT_ID && (
           <div className="rounded-md border border-border bg-muted/30 p-3 text-xs">
             <p className="text-foreground font-medium">WalletConnect Setup</p>
             <div className="mt-2 space-y-2">
