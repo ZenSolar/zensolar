@@ -33,15 +33,34 @@ export function ManualTokenAddPanel() {
     }
   };
 
-  const handleOpenWallet = () => {
-    const opened = openWalletApp(walletInfo.type);
-    if (!opened) {
+  const handleOpenWallet = async () => {
+    // Auto-copy contract address before opening wallet for convenience
+    try {
+      await navigator.clipboard.writeText(ZSOLAR_TOKEN_ADDRESS);
       toast({
-        title: 'Open your wallet app',
-        description: `Open ${walletInfo.name} to view your tokens`,
+        title: 'Contract address copied!',
+        description: `Opening ${walletInfo.name}... Paste the address to import $ZSOLAR`,
       });
+    } catch {
+      // Clipboard failed, still open wallet
     }
+
+    // Small delay to let toast show before switching apps
+    setTimeout(() => {
+      const opened = openWalletApp(walletInfo.type);
+      if (!opened) {
+        toast({
+          title: 'Open your wallet app',
+          description: `Open ${walletInfo.name} manually to view your tokens`,
+        });
+      }
+    }, 300);
   };
+
+  // Check if we're on Base Sepolia network reminder
+  const networkNote = walletInfo.type === 'coinbase' || walletInfo.type === 'metamask' 
+    ? 'Make sure you\'re on Base Sepolia network in your wallet settings.'
+    : null;
 
   return (
     <div className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 space-y-3">
@@ -52,15 +71,22 @@ export function ManualTokenAddPanel() {
         <span className="text-sm font-semibold text-foreground">Add $ZSOLAR to Your Wallet</span>
       </div>
       
-      {/* Open Wallet Button - prominently displayed for easy wallet access */}
+      {/* Open Wallet Button - copies address and opens wallet */}
       {walletInfo.deepLinkBase && (
-        <Button
-          onClick={handleOpenWallet}
-          className="w-full h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all duration-200"
-        >
-          <ArrowUpRight className="h-4 w-4 mr-2" />
-          Open {walletInfo.name}
-        </Button>
+        <div className="space-y-2">
+          <Button
+            onClick={handleOpenWallet}
+            className="w-full h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all duration-200"
+          >
+            <ArrowUpRight className="h-4 w-4 mr-2" />
+            Copy Address & Open {walletInfo.name}
+          </Button>
+          {networkNote && (
+            <p className="text-[10px] text-center text-amber-600 dark:text-amber-400">
+              ⚠️ {networkNote}
+            </p>
+          )}
+        </div>
       )}
       
       <p className="text-xs text-muted-foreground leading-relaxed">
