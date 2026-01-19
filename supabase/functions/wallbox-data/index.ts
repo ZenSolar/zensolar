@@ -232,8 +232,8 @@ Deno.serve(async (req) => {
         }
       }
       
-      // ADDITIONAL: Try /v4/sessions/stats to get accurate session history totals
-      // This endpoint returns individual sessions which we can sum for true lifetime
+      // PRIMARY SOURCE: Use /v4/sessions/stats to get accurate session history totals
+      // Sum individual session energies for the TRUE lifetime total
       // Using 10-year range to capture all historical data
       console.log(`Fetching session stats from /v4/sessions/stats for charger ${chargerId}`);
       const now = Math.floor(Date.now() / 1000);
@@ -251,9 +251,8 @@ Deno.serve(async (req) => {
         const statsData = await statsResponse.json();
         const sessionCountFromMeta = statsData?.meta?.count || 0;
         console.log(`Charger ${chargerId} /v4/sessions/stats: meta.count=${sessionCountFromMeta}`);
-        console.log(`Charger ${chargerId} /v4/sessions/stats response (first 800 chars):`, JSON.stringify(statsData).substring(0, 800));
         
-        // Sum up energy from all sessions
+        // Sum up energy from all sessions - THIS IS THE AUTHORITATIVE SOURCE
         let sessionsTotalEnergyKwh = 0;
         let sessionCount = 0;
         
@@ -269,17 +268,17 @@ Deno.serve(async (req) => {
           
           console.log(`Computed from ${sessionCount} sessions (meta said ${sessionCountFromMeta}): ${sessionsTotalEnergyKwh.toFixed(3)} kWh total`);
           
-          // Use session-computed total if it's larger than what resume reported
-          // The session stats are the authoritative source of energy data
-          if (sessionsTotalEnergyKwh > lifetimeEnergyKwh) {
-            console.log(`Using session-computed total (${sessionsTotalEnergyKwh.toFixed(3)} kWh) instead of resume total (${lifetimeEnergyKwh} kWh)`);
+          // ALWAYS use the session-computed total - it's the sum of all actual charging sessions
+          // The resume/totalEnergy fields are often incorrectly formatted or wrong
+          if (sessionsTotalEnergyKwh > 0) {
+            console.log(`Using session-computed total: ${sessionsTotalEnergyKwh.toFixed(3)} kWh (replacing previous ${lifetimeEnergyKwh} kWh)`);
             lifetimeEnergyKwh = sessionsTotalEnergyKwh;
           }
           
-          // Trust the higher session count
+          // Use the actual session count
           const actualSessionCount = Math.max(sessionCount, sessionCountFromMeta);
-          if (actualSessionCount > totalSessions) {
-            console.log(`Updating session count from ${totalSessions} to ${actualSessionCount}`);
+          if (actualSessionCount > 0) {
+            console.log(`Setting session count to ${actualSessionCount}`);
             totalSessions = actualSessionCount;
           }
         }
