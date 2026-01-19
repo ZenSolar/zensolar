@@ -234,10 +234,11 @@ Deno.serve(async (req) => {
       
       // ADDITIONAL: Try /v4/sessions/stats to get accurate session history totals
       // This endpoint returns individual sessions which we can sum for true lifetime
+      // Using 10-year range to capture all historical data
       console.log(`Fetching session stats from /v4/sessions/stats for charger ${chargerId}`);
       const now = Math.floor(Date.now() / 1000);
-      const fiveYearsAgo = now - (5 * 365 * 24 * 60 * 60); // Go back 5 years
-      const statsUrl = `${WALLBOX_API_BASE}/v4/sessions/stats?charger=${chargerId}&start_date=${fiveYearsAgo}&end_date=${now}&limit=10000`;
+      const tenYearsAgo = now - (10 * 365 * 24 * 60 * 60); // Go back 10 years for maximum coverage
+      const statsUrl = `${WALLBOX_API_BASE}/v4/sessions/stats?charger=${chargerId}&start_date=${tenYearsAgo}&end_date=${now}&limit=10000`;
       
       const statsResponse = await fetch(statsUrl, {
         headers: {
@@ -248,7 +249,9 @@ Deno.serve(async (req) => {
       
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
-        console.log(`Charger ${chargerId} /v4/sessions/stats response (first 500 chars):`, JSON.stringify(statsData).substring(0, 500));
+        const sessionCountFromMeta = statsData?.meta?.count || 0;
+        console.log(`Charger ${chargerId} /v4/sessions/stats: meta.count=${sessionCountFromMeta}`);
+        console.log(`Charger ${chargerId} /v4/sessions/stats response (first 800 chars):`, JSON.stringify(statsData).substring(0, 800));
         
         // Sum up energy from all sessions
         let sessionsTotalEnergyKwh = 0;
@@ -256,24 +259,28 @@ Deno.serve(async (req) => {
         
         if (Array.isArray(statsData?.data)) {
           for (const session of statsData.data) {
-            // Each session should have attributes.energy (in kWh typically)
-            const sessionEnergy = session?.attributes?.energy || session?.energy || 0;
+            // Each session has attributes.energy in kWh (confirmed from API response)
+            const sessionEnergy = session?.attributes?.energy;
             if (typeof sessionEnergy === 'number' && sessionEnergy > 0) {
               sessionsTotalEnergyKwh += sessionEnergy;
               sessionCount++;
             }
           }
           
-          console.log(`Computed from ${sessionCount} sessions: ${sessionsTotalEnergyKwh} kWh total`);
+          console.log(`Computed from ${sessionCount} sessions (meta said ${sessionCountFromMeta}): ${sessionsTotalEnergyKwh.toFixed(3)} kWh total`);
           
           // Use session-computed total if it's larger than what resume reported
+          // The session stats are the authoritative source of energy data
           if (sessionsTotalEnergyKwh > lifetimeEnergyKwh) {
-            console.log(`Using session-computed total (${sessionsTotalEnergyKwh} kWh) instead of resume total (${lifetimeEnergyKwh} kWh)`);
+            console.log(`Using session-computed total (${sessionsTotalEnergyKwh.toFixed(3)} kWh) instead of resume total (${lifetimeEnergyKwh} kWh)`);
             lifetimeEnergyKwh = sessionsTotalEnergyKwh;
           }
           
-          if (sessionCount > totalSessions) {
-            totalSessions = sessionCount;
+          // Trust the higher session count
+          const actualSessionCount = Math.max(sessionCount, sessionCountFromMeta);
+          if (actualSessionCount > totalSessions) {
+            console.log(`Updating session count from ${totalSessions} to ${actualSessionCount}`);
+            totalSessions = actualSessionCount;
           }
         }
       } else {
