@@ -198,16 +198,6 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
       const isWelcome = currentNFT.category === 'welcome';
       const isCombo = currentNFT.category === 'combo';
 
-      // Check if user has Welcome NFT (required for other minting)
-      const { data: statusData } = await supabase.functions.invoke('mint-onchain', {
-        body: {
-          action: 'status',
-          walletAddress: address
-        }
-      });
-
-      const hasWelcomeNFT = statusData?.hasWelcomeNFT;
-
       if (isWelcome) {
         // Mint Welcome NFT
         const { data, error: fnError } = await supabase.functions.invoke('mint-onchain', {
@@ -229,8 +219,6 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
           nftName: 'Welcome',
           message: 'Welcome NFT minted successfully!'
         });
-      } else if (!hasWelcomeNFT) {
-        throw new Error('You need to claim your Welcome NFT first before minting other NFTs.');
       } else if (isCombo) {
         // Mint combo NFT
         const comboTypeMap: Record<number, string> = {

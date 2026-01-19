@@ -129,7 +129,7 @@ export function NFTMintFlow({
         throw new Error('Please sign in to mint NFTs');
       }
 
-      // Check if user has Welcome NFT (required for other minting)
+      // Check what NFTs user already owns (to avoid double-minting)
       const { data: statusData } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'status',
@@ -137,7 +137,6 @@ export function NFTMintFlow({
         }
       });
 
-      const hasWelcomeNFT = statusData?.hasWelcomeNFT;
       const ownedTokenIds: number[] = Array.isArray(statusData?.ownedNFTTokenIds)
         ? statusData.ownedNFTTokenIds
         : [];
@@ -168,8 +167,6 @@ export function NFTMintFlow({
 
         if (fnError) throw fnError;
         result = data;
-      } else if (!hasWelcomeNFT) {
-        throw new Error('You need to claim your Welcome NFT first before minting other NFTs.');
       } else if (isCombo) {
         // Mint combo NFT
         const comboTypeMap: Record<number, string> = {
