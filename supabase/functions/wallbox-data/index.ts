@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-target-user-id",
 };
 
 // Wallbox API endpoints
@@ -38,16 +38,36 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check for admin override - allows admins to sync on behalf of other users
+    let targetUserId = user.id;
+    const targetUserIdHeader = req.headers.get("X-Target-User-Id");
+    
+    if (targetUserIdHeader && targetUserIdHeader !== user.id) {
+      // Verify the caller is an admin
+      const { data: isAdmin } = await supabaseClient.rpc('is_admin', { _user_id: user.id });
+      
+      if (!isAdmin) {
+        console.log(`User ${user.id} attempted admin override but is not admin`);
+        return new Response(JSON.stringify({ error: "Admin access required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      targetUserId = targetUserIdHeader;
+      console.log(`Admin ${user.id} syncing Wallbox data for user ${targetUserId}`);
+    }
+
     // Get stored Wallbox tokens
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from("energy_tokens")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "wallbox")
       .single();
 
     if (tokenError || !tokenData) {
-      console.log("No Wallbox tokens found for user");
+      console.log(`No Wallbox tokens found for user ${targetUserId}`);
       return new Response(JSON.stringify({ error: "Wallbox not connected", needsReauth: true }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -238,7 +258,7 @@ Deno.serve(async (req) => {
     const { data: existingDevice } = await supabaseClient
       .from("connected_devices")
       .select("id, baseline_data, lifetime_totals")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "wallbox")
       .eq("device_id", primaryChargerId)
       .maybeSingle();
@@ -271,7 +291,7 @@ Deno.serve(async (req) => {
       const { data: anyWallboxDevice } = await supabaseClient
         .from("connected_devices")
         .select("id, device_id")
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .eq("provider", "wallbox")
         .maybeSingle();
       
@@ -302,7 +322,7 @@ Deno.serve(async (req) => {
         const { error: deviceError } = await supabaseClient
           .from("connected_devices")
           .insert({
-            user_id: user.id,
+            user_id: targetUserId,
             provider: "wallbox",
             device_id: primaryChargerId,
             device_type: "home_charger",
@@ -334,7 +354,7 @@ Deno.serve(async (req) => {
     const { error: insertError } = await supabaseClient
       .from("energy_production")
       .upsert({
-        user_id: user.id,
+        user_id: targetUserId,
         provider: "wallbox",
         device_id: primaryChargerId,
         production_wh: 0,

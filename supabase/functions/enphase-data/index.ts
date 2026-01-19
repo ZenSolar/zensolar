@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-target-user-id",
 };
 
 const ENPHASE_API_BASE = "https://api.enphaseenergy.com/api/v4";
@@ -96,6 +96,26 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check for admin override - allows admins to sync on behalf of other users
+    let targetUserId = user.id;
+    const targetUserIdHeader = req.headers.get("X-Target-User-Id");
+    
+    if (targetUserIdHeader && targetUserIdHeader !== user.id) {
+      // Verify the caller is an admin
+      const { data: isAdmin } = await supabaseClient.rpc('is_admin', { _user_id: user.id });
+      
+      if (!isAdmin) {
+        console.log(`User ${user.id} attempted admin override but is not admin`);
+        return new Response(JSON.stringify({ error: "Admin access required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      targetUserId = targetUserIdHeader;
+      console.log(`Admin ${user.id} syncing Enphase data for user ${targetUserId}`);
+    }
+
     const apiKey = Deno.env.get("ENPHASE_API_KEY");
     if (!apiKey) {
       return new Response(JSON.stringify({ error: "Enphase API key not configured" }), {
@@ -108,7 +128,7 @@ Deno.serve(async (req) => {
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from("energy_tokens")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "enphase")
       .single();
 
@@ -199,7 +219,7 @@ Deno.serve(async (req) => {
         const { data: devices } = await supabaseClient
           .from("connected_devices")
           .select("lifetime_totals, baseline_data, device_name")
-          .eq("user_id", user.id)
+          .eq("user_id", targetUserId)
           .eq("provider", "enphase");
         
         if (devices && devices.length > 0) {
@@ -300,7 +320,7 @@ Deno.serve(async (req) => {
       await supabaseClient
         .from("energy_production")
         .upsert({
-          user_id: user.id,
+          user_id: targetUserId,
           device_id: String(systemId),
           provider: "enphase",
           production_wh: productionWh,
@@ -316,7 +336,7 @@ Deno.serve(async (req) => {
     const { data: deviceData } = await supabaseClient
       .from("connected_devices")
       .select("baseline_data")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("device_id", String(systemId))
       .eq("provider", "enphase")
       .single();
@@ -340,7 +360,7 @@ Deno.serve(async (req) => {
             updated_at: new Date().toISOString(),
           }
         })
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .eq("device_id", String(systemId))
         .eq("provider", "enphase");
       
@@ -369,7 +389,7 @@ Deno.serve(async (req) => {
         },
         updated_at: new Date().toISOString(),
       })
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "enphase");
     
     console.log("Cached Enphase data for future requests");
