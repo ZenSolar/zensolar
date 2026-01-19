@@ -283,6 +283,16 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
       triggerGoldBurst();
       setTimeout(() => triggerCelebration(), 200);
       
+      // Track batch NFT mint in GA
+      import('@/hooks/useGoogleAnalytics').then(({ trackEvent }) => {
+        trackEvent('nft_batch_mint', {
+          nft_name: currentNFT.name,
+          token_id: currentNFT.tokenId,
+          event_category: 'conversion',
+          value: 1,
+        });
+      });
+      
       // Refresh on-chain status
       await checkOnChainStatus();
       onMintComplete?.();

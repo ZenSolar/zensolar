@@ -24,6 +24,7 @@ const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => (
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboard").then(m => ({ default: m.DemoDashboard })));
 const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminContracts = lazy(() => import("./pages/AdminContracts"));
 const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
@@ -117,6 +118,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <Admin />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/analytics" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminAnalytics />
                           </AppLayout>
                         </ProtectedRoute>
                       } 

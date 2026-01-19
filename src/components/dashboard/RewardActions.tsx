@@ -435,6 +435,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         if (result.success) {
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         
+        // Track token claim in GA
+        import('@/hooks/useGoogleAnalytics').then(({ trackEvent }) => {
+          trackEvent('token_claim', {
+            category: category,
+            tokens_minted: result.mintedCount ?? 0,
+            event_category: 'conversion',
+            value: result.mintedCount ?? 0,
+          });
+        });
+        
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
