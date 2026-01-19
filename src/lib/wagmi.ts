@@ -40,13 +40,13 @@ export const config = getDefaultConfig({
     {
       groupName: 'Recommended',
       wallets: [
-        // WalletConnect first on mobile PWA (most reliable for deep linking)
-        walletConnectWallet,
-        // MetaMask (extension on desktop, deep-link on mobile)
+        // MetaMask first (most popular wallet)
         metaMaskWallet,
         // Base Wallet (formerly Coinbase Wallet) - this is the self-custody wallet
         // Note: The Coinbase exchange app does NOT support WalletConnect/dApp connections
         baseWallet,
+        // WalletConnect for connecting other mobile wallets
+        walletConnectWallet,
       ],
     },
     {
