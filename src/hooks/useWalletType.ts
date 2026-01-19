@@ -65,7 +65,7 @@ export function useWalletType(): WalletInfo & {
         type: 'coinbase',
         name: 'Base Wallet',
         supportsWatchAsset: false, // Base Wallet doesn't support wallet_watchAsset via WalletConnect
-        supportsNetworkSwitch: false, // Network switch often fails via WalletConnect
+        supportsNetworkSwitch: true, // Enable - wagmi switchChain works via WalletConnect session
         deepLinkBase: 'cbwallet://',
         appStoreUrl: 'https://www.coinbase.com/wallet/downloads',
       };

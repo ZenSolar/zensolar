@@ -65,19 +65,29 @@ export function ManualTokenAddPanel() {
   };
 
   const handleOpenWallet = async () => {
-    // For MetaMask, try to switch network first before opening
-    if (walletInfo.type === 'metamask' && walletInfo.supportsNetworkSwitch && !walletInfo.isOnCorrectNetwork) {
+    // Try to switch network first before opening (works for MetaMask & Base Wallet via wagmi)
+    if (walletInfo.supportsNetworkSwitch && !walletInfo.isOnCorrectNetwork) {
       setSwitchingNetwork(true);
       try {
         const switched = await walletInfo.switchToBaseSepolia();
         if (switched) {
           toast({
             title: 'Switched to Base Sepolia!',
-            description: 'Opening MetaMask...',
+            description: `Opening ${walletInfo.name}...`,
+          });
+        } else {
+          // Network switch failed - still continue to open wallet
+          toast({
+            title: 'Network switch requested',
+            description: `Please approve in ${walletInfo.name}, then check your tokens`,
           });
         }
       } catch (error) {
-        console.log('Network switch failed, still opening wallet');
+        console.log('Network switch failed, still opening wallet:', error);
+        toast({
+          title: 'Check your wallet',
+          description: `Approve the network switch in ${walletInfo.name}`,
+        });
       } finally {
         setSwitchingNetwork(false);
       }
@@ -150,8 +160,8 @@ export function ManualTokenAddPanel() {
             ) : (
               <ArrowUpRight className="h-4 w-4 mr-2" />
             )}
-            {walletInfo.type === 'metamask' && !walletInfo.isOnCorrectNetwork 
-              ? 'Switch Network & Open MetaMask' 
+            {!walletInfo.isOnCorrectNetwork 
+              ? `Switch Network & Open ${walletInfo.name}` 
               : `Copy Address & Open ${walletInfo.name}`}
           </Button>
         </div>
