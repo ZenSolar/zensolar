@@ -1,16 +1,19 @@
 import { useState } from 'react';
-import { Copy, Check, ExternalLink, Wallet } from 'lucide-react';
+import { Copy, Check, ExternalLink, Wallet, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS } from '@/lib/wagmi';
 import { useToast } from '@/hooks/use-toast';
+import { useWalletType, openWalletApp } from '@/hooks/useWalletType';
 
 /**
  * Panel showing manual instructions for adding $ZSOLAR token to wallet
  * when automatic wallet_watchAsset fails (common on Base Wallet/WalletConnect).
+ * Also provides a wallet-aware "Open Wallet" button to check tokens.
  */
 export function ManualTokenAddPanel() {
   const { toast } = useToast();
   const [copied, setCopied] = useState<'address' | 'symbol' | 'decimals' | null>(null);
+  const walletInfo = useWalletType();
 
   const copyToClipboard = async (text: string, field: 'address' | 'symbol' | 'decimals') => {
     try {
@@ -30,6 +33,16 @@ export function ManualTokenAddPanel() {
     }
   };
 
+  const handleOpenWallet = () => {
+    const opened = openWalletApp(walletInfo.type);
+    if (!opened) {
+      toast({
+        title: 'Open your wallet app',
+        description: `Open ${walletInfo.name} to view your tokens`,
+      });
+    }
+  };
+
   return (
     <div className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 space-y-3">
       <div className="flex items-center gap-2.5">
@@ -39,8 +52,25 @@ export function ManualTokenAddPanel() {
         <span className="text-sm font-semibold text-foreground">Add $ZSOLAR to Your Wallet</span>
       </div>
       
+      {/* Open Wallet Button - prominently displayed for easy wallet access */}
+      {walletInfo.deepLinkBase && (
+        <Button
+          onClick={handleOpenWallet}
+          className="w-full h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all duration-200"
+        >
+          <ArrowUpRight className="h-4 w-4 mr-2" />
+          Open {walletInfo.name}
+        </Button>
+      )}
+      
       <p className="text-xs text-muted-foreground leading-relaxed">
-        In your wallet, go to <strong className="text-foreground">Tokens</strong> → <strong className="text-foreground">Import Token</strong> → paste these:
+        {walletInfo.type === 'coinbase' ? (
+          <>In <strong className="text-foreground">Base Wallet</strong>, tokens often appear automatically. If not, go to <strong className="text-foreground">Tokens</strong> → <strong className="text-foreground">Manage</strong> → paste the contract address.</>
+        ) : walletInfo.type === 'metamask' ? (
+          <>In <strong className="text-foreground">MetaMask</strong>, go to <strong className="text-foreground">Tokens</strong> → <strong className="text-foreground">Import Token</strong> → paste these:</>
+        ) : (
+          <>In your wallet, go to <strong className="text-foreground">Tokens</strong> → <strong className="text-foreground">Import Token</strong> → paste these:</>
+        )}
       </p>
 
       <div className="space-y-2">
