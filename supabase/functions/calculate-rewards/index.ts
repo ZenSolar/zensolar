@@ -262,8 +262,16 @@ Deno.serve(async (req) => {
         
         // Charger devices (wall connectors, Wallbox, etc.)
         if (isChargerDevice(device.device_type)) {
+          // Wallbox stores charging_kwh directly in kWh, Tesla stores charging_wh in Wh
+          // Check for kWh first, then fall back to Wh conversion
+          const chargingKwh = lifetime.charging_kwh || lifetime.lifetime_charging_kwh || 0;
           const chargingWh = lifetime.charging_wh || lifetime.lifetime_charging_wh || 0;
-          totalEvChargingKwh += Math.floor(chargingWh / 1000);
+          
+          if (chargingKwh > 0) {
+            totalEvChargingKwh += Math.floor(chargingKwh);
+          } else {
+            totalEvChargingKwh += Math.floor(chargingWh / 1000);
+          }
         }
       }
 
