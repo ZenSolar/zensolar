@@ -256,18 +256,17 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   };
 
   // Add the ZSOLAR token to the connected wallet using wallet_watchAsset (best-effort)
-  // IMPORTANT: Only tries ONE method to avoid triggering multiple wallet prompts
-  // NOTE: Base Wallet handles network switching internally - we don't force it externally
+  // IMPORTANT: This is best-effort only - many wallets (especially Base Wallet via WalletConnect)
+  // do NOT support wallet_watchAsset, and that's OKAY. We silently fail and show manual instructions.
   const addZsolarToWallet = async (): Promise<boolean> => {
     // Skip if already added - prevents duplicate prompts
     if (hasTokenBeenAdded()) {
       console.log('$ZSOLAR token already in wallet (flagged)');
-      logWatchAssetAttempt({ provider: 'none', success: true, error: 'Already flagged as added' });
       return true;
     }
 
     // Mark as added IMMEDIATELY to prevent any race conditions or duplicate calls
-    // Even if the user declines, we don't want to pester them again
+    // Even if the user declines or it's unsupported, we don't want to pester them again
     markTokenAdded();
 
     const paramsOptions = {
@@ -277,12 +276,15 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       image: `${window.location.origin}${ZSOLAR_TOKEN_IMAGE}`,
     };
 
-    const logSuccess = () => {
-      console.log('$ZSOLAR token added to wallet successfully');
+    // Helper to check if error indicates unsupported method (common for Base Wallet)
+    const isUnsupportedError = (error: unknown): boolean => {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      return errMsg.toLowerCase().includes('unsupported') || 
+             errMsg.toLowerCase().includes('not supported') ||
+             errMsg.toLowerCase().includes('method not found');
     };
 
-    // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector (works for WalletConnect & Base Wallet)
-    // Base Wallet and most modern wallets handle network context internally for watchAsset
+    // 1) Prefer wagmi's useWatchAsset hook - properly routes through connector
     if (watchAssetAsync && isConnected) {
       console.log('Attempting to add $ZSOLAR token via wagmi watchAssetAsync...');
       try {
@@ -292,16 +294,20 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         });
         logWatchAssetAttempt({ provider: 'wagmi', success: Boolean(success), params: paramsOptions });
         if (success) {
-          logSuccess();
+          console.log('$ZSOLAR token added to wallet successfully');
           return true;
         }
         console.log('wagmi watchAssetAsync returned false or was declined');
-        return false; // Don't try other methods - user declined or it failed
+        return false;
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
         console.log('wagmi watchAssetAsync threw:', errMsg);
         logWatchAssetAttempt({ provider: 'wagmi', success: false, error: errMsg, params: paramsOptions });
-        // Don't fallback - return early to prevent multiple prompts
+        // If unsupported, silently return false - manual instructions will show
+        if (isUnsupportedError(error)) {
+          console.log('wallet_watchAsset not supported by this wallet - showing manual instructions');
+          return false;
+        }
         return false;
       }
     }
@@ -316,44 +322,20 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         });
         logWatchAssetAttempt({ provider: 'walletClient', success: Boolean(success), params: paramsOptions });
         if (success) {
-          logSuccess();
+          console.log('$ZSOLAR token added to wallet successfully');
           return true;
         }
-        console.log('walletClient.watchAsset returned false or was declined');
-        return false; // Don't try other methods
+        return false;
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
         console.log('walletClient.watchAsset threw:', errMsg);
         logWatchAssetAttempt({ provider: 'walletClient', success: false, error: errMsg, params: paramsOptions });
-        return false; // Don't fallback
-      }
-    }
-
-    // 3) Final fallback to injected provider - only if neither wagmi nor walletClient worked
-    const ethereum = getEthereumProvider();
-    if (ethereum) {
-      console.log('Attempting to add $ZSOLAR token via window.ethereum.request(wallet_watchAsset)...');
-      try {
-        const wasAdded = await ethereum.request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: paramsOptions,
-          },
-        });
-        logWatchAssetAttempt({ provider: 'window.ethereum', success: Boolean(wasAdded), params: paramsOptions });
-        if (wasAdded) logSuccess();
-        return Boolean(wasAdded);
-      } catch (error) {
-        const errMsg = error instanceof Error ? error.message : String(error);
-        console.log('window.ethereum.request threw:', errMsg);
-        logWatchAssetAttempt({ provider: 'window.ethereum', success: false, error: errMsg, params: paramsOptions });
         return false;
       }
     }
 
-    console.warn('No supported provider available for wallet_watchAsset');
-    logWatchAssetAttempt({ provider: 'none', success: false, error: 'No provider available' });
+    // No provider available - that's fine, manual instructions will show
+    console.log('No watchAsset provider available - showing manual instructions');
     return false;
   };
 
@@ -460,26 +442,20 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Prompt to add $ZSOLAR token to wallet for seamless UX (best-effort)
-        // NOTE: Some WalletConnect sessions do not support wallet_watchAsset.
+        // Attempt to add $ZSOLAR token to wallet (best-effort, silent failure)
+        // NOTE: Base Wallet and many WalletConnect sessions do NOT support wallet_watchAsset
+        // This is expected - we silently fail and show manual instructions in the success dialog
         if (!hasTokenBeenAdded()) {
-          // small delay to ensure UI settles before triggering the wallet prompt
-          window.setTimeout(async () => {
-            try {
-              console.log('Auto-prompting to add $ZSOLAR token to wallet...');
-              const added = await addZsolarToWallet();
-              if (added) {
-                toast({
-                  title: 'Token Added',
-                  description: '$ZSOLAR token has been added to your wallet.',
-                });
-              } else {
-                console.log('Auto token add not supported or was declined');
-              }
-            } catch (err) {
-              console.log('Auto token add declined or failed:', err);
+          // Run in background without blocking or showing errors to user
+          addZsolarToWallet().then(added => {
+            if (added) {
+              console.log('Token auto-added to wallet');
+            } else {
+              console.log('Token auto-add not supported - manual instructions shown');
             }
-          }, 750);
+          }).catch(() => {
+            // Silently ignore - manual instructions will be shown
+          });
         }
         
         // Also auto-add NFTs if any were minted
@@ -1275,16 +1251,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               </div>
             )}
             
-            {/* Manual Token Add Instructions - shows after 4 second delay */}
+            {/* Manual Token Add Instructions - show immediately for better UX */}
             {resultDialog.success && resultDialog.type === 'token' && (
-              showTokenAddPanel ? (
-                <ManualTokenAddPanel />
-              ) : (
-                <div className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">Preparing wallet instructions...</span>
-                </div>
-              )
+              <ManualTokenAddPanel />
             )}
             
             {/* Diagnostics panel for debugging wallet_watchAsset - Admin only */}
