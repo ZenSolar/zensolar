@@ -244,15 +244,17 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString();
 
-    // Update ALL existing Wallbox devices for the user (older versions created duplicates).
+    // IMPORTANT: connected_devices has a unique constraint on (provider, device_id).
+    // Older versions could leave multiple Wallbox rows per user (e.g. device_id="unknown").
+    // We must update exactly ONE row to the real charger id and then clean up the rest.
     const { data: existingWallboxDevices, error: existingWallboxDevicesError } = await supabaseClient
       .from("connected_devices")
-      .select("id")
+      .select("id, device_id")
       .eq("user_id", targetUserId)
       .eq("provider", "wallbox");
 
     if (existingWallboxDevicesError) {
-      console.error('Failed to list existing Wallbox devices:', existingWallboxDevicesError);
+      console.error("Failed to list existing Wallbox devices:", existingWallboxDevicesError);
     }
 
     const lifetimeTotals = {
@@ -262,51 +264,97 @@ Deno.serve(async (req) => {
       updated_at: now,
     };
 
+    const devicePayload = {
+      device_id: primaryChargerId,
+      device_type: "home_charger",
+      device_name: primaryChargerName,
+      lifetime_totals: lifetimeTotals,
+      device_metadata: {
+        charger_count: chargerDetails.length,
+      },
+      updated_at: now,
+    };
+
     if (existingWallboxDevices && existingWallboxDevices.length > 0) {
+      // Prefer updating the row that already has the real device_id to avoid unique constraint collisions
+      const rowWithPrimary = existingWallboxDevices.find((d) => d.device_id === primaryChargerId);
+      const primaryRowId = rowWithPrimary?.id ?? existingWallboxDevices[0].id;
+
       const updateResult = await supabaseClient
         .from("connected_devices")
-        .update({
-          device_id: primaryChargerId,
-          device_type: "home_charger",
-          device_name: primaryChargerName,
-          lifetime_totals: lifetimeTotals,
-          device_metadata: {
-            charger_count: chargerDetails.length,
-          },
-          updated_at: now,
-        })
-        .eq("user_id", targetUserId)
-        .eq("provider", "wallbox");
+        .update(devicePayload)
+        .eq("id", primaryRowId);
 
       if (updateResult.error) {
-        console.error(`Failed to update Wallbox devices:`, updateResult.error);
-      } else {
-        console.log(`Updated ${existingWallboxDevices.length} Wallbox device record(s) with ${totalEnergyKwh} kWh lifetime charging`);
+        console.error("Failed to update Wallbox device:", updateResult.error);
+
+        // If the device_id is already claimed elsewhere, surface a useful error
+        if (updateResult.error.code === "23505") {
+          return new Response(
+            JSON.stringify({
+              error: "Wallbox charger already claimed by another account",
+              code: "DEVICE_ALREADY_CLAIMED",
+            }),
+            { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(JSON.stringify({ error: "Failed to update Wallbox device" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
+
+      // Clean up any extra rows for this user/provider (e.g. device_id="unknown")
+      const cleanupResult = await supabaseClient
+        .from("connected_devices")
+        .delete()
+        .eq("user_id", targetUserId)
+        .eq("provider", "wallbox")
+        .neq("id", primaryRowId);
+
+      if (cleanupResult.error) {
+        console.error("Failed to cleanup duplicate Wallbox device rows:", cleanupResult.error);
+      } else {
+        console.log("Cleaned up duplicate Wallbox device rows (if any)");
+      }
+
+      console.log(
+        `Updated Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging (sessions=${totalSessions})`
+      );
     } else {
       const { error: deviceError } = await supabaseClient
         .from("connected_devices")
         .insert({
           user_id: targetUserId,
           provider: "wallbox",
-          device_id: primaryChargerId,
-          device_type: "home_charger",
-          device_name: primaryChargerName,
+          ...devicePayload,
           baseline_data: {
             charging_kwh: 0,
             captured_at: now,
-          },
-          lifetime_totals: lifetimeTotals,
-          device_metadata: {
-            charger_count: chargerDetails.length,
           },
         });
 
       if (deviceError) {
         console.error("Failed to create Wallbox device:", deviceError);
-      } else {
-        console.log(`Created Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
+
+        if (deviceError.code === "23505") {
+          return new Response(
+            JSON.stringify({
+              error: "Wallbox charger already claimed by another account",
+              code: "DEVICE_ALREADY_CLAIMED",
+            }),
+            { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(JSON.stringify({ error: "Failed to create Wallbox device" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
+
+      console.log(`Created Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
     }
 
     // Store energy production data for daily tracking
