@@ -551,8 +551,53 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       }
 
       const categoryLabel = category === 'all' ? 'all categories' : category.replace('_', ' ');
+      
+      // First check if user has Welcome NFT - if not, auto-register them
+      setMintingProgress({ step: 'preparing', message: 'Checking registration status...' });
+      
+      const { data: statusData, error: statusError } = await supabase.functions.invoke('mint-onchain', {
+        body: {
+          action: 'status',
+          walletAddress,
+        },
+      });
+      
+      // Parse the status response - handle both success and error cases
+      const hasWelcome = statusData?.hasWelcomeNFT === true;
+      
+      // If user doesn't have Welcome NFT, register them first
+      if (!hasWelcome) {
+        console.log('User not registered, auto-registering with Welcome NFT...');
+        setMintingProgress({ step: 'submitting', message: 'Minting your Welcome NFT first...' });
+        
+        const { data: registerData, error: registerError } = await supabase.functions.invoke('mint-onchain', {
+          body: {
+            action: 'register',
+            walletAddress,
+          },
+        });
+        
+        // Check for registration errors
+        if (registerError) {
+          // Try to parse error from context
+          const errContext = (registerError as any)?.context;
+          const errJson = errContext?.json || errContext?.body;
+          const errMsg = errJson?.message || errJson?.error || registerError.message;
+          throw new Error(`Registration failed: ${errMsg}`);
+        }
+        
+        if (!registerData?.success && !registerData?.alreadyRegistered) {
+          throw new Error(registerData?.message || 'Failed to register wallet. Please try again.');
+        }
+        
+        console.log('Registration successful:', registerData);
+        
+        // Small delay to ensure blockchain state is updated
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+      
+      // Now mint the tokens
       setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
-
 
       // Call mint-rewards with category parameter
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
@@ -563,13 +608,18 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         },
       });
 
+      // Better error parsing for edge function responses
       if (error) {
-        const errorDetails = (error as any)?.context?.json || data;
-        throw new Error(errorDetails?.message || errorDetails?.error || error.message || 'Minting failed');
+        // Try to extract the actual error from context (Supabase wraps errors)
+        const errContext = (error as any)?.context;
+        const errJson = errContext?.json || errContext?.body;
+        const errMsg = errJson?.message || errJson?.error || data?.message || data?.error || error.message;
+        throw new Error(errMsg || 'Minting failed');
       }
 
-      if (data?.requiresRegistration) {
-        throw new Error('Wallet not registered. Registration should have happened automatically. Please try again.');
+      // Also check if data indicates an error (non-2xx responses may still return data)
+      if (data?.error || data?.success === false) {
+        throw new Error(data?.message || data?.error || 'Minting failed');
       }
 
       if (data?.error === 'simulation_failed') {
