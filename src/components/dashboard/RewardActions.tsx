@@ -265,10 +265,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       return true;
     }
 
-    // Mark as added IMMEDIATELY to prevent any race conditions or duplicate calls
-    // Even if the user declines or it's unsupported, we don't want to pester them again
-    markTokenAdded();
-
     const paramsOptions = {
       address: ZSOLAR_TOKEN_ADDRESS,
       symbol: ZSOLAR_TOKEN_SYMBOL,
@@ -294,6 +290,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         });
         logWatchAssetAttempt({ provider: 'wagmi', success: Boolean(success), params: paramsOptions });
         if (success) {
+          markTokenAdded();
           console.log('$ZSOLAR token added to wallet successfully');
           return true;
         }
@@ -322,6 +319,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         });
         logWatchAssetAttempt({ provider: 'walletClient', success: Boolean(success), params: paramsOptions });
         if (success) {
+          markTokenAdded();
           console.log('$ZSOLAR token added to wallet successfully');
           return true;
         }
@@ -1194,8 +1192,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             {/* Success/Error Icon */}
             <div className="relative w-20 h-20 mx-auto">
               {resultDialog.success ? (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
-                  <CheckCircle2 className="h-10 w-10 text-green-500" />
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-secondary/20 via-secondary/10 to-secondary/5 flex items-center justify-center ring-2 ring-secondary/20 shadow-xl">
+                  <CheckCircle2 className="h-10 w-10 text-secondary" />
                 </div>
               ) : (
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
@@ -1206,7 +1204,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
             {/* Title */}
             <div className="text-center space-y-2">
-              <h3 className={`text-xl font-bold ${resultDialog.success ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+              <h3 className={resultDialog.success ? 'text-xl font-bold text-secondary' : 'text-xl font-bold text-destructive'}>
                 {resultDialog.success ? (
                   <>
                     {resultDialog.type === 'token' && 'Tokens Minted!'}
@@ -1218,9 +1216,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   'Minting Failed'
                 )}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground whitespace-pre-line">
                 {resultDialog.message}
-              </p>
+              </div>
             </div>
             
             {/* Transaction Hash */}
@@ -1241,7 +1239,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
             {/* Success message */}
             {resultDialog.success && (
-              <div className="bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl p-4 border border-green-500/20">
+              <div className="bg-gradient-to-br from-secondary/15 via-secondary/10 to-secondary/5 rounded-xl p-4 border border-secondary/20">
                 <p className="text-sm text-muted-foreground">
                   {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet!'}
                   {resultDialog.type === 'nft' && 'Your Welcome NFT has been minted! Check your wallet or OpenSea to view it.'}
