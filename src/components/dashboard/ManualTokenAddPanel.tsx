@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, ExternalLink, Wallet, ArrowUpRight } from 'lucide-react';
+import { Copy, Check, ExternalLink, Wallet, ArrowUpRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS } from '@/lib/wagmi';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ import { useWalletType, openWalletApp } from '@/hooks/useWalletType';
 export function ManualTokenAddPanel() {
   const { toast } = useToast();
   const [copied, setCopied] = useState<'address' | 'symbol' | 'decimals' | null>(null);
+  const [switchingNetwork, setSwitchingNetwork] = useState(false);
   const walletInfo = useWalletType();
 
   const copyToClipboard = async (text: string, field: 'address' | 'symbol' | 'decimals') => {
@@ -33,7 +34,55 @@ export function ManualTokenAddPanel() {
     }
   };
 
+  const handleSwitchNetwork = async () => {
+    if (!walletInfo.supportsNetworkSwitch) return;
+    
+    setSwitchingNetwork(true);
+    try {
+      const success = await walletInfo.switchToBaseSepolia();
+      if (success) {
+        toast({
+          title: 'Network switched!',
+          description: 'You are now on Base Sepolia',
+        });
+      } else {
+        toast({
+          title: 'Network switch failed',
+          description: 'Please switch to Base Sepolia manually in your wallet',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Network switch error:', error);
+      toast({
+        title: 'Network switch failed',
+        description: 'Please switch to Base Sepolia manually in your wallet',
+        variant: 'destructive',
+      });
+    } finally {
+      setSwitchingNetwork(false);
+    }
+  };
+
   const handleOpenWallet = async () => {
+    // For MetaMask, try to switch network first before opening
+    if (walletInfo.type === 'metamask' && walletInfo.supportsNetworkSwitch && !walletInfo.isOnCorrectNetwork) {
+      setSwitchingNetwork(true);
+      try {
+        const switched = await walletInfo.switchToBaseSepolia();
+        if (switched) {
+          toast({
+            title: 'Switched to Base Sepolia!',
+            description: 'Opening MetaMask...',
+          });
+        }
+      } catch (error) {
+        console.log('Network switch failed, still opening wallet');
+      } finally {
+        setSwitchingNetwork(false);
+      }
+    }
+
     // Auto-copy contract address before opening wallet for convenience
     try {
       await navigator.clipboard.writeText(ZSOLAR_TOKEN_ADDRESS);
@@ -57,11 +106,6 @@ export function ManualTokenAddPanel() {
     }, 300);
   };
 
-  // Check if we're on Base Sepolia network reminder
-  const networkNote = walletInfo.type === 'coinbase' || walletInfo.type === 'metamask' 
-    ? 'Make sure you\'re on Base Sepolia network in your wallet settings.'
-    : null;
-
   return (
     <div className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 space-y-3">
       <div className="flex items-center gap-2.5">
@@ -71,19 +115,48 @@ export function ManualTokenAddPanel() {
         <span className="text-sm font-semibold text-foreground">Add $ZSOLAR to Your Wallet</span>
       </div>
       
+      {/* Network status & switch button for MetaMask */}
+      {walletInfo.supportsNetworkSwitch && !walletInfo.isOnCorrectNetwork && (
+        <Button
+          onClick={handleSwitchNetwork}
+          disabled={switchingNetwork}
+          variant="outline"
+          className="w-full h-10 rounded-xl border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
+        >
+          {switchingNetwork ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : null}
+          {switchingNetwork ? 'Switching...' : 'Switch to Base Sepolia'}
+        </Button>
+      )}
+      
+      {walletInfo.isOnCorrectNetwork && (
+        <div className="flex items-center gap-2 text-xs text-secondary">
+          <CheckCircle2 className="h-4 w-4" />
+          <span>Connected to Base Sepolia</span>
+        </div>
+      )}
+      
       {/* Open Wallet Button - copies address and opens wallet */}
       {walletInfo.deepLinkBase && (
         <div className="space-y-2">
           <Button
             onClick={handleOpenWallet}
+            disabled={switchingNetwork}
             className="w-full h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all duration-200"
           >
-            <ArrowUpRight className="h-4 w-4 mr-2" />
-            Copy Address & Open {walletInfo.name}
+            {switchingNetwork ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <ArrowUpRight className="h-4 w-4 mr-2" />
+            )}
+            {walletInfo.type === 'metamask' && !walletInfo.isOnCorrectNetwork 
+              ? 'Switch Network & Open MetaMask' 
+              : `Copy Address & Open ${walletInfo.name}`}
           </Button>
-          {networkNote && (
+          {!walletInfo.isOnCorrectNetwork && walletInfo.type === 'coinbase' && (
             <p className="text-[10px] text-center text-amber-600 dark:text-amber-400">
-              ⚠️ {networkNote}
+              ⚠️ Make sure you're on Base Sepolia network in your wallet settings.
             </p>
           )}
         </div>
