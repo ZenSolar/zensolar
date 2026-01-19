@@ -486,57 +486,14 @@ function PremiumWelcomeCard({
   isEarned,
   onViewArtwork,
   walletAddress,
-  onMintSuccess
+  onMintClick,
 }: { 
   isEarned: boolean;
   onViewArtwork: (milestone: NFTMilestone) => void;
   walletAddress?: string;
-  onMintSuccess?: () => void;
+  onMintClick?: () => void;
 }) {
-  const [isMinting, setIsMinting] = useState(false);
   const artwork = getNftArtwork('welcome');
-  
-  const handleClaimWelcomeNft = async () => {
-    if (!walletAddress) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
-
-    setIsMinting(true);
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error('Please sign in to claim');
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('mint-onchain', {
-        body: { 
-          action: 'mint-specific-nft', 
-          walletAddress,
-          tokenId: 0
-        },
-      });
-
-      if (error) throw error;
-
-      if (data.alreadyOwned) {
-        toast.info(data.message || 'You already own this NFT');
-      } else if (data.success) {
-        toast.success(data.message || 'Welcome NFT claimed successfully!');
-        onMintSuccess?.();
-      } else {
-        toast.error(data.message || 'Claiming failed');
-      }
-    } catch (err) {
-      console.error('Claim error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to claim Welcome NFT';
-      toast.error(errorMessage);
-    } finally {
-      setIsMinting(false);
-    }
-  };
   
   return (
     <motion.div
@@ -617,15 +574,13 @@ function PremiumWelcomeCard({
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleClaimWelcomeNft();
+                  onMintClick?.();
                 }}
-                disabled={isMinting || !walletAddress}
+                disabled={!walletAddress}
                 size="lg"
                 className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold shadow-xl border-0"
               >
-                {isMinting ? (
-                  <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Claiming...</>
-                ) : !walletAddress ? (
+                {!walletAddress ? (
                   <><Wallet className="h-5 w-5 mr-2" /> Connect Wallet to Claim</>
                 ) : (
                   <><Gift className="h-5 w-5 mr-2" /> Claim Your Welcome NFT</>
@@ -879,6 +834,10 @@ export default function NftCollection() {
   };
 
   const handleMintSuccess = async () => {
+    // Trigger celebration effects
+    triggerGoldBurst();
+    triggerCelebration();
+    
     if (walletAddress) {
       try {
         const { data, error } = await supabase.functions.invoke('mint-onchain', {
@@ -887,6 +846,10 @@ export default function NftCollection() {
 
         if (!error && data?.ownedNFTTokenIds) {
           setOwnedTokenIds(data.ownedNFTTokenIds);
+          // Update welcome NFT status if tokenId 0 is now owned
+          if (data.ownedNFTTokenIds.includes(0)) {
+            setWelcomeNftClaimed(true);
+          }
         }
       } catch (err) {
         console.error('Error refreshing on-chain status:', err);
@@ -955,11 +918,7 @@ export default function NftCollection() {
         isEarned={welcomeNftClaimed}
         onViewArtwork={handleViewArtwork}
         walletAddress={profile?.wallet_address || undefined}
-        onMintSuccess={() => {
-          setWelcomeNftClaimed(true);
-          triggerGoldBurst();
-          triggerCelebration();
-        }}
+        onMintClick={() => handleMintNFT(WELCOME_MILESTONE)}
       />
 
       {/* Stats Overview */}
