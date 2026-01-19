@@ -57,7 +57,7 @@ export function ManualTokenAddPanel() {
             onClick={() => copyToClipboard(ZSOLAR_TOKEN_ADDRESS, 'address')}
           >
             {copied === 'address' ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-secondary" />
             ) : (
               <Copy className="h-4 w-4 text-primary" />
             )}
@@ -77,7 +77,7 @@ export function ManualTokenAddPanel() {
             onClick={() => copyToClipboard(ZSOLAR_TOKEN_SYMBOL, 'symbol')}
           >
             {copied === 'symbol' ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-secondary" />
             ) : (
               <Copy className="h-4 w-4 text-primary" />
             )}
@@ -97,7 +97,7 @@ export function ManualTokenAddPanel() {
             onClick={() => copyToClipboard(String(ZSOLAR_TOKEN_DECIMALS), 'decimals')}
           >
             {copied === 'decimals' ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-secondary" />
             ) : (
               <Copy className="h-4 w-4 text-primary" />
             )}
