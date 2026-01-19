@@ -154,17 +154,29 @@ export function ManualTokenAddPanel() {
               ? 'Switch Network & Open MetaMask' 
               : `Copy Address & Open ${walletInfo.name}`}
           </Button>
-          {!walletInfo.isOnCorrectNetwork && walletInfo.type === 'coinbase' && (
-            <p className="text-[10px] text-center text-amber-600 dark:text-amber-400">
-              ⚠️ Make sure you're on Base Sepolia network in your wallet settings.
-            </p>
-          )}
+        </div>
+      )}
+      
+      {/* Base Wallet specific testnet instructions */}
+      {walletInfo.type === 'coinbase' && (
+        <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 space-y-2">
+          <p className="text-xs font-medium text-blue-700 dark:text-blue-400">
+            📱 One-time setup for Base Wallet:
+          </p>
+          <ol className="text-[11px] text-muted-foreground space-y-1 list-decimal list-inside">
+            <li>Open Base Wallet → tap <strong className="text-foreground">Settings</strong> (gear icon)</li>
+            <li>Tap <strong className="text-foreground">Display</strong></li>
+            <li>Toggle on <strong className="text-foreground">"Show testnet balances"</strong></li>
+          </ol>
+          <p className="text-[11px] text-green-600 dark:text-green-400 font-medium">
+            ✓ Your $ZSOLAR tokens will appear automatically after enabling!
+          </p>
         </div>
       )}
       
       <p className="text-xs text-muted-foreground leading-relaxed">
         {walletInfo.type === 'coinbase' ? (
-          <>In <strong className="text-foreground">Base Wallet</strong>, tokens often appear automatically. If not, go to <strong className="text-foreground">Tokens</strong> → <strong className="text-foreground">Manage</strong> → paste the contract address.</>
+          <>Once testnets are enabled, your tokens appear automatically. If needed, go to <strong className="text-foreground">Tokens</strong> → <strong className="text-foreground">Manage</strong> → paste the contract address.</>
         ) : walletInfo.type === 'metamask' ? (
           <>In <strong className="text-foreground">MetaMask</strong>, go to <strong className="text-foreground">Tokens</strong> → <strong className="text-foreground">Import Token</strong> → paste these:</>
         ) : (
