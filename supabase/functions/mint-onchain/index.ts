@@ -581,30 +581,10 @@ Deno.serve(async (req) => {
 
     // Action: Mint rewards (tokens + milestone NFTs)
     // Supports category-based minting: 'solar', 'ev_miles', 'battery', 'charging', or 'all' (default)
+    // NOTE: Welcome NFT is NOT required - it's just a free gift, not a registration requirement
     if (action === "mint-rewards") {
       const mintCategory = category || 'all'; // 'solar', 'ev_miles', 'battery', 'charging', 'all'
       console.log(`Minting rewards for category: ${mintCategory}`);
-
-      // First check if user is registered (has Welcome NFT)
-      const hasWelcome = await publicClient.readContract({
-        address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
-        abi: CONTROLLER_ABI,
-        functionName: "hasWelcomeNFT",
-        args: [walletAddress as `0x${string}`],
-      });
-
-      if (!hasWelcome) {
-        console.log("User not registered, cannot mint rewards without Welcome NFT");
-        return new Response(JSON.stringify({ 
-          success: false, 
-          error: "not_registered",
-          message: "You need to claim your Welcome NFT first before minting tokens. Go to NFT Collection and claim it.",
-          requiresRegistration: true
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
 
       // Get device breakdown from connected_devices to calculate real deltas
       const { data: devices } = await supabaseClient
