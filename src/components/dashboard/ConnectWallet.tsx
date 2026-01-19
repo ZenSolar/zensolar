@@ -4,6 +4,7 @@ import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Wallet, CheckCircle2, LogOut, AlertTriangle, Link2, Coins, ExternalLink } from 'lucide-react';
 import { CHAIN_ID, HAS_WALLETCONNECT_PROJECT_ID } from '@/lib/wagmi';
+import { supabase } from '@/integrations/supabase/client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +47,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
   const [events, setEvents] = useState<WalletDiagEvents>({});
   const [lastSaveError, setLastSaveError] = useState<string | null>(null);
   const [wcProjectIdDraft, setWcProjectIdDraft] = useState('');
+  const [isWcAutoConfiguring, setIsWcAutoConfiguring] = useState(false);
 
   const mark = useCallback((key: keyof WalletDiagEvents) => {
     setEvents((prev) => ({ ...prev, [key]: Date.now() }));
@@ -141,6 +143,47 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     }
   }, [isConnected, address, mark, walletAddress, onConnect]);
 
+  const fetchAndPersistWalletConnectProjectId = useCallback(async () => {
+    if (typeof window === 'undefined') return null;
+
+    // If it was manually configured already, don't touch it.
+    const existing = window.localStorage.getItem('walletconnect_project_id')?.trim();
+    if (existing) return existing;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('get-walletconnect-project-id');
+      if (error) throw error;
+
+      const projectId = (data as any)?.projectId?.trim?.() ?? '';
+      if (!projectId) return null;
+
+      window.localStorage.setItem('walletconnect_project_id', projectId);
+      return projectId;
+    } catch (err) {
+      console.warn('[ConnectWallet] Could not auto-fetch WalletConnect Project ID:', err);
+      return null;
+    }
+  }, []);
+
+  // Auto-configure WalletConnect Project ID (important for PWA where env vars aren't present)
+  useEffect(() => {
+    if (HAS_WALLETCONNECT_PROJECT_ID) return;
+    if (typeof window === 'undefined') return;
+
+    const attemptedKey = 'wc_project_id_autoconfig_attempted';
+    if (window.sessionStorage.getItem(attemptedKey)) return;
+    window.sessionStorage.setItem(attemptedKey, '1');
+
+    setIsWcAutoConfiguring(true);
+    fetchAndPersistWalletConnectProjectId()
+      .then((projectId) => {
+        if (!projectId) return;
+        toast.success('WalletConnect configured. Reloading…');
+        setTimeout(() => window.location.reload(), 250);
+      })
+      .finally(() => setIsWcAutoConfiguring(false));
+  }, [fetchAndPersistWalletConnectProjectId]);
+
   // Handler to open the mint tokens dialog
   const handleAddToken = useCallback(() => {
     if (onMintTokens) {
@@ -210,16 +253,26 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
     }
   }, [address, onConnect]);
 
-  const handleOpenConnect = useCallback(() => {
+  const handleOpenConnect = useCallback(async () => {
     mark('connectButtonTap');
 
     if (!HAS_WALLETCONNECT_PROJECT_ID) {
+      setIsWcAutoConfiguring(true);
+      const projectId = await fetchAndPersistWalletConnectProjectId();
+      setIsWcAutoConfiguring(false);
+
+      if (projectId) {
+        toast.success('WalletConnect configured. Reloading…');
+        setTimeout(() => window.location.reload(), 250);
+        return;
+      }
+
       toast.error('WalletConnect is not configured yet. Add your Project ID to continue.');
       return;
     }
 
     open({ view: 'Connect' });
-  }, [open, mark]);
+  }, [open, mark, fetchAndPersistWalletConnectProjectId]);
 
   const handleOpenAccount = useCallback(() => {
     open({ view: 'Account' });
@@ -521,17 +574,23 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
 
       <div className="flex flex-col gap-2">
         <button
-          onClick={handleOpenConnect}
+          onClick={() => void handleOpenConnect()}
           type="button"
-          disabled={!HAS_WALLETCONNECT_PROJECT_ID}
+          disabled={!HAS_WALLETCONNECT_PROJECT_ID && isWcAutoConfiguring}
           className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors active:scale-[0.98] ${
             HAS_WALLETCONNECT_PROJECT_ID
               ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-              : 'bg-muted text-muted-foreground cursor-not-allowed'
+              : isWcAutoConfiguring
+                ? 'bg-muted text-muted-foreground cursor-wait'
+                : 'bg-muted text-muted-foreground'
           }`}
         >
           <Wallet className="h-4 w-4" />
-          {HAS_WALLETCONNECT_PROJECT_ID ? 'Connect Wallet' : 'Configure WalletConnect'}
+          {HAS_WALLETCONNECT_PROJECT_ID
+            ? 'Connect Wallet'
+            : isWcAutoConfiguring
+              ? 'Configuring WalletConnect…'
+              : 'Configure WalletConnect'}
         </button>
 
         {!HAS_WALLETCONNECT_PROJECT_ID && (
