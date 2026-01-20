@@ -124,10 +124,26 @@ export default {
         },
         "icon-glow": {
           "0%, 100%": { 
-            filter: "drop-shadow(0 0 4px hsl(142 76% 36% / 0.6)) drop-shadow(0 0 8px hsl(142 76% 36% / 0.4)) brightness(1.1)"
+            filter: "drop-shadow(0 0 4px hsl(142 76% 36% / 0.6)) drop-shadow(0 0 8px hsl(142 76% 36% / 0.4)) brightness(1.1)",
+            transform: "scale(1)"
           },
           "50%": { 
-            filter: "drop-shadow(0 0 8px hsl(142 76% 36% / 0.8)) drop-shadow(0 0 16px hsl(142 76% 36% / 0.5)) brightness(1.3)"
+            filter: "drop-shadow(0 0 12px hsl(142 76% 36% / 0.9)) drop-shadow(0 0 20px hsl(142 76% 36% / 0.6)) brightness(1.4)",
+            transform: "scale(1.08)"
+          },
+        },
+        "sidebar-glow": {
+          "0%": { 
+            boxShadow: "0 0 4px hsl(142 76% 36% / 0.3), inset 0 0 4px hsl(142 76% 36% / 0.1)",
+            backgroundColor: "hsl(142 76% 36% / 0.05)"
+          },
+          "50%": { 
+            boxShadow: "0 0 16px hsl(142 76% 36% / 0.5), inset 0 0 8px hsl(142 76% 36% / 0.2)",
+            backgroundColor: "hsl(142 76% 36% / 0.12)"
+          },
+          "100%": { 
+            boxShadow: "0 0 4px hsl(142 76% 36% / 0.3), inset 0 0 4px hsl(142 76% 36% / 0.1)",
+            backgroundColor: "hsl(142 76% 36% / 0.05)"
           },
         },
       },
@@ -141,7 +157,8 @@ export default {
         "border-glow": "border-glow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "text-glow": "text-glow 2s ease-in-out infinite",
-        "icon-glow": "icon-glow 2s ease-in-out infinite",
+        "icon-glow": "icon-glow 1.5s ease-in-out infinite",
+        "sidebar-glow": "sidebar-glow 2s ease-in-out infinite",
       },
     },
   },
