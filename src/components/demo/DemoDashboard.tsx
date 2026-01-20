@@ -5,7 +5,7 @@ import { useConfetti } from '@/hooks/useConfetti';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ConnectAccounts } from '@/components/dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from '@/components/dashboard/ConnectSocialAccounts';
-import { ConnectWallet } from '@/components/dashboard/ConnectWallet';
+import { DemoConnectWallet } from '@/components/dashboard/DemoConnectWallet';
 import { ActivityMetrics, MintCategory } from '@/components/dashboard/ActivityMetrics';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { GettingStartedGuide } from '@/components/dashboard/GettingStartedGuide';
@@ -233,11 +233,10 @@ export function DemoDashboard() {
         )}
 
         <AnimatedItem id="connect-wallet">
-          <ConnectWallet
+          <DemoConnectWallet
             walletAddress={profile.wallet_address}
             onConnect={handleConnectWallet}
             onDisconnect={handleDisconnectWallet}
-            isDemo={true}
             onMintTokens={() => {
               // Open mint dialog for all categories when "Add $ZSOLAR" is tapped
               demoRewardActionsRef.current?.openMintDialogForCategory?.('all');
