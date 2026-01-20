@@ -57,13 +57,6 @@ const storeItems: StoreItem[] = [
   { id: "1", name: "Wireless Earbuds Pro", description: "Premium noise-canceling earbuds with 30hr battery life", price: 2500, category: "electronics", image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&h=600&fit=crop", icon: Headphones, inStock: true },
   { id: "2", name: "Smart Watch", description: "Solar-powered smartwatch with health tracking", price: 4500, category: "electronics", image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop", icon: Watch, inStock: true },
   { id: "3", name: "Portable Power Bank", description: "20,000mAh solar-compatible power bank", price: 1200, category: "electronics", image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=600&h=600&fit=crop", icon: Battery, inStock: true },
-  // Merch
-  { id: "4", name: "ZenSolar T-Shirt", description: "100% organic cotton tee with ZenSolar logo", price: 500, category: "merch", image: merchTshirt, icon: Shirt, inStock: true },
-  { id: "5", name: "ZenSolar Hoodie", description: "Premium eco-friendly hoodie with embroidered logo", price: 1200, category: "merch", image: merchHoodie, icon: Shirt, inStock: true, featured: true },
-  { id: "6", name: "ZenSolar Cap", description: "Adjustable cap with embroidered sun logo", price: 350, category: "merch", image: merchCap, icon: Sun, inStock: true },
-  // Energy
-  { id: "7", name: "NFT Badge: Solar Pioneer", description: "Exclusive digital collectible for early adopters", price: 1000, category: "energy", image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=600&fit=crop", icon: Star, inStock: true },
-  { id: "8", name: "Carbon Offset Certificate", description: "Offset 1 ton of CO2 emissions", price: 800, category: "energy", image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=600&fit=crop", icon: Sun, inStock: true },
   // Power & Charging Products
   { 
     id: "ps-1", 
@@ -157,6 +150,14 @@ const storeItems: StoreItem[] = [
     brand: "Anker",
     featured: true
   },
+  // Merch (third to last group)
+  { id: "4", name: "ZenSolar T-Shirt", description: "100% organic cotton tee with ZenSolar logo", price: 500, category: "merch", image: merchTshirt, icon: Shirt, inStock: true },
+  { id: "5", name: "ZenSolar Hoodie", description: "Premium eco-friendly hoodie with embroidered logo", price: 1200, category: "merch", image: merchHoodie, icon: Shirt, inStock: true, featured: true },
+  { id: "6", name: "ZenSolar Cap", description: "Adjustable cap with embroidered sun logo", price: 350, category: "merch", image: merchCap, icon: Sun, inStock: true },
+  // NFT (second to last)
+  { id: "7", name: "NFT Badge: Solar Pioneer", description: "Exclusive digital collectible for early adopters", price: 1000, category: "energy", image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=600&fit=crop", icon: Star, inStock: true },
+  // Carbon Offset (last)
+  { id: "8", name: "Carbon Offset Certificate", description: "Offset 1 ton of CO2 emissions", price: 800, category: "energy", image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=600&fit=crop", icon: Sun, inStock: true },
 ];
 
 const categories = [
