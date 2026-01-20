@@ -12,6 +12,7 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import merchTshirt from "@/assets/merch-tshirt.jpg";
 import merchHoodie from "@/assets/merch-hoodie.jpg";
 import merchCap from "@/assets/merch-cap.jpg";
+import zenLogo from "@/assets/zen-sidebar-icon.png";
 
 interface StoreItem {
   id: string;
@@ -126,7 +127,7 @@ export default function Store() {
       </div>
 
       <div className="container max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-8">
-        {/* Premium Header */}
+        {/* Premium Header with ZenSolar Logo */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }} 
           animate={{ opacity: 1, y: 0 }} 
@@ -134,21 +135,26 @@ export default function Store() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-secondary via-primary to-accent rounded-2xl blur-lg opacity-60 animate-pulse" />
-                <div className="relative p-4 rounded-2xl bg-gradient-to-br from-secondary to-primary shadow-xl">
-                  <ShoppingBag className="h-7 w-7 text-white" />
-                </div>
+              {/* ZenSolar Logo */}
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary via-primary to-accent rounded-2xl blur-lg opacity-50 animate-pulse" />
+                <img 
+                  src={zenLogo} 
+                  alt="ZenSolar" 
+                  className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl object-cover shadow-xl ring-2 ring-secondary/30"
+                />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">$ZSOLAR Store</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">ZenSolar Store</h1>
                   <Badge variant="secondary" className="gap-1 text-xs font-medium bg-secondary/15 text-secondary border-secondary/30">
                     <Sparkles className="h-3 w-3" />
                     Beta
                   </Badge>
                 </div>
-                <p className="text-muted-foreground text-sm mt-0.5">Redeem your tokens for exclusive products & experiences</p>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Redeem your <span className="font-semibold text-secondary">$ZSOLAR</span> tokens for exclusive rewards
+                </p>
               </div>
             </div>
           </div>
@@ -313,18 +319,20 @@ export default function Store() {
           transition={{ delay: 0.2 }}
         >
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="flex w-full max-w-2xl h-auto p-1.5 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-sm gap-1">
-              {categories.map((cat) => (
-                <TabsTrigger 
-                  key={cat.id} 
-                  value={cat.id} 
-                  className="flex-1 py-3 px-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all duration-200 gap-2"
-                >
-                  <cat.icon className="h-4 w-4 hidden sm:block" />
-                  <span>{cat.id === 'giftcards' ? 'Gift Cards' : cat.id === 'all' ? 'All' : cat.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
+              <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto p-1.5 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-sm gap-1">
+                {categories.map((cat) => (
+                  <TabsTrigger 
+                    key={cat.id} 
+                    value={cat.id} 
+                    className="flex-shrink-0 py-2.5 px-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all duration-200 gap-2 whitespace-nowrap"
+                  >
+                    <cat.icon className="h-4 w-4 hidden sm:block" />
+                    <span>{cat.id === 'giftcards' ? 'Gift Cards' : cat.id === 'all' ? 'All' : cat.label}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
           </Tabs>
         </motion.div>
 
