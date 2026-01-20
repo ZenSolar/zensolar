@@ -16,7 +16,8 @@ import {
   BookOpen,
   Cpu,
   Award,
-  BarChart3
+  BarChart3,
+  Zap
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -146,7 +147,14 @@ export function AppSidebar() {
                       }
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      {item.url === "/store" ? (
+                        <span className="flex items-center gap-1">
+                          <Zap className="h-3 w-3 text-primary" />
+                          {item.title}
+                        </span>
+                      ) : (
+                        <span>{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
