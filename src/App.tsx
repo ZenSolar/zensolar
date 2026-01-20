@@ -59,7 +59,8 @@ function PageLoader() {
 const App = () => {
   // Foreground fallback: if a push arrives while the app is open, show an in-app toast.
   useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
+    // Early return if service workers aren't supported
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
     const onMessage = (event: MessageEvent) => {
       const msg = event.data;
@@ -72,8 +73,11 @@ const App = () => {
       }
     };
 
-    navigator.serviceWorker.addEventListener('message', onMessage);
-    return () => navigator.serviceWorker.removeEventListener('message', onMessage);
+    // Ensure controller exists before adding listener
+    if (navigator.serviceWorker.controller || navigator.serviceWorker.ready) {
+      navigator.serviceWorker.addEventListener('message', onMessage);
+      return () => navigator.serviceWorker.removeEventListener('message', onMessage);
+    }
   }, []);
 
   return (
