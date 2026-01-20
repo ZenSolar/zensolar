@@ -21,7 +21,10 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         className
       )}
     >
-      <div className="flex h-14 items-center justify-between px-4 pt-safe border-b border-border">
+      {/* Safe area spacer for PWA/notch */}
+      <div className="pt-safe" />
+      {/* Content row with icons */}
+      <div className="flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" />
           {isDemo && (
@@ -33,6 +36,8 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         </div>
         <ThemeToggle />
       </div>
+      {/* Border below everything */}
+      <div className="border-b border-border" />
     </header>
   );
 }
