@@ -34,10 +34,10 @@ import {
 
 const mainNavItems = [
   { title: "Dashboard", url: "/demo", icon: LayoutDashboard },
-  { title: "NFT Collection", url: "/demo/nft-collection", icon: Award, badge: "Beta" },
+  { title: "NFT Collection", url: "/demo/nft-collection", icon: Award },
+  { title: "$ZSOLAR Store", url: "/demo/store", icon: ShoppingBag },
   { title: "How It Works", url: "/demo/how-it-works", icon: BookOpen },
   { title: "Technology", url: "/demo/technology", icon: Cpu },
-  { title: "Store", url: "/demo/store", icon: ShoppingBag },
   { title: "Tokenomics", url: "/demo/tokenomics", icon: Coins },
   { title: "Mint History", url: "/demo/mint-history", icon: History },
   { title: "Referrals", url: "/demo/referrals", icon: Users },
@@ -95,20 +95,13 @@ export function DemoSidebar() {
                       end={item.url === "/demo"}
                       onClick={handleNavClick}
                       className={({ isActive }) => 
-                        isActive 
+                        `${isActive 
                           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
+                          : "hover:bg-sidebar-accent/50"} ${item.url === "/demo/store" ? "text-secondary font-semibold rounded-lg animate-sidebar-glow" : ""}`
                       }
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span className="flex items-center gap-2">
-                        {item.title}
-                        {item.badge && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </span>
+                      <item.icon className={`h-4 w-4 ${item.url === "/demo/store" ? "animate-icon-glow text-secondary" : ""}`} />
+                      <span className={item.url === "/demo/store" ? "animate-text-glow" : ""}>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
