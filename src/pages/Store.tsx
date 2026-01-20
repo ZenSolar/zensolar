@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2, CreditCard, TrendingUp, ChevronRight, Award, Crown, Package } from "lucide-react";
+import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2, CreditCard, TrendingUp, ChevronRight, Award, Crown, Package, Clock, Plug, Lightbulb, Home } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +48,114 @@ const storeItems: StoreItem[] = [
   { id: "6", name: "ZenSolar Cap", description: "Adjustable cap with embroidered sun logo", price: 350, category: "merch", image: merchCap, icon: Sun, inStock: false },
   { id: "7", name: "NFT Badge: Solar Pioneer", description: "Exclusive digital collectible for early adopters", price: 1000, category: "energy", image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=300&fit=crop", icon: Star, inStock: true },
   { id: "8", name: "Carbon Offset Certificate", description: "Offset 1 ton of CO2 emissions", price: 800, category: "energy", image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&h=300&fit=crop", icon: Sun, inStock: true },
+];
+
+// Coming Soon items - lifestyle products for homeowners
+interface ComingSoonItem {
+  id: string;
+  name: string;
+  description: string;
+  estimatedPrice: number;
+  image: string;
+  icon: React.ElementType;
+  tier: "affordable" | "moderate" | "premium";
+  brand?: string;
+}
+
+const comingSoonItems: ComingSoonItem[] = [
+  // Affordable tier (under 1,500 tokens)
+  { 
+    id: "cs-1", 
+    name: "Anker Nano Charger 30W", 
+    description: "Ultra-compact USB-C fast charger for phones and tablets", 
+    estimatedPrice: 250, 
+    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400&h=300&fit=crop", 
+    icon: Plug,
+    tier: "affordable",
+    brand: "Anker"
+  },
+  { 
+    id: "cs-2", 
+    name: "Tesla CyberVessel", 
+    description: "Stainless steel insulated water bottle inspired by Cybertruck design", 
+    estimatedPrice: 750, 
+    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=300&fit=crop", 
+    icon: Sun,
+    tier: "affordable",
+    brand: "Tesla"
+  },
+  { 
+    id: "cs-3", 
+    name: "EcoFlow USB-C Cable Set", 
+    description: "Premium braided cables with 240W fast charging support", 
+    estimatedPrice: 400, 
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop", 
+    icon: Zap,
+    tier: "affordable",
+    brand: "EcoFlow"
+  },
+  // Moderate tier (1,500 - 5,000 tokens)
+  { 
+    id: "cs-4", 
+    name: "Anker MagGo 3-in-1 Charger", 
+    description: "Foldable wireless charging station for phone, watch, and earbuds", 
+    estimatedPrice: 1500, 
+    image: "https://images.unsplash.com/photo-1615526675159-e248c68f0c5d?w=400&h=300&fit=crop", 
+    icon: Battery,
+    tier: "moderate",
+    brand: "Anker"
+  },
+  { 
+    id: "cs-5", 
+    name: "Tesla Mobile Connector", 
+    description: "Portable EV charging adapter with multiple outlet options", 
+    estimatedPrice: 4000, 
+    image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400&h=300&fit=crop", 
+    icon: Plug,
+    tier: "moderate",
+    brand: "Tesla"
+  },
+  { 
+    id: "cs-6", 
+    name: "Anker PowerCore 24K Bank", 
+    description: "High-capacity 24,000mAh portable power station for laptops", 
+    estimatedPrice: 1800, 
+    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=300&fit=crop", 
+    icon: Battery,
+    tier: "moderate",
+    brand: "Anker"
+  },
+  // Premium tier (5,000+ tokens)
+  { 
+    id: "cs-7", 
+    name: "EcoFlow DELTA 3 Power Station", 
+    description: "1024Wh portable power station for home backup and outdoor adventures", 
+    estimatedPrice: 6500, 
+    image: "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=400&h=300&fit=crop", 
+    icon: Lightbulb,
+    tier: "premium",
+    brand: "EcoFlow"
+  },
+  { 
+    id: "cs-8", 
+    name: "Tesla Wall Connector", 
+    description: "Premium Level 2 home charging with up to 48A and WiFi connectivity", 
+    estimatedPrice: 7000, 
+    image: "https://images.unsplash.com/photo-1647166545674-ce28ce93bdca?w=400&h=300&fit=crop", 
+    icon: Home,
+    tier: "premium",
+    brand: "Tesla"
+  },
+  { 
+    id: "cs-9", 
+    name: "Anker SOLIX C1000 Station", 
+    description: "1056Wh whole-home backup with fast solar charging capability", 
+    estimatedPrice: 7500, 
+    image: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=400&h=300&fit=crop", 
+    icon: Sun,
+    tier: "premium",
+    brand: "Anker"
+  },
 ];
 
 const categories = [
@@ -477,6 +585,136 @@ export default function Store() {
             <p className="text-muted-foreground text-sm mt-1">Check back soon for new products in this category</p>
           </motion.div>
         )}
+
+        {/* Coming Soon Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-6"
+        >
+          {/* Section Header */}
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent to-primary rounded-xl blur opacity-50 animate-pulse" />
+              <div className="relative p-3 rounded-xl bg-gradient-to-br from-accent via-primary to-secondary">
+                <Clock className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Coming Soon</h2>
+              <p className="text-sm text-muted-foreground">Exciting rewards launching soon — keep earning!</p>
+            </div>
+          </div>
+
+          {/* Tier Sections */}
+          {(["affordable", "moderate", "premium"] as const).map((tier) => {
+            const tierItems = comingSoonItems.filter(item => item.tier === tier);
+            const tierConfig = {
+              affordable: { 
+                label: "Everyday Essentials", 
+                sublabel: "Under 1,500 $ZSOLAR",
+                gradient: "from-emerald-500/10 to-teal-500/10",
+                borderColor: "border-emerald-500/20"
+              },
+              moderate: { 
+                label: "Smart Home Upgrades", 
+                sublabel: "1,500 - 5,000 $ZSOLAR",
+                gradient: "from-blue-500/10 to-indigo-500/10",
+                borderColor: "border-blue-500/20"
+              },
+              premium: { 
+                label: "Premium Power", 
+                sublabel: "5,000+ $ZSOLAR",
+                gradient: "from-amber-500/10 to-orange-500/10",
+                borderColor: "border-amber-500/20"
+              },
+            };
+            const config = tierConfig[tier];
+
+            return (
+              <div key={tier} className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-lg font-semibold">{config.label}</h3>
+                  <Badge variant="outline" className={`text-xs ${config.borderColor}`}>
+                    {config.sublabel}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {tierItems.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                    >
+                      <Card className={`relative overflow-hidden border bg-gradient-to-br ${config.gradient} backdrop-blur-sm hover:shadow-lg transition-all duration-300 group`}>
+                        {/* Coming Soon Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10 pointer-events-none" />
+                        
+                        {/* Image */}
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <OptimizedImage
+                            src={item.image}
+                            alt={item.name}
+                            aspectRatio="4/3"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="opacity-70 group-hover:opacity-85 group-hover:scale-105 transition-all duration-500"
+                          />
+                          {/* Brand Badge */}
+                          {item.brand && (
+                            <div className="absolute top-3 left-3 z-20">
+                              <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm text-xs font-medium shadow-lg">
+                                {item.brand}
+                              </Badge>
+                            </div>
+                          )}
+                          {/* Coming Soon Badge */}
+                          <div className="absolute top-3 right-3 z-20">
+                            <Badge className="bg-accent/90 text-accent-foreground border-0 gap-1 shadow-lg">
+                              <Clock className="h-3 w-3" />
+                              Soon
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        {/* Content */}
+                        <CardContent className="relative z-20 pt-4 pb-4 space-y-3">
+                          <div>
+                            <h4 className="font-semibold text-base line-clamp-1 group-hover:text-primary transition-colors">
+                              {item.name}
+                            </h4>
+                            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                              {item.description}
+                            </p>
+                          </div>
+                          
+                          {/* Estimated Price */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1 rounded-md bg-secondary/10">
+                                <Zap className="h-3.5 w-3.5 text-secondary" />
+                              </div>
+                              <span className="text-sm font-semibold text-secondary">
+                                ~{item.estimatedPrice.toLocaleString()}
+                              </span>
+                              <span className="text-xs text-muted-foreground">$ZSOLAR</span>
+                            </div>
+                            <Button variant="ghost" size="sm" disabled className="gap-1 text-xs opacity-60">
+                              <Clock className="h-3 w-3" />
+                              Notify Me
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
 
         {/* Coming Soon Dialog - Enhanced */}
         <Dialog open={redeemDialog.open} onOpenChange={(open) => setRedeemDialog({ ...redeemDialog, open })}>
