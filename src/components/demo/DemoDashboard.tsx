@@ -2,7 +2,7 @@ import { useRef, useCallback } from 'react';
 import { useDemoData } from '@/hooks/useDemoData';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useConfetti } from '@/hooks/useConfetti';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+// DashboardHeader removed - TopNav in DemoLayout handles the fixed header
 import { ConnectAccounts } from '@/components/dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from '@/components/dashboard/ConnectSocialAccounts';
 import { DemoConnectWallet } from '@/components/dashboard/DemoConnectWallet';
@@ -179,8 +179,6 @@ export function DemoDashboard() {
       ref={containerRef}
       className="bg-background min-h-full w-full"
     >
-      <DashboardHeader isDemo={true} />
-      
       <PullToRefreshIndicator 
         pullDistance={pullDistance} 
         isRefreshing={isRefreshing}
