@@ -69,7 +69,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "Anker Nano Charger 30W", 
     description: "Ultra-compact USB-C fast charger for phones and tablets", 
     estimatedPrice: 250, 
-    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400&h=300&fit=crop", 
+    image: "https://m.media-amazon.com/images/I/51d+3FwGI0L._AC_SL1500_.jpg", 
     icon: Plug,
     tier: "affordable",
     brand: "Anker"
@@ -79,7 +79,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "Tesla CyberVessel", 
     description: "Stainless steel insulated water bottle inspired by Cybertruck design", 
     estimatedPrice: 750, 
-    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=300&fit=crop", 
+    image: "https://digitalassets.tesla.com/tesla-contents/image/upload/f_auto,q_auto/Shop-Fall-2024-CyberVessel-02.jpg", 
     icon: Sun,
     tier: "affordable",
     brand: "Tesla"
@@ -89,7 +89,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "EcoFlow USB-C Cable Set", 
     description: "Premium braided cables with 240W fast charging support", 
     estimatedPrice: 400, 
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop", 
+    image: "https://us.ecoflow.com/cdn/shop/products/USB-C_to_USB-C_Cable_6.6ft_01.png?v=1679378936&width=1200", 
     icon: Zap,
     tier: "affordable",
     brand: "EcoFlow"
@@ -100,7 +100,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "Anker MagGo 3-in-1 Charger", 
     description: "Foldable wireless charging station for phone, watch, and earbuds", 
     estimatedPrice: 1500, 
-    image: "https://images.unsplash.com/photo-1615526675159-e248c68f0c5d?w=400&h=300&fit=crop", 
+    image: "https://m.media-amazon.com/images/I/61UGe+WVQFL._AC_SL1500_.jpg", 
     icon: Battery,
     tier: "moderate",
     brand: "Anker"
@@ -110,7 +110,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "Tesla Mobile Connector", 
     description: "Portable EV charging adapter with multiple outlet options", 
     estimatedPrice: 4000, 
-    image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400&h=300&fit=crop", 
+    image: "https://digitalassets.tesla.com/tesla-contents/image/upload/f_auto,q_auto/Charging-Mobile-Connector-Hero.png", 
     icon: Plug,
     tier: "moderate",
     brand: "Tesla"
@@ -120,7 +120,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "Anker PowerCore 24K Bank", 
     description: "High-capacity 24,000mAh portable power station for laptops", 
     estimatedPrice: 1800, 
-    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=300&fit=crop", 
+    image: "https://m.media-amazon.com/images/I/61mHv6cJUfL._AC_SL1500_.jpg", 
     icon: Battery,
     tier: "moderate",
     brand: "Anker"
@@ -131,7 +131,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "EcoFlow DELTA 3 Power Station", 
     description: "1024Wh portable power station for home backup and outdoor adventures", 
     estimatedPrice: 6500, 
-    image: "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=400&h=300&fit=crop", 
+    image: "https://us.ecoflow.com/cdn/shop/files/DELTA_3_US_1.png?v=1727251447&width=1200", 
     icon: Lightbulb,
     tier: "premium",
     brand: "EcoFlow"
@@ -141,7 +141,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "Tesla Wall Connector", 
     description: "Premium Level 2 home charging with up to 48A and WiFi connectivity", 
     estimatedPrice: 7000, 
-    image: "https://images.unsplash.com/photo-1647166545674-ce28ce93bdca?w=400&h=300&fit=crop", 
+    image: "https://digitalassets.tesla.com/tesla-contents/image/upload/f_auto,q_auto/Charging-Wall-Connector-Hero.png", 
     icon: Home,
     tier: "premium",
     brand: "Tesla"
@@ -151,7 +151,7 @@ const comingSoonItems: ComingSoonItem[] = [
     name: "Anker SOLIX C1000 Station", 
     description: "1056Wh whole-home backup with fast solar charging capability", 
     estimatedPrice: 7500, 
-    image: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=400&h=300&fit=crop", 
+    image: "https://m.media-amazon.com/images/I/71jCybVpWgL._AC_SL1500_.jpg", 
     icon: Sun,
     tier: "premium",
     brand: "Anker"
@@ -164,6 +164,7 @@ const categories = [
   { id: "electronics", label: "Electronics", icon: Headphones },
   { id: "merch", label: "Merch", icon: Shirt },
   { id: "energy", label: "Energy", icon: Sun },
+  { id: "coming-soon", label: "Coming Soon", icon: Clock },
 ];
 
 export default function Store() {
@@ -217,9 +218,10 @@ export default function Store() {
 
   useEffect(() => { fetchTokenBalance(); }, [fetchTokenBalance]);
 
-  const filteredItems = activeTab === "all" ? storeItems : storeItems.filter(item => item.category === activeTab);
+  const filteredItems = activeTab === "all" ? storeItems : activeTab === "coming-soon" ? [] : storeItems.filter(item => item.category === activeTab);
   const canAfford = (price: number) => userTokenBalance !== null && userTokenBalance >= price;
   const getAffordabilityPercent = (price: number) => userTokenBalance !== null ? Math.min(100, (userTokenBalance / price) * 100) : 0;
+  const isComingSoonTab = activeTab === "coming-soon";
 
   // Get featured item for hero section
   const featuredItem = storeItems.find(item => item.featured && item.id === "0");
@@ -328,8 +330,8 @@ export default function Store() {
           </Card>
         </motion.div>
 
-        {/* Featured Hero Item */}
-        {featuredItem && (
+        {/* Featured Hero Item - Hide when Coming Soon tab is active */}
+        {featuredItem && !isComingSoonTab && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -444,7 +446,8 @@ export default function Store() {
           </Tabs>
         </motion.div>
 
-        {/* Products Grid */}
+        {/* Products Grid - Hide when Coming Soon tab is active */}
+        {!isComingSoonTab && (
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -570,9 +573,10 @@ export default function Store() {
             ))}
           </AnimatePresence>
         </motion.div>
+        )}
 
-        {/* Empty State */}
-        {filteredItems.length === 0 && (
+        {/* Empty State - Show only for non-coming-soon tabs */}
+        {filteredItems.length === 0 && !isComingSoonTab && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -586,13 +590,14 @@ export default function Store() {
           </motion.div>
         )}
 
-        {/* Coming Soon Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="space-y-6"
-        >
+        {/* Coming Soon Section - Show when Coming Soon tab is active */}
+        {isComingSoonTab && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-6"
+          >
           {/* Section Header */}
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -715,6 +720,7 @@ export default function Store() {
             );
           })}
         </motion.div>
+        )}
 
         {/* Coming Soon Dialog - Enhanced */}
         <Dialog open={redeemDialog.open} onOpenChange={(open) => setRedeemDialog({ ...redeemDialog, open })}>
