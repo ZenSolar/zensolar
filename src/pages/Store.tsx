@@ -252,7 +252,18 @@ function PremiumProductCard({
             </Badge>
           )}
           {item.brand && (
-            <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-[10px] shadow-lg">
+            <Badge 
+              variant="secondary" 
+              className={`backdrop-blur-sm text-[10px] shadow-lg font-semibold border-0 ${
+                item.brand === 'Tesla' 
+                  ? 'bg-red-600 text-white' 
+                  : item.brand === 'Anker' 
+                    ? 'bg-blue-600 text-white' 
+                    : item.brand === 'EcoFlow' 
+                      ? 'bg-orange-500 text-white' 
+                      : 'bg-foreground text-background'
+              }`}
+            >
               {item.brand}
             </Badge>
           )}
