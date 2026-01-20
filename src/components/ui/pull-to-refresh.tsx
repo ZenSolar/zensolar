@@ -1,6 +1,6 @@
 import { Loader2, RefreshCw, Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PullToRefreshIndicatorProps {
@@ -24,6 +24,8 @@ export function PullToRefreshIndicator({
   const [wasReady, setWasReady] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const wasRefreshingRef = useRef(false);
+
   // Trigger bounce animation when crossing threshold
   useEffect(() => {
     if (isReady && !wasReady && !isRefreshing) {
@@ -31,12 +33,23 @@ export function PullToRefreshIndicator({
       const timer = setTimeout(() => setIsBouncing(false), 300);
       return () => clearTimeout(timer);
     }
-    setWasReady(isReady);
+    // Only set wasReady to true when isReady becomes true (not back to false)
+    if (isReady && !wasReady) {
+      setWasReady(true);
+    }
   }, [isReady, wasReady, isRefreshing]);
+
+  // Track when refresh starts
+  useEffect(() => {
+    if (isRefreshing) {
+      wasRefreshingRef.current = true;
+    }
+  }, [isRefreshing]);
 
   // Show success state briefly after refresh completes, then auto-hide
   useEffect(() => {
-    if (!isRefreshing && wasReady) {
+    if (!isRefreshing && wasRefreshingRef.current) {
+      wasRefreshingRef.current = false;
       setShowSuccess(true);
       const timer = setTimeout(() => {
         setShowSuccess(false);
@@ -44,7 +57,7 @@ export function PullToRefreshIndicator({
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isRefreshing, wasReady]);
+  }, [isRefreshing]);
 
   if (!showIndicator && !showSuccess) return null;
 
