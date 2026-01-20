@@ -177,7 +177,7 @@ export function DemoDashboard() {
   return (
     <div 
       ref={containerRef}
-      className="bg-background min-h-full overflow-x-hidden overflow-y-auto w-full"
+      className="bg-background min-h-full w-full"
     >
       <DashboardHeader isDemo={true} />
       

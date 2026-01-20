@@ -45,7 +45,7 @@ export function PullToRefreshWrapper({
     <div
       ref={containerRef}
       className={cn(
-        'h-full overflow-y-auto overscroll-contain',
+        'min-h-full overscroll-contain',
         className
       )}
     >

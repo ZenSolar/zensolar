@@ -1,6 +1,6 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { ThemeToggle } from "./ThemeToggle";
+import { TopNav } from "./TopNav";
 import { MenuTooltip } from "./MenuTooltip";
 
 interface AppLayoutProps {
@@ -13,14 +13,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="min-h-screen min-h-[100dvh] flex w-full min-w-0 overflow-x-hidden">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh] min-w-0">
-          {/* Sticky header with safe area - min-h ensures content fits below notch */}
-          <header className="min-h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex items-center justify-between px-4 pt-safe pb-2">
-            <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" />
-            <ThemeToggle />
-          </header>
+          {/* Fixed header - always visible */}
+          <TopNav />
           <MenuTooltip />
-          {/* Main content with smooth scrolling */}
-          <main className="flex-1 scroll-ios pb-safe min-w-0 overflow-x-hidden">
+          {/* Main content with padding-top to offset fixed header */}
+          <main className="flex-1 pt-14 pb-safe min-w-0 overflow-x-hidden">
             {children}
           </main>
         </div>
