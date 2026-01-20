@@ -112,6 +112,16 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
         },
+        "text-glow": {
+          "0%, 100%": { 
+            textShadow: "0 0 4px hsl(var(--primary) / 0.4), 0 0 8px hsl(var(--primary) / 0.2)",
+            filter: "brightness(1)"
+          },
+          "50%": { 
+            textShadow: "0 0 8px hsl(var(--primary) / 0.6), 0 0 16px hsl(var(--primary) / 0.4)",
+            filter: "brightness(1.1)"
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -122,6 +132,7 @@ export default {
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "border-glow": "border-glow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
+        "text-glow": "text-glow 2s ease-in-out infinite",
       },
     },
   },

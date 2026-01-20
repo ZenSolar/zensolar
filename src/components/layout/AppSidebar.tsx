@@ -16,8 +16,7 @@ import {
   BookOpen,
   Cpu,
   Award,
-  BarChart3,
-  Zap
+  BarChart3
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -141,20 +140,13 @@ export function AppSidebar() {
                       end={item.url === "/"}
                       onClick={handleNavClick}
                       className={({ isActive }) => 
-                        isActive 
+                        `${isActive 
                           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
+                          : "hover:bg-sidebar-accent/50"} ${item.url === "/store" ? "animate-text-glow text-primary" : ""}`
                       }
                     >
-                      <item.icon className="h-4 w-4" />
-                      {item.url === "/store" ? (
-                        <span className="flex items-center gap-1">
-                          <Zap className="h-3 w-3 text-primary" />
-                          {item.title}
-                        </span>
-                      ) : (
-                        <span>{item.title}</span>
-                      )}
+                      <item.icon className={`h-4 w-4 ${item.url === "/store" ? "animate-text-glow" : ""}`} />
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
