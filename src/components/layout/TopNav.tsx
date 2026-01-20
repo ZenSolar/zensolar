@@ -17,11 +17,11 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
   return (
     <header 
       className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "fixed inset-x-0 top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         className
       )}
     >
-      <div className="flex h-14 items-center justify-between px-4 pt-safe">
+      <div className="flex h-14 items-center justify-between px-4 pt-safe border-b border-border">
         <div className="flex items-center gap-2">
           <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" />
           {isDemo && (
