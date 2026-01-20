@@ -57,8 +57,8 @@ const demoConnectedAccounts: ConnectedAccount[] = [
 ];
 
 const createDemoProfile = () => ({
-  display_name: 'Demo User',
-  wallet_address: '0xDemo1234...5678',
+  display_name: 'Demo',
+  wallet_address: '0xDemo1234...5678', // Pre-connected wallet address
   referral_code: 'DEMO2024',
   tesla_connected: true,
   enphase_connected: false,

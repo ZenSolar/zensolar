@@ -8,12 +8,12 @@ export function DemoLayout() {
     <SidebarProvider>
       <div className="flex min-h-screen w-full min-w-0 overflow-x-hidden bg-background">
         <DemoSidebar />
-        <SidebarInset className="flex flex-col flex-1 min-w-0 overflow-x-hidden">
+        <SidebarInset className="flex flex-col flex-1 min-w-0 w-full max-w-full overflow-x-hidden">
           {/* Fixed Header - shared component */}
           <TopNav isDemo />
 
-          {/* Main Content */}
-          <main className="flex-1 pt-safe pt-14 pb-safe min-w-0 overflow-x-hidden">
+          {/* Main Content - mobile-safe with constrained width */}
+          <main className="flex-1 pt-safe pt-14 pb-safe min-w-0 w-full max-w-full overflow-x-hidden">
             <Outlet />
           </main>
         </SidebarInset>

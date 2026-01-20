@@ -1,6 +1,6 @@
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { config, wagmiAdapter, networks, metadata, WALLETCONNECT_PROJECT_ID } from '@/lib/wagmi';
+import { config, wagmiAdapter, networks, metadata, WALLETCONNECT_PROJECT_ID, HAS_WALLETCONNECT_PROJECT_ID } from '@/lib/wagmi';
 import { ReactNode, useEffect, useRef, useState, createContext, useContext } from 'react';
 import { createAppKit } from '@reown/appkit/react';
 
@@ -22,6 +22,8 @@ interface Web3ProviderProps {
 }
 
 // Initialize AppKit once when the provider mounts
+// IMPORTANT: Skip initialization if WalletConnect project ID is invalid/placeholder
+// This prevents crashes when the demo mode is accessed without a valid project ID
 function useInitAppKit() {
   const initialized = useRef(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -30,40 +32,54 @@ function useInitAppKit() {
     if (initialized.current) return;
     initialized.current = true;
     
-    // Create AppKit instance (must be done client-side)
-    createAppKit({
-      adapters: [wagmiAdapter],
-      networks,
-      projectId: WALLETCONNECT_PROJECT_ID,
-      metadata: {
-        ...metadata,
-        icons: ['/zs-icon-192.png'],
-      },
-      features: {
-        analytics: true,
-        email: false,
-        socials: false,
-      },
-      themeMode: 'dark',
-      themeVariables: {
-        '--w3m-accent': 'hsl(142, 76%, 36%)', // ZenSolar primary green
-        '--w3m-color-mix': 'hsl(142, 76%, 36%)',
-        '--w3m-color-mix-strength': 15,
-        '--w3m-border-radius-master': '12px',
-        '--w3m-font-family': 'Inter, system-ui, sans-serif',
-        '--w3m-z-index': 1000,
-      },
-      // Feature MetaMask and Base Wallet (Coinbase) prominently
-      featuredWalletIds: [
-        'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask
-        'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase Wallet / Base Wallet
-      ],
-      enableCoinbase: true,
-      coinbasePreference: 'all',
-    });
+    // Skip AppKit initialization if project ID is invalid
+    // This allows demo mode to work without crashing
+    if (!HAS_WALLETCONNECT_PROJECT_ID) {
+      console.log('[Web3Provider] Skipping AppKit initialization - no valid WalletConnect Project ID');
+      setIsInitialized(true); // Mark as "initialized" to unblock rendering
+      return;
+    }
     
-    // Mark as initialized after a short delay to ensure AppKit is ready
-    setTimeout(() => setIsInitialized(true), 100);
+    try {
+      // Create AppKit instance (must be done client-side)
+      createAppKit({
+        adapters: [wagmiAdapter],
+        networks,
+        projectId: WALLETCONNECT_PROJECT_ID,
+        metadata: {
+          ...metadata,
+          icons: ['/zs-icon-192.png'],
+        },
+        features: {
+          analytics: true,
+          email: false,
+          socials: false,
+        },
+        themeMode: 'dark',
+        themeVariables: {
+          '--w3m-accent': 'hsl(142, 76%, 36%)', // ZenSolar primary green
+          '--w3m-color-mix': 'hsl(142, 76%, 36%)',
+          '--w3m-color-mix-strength': 15,
+          '--w3m-border-radius-master': '12px',
+          '--w3m-font-family': 'Inter, system-ui, sans-serif',
+          '--w3m-z-index': 1000,
+        },
+        // Feature MetaMask and Base Wallet (Coinbase) prominently
+        featuredWalletIds: [
+          'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask
+          'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase Wallet / Base Wallet
+        ],
+        enableCoinbase: true,
+        coinbasePreference: 'all',
+      });
+      
+      // Mark as initialized after a short delay to ensure AppKit is ready
+      setTimeout(() => setIsInitialized(true), 100);
+    } catch (error) {
+      console.error('[Web3Provider] AppKit initialization failed:', error);
+      // Still mark as initialized to prevent blocking the UI
+      setIsInitialized(true);
+    }
   }, []);
   
   return isInitialized;
