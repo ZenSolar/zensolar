@@ -50,12 +50,10 @@ const storeItems: StoreItem[] = [
 export default function Store() {
   const [activeTab, setActiveTab] = useState("all");
   const [redeemDialog, setRedeemDialog] = useState<{ open: boolean; item: StoreItem | null }>({ open: false, item: null });
-  const [userTokenBalance, setUserTokenBalance] = useState<number>(0);
+  const [userTokenBalance, setUserTokenBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const fetchTokenBalance = useCallback(async () => {
-    setIsLoadingBalance(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setIsLoadingBalance(false); return; }
@@ -94,14 +92,13 @@ export default function Store() {
 
       setUserTokenBalance(Math.floor(evMiles) + Math.floor(solarEnergy) + Math.floor(batteryDischarge) + Math.floor(superchargerKwh) + Math.floor(homeChargerKwh) + referralTokens);
     } catch (error) { console.error('Failed to fetch token balance:', error); } 
-    finally { setIsLoadingBalance(false); setIsInitialLoad(false); }
+    finally { setIsLoadingBalance(false); }
   }, []);
 
   useEffect(() => { fetchTokenBalance(); }, [fetchTokenBalance]);
 
-  if (isInitialLoad) return <StoreSkeleton />;
-
   const filteredItems = activeTab === "all" ? storeItems : storeItems.filter(item => item.category === activeTab);
+  const canAfford = (price: number) => userTokenBalance !== null && userTokenBalance >= price;
 
   return (
     <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -130,9 +127,9 @@ export default function Store() {
               <div>
                 <p className="text-sm text-muted-foreground">Your Balance</p>
                 {isLoadingBalance ? (
-                  <div className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /><span className="text-muted-foreground">Loading...</span></div>
+                  <div className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin text-primary" /><span className="text-muted-foreground">Calculating...</span></div>
                 ) : (
-                  <p className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{userTokenBalance.toLocaleString()} $ZSOLAR</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{(userTokenBalance ?? 0).toLocaleString()} $ZSOLAR</p>
                 )}
               </div>
             </div>
@@ -183,8 +180,13 @@ export default function Store() {
               </CardHeader>
               <CardFooter className="flex items-center justify-between pt-0">
                 <div className="flex items-center gap-1.5 text-primary font-bold"><Zap className="h-4 w-4" />{item.price.toLocaleString()}</div>
-                <Button size="sm" onClick={() => item.inStock && userTokenBalance >= item.price && setRedeemDialog({ open: true, item })} disabled={!item.inStock || userTokenBalance < item.price} variant={userTokenBalance < item.price ? "secondary" : "default"}>
-                  {userTokenBalance < item.price ? "Need More" : "Redeem"}
+                <Button 
+                  size="sm" 
+                  onClick={() => item.inStock && canAfford(item.price) && setRedeemDialog({ open: true, item })} 
+                  disabled={!item.inStock || isLoadingBalance || !canAfford(item.price)} 
+                  variant={!canAfford(item.price) && !isLoadingBalance ? "secondary" : "default"}
+                >
+                  {isLoadingBalance ? <Loader2 className="h-3 w-3 animate-spin" /> : !canAfford(item.price) ? "Need More" : "Redeem"}
                 </Button>
               </CardFooter>
             </Card>
