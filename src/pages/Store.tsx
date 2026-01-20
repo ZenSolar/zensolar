@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2, CreditCard, TrendingUp, ChevronRight, Award, Crown, Package, Clock, Plug, Lightbulb, Home, Gem, Eye, CheckCircle2, Flame } from "lucide-react";
+import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2, CreditCard, TrendingUp, ChevronRight, Award, Crown, Package, Clock, Plug, Lightbulb, Home, Eye, CheckCircle2, Flame } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,52 +14,16 @@ import merchHoodie from "@/assets/merch-hoodie.jpg";
 import merchCap from "@/assets/merch-cap.jpg";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 
-// Rarity/tier configuration for premium visual effects
-const TIER_CONFIG = {
-  bronze: {
-    label: 'Bronze',
-    gradient: 'from-amber-600 to-amber-800',
-    glow: 'shadow-amber-700/20',
-    border: 'border-amber-700/30',
-    bg: 'from-amber-700/10 to-amber-800/5'
-  },
-  silver: {
-    label: 'Silver',
-    gradient: 'from-slate-300 to-slate-500',
-    glow: 'shadow-slate-400/30',
-    border: 'border-slate-400/40',
-    bg: 'from-slate-400/15 to-slate-500/5'
-  },
-  gold: {
-    label: 'Gold',
-    gradient: 'from-yellow-400 to-amber-500',
-    glow: 'shadow-yellow-500/40',
-    border: 'border-yellow-500/50',
-    bg: 'from-yellow-500/15 to-amber-500/5'
-  },
-  platinum: {
-    label: 'Platinum',
-    gradient: 'from-cyan-300 via-slate-200 to-cyan-400',
-    glow: 'shadow-cyan-400/50',
-    border: 'border-cyan-400/60',
-    bg: 'from-cyan-400/20 to-slate-300/10'
-  },
-  diamond: {
-    label: 'Diamond',
-    gradient: 'from-violet-400 via-purple-300 to-indigo-400',
-    glow: 'shadow-violet-500/60',
-    border: 'border-violet-400/70',
-    bg: 'from-violet-500/25 to-purple-400/15'
-  }
-};
-
-function getTierFromPrice(price: number): keyof typeof TIER_CONFIG {
-  if (price >= 7000) return 'diamond';
-  if (price >= 4000) return 'platinum';
-  if (price >= 1500) return 'gold';
-  if (price >= 500) return 'silver';
-  return 'bronze';
-}
+// Product images
+import teslaGiftCardImg from "@/assets/store/tesla-gift-card.jpg";
+import ankerNano30wImg from "@/assets/store/anker-nano-30w.jpg";
+import teslaCybervesselImg from "@/assets/store/tesla-cybervessel.jpg";
+import ankerMaggo3in1Img from "@/assets/store/anker-maggo-3in1.jpg";
+import teslaMobileConnectorImg from "@/assets/store/tesla-mobile-connector.jpg";
+import ankerPowercore24kImg from "@/assets/store/anker-powercore-24k.jpg";
+import ecoflowDelta3Img from "@/assets/store/ecoflow-delta3.jpg";
+import teslaWallConnectorImg from "@/assets/store/tesla-wall-connector.jpg";
+import ankerSolixC1000Img from "@/assets/store/anker-solix-c1000.jpg";
 
 interface StoreItem {
   id: string;
@@ -74,7 +38,7 @@ interface StoreItem {
   brand?: string;
 }
 
-// All store items including former "coming soon" items - now live!
+// All store items with real product images
 const storeItems: StoreItem[] = [
   // Gift Cards
   { 
@@ -83,7 +47,7 @@ const storeItems: StoreItem[] = [
     description: "Give the gift of Tesla. Apply towards Supercharging, vehicle accessories, apparel, software upgrades, and service payments.", 
     price: 5000, 
     category: "giftcards", 
-    image: "https://digitalassets.tesla.com/tesla-contents/image/upload/h_1800,w_1800,c_pad,f_auto,q_auto:best/Tesla-Gift-Card-Main", 
+    image: teslaGiftCardImg, 
     icon: CreditCard,
     inStock: true, 
     featured: true,
@@ -100,14 +64,14 @@ const storeItems: StoreItem[] = [
   // Energy
   { id: "7", name: "NFT Badge: Solar Pioneer", description: "Exclusive digital collectible for early adopters", price: 1000, category: "energy", image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=600&fit=crop", icon: Star, inStock: true },
   { id: "8", name: "Carbon Offset Certificate", description: "Offset 1 ton of CO2 emissions", price: 800, category: "energy", image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=600&fit=crop", icon: Sun, inStock: true },
-  // Power Stations (formerly coming soon)
+  // Power & Charging Products
   { 
     id: "ps-1", 
     name: "Anker Nano Charger 30W", 
     description: "Ultra-compact USB-C fast charger for phones and tablets", 
     price: 250, 
     category: "power",
-    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&h=600&fit=crop", 
+    image: ankerNano30wImg, 
     icon: Plug,
     inStock: true,
     brand: "Anker"
@@ -118,7 +82,7 @@ const storeItems: StoreItem[] = [
     description: "Stainless steel insulated water bottle inspired by Cybertruck design", 
     price: 750, 
     category: "merch",
-    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&h=600&fit=crop", 
+    image: teslaCybervesselImg, 
     icon: Sun,
     inStock: true,
     brand: "Tesla"
@@ -129,7 +93,7 @@ const storeItems: StoreItem[] = [
     description: "Foldable wireless charging station for phone, watch, and earbuds", 
     price: 1500, 
     category: "charging",
-    image: "https://images.unsplash.com/photo-1615526675159-e248c68f0c5d?w=600&h=600&fit=crop", 
+    image: ankerMaggo3in1Img, 
     icon: Battery,
     inStock: true,
     brand: "Anker"
@@ -140,7 +104,7 @@ const storeItems: StoreItem[] = [
     description: "Portable EV charging adapter with multiple outlet options", 
     price: 4000, 
     category: "charging",
-    image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&h=600&fit=crop", 
+    image: teslaMobileConnectorImg, 
     icon: Plug,
     inStock: true,
     brand: "Tesla",
@@ -152,7 +116,7 @@ const storeItems: StoreItem[] = [
     description: "High-capacity 24,000mAh portable power station for laptops", 
     price: 1800, 
     category: "power",
-    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=600&h=600&fit=crop", 
+    image: ankerPowercore24kImg, 
     icon: Battery,
     inStock: true,
     brand: "Anker"
@@ -163,7 +127,7 @@ const storeItems: StoreItem[] = [
     description: "1024Wh portable power station for home backup and outdoor adventures", 
     price: 6500, 
     category: "power",
-    image: "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=600&h=600&fit=crop", 
+    image: ecoflowDelta3Img, 
     icon: Lightbulb,
     inStock: true,
     brand: "EcoFlow",
@@ -175,7 +139,7 @@ const storeItems: StoreItem[] = [
     description: "Premium Level 2 home charging with up to 48A and WiFi connectivity", 
     price: 7000, 
     category: "charging",
-    image: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=600&h=600&fit=crop", 
+    image: teslaWallConnectorImg, 
     icon: Home,
     inStock: true,
     brand: "Tesla",
@@ -187,7 +151,7 @@ const storeItems: StoreItem[] = [
     description: "1056Wh whole-home backup with fast solar charging capability", 
     price: 7500, 
     category: "power",
-    image: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=600&h=600&fit=crop", 
+    image: ankerSolixC1000Img, 
     icon: Sun,
     inStock: true,
     brand: "Anker",
@@ -206,7 +170,7 @@ const categories = [
   { id: "energy", label: "Energy", icon: Sun },
 ];
 
-// Premium Product Card Component
+// Premium Product Card Component (no tiers)
 function PremiumProductCard({ 
   item, 
   canAfford, 
@@ -224,9 +188,6 @@ function PremiumProductCard({
   hoveredItem: string | null;
   onHover: (id: string | null) => void;
 }) {
-  const tier = getTierFromPrice(item.price);
-  const tierConfig = TIER_CONFIG[tier];
-  const isHighTier = item.price >= 4000;
   const isHovered = hoveredItem === item.id;
   
   return (
@@ -244,7 +205,7 @@ function PremiumProductCard({
       onHoverEnd={() => onHover(null)}
       className={`relative rounded-2xl overflow-hidden cursor-pointer group ${
         item.inStock 
-          ? `bg-gradient-to-br ${tierConfig.bg} ${tierConfig.border} border-2 shadow-xl ${tierConfig.glow}` 
+          ? 'bg-card border-2 border-border/50 shadow-xl hover:border-secondary/50 hover:shadow-secondary/20' 
           : 'bg-card/50 border border-border/40 opacity-60'
       }`}
     >
@@ -261,13 +222,8 @@ function PremiumProductCard({
         />
       )}
       
-      {/* Glowing border effect for high-tier */}
-      {item.inStock && isHighTier && (
-        <div className={`absolute -inset-0.5 rounded-2xl bg-gradient-to-r ${tierConfig.gradient} opacity-30 blur-sm group-hover:opacity-50 transition-opacity -z-10`} />
-      )}
-      
       {/* Product Image */}
-      <div className="relative w-full aspect-square overflow-hidden">
+      <div className="relative w-full aspect-square overflow-hidden bg-muted/30">
         <motion.div
           className="w-full h-full"
           animate={{ scale: isHovered ? 1.1 : 1 }}
@@ -285,16 +241,8 @@ function PremiumProductCard({
         {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         
-        {/* Tier Badge */}
-        <div className="absolute top-3 left-3 z-10">
-          <Badge className={`bg-gradient-to-r ${tierConfig.gradient} text-white border-0 gap-1.5 text-[10px] font-bold px-2 py-0.5 shadow-lg`}>
-            <Gem className="h-3 w-3" />
-            {tierConfig.label}
-          </Badge>
-        </div>
-        
         {/* Brand & Featured Badges */}
-        <div className="absolute top-3 right-3 z-10 flex flex-col gap-1.5 items-end">
+        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
           {item.featured && (
             <Badge className="bg-accent/90 backdrop-blur-sm text-accent-foreground gap-1 text-[10px] shadow-lg border-0">
               <Crown className="h-3 w-3" />
@@ -342,11 +290,11 @@ function PremiumProductCard({
         {/* Price */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-lg bg-gradient-to-br ${tierConfig.gradient}`}>
+            <div className="p-1.5 rounded-lg bg-gradient-to-br from-secondary to-accent">
               <Zap className="h-4 w-4 text-white" />
             </div>
             <div className="flex items-baseline gap-1">
-              <span className={`text-xl font-bold bg-gradient-to-r ${tierConfig.gradient} bg-clip-text text-transparent`}>
+              <span className="text-xl font-bold text-secondary">
                 {item.price.toLocaleString()}
               </span>
               <span className="text-xs text-muted-foreground">$ZSOLAR</span>
@@ -363,7 +311,7 @@ function PremiumProductCard({
             </div>
             <div className="relative h-2 bg-muted/50 rounded-full overflow-hidden">
               <motion.div 
-                className={`absolute inset-y-0 left-0 bg-gradient-to-r ${tierConfig.gradient} rounded-full`}
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-secondary to-accent rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${affordabilityPercent}%` }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -376,7 +324,7 @@ function PremiumProductCard({
         <Button 
           className={`w-full gap-2 transition-all duration-300 ${
             canAfford && item.inStock 
-              ? `bg-gradient-to-r ${tierConfig.gradient} hover:opacity-90 text-white border-0 shadow-lg` 
+              ? 'bg-gradient-to-r from-secondary to-accent hover:opacity-90 text-white border-0 shadow-lg' 
               : ''
           }`}
           size="sm" 
@@ -403,7 +351,7 @@ function PremiumProductCard({
   );
 }
 
-// Featured Hero Card
+// Featured Hero Card (no tiers)
 function FeaturedHeroCard({
   item,
   canAfford,
@@ -417,9 +365,6 @@ function FeaturedHeroCard({
   isLoadingBalance: boolean;
   onRedeem: (item: StoreItem) => void;
 }) {
-  const tier = getTierFromPrice(item.price);
-  const tierConfig = TIER_CONFIG[tier];
-  
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
@@ -428,9 +373,9 @@ function FeaturedHeroCard({
       className="relative"
     >
       {/* Glowing backdrop */}
-      <div className={`absolute -inset-1 rounded-3xl bg-gradient-to-r ${tierConfig.gradient} opacity-30 blur-xl -z-10`} />
+      <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-secondary via-primary to-accent opacity-30 blur-xl -z-10" />
       
-      <Card className={`relative overflow-hidden border-2 ${tierConfig.border} shadow-2xl ${tierConfig.glow} bg-gradient-to-br from-card via-card to-transparent`}>
+      <Card className="relative overflow-hidden border-2 border-secondary/40 shadow-2xl shadow-secondary/20 bg-gradient-to-br from-card via-card to-transparent">
         {/* Animated shimmer */}
         <motion.div 
           className="absolute inset-0 z-10 pointer-events-none"
@@ -445,7 +390,7 @@ function FeaturedHeroCard({
         <CardContent className="p-0">
           <div className="flex flex-col lg:flex-row">
             {/* Image Section */}
-            <div className="relative lg:w-2/5 aspect-[4/3] lg:aspect-auto overflow-hidden">
+            <div className="relative lg:w-2/5 aspect-[4/3] lg:aspect-auto overflow-hidden bg-muted/30">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.5 }}
@@ -469,9 +414,9 @@ function FeaturedHeroCard({
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Badge className={`bg-gradient-to-r ${tierConfig.gradient} text-white border-0 gap-2 text-sm font-bold px-4 py-1.5 shadow-xl`}>
+                  <Badge className="bg-gradient-to-r from-secondary to-accent text-white border-0 gap-2 text-sm font-bold px-4 py-1.5 shadow-xl">
                     <Crown className="h-4 w-4" />
-                    {tierConfig.label} Tier
+                    Featured
                   </Badge>
                 </motion.div>
               </div>
@@ -496,11 +441,11 @@ function FeaturedHeroCard({
                 {/* Price Section */}
                 <div className="flex flex-wrap items-center gap-4">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${tierConfig.gradient}`}>
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary to-accent">
                       <Zap className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex items-baseline gap-2">
-                      <span className={`text-3xl font-bold bg-gradient-to-r ${tierConfig.gradient} bg-clip-text text-transparent`}>
+                      <span className="text-3xl font-bold text-secondary">
                         {item.price.toLocaleString()}
                       </span>
                       <span className="text-sm font-medium text-muted-foreground">$ZSOLAR</span>
@@ -515,7 +460,7 @@ function FeaturedHeroCard({
                       </div>
                       <div className="relative h-2.5 bg-muted/50 rounded-full overflow-hidden">
                         <motion.div 
-                          className={`absolute inset-y-0 left-0 bg-gradient-to-r ${tierConfig.gradient} rounded-full`}
+                          className="absolute inset-y-0 left-0 bg-gradient-to-r from-secondary to-accent rounded-full"
                           initial={{ width: 0 }}
                           animate={{ width: `${affordabilityPercent}%` }}
                           transition={{ duration: 1, ease: "easeOut" }}
@@ -532,7 +477,7 @@ function FeaturedHeroCard({
                   disabled={!item.inStock || isLoadingBalance || !canAfford}
                   className={`gap-2 w-full sm:w-auto ${
                     canAfford 
-                      ? `bg-gradient-to-r ${tierConfig.gradient} hover:opacity-90 text-white border-0 shadow-xl` 
+                      ? 'bg-gradient-to-r from-secondary to-accent hover:opacity-90 text-white border-0 shadow-xl' 
                       : ''
                   }`}
                   variant={!canAfford && !isLoadingBalance ? "secondary" : "default"}
