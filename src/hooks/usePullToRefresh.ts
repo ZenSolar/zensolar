@@ -140,28 +140,36 @@ export function usePullToRefresh({
       
       try {
         await onRefresh();
+      } catch (error) {
+        console.error('Refresh failed:', error);
       } finally {
         // Success haptic when done
         triggerSuccess();
         
-        // Smooth animate back to zero
-        targetPullDistance.current = 0;
-        
         // Small delay for success state to show
         await new Promise(resolve => setTimeout(resolve, 300));
         
+        // Reset all state to allow another pull
         setIsRefreshing(false);
+        targetPullDistance.current = 0;
+        setPullDistance(0);
+        setIsReady(false);
+        hasTriggeredThresholdHaptic.current = false;
       }
+      return;
     }
     
-    // Smooth animate back to zero
+    // If not refreshing, animate back to zero
     targetPullDistance.current = 0;
     
     // Animate pull distance back to 0
     const animateBack = () => {
       setPullDistance(prev => {
         const newVal = prev * 0.85;
-        if (newVal < 1) return 0;
+        if (newVal < 1) {
+          setIsReady(false);
+          return 0;
+        }
         requestAnimationFrame(animateBack);
         return newVal;
       });
