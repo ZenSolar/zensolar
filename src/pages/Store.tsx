@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2, CreditCard, TrendingUp, ChevronRight, Award, Crown, Package, ChevronLeft } from "lucide-react";
+import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2, CreditCard, TrendingUp, ChevronRight, Award, Crown, Package } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,6 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import merchTshirt from "@/assets/merch-tshirt.jpg";
 import merchHoodie from "@/assets/merch-hoodie.jpg";
 import merchCap from "@/assets/merch-cap.jpg";
@@ -28,13 +27,6 @@ interface StoreItem {
   limited?: boolean;
   originalPrice?: number;
 }
-
-// EV Charger options for carousel
-const evChargerOptions = [
-  { id: "charger-tesla", name: "Tesla Wall Connector", image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400&h=300&fit=crop" },
-  { id: "charger-chargepoint", name: "ChargePoint Home Flex", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
-  { id: "charger-wallbox", name: "Wallbox Pulsar Pro", image: "https://images.unsplash.com/photo-1647166545674-ce28ce93bdca?w=400&h=300&fit=crop" },
-];
 
 const storeItems: StoreItem[] = [
   { 
@@ -56,7 +48,6 @@ const storeItems: StoreItem[] = [
   { id: "6", name: "ZenSolar Cap", description: "Adjustable cap with embroidered sun logo", price: 350, category: "merch", image: merchCap, icon: Sun, inStock: false },
   { id: "7", name: "NFT Badge: Solar Pioneer", description: "Exclusive digital collectible for early adopters", price: 1000, category: "energy", image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=300&fit=crop", icon: Star, inStock: true },
   { id: "8", name: "Carbon Offset Certificate", description: "Offset 1 ton of CO2 emissions", price: 800, category: "energy", image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&h=300&fit=crop", icon: Sun, inStock: true },
-  { id: "9", name: "Home EV Charger", description: "Choose from premium Level 2 home chargers: Tesla Wall Connector, ChargePoint Home Flex, or Wallbox Pulsar Pro.", price: 8500, category: "electronics", image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400&h=300&fit=crop", icon: Zap, inStock: true, featured: true },
 ];
 
 const categories = [
@@ -415,33 +406,6 @@ export default function Store() {
                       {item.description}
                     </CardDescription>
                   </CardHeader>
-                  
-                  {/* EV Charger Carousel for item id 9 */}
-                  {item.id === "9" && (
-                    <div className="px-4 pb-2">
-                      <Carousel className="w-full" opts={{ loop: true }}>
-                        <CarouselContent>
-                          {evChargerOptions.map((charger) => (
-                            <CarouselItem key={charger.id}>
-                              <div className="text-center space-y-2">
-                                <div className="rounded-lg overflow-hidden aspect-video">
-                                  <OptimizedImage
-                                    src={charger.image}
-                                    alt={charger.name}
-                                    aspectRatio="video"
-                                    sizes="(max-width: 640px) 100vw, 33vw"
-                                  />
-                                </div>
-                                <p className="text-sm font-medium text-foreground">{charger.name}</p>
-                              </div>
-                            </CarouselItem>
-                          ))}
-                        </CarouselContent>
-                        <CarouselPrevious className="left-1 h-7 w-7" />
-                        <CarouselNext className="right-1 h-7 w-7" />
-                      </Carousel>
-                    </div>
-                  )}
                   
                   {/* Footer Section */}
                   <CardFooter className="flex flex-col gap-3 pt-0">
