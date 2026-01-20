@@ -29,11 +29,11 @@ const storeItems: StoreItem[] = [
   { 
     id: "0", 
     name: "Tesla Gift Card", 
-    description: "Give the gift of Tesla. Apply towards vehicle accessories, apparel, Supercharging, software upgrades, and service payments.", 
+    description: "Give the gift of Tesla. Apply towards Supercharging, vehicle accessories, apparel, software upgrades, and service payments.", 
     price: 5000, 
     category: "giftcards", 
     image: "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=400&h=300&fit=crop", 
-    icon: CreditCard, 
+    icon: CreditCard,
     inStock: true, 
     featured: true 
   },
