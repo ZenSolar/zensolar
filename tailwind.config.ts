@@ -114,12 +114,20 @@ export default {
         },
         "text-glow": {
           "0%, 100%": { 
-            textShadow: "0 0 4px hsl(var(--primary) / 0.4), 0 0 8px hsl(var(--primary) / 0.2)",
-            filter: "brightness(1)"
+            textShadow: "0 0 8px hsl(142 76% 36% / 0.6), 0 0 16px hsl(142 76% 36% / 0.4), 0 0 24px hsl(142 76% 36% / 0.2)",
+            filter: "brightness(1.05)"
           },
           "50%": { 
-            textShadow: "0 0 8px hsl(var(--primary) / 0.6), 0 0 16px hsl(var(--primary) / 0.4)",
-            filter: "brightness(1.1)"
+            textShadow: "0 0 12px hsl(142 76% 36% / 0.8), 0 0 24px hsl(142 76% 36% / 0.6), 0 0 36px hsl(142 76% 36% / 0.3)",
+            filter: "brightness(1.2)"
+          },
+        },
+        "icon-glow": {
+          "0%, 100%": { 
+            filter: "drop-shadow(0 0 4px hsl(142 76% 36% / 0.6)) drop-shadow(0 0 8px hsl(142 76% 36% / 0.4)) brightness(1.1)"
+          },
+          "50%": { 
+            filter: "drop-shadow(0 0 8px hsl(142 76% 36% / 0.8)) drop-shadow(0 0 16px hsl(142 76% 36% / 0.5)) brightness(1.3)"
           },
         },
       },
@@ -133,6 +141,7 @@ export default {
         "border-glow": "border-glow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "text-glow": "text-glow 2s ease-in-out infinite",
+        "icon-glow": "icon-glow 2s ease-in-out infinite",
       },
     },
   },

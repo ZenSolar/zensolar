@@ -142,11 +142,11 @@ export function AppSidebar() {
                       className={({ isActive }) => 
                         `${isActive 
                           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"} ${item.url === "/store" ? "animate-text-glow text-primary" : ""}`
+                          : "hover:bg-sidebar-accent/50"} ${item.url === "/store" ? "text-secondary font-semibold" : ""}`
                       }
                     >
-                      <item.icon className={`h-4 w-4 ${item.url === "/store" ? "animate-text-glow" : ""}`} />
-                      <span>{item.title}</span>
+                      <item.icon className={`h-4 w-4 ${item.url === "/store" ? "animate-icon-glow text-secondary" : ""}`} />
+                      <span className={item.url === "/store" ? "animate-text-glow" : ""}>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
