@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2 } from "lucide-react";
+import { ShoppingBag, Zap, Gift, Shirt, Headphones, Watch, Battery, Sun, Star, Lock, Rocket, Sparkles, Loader2, CreditCard } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,7 @@ interface StoreItem {
   name: string;
   description: string;
   price: number;
-  category: "electronics" | "merch" | "energy";
+  category: "giftcards" | "electronics" | "merch" | "energy";
   image: string;
   icon: React.ElementType;
   inStock: boolean;
@@ -26,7 +26,18 @@ interface StoreItem {
 }
 
 const storeItems: StoreItem[] = [
-  { id: "1", name: "Wireless Earbuds Pro", description: "Premium noise-canceling earbuds with 30hr battery life", price: 2500, category: "electronics", image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=300&fit=crop", icon: Headphones, inStock: true, featured: true },
+  { 
+    id: "0", 
+    name: "Tesla Gift Card", 
+    description: "Give the gift of Tesla. Apply towards vehicle accessories, apparel, Supercharging, software upgrades, and service payments.", 
+    price: 5000, 
+    category: "giftcards", 
+    image: "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=400&h=300&fit=crop", 
+    icon: CreditCard, 
+    inStock: true, 
+    featured: true 
+  },
+  { id: "1", name: "Wireless Earbuds Pro", description: "Premium noise-canceling earbuds with 30hr battery life", price: 2500, category: "electronics", image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=300&fit=crop", icon: Headphones, inStock: true },
   { id: "2", name: "Smart Watch", description: "Solar-powered smartwatch with health tracking", price: 4500, category: "electronics", image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop", icon: Watch, inStock: true },
   { id: "3", name: "Portable Power Bank", description: "20,000mAh solar-compatible power bank", price: 1200, category: "electronics", image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=300&fit=crop", icon: Battery, inStock: true },
   { id: "4", name: "ZenSolar T-Shirt", description: "100% organic cotton tee with ZenSolar logo", price: 500, category: "merch", image: merchTshirt, icon: Shirt, inStock: true },
@@ -132,9 +143,11 @@ export default function Store() {
 
       {/* Tabs */}
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 max-w-md h-auto p-1.5 bg-muted/50 rounded-xl">
-          {['all', 'electronics', 'merch', 'energy'].map((tab) => (
-            <TabsTrigger key={tab} value={tab} className="capitalize py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-lg rounded-lg">{tab}</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 max-w-lg h-auto p-1.5 bg-muted/50 rounded-xl">
+          {['all', 'giftcards', 'electronics', 'merch', 'energy'].map((tab) => (
+            <TabsTrigger key={tab} value={tab} className="capitalize py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:shadow-lg rounded-lg">
+              {tab === 'giftcards' ? 'Gift Cards' : tab}
+            </TabsTrigger>
           ))}
         </TabsList>
       </Tabs>
