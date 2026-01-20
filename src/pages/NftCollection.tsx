@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
+import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -722,7 +723,7 @@ function CategorySection({
 }
 
 export default function NftCollection() {
-  const { activityData, isLoading } = useDashboardData();
+  const { activityData, isLoading, refreshDashboard } = useDashboardData();
   const { profile, refetch: refetchProfile } = useProfile();
   const [selectedNft, setSelectedNft] = useState<NFTMilestone | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -737,6 +738,31 @@ export default function NftCollection() {
   const [isCheckingOnChain, setIsCheckingOnChain] = useState(false);
 
   const walletAddress = profile?.wallet_address;
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      refreshDashboard(),
+      refetchProfile(),
+      // Re-check on-chain status if wallet is connected
+      walletAddress ? (async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('mint-onchain', {
+            body: { action: 'status', walletAddress },
+          });
+          if (!error && data?.ownedNFTTokenIds) {
+            setOwnedTokenIds(data.ownedNFTTokenIds);
+            if (data.ownedNFTTokenIds.includes(0)) {
+              setWelcomeNftClaimed(true);
+            }
+          }
+        } catch (err) {
+          console.error('Error refreshing on-chain status:', err);
+        }
+      })() : Promise.resolve(),
+    ]);
+    toast.success('Collection refreshed');
+  }, [refreshDashboard, refetchProfile, walletAddress]);
 
   // Check on-chain status
   useEffect(() => {
@@ -871,7 +897,8 @@ export default function NftCollection() {
   }
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+    <PullToRefreshWrapper onRefresh={handleRefresh} className="h-full">
+      <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
       {/* Modals */}
       <NFTDetailModal
         milestone={selectedNft}
@@ -1153,6 +1180,7 @@ export default function NftCollection() {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+      </div>
+    </PullToRefreshWrapper>
   );
 }
