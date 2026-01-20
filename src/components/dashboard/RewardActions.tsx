@@ -10,6 +10,7 @@ import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLA
 import { hasTokenBeenAdded, hasNFTsBeenAdded, markTokenAsAdded as markTokenAdded, markNFTsAsAdded as markNFTsAdded, resetAssetPromptFlags } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { useWalletType } from '@/hooks/useWalletType';
 import {
   Dialog,
   DialogContent,
@@ -108,6 +109,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const { data: walletClient } = useWalletClient();
   const { watchAssetAsync } = useWatchAsset();
   const { isAdmin } = useAdminCheck();
+  const { type: walletType, supportsWatchAsset } = useWalletType();
   const [mintingState, setMintingState] = useState<{
     isLoading: boolean;
     type: 'token' | 'nft' | 'milestone' | 'combo' | null;
@@ -450,20 +452,21 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Attempt to add $ZSOLAR token to wallet (best-effort, silent failure)
-        // NOTE: Base Wallet and many WalletConnect sessions do NOT support wallet_watchAsset
-        // This is expected - we silently fail and show manual instructions in the success dialog
-        if (!hasTokenBeenAdded()) {
+        // Attempt to add $ZSOLAR token to wallet (only for MetaMask - skip for Base Wallet)
+        // Base Wallet doesn't support wallet_watchAsset, so we skip it entirely to avoid errors
+        if (!hasTokenBeenAdded() && supportsWatchAsset && walletType === 'metamask') {
           // Run in background without blocking or showing errors to user
           addZsolarToWallet().then(added => {
             if (added) {
               console.log('Token auto-added to wallet');
             } else {
-              console.log('Token auto-add not supported - manual instructions shown');
+              console.log('Token auto-add declined by user');
             }
           }).catch(() => {
-            // Silently ignore - manual instructions will be shown
+            // Silently ignore
           });
+        } else if (walletType !== 'metamask') {
+          console.log('Skipping auto-add for non-MetaMask wallet - manual instructions shown');
         }
         
         // Also auto-add NFTs if any were minted
