@@ -24,6 +24,7 @@ import ankerPowercore24kImg from "@/assets/store/anker-powercore-24k.jpg";
 import ecoflowDelta3Img from "@/assets/store/ecoflow-delta3.jpg";
 import teslaWallConnectorImg from "@/assets/store/tesla-wall-connector.jpg";
 import ankerSolixC1000Img from "@/assets/store/anker-solix-c1000.jpg";
+import solarPowerBankImg from "@/assets/store/solar-power-bank.jpg";
 
 interface StoreItem {
   id: string;
@@ -56,7 +57,7 @@ const storeItems: StoreItem[] = [
   // Electronics
   { id: "1", name: "Wireless Earbuds Pro", description: "Premium noise-canceling earbuds with 30hr battery life", price: 2500, category: "electronics", image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&h=600&fit=crop", icon: Headphones, inStock: true },
   { id: "2", name: "Smart Watch", description: "Solar-powered smartwatch with health tracking", price: 4500, category: "electronics", image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop", icon: Watch, inStock: true },
-  { id: "3", name: "Portable Power Bank", description: "20,000mAh solar-compatible power bank", price: 1200, category: "electronics", image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=600&h=600&fit=crop", icon: Battery, inStock: true },
+  { id: "3", name: "Portable Power Bank", description: "20,000mAh solar-compatible power bank", price: 1200, category: "electronics", image: solarPowerBankImg, icon: Battery, inStock: true },
   // Power & Charging Products
   { 
     id: "ps-1", 
