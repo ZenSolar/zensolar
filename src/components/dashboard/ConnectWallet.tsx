@@ -31,7 +31,35 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
   // AppKit initialization state
   const { isInitialized } = useAppKitInitialized();
   
-  // AppKit hooks
+  // Show loading state until AppKit is ready (prevents "createAppKit not called" errors)
+  if (!isInitialized && !isDemo) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+            <BrandedSpinner size="sm" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">Initializing Wallet...</p>
+            <p className="text-xs text-muted-foreground">Please wait</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  return <ConnectWalletInner 
+    walletAddress={walletAddress}
+    onConnect={onConnect}
+    onDisconnect={onDisconnect}
+    onMintTokens={onMintTokens}
+    isDemo={isDemo}
+    showDiagnostics={showDiagnostics}
+  />;
+}
+
+function ConnectWalletInner({ walletAddress, onConnect, onDisconnect, onMintTokens, isDemo = false, showDiagnostics = false }: ConnectWalletProps) {
+  // AppKit hooks - now safe to call since parent verified initialization
   const { open } = useAppKit();
   const { address, isConnected } = useAppKitAccount();
   const { open: isModalOpen } = useAppKitState();
@@ -552,26 +580,6 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
             onReset={handleReset}
           />
         )}
-      </div>
-    );
-  }
-
-  // Show loading spinner while AppKit is initializing
-  if (!isInitialized && !isDemo) {
-    return (
-      <div className="rounded-lg border border-border bg-card p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-            <Wallet className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground">Connect Wallet</p>
-            <p className="text-xs text-muted-foreground">Initializing...</p>
-          </div>
-        </div>
-        <div className="flex justify-center py-4">
-          <BrandedSpinner size="md" label="Preparing wallet connection..." />
-        </div>
       </div>
     );
   }
