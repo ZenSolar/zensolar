@@ -193,8 +193,19 @@ export default function AdminTokenEstimator() {
     totalBurned: { label: "Total Burned", color: "hsl(var(--destructive))" },
   };
 
+  // Derived starting price from LP ratio
+  const startingPrice = initialTokensInLP > 0 ? initialLPSeed / initialTokensInLP : 0;
+  
+  // Handle manual price input - adjusts tokens in LP to achieve target price
+  const handlePriceChange = (targetPrice: number) => {
+    if (targetPrice > 0 && initialLPSeed > 0) {
+      const requiredTokens = Math.round(initialLPSeed / targetPrice);
+      setInitialTokensInLP(Math.max(100_000_000, Math.min(requiredTokens, 10_000_000_000)));
+    }
+  };
+
   return (
-    <div className="container py-6 space-y-6 max-w-7xl">
+    <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto w-full overflow-x-hidden">
       {/* Header */}
       <motion.div 
         className="text-center space-y-2"
@@ -206,8 +217,8 @@ export default function AdminTokenEstimator() {
           <Calculator className="h-3 w-3 mr-1" />
           Token Economics
         </Badge>
-        <h1 className="text-3xl font-bold">$ZSOLAR Price Estimator</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold">$ZSOLAR Price Estimator</h1>
+        <p className="text-muted-foreground text-sm max-w-2xl mx-auto">
           AMM-based price projections using constant product formula with burn mechanics, treasury fees, and LP injection
         </p>
       </motion.div>
@@ -220,39 +231,39 @@ export default function AdminTokenEstimator() {
       >
         <Card className="bg-muted/30">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Coins className="h-5 w-5 text-primary" />
+            <CardTitle className="text-base flex items-center gap-2">
+              <Coins className="h-4 w-4 text-primary" />
               Built-in Tokenomics
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-background">
-                <Flame className="h-5 w-5 text-destructive" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Burn Tax</p>
-                  <p className="font-semibold">3.5%</p>
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
+              <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
+                <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-destructive shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground truncate">Burn Tax</p>
+                  <p className="font-semibold text-sm">3.5%</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-background">
-                <Building2 className="h-5 w-5 text-amber-500" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Treasury Tax</p>
-                  <p className="font-semibold">3.5%</p>
+              <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
+                <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground truncate">Treasury Tax</p>
+                  <p className="font-semibold text-sm">3.5%</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-background">
-                <Droplets className="h-5 w-5 text-blue-500" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Auto LP (Tx)</p>
-                  <p className="font-semibold">1%</p>
+              <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
+                <Droplets className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground truncate">Auto LP (Tx)</p>
+                  <p className="font-semibold text-sm">1%</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-background">
-                <DollarSign className="h-5 w-5 text-green-500" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Subscription LP</p>
-                  <p className="font-semibold">50%</p>
+              <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
+                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground truncate">Subscription LP</p>
+                  <p className="font-semibold text-sm">50%</p>
                 </div>
               </div>
             </div>
@@ -260,7 +271,7 @@ export default function AdminTokenEstimator() {
         </Card>
       </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Input Controls */}
         <motion.div
           className="lg:col-span-1 space-y-4"
@@ -269,19 +280,44 @@ export default function AdminTokenEstimator() {
           variants={fadeIn}
         >
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Model Parameters</CardTitle>
-              <CardDescription>Adjust inputs to see price projections</CardDescription>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Model Parameters</CardTitle>
+              <CardDescription className="text-xs">Adjust inputs to see price projections</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-5">
+              {/* Starting Price - Direct Input */}
+              <div className="space-y-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="flex justify-between items-center">
+                  <Label className="text-sm font-medium">
+                    Starting Price
+                    <InfoTooltip text="Set your target launch price. This adjusts the LP token ratio automatically." />
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold">$</span>
+                  <Input
+                    type="number"
+                    value={startingPrice.toFixed(6)}
+                    onChange={(e) => handlePriceChange(parseFloat(e.target.value) || 0)}
+                    step="0.000001"
+                    min="0.000001"
+                    max="1"
+                    className="font-mono text-lg h-10"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  You control this at launch by setting the LP ratio
+                </p>
+              </div>
+
               {/* Initial LP Seed */}
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label className="text-sm">
+                  <Label className="text-xs">
                     Initial LP Seed (USDC)
                     <InfoTooltip text="Starting USDC in the liquidity pool at launch" />
                   </Label>
-                  <span className="text-sm font-medium">{formatCurrency(initialLPSeed)}</span>
+                  <span className="text-xs font-medium">{formatCurrency(initialLPSeed)}</span>
                 </div>
                 <Slider
                   value={[initialLPSeed]}
@@ -295,17 +331,17 @@ export default function AdminTokenEstimator() {
               {/* Initial Tokens in LP */}
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label className="text-sm">
-                    Initial Tokens in LP
-                    <InfoTooltip text="Number of tokens paired with USDC in LP. This sets initial price." />
+                  <Label className="text-xs">
+                    Tokens in LP
+                    <InfoTooltip text="Number of tokens paired with USDC in LP. Adjusted when you change price." />
                   </Label>
-                  <span className="text-sm font-medium">{formatNumber(initialTokensInLP)}</span>
+                  <span className="text-xs font-medium">{formatNumber(initialTokensInLP)}</span>
                 </div>
                 <Slider
                   value={[initialTokensInLP]}
                   onValueChange={([v]) => setInitialTokensInLP(v)}
                   min={100_000_000}
-                  max={5_000_000_000}
+                  max={10_000_000_000}
                   step={100_000_000}
                 />
               </div>
@@ -432,64 +468,64 @@ export default function AdminTokenEstimator() {
           variants={fadeIn}
         >
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground">Starting Price</p>
-                <p className="text-xl font-bold">${initialData.tokenPrice.toFixed(6)}</p>
+                <p className="text-base sm:text-xl font-bold truncate">${initialData.tokenPrice.toFixed(6)}</p>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5">
-              <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Final Price (M{projectionMonths})</p>
-                <p className="text-xl font-bold text-green-600">${latestData.tokenPrice.toFixed(6)}</p>
+              <CardContent className="p-3 sm:p-4">
+                <p className="text-xs text-muted-foreground truncate">Final Price (M{projectionMonths})</p>
+                <p className="text-base sm:text-xl font-bold text-green-600 truncate">${latestData.tokenPrice.toFixed(6)}</p>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground">Price Multiplier</p>
-                <p className="text-xl font-bold">{priceMultiplier.toFixed(2)}x</p>
+                <p className="text-base sm:text-xl font-bold">{priceMultiplier.toFixed(2)}x</p>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-amber-500/10 to-amber-500/5">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground">Final Market Cap</p>
-                <p className="text-xl font-bold">{formatCurrency(latestData.marketCap)}</p>
+                <p className="text-base sm:text-xl font-bold truncate">{formatCurrency(latestData.marketCap)}</p>
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Users className="h-3 w-3" /> Final Users
+                  <Users className="h-3 w-3 shrink-0" /> Final Users
                 </p>
-                <p className="text-lg font-semibold">{formatNumber(latestData.users)}</p>
+                <p className="text-base sm:text-lg font-semibold">{formatNumber(latestData.users)}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Droplets className="h-3 w-3" /> LP Depth
+                  <Droplets className="h-3 w-3 shrink-0" /> LP Depth
                 </p>
-                <p className="text-lg font-semibold">{formatCurrency(latestData.lpUSDC)}</p>
+                <p className="text-base sm:text-lg font-semibold truncate">{formatCurrency(latestData.lpUSDC)}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Flame className="h-3 w-3" /> Total Burned
+                  <Flame className="h-3 w-3 shrink-0" /> Total Burned
                 </p>
-                <p className="text-lg font-semibold">{formatNumber(latestData.totalBurned)}</p>
+                <p className="text-base sm:text-lg font-semibold">{formatNumber(latestData.totalBurned)}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Building2 className="h-3 w-3" /> Treasury
+                  <Building2 className="h-3 w-3 shrink-0" /> Treasury
                 </p>
-                <p className="text-lg font-semibold">{formatCurrency(latestData.treasuryBalance)}</p>
+                <p className="text-base sm:text-lg font-semibold truncate">{formatCurrency(latestData.treasuryBalance)}</p>
               </CardContent>
             </Card>
           </div>
@@ -497,25 +533,27 @@ export default function AdminTokenEstimator() {
           {/* Price Chart */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
+              <CardTitle className="text-base flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
                 Token Price Projection
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[250px] w-full">
+            <CardContent className="p-2 sm:p-6">
+              <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={projections}>
+                  <AreaChart data={projections} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis 
                       dataKey="month" 
                       tickFormatter={(v) => `M${v}`}
                       className="text-xs"
+                      tick={{ fontSize: 10 }}
                     />
                     <YAxis 
                       tickFormatter={(v) => `$${v.toFixed(4)}`}
                       className="text-xs"
-                      width={70}
+                      tick={{ fontSize: 10 }}
+                      width={55}
                     />
                     <ChartTooltip 
                       content={<ChartTooltipContent 
@@ -537,7 +575,7 @@ export default function AdminTokenEstimator() {
           </Card>
 
           {/* LP & Users Growth */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -545,13 +583,13 @@ export default function AdminTokenEstimator() {
                   Liquidity Pool Growth
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={chartConfig} className="h-[180px] w-full">
+              <CardContent className="p-2 sm:p-6">
+                <ChartContainer config={chartConfig} className="h-[150px] sm:h-[180px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={projections}>
+                    <AreaChart data={projections} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="month" tickFormatter={(v) => `M${v}`} className="text-xs" />
-                      <YAxis tickFormatter={(v) => formatCurrency(v)} className="text-xs" width={60} />
+                      <XAxis dataKey="month" tickFormatter={(v) => `M${v}`} className="text-xs" tick={{ fontSize: 10 }} />
+                      <YAxis tickFormatter={(v) => formatCurrency(v)} className="text-xs" tick={{ fontSize: 10 }} width={50} />
                       <ChartTooltip content={<ChartTooltipContent formatter={(value) => formatCurrency(Number(value))} />} />
                       <Area
                         type="monotone"
@@ -573,13 +611,13 @@ export default function AdminTokenEstimator() {
                   User Growth
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={chartConfig} className="h-[180px] w-full">
+              <CardContent className="p-2 sm:p-6">
+                <ChartContainer config={chartConfig} className="h-[150px] sm:h-[180px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={projections}>
+                    <AreaChart data={projections} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="month" tickFormatter={(v) => `M${v}`} className="text-xs" />
-                      <YAxis tickFormatter={(v) => formatNumber(v)} className="text-xs" width={50} />
+                      <XAxis dataKey="month" tickFormatter={(v) => `M${v}`} className="text-xs" tick={{ fontSize: 10 }} />
+                      <YAxis tickFormatter={(v) => formatNumber(v)} className="text-xs" tick={{ fontSize: 10 }} width={40} />
                       <ChartTooltip content={<ChartTooltipContent formatter={(value) => formatNumber(Number(value))} />} />
                       <Area
                         type="monotone"
@@ -601,11 +639,11 @@ export default function AdminTokenEstimator() {
               <CardTitle className="text-sm">AMM Price Formula</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="font-mono text-sm bg-background p-3 rounded-lg">
+              <div className="font-mono text-xs sm:text-sm bg-background p-3 rounded-lg">
                 <p className="text-primary">Price = LP_USDC / LP_Tokens</p>
                 <p className="text-muted-foreground text-xs mt-1">Constant Product: x * y = k</p>
               </div>
-              <div className="grid md:grid-cols-2 gap-3 text-xs text-muted-foreground">
+              <div className="grid sm:grid-cols-2 gap-3 text-xs text-muted-foreground">
                 <div className="space-y-1">
                   <p className="font-medium text-foreground">LP Injection Sources:</p>
                   <ul className="list-disc list-inside space-y-0.5">
