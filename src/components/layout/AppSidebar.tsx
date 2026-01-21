@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Cpu,
   Award,
+  Target,
   BarChart3
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
@@ -46,6 +47,7 @@ const mainNavItems = [
   { title: "How It Works", url: "/how-it-works", icon: BookOpen },
   { title: "Technology", url: "/technology", icon: Cpu },
   { title: "Tokenomics", url: "/tokenomics", icon: Coins },
+  { title: "Investment Thesis", url: "/investment-thesis", icon: Target },
   { title: "Mint History", url: "/mint-history", icon: History },
   { title: "Referrals", url: "/referrals", icon: Users },
   { title: "Notifications", url: "/notifications", icon: Bell },
