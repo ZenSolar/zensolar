@@ -12,6 +12,7 @@ import { BotProtection } from "@/components/BotProtection";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { AuthProvider } from "@/hooks/useAuth";
 
 // Eagerly load critical path pages
 import Auth from "./pages/Auth";
@@ -83,16 +84,17 @@ const App = () => {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <LazyWeb3Provider>
-        <TooltipProvider>
-          <ErrorBoundary>
-            <BotProtection blockBots>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <GoogleAnalytics />
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
+      <AuthProvider>
+        <LazyWeb3Provider>
+          <TooltipProvider>
+            <ErrorBoundary>
+              <BotProtection blockBots>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <GoogleAnalytics />
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/install" element={<Install />} />
                     
@@ -319,13 +321,14 @@ const App = () => {
                     />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </BrowserRouter>
-            </BotProtection>
-          </ErrorBoundary>
-        </TooltipProvider>
-      </LazyWeb3Provider>
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
+              </BotProtection>
+            </ErrorBoundary>
+          </TooltipProvider>
+        </LazyWeb3Provider>
+      </AuthProvider>
     </ThemeProvider>
   );
 };
