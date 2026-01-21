@@ -79,11 +79,16 @@ export function useDashboardData() {
         return;
       }
 
-      const { data: profile } = await supabase
+      // Use maybeSingle() to gracefully handle missing profiles (race condition for new users)
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile connections:', error);
+      }
 
       if (profile) {
         setProfileConnections(profile);
@@ -93,6 +98,14 @@ export function useDashboardData() {
           { service: 'solaredge', connected: profile.solaredge_connected || false, label: 'SolarEdge' },
           { service: 'wallbox', connected: profile.wallbox_connected || false, label: 'Wallbox' },
         ]);
+      } else {
+        // Profile not ready yet - use defaults (all disconnected)
+        setProfileConnections({
+          tesla_connected: false,
+          enphase_connected: false,
+          solaredge_connected: false,
+          wallbox_connected: false,
+        });
       }
       setIsLoading(false);
     };
