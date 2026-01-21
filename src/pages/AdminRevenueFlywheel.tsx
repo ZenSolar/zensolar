@@ -32,15 +32,16 @@ export default function AdminRevenueFlywheel() {
   }
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+    <div className="container max-w-5xl mx-auto px-4 pt-4 pb-8 space-y-6">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-xl">
-          <TrendingUp className="h-10 w-10 text-white" />
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Revenue Flywheel</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">How subscription fees and transaction fees flow to the liquidity pool via smart contract automation.</p>
-        <Badge variant="outline" className="border-amber-500/50 text-amber-600 bg-amber-500/10">Admin Only • Internal Documentation</Badge>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
+        <Badge variant="outline" className="text-primary border-primary">
+          <TrendingUp className="h-3 w-3 mr-1" />
+          Revenue Model
+        </Badge>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Revenue Flywheel</h1>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">How subscription fees and transaction fees flow to the liquidity pool via smart contract automation.</p>
+        <Badge variant="secondary" className="text-xs">Admin Only • Internal Documentation</Badge>
       </motion.div>
 
       {/* Visual Flywheel Diagram */}
