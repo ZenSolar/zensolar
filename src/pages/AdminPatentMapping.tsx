@@ -188,7 +188,7 @@ export default function AdminPatentMapping() {
       initial="initial"
       animate="animate"
       variants={staggerChildren}
-      className="container mx-auto py-8 px-4 max-w-7xl space-y-8"
+      className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-8"
     >
       {/* Header */}
       <motion.div variants={fadeIn} className="text-center space-y-4">

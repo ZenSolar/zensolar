@@ -13,7 +13,7 @@ export function DemoLayout() {
           <TopNav isDemo />
 
           {/* Main Content - mobile-safe with constrained width */}
-          <main className="flex-1 pt-safe pt-14 pb-safe min-w-0 w-full max-w-full overflow-x-hidden">
+          <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 w-full max-w-full overflow-x-hidden">
             <Outlet />
           </main>
         </SidebarInset>
