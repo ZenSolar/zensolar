@@ -17,7 +17,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <TopNav />
           <MenuTooltip />
           {/* Main content with padding-top to offset fixed header */}
-          <main className="flex-1 pt-safe pt-14 pb-safe min-w-0 overflow-x-hidden">
+          <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 overflow-x-hidden">
             {children}
           </main>
         </div>
