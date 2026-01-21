@@ -6,9 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, ArrowLeft, ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging, Sun, Battery } from 'lucide-react';
+import { ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging, Sun, Battery, ArrowLeft } from 'lucide-react';
 import { ApiReferenceSkeleton } from '@/components/ui/loading-skeleton';
-import zenLogo from '@/assets/zen-logo.png';
 
 interface EvApiInfo {
   manufacturer: string;
@@ -682,29 +681,38 @@ export default function AdminEvApiReference() {
   return (
     <div className="min-h-screen bg-background pb-safe">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            <img src={zenLogo} alt="ZenSolar" width={28} height={28} className="h-7 w-7" />
-            <h1 className="text-xl font-bold text-foreground">Energy & EV API Reference</h1>
-          </div>
+      <div className="container mx-auto px-4 pt-4 pb-2">
+        <div className="text-center space-y-3">
+          <Badge variant="outline" className="text-primary border-primary">
+            <Zap className="h-3 w-3 mr-1" />
+            API Reference
+          </Badge>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+            Energy & EV API Reference
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Comprehensive guide for solar, battery, EV, and charging network integrations
+          </p>
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-6 space-y-8">
+      <main className="container mx-auto px-4 py-4 space-y-6">
         <Tabs defaultValue="solar" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-2xl">
-            <TabsTrigger value="solar" className="flex items-center gap-2">
+          <TabsList className="h-auto flex-wrap gap-1 p-1 bg-muted/50 max-w-full">
+            <TabsTrigger value="solar" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <Sun className="h-4 w-4" />
-              Solar & Battery
+              <span className="hidden sm:inline">Solar & Battery</span>
+              <span className="sm:hidden">Solar</span>
             </TabsTrigger>
-            <TabsTrigger value="manufacturers" className="flex items-center gap-2">
+            <TabsTrigger value="manufacturers" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <Car className="h-4 w-4" />
-              EV Manufacturers
+              <span className="hidden sm:inline">EV Manufacturers</span>
+              <span className="sm:hidden">EVs</span>
             </TabsTrigger>
-            <TabsTrigger value="networks" className="flex items-center gap-2">
+            <TabsTrigger value="networks" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <BatteryCharging className="h-4 w-4" />
-              Charging Networks
+              <span className="hidden sm:inline">Charging Networks</span>
+              <span className="sm:hidden">Charging</span>
             </TabsTrigger>
           </TabsList>
 

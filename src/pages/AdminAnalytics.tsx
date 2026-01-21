@@ -289,25 +289,21 @@ export default function AdminAnalytics() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="container max-w-7xl mx-auto px-4 pt-4 pb-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-primary" />
-              Analytics Dashboard
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Real-time insights into user engagement, conversions, and energy data
-            </p>
-          </div>
+        <div className="text-center sm:text-left space-y-1">
+          <Badge variant="outline" className="text-primary border-primary mb-2">
+            <BarChart3 className="h-3 w-3 mr-1" />
+            Analytics
+          </Badge>
+          <h1 className="text-2xl sm:text-3xl font-bold">Analytics Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Real-time insights into user engagement, conversions, and energy data
+          </p>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex border rounded-lg overflow-hidden">
             {(['7d', '30d', '90d'] as const).map((range) => (
               <Button
@@ -317,13 +313,12 @@ export default function AdminAnalytics() {
                 onClick={() => setTimeRange(range)}
                 className="rounded-none"
               >
-                {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
+                {range === '7d' ? '7D' : range === '30d' ? '30D' : '90D'}
               </Button>
             ))}
           </div>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-            <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
@@ -399,11 +394,11 @@ export default function AdminAnalytics() {
 
       {/* Tabs for different views */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement</TabsTrigger>
-          <TabsTrigger value="devices">Devices</TabsTrigger>
-          <TabsTrigger value="geographic">Geographic</TabsTrigger>
+        <TabsList className="h-auto flex-wrap gap-1 p-1 bg-muted/50">
+          <TabsTrigger value="overview" className="px-3 py-2 data-[state=active]:bg-background">Overview</TabsTrigger>
+          <TabsTrigger value="engagement" className="px-3 py-2 data-[state=active]:bg-background">Engagement</TabsTrigger>
+          <TabsTrigger value="devices" className="px-3 py-2 data-[state=active]:bg-background">Devices</TabsTrigger>
+          <TabsTrigger value="geographic" className="px-3 py-2 data-[state=active]:bg-background">Geographic</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}

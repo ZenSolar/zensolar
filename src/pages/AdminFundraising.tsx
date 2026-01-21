@@ -272,18 +272,18 @@ export default function AdminFundraising() {
       initial="initial"
       animate="animate"
       variants={staggerChildren}
-      className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-8"
+      className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-6"
     >
       {/* Header */}
-      <motion.div variants={fadeIn} className="text-center space-y-4">
+      <motion.div variants={fadeIn} className="text-center space-y-3">
         <Badge variant="outline" className="text-primary border-primary">
           <DollarSign className="h-3 w-3 mr-1" />
           Fundraising Strategy
         </Badge>
-        <h1 className="text-3xl md:text-4xl font-bold">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
           Fundraising Dashboard
         </h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
           Track milestones, model cap table scenarios, and plan raise strategy for $ZSOLAR
         </p>
       </motion.div>
@@ -339,26 +339,26 @@ export default function AdminFundraising() {
       {/* Tabs */}
       <motion.div variants={fadeIn}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
-            <TabsTrigger value="milestones" className="flex items-center gap-1">
+          <TabsList className="h-auto flex-wrap gap-1 p-1 bg-muted/50">
+            <TabsTrigger value="milestones" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <Milestone className="h-4 w-4" />
-              <span className="hidden sm:inline">Milestones</span>
+              <span>Milestones</span>
             </TabsTrigger>
-            <TabsTrigger value="captable" className="flex items-center gap-1">
+            <TabsTrigger value="captable" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <PieChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Cap Table</span>
+              <span>Cap Table</span>
             </TabsTrigger>
-            <TabsTrigger value="scenarios" className="flex items-center gap-1">
+            <TabsTrigger value="scenarios" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <Calculator className="h-4 w-4" />
-              <span className="hidden sm:inline">Scenarios</span>
+              <span>Scenarios</span>
             </TabsTrigger>
-            <TabsTrigger value="patent" className="flex items-center gap-1">
+            <TabsTrigger value="patent" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <Globe className="h-4 w-4" />
-              <span className="hidden sm:inline">Patent</span>
+              <span>Patent</span>
             </TabsTrigger>
-            <TabsTrigger value="operations" className="flex items-center gap-1">
+            <TabsTrigger value="operations" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
               <Fuel className="h-4 w-4" />
-              <span className="hidden sm:inline">Operations</span>
+              <span>Operations</span>
             </TabsTrigger>
           </TabsList>
 

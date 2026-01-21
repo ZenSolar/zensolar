@@ -216,28 +216,26 @@ export default function AdminContracts() {
   }
 
   return (
-    <div className="container max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <div className="container max-w-6xl mx-auto px-4 pt-4 pb-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FileCode2 className="h-6 w-6 text-primary" />
-            Smart Contracts Dashboard
-          </h1>
-          <p className="text-muted-foreground">Contract info, tokenomics, and milestone verification</p>
-        </div>
+      <div className="space-y-3 text-center">
+        <Badge variant="outline" className="text-primary border-primary">
+          <FileCode2 className="h-3 w-3 mr-1" />
+          Smart Contracts
+        </Badge>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+          Smart Contracts Dashboard
+        </h1>
+        <p className="text-muted-foreground text-sm sm:text-base">Contract info, tokenomics, and milestone verification</p>
       </div>
 
       <Tabs defaultValue="contracts" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="contracts">Contracts</TabsTrigger>
-          <TabsTrigger value="tokenomics">Tokenomics</TabsTrigger>
-          <TabsTrigger value="milestones">Milestones</TabsTrigger>
-          <TabsTrigger value="deployment">Deployment</TabsTrigger>
-          <TabsTrigger value="verification">Verification</TabsTrigger>
+        <TabsList className="h-auto flex-wrap gap-1 p-1 bg-muted/50">
+          <TabsTrigger value="contracts" className="px-3 py-2 data-[state=active]:bg-background">Contracts</TabsTrigger>
+          <TabsTrigger value="tokenomics" className="px-3 py-2 data-[state=active]:bg-background">Tokenomics</TabsTrigger>
+          <TabsTrigger value="milestones" className="px-3 py-2 data-[state=active]:bg-background">Milestones</TabsTrigger>
+          <TabsTrigger value="deployment" className="px-3 py-2 data-[state=active]:bg-background">Deployment</TabsTrigger>
+          <TabsTrigger value="verification" className="px-3 py-2 data-[state=active]:bg-background">Verification</TabsTrigger>
         </TabsList>
 
         {/* Contracts Tab */}

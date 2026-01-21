@@ -188,23 +188,24 @@ export default function AdminPatentMapping() {
       initial="initial"
       animate="animate"
       variants={staggerChildren}
-      className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-8"
+      className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-6"
     >
       {/* Header */}
-      <motion.div variants={fadeIn} className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3">
-          <Scale className="h-10 w-10 text-primary" />
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">
-            Patent Mapping Analysis
-          </h1>
-        </div>
-        <p className="text-muted-foreground max-w-3xl mx-auto">
+      <motion.div variants={fadeIn} className="text-center space-y-3">
+        <Badge variant="outline" className="text-primary border-primary">
+          <Scale className="h-3 w-3 mr-1" />
+          Patent Analysis
+        </Badge>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+          Patent Mapping Analysis
+        </h1>
+        <p className="text-muted-foreground max-w-3xl mx-auto text-sm sm:text-base">
           Cross-reference between Provisional Patent Application (April 12, 2025) and current ZenSolar implementation
         </p>
-        <div className="flex items-center justify-center gap-2">
-          <Badge variant="outline" className="text-sm">
-            <FileText className="h-3 w-3 mr-1" />
-            System and Method for Tokenizing and Gamifying Sustainable Behaviors Using Blockchain Technology
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <Badge variant="secondary" className="text-xs sm:text-sm max-w-full">
+            <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
+            <span className="truncate">System and Method for Tokenizing and Gamifying Sustainable Behaviors</span>
           </Badge>
         </div>
       </motion.div>
