@@ -71,6 +71,9 @@ export default function AdminTokenEstimator() {
   const [avgTransactionSize, setAvgTransactionSize] = useState(100); // $100 avg transaction
   const [projectionMonths, setProjectionMonths] = useState(24);
   const [conversionRate, setConversionRate] = useState(30); // 30% of users are paid subscribers
+  
+  // Separate state for price input to allow free editing
+  const [priceInputValue, setPriceInputValue] = useState("0.000100");
 
   // Calculate projections
   const projections = useMemo(() => {
@@ -194,13 +197,31 @@ export default function AdminTokenEstimator() {
   };
 
   // Derived starting price from LP ratio
-  const startingPrice = initialTokensInLP > 0 ? initialLPSeed / initialTokensInLP : 0;
+  const calculatedPrice = initialTokensInLP > 0 ? initialLPSeed / initialTokensInLP : 0;
   
   // Handle manual price input - adjusts tokens in LP to achieve target price
-  const handlePriceChange = (targetPrice: number) => {
+  const applyPriceChange = (value: string) => {
+    const targetPrice = parseFloat(value);
     if (targetPrice > 0 && initialLPSeed > 0) {
       const requiredTokens = Math.round(initialLPSeed / targetPrice);
       setInitialTokensInLP(Math.max(100_000_000, Math.min(requiredTokens, 10_000_000_000)));
+    }
+  };
+
+  // Sync price input when LP seed changes externally
+  const handleLPSeedChange = (value: number) => {
+    setInitialLPSeed(value);
+    // Recalculate price and update input
+    if (initialTokensInLP > 0) {
+      setPriceInputValue((value / initialTokensInLP).toFixed(6));
+    }
+  };
+
+  // Sync price input when tokens change externally (via slider)
+  const handleTokensChange = (value: number) => {
+    setInitialTokensInLP(value);
+    if (value > 0) {
+      setPriceInputValue((initialLPSeed / value).toFixed(6));
     }
   };
 
@@ -296,13 +317,18 @@ export default function AdminTokenEstimator() {
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold">$</span>
                   <Input
-                    type="number"
-                    value={startingPrice.toFixed(6)}
-                    onChange={(e) => handlePriceChange(parseFloat(e.target.value) || 0)}
-                    step="0.000001"
-                    min="0.000001"
-                    max="1"
+                    type="text"
+                    inputMode="decimal"
+                    value={priceInputValue}
+                    onChange={(e) => setPriceInputValue(e.target.value)}
+                    onBlur={() => applyPriceChange(priceInputValue)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        applyPriceChange(priceInputValue);
+                      }
+                    }}
                     className="font-mono text-lg h-10"
+                    placeholder="0.000100"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -321,7 +347,7 @@ export default function AdminTokenEstimator() {
                 </div>
                 <Slider
                   value={[initialLPSeed]}
-                  onValueChange={([v]) => setInitialLPSeed(v)}
+                  onValueChange={([v]) => handleLPSeedChange(v)}
                   min={10000}
                   max={1000000}
                   step={10000}
@@ -339,7 +365,7 @@ export default function AdminTokenEstimator() {
                 </div>
                 <Slider
                   value={[initialTokensInLP]}
-                  onValueChange={([v]) => setInitialTokensInLP(v)}
+                  onValueChange={([v]) => handleTokensChange(v)}
                   min={100_000_000}
                   max={10_000_000_000}
                   step={100_000_000}
