@@ -146,15 +146,19 @@ const raiseScenarios = [
     valuation: "$5M - $7.5M",
     dilution: "10%",
     timeline: "Now",
-    founderEquity: "90%", // Pre-dilution founder ownership
-    founderPostDilution: "81%", // After 10% dilution
-    founderPaperValue: "$4.05M - $6.08M", // 81% of $5M-$7.5M
-    founderLiquidityNote: "No liquidity at this stage - paper value only",
+    founderCompensation: {
+      annualSalary: "$120K - $150K",
+      salaryNote: "Below-market founder salary, standard for pre-seed",
+      signingBonus: "$0",
+      secondarySale: "$0",
+      secondaryNote: "No secondary allowed at this stage",
+      totalCashYear1: "$120K - $150K",
+    },
     useOfFunds: [
       { category: "Legal & IP", amount: "$100-150K", description: "Patent prosecution, securities counsel, token legal opinion" },
       { category: "Security Audit", amount: "$50-75K", description: "Smart contract audit by reputable firm" },
       { category: "Mainnet Launch", amount: "$75-100K", description: "Deployment, gas reserves, initial LP" },
-      { category: "Team (12-18 mo)", amount: "$200-300K", description: "2-3 person core team runway" },
+      { category: "Team (12-18 mo)", amount: "$200-300K", description: "2-3 person core team runway (includes founder salary)" },
       { category: "Marketing", amount: "$50-100K", description: "User acquisition, community building" },
     ]
   },
@@ -165,10 +169,14 @@ const raiseScenarios = [
     valuation: "$15M - $25M",
     dilution: "10-15%",
     timeline: "Post-Mainnet + 10K users",
-    founderEquity: "81%", // Post Pre-Seed
-    founderPostDilution: "68.9% - 72.9%", // After additional 10-15% dilution
-    founderPaperValue: "$10.3M - $18.2M", // ~70% of $15M-$25M
-    founderLiquidityNote: "Potential 5-10% secondary ($0.5M - $1.8M)",
+    founderCompensation: {
+      annualSalary: "$175K - $225K",
+      salaryNote: "Market-rate for early-stage CEO",
+      signingBonus: "$25K - $50K",
+      secondarySale: "$150K - $300K",
+      secondaryNote: "5-10% of shares sold (negotiable with lead investor)",
+      totalCashYear1: "$350K - $575K",
+    },
     useOfFunds: [
       { category: "Team Expansion", amount: "$600K-1M", description: "Engineering, BD, Marketing hires" },
       { category: "Global Patent", amount: "$150-250K", description: "PCT filing + major jurisdictions" },
@@ -184,10 +192,14 @@ const raiseScenarios = [
     valuation: "$50M - $100M",
     dilution: "10-15%",
     timeline: "50K+ users, proven revenue",
-    founderEquity: "~70%", // Post Seed
-    founderPostDilution: "59.5% - 63%", // After additional 10-15% dilution
-    founderPaperValue: "$29.8M - $63M", // ~60% of $50M-$100M
-    founderLiquidityNote: "Potential 10-15% secondary ($3M - $9.5M)",
+    founderCompensation: {
+      annualSalary: "$250K - $350K",
+      salaryNote: "Competitive CEO salary + benefits",
+      signingBonus: "$50K - $100K",
+      secondarySale: "$500K - $1.5M",
+      secondaryNote: "10-15% secondary common at Series A",
+      totalCashYear1: "$800K - $1.95M",
+    },
     useOfFunds: [
       { category: "Scale Operations", amount: "$2-4M", description: "Full team build-out globally" },
       { category: "Enterprise Sales", amount: "$1-2M", description: "B2B utility partnerships" },
@@ -498,35 +510,34 @@ export default function AdminFundraising() {
 
                   <Separator />
 
-                  {/* Founder Proceeds Section */}
-                  <div className="bg-primary/10 border border-primary/30 p-4 rounded-lg space-y-3">
+                  {/* Founder Compensation Section */}
+                  <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg space-y-3">
                     <h4 className="font-medium text-sm flex items-center gap-2">
-                      <Users className="h-4 w-4 text-primary" />
-                      Founder Economics
+                      <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      Founder Compensation (Cash)
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                       <div className="p-2 bg-background rounded border">
-                        <p className="text-sm font-bold">{scenario.founderEquity}</p>
-                        <p className="text-xs text-muted-foreground">Pre-Round Equity</p>
+                        <p className="text-sm font-bold text-green-600 dark:text-green-400">{scenario.founderCompensation.annualSalary}</p>
+                        <p className="text-xs text-muted-foreground">Annual Salary</p>
                       </div>
                       <div className="p-2 bg-background rounded border">
-                        <p className="text-sm font-bold">{scenario.founderPostDilution}</p>
-                        <p className="text-xs text-muted-foreground">Post-Dilution</p>
+                        <p className="text-sm font-bold">{scenario.founderCompensation.signingBonus}</p>
+                        <p className="text-xs text-muted-foreground">Signing Bonus</p>
                       </div>
-                      <div className="p-2 bg-background rounded border border-green-500/50">
-                        <p className="text-sm font-bold text-green-600 dark:text-green-400">{scenario.founderPaperValue}</p>
-                        <p className="text-xs text-muted-foreground">Paper Value</p>
+                      <div className="p-2 bg-background rounded border">
+                        <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{scenario.founderCompensation.secondarySale}</p>
+                        <p className="text-xs text-muted-foreground">Secondary Sale</p>
                       </div>
-                      <div className="p-2 bg-background rounded border border-amber-500/50">
-                        <p className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                          {scenario.founderLiquidityNote.includes("No liquidity") ? "$0" : scenario.founderLiquidityNote.match(/\$[\d.]+-[\d.]+[MK]/)?.[0] || "TBD"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Potential Cash</p>
+                      <div className="p-2 bg-background rounded border border-green-500">
+                        <p className="text-sm font-bold text-green-600 dark:text-green-400">{scenario.founderCompensation.totalCashYear1}</p>
+                        <p className="text-xs text-muted-foreground">Total Year 1</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground italic">
-                      {scenario.founderLiquidityNote}
-                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <p><span className="font-medium">Salary:</span> {scenario.founderCompensation.salaryNote}</p>
+                      <p><span className="font-medium">Secondary:</span> {scenario.founderCompensation.secondaryNote}</p>
+                    </div>
                   </div>
 
                   <Separator />
