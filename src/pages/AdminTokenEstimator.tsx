@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { motion } from "framer-motion";
-import { Loader2, Calculator, TrendingUp, Droplets, Flame, Building2, ArrowRightLeft, Users, DollarSign, Coins, Info } from "lucide-react";
+import { Building2, Calculator, Coins, DollarSign, Droplets, Flame, Info, Loader2, TrendingUp, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
@@ -16,7 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Area, AreaChart, Legend, BarChart, Bar } from "recharts";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -65,15 +65,26 @@ export default function AdminTokenEstimator() {
   // Input state
   const [initialLPSeed, setInitialLPSeed] = useState(100000); // $100k initial LP
   const [initialTokensInLP, setInitialTokensInLP] = useState(1_000_000_000); // 1B tokens in LP
-  const [startingUsers, setStartingUsers] = useState(100);
-  const [monthlyGrowthRate, setMonthlyGrowthRate] = useState(15); // 15% monthly growth
-  const [avgTransactionsPerUser, setAvgTransactionsPerUser] = useState(5);
-  const [avgTransactionSize, setAvgTransactionSize] = useState(100); // $100 avg transaction
+  const [monthlyUsers, setMonthlyUsers] = useState(1000);
   const [projectionMonths, setProjectionMonths] = useState(24);
-  const [conversionRate, setConversionRate] = useState(30); // 30% of users are paid subscribers
   
   // Separate state for price input to allow free editing
   const [priceInputValue, setPriceInputValue] = useState("0.000100");
+  const [isPriceEditing, setIsPriceEditing] = useState(false);
+
+  // Simplified model assumptions (kept constant for now)
+  const ASSUMED_CONVERSION_RATE = 30; // % of users on $9.99/mo paid plan
+  const ASSUMED_TX_PER_USER = 5;
+  const ASSUMED_AVG_TX_SIZE_USD = 100;
+
+  // Derived starting price from LP ratio
+  const calculatedPrice = initialTokensInLP > 0 ? initialLPSeed / initialTokensInLP : 0;
+
+  // Keep the input synced to the calculated price whenever we're not actively editing.
+  useEffect(() => {
+    if (isPriceEditing) return;
+    setPriceInputValue(calculatedPrice > 0 ? calculatedPrice.toFixed(6) : "");
+  }, [calculatedPrice, isPriceEditing]);
 
   // Calculate projections
   const projections = useMemo(() => {
@@ -84,7 +95,7 @@ export default function AdminTokenEstimator() {
     let circulatingSupply = INITIAL_CIRCULATION;
     let totalBurned = 0;
     let treasuryBalance = 0;
-    let users = startingUsers;
+    const users = monthlyUsers;
 
     for (let month = 0; month <= projectionMonths; month++) {
       // Calculate token price using AMM formula: Price = USDC / Tokens
@@ -92,12 +103,12 @@ export default function AdminTokenEstimator() {
       const marketCap = tokenPrice * circulatingSupply;
 
       // Calculate monthly activity
-      const paidUsers = Math.floor(users * (conversionRate / 100));
+      const paidUsers = Math.floor(users * (ASSUMED_CONVERSION_RATE / 100));
       const subscriptionRevenue = paidUsers * MONTHLY_SUB_FEE;
       const lpFromSubs = subscriptionRevenue * SUBSCRIPTION_LP_RATE;
 
       // Transaction volume (in tokens, converted from USD)
-      const transactionVolumeUSD = users * avgTransactionsPerUser * avgTransactionSize;
+      const transactionVolumeUSD = users * ASSUMED_TX_PER_USER * ASSUMED_AVG_TX_SIZE_USD;
       const transactionVolumeTokens = tokenPrice > 0 ? transactionVolumeUSD / tokenPrice : 0;
 
       // Fees from transactions
@@ -126,7 +137,6 @@ export default function AdminTokenEstimator() {
         totalBurned += burnFromTx;
         treasuryBalance += treasuryFromTx * tokenPrice; // Convert to USD value
         circulatingSupply -= burnFromTx; // Burned tokens reduce circulation
-        users *= (1 + monthlyGrowthRate / 100);
       }
     }
 
@@ -134,12 +144,8 @@ export default function AdminTokenEstimator() {
   }, [
     initialLPSeed,
     initialTokensInLP,
-    startingUsers,
-    monthlyGrowthRate,
-    avgTransactionsPerUser,
-    avgTransactionSize,
+    monthlyUsers,
     projectionMonths,
-    conversionRate,
   ]);
 
   const latestData = projections[projections.length - 1];
@@ -191,38 +197,18 @@ export default function AdminTokenEstimator() {
   const chartConfig = {
     tokenPrice: { label: "Token Price", color: "hsl(var(--primary))" },
     marketCap: { label: "Market Cap", color: "hsl(var(--secondary))" },
-    users: { label: "Users", color: "hsl(var(--accent))" },
     lpUSDC: { label: "LP (USDC)", color: "hsl(var(--chart-1))" },
     totalBurned: { label: "Total Burned", color: "hsl(var(--destructive))" },
   };
-
-  // Derived starting price from LP ratio
-  const calculatedPrice = initialTokensInLP > 0 ? initialLPSeed / initialTokensInLP : 0;
   
   // Handle manual price input - adjusts tokens in LP to achieve target price
   const applyPriceChange = (value: string) => {
-    const targetPrice = parseFloat(value);
-    if (targetPrice > 0 && initialLPSeed > 0) {
+    const cleaned = value.trim().replace(/,/g, "");
+    const targetPrice = Number(cleaned);
+    if (!Number.isFinite(targetPrice) || targetPrice <= 0 || initialLPSeed <= 0) return;
+
       const requiredTokens = Math.round(initialLPSeed / targetPrice);
       setInitialTokensInLP(Math.max(100_000_000, Math.min(requiredTokens, 10_000_000_000)));
-    }
-  };
-
-  // Sync price input when LP seed changes externally
-  const handleLPSeedChange = (value: number) => {
-    setInitialLPSeed(value);
-    // Recalculate price and update input
-    if (initialTokensInLP > 0) {
-      setPriceInputValue((value / initialTokensInLP).toFixed(6));
-    }
-  };
-
-  // Sync price input when tokens change externally (via slider)
-  const handleTokensChange = (value: number) => {
-    setInitialTokensInLP(value);
-    if (value > 0) {
-      setPriceInputValue((initialLPSeed / value).toFixed(6));
-    }
   };
 
   return (
@@ -321,11 +307,19 @@ export default function AdminTokenEstimator() {
                     inputMode="decimal"
                     value={priceInputValue}
                     onChange={(e) => setPriceInputValue(e.target.value)}
-                    onBlur={() => applyPriceChange(priceInputValue)}
+                    onFocus={() => setIsPriceEditing(true)}
+                    onBlur={() => {
+                      setIsPriceEditing(false);
+                      // If they clear the field, just revert to calculated value.
+                      if (priceInputValue.trim() === "") return;
+                      applyPriceChange(priceInputValue);
+                    }}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        applyPriceChange(priceInputValue);
-                      }
+                      if (e.key !== "Enter") return;
+                      e.preventDefault();
+                      // Commit on Enter
+                      if (priceInputValue.trim() !== "") applyPriceChange(priceInputValue);
+                      (e.currentTarget as HTMLInputElement).blur();
                     }}
                     className="font-mono text-lg h-10"
                     placeholder="0.000100"
@@ -347,7 +341,7 @@ export default function AdminTokenEstimator() {
                 </div>
                 <Slider
                   value={[initialLPSeed]}
-                  onValueChange={([v]) => handleLPSeedChange(v)}
+                  onValueChange={([v]) => setInitialLPSeed(v)}
                   min={10000}
                   max={1000000}
                   step={10000}
@@ -365,7 +359,7 @@ export default function AdminTokenEstimator() {
                 </div>
                 <Slider
                   value={[initialTokensInLP]}
-                  onValueChange={([v]) => handleTokensChange(v)}
+                  onValueChange={([v]) => setInitialTokensInLP(v)}
                   min={100_000_000}
                   max={10_000_000_000}
                   step={100_000_000}
@@ -374,96 +368,31 @@ export default function AdminTokenEstimator() {
 
               <Separator />
 
-              {/* Starting Users */}
+              {/* Monthly Users */}
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <Label className="text-sm">
-                    Starting Users
-                    <InfoTooltip text="Number of users at launch (Month 0)" />
+                    Monthly Users
+                    <InfoTooltip text="Total active users per month (kept constant in this simplified model)" />
                   </Label>
-                  <span className="text-sm font-medium">{formatNumber(startingUsers)}</span>
+                  <span className="text-sm font-medium">{formatNumber(monthlyUsers)}</span>
                 </div>
                 <Slider
-                  value={[startingUsers]}
-                  onValueChange={([v]) => setStartingUsers(v)}
+                  value={[monthlyUsers]}
+                  onValueChange={([v]) => setMonthlyUsers(v)}
                   min={10}
-                  max={10000}
-                  step={10}
+                  max={1_000_000}
+                  step={100}
                 />
               </div>
 
-              {/* Monthly Growth Rate */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label className="text-sm">
-                    Monthly Growth Rate
-                    <InfoTooltip text="Percentage user growth each month (compound)" />
-                  </Label>
-                  <span className="text-sm font-medium">{monthlyGrowthRate}%</span>
-                </div>
-                <Slider
-                  value={[monthlyGrowthRate]}
-                  onValueChange={([v]) => setMonthlyGrowthRate(v)}
-                  min={1}
-                  max={50}
-                  step={1}
-                />
-              </div>
-
-              {/* Conversion Rate */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label className="text-sm">
-                    Paid Subscriber Rate
-                    <InfoTooltip text="Percentage of users on $9.99/mo paid plan" />
-                  </Label>
-                  <span className="text-sm font-medium">{conversionRate}%</span>
-                </div>
-                <Slider
-                  value={[conversionRate]}
-                  onValueChange={([v]) => setConversionRate(v)}
-                  min={5}
-                  max={100}
-                  step={5}
-                />
-              </div>
-
-              <Separator />
-
-              {/* Avg Transactions Per User */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label className="text-sm">
-                    Tx/User/Month
-                    <InfoTooltip text="Average token transactions per user per month" />
-                  </Label>
-                  <span className="text-sm font-medium">{avgTransactionsPerUser}</span>
-                </div>
-                <Slider
-                  value={[avgTransactionsPerUser]}
-                  onValueChange={([v]) => setAvgTransactionsPerUser(v)}
-                  min={1}
-                  max={20}
-                  step={1}
-                />
-              </div>
-
-              {/* Avg Transaction Size */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label className="text-sm">
-                    Avg Tx Size (USD)
-                    <InfoTooltip text="Average transaction value in USD equivalent" />
-                  </Label>
-                  <span className="text-sm font-medium">{formatCurrency(avgTransactionSize)}</span>
-                </div>
-                <Slider
-                  value={[avgTransactionSize]}
-                  onValueChange={([v]) => setAvgTransactionSize(v)}
-                  min={10}
-                  max={1000}
-                  step={10}
-                />
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <p className="text-xs font-medium text-foreground">Assumptions (fixed for now)</p>
+                <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                  <li>{ASSUMED_CONVERSION_RATE}% paid subscribers</li>
+                  <li>{ASSUMED_TX_PER_USER} tx per user / month</li>
+                  <li>{formatCurrency(ASSUMED_AVG_TX_SIZE_USD)} avg tx size</li>
+                </ul>
               </div>
 
               <Separator />
@@ -525,7 +454,7 @@ export default function AdminTokenEstimator() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Users className="h-3 w-3 shrink-0" /> Final Users
+                  <Users className="h-3 w-3 shrink-0" /> Monthly Users
                 </p>
                 <p className="text-base sm:text-lg font-semibold">{formatNumber(latestData.users)}</p>
               </CardContent>
@@ -600,8 +529,8 @@ export default function AdminTokenEstimator() {
             </CardContent>
           </Card>
 
-          {/* LP & Users Growth */}
-          <div className="grid sm:grid-cols-2 gap-4">
+          {/* LP Growth */}
+          <div className="grid gap-4">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -622,34 +551,6 @@ export default function AdminTokenEstimator() {
                         dataKey="lpUSDC"
                         stroke="hsl(var(--chart-1))"
                         fill="hsl(var(--chart-1))"
-                        fillOpacity={0.3}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  User Growth
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-2 sm:p-6">
-                <ChartContainer config={chartConfig} className="h-[150px] sm:h-[180px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={projections} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="month" tickFormatter={(v) => `M${v}`} className="text-xs" tick={{ fontSize: 10 }} />
-                      <YAxis tickFormatter={(v) => formatNumber(v)} className="text-xs" tick={{ fontSize: 10 }} width={40} />
-                      <ChartTooltip content={<ChartTooltipContent formatter={(value) => formatNumber(Number(value))} />} />
-                      <Area
-                        type="monotone"
-                        dataKey="users"
-                        stroke="hsl(var(--accent))"
-                        fill="hsl(var(--accent))"
                         fillOpacity={0.3}
                       />
                     </AreaChart>
