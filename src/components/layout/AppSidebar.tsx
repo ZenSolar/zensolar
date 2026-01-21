@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Car,
   BookOpen,
+  TrendingUp,
   Cpu,
   Award,
   BarChart3
@@ -233,6 +234,22 @@ export function AppSidebar() {
                     >
                       <Car className="h-4 w-4" />
                       <span>EV API Reference</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Revenue Flywheel">
+                    <NavLink 
+                      to="/admin/revenue-flywheel"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                      <span>Revenue Flywheel</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

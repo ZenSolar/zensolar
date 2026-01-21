@@ -27,6 +27,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminContracts = lazy(() => import("./pages/AdminContracts"));
 const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
+const AdminRevenueFlywheel = lazy(() => import("./pages/AdminRevenueFlywheel"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -142,6 +143,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminEvApiReference />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/revenue-flywheel" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminRevenueFlywheel />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
