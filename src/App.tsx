@@ -51,6 +51,7 @@ const NftCollection = lazy(() => import("./pages/NftCollection"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
 const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
+const AdminTokenEstimator = lazy(() => import("./pages/AdminTokenEstimator"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -348,6 +349,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminFundraising />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/token-estimator" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminTokenEstimator />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
