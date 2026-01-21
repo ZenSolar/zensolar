@@ -17,11 +17,15 @@ import {
   BarChart3,
   Globe,
   Award,
-  Sparkles
+  Sparkles,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -38,6 +42,31 @@ const stagger = {
 };
 
 export default function InvestmentThesis() {
+  const { user, isLoading: authLoading } = useAuth();
+  const { isAdmin, isChecking: adminLoading } = useAdminCheck();
+
+  if (authLoading || adminLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="p-6">
+          <CardTitle className="text-destructive">Access Denied</CardTitle>
+          <CardDescription className="mt-2">This page is only accessible to administrators.</CardDescription>
+        </Card>
+      </div>
+    );
+  }
   const growthProjections = [
     { users: "10,000", monthlyLP: "$49,900", annualLP: "$598,800", tokenBurn: "~2.1M/mo" },
     { users: "50,000", monthlyLP: "$249,500", annualLP: "$2,994,000", tokenBurn: "~10.5M/mo" },
