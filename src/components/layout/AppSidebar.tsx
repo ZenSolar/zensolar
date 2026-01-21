@@ -21,7 +21,8 @@ import {
   BarChart3,
   Scale,
   DollarSign,
-  Calculator
+  Calculator,
+  PieChart
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -318,6 +319,22 @@ export function AppSidebar() {
                     >
                       <Calculator className="h-4 w-4" />
                       <span>Token Estimator</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="10B Tokenomics">
+                    <NavLink 
+                      to="/admin/tokenomics-10b"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <PieChart className="h-4 w-4" />
+                      <span>10B Tokenomics</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

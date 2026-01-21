@@ -52,6 +52,7 @@ const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
 const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
 const AdminTokenEstimator = lazy(() => import("./pages/AdminTokenEstimator"));
+const AdminTokenomics10B = lazy(() => import("./pages/AdminTokenomics10B"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -359,6 +360,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminTokenEstimator />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/tokenomics-10b" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminTokenomics10B />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
