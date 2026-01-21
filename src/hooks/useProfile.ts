@@ -40,16 +40,40 @@ export function useProfile() {
       return;
     }
 
+    // Use maybeSingle() instead of single() to gracefully handle missing profiles
+    // (race condition between signup and profile trigger, or Safari timing issues)
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching profile:', error);
-    } else {
+      setProfile(null);
+    } else if (data) {
       setProfile(data as Profile);
+    } else {
+      // Profile doesn't exist yet - create a minimal profile for the user
+      console.log('Profile not found for user, creating one...');
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({ user_id: user.id })
+        .select()
+        .single();
+      
+      if (insertError) {
+        // Could be a unique constraint violation if trigger ran concurrently - try fetching again
+        console.log('Insert failed, fetching again:', insertError.message);
+        const { data: retryData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setProfile(retryData as Profile | null);
+      } else {
+        setProfile(newProfile as Profile);
+      }
     }
     setIsLoading(false);
   }, [user]);
