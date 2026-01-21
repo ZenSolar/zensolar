@@ -50,6 +50,7 @@ const Technology = lazy(() => import("./pages/Technology"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
+const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -337,6 +338,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminPatentMapping />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/fundraising" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminFundraising />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
