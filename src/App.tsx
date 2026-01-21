@@ -48,6 +48,7 @@ const Store = lazy(() => import("./pages/Store"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Technology = lazy(() => import("./pages/Technology"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
+const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -315,8 +316,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <NftCollection />
-                          </AppLayout>
-                        </ProtectedRoute>
+                      </AppLayout>
+                    </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/investment-thesis" 
+                      element={
+                        <AppLayout>
+                          <InvestmentThesis />
+                        </AppLayout>
                       } 
                     />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
