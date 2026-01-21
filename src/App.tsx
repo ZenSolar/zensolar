@@ -321,11 +321,13 @@ const App = () => {
                       } 
                     />
                     <Route 
-                      path="/investment-thesis" 
+                      path="/admin/investment-thesis" 
                       element={
-                        <AppLayout>
-                          <InvestmentThesis />
-                        </AppLayout>
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <InvestmentThesis />
+                          </AppLayout>
+                        </ProtectedRoute>
                       } 
                     />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -47,7 +47,6 @@ const mainNavItems = [
   { title: "How It Works", url: "/how-it-works", icon: BookOpen },
   { title: "Technology", url: "/technology", icon: Cpu },
   { title: "Tokenomics", url: "/tokenomics", icon: Coins },
-  { title: "Investment Thesis", url: "/investment-thesis", icon: Target },
   { title: "Mint History", url: "/mint-history", icon: History },
   { title: "Referrals", url: "/referrals", icon: Users },
   { title: "Notifications", url: "/notifications", icon: Bell },
@@ -252,6 +251,22 @@ export function AppSidebar() {
                     >
                       <TrendingUp className="h-4 w-4" />
                       <span>Revenue Flywheel</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Investment Thesis">
+                    <NavLink 
+                      to="/admin/investment-thesis"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <Target className="h-4 w-4" />
+                      <span>Investment Thesis</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
