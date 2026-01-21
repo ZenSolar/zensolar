@@ -146,6 +146,10 @@ const raiseScenarios = [
     valuation: "$5M - $7.5M",
     dilution: "10%",
     timeline: "Now",
+    founderEquity: "90%", // Pre-dilution founder ownership
+    founderPostDilution: "81%", // After 10% dilution
+    founderPaperValue: "$4.05M - $6.08M", // 81% of $5M-$7.5M
+    founderLiquidityNote: "No liquidity at this stage - paper value only",
     useOfFunds: [
       { category: "Legal & IP", amount: "$100-150K", description: "Patent prosecution, securities counsel, token legal opinion" },
       { category: "Security Audit", amount: "$50-75K", description: "Smart contract audit by reputable firm" },
@@ -161,6 +165,10 @@ const raiseScenarios = [
     valuation: "$15M - $25M",
     dilution: "10-15%",
     timeline: "Post-Mainnet + 10K users",
+    founderEquity: "81%", // Post Pre-Seed
+    founderPostDilution: "68.9% - 72.9%", // After additional 10-15% dilution
+    founderPaperValue: "$10.3M - $18.2M", // ~70% of $15M-$25M
+    founderLiquidityNote: "Potential 5-10% secondary ($0.5M - $1.8M)",
     useOfFunds: [
       { category: "Team Expansion", amount: "$600K-1M", description: "Engineering, BD, Marketing hires" },
       { category: "Global Patent", amount: "$150-250K", description: "PCT filing + major jurisdictions" },
@@ -176,6 +184,10 @@ const raiseScenarios = [
     valuation: "$50M - $100M",
     dilution: "10-15%",
     timeline: "50K+ users, proven revenue",
+    founderEquity: "~70%", // Post Seed
+    founderPostDilution: "59.5% - 63%", // After additional 10-15% dilution
+    founderPaperValue: "$29.8M - $63M", // ~60% of $50M-$100M
+    founderLiquidityNote: "Potential 10-15% secondary ($3M - $9.5M)",
     useOfFunds: [
       { category: "Scale Operations", amount: "$2-4M", description: "Full team build-out globally" },
       { category: "Enterprise Sales", amount: "$1-2M", description: "B2B utility partnerships" },
@@ -469,7 +481,7 @@ export default function AdminFundraising() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-3 gap-4 text-center">
                     <div className="p-3 bg-muted/50 rounded-lg">
                       <p className="text-lg font-bold">{scenario.amount}</p>
                       <p className="text-xs text-muted-foreground">Raise Amount</p>
@@ -482,6 +494,39 @@ export default function AdminFundraising() {
                       <p className="text-lg font-bold">{scenario.timeline}</p>
                       <p className="text-xs text-muted-foreground">Timeline</p>
                     </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Founder Proceeds Section */}
+                  <div className="bg-primary/10 border border-primary/30 p-4 rounded-lg space-y-3">
+                    <h4 className="font-medium text-sm flex items-center gap-2">
+                      <Users className="h-4 w-4 text-primary" />
+                      Founder Economics
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                      <div className="p-2 bg-background rounded border">
+                        <p className="text-sm font-bold">{scenario.founderEquity}</p>
+                        <p className="text-xs text-muted-foreground">Pre-Round Equity</p>
+                      </div>
+                      <div className="p-2 bg-background rounded border">
+                        <p className="text-sm font-bold">{scenario.founderPostDilution}</p>
+                        <p className="text-xs text-muted-foreground">Post-Dilution</p>
+                      </div>
+                      <div className="p-2 bg-background rounded border border-green-500/50">
+                        <p className="text-sm font-bold text-green-600 dark:text-green-400">{scenario.founderPaperValue}</p>
+                        <p className="text-xs text-muted-foreground">Paper Value</p>
+                      </div>
+                      <div className="p-2 bg-background rounded border border-amber-500/50">
+                        <p className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                          {scenario.founderLiquidityNote.includes("No liquidity") ? "$0" : scenario.founderLiquidityNote.match(/\$[\d.]+-[\d.]+[MK]/)?.[0] || "TBD"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Potential Cash</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic">
+                      {scenario.founderLiquidityNote}
+                    </p>
                   </div>
 
                   <Separator />
