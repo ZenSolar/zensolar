@@ -18,7 +18,8 @@ import {
   Cpu,
   Award,
   Target,
-  BarChart3
+  BarChart3,
+  Scale
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -267,6 +268,22 @@ export function AppSidebar() {
                     >
                       <Target className="h-4 w-4" />
                       <span>Investment Thesis</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Patent Mapping">
+                    <NavLink 
+                      to="/admin/patent-mapping"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <Scale className="h-4 w-4" />
+                      <span>Patent Mapping</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
