@@ -123,24 +123,25 @@ const CONTRACT_BATTERY_MILESTONES = [500, 1000, 2500, 5000, 10000, 25000, 50000]
 const CONTRACT_CHARGING_MILESTONES = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000]; // 8 tiers
 const CONTRACT_EV_MILES_MILESTONES = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000]; // 10 tiers
 
-// Tokenomics from contracts
+// Tokenomics from contracts (10B Strategy)
 const TOKENOMICS = {
-  maxSupply: '50,000,000,000',
-  founderAllocation: '1,250,000,000',
-  initialOwnerAllocation: '3,750,000,000',
+  maxSupply: '10,000,000,000',
+  founderAllocation: '250,000,000',
+  treasuryAllocation: '750,000,000',
+  communityRewards: '9,000,000,000',
   tokensPerUnit: '1 ZSOLAR per kWh/mile',
   mintDistribution: {
-    user: 93,
-    burn: 5,
-    lp: 1,
-    treasury: 1,
+    user: 85,
+    burn: 10,
+    lp: 3,
+    treasury: 2,
   },
   transferTax: {
     burn: 3.5,
     treasury: 3.5,
     total: 7,
   },
-  redemptionBurnFee: 2,
+  redemptionBurnFee: 5, // Raised to 5-10%
 };
 
 export default function AdminContracts() {
@@ -357,23 +358,32 @@ export default function AdminContracts() {
 
         {/* Tokenomics Tab */}
         <TabsContent value="tokenomics" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Max Supply</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">{TOKENOMICS.maxSupply}</p>
-                <p className="text-xs text-muted-foreground">ZSOLAR tokens</p>
+                <p className="text-xs text-muted-foreground">ZSOLAR tokens (10B)</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Tokens per Unit</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Founder</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">1:1</p>
-                <p className="text-xs text-muted-foreground">{TOKENOMICS.tokensPerUnit}</p>
+                <p className="text-2xl font-bold">2.5%</p>
+                <p className="text-xs text-muted-foreground">{TOKENOMICS.founderAllocation} (3yr vest)</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Treasury</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">7.5%</p>
+                <p className="text-xs text-muted-foreground">{TOKENOMICS.treasuryAllocation} (2yr vest)</p>
               </CardContent>
             </Card>
             <Card>
@@ -457,17 +467,17 @@ export default function AdminContracts() {
                   <TableRow>
                     <TableCell>Founder Wallet</TableCell>
                     <TableCell className="text-right font-mono">{TOKENOMICS.founderAllocation}</TableCell>
-                    <TableCell className="text-right">2.5%</TableCell>
+                    <TableCell className="text-right">2.5% (3yr vest, 6mo cliff)</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell>Initial Owner (Controller)</TableCell>
-                    <TableCell className="text-right font-mono">{TOKENOMICS.initialOwnerAllocation}</TableCell>
-                    <TableCell className="text-right">7.5%</TableCell>
+                    <TableCell>Treasury</TableCell>
+                    <TableCell className="text-right font-mono">{TOKENOMICS.treasuryAllocation}</TableCell>
+                    <TableCell className="text-right">7.5% (2yr vest)</TableCell>
                   </TableRow>
                   <TableRow className="bg-muted/50">
-                    <TableCell className="font-medium">Remaining for Minting</TableCell>
-                    <TableCell className="text-right font-mono">45,000,000,000</TableCell>
-                    <TableCell className="text-right font-medium">90%</TableCell>
+                    <TableCell className="font-medium">Community Rewards</TableCell>
+                    <TableCell className="text-right font-mono">{TOKENOMICS.communityRewards}</TableCell>
+                    <TableCell className="text-right font-medium">90% (milestone-gated)</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

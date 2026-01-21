@@ -23,11 +23,12 @@ const fadeIn = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-// Token economics constants
-const MAX_SUPPLY = 50_000_000_000; // 50 billion
-const INITIAL_CIRCULATION = 5_000_000_000; // 5 billion (10% founder/owner allocation)
-const BURN_TAX_RATE = 0.035; // 3.5%
-const TREASURY_TAX_RATE = 0.035; // 3.5%
+// Token economics constants (10B Strategy)
+const MAX_SUPPLY = 10_000_000_000; // 10 billion
+const INITIAL_CIRCULATION = 1_000_000_000; // 1 billion (10% founder/treasury allocation)
+const BURN_TAX_RATE = 0.035; // 3.5% transfer burn
+const TREASURY_TAX_RATE = 0.035; // 3.5% treasury tax
+const MINT_BURN_RATE = 0.10; // 10% mint burn (new)
 const AUTO_LP_RATE = 0.01; // 1% of transaction value to LP
 const SUBSCRIPTION_LP_RATE = 0.50; // 50% of subscriptions to LP
 const MONTHLY_SUB_FEE = 9.99;
@@ -226,8 +227,9 @@ export default function AdminTokenEstimator() {
         </Badge>
         <h1 className="text-2xl sm:text-3xl font-bold">$ZSOLAR Price Estimator</h1>
         <p className="text-muted-foreground text-sm max-w-2xl mx-auto">
-          AMM-based price projections using constant product formula with burn mechanics, treasury fees, and LP injection
+          10B supply model with 10% mint burns, 3.5% transfer burns, and 50% subscription → LP
         </p>
+        <Badge variant="secondary" className="text-xs">10B Strategy</Badge>
       </motion.div>
 
       {/* Tokenomics Constants */}
@@ -248,7 +250,14 @@ export default function AdminTokenEstimator() {
               <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
                 <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-destructive shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground truncate">Burn Tax</p>
+                  <p className="text-xs text-muted-foreground truncate">Mint Burn</p>
+                  <p className="font-semibold text-sm">10%</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
+                <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground truncate">Transfer Burn</p>
                   <p className="font-semibold text-sm">3.5%</p>
                 </div>
               </div>
@@ -257,13 +266,6 @@ export default function AdminTokenEstimator() {
                 <div className="min-w-0">
                   <p className="text-xs text-muted-foreground truncate">Treasury Tax</p>
                   <p className="font-semibold text-sm">3.5%</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
-                <Droplets className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground truncate">Auto LP (Tx)</p>
-                  <p className="font-semibold text-sm">1%</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">

@@ -68,11 +68,12 @@ export default function InvestmentThesis() {
     );
   }
   const growthProjections = [
-    { users: "10,000", monthlyLP: "$49,900", annualLP: "$598,800", tokenBurn: "~2.1M/mo" },
-    { users: "50,000", monthlyLP: "$249,500", annualLP: "$2,994,000", tokenBurn: "~10.5M/mo" },
-    { users: "100,000", monthlyLP: "$499,000", annualLP: "$5,988,000", tokenBurn: "~21M/mo" },
-    { users: "500,000", monthlyLP: "$2,495,000", annualLP: "$29,940,000", tokenBurn: "~105M/mo" },
-    { users: "1,000,000", monthlyLP: "$4,990,000", annualLP: "$59,880,000", tokenBurn: "~210M/mo" },
+    { users: "1,000", monthlyLP: "$1,500", annualLP: "$18,000", tokenBurn: "~500K/mo" },
+    { users: "5,000", monthlyLP: "$7,500", annualLP: "$90,000", tokenBurn: "~2.5M/mo" },
+    { users: "10,000", monthlyLP: "$15,000", annualLP: "$180,000", tokenBurn: "~5M/mo" },
+    { users: "25,000", monthlyLP: "$37,500", annualLP: "$450,000", tokenBurn: "~12.5M/mo" },
+    { users: "50,000", monthlyLP: "$75,000", annualLP: "$900,000", tokenBurn: "~25M/mo" },
+    { users: "100,000", monthlyLP: "$150,000", annualLP: "$1,800,000", tokenBurn: "~50M/mo" },
   ];
 
   const competitiveAdvantages = [
@@ -103,9 +104,9 @@ export default function InvestmentThesis() {
   ];
 
   const tokenAllocation = [
-    { label: "User Rewards Pool", percentage: "90%", amount: "45B", color: "bg-primary" },
-    { label: "Owner/Operations", percentage: "7.5%", amount: "3.75B", color: "bg-accent" },
-    { label: "Founder", percentage: "2.5%", amount: "1.25B", color: "bg-muted" },
+    { label: "User Rewards Pool", percentage: "90%", amount: "9B", color: "bg-primary" },
+    { label: "Treasury/Operations", percentage: "7.5%", amount: "750M", color: "bg-accent" },
+    { label: "Founder", percentage: "2.5%", amount: "250M", color: "bg-muted" },
   ];
 
   const flywheelSteps = [
@@ -155,11 +156,11 @@ export default function InvestmentThesis() {
               </Badge>
               <Badge className="px-4 py-2 bg-amber-500/10 text-amber-600 border-amber-500/30">
                 <Flame className="h-4 w-4 mr-2" />
-                3.5% Burn on Transfers
+                10% Mint Burn + 3.5% Transfer
               </Badge>
               <Badge className="px-4 py-2 bg-blue-500/10 text-blue-600 border-blue-500/30">
                 <Lock className="h-4 w-4 mr-2" />
-                50B Max Supply
+                10B Max Supply
               </Badge>
             </div>
           </motion.div>
@@ -344,28 +345,28 @@ export default function InvestmentThesis() {
                 <div className="p-4 rounded-lg border bg-card">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium">Founder Allocation (2.5%)</span>
-                    <Badge variant="outline">4-Year Vest</Badge>
+                    <Badge variant="outline">3-Year Vest</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    12-month cliff, then linear monthly unlock over 36 months
+                    6-month cliff, then linear monthly unlock over 30 months
                   </p>
                 </div>
                 <div className="p-4 rounded-lg border bg-card">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium">Operations (7.5%)</span>
+                    <span className="font-medium">Treasury (7.5%)</span>
                     <Badge variant="outline">2-Year Vest</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    6-month cliff, then linear quarterly unlock
+                    Linear unlock for marketing, development, partnerships
                   </p>
                 </div>
                 <div className="p-4 rounded-lg border bg-card">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium">User Rewards (90%)</span>
-                    <Badge variant="secondary">Minted on Demand</Badge>
+                    <span className="font-medium">Community Rewards (90%)</span>
+                    <Badge variant="secondary">Milestone-Gated</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Tokens minted only when users earn through verified activity
+                    Unlocked based on paying user milestones (1K → 5K → 10K → 25K → 50K)
                   </p>
                 </div>
               </CardContent>
@@ -380,16 +381,29 @@ export default function InvestmentThesis() {
             <h2 className="text-3xl font-bold">Multiple Burn Mechanisms</h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-4">
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center mx-auto mb-4">
+                  <Flame className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-red-500">10%</h3>
+                <p className="font-medium mt-1">Mint Burn</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  10% of every mint is burned immediately
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-4">
                   <Flame className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-orange-500">3.5%</h3>
                 <p className="font-medium mt-1">Transfer Burn</p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Every token transfer burns 3.5%, permanently reducing supply
+                  Every transfer burns 3.5% permanently
                 </p>
               </CardContent>
             </Card>
