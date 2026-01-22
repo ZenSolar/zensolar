@@ -71,14 +71,15 @@ const TRANSFER_TAX = {
 };
 
 // Milestone Unlocks tied to paying users + Impact Score
+// Tokens column = unlocked at this milestone, Cumulative = total circulating after unlock
 const UNLOCK_MILESTONES = [
-  { milestone: "Launch (TGE)", users: 0, impactScore: 0, tokens: "100-200M", percentage: "1-2%", cumulative: "1-2%", vesting: "—", mrr: "$0" },
-  { milestone: "Early Traction", users: 1000, impactScore: 100000, tokens: "100M", percentage: "1%", cumulative: "2-3%", vesting: "6 months", mrr: "~$10K" },
-  { milestone: "Product-Market Fit", users: 5000, impactScore: 500000, tokens: "300M", percentage: "3%", cumulative: "5-6%", vesting: "6 months", mrr: "~$50K" },
-  { milestone: "Scaling Phase 1", users: 10000, impactScore: 1000000, tokens: "800M", percentage: "8%", cumulative: "13-14%", vesting: "9 months", mrr: "~$100K" },
-  { milestone: "Scaling Phase 2", users: 25000, impactScore: 5000000, tokens: "2B", percentage: "20%", cumulative: "33%", vesting: "12 months", mrr: "~$250K" },
-  { milestone: "Mass Adoption", users: 50000, impactScore: 10000000, tokens: "3B", percentage: "30%", cumulative: "63%", vesting: "12 months", mrr: "~$500K" },
-  { milestone: "Long-Term", users: 100000, impactScore: 50000000, tokens: "Remaining", percentage: "37%", cumulative: "100%", vesting: "Governance", mrr: "$1M+" },
+  { milestone: "Launch (TGE)", users: 0, impactScore: 0, tokens: "100-200M", circulatingSupply: "100-200M", percentage: "1-2%", cumulative: "1-2%", vesting: "—", mrr: "$0" },
+  { milestone: "Early Traction", users: 1000, impactScore: 100000, tokens: "100M", circulatingSupply: "200-300M", percentage: "1%", cumulative: "2-3%", vesting: "6 months", mrr: "~$10K" },
+  { milestone: "Product-Market Fit", users: 5000, impactScore: 500000, tokens: "300M", circulatingSupply: "500-600M", percentage: "3%", cumulative: "5-6%", vesting: "6 months", mrr: "~$50K" },
+  { milestone: "Scaling Phase 1", users: 10000, impactScore: 1000000, tokens: "800M", circulatingSupply: "1.3-1.4B", percentage: "8%", cumulative: "13-14%", vesting: "9 months", mrr: "~$100K" },
+  { milestone: "Scaling Phase 2", users: 25000, impactScore: 5000000, tokens: "2B", circulatingSupply: "3.3B", percentage: "20%", cumulative: "33%", vesting: "12 months", mrr: "~$250K" },
+  { milestone: "Mass Adoption", users: 50000, impactScore: 10000000, tokens: "3B", circulatingSupply: "6.3B", percentage: "30%", cumulative: "63%", vesting: "12 months", mrr: "~$500K" },
+  { milestone: "Long-Term", users: 100000, impactScore: 50000000, tokens: "Remaining", circulatingSupply: "10B (Max)", percentage: "37%", cumulative: "100%", vesting: "Governance", mrr: "$1M+" },
 ];
 
 // Burn Mechanics
@@ -123,27 +124,43 @@ export default function AdminTokenomics10B() {
     const tokensToLP = grossTokensMinted * 0.03;
     const tokensToTreasury = grossTokensMinted * 0.02;
     
-    // Sell Pressure Calculation
+    // Sell Pressure Calculation (tokens sold at current price)
     const tokensSold = tokensToUsers * (sellPressure / 100);
-    const sellPressureUSDC = tokensSold; // At $1.00/token
     
-    // LP Depth Analysis (starting from seed + cumulative injections)
-    // Using constant product AMM: price = USDC / Tokens
-    const startingTokensInLP = initialLPSeed; // To achieve $1.00 starting price
-    const lpRatio = monthlyLPInjection / sellPressureUSDC;
+    // AMM constant product formula: k = USDC * Tokens
+    // Starting: $initialLPSeed USDC paired with same # of tokens for $1.00 price
+    const startingTokensInLP = initialLPSeed;
+    const k = initialLPSeed * startingTokensInLP;
     
-    // Price Impact Calculation (simplified AMM)
-    // If someone sells X tokens into a pool of T tokens and U USDC:
-    // New price = (U) / (T + X) after absorbing sell
-    const lpAfterSell = initialLPSeed - sellPressureUSDC + monthlyLPInjection;
-    const tokensInLPAfterSell = startingTokensInLP + tokensSold + tokensToLP;
-    const priceAfterSell = lpAfterSell / tokensInLPAfterSell;
+    // When users sell tokens into LP:
+    // 1. Tokens in LP increase (pool absorbs sold tokens)
+    // 2. USDC is withdrawn by sellers
+    // New price = USDC_after / Tokens_after
     
-    // Sustainability Score (1.0 = perfect equilibrium)
-    const sustainabilityRatio = monthlyLPInjection / Math.max(sellPressureUSDC, 1);
-    const sustainabilityScore = Math.min(sustainabilityRatio, 2);
+    // Calculate LP state after monthly activity:
+    // Net LP change = injection - withdrawals from sells
+    // For AMM: selling X tokens into pool with (U, T) gives:
+    // USDC received = U - (k / (T + X))
     
-    // Reward Value Analysis
+    const tokensAfterSell = startingTokensInLP + tokensSold + tokensToLP;
+    const usdcPaidToSellers = k > 0 ? initialLPSeed - (k / tokensAfterSell) : 0;
+    const netUsdcAfterSell = initialLPSeed - usdcPaidToSellers + monthlyLPInjection;
+    
+    // Price after sell pressure + LP injection
+    const priceAfterSell = tokensAfterSell > 0 ? Math.max(netUsdcAfterSell / tokensAfterSell, 0.01) : 1;
+    
+    // LP Coverage ratio: How much of the sell pressure is covered by LP injection
+    // This is the key health metric - shows if flywheel is working
+    const sellPressureUSDC = usdcPaidToSellers > 0 ? usdcPaidToSellers : tokensSold * 1; // Fallback to $1/token
+    const lpCoverage = sellPressureUSDC > 0 ? (monthlyLPInjection / sellPressureUSDC) : 1;
+    
+    // Sustainability Score based on price stability
+    // >= 1.0 means LP injection covers or exceeds sell pressure = optimal
+    // >= 0.5 means LP covers at least half = healthy/manageable
+    // < 0.5 means price is likely to drop = at risk
+    const sustainabilityScore = lpCoverage;
+    
+    // Reward Value Analysis (what users actually earn in USD terms)
     const effectiveRewardValue = priceAfterSell * avgMonthlyActivity * ((100 - mintBurnRate - 5) / 100);
     
     // CO2 Impact Score (0.7 kg per kWh)
@@ -162,14 +179,14 @@ export default function AdminTokenomics10B() {
       tokensToTreasury,
       tokensSold,
       sellPressureUSDC,
-      lpRatio,
+      lpRatio: lpCoverage,
       priceAfterSell,
       sustainabilityScore,
       effectiveRewardValue,
       monthlyImpactScore,
       annualImpactTons,
-      isHealthy: sustainabilityScore >= 0.65,
-      isOptimal: sustainabilityScore >= 1.0,
+      isHealthy: priceAfterSell >= 0.50, // Price stays above $0.50
+      isOptimal: priceAfterSell >= 0.85 && lpCoverage >= 0.80, // Price near $1 + good coverage
     };
   }, [totalUsers, conversionRate, avgMonthlyActivity, initialLPSeed, mintBurnRate, sellPressure]);
 
