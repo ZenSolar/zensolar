@@ -71,21 +71,21 @@ export default function InvestmentThesis() {
     );
   }
   
-  // Updated growth projections with $0.50 floor model
-  // Uses hard paying subscriber counts instead of conversion rates
+  // Updated growth projections with $0.10 floor model (OPTIMIZED)
+  // Uses hard paying subscriber counts - $0.10 launch creates 10x narrative to $1.00
   const growthProjections = [
-    { payingUsers: "1,000", monthlyLP: "$4,995", annualLP: "$59,940", rewardValue: "~$500/user", priceEstimate: "$0.50" },
-    { payingUsers: "5,000", monthlyLP: "$24,975", annualLP: "$299,700", rewardValue: "~$600/user", priceEstimate: "$0.60" },
-    { payingUsers: "10,000", monthlyLP: "$49,950", annualLP: "$599,400", rewardValue: "~$700/user", priceEstimate: "$0.70" },
-    { payingUsers: "25,000", monthlyLP: "$124,875", annualLP: "$1,498,500", rewardValue: "~$800/user", priceEstimate: "$0.80" },
-    { payingUsers: "50,000", monthlyLP: "$249,750", annualLP: "$2,997,000", rewardValue: "~$900/user", priceEstimate: "$0.90" },
+    { payingUsers: "1,000", monthlyLP: "$4,995", annualLP: "$59,940", rewardValue: "~$100/user", priceEstimate: "$0.10" },
+    { payingUsers: "5,000", monthlyLP: "$24,975", annualLP: "$299,700", rewardValue: "~$200/user", priceEstimate: "$0.20" },
+    { payingUsers: "10,000", monthlyLP: "$49,950", annualLP: "$599,400", rewardValue: "~$400/user", priceEstimate: "$0.40" },
+    { payingUsers: "25,000", monthlyLP: "$124,875", annualLP: "$1,498,500", rewardValue: "~$700/user", priceEstimate: "$0.70" },
+    { payingUsers: "50,000", monthlyLP: "$249,750", annualLP: "$2,997,000", rewardValue: "~$1,000/user", priceEstimate: "$1.00" },
   ];
 
-  // Fresh Start vs Lifetime Data comparison - UPDATED FOR $0.50 MODEL
+  // Fresh Start vs Lifetime Data comparison - UPDATED FOR $0.10 MODEL
   const sustainabilityComparison = [
-    { model: "Lifetime Data (Immediate)", tokens: "4.25M", sellRate: "25%", priceImpact: "Crash to $0.10", sustainable: false },
-    { model: "Lifetime Data (6mo Vest)", tokens: "810K/mo", sellRate: "25%", priceImpact: "Drift to $0.30", sustainable: false },
-    { model: "Fresh Start ✓", tokens: "~5M/mo at 5K subs", sellRate: "20%", priceImpact: "$0.50 stable", sustainable: true },
+    { model: "Lifetime Data (Immediate)", tokens: "4.25M", sellRate: "25%", priceImpact: "Crash to $0.02", sustainable: false },
+    { model: "Lifetime Data (6mo Vest)", tokens: "810K/mo", sellRate: "25%", priceImpact: "Drift to $0.05", sustainable: false },
+    { model: "Fresh Start ✓", tokens: "~5M/mo at 5K subs", sellRate: "20%", priceImpact: "$0.10→$1.00", sustainable: true },
   ];
 
   const competitiveAdvantages = [
@@ -169,22 +169,22 @@ export default function InvestmentThesis() {
               </Badge>
               <Badge className="px-4 py-2 bg-primary/10 text-primary border-primary/30">
                 <DollarSign className="h-4 w-4 mr-2" />
-                $0.50 Price Floor
+                $0.10 Launch → $1.00 Target
               </Badge>
               <Badge className="px-4 py-2 bg-amber-500/10 text-amber-600 border-amber-500/30">
                 <Flame className="h-4 w-4 mr-2" />
-                15% Mint Burn
+                20% Mint Burn
               </Badge>
               <Badge className="px-4 py-2 bg-blue-500/10 text-blue-600 border-blue-500/30">
                 <Percent className="h-4 w-4 mr-2" />
-                15-25% Sell Rate
+                $1M-$2M Seed
               </Badge>
             </div>
             
             <div className="pt-6 max-w-2xl mx-auto">
               <p className="text-sm text-muted-foreground">
                 <strong className="text-foreground">Key Metric</strong> = Paying Subscribers × $4.995/mo LP Injection. 
-                At 5K subs, the system generates <strong className="text-primary">$25K/month</strong> in LP to absorb sell pressure.
+                At 25K subs (Tipping Point), the system generates <strong className="text-primary">$125K/month</strong> in LP—matching initial seed.
               </p>
             </div>
           </motion.div>
@@ -227,9 +227,9 @@ export default function InvestmentThesis() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     Fresh Start Model
-                    <Badge className="bg-emerald-500/20 text-emerald-600">Sustainable Launch</Badge>
+                    <Badge className="bg-emerald-500/20 text-emerald-600">10x Growth Strategy</Badge>
                   </CardTitle>
-                  <CardDescription>The foundation of our $0.50 price floor strategy</CardDescription>
+                  <CardDescription>The foundation of our $0.10→$1.00 price trajectory</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -284,17 +284,17 @@ export default function InvestmentThesis() {
                     <p className="font-semibold text-sm">Price Protection</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    At 20% sell rate with 5K subs, LP injection ($25K/mo) offsets sell pressure, 
-                    maintaining the $0.50 floor.
+                    At 20% sell rate with 25K subs, LP injection ($125K/mo) creates self-reinforcing 
+                    floor from $0.10→$1.00.
                   </p>
                 </div>
                 <div className="p-4 rounded-lg border bg-card/50">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-5 w-5 text-emerald-500" />
-                    <p className="font-semibold text-sm">Viral Trigger</p>
+                    <p className="font-semibold text-sm">10x Narrative</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Users earning <strong>$400-$800/month</strong> (1,000 tokens @ $0.50-$0.80) become 
+                    Users earning <strong>$100-$1,000/month</strong> (1,000 tokens × $0.10→$1.00) become 
                     natural evangelists driving referral growth.
                   </p>
                 </div>

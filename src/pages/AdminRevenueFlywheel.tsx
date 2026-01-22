@@ -291,7 +291,7 @@ export default function AdminRevenueFlywheel() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-amber-500" />
-              Investment Thesis ($0.50 Floor Model)
+              Investment Thesis ($0.10 Floor → $1.00 Target)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -306,20 +306,20 @@ export default function AdminRevenueFlywheel() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
-                <span><strong>$0.50 Floor:</strong> $125K USDC paired with 250K tokens at launch</span>
+                <span><strong>$0.10 Floor:</strong> $300K USDC paired with 3M tokens at launch (10x to $1.00)</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
-                <span><strong>Realistic assumptions:</strong> 15-25% monthly sell rate built into the model</span>
+                <span><strong>$1M-$2M Seed:</strong> Covers LP seed, legal, audit, team, and marketing</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
-                <span><strong>Deflationary:</strong> 15% mint burn + 3.5% transfer burn reduces supply over time</span>
+                <span><strong>Deflationary:</strong> 20% mint burn + 7% transfer tax (3% burn + 2% LP + 2% treasury)</span>
               </li>
             </ul>
             <div className="pt-4 border-t mt-4">
               <p className="text-sm font-semibold text-amber-600">
-                "At 5K paying subscribers, that's $25K/month of guaranteed LP injection — visible on-chain."
+                "At 25K paying subscribers (Tipping Point), that's $125K/month of LP injection — visible on-chain."
               </p>
             </div>
           </CardContent>
