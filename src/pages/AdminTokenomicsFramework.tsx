@@ -606,6 +606,104 @@ const frameworkQuestions: FrameworkQuestion[] = [
     insight: '💡 Most Web3 startups use Reg D + Reg S to access both US accredited and international investors.',
   },
 
+  // 15. INVESTOR DUE DILIGENCE (NEW - Questions VCs Will Ask)
+  {
+    id: 'token_necessity',
+    dimension: 'Investor Due Diligence',
+    dimensionIcon: <Brain className="h-5 w-5" />,
+    question: 'Why does this need to be a blockchain token instead of cash rewards or points?',
+    subtitle: 'Every serious crypto investor asks this. Your answer must be bulletproof.',
+    type: 'single',
+    options: [
+      { value: 'global_permissionless', label: 'Global Permissionless Access', description: 'Anyone worldwide can earn and trade instantly. No banking infrastructure needed. Unbanked populations included.' },
+      { value: 'transparent_economics', label: 'Transparent & Immutable Economics', description: 'Burns, LP injections, and supply visible on-chain. Users can verify tokenomics in real-time. Trust through transparency.' },
+      { value: 'composable_defi', label: 'DeFi Composability', description: 'Tokens can be staked, used as collateral, or integrated into other protocols. Value compounds beyond our app.' },
+      { value: 'aligned_incentives', label: 'Long-Term Incentive Alignment', description: 'Token holders are owners, not just users. Appreciation rewards commitment. Community becomes invested stakeholders.' },
+      { value: 'all_above', label: 'All of the Above (Full Thesis)', description: 'Global access + transparent economics + DeFi composability + aligned incentives. The complete crypto value prop.' },
+    ],
+    insight: '💡 a16z looks for "Why couldn\'t this be a Web2 company?" Your answer should make Web2 seem obviously inferior.',
+  },
+  {
+    id: 'market_sizing',
+    dimension: 'Investor Due Diligence',
+    dimensionIcon: <Globe className="h-5 w-5" />,
+    question: 'How do you size the Total Addressable Market (TAM)?',
+    subtitle: 'VCs want to see a path to $1B+ market. Show them the math.',
+    type: 'single',
+    options: [
+      { value: 'us_solar_ev', label: 'US Solar + EV Households (~15M)', description: '5M solar homes + 10M EVs in US. At $100/yr ARPU = $1.5B TAM. Conservative but credible.' },
+      { value: 'global_solar_ev', label: 'Global Solar + EV (~100M)', description: 'Worldwide clean energy adoption. $100/yr = $10B TAM. Requires international expansion.' },
+      { value: 'carbon_credit_proxy', label: 'Carbon Credit Market ($2T by 2030)', description: 'Position as consumer-facing carbon credit infrastructure. Massive TAM if ESG/carbon angle lands.' },
+      { value: 'clean_energy_fintech', label: 'Clean Energy Fintech ($50B+)', description: 'Intersection of sustainability, crypto, and consumer finance. New category = new market creation.' },
+    ],
+    insight: '💡 YC says: "Make something people want." But VCs also need "...in a market big enough to matter."',
+  },
+  {
+    id: 'competitive_moat',
+    dimension: 'Investor Due Diligence',
+    dimensionIcon: <Shield className="h-5 w-5" />,
+    question: 'What happens when Tesla, Enphase, or a well-funded startup copies this?',
+    subtitle: 'The "Why won\'t Google just do this?" question. Your moat must be clear.',
+    type: 'single',
+    options: [
+      { value: 'data_network_effects', label: 'Data Network Effects', description: 'First to aggregate cross-vendor energy data creates benchmarks, predictions, and community value competitors can\'t replicate overnight.' },
+      { value: 'token_liquidity_moat', label: 'Token & Liquidity Moat', description: 'Once LP depth and holder base exist, switching costs are high. Tesla can\'t launch a token easily.' },
+      { value: 'community_brand', label: 'Community & Brand Loyalty', description: 'First-mover builds community culture. Early adopters become evangelists. Crypto communities are sticky.' },
+      { value: 'multi_vendor_neutral', label: 'Vendor-Neutral Positioning', description: 'Tesla rewards only Tesla. We reward ALL clean energy. OEMs can\'t replicate neutrality.' },
+      { value: 'ip_protection', label: 'IP & Patent Protection', description: 'Utility patent filed April 2025 covers the verification-to-token workflow. Legal barrier to exact replication.' },
+    ],
+    insight: '💡 Peter Thiel: "Competition is for losers." Show why you\'re building a monopoly, not entering a market.',
+  },
+  {
+    id: 'unit_economics',
+    dimension: 'Investor Due Diligence',
+    dimensionIcon: <TrendingUp className="h-5 w-5" />,
+    question: 'What are your unit economics assumptions?',
+    subtitle: 'CAC, LTV, payback period. VCs want to see you\'ve done the math.',
+    type: 'single',
+    options: [
+      { value: 'organic_viral', label: 'Organic/Viral-First (Near-Zero CAC)', description: 'Clean energy owners talk. $400-800/mo rewards = organic word-of-mouth. CAC < $10, LTV = $120+ (12mo sub), 1mo payback.' },
+      { value: 'paid_efficient', label: 'Efficient Paid Acquisition (CAC < $50)', description: 'Targeted Meta/Google ads to EV and solar owners. CAC ~$30-50, LTV ~$150+ (15mo avg), 3-4mo payback.' },
+      { value: 'partnership_driven', label: 'Partnership-Driven (B2B2C)', description: 'Solar installers, EV dealers bundle ZenSolar. Near-zero CAC via partners who want engaged customers.' },
+      { value: 'community_referral', label: 'Community Referral Engine', description: 'Token rewards for referrals create self-sustaining growth loop. CAC = referral reward cost, LTV = 2-3x CAC.' },
+    ],
+    insight: '💡 Marc Andreessen: "The only thing that matters is product-market fit." Unit economics prove you\'ve found it.',
+  },
+  {
+    id: 'milestone_triggers',
+    dimension: 'Investor Due Diligence',
+    dimensionIcon: <Target className="h-5 w-5" />,
+    question: 'What specific metrics unlock your next funding round?',
+    subtitle: 'Investors want to see clear milestones, not "we\'ll figure it out."',
+    type: 'multiple',
+    options: [
+      { value: 'users_5k', label: '5,000 Connected Users', description: 'Proof of demand. Shows people will connect their energy accounts.' },
+      { value: 'paying_1k', label: '1,000 Paying Subscribers', description: '$10K MRR. Proves willingness to pay for minting. Seed-ready metric.' },
+      { value: 'paying_5k', label: '5,000 Paying Subscribers', description: '$50K MRR. Series A threshold. Self-sustaining LP injection.' },
+      { value: 'retention_80', label: '80%+ Monthly Retention', description: 'Users stick. Product-market fit signal. Crucial for LTV calculations.' },
+      { value: 'token_launch', label: 'Successful Token Launch', description: 'Mainnet live, LP seeded, trading active. De-risks execution.' },
+      { value: 'partnerships', label: 'Strategic Partnership Signed', description: 'OEM, utility, or major crypto partnership. Validates market positioning.' },
+    ],
+    insight: '💡 YC: "Launch, get users, talk to them, iterate." Your milestones should prove you\'re doing this.',
+  },
+  {
+    id: 'advisor_needs',
+    dimension: 'Investor Due Diligence',
+    dimensionIcon: <Users className="h-5 w-5" />,
+    question: 'What strategic advisors or investors would de-risk this for future rounds?',
+    subtitle: 'Smart money matters. Who on your cap table opens doors?',
+    type: 'multiple',
+    options: [
+      { value: 'crypto_native', label: 'Crypto-Native Operator', description: 'Someone who\'s launched a successful token. Knows the playbook, exchange relationships.' },
+      { value: 'energy_executive', label: 'Clean Energy Executive', description: 'Former Tesla, Enphase, utility exec. Credibility with energy industry and users.' },
+      { value: 'yc_alum', label: 'YC/a16z Alum or Partner', description: 'Opens doors to top-tier follow-on. Network effects in fundraising.' },
+      { value: 'regulatory_expert', label: 'Securities/Crypto Regulatory Expert', description: 'Former SEC, CFTC, or top crypto counsel. De-risks regulatory concerns.' },
+      { value: 'growth_expert', label: 'Consumer Growth Expert', description: 'Proven track record scaling consumer apps. Knows CAC optimization, virality.' },
+      { value: 'carbon_esg', label: 'Carbon/ESG Market Expert', description: 'Credibility with impact investors, carbon credit buyers, ESG funds.' },
+    ],
+    insight: '💡 Naval: "Play long-term games with long-term people." The right advisor compounds for years.',
+  },
+
   // BONUS: VISION ALIGNMENT
   {
     id: 'north_star',
@@ -1049,7 +1147,7 @@ export default function AdminTokenomicsFramework() {
       return values.map(v => question?.options?.find(o => o.value === v)?.label || v);
     };
 
-    // Extract answers
+    // Extract Capital Strategy answers
     const fundraisingStructure = getOptionLabel('fundraising_structure', answers.fundraising_structure as string);
     const investorTypes = getMultipleLabels('investor_profile', answers.investor_profile as string[]);
     const raiseAmount = getOptionLabel('raise_amount', answers.raise_amount as string);
@@ -1059,6 +1157,14 @@ export default function AdminTokenomicsFramework() {
     const regulatoryApproach = getOptionLabel('regulatory_posture', answers.regulatory_posture as string);
     const lpDepth = getOptionLabel('liquidity_depth_target', answers.liquidity_depth_target as string);
     const exchangeStrategy = getOptionLabel('exchange_strategy', answers.exchange_strategy as string);
+
+    // Extract Due Diligence answers
+    const tokenNecessity = getOptionLabel('token_necessity', answers.token_necessity as string);
+    const marketSizing = getOptionLabel('market_sizing', answers.market_sizing as string);
+    const competitiveMoat = getOptionLabel('competitive_moat', answers.competitive_moat as string);
+    const unitEconomics = getOptionLabel('unit_economics', answers.unit_economics as string);
+    const milestones = getMultipleLabels('milestone_triggers', answers.milestone_triggers as string[]);
+    const advisorNeeds = getMultipleLabels('advisor_needs', answers.advisor_needs as string[]);
 
     // Generate valuation range based on raise amount
     let valuationRange = '$3M - $6M';
@@ -1084,6 +1190,24 @@ export default function AdminTokenomicsFramework() {
       recommendations.push(`Allocate ${lpDepth || '$125K+'} to initial LP seeding—investors want to see commitment to price floor.`);
     }
 
+    // VC-specific recommendations
+    const vcReadiness: string[] = [];
+    if (answers.token_necessity === 'all_above') {
+      vcReadiness.push('Your "Why Crypto?" thesis is comprehensive—lead with this in every pitch.');
+    }
+    if (answers.market_sizing === 'carbon_credit_proxy' || answers.market_sizing === 'clean_energy_fintech') {
+      vcReadiness.push('TAM positioning is ambitious—prepare defensible bottom-up market sizing to validate.');
+    }
+    if (answers.competitive_moat === 'ip_protection') {
+      vcReadiness.push('Patent filing is strong moat signal—highlight April 2025 filing date and scope in deck.');
+    }
+    if (milestones.length >= 3) {
+      vcReadiness.push('Clear milestone roadmap established—tie each to specific fundraising unlocks in pitch.');
+    }
+    if (advisorNeeds.includes('YC/a16z Alum or Partner')) {
+      vcReadiness.push('Prioritize YC/a16z network intros—warm leads dramatically increase close rates.');
+    }
+
     return {
       fundraisingStructure,
       investorTypes,
@@ -1096,6 +1220,14 @@ export default function AdminTokenomicsFramework() {
       recommendations,
       lpDepth,
       exchangeStrategy,
+      // Due Diligence
+      tokenNecessity,
+      marketSizing,
+      competitiveMoat,
+      unitEconomics,
+      milestones,
+      advisorNeeds,
+      vcReadiness,
     };
   }, [showAnalysis, answers]);
 
@@ -1343,6 +1475,101 @@ export default function AdminTokenomicsFramework() {
             </CardContent>
           </Card>
         )}
+
+        {/* VC Readiness / Due Diligence Summary */}
+        {investmentMemo && (investmentMemo.tokenNecessity || investmentMemo.marketSizing || investmentMemo.competitiveMoat) && (
+          <Card className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-500" />
+                    VC Due Diligence Summary
+                  </CardTitle>
+                  <CardDescription>Answers to the hard questions VCs will ask</CardDescription>
+                </div>
+                <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/20">a16z / YC Ready</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Key Thesis Points */}
+              <div className="grid gap-4 md:grid-cols-2">
+                {investmentMemo.tokenNecessity && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Why Crypto/Blockchain?</p>
+                    <p className="font-medium text-purple-700 dark:text-purple-300">{investmentMemo.tokenNecessity}</p>
+                  </div>
+                )}
+                {investmentMemo.marketSizing && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Market Sizing (TAM)</p>
+                    <p className="font-medium text-purple-700 dark:text-purple-300">{investmentMemo.marketSizing}</p>
+                  </div>
+                )}
+                {investmentMemo.competitiveMoat && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Competitive Moat</p>
+                    <p className="font-medium text-purple-700 dark:text-purple-300">{investmentMemo.competitiveMoat}</p>
+                  </div>
+                )}
+                {investmentMemo.unitEconomics && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Unit Economics</p>
+                    <p className="font-medium text-purple-700 dark:text-purple-300">{investmentMemo.unitEconomics}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Milestones */}
+              {investmentMemo.milestones.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Key Milestones for Next Round</p>
+                  <div className="flex flex-wrap gap-2">
+                    {investmentMemo.milestones.map((milestone, i) => (
+                      <Badge key={i} variant="secondary" className="bg-purple-500/10 text-purple-700 dark:text-purple-300">
+                        {milestone}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Advisor Needs */}
+              {investmentMemo.advisorNeeds.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Strategic Advisor Priorities</p>
+                  <div className="flex flex-wrap gap-2">
+                    {investmentMemo.advisorNeeds.map((advisor, i) => (
+                      <Badge key={i} variant="outline" className="border-purple-500/30">
+                        {advisor}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* VC-Specific Recommendations */}
+              {investmentMemo.vcReadiness.length > 0 && (
+                <div className="pt-4 border-t">
+                  <p className="text-sm font-medium mb-3 flex items-center gap-2">
+                    <Target className="h-4 w-4 text-purple-500" />
+                    VC Pitch Optimization
+                  </p>
+                  <ul className="space-y-2">
+                    {investmentMemo.vcReadiness.map((item, i) => (
+                      <li key={i} className="flex gap-3 text-sm">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 text-xs font-bold">
+                          ✓
+                        </span>
+                        <span className="text-muted-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
         
         {/* Your Answers Summary */}
         <Card>
@@ -1424,8 +1651,8 @@ export default function AdminTokenomicsFramework() {
         <Badge className="bg-primary/10 text-primary border-primary/20">Admin • Strategic Framework</Badge>
         <h1 className="text-3xl font-bold">Tokenomics Optimization Framework</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Answer strategic questions across 15 dimensions to optimize your $ZSOLAR token economics and capital strategy.
-          <span className="block mt-1 text-sm font-medium text-primary">First-Mover Advantage: You're creating a new category.</span>
+          Answer strategic questions across 16 dimensions to optimize your $ZSOLAR token economics, capital strategy, and investor readiness.
+          <span className="block mt-1 text-sm font-medium text-primary">Built to satisfy a16z, YC, and top-tier VCs.</span>
         </p>
       </motion.div>
       
