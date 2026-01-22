@@ -607,47 +607,57 @@ export default function AdminFundraising() {
                 <div className="h-[350px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart 
-                      data={fundraisingRounds.map(round => {
-                        // Parse salary ranges to get midpoint values
-                        const parseSalary = (s: string): number => {
-                          const nums = s.replace(/[^0-9-]/g, ' ').split(' ').filter(Boolean).map(Number);
-                          if (nums.length >= 2) return (nums[0] + nums[1]) / 2;
-                          if (nums.length === 1) return nums[0];
-                          return 0;
-                        };
-                        const parseSecondary = (s: string): number => {
-                          if (s === "$0") return 0;
-                          const nums = s.replace(/[^0-9.-]/g, ' ').split(' ').filter(Boolean).map(n => {
-                            const val = parseFloat(n);
-                            return s.includes('M') ? val * 1000 : val;
+                      data={(() => {
+                        // Parse monetary strings like "$120K - $150K" or "$500K - $1.5M" to get midpoint in thousands
+                        const parseMoneyRange = (s: string): number => {
+                          if (!s || s === "$0") return 0;
+                          
+                          // Extract all numbers with their suffixes
+                          const matches = s.match(/\$?([\d.]+)(K|M)?/gi) || [];
+                          const values = matches.map(match => {
+                            const numMatch = match.match(/\$?([\d.]+)(K|M)?/i);
+                            if (!numMatch) return 0;
+                            const num = parseFloat(numMatch[1]);
+                            const suffix = numMatch[2]?.toUpperCase();
+                            if (suffix === 'M') return num * 1000; // Convert to thousands
+                            if (suffix === 'K') return num;
+                            // If no suffix, assume it's already in the right scale for the context
+                            return num >= 1000 ? num / 1000 : num;
                           });
-                          if (nums.length >= 2) return (nums[0] + nums[1]) / 2;
-                          if (nums.length === 1) return nums[0];
+                          
+                          if (values.length >= 2) return (values[0] + values[1]) / 2;
+                          if (values.length === 1) return values[0];
                           return 0;
                         };
                         
-                        const salary = parseSalary(round.founderCompensation.annualSalary);
-                        const secondary = parseSecondary(round.founderCompensation.secondarySale);
-                        const bonus = parseSalary(round.founderCompensation.signingBonus);
-                        
-                        return {
-                          stage: round.stage,
-                          salary: salary,
-                          secondary: secondary,
-                          bonus: bonus,
-                          total: salary + secondary + bonus,
-                        };
-                      })}
+                        return fundraisingRounds.map(round => {
+                          const salary = parseMoneyRange(round.founderCompensation.annualSalary);
+                          const bonus = parseMoneyRange(round.founderCompensation.signingBonus);
+                          const secondary = parseMoneyRange(round.founderCompensation.secondarySale);
+                          
+                          return {
+                            stage: round.stage,
+                            salary: salary,
+                            bonus: bonus,
+                            secondary: secondary,
+                            total: salary + bonus + secondary,
+                          };
+                        });
+                      })()}
                       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="stage" tick={{ fontSize: 12 }} />
                       <YAxis 
-                        tickFormatter={(value) => value >= 1000 ? `$${(value / 1000).toFixed(0)}K` : `$${value}`}
+                        tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(1)}M` : `${value}K`}`}
                         tick={{ fontSize: 12 }}
+                        domain={[0, 'auto']}
                       />
                       <Tooltip 
-                        formatter={(value: number) => [`$${value >= 1000 ? `${(value / 1000).toFixed(0)}K` : value}`, '']}
+                        formatter={(value: number, name: string) => [
+                          `$${value >= 1000 ? `${(value / 1000).toFixed(1)}M` : `${value.toFixed(0)}K`}`,
+                          name
+                        ]}
                         contentStyle={{ 
                           backgroundColor: 'hsl(var(--background))', 
                           border: '1px solid hsl(var(--border))',
