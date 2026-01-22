@@ -25,6 +25,7 @@ import {
   BarChart3,
   Zap
 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -587,6 +588,95 @@ export default function AdminFundraising() {
                       </TableRow>
                     </TableBody>
                   </Table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Founder Compensation Progression Chart */}
+            <Card className="overflow-hidden border-green-500/20">
+              <CardHeader className="bg-gradient-to-r from-green-500/10 to-transparent">
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                  Founder Compensation Progression
+                </CardTitle>
+                <CardDescription>
+                  Visual breakdown of salary, secondary sales, and total cash across funding rounds
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="h-[350px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={fundraisingRounds.map(round => {
+                        // Parse salary ranges to get midpoint values
+                        const parseSalary = (s: string): number => {
+                          const nums = s.replace(/[^0-9-]/g, ' ').split(' ').filter(Boolean).map(Number);
+                          if (nums.length >= 2) return (nums[0] + nums[1]) / 2;
+                          if (nums.length === 1) return nums[0];
+                          return 0;
+                        };
+                        const parseSecondary = (s: string): number => {
+                          if (s === "$0") return 0;
+                          const nums = s.replace(/[^0-9.-]/g, ' ').split(' ').filter(Boolean).map(n => {
+                            const val = parseFloat(n);
+                            return s.includes('M') ? val * 1000 : val;
+                          });
+                          if (nums.length >= 2) return (nums[0] + nums[1]) / 2;
+                          if (nums.length === 1) return nums[0];
+                          return 0;
+                        };
+                        
+                        const salary = parseSalary(round.founderCompensation.annualSalary);
+                        const secondary = parseSecondary(round.founderCompensation.secondarySale);
+                        const bonus = parseSalary(round.founderCompensation.signingBonus);
+                        
+                        return {
+                          stage: round.stage,
+                          salary: salary,
+                          secondary: secondary,
+                          bonus: bonus,
+                          total: salary + secondary + bonus,
+                        };
+                      })}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="stage" tick={{ fontSize: 12 }} />
+                      <YAxis 
+                        tickFormatter={(value) => value >= 1000 ? `$${(value / 1000).toFixed(0)}K` : `$${value}`}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip 
+                        formatter={(value: number) => [`$${value >= 1000 ? `${(value / 1000).toFixed(0)}K` : value}`, '']}
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--background))', 
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Legend />
+                      <Bar dataKey="salary" name="Annual Salary" stackId="a" fill="hsl(142, 76%, 36%)" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="bonus" name="Signing Bonus" stackId="a" fill="hsl(45, 93%, 47%)" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="secondary" name="Secondary Sale" stackId="a" fill="hsl(221, 83%, 53%)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
+                  <div className="text-center">
+                    <div className="w-4 h-4 rounded mx-auto mb-1" style={{ backgroundColor: 'hsl(142, 76%, 36%)' }} />
+                    <p className="text-xs text-muted-foreground">Annual Salary</p>
+                    <p className="text-sm font-medium">Recurring Cash</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-4 h-4 rounded mx-auto mb-1" style={{ backgroundColor: 'hsl(45, 93%, 47%)' }} />
+                    <p className="text-xs text-muted-foreground">Signing Bonus</p>
+                    <p className="text-sm font-medium">One-Time</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-4 h-4 rounded mx-auto mb-1" style={{ backgroundColor: 'hsl(221, 83%, 53%)' }} />
+                    <p className="text-xs text-muted-foreground">Secondary Sale</p>
+                    <p className="text-sm font-medium">Liquidity Event</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

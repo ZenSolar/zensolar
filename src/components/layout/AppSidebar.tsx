@@ -24,7 +24,8 @@ import {
   Calculator,
   PieChart,
   FileText,
-  Sparkles
+  Sparkles,
+  Crown
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -401,6 +402,22 @@ export function AppSidebar() {
                     >
                       <Cpu className="h-4 w-4" />
                       <span>AI Feedback Loop</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Final Tokenomics">
+                    <NavLink 
+                      to="/admin/final-tokenomics"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50 text-primary"
+                      }
+                    >
+                      <Crown className="h-4 w-4" />
+                      <span className="font-semibold">FINAL $ZSOLAR</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
