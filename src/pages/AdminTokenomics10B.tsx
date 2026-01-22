@@ -44,9 +44,9 @@ const TOKEN_STRATEGY = {
   founderAllocation: { percentage: 2.5, amount: 250_000_000, vestingYears: 3, cliffMonths: 6 },
   treasuryAllocation: { percentage: 7.5, amount: 750_000_000, vestingYears: 2 },
   communityRewards: { percentage: 90, amount: 9_000_000_000 },
-  // $250K USDC paired with 250K tokens = $1.00 per token at launch
-  initialCirculating: { tokens: 250_000, usdc: 250_000, price: 1.00, percentage: "0.0025%" },
-  targetPriceRange: { min: 0.50, max: 2.00 },
+  // $125K USDC paired with 250K tokens = $0.50 per token at launch
+  initialCirculating: { tokens: 250_000, usdc: 125_000, price: 0.50, percentage: "0.0025%" },
+  targetPriceRange: { min: 0.50, max: 1.00 },
 };
 
 // Subscription Constants
@@ -56,10 +56,10 @@ const SUBSCRIPTION = {
   lpPerUser: 9.99 * 0.50, // $4.995 per paid user
 };
 
-// Mint Distribution (adjusted to 100%)
+// Mint Distribution (adjusted with 15% burn)
 const MINT_DISTRIBUTION = {
-  user: 85,
-  burn: 10,
+  user: 80,
+  burn: 15,
   lp: 3,
   treasury: 2,
 };
@@ -73,12 +73,12 @@ const TRANSFER_TAX = {
 
 type ViralPresetKey = "conservative" | "base" | "viral";
 
+// Presets now use HARD paying user counts, not conversion rates
 const VIRAL_ECONOMICS_PRESETS: Record<
   ViralPresetKey,
   {
     label: string;
-    totalUsers: number;
-    conversionRate: number;
+    payingUsers: number; // Hard number of paying subscribers
     avgMonthlyActivity: number;
     initialLPSeed: number;
     mintBurnRate: number;
@@ -86,31 +86,28 @@ const VIRAL_ECONOMICS_PRESETS: Record<
   }
 > = {
   conservative: {
-    label: "Conservative",
-    totalUsers: 10000,
-    conversionRate: 40,
-    avgMonthlyActivity: 500,
-    initialLPSeed: 250000,
-    mintBurnRate: 25,
-    sellPressure: 1,
+    label: "Conservative (1K Subs)",
+    payingUsers: 1000,
+    avgMonthlyActivity: 800,
+    initialLPSeed: 125000,
+    mintBurnRate: 15,
+    sellPressure: 15,
   },
   base: {
-    label: "Base",
-    totalUsers: 100000,
-    conversionRate: 40,
-    avgMonthlyActivity: 900,
-    initialLPSeed: 250000,
-    mintBurnRate: 20,
-    sellPressure: 1,
+    label: "Base (5K Subs)",
+    payingUsers: 5000,
+    avgMonthlyActivity: 1000,
+    initialLPSeed: 125000,
+    mintBurnRate: 15,
+    sellPressure: 20,
   },
   viral: {
-    label: "Viral",
-    totalUsers: 100000,
-    conversionRate: 80,
-    avgMonthlyActivity: 1900,
-    initialLPSeed: 1000000,
+    label: "Viral (25K Subs)",
+    payingUsers: 25000,
+    avgMonthlyActivity: 1000,
+    initialLPSeed: 125000,
     mintBurnRate: 15,
-    sellPressure: 5,
+    sellPressure: 25,
   },
 };
 
@@ -144,21 +141,22 @@ export default function AdminTokenomics10B() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
-  // Viral Economics Calculator State
+  // Viral Economics Calculator State - NOW USING HARD PAYING USER COUNTS
   const DEFAULT_PRESET: ViralPresetKey = "base";
   const [scenarioPreset, setScenarioPreset] = useState<ViralPresetKey>(DEFAULT_PRESET);
-  const [totalUsers, setTotalUsers] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].totalUsers);
-  const [conversionRate, setConversionRate] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].conversionRate);
-  const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].avgMonthlyActivity); // kWh + miles combined
+  const [payingUsers, setPayingUsers] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].payingUsers);
+  const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].avgMonthlyActivity);
   const [initialLPSeed, setInitialLPSeed] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].initialLPSeed);
   const [mintBurnRate, setMintBurnRate] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].mintBurnRate);
-  const [sellPressure, setSellPressure] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].sellPressure); // % of tokens sold monthly
+  const [sellPressure, setSellPressure] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].sellPressure);
+
+  // Starting price is $0.50 ($125K USDC / 250K tokens)
+  const STARTING_PRICE = 0.50;
 
   const applyScenarioPreset = (key: ViralPresetKey) => {
     const preset = VIRAL_ECONOMICS_PRESETS[key];
     setScenarioPreset(key);
-    setTotalUsers(preset.totalUsers);
-    setConversionRate(preset.conversionRate);
+    setPayingUsers(preset.payingUsers);
     setAvgMonthlyActivity(preset.avgMonthlyActivity);
     setInitialLPSeed(preset.initialLPSeed);
     setMintBurnRate(preset.mintBurnRate);
@@ -166,54 +164,53 @@ export default function AdminTokenomics10B() {
   };
 
   // Calculate the viral economics model
-  // Key insight: LP injection must exceed or match the USDC withdrawn by sellers
+  // Key insight: LP injection + cumulative growth must defend $0.50 floor
   const viralEconomics = useMemo(() => {
-    const paidUsers = Math.round(totalUsers * (conversionRate / 100));
-    const freeUsers = totalUsers - paidUsers;
-    
-    // Monthly Revenue
-    const mrr = paidUsers * SUBSCRIPTION.price;
-    const monthlyLPInjection = paidUsers * SUBSCRIPTION.lpPerUser;
+    // Monthly Revenue from paying subscribers
+    const mrr = payingUsers * SUBSCRIPTION.price;
+    const monthlyLPInjection = payingUsers * SUBSCRIPTION.lpPerUser;
     
     // Token Minting (only paid users can mint)
-    const grossTokensMinted = paidUsers * avgMonthlyActivity;
+    const grossTokensMinted = payingUsers * avgMonthlyActivity;
     const tokensBurned = grossTokensMinted * (mintBurnRate / 100);
     const tokensToUsers = grossTokensMinted * ((100 - mintBurnRate - 3 - 2) / 100); // Subtract burn, LP, treasury
     const tokensToLP = grossTokensMinted * 0.03;
     const tokensToTreasury = grossTokensMinted * 0.02;
     
-    // Sell Pressure Calculation (tokens sold at current $1.00 price)
+    // Sell Pressure Calculation at $0.50 floor price
     const tokensSold = tokensToUsers * (sellPressure / 100);
-    const sellPressureUSDC = tokensSold * 1.00; // At $1.00/token
+    const sellPressureUSDC = tokensSold * STARTING_PRICE;
     
     // LP Coverage ratio: Does subscription LP injection cover the sell pressure?
-    // This is the KEY sustainability metric
     const lpCoverage = sellPressureUSDC > 0 ? (monthlyLPInjection / sellPressureUSDC) : 10;
     
-    // Price impact calculation (simplified constant product model)
-    // If LP injection >= sell pressure, price stays at or above $1.00
-    // If LP injection < sell pressure, price drops proportionally
+    // Price calculation using constant product AMM (k = x * y)
+    // Initial: k = 125,000 USDC * 250,000 tokens = 31.25B
+    const initialK = initialLPSeed * (initialLPSeed / STARTING_PRICE);
+    
+    // After LP injection adds USDC
+    let lpUSDC = initialLPSeed + monthlyLPInjection;
+    
+    // After sell pressure removes USDC
+    lpUSDC = Math.max(lpUSDC - sellPressureUSDC, initialLPSeed * 0.5);
+    
+    // New token count from k = lpUSDC * lpTokens
+    const lpTokens = initialK / lpUSDC;
+    
+    // Price = USDC / Tokens
+    let priceAfterSell = lpUSDC / lpTokens;
+    priceAfterSell = Math.min(1.00, Math.max(0.25, priceAfterSell));
+    
+    // Net monthly flow
     const netLPFlow = monthlyLPInjection - sellPressureUSDC;
-    let priceAfterSell = 1.0;
-    if (lpCoverage >= 1) {
-      // LP is growing net of sell pressure
-      priceAfterSell = 1 + (netLPFlow / initialLPSeed) * 0.1;
-    } else if (lpCoverage >= 0.7) {
-      // "Healthy" band: allow only mild drift below $1.00
-      priceAfterSell = 1 - (1 - lpCoverage) * 0.15;
-    } else {
-      // "At Risk" band: price falls with coverage ratio (floored)
-      priceAfterSell = Math.max(0.5, lpCoverage);
-    }
-    priceAfterSell = Math.min(2.0, Math.max(0.5, priceAfterSell));
     
     // Sustainability Score: 100% means LP fully covers sell pressure
-    const sustainabilityScore = Math.min(lpCoverage, 2); // Cap at 200%
+    const sustainabilityScore = Math.min(lpCoverage, 2);
     
-    // Health thresholds based on LP coverage ratio (not price)
-    // >= 1.0 = Optimal (LP injection covers ALL sell pressure)
-    // >= 0.7 = Healthy (LP covers most, price stable)
-    // < 0.7 = At Risk (significant price pressure)
+    // Health thresholds:
+    // >= 1.0 = Optimal (LP injection covers ALL sell pressure, price rises)
+    // >= 0.7 = Healthy (LP covers most, price stable around $0.50)
+    // < 0.7 = At Risk (price pressure below floor)
     const isOptimal = lpCoverage >= 1.0;
     const isHealthy = lpCoverage >= 0.7;
     
@@ -221,12 +218,11 @@ export default function AdminTokenomics10B() {
     const effectiveRewardValue = priceAfterSell * avgMonthlyActivity * ((100 - mintBurnRate - 5) / 100);
     
     // CO2 Impact Score (0.7 kg per kWh)
-    const monthlyImpactScore = paidUsers * avgMonthlyActivity * 0.7;
+    const monthlyImpactScore = payingUsers * avgMonthlyActivity * 0.7;
     const annualImpactTons = (monthlyImpactScore * 12) / 1000;
     
     return {
-      paidUsers,
-      freeUsers,
+      payingUsers,
       mrr,
       monthlyLPInjection,
       grossTokensMinted,
@@ -246,14 +242,13 @@ export default function AdminTokenomics10B() {
       isHealthy,
       isOptimal,
     };
-  }, [totalUsers, conversionRate, avgMonthlyActivity, initialLPSeed, mintBurnRate, sellPressure]);
+  }, [payingUsers, avgMonthlyActivity, initialLPSeed, mintBurnRate, sellPressure]);
 
-  // Price projection data - starting at $1.00 floor price (Fresh Start Model)
+  // Price projection data - starting at $0.50 floor price (Fresh Start Model)
   // Math: Price = USDC / Tokens in LP
-  // $100,000 USDC / 100,000 tokens = $1.00 per token
+  // $125,000 USDC / 250,000 tokens = $0.50 per token
   const projectionData = useMemo(() => {
     const data = [];
-    const STARTING_PRICE = 1.00; // $1.00 target starting price
     const initialLPUSDC = initialLPSeed;
     const initialLPTokens = initialLPUSDC / STARTING_PRICE;
     
@@ -266,23 +261,25 @@ export default function AdminTokenomics10B() {
     // AMM constant product: k = lpUSDC * lpTokens
     let k = lpUSDC * lpTokens;
     
+    // Target paying users at end of projection
+    const targetPayingUsers = payingUsers;
+    
     for (let month = 0; month <= 36; month++) {
       // Price from constant product AMM: price = lpUSDC / lpTokens
       const price = lpTokens > 0 ? lpUSDC / lpTokens : 0;
       
       // Monthly activity assumptions (scaling with time toward target users)
-      const users = Math.min(1000 + month * (totalUsers / 36), totalUsers);
-      const paidUsers = users * (conversionRate / 100);
-      const subRevenue = paidUsers * SUBSCRIPTION.price;
+      const monthlyPaidUsers = Math.min(100 + month * (targetPayingUsers / 36), targetPayingUsers);
+      const subRevenue = monthlyPaidUsers * SUBSCRIPTION.price;
       const lpInjection = subRevenue * 0.5; // 50% to LP (USDC side)
       
       // Burns from transactions (3.5% of volume)
-      const txVolume = users * 5 * 100; // 5 tx/user, $100 avg
+      const txVolume = monthlyPaidUsers * 5 * 50; // 5 tx/user, $50 avg at $0.50 price
       const txTokens = price > 0 ? txVolume / price : 0;
       const burnFromTx = txTokens * 0.035;
       
       // Mint burns from new minting
-      const newTokensMinted = paidUsers * avgMonthlyActivity;
+      const newTokensMinted = monthlyPaidUsers * avgMonthlyActivity;
       const mintBurn = newTokensMinted * (mintBurnRate / 100);
       
       data.push({
@@ -291,7 +288,7 @@ export default function AdminTokenomics10B() {
         marketCap: price * circulatingSupply,
         lpUSDC,
         totalBurned,
-        users,
+        users: monthlyPaidUsers,
         circulatingSupply,
       });
       
@@ -305,11 +302,11 @@ export default function AdminTokenomics10B() {
       
       // Milestone unlocks add to circulating (simplified linear unlock)
       const monthlyUnlock = month > 0 ? 50_000 : 0; // 50K tokens unlocked monthly
-      circulatingSupply = Math.max(circulatingSupply + monthlyUnlock - burnFromTx - mintBurn + (newTokensMinted * 0.85), initialLPTokens);
+      circulatingSupply = Math.max(circulatingSupply + monthlyUnlock - burnFromTx - mintBurn + (newTokensMinted * 0.80), initialLPTokens);
     }
     
     return data;
-  }, [initialLPSeed, totalUsers, conversionRate, avgMonthlyActivity, mintBurnRate]);
+  }, [initialLPSeed, payingUsers, avgMonthlyActivity, mintBurnRate, STARTING_PRICE]);
 
   // Scaling milestones data for chart
   const scalingData = useMemo(() => {
@@ -358,7 +355,7 @@ export default function AdminTokenomics10B() {
         </Badge>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">$ZSOLAR 10B Tokenomics</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-          Revenue-backed token economics designed for $1-$2 price equilibrium
+          Revenue-backed token economics designed for $0.50-$1.00 price equilibrium
         </p>
         <Badge variant="secondary" className="text-xs">Admin Only • Strategic Planning</Badge>
       </motion.div>
@@ -444,10 +441,10 @@ export default function AdminTokenomics10B() {
               <div className="p-4 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Initial Circulating</span>
-                  <Badge className="bg-primary/20 text-primary">1-2% (100-200M)</Badge>
+                  <Badge className="bg-primary/20 text-primary">250K tokens</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Seeded into LP with $50K-$100K USDC for $0.50-$1.00 starting price floor
+                  Seeded into LP with $125K USDC for $0.50 starting price floor
                 </p>
               </div>
               
@@ -456,15 +453,15 @@ export default function AdminTokenomics10B() {
                 <div className="flex items-start gap-3">
                   <Rocket className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
                   <div className="space-y-2">
-                    <p className="font-semibold text-sm text-amber-600 dark:text-amber-400">Launch Price Model</p>
+                    <p className="font-semibold text-sm text-amber-600 dark:text-amber-400">$0.50 Launch Price Model</p>
                     <p className="text-xs text-muted-foreground">
-                      <strong>At TGE:</strong> 100,000 $ZSOLAR tokens seeded into the Liquidity Pool against $100,000 USDC, 
-                      establishing a <span className="text-primary font-semibold">$1.00 starting price</span> ($100K ÷ 100K = $1.00/token).
+                      <strong>At TGE:</strong> 250,000 $ZSOLAR tokens seeded into the Liquidity Pool against $125,000 USDC, 
+                      establishing a <span className="text-primary font-semibold">$0.50 starting price</span> ($125K ÷ 250K = $0.50/token).
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      <strong>Over Time:</strong> Milestone unlocks release additional tokens as the paying user base grows. 
-                      The 50% subscription revenue flow into LP and 10%+ burn rate are designed to outpace new supply, 
-                      maintaining upward price pressure toward the $1-$2 equilibrium target.
+                      <strong>Target Range:</strong> The $0.50-$1.00 band creates a balanced floor where users earn 
+                      <strong className="text-foreground"> $400-$800/month</strong> (800-1,000 tokens × $0.50-$0.80), 
+                      driving organic word-of-mouth while subscription LP flow maintains stability.
                     </p>
                   </div>
                 </div>
@@ -654,11 +651,11 @@ export default function AdminTokenomics10B() {
               <div className="p-4 rounded-lg border bg-card/50">
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="h-5 w-5 text-primary" />
-                  <p className="font-semibold text-sm">$1.00 Price Floor</p>
+                  <p className="font-semibold text-sm">$0.50 Price Floor</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  By limiting minted supply to ~100K tokens/month (100 active users), subscription LP injections 
-                  ($499/mo) maintain a sustainable 204:1 token-to-dollar ratio vs. 8,509:1 with lifetime data.
+                  $125K USDC paired with 250K tokens establishes the floor. With 5K paying subs generating 
+                  $25K/mo LP injection, the system absorbs 15-25% sell rates while maintaining stability.
                 </p>
               </div>
               <div className="p-4 rounded-lg border bg-card/50">
@@ -667,8 +664,8 @@ export default function AdminTokenomics10B() {
                   <p className="font-semibold text-sm">LP Sustainability</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  If 10% of tokens are sold, price drops only to ~$0.91 (vs. $0.21 crash with lifetime dumps). 
-                  Next month's LP injection + burns push price back up naturally.
+                  At 20% sell rate, monthly sell pressure (~$400K at 5K users) is offset by LP injection + burns.
+                  The model targets LP coverage ≥ 0.7x to maintain "Healthy" status.
                 </p>
               </div>
               <div className="p-4 rounded-lg border bg-card/50">
@@ -677,8 +674,8 @@ export default function AdminTokenomics10B() {
                   <p className="font-semibold text-sm">Viral Potential</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Users earning ~$1,000/month in $ZSOLAR (1,000 kWh + miles) at $1.00/token creates 
-                  word-of-mouth referrals that drive organic growth.
+                  Users earning ~$400-$800/month in $ZSOLAR (1,000 tokens × $0.50-$0.80) creates 
+                  compelling social proof that drives referrals and organic growth.
                 </p>
               </div>
             </div>
@@ -732,7 +729,7 @@ export default function AdminTokenomics10B() {
                     {viralEconomics.isOptimal ? "Optimal" : viralEconomics.isHealthy ? "Healthy" : "At Risk"}
                   </Badge>
                 </CardTitle>
-                <CardDescription>Model the sweet spot for $1.00 price stability from launch to 100K users</CardDescription>
+                <CardDescription>Model sustainability at $0.50 floor with 15-25% monthly sell rate</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -744,9 +741,9 @@ export default function AdminTokenomics10B() {
                   <SelectValue placeholder="Choose a preset" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="conservative">Conservative (Optimal)</SelectItem>
-                  <SelectItem value="base">Base (Healthy)</SelectItem>
-                  <SelectItem value="viral">Viral (Stress Test)</SelectItem>
+                  <SelectItem value="conservative">1K Subs (Conservative)</SelectItem>
+                  <SelectItem value="base">5K Subs (Base)</SelectItem>
+                  <SelectItem value="viral">25K Subs (Viral Stress)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -757,38 +754,19 @@ export default function AdminTokenomics10B() {
                 <div className="flex justify-between items-center">
                   <Label className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Total Users
+                    Paying Subscribers
                   </Label>
-                  <span className="font-mono text-sm font-bold">{totalUsers.toLocaleString()}</span>
+                  <span className="font-mono text-sm font-bold">{payingUsers.toLocaleString()}</span>
                 </div>
                 <Slider
-                  value={[totalUsers]}
-                  onValueChange={([v]) => setTotalUsers(v)}
+                  value={[payingUsers]}
+                  onValueChange={([v]) => setPayingUsers(v)}
                   min={100}
-                  max={100000}
+                  max={50000}
                   step={100}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground">Scale from launch to mass adoption</p>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Conversion Rate
-                  </Label>
-                  <span className="font-mono text-sm font-bold">{conversionRate}%</span>
-                </div>
-                <Slider
-                  value={[conversionRate]}
-                  onValueChange={([v]) => setConversionRate(v)}
-                  min={10}
-                  max={80}
-                  step={5}
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground">% of users paying $9.99/mo</p>
+                <p className="text-xs text-muted-foreground">Active $9.99/mo subscribers</p>
               </div>
               
               <div className="space-y-3">
@@ -821,12 +799,12 @@ export default function AdminTokenomics10B() {
                 <Slider
                   value={[initialLPSeed]}
                   onValueChange={([v]) => setInitialLPSeed(v)}
-                  min={100000}
-                  max={1000000}
+                  min={50000}
+                  max={500000}
                   step={25000}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground">USDC paired 1:1 for $1.00 floor</p>
+                <p className="text-xs text-muted-foreground">USDC paired 1:2 for $0.50 floor</p>
               </div>
               
               <div className="space-y-3">
@@ -845,26 +823,26 @@ export default function AdminTokenomics10B() {
                   step={1}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground">Tokens burned at mint</p>
+                <p className="text-xs text-muted-foreground">Tokens burned at mint (15% recommended)</p>
               </div>
               
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <Label className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
-                    Monthly Sell Pressure
+                    Monthly Sell Rate
                   </Label>
                   <span className="font-mono text-sm font-bold">{sellPressure}%</span>
                 </div>
                 <Slider
                   value={[sellPressure]}
                   onValueChange={([v]) => setSellPressure(v)}
-                  min={1}
-                  max={20}
+                  min={5}
+                  max={35}
                   step={1}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground">% of minted tokens sold</p>
+                <p className="text-xs text-muted-foreground">% of minted tokens sold (expect 15-25%)</p>
               </div>
             </div>
             
@@ -875,7 +853,7 @@ export default function AdminTokenomics10B() {
               <div className="p-4 rounded-lg border bg-gradient-to-br from-primary/10 to-transparent">
                 <div className="flex items-center justify-between mb-2">
                   <Users className="h-5 w-5 text-primary" />
-                  <Badge variant="outline">{viralEconomics.paidUsers.toLocaleString()} paying</Badge>
+                  <Badge variant="outline">{viralEconomics.payingUsers.toLocaleString()} paying</Badge>
                 </div>
                 <p className="text-2xl font-bold">${viralEconomics.mrr.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                 <p className="text-xs text-muted-foreground">Monthly Recurring Revenue</p>
@@ -950,13 +928,13 @@ export default function AdminTokenomics10B() {
               <div className="grid gap-3 md:grid-cols-2 text-sm">
                 <div className="space-y-2">
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Target Configuration:</strong>
+                    <strong className="text-foreground">Optimal Configuration:</strong>
                   </p>
                   <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
-                    <li>40%+ subscription conversion rate</li>
-                    <li>$250K+ initial LP seed for depth</li>
-                    <li>15% mint burn (vs 10%) for scarcity</li>
-                    <li>&lt;5% monthly sell pressure (HODLers)</li>
+                    <li>5,000+ paying subscribers ($50K+/mo MRR)</li>
+                    <li>$125K initial LP seed for $0.50 floor</li>
+                    <li>15% mint burn for sustainable deflation</li>
+                    <li>15-25% monthly sell rate (realistic expectation)</li>
                   </ul>
                 </div>
                 <div className="space-y-2">
@@ -964,9 +942,9 @@ export default function AdminTokenomics10B() {
                     <strong className="text-foreground">Viral Trigger Point:</strong>
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    When users consistently earn <strong className="text-primary">$800-$1,200/month</strong> in $ZSOLAR 
-                    at $1.00/token (1,000 kWh + miles typical), word-of-mouth referrals compound. 
-                    Each referral adds $4.99/mo to LP, creating a flywheel.
+                    When users consistently earn <strong className="text-primary">$400-$800/month</strong> in $ZSOLAR 
+                    at $0.50-$0.80/token (1,000 kWh + miles typical), social sharing + referrals compound. 
+                    Each referral adds $4.99/mo to LP, creating a sustainable flywheel.
                   </p>
                 </div>
               </div>
@@ -983,7 +961,7 @@ export default function AdminTokenomics10B() {
               <BarChart3 className="h-5 w-5 text-primary" />
               36-Month Price Projection
             </CardTitle>
-            <CardDescription>Modeled with 30% conversion, 50% sub→LP, 3.5% transfer burn</CardDescription>
+            <CardDescription>Modeled with $0.50 launch price, 50% sub→LP, 15% mint burn, 3.5% transfer burn</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
