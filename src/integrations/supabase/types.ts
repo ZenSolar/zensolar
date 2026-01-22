@@ -486,25 +486,31 @@ export type Database = {
           answers: Json
           created_at: string
           id: string
+          is_active: boolean | null
           updated_at: string
           user_id: string
           version: number
+          version_name: string | null
         }
         Insert: {
           answers?: Json
           created_at?: string
           id?: string
+          is_active?: boolean | null
           updated_at?: string
           user_id: string
           version?: number
+          version_name?: string | null
         }
         Update: {
           answers?: Json
           created_at?: string
           id?: string
+          is_active?: boolean | null
           updated_at?: string
           user_id?: string
           version?: number
+          version_name?: string | null
         }
         Relationships: []
       }
