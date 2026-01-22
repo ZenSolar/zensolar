@@ -82,22 +82,29 @@ export default function AdminTokenomics10B() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
-  // Price projection data
+  // Price projection data - starting at $0.50-$1.00 floor price
   const projectionData = useMemo(() => {
     const data = [];
-    let circulatingSupply = 150_000_000; // Start with 1.5% (150M)
-    let lpUSDC = 75_000; // Start with $75K LP seed
-    let lpTokens = 150_000_000;
+    const initialLPTokens = 100_000_000; // 100M tokens in LP (1% of supply)
+    const initialLPUSDC = 75_000; // $75K USDC seed → $0.75 starting price
+    
+    let circulatingSupply = 150_000_000; // Start with 1.5% (150M) - some outside LP
+    let lpUSDC = initialLPUSDC;
+    let lpTokens = initialLPTokens;
     let totalBurned = 0;
     
+    // AMM constant product: k = lpUSDC * lpTokens
+    const k = lpUSDC * lpTokens;
+    
     for (let month = 0; month <= 36; month++) {
+      // Price from constant product AMM: price = lpUSDC / lpTokens
       const price = lpTokens > 0 ? lpUSDC / lpTokens : 0;
       
       // Monthly activity assumptions (scaling with time)
       const users = Math.min(1000 + month * 2500, 100000);
       const paidUsers = users * 0.3; // 30% conversion
       const subRevenue = paidUsers * 9.99;
-      const lpInjection = subRevenue * 0.5; // 50% to LP
+      const lpInjection = subRevenue * 0.5; // 50% to LP (USDC side)
       
       // Burns from transactions
       const txVolume = users * 5 * 100; // 5 tx/user, $100 avg
@@ -114,8 +121,13 @@ export default function AdminTokenomics10B() {
         circulatingSupply,
       });
       
-      // Apply changes
+      // Apply LP injection (adds USDC, maintaining constant product reduces tokens proportionally)
       lpUSDC += lpInjection;
+      // With constant product and only adding USDC, price naturally increases
+      // New lpTokens = k / lpUSDC (but we'll just track the injection impact)
+      lpTokens = k / lpUSDC;
+      
+      // Apply burns to circulating (not LP)
       totalBurned += burnFromTx;
       circulatingSupply = Math.max(circulatingSupply - burnFromTx, 100_000_000);
     }
