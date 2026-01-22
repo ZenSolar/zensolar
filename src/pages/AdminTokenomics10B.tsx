@@ -83,18 +83,23 @@ export default function AdminTokenomics10B() {
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
   // Price projection data - starting at $0.50-$1.00 floor price
+  // Price projection data - starting at $0.50-$1.00 floor price
+  // Math: Price = USDC / Tokens in LP
+  // $75,000 USDC / 100,000 tokens = $0.75 per token
   const projectionData = useMemo(() => {
     const data = [];
-    const initialLPTokens = 100_000_000; // 100M tokens in LP (1% of supply)
-    const initialLPUSDC = 75_000; // $75K USDC seed → $0.75 starting price
+    const STARTING_PRICE = 0.75; // $0.75 target starting price
+    const initialLPUSDC = 75_000; // $75K USDC seed
+    const initialLPTokens = initialLPUSDC / STARTING_PRICE; // 100,000 tokens to achieve $0.75
     
-    let circulatingSupply = 150_000_000; // Start with 1.5% (150M) - some outside LP
+    // Total circulating includes LP + unlocked tokens outside LP
+    let circulatingSupply = 150_000; // Start with 150K tokens total circulating
     let lpUSDC = initialLPUSDC;
     let lpTokens = initialLPTokens;
     let totalBurned = 0;
     
     // AMM constant product: k = lpUSDC * lpTokens
-    const k = lpUSDC * lpTokens;
+    let k = lpUSDC * lpTokens;
     
     for (let month = 0; month <= 36; month++) {
       // Price from constant product AMM: price = lpUSDC / lpTokens
@@ -106,7 +111,7 @@ export default function AdminTokenomics10B() {
       const subRevenue = paidUsers * 9.99;
       const lpInjection = subRevenue * 0.5; // 50% to LP (USDC side)
       
-      // Burns from transactions
+      // Burns from transactions (3.5% of volume)
       const txVolume = users * 5 * 100; // 5 tx/user, $100 avg
       const txTokens = price > 0 ? txVolume / price : 0;
       const burnFromTx = txTokens * 0.035;
@@ -121,15 +126,17 @@ export default function AdminTokenomics10B() {
         circulatingSupply,
       });
       
-      // Apply LP injection (adds USDC, maintaining constant product reduces tokens proportionally)
+      // Apply LP injection (adds USDC to LP)
       lpUSDC += lpInjection;
-      // With constant product and only adding USDC, price naturally increases
-      // New lpTokens = k / lpUSDC (but we'll just track the injection impact)
+      // Recalculate lpTokens based on constant product (price goes up as USDC increases)
       lpTokens = k / lpUSDC;
       
-      // Apply burns to circulating (not LP)
+      // Apply burns to circulating supply
       totalBurned += burnFromTx;
-      circulatingSupply = Math.max(circulatingSupply - burnFromTx, 100_000_000);
+      
+      // Milestone unlocks add to circulating (simplified linear unlock)
+      const monthlyUnlock = month > 0 ? 50_000 : 0; // 50K tokens unlocked monthly
+      circulatingSupply = Math.max(circulatingSupply + monthlyUnlock - burnFromTx, 100_000);
     }
     
     return data;
