@@ -99,9 +99,22 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Split AppKit into its own chunk for better caching
+          // Split heavy Web3 dependencies
           'appkit': ['@reown/appkit', '@reown/appkit-adapter-wagmi'],
           'wagmi': ['wagmi', 'viem'],
+          // Split UI framework
+          'radix': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+          ],
+          // Split charting library
+          'charts': ['recharts'],
+          // Split animation library
+          'motion': ['framer-motion'],
         },
       },
     },
@@ -109,14 +122,10 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 2000,
     // Speed up builds by skipping source maps in production
     sourcemap: false,
-    // Use terser for better minification
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    // Use esbuild for faster minification (terser is slower)
+    minify: 'esbuild',
+    // Target modern browsers for smaller output
+    target: 'es2020',
   },
   // Optimize asset handling - exclude large files from processing
   assetsInclude: [],
