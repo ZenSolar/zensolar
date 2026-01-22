@@ -9,6 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { 
   Loader2, 
   Coins, 
@@ -71,7 +72,7 @@ const TRANSFER_TAX = {
   total: 7,
 };
 
-type ViralPresetKey = "conservative" | "base" | "viral";
+type ViralPresetKey = "ideal" | "conservative" | "base" | "viral";
 
 // Presets now use HARD paying user counts, not conversion rates
 const VIRAL_ECONOMICS_PRESETS: Record<
@@ -85,6 +86,16 @@ const VIRAL_ECONOMICS_PRESETS: Record<
     sellPressure: number;
   }
 > = {
+  ideal: {
+    label: "Ideal (Healthy)",
+    payingUsers: 5000,
+    // NOTE: This represents *reward issuance per paid subscriber per month* (proxy).
+    // Values here are chosen to keep the model out of "At Risk" under 15% burn + 15% sell.
+    avgMonthlyActivity: 100,
+    initialLPSeed: 250000,
+    mintBurnRate: 15,
+    sellPressure: 15,
+  },
   conservative: {
     label: "Conservative (1K Subs)",
     payingUsers: 1000,
@@ -142,7 +153,7 @@ export default function AdminTokenomics10B() {
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
   // Viral Economics Calculator State - NOW USING HARD PAYING USER COUNTS
-  const DEFAULT_PRESET: ViralPresetKey = "base";
+  const DEFAULT_PRESET: ViralPresetKey = "ideal";
   const [scenarioPreset, setScenarioPreset] = useState<ViralPresetKey>(DEFAULT_PRESET);
   const [payingUsers, setPayingUsers] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].payingUsers);
   const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].avgMonthlyActivity);
@@ -161,6 +172,37 @@ export default function AdminTokenomics10B() {
     setInitialLPSeed(preset.initialLPSeed);
     setMintBurnRate(preset.mintBurnRate);
     setSellPressure(preset.sellPressure);
+  };
+
+  const userShareForBurn = (burnRate: number) => {
+    // User receives remaining mint after burn + LP + treasury
+    return (100 - burnRate - MINT_DISTRIBUTION.lp - MINT_DISTRIBUTION.treasury) / 100;
+  };
+
+  const maxActivityForCoverage = (targetCoverage: number, burnRate: number, sellRate: number) => {
+    const userShare = userShareForBurn(burnRate);
+    const sell = sellRate / 100;
+    const denom = targetCoverage * userShare * sell * STARTING_PRICE;
+    if (denom <= 0) return Number.POSITIVE_INFINITY;
+    return SUBSCRIPTION.lpPerUser / denom;
+  };
+
+  const activityStep = 25;
+  const activityMin = 50;
+  const activityMax = 2000;
+  const healthyActivityCap = useMemo(() => {
+    const raw = maxActivityForCoverage(0.7, mintBurnRate, sellPressure);
+    const snapped = Math.floor(raw / activityStep) * activityStep;
+    return Math.max(activityMin, Math.min(activityMax, snapped));
+  }, [mintBurnRate, sellPressure]);
+
+  const keepHealthyAfterParamChange = (next: { burnRate?: number; sellRate?: number }) => {
+    const nextBurn = next.burnRate ?? mintBurnRate;
+    const nextSell = next.sellRate ?? sellPressure;
+    const raw = maxActivityForCoverage(0.7, nextBurn, nextSell);
+    const snapped = Math.floor(raw / activityStep) * activityStep;
+    const cap = Math.max(activityMin, Math.min(activityMax, snapped));
+    if (avgMonthlyActivity > cap) setAvgMonthlyActivity(cap);
   };
 
   // Calculate the viral economics model
@@ -736,16 +778,27 @@ export default function AdminTokenomics10B() {
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="text-sm font-medium">Scenario Preset</div>
-              <Select value={scenarioPreset} onValueChange={(v) => applyScenarioPreset(v as ViralPresetKey)}>
-                <SelectTrigger className="w-[240px]">
-                  <SelectValue placeholder="Choose a preset" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="conservative">1K Subs (Conservative)</SelectItem>
-                  <SelectItem value="base">5K Subs (Base)</SelectItem>
-                  <SelectItem value="viral">25K Subs (Viral Stress)</SelectItem>
-                </SelectContent>
-              </Select>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => applyScenarioPreset("ideal")}
+                  >
+                    Reset to Ideal
+                  </Button>
+                  <Select value={scenarioPreset} onValueChange={(v) => applyScenarioPreset(v as ViralPresetKey)}>
+                    <SelectTrigger className="w-[240px]">
+                      <SelectValue placeholder="Choose a preset" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ideal">Ideal (Healthy)</SelectItem>
+                      <SelectItem value="conservative">1K Subs (Conservative)</SelectItem>
+                      <SelectItem value="base">5K Subs (Base)</SelectItem>
+                      <SelectItem value="viral">25K Subs (Viral Stress)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
             </div>
 
             {/* Input Controls */}
@@ -766,6 +819,19 @@ export default function AdminTokenomics10B() {
                   step={100}
                   className="w-full"
                 />
+                <div className="flex flex-wrap gap-2">
+                  {[1000, 5000, 10000, 25000].map((v) => (
+                    <Button
+                      key={v}
+                      type="button"
+                      size="sm"
+                      variant={payingUsers === v ? "default" : "outline"}
+                      onClick={() => setPayingUsers(v)}
+                    >
+                      {v >= 1000 ? `${v / 1000}K` : v}
+                    </Button>
+                  ))}
+                </div>
                 <p className="text-xs text-muted-foreground">Active $9.99/mo subscribers</p>
               </div>
               
@@ -780,12 +846,35 @@ export default function AdminTokenomics10B() {
                 <Slider
                   value={[avgMonthlyActivity]}
                   onValueChange={([v]) => setAvgMonthlyActivity(v)}
-                  min={500}
-                  max={2000}
-                  step={100}
+                  min={activityMin}
+                  max={activityMax}
+                  step={activityStep}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground">kWh + miles per paid user</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={avgMonthlyActivity === healthyActivityCap ? "default" : "outline"}
+                    onClick={() => setAvgMonthlyActivity(healthyActivityCap)}
+                  >
+                    Max Healthy ({healthyActivityCap})
+                  </Button>
+                  {[50, 100, 250, 500, 1000].map((v) => (
+                    <Button
+                      key={v}
+                      type="button"
+                      size="sm"
+                      variant={avgMonthlyActivity === v ? "default" : "outline"}
+                      onClick={() => setAvgMonthlyActivity(v)}
+                    >
+                      {v}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Reward issuance proxy per paid subscriber / month. To avoid <strong>At Risk</strong> at {sellPressure}% sell + {mintBurnRate}% burn, keep ≤ <strong>{healthyActivityCap}</strong>.
+                </p>
               </div>
               
               <div className="space-y-3">
@@ -799,11 +888,24 @@ export default function AdminTokenomics10B() {
                 <Slider
                   value={[initialLPSeed]}
                   onValueChange={([v]) => setInitialLPSeed(v)}
-                  min={50000}
-                  max={500000}
+                  min={250000}
+                  max={2000000}
                   step={25000}
                   className="w-full"
                 />
+                <div className="flex flex-wrap gap-2">
+                  {[250000, 500000, 1000000, 2000000].map((v) => (
+                    <Button
+                      key={v}
+                      type="button"
+                      size="sm"
+                      variant={initialLPSeed === v ? "default" : "outline"}
+                      onClick={() => setInitialLPSeed(v)}
+                    >
+                      ${(v / 1000).toFixed(0)}K
+                    </Button>
+                  ))}
+                </div>
                 <p className="text-xs text-muted-foreground">USDC paired 1:2 for $0.50 floor</p>
               </div>
               
@@ -823,6 +925,22 @@ export default function AdminTokenomics10B() {
                   step={1}
                   className="w-full"
                 />
+                <div className="flex flex-wrap gap-2">
+                  {[15, 20, 25].map((v) => (
+                    <Button
+                      key={v}
+                      type="button"
+                      size="sm"
+                      variant={mintBurnRate === v ? "default" : "outline"}
+                      onClick={() => {
+                        setMintBurnRate(v);
+                        keepHealthyAfterParamChange({ burnRate: v });
+                      }}
+                    >
+                      {v}%
+                    </Button>
+                  ))}
+                </div>
                 <p className="text-xs text-muted-foreground">Tokens burned at mint (15% recommended)</p>
               </div>
               
@@ -842,6 +960,22 @@ export default function AdminTokenomics10B() {
                   step={1}
                   className="w-full"
                 />
+                <div className="flex flex-wrap gap-2">
+                  {[15, 20, 25].map((v) => (
+                    <Button
+                      key={v}
+                      type="button"
+                      size="sm"
+                      variant={sellPressure === v ? "default" : "outline"}
+                      onClick={() => {
+                        setSellPressure(v);
+                        keepHealthyAfterParamChange({ sellRate: v });
+                      }}
+                    >
+                      {v}%
+                    </Button>
+                  ))}
+                </div>
                 <p className="text-xs text-muted-foreground">% of minted tokens sold (expect 15-25%)</p>
               </div>
             </div>
