@@ -65,7 +65,7 @@ export default function AdminTokenEstimator() {
   const { isAdmin, isChecking } = useAdminCheck();
 
   // Input state
-  const [initialLPSeed, setInitialLPSeed] = useState(125000); // $125k initial LP for $0.50 floor
+  const [initialLPSeed, setInitialLPSeed] = useState(250000); // $250k minimum LP seed
   const [initialTokensInLP, setInitialTokensInLP] = useState(250_000); // 250K tokens in LP
   const [monthlyUsers, setMonthlyUsers] = useState(1000);
   const [projectionMonths, setProjectionMonths] = useState(24);
@@ -345,7 +345,7 @@ export default function AdminTokenEstimator() {
                 <Slider
                   value={[initialLPSeed]}
                   onValueChange={([v]) => setInitialLPSeed(v)}
-                  min={10000}
+                  min={250000}
                   max={1000000}
                   step={10000}
                 />
