@@ -71,22 +71,21 @@ export default function InvestmentThesis() {
     );
   }
   
-  // Updated growth projections with conversion rate context
-  // Conversion Rate = % of total users who become paying subscribers ($9.99/mo)
+  // Updated growth projections with $0.50 floor model
+  // Uses hard paying subscriber counts instead of conversion rates
   const growthProjections = [
-    { totalUsers: "2,500", conversionRate: "40%", paidUsers: "1,000", monthlyLP: "$4,995", annualLP: "$59,940", rewardValue: "~$1,000/user" },
-    { totalUsers: "12,500", conversionRate: "40%", paidUsers: "5,000", monthlyLP: "$24,975", annualLP: "$299,700", rewardValue: "~$1,000/user" },
-    { totalUsers: "25,000", conversionRate: "40%", paidUsers: "10,000", monthlyLP: "$49,950", annualLP: "$599,400", rewardValue: "~$1,000/user" },
-    { totalUsers: "62,500", conversionRate: "40%", paidUsers: "25,000", monthlyLP: "$124,875", annualLP: "$1,498,500", rewardValue: "~$1,000/user" },
-    { totalUsers: "125,000", conversionRate: "40%", paidUsers: "50,000", monthlyLP: "$249,750", annualLP: "$2,997,000", rewardValue: "~$1,000/user" },
-    { totalUsers: "250,000", conversionRate: "40%", paidUsers: "100,000", monthlyLP: "$499,500", annualLP: "$5,994,000", rewardValue: "~$1,000/user" },
+    { payingUsers: "1,000", monthlyLP: "$4,995", annualLP: "$59,940", rewardValue: "~$500/user", priceEstimate: "$0.50" },
+    { payingUsers: "5,000", monthlyLP: "$24,975", annualLP: "$299,700", rewardValue: "~$600/user", priceEstimate: "$0.60" },
+    { payingUsers: "10,000", monthlyLP: "$49,950", annualLP: "$599,400", rewardValue: "~$700/user", priceEstimate: "$0.70" },
+    { payingUsers: "25,000", monthlyLP: "$124,875", annualLP: "$1,498,500", rewardValue: "~$800/user", priceEstimate: "$0.80" },
+    { payingUsers: "50,000", monthlyLP: "$249,750", annualLP: "$2,997,000", rewardValue: "~$900/user", priceEstimate: "$0.90" },
   ];
 
-  // Fresh Start vs Lifetime Data comparison
+  // Fresh Start vs Lifetime Data comparison - UPDATED FOR $0.50 MODEL
   const sustainabilityComparison = [
-    { model: "Lifetime Data (Immediate)", tokens: "4.25M", lpRatio: "8,509:1", priceImpact: "$0.21 crash", sustainable: false },
-    { model: "Lifetime Data (6mo Vest)", tokens: "810K/mo", lpRatio: "1,620:1", priceImpact: "$0.55 start", sustainable: false },
-    { model: "Fresh Start ✓", tokens: "102K/mo", lpRatio: "204:1", priceImpact: "$0.91 stable", sustainable: true },
+    { model: "Lifetime Data (Immediate)", tokens: "4.25M", sellRate: "25%", priceImpact: "Crash to $0.10", sustainable: false },
+    { model: "Lifetime Data (6mo Vest)", tokens: "810K/mo", sellRate: "25%", priceImpact: "Drift to $0.30", sustainable: false },
+    { model: "Fresh Start ✓", tokens: "~5M/mo at 5K subs", sellRate: "20%", priceImpact: "$0.50 stable", sustainable: true },
   ];
 
   const competitiveAdvantages = [
@@ -160,17 +159,17 @@ export default function InvestmentThesis() {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               $ZSOLAR isn't speculation—it's a utility token backed by real subscription revenue. 
               Our <strong className="text-foreground">Fresh Start Model</strong> ensures sustainable 
-              token supply while users earn <strong className="text-foreground">~$1,000/month</strong> in rewards.
+              token supply while users earn <strong className="text-foreground">$400-$800/month</strong> in rewards.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 pt-4">
               <Badge className="px-4 py-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
                 <CheckCircle2 className="h-4 w-4 mr-2" />
-                42x More Sustainable
+                Fresh Start Model
               </Badge>
               <Badge className="px-4 py-2 bg-primary/10 text-primary border-primary/30">
                 <DollarSign className="h-4 w-4 mr-2" />
-                $1.00 Price Floor
+                $0.50 Price Floor
               </Badge>
               <Badge className="px-4 py-2 bg-amber-500/10 text-amber-600 border-amber-500/30">
                 <Flame className="h-4 w-4 mr-2" />
@@ -178,14 +177,14 @@ export default function InvestmentThesis() {
               </Badge>
               <Badge className="px-4 py-2 bg-blue-500/10 text-blue-600 border-blue-500/30">
                 <Percent className="h-4 w-4 mr-2" />
-                40%+ Conversion Target
+                15-25% Sell Rate
               </Badge>
             </div>
             
             <div className="pt-6 max-w-2xl mx-auto">
               <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Conversion Rate</strong> = % of total users who become paying subscribers ($9.99/mo). 
-                At 40% conversion, each 10K users generates <strong className="text-primary">$19,980/month</strong> in LP injection.
+                <strong className="text-foreground">Key Metric</strong> = Paying Subscribers × $4.995/mo LP Injection. 
+                At 5K subs, the system generates <strong className="text-primary">$25K/month</strong> in LP to absorb sell pressure.
               </p>
             </div>
           </motion.div>
@@ -228,9 +227,9 @@ export default function InvestmentThesis() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     Fresh Start Model
-                    <Badge className="bg-emerald-500/20 text-emerald-600">42x More Sustainable</Badge>
+                    <Badge className="bg-emerald-500/20 text-emerald-600">Sustainable Launch</Badge>
                   </CardTitle>
-                  <CardDescription>The foundation of our $1.00 price floor strategy</CardDescription>
+                  <CardDescription>The foundation of our $0.50 price floor strategy</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -249,7 +248,7 @@ export default function InvestmentThesis() {
                     <tr>
                       <th className="px-4 py-3 text-left font-semibold">Model</th>
                       <th className="px-4 py-3 text-left font-semibold">Tokens/Month</th>
-                      <th className="px-4 py-3 text-left font-semibold">LP Ratio</th>
+                      <th className="px-4 py-3 text-left font-semibold">Sell Rate</th>
                       <th className="px-4 py-3 text-left font-semibold">Price Impact</th>
                       <th className="px-4 py-3 text-left font-semibold">Status</th>
                     </tr>
@@ -259,7 +258,7 @@ export default function InvestmentThesis() {
                       <tr key={row.model} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
                         <td className="px-4 py-3 font-medium">{row.model}</td>
                         <td className="px-4 py-3">{row.tokens}</td>
-                        <td className="px-4 py-3">{row.lpRatio}</td>
+                        <td className="px-4 py-3">{row.sellRate}</td>
                         <td className="px-4 py-3">
                           <span className={row.sustainable ? "text-emerald-600 font-semibold" : "text-destructive"}>
                             {row.priceImpact}
@@ -285,8 +284,8 @@ export default function InvestmentThesis() {
                     <p className="font-semibold text-sm">Price Protection</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    If 10% of tokens are sold, price drops only to ~$0.91 (vs $0.21 crash with lifetime dumps). 
-                    LP injection pushes it back up.
+                    At 20% sell rate with 5K subs, LP injection ($25K/mo) offsets sell pressure, 
+                    maintaining the $0.50 floor.
                   </p>
                 </div>
                 <div className="p-4 rounded-lg border bg-card/50">
@@ -295,8 +294,8 @@ export default function InvestmentThesis() {
                     <p className="font-semibold text-sm">Viral Trigger</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Users earning <strong>~$1,000/month</strong> (1,000 kWh + miles @ $1/token) become 
-                    natural evangelists driving word-of-mouth growth.
+                    Users earning <strong>$400-$800/month</strong> (1,000 tokens @ $0.50-$0.80) become 
+                    natural evangelists driving referral growth.
                   </p>
                 </div>
                 <div className="p-4 rounded-lg border bg-card/50">
@@ -404,23 +403,18 @@ export default function InvestmentThesis() {
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-4 py-4 text-left font-semibold">Total Users</th>
-                    <th className="px-4 py-4 text-left font-semibold">Conversion</th>
-                    <th className="px-4 py-4 text-left font-semibold">Paid Subscribers</th>
+                    <th className="px-4 py-4 text-left font-semibold">Paying Subscribers</th>
                     <th className="px-4 py-4 text-left font-semibold">Monthly LP</th>
                     <th className="px-4 py-4 text-left font-semibold">Annual LP</th>
                     <th className="px-4 py-4 text-left font-semibold">Reward Value</th>
+                    <th className="px-4 py-4 text-left font-semibold">Est. Price</th>
                   </tr>
                 </thead>
                 <tbody>
                   {growthProjections.map((row, index) => (
-                    <tr key={row.totalUsers} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                      <td className="px-4 py-4 text-muted-foreground">{row.totalUsers}</td>
+                    <tr key={row.payingUsers} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
                       <td className="px-4 py-4">
-                        <Badge variant="outline" className="text-xs">{row.conversionRate}</Badge>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className="font-semibold text-primary">{row.paidUsers}</span>
+                        <span className="font-semibold text-primary">{row.payingUsers}</span>
                       </td>
                       <td className="px-4 py-4 font-medium">{row.monthlyLP}</td>
                       <td className="px-4 py-4">
@@ -429,6 +423,9 @@ export default function InvestmentThesis() {
                       <td className="px-4 py-4">
                         <Badge className="bg-amber-500/20 text-amber-600">{row.rewardValue}</Badge>
                       </td>
+                      <td className="px-4 py-4">
+                        <Badge className="bg-primary/20 text-primary">{row.priceEstimate}</Badge>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -436,8 +433,8 @@ export default function InvestmentThesis() {
             </div>
             <div className="p-4 bg-muted/30 border-t">
               <p className="text-xs text-muted-foreground">
-                <strong>Conversion Rate</strong> = percentage of total users who become paying subscribers ($9.99/month). 
-                Higher conversion = more LP injection = stronger price floor. Target: 40%+ for optimal sustainability.
+                <strong>LP Injection</strong> = Paying Subscribers × $4.995/month (50% of $9.99 sub). 
+                More subscribers = more LP = stronger price floor. Target: 5K+ subs for stable $0.50 floor.
               </p>
             </div>
           </Card>
