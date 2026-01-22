@@ -497,6 +497,115 @@ const frameworkQuestions: FrameworkQuestion[] = [
     ],
   },
 
+  // 14. CAPITAL STRATEGY (NEW - Pre-Seed/Seed Investment Planning)
+  {
+    id: 'fundraising_structure',
+    dimension: 'Capital Strategy',
+    dimensionIcon: <Coins className="h-5 w-5" />,
+    question: 'What fundraising structure best fits your pre-seed/seed round?',
+    subtitle: 'The legal structure affects investor rights, token allocation, and future flexibility.',
+    type: 'single',
+    options: [
+      { value: 'safe', label: 'SAFE (Simple Agreement for Future Equity)', description: 'Y Combinator standard. Quick close, deferred valuation. Converts at next priced round.' },
+      { value: 'safe_token_warrant', label: 'SAFE + Token Warrant', description: 'Equity upside + token allocation. Investors get best of both worlds.' },
+      { value: 'priced_equity', label: 'Priced Equity Round', description: 'Fixed valuation now. More negotiation, but clear ownership from day one.' },
+      { value: 'token_saft', label: 'Token SAFT (Simple Agreement for Future Tokens)', description: 'Token-only raise. Regulatory complexity but pure crypto alignment.' },
+    ],
+    insight: '💡 SAFE + Token Warrant is increasingly popular for Web3 startups—gives investors equity protection with crypto upside.',
+  },
+  {
+    id: 'investor_profile',
+    dimension: 'Capital Strategy',
+    dimensionIcon: <Users className="h-5 w-5" />,
+    question: 'What type of investors should you prioritize?',
+    subtitle: 'Different investors bring different value beyond capital.',
+    type: 'multiple',
+    options: [
+      { value: 'angels', label: 'Angel Investors', description: 'Faster decisions, smaller checks ($25K-$100K). Often industry experts.' },
+      { value: 'pre_seed_vc', label: 'Pre-Seed/Seed VCs', description: 'Institutional capital ($250K-$1M+). Board seats, follow-on potential.' },
+      { value: 'crypto_funds', label: 'Crypto-Native Funds', description: 'Token expertise, exchange connections, community building.' },
+      { value: 'strategic', label: 'Strategic (OEMs, Energy Cos)', description: 'Tesla, Enphase, utilities. Distribution + credibility, but slower process.' },
+      { value: 'climate_esg', label: 'Climate/ESG Funds', description: 'Impact-focused capital. Aligned mission, ESG reporting requirements.' },
+    ],
+    insight: '💡 Crypto funds understand token economics; strategics understand energy. Consider a mix for maximum leverage.',
+  },
+  {
+    id: 'raise_amount',
+    dimension: 'Capital Strategy',
+    dimensionIcon: <TrendingUp className="h-5 w-5" />,
+    question: 'What raise amount targets your needs for the next 18-24 months?',
+    subtitle: 'Raise enough for milestones that unlock next round, not more.',
+    type: 'single',
+    options: [
+      { value: '250k_500k', label: '$250K - $500K (Friends & Family / Pre-Seed)', description: 'MVP to early traction. 6-12 months runway. Prove core concept.' },
+      { value: '500k_1m', label: '$500K - $1M (Pre-Seed)', description: 'Build team, launch token, initial marketing. 12-18 months runway.' },
+      { value: '1m_2m', label: '$1M - $2M (Seed)', description: 'Scale to 10K+ users, deep LP, regulatory prep. 18-24 months runway.' },
+      { value: '2m_plus', label: '$2M+ (Large Seed)', description: 'Aggressive scaling, multiple hires, CEX listings. Maximum runway.' },
+    ],
+    insight: '💡 Current model suggests $500K-$1M for IP protection (patent), LP seeding ($125K+), and 12-18 months ops.',
+  },
+  {
+    id: 'use_of_funds',
+    dimension: 'Capital Strategy',
+    dimensionIcon: <Target className="h-5 w-5" />,
+    question: 'How should raised capital be allocated?',
+    subtitle: 'Investors want to see disciplined, milestone-driven capital deployment.',
+    type: 'multiple',
+    options: [
+      { value: 'lp_seeding', label: 'LP Seeding (20-30%)', description: 'Initial liquidity pool depth. Critical for price floor defense.' },
+      { value: 'engineering', label: 'Engineering/Product (25-35%)', description: 'Core team, smart contracts, app development, security audits.' },
+      { value: 'legal_ip', label: 'Legal & IP (10-15%)', description: 'Patent prosecution, PCT filing, regulatory counsel, entity setup.' },
+      { value: 'marketing', label: 'Marketing & Growth (15-20%)', description: 'User acquisition, community building, influencer partnerships.' },
+      { value: 'ops_runway', label: 'Operations & Runway (15-25%)', description: 'Founder salary, infrastructure, contingency buffer.' },
+    ],
+    insight: '💡 Investors expect 15-25% to LP seeding for token projects—it\'s the foundation of price stability.',
+  },
+  {
+    id: 'valuation_approach',
+    dimension: 'Capital Strategy',
+    dimensionIcon: <Scale className="h-5 w-5" />,
+    question: 'What valuation methodology resonates with your target investors?',
+    subtitle: 'Pre-revenue valuations are art + science. Pick a defensible anchor.',
+    type: 'single',
+    options: [
+      { value: 'comparable_tokens', label: 'Comparable Token Market Caps', description: 'Similar clean energy/sustainability tokens at launch. Apply discount for stage.' },
+      { value: 'user_projection', label: 'User Projection Multiple', description: '$X per projected user at 12 months. E.g., 50K users × $200 = $10M valuation.' },
+      { value: 'revenue_potential', label: 'Revenue Multiple (Forward)', description: 'Projected ARR × 10-20x. Subscription revenue is predictable.' },
+      { value: 'milestone_based', label: 'Milestone-Based Valuation Cap', description: 'SAFE with cap that adjusts based on achieved milestones.' },
+    ],
+    insight: '💡 For pre-seed, a $3M-$6M cap on a SAFE is typical. Seed rounds often see $8M-$15M valuations with traction.',
+  },
+  {
+    id: 'token_investor_allocation',
+    dimension: 'Capital Strategy',
+    dimensionIcon: <Lock className="h-5 w-5" />,
+    question: 'Should pre-seed/seed investors receive token allocations?',
+    subtitle: 'Token warrants align investors with token success, but create future dilution.',
+    type: 'single',
+    options: [
+      { value: 'no_tokens', label: 'Equity Only (No Tokens)', description: 'Clean cap table. Tokens reserved for community and team only.' },
+      { value: 'token_warrant_5pct', label: '5% Token Warrant Pool', description: 'Investors get pro-rata share of 5% of tokens at fixed price or discount.' },
+      { value: 'token_warrant_10pct', label: '10% Token Warrant Pool', description: 'Larger investor incentive. Reduces community allocation slightly.' },
+      { value: 'conversion_rights', label: 'Equity-to-Token Conversion Option', description: 'Investors can convert equity to tokens at TGE at a fixed ratio.' },
+    ],
+    insight: '💡 Token warrants with 2-year vest and 12-month cliff align investor incentives with long-term token health.',
+  },
+  {
+    id: 'regulatory_posture',
+    dimension: 'Capital Strategy',
+    dimensionIcon: <Shield className="h-5 w-5" />,
+    question: 'What regulatory approach should guide the raise?',
+    subtitle: 'US securities law is complex. Your approach affects investor pool and token design.',
+    type: 'single',
+    options: [
+      { value: 'utility_only', label: 'Utility Token (Non-US Investors Only)', description: 'Simplest path. Exclude US investors from token sale. App available to all.' },
+      { value: 'reg_d', label: 'Reg D Exemption (Accredited US Investors)', description: 'Allow US accredited investors. More legal cost, larger pool.' },
+      { value: 'reg_s_d', label: 'Reg D + Reg S (US Accredited + International)', description: 'Maximum reach with compliance. Standard for serious raises.' },
+      { value: 'full_compliance', label: 'Full SEC Guidance (Wait for Clarity)', description: 'Most conservative. Delay token launch until regulatory clarity.' },
+    ],
+    insight: '💡 Most Web3 startups use Reg D + Reg S to access both US accredited and international investors.',
+  },
+
   // BONUS: VISION ALIGNMENT
   {
     id: 'north_star',
@@ -924,6 +1033,72 @@ export default function AdminTokenomicsFramework() {
     return insights;
   }, [showAnalysis, answers]);
 
+  // Generate Investment Memo based on Capital Strategy answers
+  const investmentMemo = useMemo(() => {
+    if (!showAnalysis) return null;
+
+    const getOptionLabel = (questionId: string, value: string | undefined) => {
+      if (!value) return null;
+      const question = frameworkQuestions.find(q => q.id === questionId);
+      return question?.options?.find(o => o.value === value)?.label || value;
+    };
+
+    const getMultipleLabels = (questionId: string, values: string[] | undefined) => {
+      if (!values || values.length === 0) return [];
+      const question = frameworkQuestions.find(q => q.id === questionId);
+      return values.map(v => question?.options?.find(o => o.value === v)?.label || v);
+    };
+
+    // Extract answers
+    const fundraisingStructure = getOptionLabel('fundraising_structure', answers.fundraising_structure as string);
+    const investorTypes = getMultipleLabels('investor_profile', answers.investor_profile as string[]);
+    const raiseAmount = getOptionLabel('raise_amount', answers.raise_amount as string);
+    const useOfFunds = getMultipleLabels('use_of_funds', answers.use_of_funds as string[]);
+    const valuationApproach = getOptionLabel('valuation_approach', answers.valuation_approach as string);
+    const tokenAllocation = getOptionLabel('token_investor_allocation', answers.token_investor_allocation as string);
+    const regulatoryApproach = getOptionLabel('regulatory_posture', answers.regulatory_posture as string);
+    const lpDepth = getOptionLabel('liquidity_depth_target', answers.liquidity_depth_target as string);
+    const exchangeStrategy = getOptionLabel('exchange_strategy', answers.exchange_strategy as string);
+
+    // Generate valuation range based on raise amount
+    let valuationRange = '$3M - $6M';
+    if (answers.raise_amount === '1m_2m') valuationRange = '$8M - $15M';
+    if (answers.raise_amount === '2m_plus') valuationRange = '$12M - $20M';
+
+    // Generate recommendations
+    const recommendations: string[] = [];
+    
+    if (answers.fundraising_structure === 'safe_token_warrant') {
+      recommendations.push('Draft token warrant agreement with 2-year vest, 12-month cliff, and clearly defined token price at TGE.');
+    }
+    if (investorTypes.includes('Crypto-Native Funds')) {
+      recommendations.push('Prepare token economics deck focusing on deflationary mechanics, LP sustainability, and exchange strategy.');
+    }
+    if (investorTypes.includes('Strategic (OEMs, Energy Cos)')) {
+      recommendations.push('Develop partnership proposal showing distribution potential and API integration opportunities.');
+    }
+    if (answers.regulatory_posture === 'reg_s_d') {
+      recommendations.push('Engage securities counsel early. Budget $50K-$100K for Reg D/S documentation and compliance.');
+    }
+    if (useOfFunds.includes('LP Seeding (20-30%)')) {
+      recommendations.push(`Allocate ${lpDepth || '$125K+'} to initial LP seeding—investors want to see commitment to price floor.`);
+    }
+
+    return {
+      fundraisingStructure,
+      investorTypes,
+      raiseAmount,
+      useOfFunds,
+      valuationApproach,
+      tokenAllocation,
+      regulatoryApproach,
+      valuationRange,
+      recommendations,
+      lpDepth,
+      exchangeStrategy,
+    };
+  }, [showAnalysis, answers]);
+
   if (authLoading || adminLoading || isLoadingData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
@@ -976,7 +1151,7 @@ export default function AdminTokenomicsFramework() {
         />
         
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3 mb-2">
@@ -1002,6 +1177,15 @@ export default function AdminTokenomicsFramework() {
                 <span className="font-semibold">Primary Moat</span>
               </div>
               <p className="text-2xl font-bold capitalize">{(answers.moat_priority as string)?.replace(/_/g, ' ') || 'First Mover'}</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-2">
+                <Coins className="h-5 w-5 text-blue-500" />
+                <span className="font-semibold">Target Raise</span>
+              </div>
+              <p className="text-2xl font-bold">{investmentMemo?.raiseAmount || 'Not Set'}</p>
             </CardContent>
           </Card>
         </div>
@@ -1044,6 +1228,121 @@ export default function AdminTokenomicsFramework() {
             )}
           </CardContent>
         </Card>
+
+        {/* Investment Memo Section */}
+        {investmentMemo && (investmentMemo.raiseAmount || investmentMemo.fundraisingStructure) && (
+          <Card className="border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Coins className="h-5 w-5 text-blue-500" />
+                    Investment Memo
+                  </CardTitle>
+                  <CardDescription>Capital strategy summary for investor conversations</CardDescription>
+                </div>
+                <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">Pre-Seed / Seed</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Key Terms Grid */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {investmentMemo.raiseAmount && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Target Raise</p>
+                    <p className="text-lg font-bold text-blue-600">{investmentMemo.raiseAmount}</p>
+                  </div>
+                )}
+                {investmentMemo.valuationRange && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Valuation Range</p>
+                    <p className="text-lg font-bold text-emerald-600">{investmentMemo.valuationRange}</p>
+                  </div>
+                )}
+                {investmentMemo.fundraisingStructure && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Structure</p>
+                    <p className="text-lg font-bold">{investmentMemo.fundraisingStructure}</p>
+                  </div>
+                )}
+                {investmentMemo.tokenAllocation && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Token Allocation</p>
+                    <p className="text-lg font-bold">{investmentMemo.tokenAllocation}</p>
+                  </div>
+                )}
+                {investmentMemo.regulatoryApproach && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Regulatory Approach</p>
+                    <p className="text-lg font-bold">{investmentMemo.regulatoryApproach}</p>
+                  </div>
+                )}
+                {investmentMemo.lpDepth && (
+                  <div className="p-4 rounded-xl bg-card border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">LP Depth Target</p>
+                    <p className="text-lg font-bold">{investmentMemo.lpDepth}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Target Investors */}
+              {investmentMemo.investorTypes.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Target Investor Types</p>
+                  <div className="flex flex-wrap gap-2">
+                    {investmentMemo.investorTypes.map((type, i) => (
+                      <Badge key={i} variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-300">
+                        {type}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Use of Funds */}
+              {investmentMemo.useOfFunds.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Use of Funds</p>
+                  <div className="flex flex-wrap gap-2">
+                    {investmentMemo.useOfFunds.map((use, i) => (
+                      <Badge key={i} variant="outline">
+                        {use}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommendations */}
+              {investmentMemo.recommendations.length > 0 && (
+                <div className="pt-4 border-t">
+                  <p className="text-sm font-medium mb-3 flex items-center gap-2">
+                    <Lightbulb className="h-4 w-4 text-amber-500" />
+                    Next Steps for Fundraising
+                  </p>
+                  <ul className="space-y-2">
+                    {investmentMemo.recommendations.map((rec, i) => (
+                      <li key={i} className="flex gap-3 text-sm">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 text-xs font-bold">
+                          {i + 1}
+                        </span>
+                        <span className="text-muted-foreground">{rec}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Exchange Strategy */}
+              {investmentMemo.exchangeStrategy && (
+                <div className="p-4 rounded-xl bg-muted/50 border-dashed border">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Exchange Launch Strategy</p>
+                  <p className="font-medium">{investmentMemo.exchangeStrategy}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
         
         {/* Your Answers Summary */}
         <Card>
@@ -1125,7 +1424,7 @@ export default function AdminTokenomicsFramework() {
         <Badge className="bg-primary/10 text-primary border-primary/20">Admin • Strategic Framework</Badge>
         <h1 className="text-3xl font-bold">Tokenomics Optimization Framework</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Answer strategic questions across 10 dimensions to optimize your $ZSOLAR token economics.
+          Answer strategic questions across 15 dimensions to optimize your $ZSOLAR token economics and capital strategy.
           <span className="block mt-1 text-sm font-medium text-primary">First-Mover Advantage: You're creating a new category.</span>
         </p>
       </motion.div>
