@@ -265,6 +265,25 @@ export default function AdminTokenomics10B() {
                   Seeded into LP with $50K-$100K USDC for $0.50-$1.00 starting price floor
                 </p>
               </div>
+              
+              {/* Launch Price Explainer */}
+              <div className="p-4 rounded-lg border bg-amber-500/5 border-amber-500/20">
+                <div className="flex items-start gap-3">
+                  <Rocket className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+                  <div className="space-y-2">
+                    <p className="font-semibold text-sm text-amber-600 dark:text-amber-400">Launch Price Model</p>
+                    <p className="text-xs text-muted-foreground">
+                      <strong>At TGE:</strong> 100,000 $ZSOLAR tokens seeded into the Liquidity Pool against $75,000 USDC, 
+                      establishing a <span className="text-primary font-semibold">$0.75 starting price</span> ($75K ÷ 100K = $0.75/token).
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Over Time:</strong> Milestone unlocks release additional tokens as the paying user base grows. 
+                      The 50% subscription revenue flow into LP and 10%+ burn rate are designed to outpace new supply, 
+                      maintaining upward price pressure toward the $1-$2 equilibrium target.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
