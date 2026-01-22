@@ -43,8 +43,8 @@ const TOKEN_STRATEGY = {
   founderAllocation: { percentage: 2.5, amount: 250_000_000, vestingYears: 3, cliffMonths: 6 },
   treasuryAllocation: { percentage: 7.5, amount: 750_000_000, vestingYears: 2 },
   communityRewards: { percentage: 90, amount: 9_000_000_000 },
-  initialCirculating: { min: 100_000_000, max: 200_000_000, percentage: "1-2%" },
-  initialLPSeed: { min: 50_000, max: 100_000 }, // USDC
+  // $250K USDC paired with 250K tokens = $1.00 per token at launch
+  initialCirculating: { tokens: 250_000, usdc: 250_000, price: 1.00, percentage: "0.0025%" },
   targetPriceRange: { min: 0.50, max: 2.00 },
 };
 
@@ -71,23 +71,23 @@ const TRANSFER_TAX = {
 };
 
 // Milestone Unlocks tied to paying users + Impact Score
-// Tokens column = unlocked at this milestone, Cumulative = total circulating after unlock
+// Launch: 250K tokens paired with $250K USDC for $1.00 floor
 const UNLOCK_MILESTONES = [
-  { milestone: "Launch (TGE)", users: 0, impactScore: 0, tokens: "100-200M", circulatingSupply: "100-200M", percentage: "1-2%", cumulative: "1-2%", vesting: "—", mrr: "$0" },
-  { milestone: "Early Traction", users: 1000, impactScore: 100000, tokens: "100M", circulatingSupply: "200-300M", percentage: "1%", cumulative: "2-3%", vesting: "6 months", mrr: "~$10K" },
-  { milestone: "Product-Market Fit", users: 5000, impactScore: 500000, tokens: "300M", circulatingSupply: "500-600M", percentage: "3%", cumulative: "5-6%", vesting: "6 months", mrr: "~$50K" },
-  { milestone: "Scaling Phase 1", users: 10000, impactScore: 1000000, tokens: "800M", circulatingSupply: "1.3-1.4B", percentage: "8%", cumulative: "13-14%", vesting: "9 months", mrr: "~$100K" },
-  { milestone: "Scaling Phase 2", users: 25000, impactScore: 5000000, tokens: "2B", circulatingSupply: "3.3B", percentage: "20%", cumulative: "33%", vesting: "12 months", mrr: "~$250K" },
-  { milestone: "Mass Adoption", users: 50000, impactScore: 10000000, tokens: "3B", circulatingSupply: "6.3B", percentage: "30%", cumulative: "63%", vesting: "12 months", mrr: "~$500K" },
-  { milestone: "Long-Term", users: 100000, impactScore: 50000000, tokens: "Remaining", circulatingSupply: "10B (Max)", percentage: "37%", cumulative: "100%", vesting: "Governance", mrr: "$1M+" },
+  { milestone: "Launch (TGE)", users: 0, impactScore: 0, tokens: "250K", circulatingSupply: "250K", percentage: "0.0025%", cumulative: "0.0025%", vesting: "—", mrr: "$0" },
+  { milestone: "Early Traction", users: 1000, impactScore: 100000, tokens: "50M", circulatingSupply: "~50M", percentage: "0.5%", cumulative: "0.5%", vesting: "6 months", mrr: "~$10K" },
+  { milestone: "Product-Market Fit", users: 5000, impactScore: 500000, tokens: "200M", circulatingSupply: "~250M", percentage: "2%", cumulative: "2.5%", vesting: "6 months", mrr: "~$50K" },
+  { milestone: "Scaling Phase 1", users: 10000, impactScore: 1000000, tokens: "500M", circulatingSupply: "~750M", percentage: "5%", cumulative: "7.5%", vesting: "9 months", mrr: "~$100K" },
+  { milestone: "Scaling Phase 2", users: 25000, impactScore: 5000000, tokens: "1.5B", circulatingSupply: "~2.25B", percentage: "15%", cumulative: "22.5%", vesting: "12 months", mrr: "~$250K" },
+  { milestone: "Mass Adoption", users: 50000, impactScore: 10000000, tokens: "2.75B", circulatingSupply: "~5B", percentage: "27.5%", cumulative: "50%", vesting: "12 months", mrr: "~$500K" },
+  { milestone: "Long-Term", users: 100000, impactScore: 50000000, tokens: "5B", circulatingSupply: "10B (Max)", percentage: "50%", cumulative: "100%", vesting: "Governance", mrr: "$1M+" },
 ];
 
 // Burn Mechanics
 const BURN_MECHANICS = [
   { type: "Transfer Burns", rate: "3.5%", description: "Every token transfer permanently burns 3.5%" },
-  { type: "Mint Burns", rate: "10%", description: "10% of newly minted tokens are burned immediately" },
+  { type: "Mint Burns", rate: "10-15%", description: "10-15% of newly minted tokens are burned immediately" },
   { type: "Redemption Burns", rate: "5-10%", description: "NFT redemptions burn 5-10% of token value" },
-  { type: "Subscription Burns", rate: "5-10%", description: "Monthly burn from 50% LP flow" },
+  { type: "Subscription Burns", rate: "Variable", description: "LP absorbs sell pressure via 50% sub flow" },
 ];
 
 const fadeIn = {
@@ -109,6 +109,7 @@ export default function AdminTokenomics10B() {
   const [sellPressure, setSellPressure] = useState(5); // % of tokens sold monthly
 
   // Calculate the viral economics model
+  // Key insight: LP injection must exceed or match the USDC withdrawn by sellers
   const viralEconomics = useMemo(() => {
     const paidUsers = Math.round(totalUsers * (conversionRate / 100));
     const freeUsers = totalUsers - paidUsers;
@@ -124,41 +125,32 @@ export default function AdminTokenomics10B() {
     const tokensToLP = grossTokensMinted * 0.03;
     const tokensToTreasury = grossTokensMinted * 0.02;
     
-    // Sell Pressure Calculation (tokens sold at current price)
+    // Sell Pressure Calculation (tokens sold at current $1.00 price)
     const tokensSold = tokensToUsers * (sellPressure / 100);
+    const sellPressureUSDC = tokensSold * 1.00; // At $1.00/token
     
-    // AMM constant product formula: k = USDC * Tokens
-    // Starting: $initialLPSeed USDC paired with same # of tokens for $1.00 price
-    const startingTokensInLP = initialLPSeed;
-    const k = initialLPSeed * startingTokensInLP;
+    // LP Coverage ratio: Does subscription LP injection cover the sell pressure?
+    // This is the KEY sustainability metric
+    const lpCoverage = sellPressureUSDC > 0 ? (monthlyLPInjection / sellPressureUSDC) : 10;
     
-    // When users sell tokens into LP:
-    // 1. Tokens in LP increase (pool absorbs sold tokens)
-    // 2. USDC is withdrawn by sellers
-    // New price = USDC_after / Tokens_after
+    // Price impact calculation (simplified constant product model)
+    // If LP injection >= sell pressure, price stays at or above $1.00
+    // If LP injection < sell pressure, price drops proportionally
+    const netLPFlow = monthlyLPInjection - sellPressureUSDC;
+    const priceMultiplier = lpCoverage >= 1 
+      ? 1 + (netLPFlow / initialLPSeed) * 0.1 // Price appreciation when LP grows
+      : Math.max(0.5, lpCoverage); // Price drops proportionally but floors at $0.50
+    const priceAfterSell = Math.min(2.00, Math.max(0.50, 1.00 * priceMultiplier));
     
-    // Calculate LP state after monthly activity:
-    // Net LP change = injection - withdrawals from sells
-    // For AMM: selling X tokens into pool with (U, T) gives:
-    // USDC received = U - (k / (T + X))
+    // Sustainability Score: 100% means LP fully covers sell pressure
+    const sustainabilityScore = Math.min(lpCoverage, 2); // Cap at 200%
     
-    const tokensAfterSell = startingTokensInLP + tokensSold + tokensToLP;
-    const usdcPaidToSellers = k > 0 ? initialLPSeed - (k / tokensAfterSell) : 0;
-    const netUsdcAfterSell = initialLPSeed - usdcPaidToSellers + monthlyLPInjection;
-    
-    // Price after sell pressure + LP injection
-    const priceAfterSell = tokensAfterSell > 0 ? Math.max(netUsdcAfterSell / tokensAfterSell, 0.01) : 1;
-    
-    // LP Coverage ratio: How much of the sell pressure is covered by LP injection
-    // This is the key health metric - shows if flywheel is working
-    const sellPressureUSDC = usdcPaidToSellers > 0 ? usdcPaidToSellers : tokensSold * 1; // Fallback to $1/token
-    const lpCoverage = sellPressureUSDC > 0 ? (monthlyLPInjection / sellPressureUSDC) : 1;
-    
-    // Sustainability Score based on price stability
-    // >= 1.0 means LP injection covers or exceeds sell pressure = optimal
-    // >= 0.5 means LP covers at least half = healthy/manageable
-    // < 0.5 means price is likely to drop = at risk
-    const sustainabilityScore = lpCoverage;
+    // Health thresholds based on LP coverage ratio (not price)
+    // >= 1.0 = Optimal (LP injection covers ALL sell pressure)
+    // >= 0.7 = Healthy (LP covers most, price stable)
+    // < 0.7 = At Risk (significant price pressure)
+    const isOptimal = lpCoverage >= 1.0;
+    const isHealthy = lpCoverage >= 0.7;
     
     // Reward Value Analysis (what users actually earn in USD terms)
     const effectiveRewardValue = priceAfterSell * avgMonthlyActivity * ((100 - mintBurnRate - 5) / 100);
@@ -179,14 +171,15 @@ export default function AdminTokenomics10B() {
       tokensToTreasury,
       tokensSold,
       sellPressureUSDC,
+      netLPFlow,
       lpRatio: lpCoverage,
       priceAfterSell,
       sustainabilityScore,
       effectiveRewardValue,
       monthlyImpactScore,
       annualImpactTons,
-      isHealthy: priceAfterSell >= 0.50, // Price stays above $0.50
-      isOptimal: priceAfterSell >= 0.85 && lpCoverage >= 0.80, // Price near $1 + good coverage
+      isHealthy,
+      isOptimal,
     };
   }, [totalUsers, conversionRate, avgMonthlyActivity, initialLPSeed, mintBurnRate, sellPressure]);
 
@@ -487,8 +480,8 @@ export default function AdminTokenomics10B() {
                     <TableHead>Milestone</TableHead>
                     <TableHead className="text-right">Paying Users</TableHead>
                     <TableHead className="text-right">Tokens Unlocked</TableHead>
+                    <TableHead className="text-right">Circulating Supply</TableHead>
                     <TableHead className="text-right">% of Max</TableHead>
-                    <TableHead className="text-right">Cumulative</TableHead>
                     <TableHead className="text-right">Vesting</TableHead>
                     <TableHead className="text-right">Projected MRR</TableHead>
                   </TableRow>
@@ -504,8 +497,8 @@ export default function AdminTokenomics10B() {
                       </TableCell>
                       <TableCell className="text-right">{row.users.toLocaleString()}</TableCell>
                       <TableCell className="text-right font-semibold text-primary">{row.tokens}</TableCell>
+                      <TableCell className="text-right font-medium text-blue-600">{row.circulatingSupply}</TableCell>
                       <TableCell className="text-right">{row.percentage}</TableCell>
-                      <TableCell className="text-right">{row.cumulative}</TableCell>
                       <TableCell className="text-right">{row.vesting}</TableCell>
                       <TableCell className="text-right text-emerald-600 font-medium">{row.mrr}</TableCell>
                     </TableRow>
