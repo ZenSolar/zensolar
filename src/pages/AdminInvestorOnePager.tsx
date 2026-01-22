@@ -22,6 +22,7 @@ import {
   Lock
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -109,6 +110,13 @@ export default function AdminInvestorOnePager() {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Gamifying clean energy with blockchain rewards. Turn solar production, EV miles, and battery storage into tradable tokens and NFTs.
         </p>
+        <ExportButtons 
+          pageTitle="Investor One-Pager" 
+          getData={() => [
+            ...Object.entries(KEY_METRICS).map(([key, value]) => ({ metric: key.replace(/([A-Z])/g, ' $1'), value })),
+            ...USE_OF_FUNDS.map(f => ({ category: f.category, amount: f.amount, percentage: `${f.percentage}%` }))
+          ]} 
+        />
       </motion.div>
 
       {/* Key Value Prop */}

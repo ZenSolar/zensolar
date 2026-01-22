@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Loader2, ArrowRight, TrendingUp, Coins, Users, Droplets, Flame, Building, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 export default function AdminRevenueFlywheel() {
   const { user, isLoading: authLoading } = useAuth();
@@ -41,7 +42,18 @@ export default function AdminRevenueFlywheel() {
         </Badge>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Revenue Flywheel</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">How subscription fees and transaction fees flow to the liquidity pool via smart contract automation.</p>
-        <Badge variant="secondary" className="text-xs">Admin Only • Internal Documentation</Badge>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <Badge variant="secondary" className="text-xs">Admin Only • Internal Documentation</Badge>
+          <ExportButtons 
+            pageTitle="Revenue Flywheel" 
+            getData={() => [
+              { flow: "Subscriptions", source: "$9.99/mo", lpContribution: "50% ($4.995)", impact: "Direct LP injection" },
+              { flow: "Transfer Tax", source: "7% of trades", lpContribution: "2%", impact: "Continuous LP growth" },
+              { flow: "Mint Burn", source: "20% of mints", lpContribution: "N/A", impact: "Supply deflation" },
+              { flow: "Treasury Tax", source: "2% of trades", lpContribution: "N/A", impact: "Operations funding" },
+            ]} 
+          />
+        </div>
       </motion.div>
 
       {/* Visual Flywheel Diagram */}

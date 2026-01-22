@@ -8,9 +8,10 @@ import {
   Loader2, Brain, Target, Flame, Droplets, Users, Coins, 
   TrendingUp, Shield, AlertTriangle, CheckCircle2, Sparkles,
   DollarSign, Zap, Building2, Lock, Award, Rocket, BarChart3,
-  FileText, ArrowRight, RefreshCcw
+  FileText, ArrowRight, RefreshCcw, ArrowUpRight, ArrowDownRight
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -32,6 +33,73 @@ const CURRENT_MODEL = {
   treasuryAlloc: "7.5%",
   founderAlloc: "2.5%",
 };
+
+// OLD MODEL for comparison
+const OLD_MODEL = {
+  launchPrice: "$0.50",
+  targetPrice: "$1.00",
+  lpSeed: "$125K",
+  seedRound: "$500K-$750K",
+  mintBurn: "15%",
+  transferTax: "7%",
+  subscriptionLP: "50%",
+  maxSupply: "10B",
+  communityRewards: "90%",
+  treasuryAlloc: "7.5%",
+  founderAlloc: "2.5%",
+};
+
+// Comparison metrics
+const MODEL_COMPARISON = [
+  { 
+    metric: "Launch Price", 
+    old: "$0.50", 
+    new: "$0.10", 
+    change: "-80%", 
+    impact: "positive",
+    rationale: "10x narrative (0.10→1.00) more compelling than 2x narrative (0.50→1.00)" 
+  },
+  { 
+    metric: "LP Seed Required", 
+    old: "$125K", 
+    new: "$300K", 
+    change: "+140%", 
+    impact: "neutral",
+    rationale: "Larger LP creates deeper liquidity, reducing slippage and improving price stability" 
+  },
+  { 
+    metric: "Mint Burn Rate", 
+    old: "15%", 
+    new: "20%", 
+    change: "+33%", 
+    impact: "positive",
+    rationale: "Aggressive burn absorbs 20-25% expected sell pressure, protecting price floor" 
+  },
+  { 
+    metric: "Target Seed Round", 
+    old: "$500K-$750K", 
+    new: "$1M-$2M", 
+    change: "+150%", 
+    impact: "neutral",
+    rationale: "Larger raise covers $300K LP, security audit, legal, and 18mo runway" 
+  },
+  { 
+    metric: "User Earning Potential", 
+    old: "$500-$1,000/mo", 
+    new: "$100-$1,000/mo", 
+    change: "Range shifted", 
+    impact: "positive",
+    rationale: "Lower entry ($100) is achievable, $1K at maturity creates viral word-of-mouth" 
+  },
+  { 
+    metric: "Sustainability Score", 
+    old: "1.0x (break-even)", 
+    new: "1.4x (buffer)", 
+    change: "+40%", 
+    impact: "positive",
+    rationale: "20% burn + $300K LP creates margin of safety against unexpected sell pressure" 
+  },
+];
 
 // Strategic insights from framework analysis
 const STRATEGIC_INSIGHTS = [
@@ -169,6 +237,14 @@ export default function AdminAIFeedbackLoop() {
           Use this to finalize smart contract changes and investor materials.
         </p>
         <p className="text-xs text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
+        <ExportButtons 
+          pageTitle="AI Feedback Loop" 
+          getData={() => [
+            ...Object.entries(CURRENT_MODEL).map(([key, value]) => ({ metric: key.replace(/([A-Z])/g, ' $1'), currentValue: value })),
+            ...STRATEGIC_INSIGHTS.map(s => ({ category: s.category, status: s.status, insight: s.insight, action: s.action })),
+            ...MODEL_COMPARISON.map(c => ({ metric: c.metric, oldModel: c.old, newModel: c.new, change: c.change, rationale: c.rationale }))
+          ]} 
+        />
       </motion.div>
 
       {/* Current Model Summary */}
@@ -190,6 +266,81 @@ export default function AdminAIFeedbackLoop() {
                   <p className="text-lg font-bold text-primary">{value}</p>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Model Comparison - Old vs New */}
+      <motion.div {...fadeIn} transition={{ delay: 0.12 }}>
+        <Card className="border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-background to-red-500/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-amber-500" />
+              Model Comparison: Old vs Optimized
+              <Badge className="ml-auto bg-amber-500/20 text-amber-600">Strategic Analysis</Badge>
+            </CardTitle>
+            <CardDescription>Side-by-side comparison showing the rationale for each optimization</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold">Metric</th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      <span className="text-muted-foreground">Old Model</span>
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      <span className="text-primary">New Model</span>
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">Change</th>
+                    <th className="px-4 py-3 text-left font-semibold">Rationale</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MODEL_COMPARISON.map((row, index) => (
+                    <tr key={index} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                      <td className="px-4 py-3 font-medium">{row.metric}</td>
+                      <td className="px-4 py-3 text-muted-foreground line-through">{row.old}</td>
+                      <td className="px-4 py-3 font-semibold text-primary">{row.new}</td>
+                      <td className="px-4 py-3">
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            row.impact === "positive" 
+                              ? "text-emerald-600 border-emerald-500/30 bg-emerald-500/10" 
+                              : "text-blue-600 border-blue-500/30 bg-blue-500/10"
+                          }
+                        >
+                          {row.impact === "positive" ? (
+                            <ArrowUpRight className="h-3 w-3 mr-1" />
+                          ) : (
+                            <ArrowRight className="h-3 w-3 mr-1" />
+                          )}
+                          {row.change}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground max-w-xs">{row.rationale}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Summary */}
+            <div className="mt-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-emerald-600">Optimization Summary</p>
+                  <p className="text-sm text-muted-foreground">
+                    The new $0.10 model creates a <strong>more compelling 10x narrative</strong> for investors and users, 
+                    while the 20% burn rate and $300K LP provide a <strong>40% sustainability buffer</strong> against sell pressure.
+                    The larger seed round ($1M-$2M) ensures runway for security audit, legal, and 18-month operations.
+                  </p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
