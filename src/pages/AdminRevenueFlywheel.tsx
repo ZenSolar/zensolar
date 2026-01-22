@@ -291,7 +291,7 @@ export default function AdminRevenueFlywheel() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-amber-500" />
-              Investment Thesis
+              Investment Thesis ($0.50 Floor Model)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -306,20 +306,20 @@ export default function AdminRevenueFlywheel() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
-                <span><strong>On-chain verifiable:</strong> Fund flows are transparent and trustless</span>
+                <span><strong>$0.50 Floor:</strong> $125K USDC paired with 250K tokens at launch</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
-                <span><strong>Predictable floor:</strong> More users = guaranteed LP injection = rising price support</span>
+                <span><strong>Realistic assumptions:</strong> 15-25% monthly sell rate built into the model</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
-                <span><strong>Deflationary + accumulative:</strong> 3.5% burn reduces supply while 1% adds to LP</span>
+                <span><strong>Deflationary:</strong> 15% mint burn + 3.5% transfer burn reduces supply over time</span>
               </li>
             </ul>
             <div className="pt-4 border-t mt-4">
               <p className="text-sm font-semibold text-amber-600">
-                "As we scale to 10K paying users, that's $50K/month of guaranteed buy pressure — visible on-chain."
+                "At 5K paying subscribers, that's $25K/month of guaranteed LP injection — visible on-chain."
               </p>
             </div>
           </CardContent>

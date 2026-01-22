@@ -953,6 +953,150 @@ export default function AdminTokenomics10B() {
         </Card>
       </motion.div>
 
+      {/* Breakeven Analysis Card */}
+      <motion.div {...fadeIn} transition={{ delay: 0.48 }}>
+        <Card className="border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-background to-primary/5">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-500/20">
+                <Target className="h-6 w-6 text-amber-500" />
+              </div>
+              <div>
+                <CardTitle>Breakeven Analysis</CardTitle>
+                <CardDescription>Minimum paying subscribers needed to maintain $0.50 floor at different sell rates</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Breakeven Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold">Sell Rate</th>
+                    <th className="px-4 py-3 text-right font-semibold">Min Subs for Floor</th>
+                    <th className="px-4 py-3 text-right font-semibold">Monthly LP Injection</th>
+                    <th className="px-4 py-3 text-right font-semibold">Sell Pressure Absorbed</th>
+                    <th className="px-4 py-3 text-center font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { sellRate: 15, minSubs: 2500, lpInjection: 12488, sellAbsorbed: 15000, status: "Healthy" },
+                    { sellRate: 20, minSubs: 4000, lpInjection: 19980, sellAbsorbed: 20000, status: "Optimal" },
+                    { sellRate: 25, minSubs: 6250, lpInjection: 31219, sellAbsorbed: 31250, status: "Optimal" },
+                    { sellRate: 30, minSubs: 9000, lpInjection: 44955, sellAbsorbed: 45000, status: "Optimal" },
+                  ].map((row, index) => (
+                    <tr key={row.sellRate} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                      <td className="px-4 py-3 font-medium">{row.sellRate}%</td>
+                      <td className="px-4 py-3 text-right font-bold text-primary">{row.minSubs.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-right">${row.lpInjection.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-right">${row.sellAbsorbed.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-center">
+                        <Badge className={row.status === "Optimal" ? "bg-emerald-500/20 text-emerald-600" : "bg-amber-500/20 text-amber-600"}>
+                          {row.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-muted/50 border">
+              <p className="text-sm text-muted-foreground">
+                <strong className="text-foreground">Key Insight:</strong> At the expected 20% sell rate, you need 
+                <strong className="text-primary"> ~4,000 paying subscribers</strong> generating $20K/mo LP injection to fully 
+                absorb sell pressure and maintain the $0.50 floor. Below this, price will drift but stabilize due to reduced 
+                selling incentive at lower prices.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Price Trajectory Timeline */}
+      <motion.div {...fadeIn} transition={{ delay: 0.49 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Rocket className="h-5 w-5 text-primary" />
+              Price Trajectory: $0.50 → $1.00
+            </CardTitle>
+            <CardDescription>Milestone-based path to target price range</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              {/* Timeline Bar */}
+              <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-emerald-500 to-amber-500 rounded-full" />
+              
+              <div className="space-y-8 ml-4">
+                {[
+                  { 
+                    phase: "Launch", 
+                    price: "$0.50", 
+                    subs: "0", 
+                    lp: "$125K",
+                    description: "TGE: 250K tokens + $125K USDC seeded in LP",
+                    color: "bg-primary"
+                  },
+                  { 
+                    phase: "Early Traction", 
+                    price: "$0.55", 
+                    subs: "1,000", 
+                    lp: "$130K",
+                    description: "First 1K paying subs, LP growing from subscriptions",
+                    color: "bg-blue-500"
+                  },
+                  { 
+                    phase: "Product-Market Fit", 
+                    price: "$0.65", 
+                    subs: "5,000", 
+                    lp: "$175K",
+                    description: "LP injection exceeds sell pressure, price rising",
+                    color: "bg-emerald-500"
+                  },
+                  { 
+                    phase: "Scaling", 
+                    price: "$0.80", 
+                    subs: "15,000", 
+                    lp: "$350K",
+                    description: "Viral referrals driving growth, burns accelerating",
+                    color: "bg-teal-500"
+                  },
+                  { 
+                    phase: "Target Range", 
+                    price: "$1.00", 
+                    subs: "25,000+", 
+                    lp: "$500K+",
+                    description: "Users earning $800-$1,000/mo, max viral potential",
+                    color: "bg-amber-500"
+                  },
+                ].map((milestone, index) => (
+                  <div key={milestone.phase} className="relative flex items-start gap-6 pl-4">
+                    {/* Dot */}
+                    <div className={`absolute left-0 w-5 h-5 rounded-full ${milestone.color} border-4 border-background shadow-lg -translate-x-[6px]`} />
+                    
+                    {/* Content */}
+                    <div className="flex-1 pb-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="font-bold text-lg">{milestone.phase}</span>
+                        <Badge className="bg-primary/20 text-primary font-mono">{milestone.price}</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-2">
+                        <span><Users className="h-3 w-3 inline mr-1" />{milestone.subs} subs</span>
+                        <span><Droplets className="h-3 w-3 inline mr-1" />{milestone.lp} LP</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{milestone.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Price Projection Chart */}
       <motion.div {...fadeIn} transition={{ delay: 0.5 }}>
         <Card>

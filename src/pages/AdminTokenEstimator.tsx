@@ -23,15 +23,16 @@ const fadeIn = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-// Token economics constants (10B Strategy)
+// Token economics constants (10B Strategy - $0.50 Floor Model)
 const MAX_SUPPLY = 10_000_000_000; // 10 billion
-const INITIAL_CIRCULATION = 1_000_000_000; // 1 billion (10% founder/treasury allocation)
+const INITIAL_CIRCULATION = 250_000; // 250K tokens at launch (paired with LP)
 const BURN_TAX_RATE = 0.035; // 3.5% transfer burn
 const TREASURY_TAX_RATE = 0.035; // 3.5% treasury tax
-const MINT_BURN_RATE = 0.10; // 10% mint burn (new)
+const MINT_BURN_RATE = 0.15; // 15% mint burn (updated)
 const AUTO_LP_RATE = 0.01; // 1% of transaction value to LP
 const SUBSCRIPTION_LP_RATE = 0.50; // 50% of subscriptions to LP
 const MONTHLY_SUB_FEE = 9.99;
+const STARTING_PRICE = 0.50; // $0.50 floor
 
 interface ProjectionData {
   month: number;
@@ -64,13 +65,13 @@ export default function AdminTokenEstimator() {
   const { isAdmin, isChecking } = useAdminCheck();
 
   // Input state
-  const [initialLPSeed, setInitialLPSeed] = useState(100000); // $100k initial LP
-  const [initialTokensInLP, setInitialTokensInLP] = useState(1_000_000_000); // 1B tokens in LP
+  const [initialLPSeed, setInitialLPSeed] = useState(125000); // $125k initial LP for $0.50 floor
+  const [initialTokensInLP, setInitialTokensInLP] = useState(250_000); // 250K tokens in LP
   const [monthlyUsers, setMonthlyUsers] = useState(1000);
   const [projectionMonths, setProjectionMonths] = useState(24);
   
   // Separate state for price input to allow free editing
-  const [priceInputValue, setPriceInputValue] = useState("0.000100");
+  const [priceInputValue, setPriceInputValue] = useState("0.50");
   const [isPriceEditing, setIsPriceEditing] = useState(false);
 
   // Simplified model assumptions (kept constant for now)
@@ -227,9 +228,9 @@ export default function AdminTokenEstimator() {
         </Badge>
         <h1 className="text-2xl sm:text-3xl font-bold">$ZSOLAR Price Estimator</h1>
         <p className="text-muted-foreground text-sm max-w-2xl mx-auto">
-          10B supply model with 10% mint burns, 3.5% transfer burns, and 50% subscription → LP
+          10B supply model with 15% mint burns, 3.5% transfer burns, 50% subscription → LP, $0.50 floor
         </p>
-        <Badge variant="secondary" className="text-xs">10B Strategy</Badge>
+        <Badge variant="secondary" className="text-xs">$0.50 Floor Model</Badge>
       </motion.div>
 
       {/* Tokenomics Constants */}
@@ -251,7 +252,7 @@ export default function AdminTokenEstimator() {
                 <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-destructive shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs text-muted-foreground truncate">Mint Burn</p>
-                  <p className="font-semibold text-sm">10%</p>
+                  <p className="font-semibold text-sm">15%</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-background">
