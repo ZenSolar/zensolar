@@ -39,15 +39,15 @@ import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Bar, BarChart, ReferenceLine, Cell } from "recharts";
 
-// 10B Token Strategy Constants
+// 10B Token Strategy Constants - OPTIMIZED $0.10 LAUNCH FLOOR
 const TOKEN_STRATEGY = {
   maxSupply: 10_000_000_000, // 10 billion hard cap
   founderAllocation: { percentage: 2.5, amount: 250_000_000, vestingYears: 3, cliffMonths: 6 },
   treasuryAllocation: { percentage: 7.5, amount: 750_000_000, vestingYears: 2 },
   communityRewards: { percentage: 90, amount: 9_000_000_000 },
-  // $125K USDC paired with 250K tokens = $0.50 per token at launch
-  initialCirculating: { tokens: 250_000, usdc: 125_000, price: 0.50, percentage: "0.0025%" },
-  targetPriceRange: { min: 0.50, max: 1.00 },
+  // $300K USDC paired with 3M tokens = $0.10 per token at launch (10x narrative to $1.00)
+  initialCirculating: { tokens: 3_000_000, usdc: 300_000, price: 0.10, percentage: "0.03%" },
+  targetPriceRange: { min: 0.10, max: 1.00 },
 };
 
 // Subscription Constants
@@ -57,18 +57,19 @@ const SUBSCRIPTION = {
   lpPerUser: 9.99 * 0.50, // $4.995 per paid user
 };
 
-// Mint Distribution (adjusted with 15% burn)
+// Mint Distribution - OPTIMIZED 20% BURN
 const MINT_DISTRIBUTION = {
-  user: 80,
-  burn: 15,
+  user: 75,
+  burn: 20,
   lp: 3,
   treasury: 2,
 };
 
-// Transfer Tax (unchanged)
+// Transfer Tax - 7% total (3% burn, 2% LP, 2% treasury)
 const TRANSFER_TAX = {
-  burn: 3.5,
-  treasury: 3.5,
+  burn: 3,
+  lp: 2,
+  treasury: 2,
   total: 7,
 };
 
@@ -89,57 +90,55 @@ const VIRAL_ECONOMICS_PRESETS: Record<
   ideal: {
     label: "Ideal (Healthy)",
     payingUsers: 5000,
-    // NOTE: This represents *reward issuance per paid subscriber per month* (proxy).
-    // Values here are chosen to keep the model out of "At Risk" under 15% burn + 15% sell.
-    avgMonthlyActivity: 100,
-    initialLPSeed: 250000,
-    mintBurnRate: 15,
+    avgMonthlyActivity: 500,
+    initialLPSeed: 300000, // $300K LP seed for $0.10 floor
+    mintBurnRate: 20,
     sellPressure: 15,
   },
   conservative: {
     label: "Conservative (1K Subs)",
     payingUsers: 1000,
     avgMonthlyActivity: 800,
-    initialLPSeed: 125000,
-    mintBurnRate: 15,
+    initialLPSeed: 300000,
+    mintBurnRate: 20,
     sellPressure: 15,
   },
   base: {
     label: "Base (5K Subs)",
     payingUsers: 5000,
     avgMonthlyActivity: 1000,
-    initialLPSeed: 125000,
-    mintBurnRate: 15,
+    initialLPSeed: 300000,
+    mintBurnRate: 20,
     sellPressure: 20,
   },
   viral: {
     label: "Viral (25K Subs)",
     payingUsers: 25000,
     avgMonthlyActivity: 1000,
-    initialLPSeed: 125000,
-    mintBurnRate: 15,
+    initialLPSeed: 300000,
+    mintBurnRate: 20,
     sellPressure: 25,
   },
 };
 
 // Milestone Unlocks tied to paying users + Impact Score
-// Launch: 250K tokens paired with $250K USDC for $1.00 floor
+// Launch: 3M tokens paired with $300K USDC for $0.10 floor (10x to $1.00)
 const UNLOCK_MILESTONES = [
-  { milestone: "Launch (TGE)", users: 0, impactScore: 0, tokens: "250K", circulatingSupply: "250K", percentage: "0.0025%", cumulative: "0.0025%", vesting: "—", mrr: "$0" },
-  { milestone: "Early Traction", users: 1000, impactScore: 100000, tokens: "50M", circulatingSupply: "~50M", percentage: "0.5%", cumulative: "0.5%", vesting: "6 months", mrr: "~$10K" },
-  { milestone: "Product-Market Fit", users: 5000, impactScore: 500000, tokens: "200M", circulatingSupply: "~250M", percentage: "2%", cumulative: "2.5%", vesting: "6 months", mrr: "~$50K" },
-  { milestone: "Scaling Phase 1", users: 10000, impactScore: 1000000, tokens: "500M", circulatingSupply: "~750M", percentage: "5%", cumulative: "7.5%", vesting: "9 months", mrr: "~$100K" },
-  { milestone: "Scaling Phase 2", users: 25000, impactScore: 5000000, tokens: "1.5B", circulatingSupply: "~2.25B", percentage: "15%", cumulative: "22.5%", vesting: "12 months", mrr: "~$250K" },
+  { milestone: "Launch (TGE)", users: 0, impactScore: 0, tokens: "3M", circulatingSupply: "3M", percentage: "0.03%", cumulative: "0.03%", vesting: "—", mrr: "$0" },
+  { milestone: "Early Traction", users: 1000, impactScore: 100000, tokens: "50M", circulatingSupply: "~53M", percentage: "0.5%", cumulative: "0.53%", vesting: "6 months", mrr: "~$10K" },
+  { milestone: "Product-Market Fit", users: 5000, impactScore: 500000, tokens: "200M", circulatingSupply: "~253M", percentage: "2%", cumulative: "2.53%", vesting: "6 months", mrr: "~$50K" },
+  { milestone: "Scaling Phase 1", users: 10000, impactScore: 1000000, tokens: "500M", circulatingSupply: "~753M", percentage: "5%", cumulative: "7.53%", vesting: "9 months", mrr: "~$100K" },
+  { milestone: "Tipping Point", users: 25000, impactScore: 5000000, tokens: "1.5B", circulatingSupply: "~2.25B", percentage: "15%", cumulative: "22.5%", vesting: "12 months", mrr: "~$250K" },
   { milestone: "Mass Adoption", users: 50000, impactScore: 10000000, tokens: "2.75B", circulatingSupply: "~5B", percentage: "27.5%", cumulative: "50%", vesting: "12 months", mrr: "~$500K" },
   { milestone: "Long-Term", users: 100000, impactScore: 50000000, tokens: "5B", circulatingSupply: "10B (Max)", percentage: "50%", cumulative: "100%", vesting: "Governance", mrr: "$1M+" },
 ];
 
 // Burn Mechanics
 const BURN_MECHANICS = [
-  { type: "Transfer Burns", rate: "3.5%", description: "Every token transfer permanently burns 3.5%" },
-  { type: "Mint Burns", rate: "10-15%", description: "10-15% of newly minted tokens are burned immediately" },
-  { type: "Redemption Burns", rate: "5-10%", description: "NFT redemptions burn 5-10% of token value" },
-  { type: "Subscription Burns", rate: "Variable", description: "LP absorbs sell pressure via 50% sub flow" },
+  { type: "Mint Burns", rate: "20%", description: "20% of newly minted tokens are burned immediately (aggressive)" },
+  { type: "Transfer Burns", rate: "3%", description: "Every token transfer permanently burns 3%" },
+  { type: "LP Tax", rate: "2%", description: "2% of transfers auto-route to Liquidity Pool" },
+  { type: "Treasury Tax", rate: "2%", description: "2% of transfers fund operations treasury" },
 ];
 
 const fadeIn = {
@@ -161,8 +160,8 @@ export default function AdminTokenomics10B() {
   const [mintBurnRate, setMintBurnRate] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].mintBurnRate);
   const [sellPressure, setSellPressure] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].sellPressure);
 
-  // Starting price is $0.50 ($125K USDC / 250K tokens)
-  const STARTING_PRICE = 0.50;
+  // Starting price is $0.10 ($300K USDC / 3M tokens) - 10x narrative to $1.00
+  const STARTING_PRICE = 0.10;
 
   const applyScenarioPreset = (key: ViralPresetKey) => {
     const preset = VIRAL_ECONOMICS_PRESETS[key];
@@ -397,7 +396,7 @@ export default function AdminTokenomics10B() {
         </Badge>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">$ZSOLAR 10B Tokenomics</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-          Revenue-backed token economics designed for $0.50-$1.00 price equilibrium
+          Revenue-backed token economics • <span className="text-primary font-semibold">$0.10 Launch Floor → $1.00 Target</span> • 20% Mint Burn
         </p>
         <Badge variant="secondary" className="text-xs">Admin Only • Strategic Planning</Badge>
       </motion.div>
