@@ -5,6 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Loader2, 
   Coins, 
@@ -24,11 +27,15 @@ import {
   ArrowRight,
   Zap,
   Shield,
-  Award
+  Award,
+  Calculator,
+  DollarSign,
+  AlertTriangle,
+  Gauge
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Bar, BarChart } from "recharts";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Bar, BarChart, ReferenceLine, Cell } from "recharts";
 
 // 10B Token Strategy Constants
 const TOKEN_STRATEGY = {
@@ -39,6 +46,13 @@ const TOKEN_STRATEGY = {
   initialCirculating: { min: 100_000_000, max: 200_000_000, percentage: "1-2%" },
   initialLPSeed: { min: 50_000, max: 100_000 }, // USDC
   targetPriceRange: { min: 0.50, max: 2.00 },
+};
+
+// Subscription Constants
+const SUBSCRIPTION = {
+  price: 9.99,
+  lpShare: 0.50, // 50% goes to LP
+  lpPerUser: 9.99 * 0.50, // $4.995 per paid user
 };
 
 // Mint Distribution (adjusted to 100%)
@@ -56,15 +70,15 @@ const TRANSFER_TAX = {
   total: 7,
 };
 
-// Milestone Unlocks tied to paying users
+// Milestone Unlocks tied to paying users + Impact Score
 const UNLOCK_MILESTONES = [
-  { milestone: "Launch (TGE)", users: 0, tokens: "100-200M", percentage: "1-2%", cumulative: "1-2%", vesting: "—", mrr: "$0" },
-  { milestone: "Early Traction", users: 1000, tokens: "100M", percentage: "1%", cumulative: "2-3%", vesting: "6 months", mrr: "~$10K" },
-  { milestone: "Product-Market Fit", users: 5000, tokens: "300M", percentage: "3%", cumulative: "5-6%", vesting: "6 months", mrr: "~$50K" },
-  { milestone: "Scaling Phase 1", users: 10000, tokens: "800M", percentage: "8%", cumulative: "13-14%", vesting: "9 months", mrr: "~$100K" },
-  { milestone: "Scaling Phase 2", users: 25000, tokens: "2B", percentage: "20%", cumulative: "33%", vesting: "12 months", mrr: "~$250K" },
-  { milestone: "Mass Adoption", users: 50000, tokens: "3B", percentage: "30%", cumulative: "63%", vesting: "12 months", mrr: "~$500K" },
-  { milestone: "Long-Term", users: 100000, tokens: "Remaining", percentage: "37%", cumulative: "100%", vesting: "Governance", mrr: "$1M+" },
+  { milestone: "Launch (TGE)", users: 0, impactScore: 0, tokens: "100-200M", percentage: "1-2%", cumulative: "1-2%", vesting: "—", mrr: "$0" },
+  { milestone: "Early Traction", users: 1000, impactScore: 100000, tokens: "100M", percentage: "1%", cumulative: "2-3%", vesting: "6 months", mrr: "~$10K" },
+  { milestone: "Product-Market Fit", users: 5000, impactScore: 500000, tokens: "300M", percentage: "3%", cumulative: "5-6%", vesting: "6 months", mrr: "~$50K" },
+  { milestone: "Scaling Phase 1", users: 10000, impactScore: 1000000, tokens: "800M", percentage: "8%", cumulative: "13-14%", vesting: "9 months", mrr: "~$100K" },
+  { milestone: "Scaling Phase 2", users: 25000, impactScore: 5000000, tokens: "2B", percentage: "20%", cumulative: "33%", vesting: "12 months", mrr: "~$250K" },
+  { milestone: "Mass Adoption", users: 50000, impactScore: 10000000, tokens: "3B", percentage: "30%", cumulative: "63%", vesting: "12 months", mrr: "~$500K" },
+  { milestone: "Long-Term", users: 100000, impactScore: 50000000, tokens: "Remaining", percentage: "37%", cumulative: "100%", vesting: "Governance", mrr: "$1M+" },
 ];
 
 // Burn Mechanics
@@ -85,17 +99,91 @@ export default function AdminTokenomics10B() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
+  // Viral Economics Calculator State
+  const [totalUsers, setTotalUsers] = useState(10000);
+  const [conversionRate, setConversionRate] = useState(40);
+  const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(1000); // kWh + miles combined
+  const [initialLPSeed, setInitialLPSeed] = useState(250000);
+  const [mintBurnRate, setMintBurnRate] = useState(15);
+  const [sellPressure, setSellPressure] = useState(5); // % of tokens sold monthly
+
+  // Calculate the viral economics model
+  const viralEconomics = useMemo(() => {
+    const paidUsers = Math.round(totalUsers * (conversionRate / 100));
+    const freeUsers = totalUsers - paidUsers;
+    
+    // Monthly Revenue
+    const mrr = paidUsers * SUBSCRIPTION.price;
+    const monthlyLPInjection = paidUsers * SUBSCRIPTION.lpPerUser;
+    
+    // Token Minting (only paid users can mint)
+    const grossTokensMinted = paidUsers * avgMonthlyActivity;
+    const tokensBurned = grossTokensMinted * (mintBurnRate / 100);
+    const tokensToUsers = grossTokensMinted * ((100 - mintBurnRate - 3 - 2) / 100); // Subtract burn, LP, treasury
+    const tokensToLP = grossTokensMinted * 0.03;
+    const tokensToTreasury = grossTokensMinted * 0.02;
+    
+    // Sell Pressure Calculation
+    const tokensSold = tokensToUsers * (sellPressure / 100);
+    const sellPressureUSDC = tokensSold; // At $1.00/token
+    
+    // LP Depth Analysis (starting from seed + cumulative injections)
+    // Using constant product AMM: price = USDC / Tokens
+    const startingTokensInLP = initialLPSeed; // To achieve $1.00 starting price
+    const lpRatio = monthlyLPInjection / sellPressureUSDC;
+    
+    // Price Impact Calculation (simplified AMM)
+    // If someone sells X tokens into a pool of T tokens and U USDC:
+    // New price = (U) / (T + X) after absorbing sell
+    const lpAfterSell = initialLPSeed - sellPressureUSDC + monthlyLPInjection;
+    const tokensInLPAfterSell = startingTokensInLP + tokensSold + tokensToLP;
+    const priceAfterSell = lpAfterSell / tokensInLPAfterSell;
+    
+    // Sustainability Score (1.0 = perfect equilibrium)
+    const sustainabilityRatio = monthlyLPInjection / Math.max(sellPressureUSDC, 1);
+    const sustainabilityScore = Math.min(sustainabilityRatio, 2);
+    
+    // Reward Value Analysis
+    const effectiveRewardValue = priceAfterSell * avgMonthlyActivity * ((100 - mintBurnRate - 5) / 100);
+    
+    // CO2 Impact Score (0.7 kg per kWh)
+    const monthlyImpactScore = paidUsers * avgMonthlyActivity * 0.7;
+    const annualImpactTons = (monthlyImpactScore * 12) / 1000;
+    
+    return {
+      paidUsers,
+      freeUsers,
+      mrr,
+      monthlyLPInjection,
+      grossTokensMinted,
+      tokensBurned,
+      tokensToUsers,
+      tokensToLP,
+      tokensToTreasury,
+      tokensSold,
+      sellPressureUSDC,
+      lpRatio,
+      priceAfterSell,
+      sustainabilityScore,
+      effectiveRewardValue,
+      monthlyImpactScore,
+      annualImpactTons,
+      isHealthy: sustainabilityScore >= 0.65,
+      isOptimal: sustainabilityScore >= 1.0,
+    };
+  }, [totalUsers, conversionRate, avgMonthlyActivity, initialLPSeed, mintBurnRate, sellPressure]);
+
   // Price projection data - starting at $1.00 floor price (Fresh Start Model)
   // Math: Price = USDC / Tokens in LP
   // $100,000 USDC / 100,000 tokens = $1.00 per token
   const projectionData = useMemo(() => {
     const data = [];
     const STARTING_PRICE = 1.00; // $1.00 target starting price
-    const initialLPUSDC = 100_000; // $100K USDC seed
-    const initialLPTokens = initialLPUSDC / STARTING_PRICE; // 100,000 tokens to achieve $1.00
+    const initialLPUSDC = initialLPSeed;
+    const initialLPTokens = initialLPUSDC / STARTING_PRICE;
     
     // Total circulating includes LP + unlocked tokens outside LP
-    let circulatingSupply = 150_000; // Start with 150K tokens total circulating
+    let circulatingSupply = initialLPTokens * 1.5; // Start with 150% of LP tokens circulating
     let lpUSDC = initialLPUSDC;
     let lpTokens = initialLPTokens;
     let totalBurned = 0;
@@ -107,16 +195,20 @@ export default function AdminTokenomics10B() {
       // Price from constant product AMM: price = lpUSDC / lpTokens
       const price = lpTokens > 0 ? lpUSDC / lpTokens : 0;
       
-      // Monthly activity assumptions (scaling with time)
-      const users = Math.min(1000 + month * 2500, 100000);
-      const paidUsers = users * 0.3; // 30% conversion
-      const subRevenue = paidUsers * 9.99;
+      // Monthly activity assumptions (scaling with time toward target users)
+      const users = Math.min(1000 + month * (totalUsers / 36), totalUsers);
+      const paidUsers = users * (conversionRate / 100);
+      const subRevenue = paidUsers * SUBSCRIPTION.price;
       const lpInjection = subRevenue * 0.5; // 50% to LP (USDC side)
       
       // Burns from transactions (3.5% of volume)
       const txVolume = users * 5 * 100; // 5 tx/user, $100 avg
       const txTokens = price > 0 ? txVolume / price : 0;
       const burnFromTx = txTokens * 0.035;
+      
+      // Mint burns from new minting
+      const newTokensMinted = paidUsers * avgMonthlyActivity;
+      const mintBurn = newTokensMinted * (mintBurnRate / 100);
       
       data.push({
         month,
@@ -134,14 +226,30 @@ export default function AdminTokenomics10B() {
       lpTokens = k / lpUSDC;
       
       // Apply burns to circulating supply
-      totalBurned += burnFromTx;
+      totalBurned += burnFromTx + mintBurn;
       
       // Milestone unlocks add to circulating (simplified linear unlock)
       const monthlyUnlock = month > 0 ? 50_000 : 0; // 50K tokens unlocked monthly
-      circulatingSupply = Math.max(circulatingSupply + monthlyUnlock - burnFromTx, 100_000);
+      circulatingSupply = Math.max(circulatingSupply + monthlyUnlock - burnFromTx - mintBurn + (newTokensMinted * 0.85), initialLPTokens);
     }
     
     return data;
+  }, [initialLPSeed, totalUsers, conversionRate, avgMonthlyActivity, mintBurnRate]);
+
+  // Scaling milestones data for chart
+  const scalingData = useMemo(() => {
+    return [
+      { users: 100, paidUsers: 40, lpInjection: 200, tokensToUsers: 34000, ratio: 170, sustainable: true },
+      { users: 1000, paidUsers: 400, lpInjection: 1998, tokensToUsers: 340000, ratio: 170, sustainable: true },
+      { users: 10000, paidUsers: 4000, lpInjection: 19980, tokensToUsers: 3400000, ratio: 170, sustainable: true },
+      { users: 50000, paidUsers: 20000, lpInjection: 99900, tokensToUsers: 17000000, ratio: 170, sustainable: true },
+      { users: 100000, paidUsers: 40000, lpInjection: 199800, tokensToUsers: 34000000, ratio: 170, sustainable: true },
+    ].map(d => ({
+      ...d,
+      label: d.users >= 1000 ? `${d.users / 1000}K` : d.users.toString(),
+      sellPressure5pct: d.tokensToUsers * 0.05,
+      coverage: d.lpInjection / (d.tokensToUsers * 0.05) * 100,
+    }));
   }, []);
 
   if (authLoading || adminLoading) {
@@ -526,6 +634,250 @@ export default function AdminTokenomics10B() {
                     lifetime data receive exclusive <strong className="text-foreground">Pioneer NFTs</strong> (Bronze/Silver/Gold/Platinum tiers). 
                     These are non-tradeable recognition badges that unlock future governance perks and VIP benefits—
                     not inflationary token rewards.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Viral Economics Calculator */}
+      <motion.div {...fadeIn} transition={{ delay: 0.47 }}>
+        <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-blue-500/5">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/20">
+                <Calculator className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  Viral Economics Calculator
+                  <Badge className={viralEconomics.isOptimal ? "bg-emerald-500/20 text-emerald-600" : viralEconomics.isHealthy ? "bg-amber-500/20 text-amber-600" : "bg-destructive/20 text-destructive"}>
+                    {viralEconomics.isOptimal ? "Optimal" : viralEconomics.isHealthy ? "Healthy" : "At Risk"}
+                  </Badge>
+                </CardTitle>
+                <CardDescription>Model the sweet spot for $1.00 price stability from launch to 100K users</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Input Controls */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Total Users
+                  </Label>
+                  <span className="font-mono text-sm font-bold">{totalUsers.toLocaleString()}</span>
+                </div>
+                <Slider
+                  value={[totalUsers]}
+                  onValueChange={([v]) => setTotalUsers(v)}
+                  min={100}
+                  max={100000}
+                  step={100}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">Scale from launch to mass adoption</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Conversion Rate
+                  </Label>
+                  <span className="font-mono text-sm font-bold">{conversionRate}%</span>
+                </div>
+                <Slider
+                  value={[conversionRate]}
+                  onValueChange={([v]) => setConversionRate(v)}
+                  min={10}
+                  max={80}
+                  step={5}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">% of users paying $9.99/mo</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    Avg Monthly Activity
+                  </Label>
+                  <span className="font-mono text-sm font-bold">{avgMonthlyActivity.toLocaleString()}</span>
+                </div>
+                <Slider
+                  value={[avgMonthlyActivity]}
+                  onValueChange={([v]) => setAvgMonthlyActivity(v)}
+                  min={500}
+                  max={2000}
+                  step={100}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">kWh + miles per paid user</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-2">
+                    <Droplets className="h-4 w-4" />
+                    Initial LP Seed
+                  </Label>
+                  <span className="font-mono text-sm font-bold">${(initialLPSeed / 1000).toFixed(0)}K</span>
+                </div>
+                <Slider
+                  value={[initialLPSeed]}
+                  onValueChange={([v]) => setInitialLPSeed(v)}
+                  min={100000}
+                  max={1000000}
+                  step={25000}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">USDC paired 1:1 for $1.00 floor</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-2">
+                    <Flame className="h-4 w-4" />
+                    Mint Burn Rate
+                  </Label>
+                  <span className="font-mono text-sm font-bold">{mintBurnRate}%</span>
+                </div>
+                <Slider
+                  value={[mintBurnRate]}
+                  onValueChange={([v]) => setMintBurnRate(v)}
+                  min={10}
+                  max={25}
+                  step={1}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">Tokens burned at mint</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    Monthly Sell Pressure
+                  </Label>
+                  <span className="font-mono text-sm font-bold">{sellPressure}%</span>
+                </div>
+                <Slider
+                  value={[sellPressure]}
+                  onValueChange={([v]) => setSellPressure(v)}
+                  min={1}
+                  max={20}
+                  step={1}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">% of minted tokens sold</p>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            {/* Key Metrics Grid */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="p-4 rounded-lg border bg-gradient-to-br from-primary/10 to-transparent">
+                <div className="flex items-center justify-between mb-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  <Badge variant="outline">{viralEconomics.paidUsers.toLocaleString()} paying</Badge>
+                </div>
+                <p className="text-2xl font-bold">${viralEconomics.mrr.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                <p className="text-xs text-muted-foreground">Monthly Recurring Revenue</p>
+              </div>
+              
+              <div className="p-4 rounded-lg border bg-gradient-to-br from-blue-500/10 to-transparent">
+                <div className="flex items-center justify-between mb-2">
+                  <Droplets className="h-5 w-5 text-blue-500" />
+                  <Badge variant="outline">50% of subs</Badge>
+                </div>
+                <p className="text-2xl font-bold">${viralEconomics.monthlyLPInjection.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                <p className="text-xs text-muted-foreground">Monthly LP Injection</p>
+              </div>
+              
+              <div className="p-4 rounded-lg border bg-gradient-to-br from-amber-500/10 to-transparent">
+                <div className="flex items-center justify-between mb-2">
+                  <Coins className="h-5 w-5 text-amber-500" />
+                  <Badge variant="outline">{(viralEconomics.tokensBurned / viralEconomics.grossTokensMinted * 100).toFixed(0)}% burned</Badge>
+                </div>
+                <p className="text-2xl font-bold">{(viralEconomics.tokensToUsers / 1000000).toFixed(2)}M</p>
+                <p className="text-xs text-muted-foreground">Tokens to Users/Month</p>
+              </div>
+              
+              <div className={`p-4 rounded-lg border ${viralEconomics.isOptimal ? "bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/30" : viralEconomics.isHealthy ? "bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/30" : "bg-gradient-to-br from-destructive/10 to-transparent border-destructive/30"}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <Gauge className="h-5 w-5" />
+                  <Badge className={viralEconomics.isOptimal ? "bg-emerald-500/20 text-emerald-600" : viralEconomics.isHealthy ? "bg-amber-500/20 text-amber-600" : "bg-destructive/20 text-destructive"}>
+                    {viralEconomics.lpRatio.toFixed(2)}:1
+                  </Badge>
+                </div>
+                <p className="text-2xl font-bold">${viralEconomics.priceAfterSell.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">Price After Sell Pressure</p>
+              </div>
+            </div>
+            
+            {/* Viral Sweet Spot Analysis */}
+            <div className={`p-4 rounded-lg border-2 ${viralEconomics.isOptimal ? "border-emerald-500/30 bg-emerald-500/5" : viralEconomics.isHealthy ? "border-amber-500/30 bg-amber-500/5" : "border-destructive/30 bg-destructive/5"}`}>
+              <div className="flex items-start gap-3">
+                {viralEconomics.isOptimal ? (
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />
+                ) : viralEconomics.isHealthy ? (
+                  <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+                ) : (
+                  <AlertTriangle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
+                )}
+                <div className="space-y-2 flex-1">
+                  <p className={`font-semibold text-sm ${viralEconomics.isOptimal ? "text-emerald-600" : viralEconomics.isHealthy ? "text-amber-600" : "text-destructive"}`}>
+                    {viralEconomics.isOptimal ? "✅ Viral Economics Achieved" : viralEconomics.isHealthy ? "⚠️ Manageable but Tight" : "❌ Unsustainable - Adjust Parameters"}
+                  </p>
+                  <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
+                    <div>
+                      <p><strong>Sell Pressure:</strong> ${viralEconomics.sellPressureUSDC.toLocaleString(undefined, { maximumFractionDigits: 0 })} USDC worth</p>
+                      <p><strong>LP Coverage:</strong> {(viralEconomics.lpRatio * 100).toFixed(0)}% of sell pressure absorbed</p>
+                      <p><strong>Impact Score:</strong> {viralEconomics.monthlyImpactScore.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO2/month</p>
+                    </div>
+                    <div>
+                      <p><strong>User Reward Value:</strong> ${viralEconomics.effectiveRewardValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}/month</p>
+                      <p><strong>Annual CO2 Offset:</strong> {viralEconomics.annualImpactTons.toLocaleString(undefined, { maximumFractionDigits: 0 })} tons</p>
+                      <p><strong>Sustainability Score:</strong> {(viralEconomics.sustainabilityScore * 100).toFixed(0)}%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Strategic Recommendations */}
+            <div className="p-4 rounded-lg bg-muted/50 border">
+              <p className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Optimal Sweet Spot for Viral Growth
+              </p>
+              <div className="grid gap-3 md:grid-cols-2 text-sm">
+                <div className="space-y-2">
+                  <p className="text-muted-foreground">
+                    <strong className="text-foreground">Target Configuration:</strong>
+                  </p>
+                  <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
+                    <li>40%+ subscription conversion rate</li>
+                    <li>$250K+ initial LP seed for depth</li>
+                    <li>15% mint burn (vs 10%) for scarcity</li>
+                    <li>&lt;5% monthly sell pressure (HODLers)</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-muted-foreground">
+                    <strong className="text-foreground">Viral Trigger Point:</strong>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    When users consistently earn <strong className="text-primary">$800-$1,200/month</strong> in $ZSOLAR 
+                    at $1.00/token (1,000 kWh + miles typical), word-of-mouth referrals compound. 
+                    Each referral adds $4.99/mo to LP, creating a flywheel.
                   </p>
                 </div>
               </div>
