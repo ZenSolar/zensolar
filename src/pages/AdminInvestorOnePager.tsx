@@ -29,16 +29,18 @@ const fadeIn = {
   transition: { duration: 0.5 }
 };
 
-// Key metrics for investors - UPDATED FOR $0.50 FLOOR MODEL
+// Key metrics for investors - UPDATED FOR $0.10 FLOOR MODEL (OPTIMIZED)
 const KEY_METRICS = {
   maxSupply: "10B $ZSOLAR",
-  launchPrice: "$0.50",
-  launchLP: "$125K USDC + 250K tokens",
+  launchPrice: "$0.10",
+  targetPrice: "$1.00 (10x)",
+  launchLP: "$300K USDC + 3M tokens",
   subscriptionPrice: "$9.99/mo",
   lpInjection: "50% of subs → LP",
-  mintBurn: "15%",
-  transferTax: "7% (3.5% burn + 3.5% treasury)",
+  mintBurn: "20%",
+  transferTax: "7% (3% burn + 2% LP + 2% treasury)",
   sellRateAssumption: "15-25% monthly",
+  seedTarget: "$1M-$2M",
 };
 
 const TRACTION_HIGHLIGHTS = [
@@ -52,17 +54,19 @@ const FLYWHEEL_STEPS = [
   { step: 1, title: "User Subscribes", description: "$9.99/month for Pro access", icon: Users },
   { step: 2, title: "50% → Liquidity Pool", description: "$4.995 per user to LP", icon: Droplets },
   { step: 3, title: "User Earns $ZSOLAR", description: "~1,000 tokens/month (1:1 kWh/miles)", icon: Coins },
-  { step: 4, title: "Burn on Mint", description: "15% burned immediately", icon: Flame },
-  { step: 5, title: "Price Floor Rises", description: "LP absorption > sell pressure", icon: TrendingUp },
-  { step: 6, title: "Viral Referrals", description: "$400-800/mo earnings → word of mouth", icon: Rocket },
+  { step: 4, title: "Burn on Mint", description: "20% burned immediately", icon: Flame },
+  { step: 5, title: "Price Floor Rises", description: "$0.10 → $1.00 trajectory", icon: TrendingUp },
+  { step: 6, title: "Viral Referrals", description: "$100-1,000/mo earnings → word of mouth", icon: Rocket },
 ];
 
 const USE_OF_FUNDS = [
-  { category: "Legal & IP", amount: "$100-150K", percentage: 20 },
-  { category: "Security Audit", amount: "$50-75K", percentage: 12 },
-  { category: "Mainnet Launch", amount: "$75-100K", percentage: 15 },
-  { category: "Team (12-18 mo)", amount: "$200-300K", percentage: 40 },
-  { category: "Marketing", amount: "$50-100K", percentage: 13 },
+  { category: "Liquidity Pool Seed", amount: "$300K", percentage: 20 },
+  { category: "Legal & IP", amount: "$150K", percentage: 10 },
+  { category: "Security Audit", amount: "$75K", percentage: 5 },
+  { category: "Team (12-18 mo)", amount: "$400K", percentage: 30 },
+  { category: "Marketing & Growth", amount: "$200K", percentage: 15 },
+  { category: "Mainnet & Infrastructure", amount: "$150K", percentage: 10 },
+  { category: "Reserve", amount: "$225K", percentage: 10 },
 ];
 
 export default function AdminInvestorOnePager() {
@@ -116,27 +120,27 @@ export default function AdminInvestorOnePager() {
                 <div className="p-3 rounded-full bg-primary/20 w-fit mx-auto">
                   <Target className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="font-bold text-lg">$0.50 Price Floor</h3>
+                <h3 className="font-bold text-lg">$0.10 Launch → $1.00</h3>
                 <p className="text-sm text-muted-foreground">
-                  $125K USDC paired 1:2 with 250K tokens at launch
+                  $300K USDC seed creates 10x growth narrative
                 </p>
               </div>
               <div className="space-y-2">
                 <div className="p-3 rounded-full bg-emerald-500/20 w-fit mx-auto">
                   <Zap className="h-6 w-6 text-emerald-500" />
                 </div>
-                <h3 className="font-bold text-lg">$400-$800/Month</h3>
+                <h3 className="font-bold text-lg">$100-$1,000/Month</h3>
                 <p className="text-sm text-muted-foreground">
-                  User earning potential (1,000 tokens × $0.50-$0.80)
+                  User earning potential (1,000 tokens × $0.10-$1.00)
                 </p>
               </div>
               <div className="space-y-2">
                 <div className="p-3 rounded-full bg-amber-500/20 w-fit mx-auto">
                   <Shield className="h-6 w-6 text-amber-500" />
                 </div>
-                <h3 className="font-bold text-lg">15-25% Sell Rate</h3>
+                <h3 className="font-bold text-lg">20% Mint Burn</h3>
                 <p className="text-sm text-muted-foreground">
-                  Realistic assumption vs. optimistic models
+                  Aggressive deflation absorbs sell pressure
                 </p>
               </div>
             </div>
@@ -280,18 +284,18 @@ export default function AdminInvestorOnePager() {
             <div className="grid gap-3 md:grid-cols-3">
               <div className="p-3 rounded-lg bg-background/50 border">
                 <p className="font-medium text-sm">Launch Floor</p>
-                <p className="text-2xl font-bold text-primary">$0.50</p>
-                <p className="text-xs text-muted-foreground">$125K USDC / 250K tokens</p>
+                <p className="text-2xl font-bold text-primary">$0.10</p>
+                <p className="text-xs text-muted-foreground">$300K USDC / 3M tokens</p>
               </div>
               <div className="p-3 rounded-lg bg-background/50 border">
-                <p className="font-medium text-sm">Target Range</p>
-                <p className="text-2xl font-bold text-emerald-600">$0.50-$1.00</p>
-                <p className="text-xs text-muted-foreground">Balanced for growth</p>
+                <p className="font-medium text-sm">Target Price</p>
+                <p className="text-2xl font-bold text-emerald-600">$1.00</p>
+                <p className="text-xs text-muted-foreground">10x growth narrative</p>
               </div>
               <div className="p-3 rounded-lg bg-background/50 border">
-                <p className="font-medium text-sm">Expected Sell Rate</p>
-                <p className="text-2xl font-bold text-amber-600">15-25%</p>
-                <p className="text-xs text-muted-foreground">Monthly token liquidation</p>
+                <p className="font-medium text-sm">Mint Burn Rate</p>
+                <p className="text-2xl font-bold text-amber-600">20%</p>
+                <p className="text-xs text-muted-foreground">Aggressive deflation</p>
               </div>
             </div>
           </CardContent>
@@ -304,8 +308,8 @@ export default function AdminInvestorOnePager() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
               <DollarSign className="h-5 w-5 text-emerald-500" />
-              Pre-Seed Use of Funds
-              <Badge variant="outline">$500K - $750K</Badge>
+              Seed Round Use of Funds
+              <Badge variant="outline">$1M - $2M</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -328,7 +332,7 @@ export default function AdminInvestorOnePager() {
             <Separator className="my-4" />
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Target Valuation</span>
-              <span className="font-bold">$5M - $7.5M</span>
+              <span className="font-bold">$10M - $15M</span>
             </div>
           </CardContent>
         </Card>
