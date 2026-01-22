@@ -1370,19 +1370,40 @@ export default function AdminTokenomicsFramework() {
           </span>
         </div>
         
-        <Button onClick={goNext} className="gap-2 order-3">
-          {currentQuestionIndex === frameworkQuestions.length - 1 ? (
-            <>
-              View Analysis
-              <Sparkles className="h-4 w-4" />
-            </>
-          ) : (
-            <>
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </>
+        <div className="flex gap-2 order-3">
+          {currentQuestionIndex < frameworkQuestions.length - 1 && (
+            <Button 
+              onClick={async () => {
+                if (hasUnsavedChanges) {
+                  if (currentVersionId) {
+                    await updateCurrentVersion();
+                  } else {
+                    await saveAsNewVersion();
+                  }
+                }
+                goNext();
+              }} 
+              disabled={isSaving}
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Save & Continue
+            </Button>
           )}
-        </Button>
+          <Button onClick={goNext} variant={currentQuestionIndex < frameworkQuestions.length - 1 ? "outline" : "default"} className="gap-2">
+            {currentQuestionIndex === frameworkQuestions.length - 1 ? (
+              <>
+                View Analysis
+                <Sparkles className="h-4 w-4" />
+              </>
+            ) : (
+              <>
+                Skip
+                <ChevronRight className="h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </div>
       </div>
       
       {/* Quick Jump */}
