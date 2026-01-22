@@ -356,7 +356,7 @@ const frameworkQuestions: FrameworkQuestion[] = [
     options: [
       { value: 'deflationary_scarcity', label: 'Deflationary Scarcity Play', description: 'Constant burns + capped supply = inevitable appreciation over time.' },
       { value: 'revenue_backing', label: 'Revenue-Backed Asset', description: 'Subscription revenue flows into LP—unlike meme coins, there\'s real money backing this.' },
-      { value: 'esg_exposure', label: 'ESG/Climate Exposure', description: 'Only crypto that directly tracks verified clean energy impact. ESG funds want this.' },
+      { value: 'utility_currency', label: 'Utility Currency', description: 'Spend in the store, hold for appreciation. Useful today, worth more tomorrow.' },
       { value: 'network_growth', label: 'Network Growth Thesis', description: 'More users = more burns + LP = higher floor. Classic network effect play.' },
     ],
     insight: '💡 The best tokens have BOTH users and speculators. Speculators provide liquidity; users provide utility.',
