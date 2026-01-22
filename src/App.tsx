@@ -55,6 +55,7 @@ const AdminTokenEstimator = lazy(() => import("./pages/AdminTokenEstimator"));
 const AdminTokenomics10B = lazy(() => import("./pages/AdminTokenomics10B"));
 const AdminInvestorOnePager = lazy(() => import("./pages/AdminInvestorOnePager"));
 const AdminTokenomicsFramework = lazy(() => import("./pages/AdminTokenomicsFramework"));
+const AdminFlywheelTracker = lazy(() => import("./pages/AdminFlywheelTracker"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -392,6 +393,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminTokenomicsFramework />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/flywheel-tracker" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminFlywheelTracker />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
