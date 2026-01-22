@@ -54,6 +54,7 @@ const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
 const AdminTokenEstimator = lazy(() => import("./pages/AdminTokenEstimator"));
 const AdminTokenomics10B = lazy(() => import("./pages/AdminTokenomics10B"));
 const AdminInvestorOnePager = lazy(() => import("./pages/AdminInvestorOnePager"));
+const AdminTokenomicsFramework = lazy(() => import("./pages/AdminTokenomicsFramework"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -381,6 +382,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminInvestorOnePager />
+                      </AppLayout>
+                    </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/tokenomics-framework" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminTokenomicsFramework />
                           </AppLayout>
                         </ProtectedRoute>
                       } 

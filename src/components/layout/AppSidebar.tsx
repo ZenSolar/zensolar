@@ -23,7 +23,8 @@ import {
   DollarSign,
   Calculator,
   PieChart,
-  FileText
+  FileText,
+  Sparkles
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -352,6 +353,22 @@ export function AppSidebar() {
                     >
                       <FileText className="h-4 w-4" />
                       <span>Investor One-Pager</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Tokenomics Framework">
+                    <NavLink 
+                      to="/admin/tokenomics-framework"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      <span>Tokenomics Framework</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
