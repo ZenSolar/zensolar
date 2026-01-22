@@ -89,7 +89,7 @@ const frameworkQuestions: FrameworkQuestion[] = [
     options: [
       { value: 'fixed', label: 'Fixed Supply (Deflationary)', description: 'Bitcoin-style scarcity. Maximum 10B tokens, burns reduce supply over time.' },
       { value: 'capped_elastic', label: 'Capped with Elastic Minting', description: 'Hard cap with activity-driven issuance that slows as cap approaches.' },
-      { value: 'dynamic', label: 'Dynamic Equilibrium', description: 'Algorithmic supply adjustment based on network velocity and demand signals.' },
+      { value: 'utility_currency', label: 'Utility Currency', description: 'Spend in the store today, hold for appreciation tomorrow. Functional AND valuable.' },
     ],
     insight: '💡 First-Mover Advantage: ZenSolar is creating a new category—your supply model should reflect pioneering confidence.',
   },
