@@ -22,7 +22,8 @@ import {
   Scale,
   DollarSign,
   Calculator,
-  PieChart
+  PieChart,
+  FileText
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -335,6 +336,22 @@ export function AppSidebar() {
                     >
                       <PieChart className="h-4 w-4" />
                       <span>10B Tokenomics</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Investor One-Pager">
+                    <NavLink 
+                      to="/admin/investor-one-pager"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <FileText className="h-4 w-4" />
+                      <span>Investor One-Pager</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
