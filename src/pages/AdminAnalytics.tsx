@@ -8,17 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Loader2, ArrowLeft, BarChart3, TrendingUp, Users, Zap, 
-  Wallet, Award, Globe, MapPin, Smartphone, Monitor, RefreshCw,
-  Calendar, Activity, Target, Clock, ExternalLink
+  Loader2, BarChart3, TrendingUp, Users, Zap, 
+  Wallet, Award, Globe, RefreshCw,
+  Activity, Target, Clock, ExternalLink, MapPin, Smartphone, Monitor, Calendar
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
-  AreaChart, Area, BarChart, Bar, LineChart, Line, 
+  AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, ResponsiveContainer, 
   XAxis, YAxis, CartesianGrid, Tooltip, Legend 
 } from 'recharts';
-import { format, subDays, startOfDay, parseISO } from 'date-fns';
+import { format, subDays, startOfDay } from 'date-fns';
+import { ExportButtons } from '@/components/admin/ExportButtons';
 
 // Types for our analytics data
 interface DailyMetric {
@@ -288,22 +289,38 @@ export default function AdminAnalytics() {
     return num.toLocaleString();
   };
 
+  // Export data helper
+  const getExportData = () => [
+    { section: "KPIs", metric: "Total Users", value: totalUsers },
+    { section: "KPIs", metric: "Active Users", value: activeUsers },
+    { section: "KPIs", metric: "Wallets Connected", value: totalWallets },
+    { section: "KPIs", metric: "Total Devices", value: totalDevices },
+    { section: "KPIs", metric: "NFTs Minted", value: totalNFTsMinted },
+    { section: "KPIs", metric: "Tokens Minted", value: totalTokensMinted },
+    ...userGrowth.map(d => ({ section: "User Growth", date: d.date, totalUsers: d.totalUsers, newUsers: d.newUsers })),
+    ...deviceBreakdown.map(d => ({ section: "Devices", type: d.name, count: d.value })),
+    ...providerBreakdown.map(d => ({ section: "Providers", provider: d.provider, count: d.count })),
+  ];
+
   return (
     <div className="container max-w-7xl mx-auto px-4 pt-4 pb-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="text-center sm:text-left space-y-1">
-          <Badge variant="outline" className="text-primary border-primary mb-2">
+        <div className="space-y-2">
+          <Badge variant="outline" className="text-primary border-primary">
             <BarChart3 className="h-3 w-3 mr-1" />
             Analytics
           </Badge>
-          <h1 className="text-2xl sm:text-3xl font-bold">Analytics Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            Analytics Dashboard
+          </h1>
           <p className="text-sm text-muted-foreground">
             Real-time insights into user engagement, conversions, and energy data
           </p>
         </div>
         
         <div className="flex items-center gap-2 flex-wrap">
+          <ExportButtons pageTitle="Analytics" getData={getExportData} />
           <div className="flex border rounded-lg overflow-hidden">
             {(['7d', '30d', '90d'] as const).map((range) => (
               <Button

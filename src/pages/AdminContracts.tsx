@@ -8,10 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  ArrowLeft, 
   FileCode2, 
   Coins, 
-  Award, 
   Zap, 
   Battery, 
   Car, 
@@ -23,15 +21,17 @@ import {
   Flame,
   PiggyBank,
   Users,
-  TrendingDown,
   Rocket,
   FileText,
-  Settings,
   Shield,
+  Wallet,
+  Key,
+  Loader2,
+  TrendingDown,
+  Award,
   Square,
   Play,
-  Wallet,
-  Key
+  Settings
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -41,6 +41,7 @@ import {
   EV_MILES_MILESTONES,
   COMBO_MILESTONES 
 } from '@/lib/nftMilestones';
+import { ExportButtons } from '@/components/admin/ExportButtons';
 
 // Wallet addresses (update after setup)
 const WALLETS = {
@@ -196,7 +197,7 @@ export default function AdminContracts() {
   if (authLoading || adminChecking) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -216,18 +217,31 @@ export default function AdminContracts() {
     );
   }
 
+  // Export data helper
+  const getExportData = () => [
+    ...Object.entries(CONTRACTS).map(([key, c]) => ({ section: "Contract", name: c.name, type: c.type, address: c.address, network: c.network })),
+    ...Object.entries(WALLETS).map(([key, w]) => ({ section: "Wallet", name: w.name, role: w.role, address: w.address })),
+    { section: "Tokenomics", metric: "Max Supply", value: TOKENOMICS.maxSupply },
+    { section: "Tokenomics", metric: "Founder Allocation", value: TOKENOMICS.founderAllocation },
+    { section: "Tokenomics", metric: "Treasury Allocation", value: TOKENOMICS.treasuryAllocation },
+    { section: "Tokenomics", metric: "Transfer Tax", value: `${TOKENOMICS.transferTax.total}%` },
+  ];
+
   return (
     <div className="container max-w-6xl mx-auto px-4 pt-4 pb-8 space-y-6">
       {/* Header */}
-      <div className="space-y-3 text-center">
-        <Badge variant="outline" className="text-primary border-primary">
-          <FileCode2 className="h-3 w-3 mr-1" />
-          Smart Contracts
-        </Badge>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-          Smart Contracts Dashboard
-        </h1>
-        <p className="text-muted-foreground text-sm sm:text-base">Contract info, tokenomics, and milestone verification</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <Badge variant="outline" className="text-primary border-primary">
+            <FileCode2 className="h-3 w-3 mr-1" />
+            Smart Contracts
+          </Badge>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            Smart Contracts Dashboard
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Contract info, tokenomics, and milestone verification</p>
+        </div>
+        <ExportButtons pageTitle="Smart Contracts" getData={getExportData} />
       </div>
 
       <Tabs defaultValue="contracts" className="space-y-4">

@@ -19,13 +19,18 @@ import {
   Rocket,
   Clock,
   AlertCircle,
-  Loader2
+  Loader2,
+  Layers,
+  ArrowRight,
+  BarChart3,
+  Zap
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { ExportButtons } from "@/components/admin/ExportButtons";
@@ -130,85 +135,184 @@ const milestones = [
 
 // Cap table data
 const capTable = {
-  totalSupply: 50_000_000_000,
+  totalSupply: 10_000_000_000,
   allocations: [
-    { name: "Community Rewards", percentage: 90, tokens: 45_000_000_000, status: "Mineable", vesting: "Earned through activity" },
-    { name: "Founder", percentage: 2.5, tokens: 1_250_000_000, status: "Allocated", vesting: "4-year linear vest" },
-    { name: "Treasury/Operations", percentage: 7.5, tokens: 3_750_000_000, status: "Allocated", vesting: "Controlled by multisig" },
+    { name: "Community Rewards", percentage: 90, tokens: 9_000_000_000, status: "Mineable", vesting: "Earned through activity" },
+    { name: "Founder", percentage: 2.5, tokens: 250_000_000, status: "Allocated", vesting: "3-year linear vest" },
+    { name: "Treasury/Operations", percentage: 7.5, tokens: 750_000_000, status: "Allocated", vesting: "2-year vest, multisig" },
   ]
 };
 
-// Raise scenarios
-const raiseScenarios = [
+// Comprehensive fundraising rounds data
+const fundraisingRounds = [
   {
     stage: "Pre-Seed",
-    amount: "$500K - $750K",
-    recommended: true,
-    valuation: "$5M - $7.5M",
+    amount: "$500K - $1M",
+    valuation: "$5M - $10M",
     dilution: "10%",
+    runway: "12-18 months",
     timeline: "Now",
+    recommended: true,
+    keyMilestones: [
+      "Security audit completed",
+      "Mainnet deployment",
+      "500+ beta users",
+      "Patent prosecution initiated"
+    ],
     founderCompensation: {
       annualSalary: "$120K - $150K",
-      salaryNote: "Below-market founder salary, standard for pre-seed",
       signingBonus: "$0",
       secondarySale: "$0",
-      secondaryNote: "No secondary allowed at this stage",
       totalCashYear1: "$120K - $150K",
     },
     useOfFunds: [
-      { category: "Legal & IP", amount: "$100-150K", description: "Patent prosecution, securities counsel, token legal opinion" },
-      { category: "Security Audit", amount: "$50-75K", description: "Smart contract audit by reputable firm" },
-      { category: "Mainnet Launch", amount: "$75-100K", description: "Deployment, gas reserves, initial LP" },
-      { category: "Team (12-18 mo)", amount: "$200-300K", description: "2-3 person core team runway (includes founder salary)" },
-      { category: "Marketing", amount: "$50-100K", description: "User acquisition, community building" },
-    ]
+      { category: "Legal & IP", percentage: 15, amount: "$75K-150K" },
+      { category: "Security Audit", percentage: 10, amount: "$50K-100K" },
+      { category: "Mainnet Launch", percentage: 15, amount: "$75K-150K" },
+      { category: "Team (12-18mo)", percentage: 40, amount: "$200K-400K" },
+      { category: "Marketing", percentage: 20, amount: "$100K-200K" },
+    ],
+    investorFocus: "Product-market fit, patent protection, first users"
   },
   {
     stage: "Seed",
-    amount: "$1.5M - $3M",
-    recommended: false,
+    amount: "$1M - $2M",
     valuation: "$15M - $25M",
     dilution: "10-15%",
+    runway: "18-24 months",
     timeline: "Post-Mainnet + 10K users",
+    recommended: false,
+    keyMilestones: [
+      "10,000+ active users",
+      "25K subscriber tipping point",
+      "$1.00 price target achieved",
+      "Global patent (PCT) filed"
+    ],
     founderCompensation: {
       annualSalary: "$175K - $225K",
-      salaryNote: "Market-rate for early-stage CEO",
       signingBonus: "$25K - $50K",
       secondarySale: "$150K - $300K",
-      secondaryNote: "5-10% of shares sold (negotiable with lead investor)",
       totalCashYear1: "$350K - $575K",
     },
     useOfFunds: [
-      { category: "Team Expansion", amount: "$600K-1M", description: "Engineering, BD, Marketing hires" },
-      { category: "Global Patent", amount: "$150-250K", description: "PCT filing + major jurisdictions" },
-      { category: "Liquidity", amount: "$300-500K", description: "DEX liquidity provision" },
-      { category: "Partnerships", amount: "$200-400K", description: "Hardware manufacturer integrations" },
-      { category: "Operations", amount: "$250-500K", description: "18-24 month runway extension" },
-    ]
+      { category: "Team Expansion", percentage: 40, amount: "$400K-800K" },
+      { category: "Global Patent", percentage: 10, amount: "$100K-200K" },
+      { category: "LP Seeding", percentage: 20, amount: "$200K-400K" },
+      { category: "Partnerships", percentage: 15, amount: "$150K-300K" },
+      { category: "Operations", percentage: 15, amount: "$150K-300K" },
+    ],
+    investorFocus: "User growth, revenue metrics, LP sustainability"
   },
   {
     stage: "Series A",
     amount: "$5M - $10M",
-    recommended: false,
     valuation: "$50M - $100M",
     dilution: "10-15%",
+    runway: "24-36 months",
     timeline: "50K+ users, proven revenue",
+    recommended: false,
+    keyMilestones: [
+      "50,000+ paying subscribers",
+      "Positive unit economics",
+      "Strategic partnerships",
+      "International expansion"
+    ],
     founderCompensation: {
       annualSalary: "$250K - $350K",
-      salaryNote: "Competitive CEO salary + benefits",
       signingBonus: "$50K - $100K",
       secondarySale: "$500K - $1.5M",
-      secondaryNote: "10-15% secondary common at Series A",
       totalCashYear1: "$800K - $1.95M",
     },
     useOfFunds: [
-      { category: "Scale Operations", amount: "$2-4M", description: "Full team build-out globally" },
-      { category: "Enterprise Sales", amount: "$1-2M", description: "B2B utility partnerships" },
-      { category: "Product Expansion", amount: "$1-2M", description: "Mobile apps, new device types" },
-      { category: "Treasury", amount: "$1-2M", description: "Strategic reserves, acquisitions" },
-    ]
-  }
+      { category: "Scale Operations", percentage: 35, amount: "$1.75M-3.5M" },
+      { category: "Enterprise Sales", percentage: 20, amount: "$1M-2M" },
+      { category: "Product Expansion", percentage: 25, amount: "$1.25M-2.5M" },
+      { category: "Treasury Reserves", percentage: 20, amount: "$1M-2M" },
+    ],
+    investorFocus: "Revenue multiples, market leadership, defensibility"
+  },
+  {
+    stage: "Series B",
+    amount: "$15M - $30M",
+    valuation: "$150M - $300M",
+    dilution: "10-15%",
+    runway: "36-48 months",
+    timeline: "200K+ users, $5M+ ARR",
+    recommended: false,
+    keyMilestones: [
+      "200,000+ paying subscribers",
+      "$5M+ ARR achieved",
+      "B2B utility partnerships",
+      "Multi-chain deployment"
+    ],
+    founderCompensation: {
+      annualSalary: "$350K - $450K",
+      signingBonus: "$100K - $200K",
+      secondarySale: "$2M - $5M",
+      totalCashYear1: "$2.45M - $5.65M",
+    },
+    useOfFunds: [
+      { category: "Global Expansion", percentage: 30, amount: "$4.5M-9M" },
+      { category: "Enterprise Sales", percentage: 25, amount: "$3.75M-7.5M" },
+      { category: "R&D / New Products", percentage: 25, amount: "$3.75M-7.5M" },
+      { category: "M&A / Strategic", percentage: 20, amount: "$3M-6M" },
+    ],
+    investorFocus: "Path to profitability, market dominance, exit potential"
+  },
+  {
+    stage: "Series C+",
+    amount: "$50M+",
+    valuation: "$500M+",
+    dilution: "5-10%",
+    runway: "48+ months",
+    timeline: "1M+ users, $20M+ ARR",
+    recommended: false,
+    keyMilestones: [
+      "1,000,000+ users globally",
+      "$20M+ ARR",
+      "IPO readiness or acquisition",
+      "Category leader status"
+    ],
+    founderCompensation: {
+      annualSalary: "$500K+",
+      signingBonus: "$250K+",
+      secondarySale: "$10M+",
+      totalCashYear1: "$10M+",
+    },
+    useOfFunds: [
+      { category: "Global Dominance", percentage: 40, amount: "$20M+" },
+      { category: "IPO Preparation", percentage: 20, amount: "$10M+" },
+      { category: "Strategic Acquisitions", percentage: 30, amount: "$15M+" },
+      { category: "Treasury / Runway", percentage: 10, amount: "$5M+" },
+    ],
+    investorFocus: "Exit timeline, market cap potential, strategic value"
+  },
 ];
+
+// Simplified raise scenarios for backward compatibility
+const raiseScenarios = fundraisingRounds.slice(0, 3).map(round => ({
+  stage: round.stage,
+  amount: round.amount,
+  recommended: round.recommended,
+  valuation: round.valuation,
+  dilution: round.dilution,
+  timeline: round.timeline,
+  founderCompensation: {
+    annualSalary: round.founderCompensation.annualSalary,
+    salaryNote: round.stage === "Pre-Seed" ? "Below-market founder salary, standard for pre-seed" : 
+                round.stage === "Seed" ? "Market-rate for early-stage CEO" : "Competitive CEO salary + benefits",
+    signingBonus: round.founderCompensation.signingBonus,
+    secondarySale: round.founderCompensation.secondarySale,
+    secondaryNote: round.stage === "Pre-Seed" ? "No secondary allowed at this stage" :
+                   round.stage === "Seed" ? "5-10% of shares sold (negotiable with lead investor)" : "10-15% secondary common at Series A",
+    totalCashYear1: round.founderCompensation.totalCashYear1,
+  },
+  useOfFunds: round.useOfFunds.map(f => ({
+    category: f.category,
+    amount: f.amount,
+    description: ""
+  }))
+}));
 
 // Patent strategy
 const patentStrategy = {
@@ -239,7 +343,7 @@ const patentStrategy = {
 export default function AdminFundraising() {
   const { user, isLoading } = useAuth();
   const { isAdmin, isChecking } = useAdminCheck();
-  const [activeTab, setActiveTab] = useState("milestones");
+  const [activeTab, setActiveTab] = useState("rounds");
 
   if (isLoading || isChecking) {
     return (
@@ -276,22 +380,25 @@ export default function AdminFundraising() {
       className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-6"
     >
       {/* Header */}
-      <motion.div variants={fadeIn} className="text-center space-y-3">
-        <Badge variant="outline" className="text-primary border-primary">
-          <DollarSign className="h-3 w-3 mr-1" />
-          Fundraising Strategy
-        </Badge>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-          Fundraising Dashboard
-        </h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-          Track milestones, model cap table scenarios, and plan raise strategy for $ZSOLAR
-        </p>
+      <motion.div variants={fadeIn} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="text-center md:text-left space-y-2">
+          <Badge variant="outline" className="text-primary border-primary">
+            <DollarSign className="h-3 w-3 mr-1" />
+            Fundraising Strategy
+          </Badge>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            Fundraising Dashboard
+          </h1>
+          <p className="text-muted-foreground max-w-2xl text-sm sm:text-base">
+            Track milestones, model cap table scenarios, and plan raise strategy for $ZSOLAR
+          </p>
+        </div>
         <ExportButtons 
           pageTitle="Fundraising Dashboard" 
           getData={() => [
-            ...milestones.map(m => ({ milestone: m.title, status: m.completed ? "Completed" : "Pending", date: m.date, description: m.description })),
-            ...raiseScenarios.map(r => ({ stage: r.stage, amount: r.amount, valuation: r.valuation, dilution: r.dilution }))
+            ...milestones.map(m => ({ section: "Milestone", item: m.title, status: m.completed ? "Completed" : "Pending", date: m.date, description: m.description })),
+            ...fundraisingRounds.map(r => ({ section: "Round", stage: r.stage, amount: r.amount, valuation: r.valuation, dilution: r.dilution, runway: r.runway, timeline: r.timeline })),
+            ...capTable.allocations.map(a => ({ section: "Cap Table", allocation: a.name, percentage: `${a.percentage}%`, tokens: a.tokens, vesting: a.vesting }))
           ]} 
         />
       </motion.div>
@@ -347,28 +454,242 @@ export default function AdminFundraising() {
       {/* Tabs */}
       <motion.div variants={fadeIn}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="h-auto flex-wrap gap-1 p-1 bg-muted/50">
-            <TabsTrigger value="milestones" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
+          <TabsList className="h-auto flex-wrap gap-1 p-1.5 bg-muted/50 rounded-xl">
+            <TabsTrigger value="rounds" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+              <Layers className="h-4 w-4" />
+              <span>Rounds</span>
+            </TabsTrigger>
+            <TabsTrigger value="milestones" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
               <Milestone className="h-4 w-4" />
               <span>Milestones</span>
             </TabsTrigger>
-            <TabsTrigger value="captable" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
+            <TabsTrigger value="captable" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
               <PieChart className="h-4 w-4" />
               <span>Cap Table</span>
             </TabsTrigger>
-            <TabsTrigger value="scenarios" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
+            <TabsTrigger value="scenarios" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
               <Calculator className="h-4 w-4" />
               <span>Scenarios</span>
             </TabsTrigger>
-            <TabsTrigger value="patent" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
+            <TabsTrigger value="patent" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
               <Globe className="h-4 w-4" />
               <span>Patent</span>
             </TabsTrigger>
-            <TabsTrigger value="operations" className="flex items-center gap-1.5 px-3 py-2 data-[state=active]:bg-background">
+            <TabsTrigger value="operations" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
               <Fuel className="h-4 w-4" />
               <span>Operations</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* Fundraising Rounds Comparison Tab */}
+          <TabsContent value="rounds" className="space-y-6">
+            {/* Comparison Table */}
+            <Card className="overflow-hidden border-primary/20">
+              <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
+                <CardTitle className="flex items-center gap-2">
+                  <Layers className="h-5 w-5 text-primary" />
+                  Fundraising Rounds Comparison
+                </CardTitle>
+                <CardDescription>
+                  Side-by-side comparison of all funding stages from Pre-Seed to Series C+
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30">
+                        <TableHead className="font-semibold w-40">Metric</TableHead>
+                        {fundraisingRounds.map((round) => (
+                          <TableHead key={round.stage} className={`text-center min-w-[140px] ${round.recommended ? 'bg-primary/10' : ''}`}>
+                            <div className="flex flex-col items-center gap-1">
+                              <span className="font-bold">{round.stage}</span>
+                              {round.recommended && (
+                                <Badge className="bg-primary text-primary-foreground text-xs">Current</Badge>
+                              )}
+                            </div>
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium bg-muted/20">Raise Amount</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center font-semibold text-primary ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.amount}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium bg-muted/20">Valuation</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.valuation}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium bg-muted/20">Dilution</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.dilution}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium bg-muted/20">Runway</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.runway}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium bg-muted/20">Timeline</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center text-sm ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.timeline}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow className="border-t-2">
+                        <TableCell className="font-medium bg-green-500/10">Founder Salary</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center text-sm text-green-600 dark:text-green-400 ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.founderCompensation.annualSalary}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium bg-amber-500/10">Secondary Sale</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center text-sm text-amber-600 dark:text-amber-400 ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.founderCompensation.secondarySale}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium bg-blue-500/10">Total Year 1</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center font-semibold text-blue-600 dark:text-blue-400 ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.founderCompensation.totalCashYear1}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow className="border-t-2">
+                        <TableCell className="font-medium bg-muted/20">Investor Focus</TableCell>
+                        {fundraisingRounds.map((round) => (
+                          <TableCell key={round.stage} className={`text-center text-xs text-muted-foreground ${round.recommended ? 'bg-primary/5' : ''}`}>
+                            {round.investorFocus}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Key Milestones Per Round */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {fundraisingRounds.slice(0, 3).map((round, index) => (
+                <motion.div
+                  key={round.stage}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className={`h-full ${round.recommended ? 'border-primary shadow-lg shadow-primary/10' : 'border-border/50'}`}>
+                    <CardHeader className={`pb-3 ${round.recommended ? 'bg-gradient-to-r from-primary/10 to-transparent' : ''}`}>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          {round.stage}
+                          {round.recommended && <Zap className="h-4 w-4 text-primary" />}
+                        </CardTitle>
+                        <Badge variant={round.recommended ? "default" : "outline"}>
+                          {round.amount}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-xs">{round.runway} runway</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-2">KEY MILESTONES</p>
+                        <ul className="space-y-1.5">
+                          {round.keyMilestones.map((milestone, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <ArrowRight className="h-3.5 w-3.5 mt-0.5 text-primary flex-shrink-0" />
+                              <span>{milestone}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-2">USE OF FUNDS</p>
+                        <div className="space-y-2">
+                          {round.useOfFunds.slice(0, 4).map((fund, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <div className="flex justify-between text-xs mb-0.5">
+                                  <span>{fund.category}</span>
+                                  <span className="text-muted-foreground">{fund.percentage}%</span>
+                                </div>
+                                <Progress value={fund.percentage} className="h-1.5" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Late Stage Rounds */}
+            <Card className="bg-muted/20">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Late-Stage Rounds (Series B+)
+                </CardTitle>
+                <CardDescription>Future funding stages contingent on growth metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {fundraisingRounds.slice(3).map((round) => (
+                    <div key={round.stage} className="p-4 rounded-lg border bg-background/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold">{round.stage}</h4>
+                        <Badge variant="outline">{round.amount}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Valuation:</span>
+                          <span className="ml-1 font-medium">{round.valuation}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Runway:</span>
+                          <span className="ml-1 font-medium">{round.runway}</span>
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">Trigger:</span>
+                        <span className="ml-1">{round.timeline}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                        <strong>Focus:</strong> {round.investorFocus}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Milestones Tab */}
           <TabsContent value="milestones" className="space-y-6">
