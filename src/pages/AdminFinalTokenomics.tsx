@@ -21,37 +21,42 @@ import {
   Globe,
   Lightbulb,
   Scale,
-  Brain
+  Brain,
+  ArrowRight,
+  Copy,
+  Check
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { ExportButtons } from "@/components/admin/ExportButtons";
+import { toast } from "sonner";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
+  transition: { duration: 0.4 }
 };
 
 const staggerChildren = {
-  animate: { transition: { staggerChildren: 0.1 } }
+  animate: { transition: { staggerChildren: 0.08 } }
 };
 
 // Question ID to human-readable label mapping
 const questionLabels: Record<string, string> = {
   supply_model: "Supply Model",
   initial_circulating: "Initial Circulation",
-  launch_price_strategy: "Launch Price",
+  launch_price_strategy: "Launch Price Strategy",
   price_stability_mechanism: "Price Stability",
   burn_rate: "Mint Burn Rate",
   transfer_tax: "Transfer Tax",
   reward_framing: "Reward Framing",
   reward_frequency: "Reward Frequency",
   sell_pressure_assumption: "Sell Rate Assumption",
-  lp_injection_source: "LP Sources",
-  governance_model: "Governance",
+  lp_injection_source: "LP Injection Sources",
+  governance_model: "Governance Model",
   utility_expansion: "Utility Expansion",
   founder_vesting: "Founder Vesting",
   beta_user_treatment: "Beta User Treatment",
@@ -68,7 +73,7 @@ const questionLabels: Record<string, string> = {
   innovative_mechanisms: "Innovations",
   exchange_strategy: "Exchange Strategy",
   liquidity_depth_target: "LP Depth Target",
-  multi_chain: "Multi-Chain",
+  multi_chain: "Multi-Chain Strategy",
   runway_priority: "Runway Priority",
   raise_structure: "Raise Structure",
   investor_target: "Investor Target",
@@ -87,23 +92,23 @@ const valueLabels: Record<string, string> = {
   utility_currency: "Utility Currency (Spend + Hold)",
   fixed: "Fixed Supply (Deflationary)",
   capped_elastic: "Capped with Elastic Minting",
-  "1_percent": "1-2% (~100-200M tokens)",
-  "5_percent": "5% (~500M tokens)",
-  "10_percent": "10% (~1B tokens)",
-  floor_10c: "$0.10 Floor (10x Growth Narrative)",
+  "1_percent": "1-2% (~100-200M)",
+  "5_percent": "5% (~500M)",
+  "10_percent": "10% (~1B)",
+  floor_10c: "$0.10 Floor (10x Narrative)",
   floor_50c: "$0.50 Floor",
   floor_1: "$1.00 Floor",
-  subscription_lp: "Subscription-Backed LP (50% of $9.99/mo)",
+  subscription_lp: "Subscription-Backed LP",
   treasury_buyback: "Treasury Buyback Program",
   hybrid_dynamic: "Hybrid Dynamic Response",
-  burn_10_percent: "10% Burn Rate",
-  burn_15_percent: "15% Burn Rate",
-  burn_20_percent: "20% Burn Rate (Aggressive)",
-  burn_30_percent: "30% Burn Rate",
-  none: "No Tax/None",
-  low_split: "3% Tax (1.5% burn / 1.5% treasury)",
-  moderate_split: "7% Tax (3.5% burn / 3.5% treasury)",
-  holder_reward: "5% Tax with Holder Reflections",
+  burn_10_percent: "10%",
+  burn_15_percent: "15%",
+  burn_20_percent: "20%",
+  burn_30_percent: "30%",
+  none: "None",
+  low_split: "3% (1.5% burn / 1.5% treasury)",
+  moderate_split: "7% (3.5% burn / 3.5% treasury)",
+  holder_reward: "5% with Holder Reflections",
   impact_first: "Impact + Rewards First",
   dollar_value: "Dollar Value First",
   token_accumulation: "Token Accumulation",
@@ -112,10 +117,10 @@ const valueLabels: Record<string, string> = {
   weekly: "Weekly Rewards",
   monthly: "Monthly Payouts",
   real_time: "Real-Time Streaming",
-  sell_10_percent: "10% Monthly Sell Rate",
-  sell_20_percent: "20% Monthly Sell Rate",
-  sell_30_percent: "30% Monthly Sell Rate",
-  sell_50_percent: "50% Monthly Sell Rate",
+  sell_10_percent: "10%/mo",
+  sell_20_percent: "20%/mo",
+  sell_30_percent: "30%/mo",
+  sell_50_percent: "50%/mo",
   subscriptions: "Subscription Fees (50% to LP)",
   nft_royalties: "NFT Secondary Royalties",
   partner_fees: "B2B Partner API Fees",
@@ -244,19 +249,40 @@ const getKeyMetrics = (answers: Record<string, string | string[] | number>) => {
   const supplyModel = valueLabels[answers.supply_model as string] || answers.supply_model || "Not set";
   const launchPrice = answers.launch_price_strategy === "floor_10c" ? "$0.10" : 
                       answers.launch_price_strategy === "floor_50c" ? "$0.50" : 
-                      answers.launch_price_strategy === "floor_1" ? "$1.00" : "Not set";
-  const burnRate = answers.burn_rate === "20_percent" ? "20%" :
-                   answers.burn_rate === "15_percent" ? "15%" :
-                   answers.burn_rate === "10_percent" ? "10%" :
-                   answers.burn_rate === "30_percent" ? "30%" : "Not set";
-  const transferTax = answers.transfer_tax === "moderate_split" ? "7%" :
-                      answers.transfer_tax === "low_split" ? "3%" :
-                      answers.transfer_tax === "none" ? "0%" : "Not set";
-  const lpDepth = valueLabels[answers.liquidity_depth_target as string] || "$300K";
+                      answers.launch_price_strategy === "floor_1" ? "$1.00" : "$0.10";
+  
+  const burnRateMap: Record<string, string> = {
+    burn_20_percent: "20",
+    burn_15_percent: "15",
+    burn_10_percent: "10",
+    burn_30_percent: "30"
+  };
+  const burnRate = burnRateMap[answers.burn_rate as string] || "20";
+  
+  const taxMap: Record<string, string> = {
+    moderate_split: "7",
+    low_split: "3",
+    none: "0"
+  };
+  const transferTax = taxMap[answers.transfer_tax as string] || "7";
+  
+  const lpDepthMap: Record<string, string> = {
+    "125k": "$125K",
+    "250k": "$250K", 
+    "500k": "$500K",
+    "1m_plus": "$1M+"
+  };
+  const lpDepth = lpDepthMap[answers.liquidity_depth_target as string] || "$300K";
+  
   const targetReward = answers.target_user_monthly_value ? `$${answers.target_user_monthly_value}` : "$400-$800";
-  const sellRate = answers.sell_pressure_assumption === "20_percent" ? "20%" :
-                   answers.sell_pressure_assumption === "30_percent" ? "30%" :
-                   answers.sell_pressure_assumption === "10_percent" ? "10%" : "15-25%";
+  
+  const sellRateMap: Record<string, string> = {
+    sell_20_percent: "20%",
+    sell_30_percent: "30%",
+    sell_10_percent: "10%",
+    sell_50_percent: "50%"
+  };
+  const sellRate = sellRateMap[answers.sell_pressure_assumption as string] || "15-25%";
   
   return { supplyModel, launchPrice, burnRate, transferTax, lpDepth, targetReward, sellRate };
 };
@@ -268,6 +294,7 @@ export default function AdminFinalTokenomics() {
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [versionName, setVersionName] = useState<string | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
     const loadActiveVersion = async () => {
@@ -313,7 +340,7 @@ export default function AdminFinalTokenomics() {
   const metrics = useMemo(() => getKeyMetrics(answers), [answers]);
 
   const getDisplayValue = (value: string | string[] | number | undefined): string => {
-    if (value === undefined || value === null) return "Not answered";
+    if (value === undefined || value === null) return "Not set";
     if (typeof value === 'number') return value.toString();
     if (Array.isArray(value)) {
       return value.map(v => valueLabels[v] || v).join(", ");
@@ -321,39 +348,46 @@ export default function AdminFinalTokenomics() {
     return valueLabels[value] || value;
   };
 
+  const copyToClipboard = (field: string, value: string) => {
+    navigator.clipboard.writeText(value);
+    setCopiedField(field);
+    toast.success(`Copied ${field} to clipboard`);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
   const coreEconomics = [
-    { key: "supply_model", icon: <Coins className="h-4 w-4" />, category: "Supply" },
-    { key: "launch_price_strategy", icon: <DollarSign className="h-4 w-4" />, category: "Price" },
-    { key: "burn_rate", icon: <Flame className="h-4 w-4" />, category: "Deflation" },
-    { key: "transfer_tax", icon: <Scale className="h-4 w-4" />, category: "Tax" },
+    { key: "supply_model", icon: Coins, category: "Supply" },
+    { key: "launch_price_strategy", icon: DollarSign, category: "Price" },
+    { key: "burn_rate", icon: Flame, category: "Deflation" },
+    { key: "transfer_tax", icon: Scale, category: "Tax" },
   ];
 
   const sustainabilityMetrics = [
-    { key: "sell_pressure_assumption", icon: <TrendingUp className="h-4 w-4" />, category: "Sell Rate" },
-    { key: "liquidity_depth_target", icon: <Globe className="h-4 w-4" />, category: "LP Depth" },
-    { key: "price_stability_mechanism", icon: <Shield className="h-4 w-4" />, category: "Floor Defense" },
-    { key: "lp_injection_source", icon: <Zap className="h-4 w-4" />, category: "LP Sources" },
+    { key: "sell_pressure_assumption", icon: TrendingUp, category: "Sell Rate" },
+    { key: "liquidity_depth_target", icon: Globe, category: "LP Depth" },
+    { key: "price_stability_mechanism", icon: Shield, category: "Floor Defense" },
+    { key: "lp_injection_source", icon: Zap, category: "LP Sources" },
   ];
 
   const userExperience = [
-    { key: "target_user_monthly_value", icon: <Target className="h-4 w-4" />, category: "Target Reward" },
-    { key: "reward_framing", icon: <Brain className="h-4 w-4" />, category: "Psychology" },
-    { key: "reward_frequency", icon: <Rocket className="h-4 w-4" />, category: "Frequency" },
-    { key: "beta_user_treatment", icon: <Users className="h-4 w-4" />, category: "Beta Users" },
+    { key: "target_user_monthly_value", icon: Target, category: "Target Reward" },
+    { key: "reward_framing", icon: Brain, category: "Psychology" },
+    { key: "reward_frequency", icon: Rocket, category: "Frequency" },
+    { key: "beta_user_treatment", icon: Users, category: "Beta Users" },
   ];
 
   const investorPitch = [
-    { key: "investor_thesis", icon: <Target className="h-4 w-4" />, category: "Thesis" },
-    { key: "price_appreciation_story", icon: <TrendingUp className="h-4 w-4" />, category: "10x Story" },
-    { key: "moat_priority", icon: <Shield className="h-4 w-4" />, category: "Moat" },
-    { key: "total_addressable_market", icon: <Globe className="h-4 w-4" />, category: "TAM" },
+    { key: "investor_thesis", icon: Target, category: "Thesis" },
+    { key: "price_appreciation_story", icon: TrendingUp, category: "10x Story" },
+    { key: "moat_priority", icon: Shield, category: "Moat" },
+    { key: "total_addressable_market", icon: Globe, category: "TAM" },
   ];
 
   const technicalInnovation = [
-    { key: "auto_lp_mechanism", icon: <Lightbulb className="h-4 w-4" />, category: "LP Automation" },
-    { key: "staking_mechanics", icon: <Lock className="h-4 w-4" />, category: "Staking" },
-    { key: "exchange_strategy", icon: <Globe className="h-4 w-4" />, category: "Exchange" },
-    { key: "innovative_mechanisms", icon: <Zap className="h-4 w-4" />, category: "Innovations" },
+    { key: "auto_lp_mechanism", icon: Lightbulb, category: "LP Automation" },
+    { key: "staking_mechanics", icon: Lock, category: "Staking" },
+    { key: "exchange_strategy", icon: Globe, category: "Exchange" },
+    { key: "innovative_mechanisms", icon: Zap, category: "Innovations" },
   ];
 
   if (isLoading || isChecking || loading) {
@@ -383,6 +417,20 @@ export default function AdminFinalTokenomics() {
   const hasAnswers = Object.keys(answers).length > 0;
   const completionCount = Object.keys(answers).filter(k => !k.endsWith('_notes') && answers[k]).length;
 
+  // Contract parameters for quick reference
+  const contractParams = [
+    { label: "MAX_SUPPLY", value: "10,000,000,000", raw: "10000000000" },
+    { label: "MINT_BURN_RATE", value: `${metrics.burnRate}%`, raw: metrics.burnRate },
+    { label: "TRANSFER_TAX", value: `${metrics.transferTax}%`, raw: metrics.transferTax },
+    { label: "INITIAL_LP_USDC", value: metrics.lpDepth, raw: metrics.lpDepth.replace(/[$,K+]/g, '') },
+  ];
+
+  const allocationParams = [
+    { label: "FOUNDER_ALLOCATION", value: "2.5%", tokens: "250M", note: getDisplayValue(answers.founder_vesting) || "3-Year Vest" },
+    { label: "TREASURY_ALLOCATION", value: "7.5%", tokens: "750M", note: "2-Year Vest, Multisig" },
+    { label: "COMMUNITY_REWARDS", value: "90%", tokens: "9B", note: "Earned Through Activity" },
+  ];
+
   return (
     <motion.div
       initial="initial"
@@ -391,18 +439,24 @@ export default function AdminFinalTokenomics() {
       className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-6"
     >
       {/* Header */}
-      <motion.div variants={fadeIn} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="text-center md:text-left space-y-2">
-          <Badge variant="outline" className="text-primary border-primary">
-            <Coins className="h-3 w-3 mr-1" />
-            Final Strategy
-          </Badge>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+      <motion.div variants={fadeIn} className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+              <Coins className="h-3 w-3 mr-1" />
+              Final Strategy
+            </Badge>
+            {versionName && (
+              <Badge variant="outline" className="text-muted-foreground">
+                {versionName}
+              </Badge>
+            )}
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
             FINAL $ZSOLAR TOKENOMICS
           </h1>
-          <p className="text-muted-foreground max-w-2xl text-sm sm:text-base">
-            Consolidated economic strategy from your completed framework
-            {versionName && <span className="text-primary font-medium"> — {versionName}</span>}
+          <p className="text-muted-foreground max-w-xl">
+            Your consolidated economic strategy — ready for investor decks and smart contract deployment.
           </p>
         </div>
         <ExportButtons 
@@ -411,8 +465,8 @@ export default function AdminFinalTokenomics() {
             { section: "Core Economics", metric: "Max Supply", value: "10,000,000,000 $ZSOLAR" },
             { section: "Core Economics", metric: "Supply Model", value: metrics.supplyModel },
             { section: "Core Economics", metric: "Launch Floor", value: metrics.launchPrice },
-            { section: "Core Economics", metric: "Mint Burn Rate", value: metrics.burnRate },
-            { section: "Core Economics", metric: "Transfer Tax", value: metrics.transferTax },
+            { section: "Core Economics", metric: "Mint Burn Rate", value: `${metrics.burnRate}%` },
+            { section: "Core Economics", metric: "Transfer Tax", value: `${metrics.transferTax}%` },
             { section: "Sustainability", metric: "Target LP Depth", value: metrics.lpDepth },
             { section: "Sustainability", metric: "Expected Sell Rate", value: metrics.sellRate },
             { section: "User Experience", metric: "Monthly Reward Target", value: metrics.targetReward },
@@ -427,91 +481,78 @@ export default function AdminFinalTokenomics() {
       </motion.div>
 
       {!hasAnswers ? (
-        <Card className="border-dashed">
-          <CardContent className="py-12 text-center">
-            <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Framework Completed</h3>
-            <p className="text-muted-foreground mb-4">
-              Complete the Tokenomics Framework wizard to see your consolidated strategy here.
+        <Card className="border-dashed border-2">
+          <CardContent className="py-16 text-center">
+            <AlertCircle className="h-16 w-16 mx-auto text-muted-foreground/50 mb-6" />
+            <h3 className="text-xl font-semibold mb-3">No Framework Completed</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Complete the Tokenomics Optimization Framework wizard to see your consolidated strategy here.
             </p>
-            <a href="/admin/tokenomics-framework" className="text-primary hover:underline font-medium">
-              Go to Tokenomics Framework →
-            </a>
+            <Button asChild>
+              <a href="/admin/tokenomics-framework">
+                Go to Framework <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+            </Button>
           </CardContent>
         </Card>
       ) : (
         <>
-          {/* Key Metrics Summary */}
-          <motion.div variants={fadeIn} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground">Max Supply</p>
-                <p className="text-lg font-bold text-primary">10B</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-green-500/10 to-transparent border-green-500/20">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground">Launch Floor</p>
-                <p className="text-lg font-bold text-green-600 dark:text-green-400">{metrics.launchPrice}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/20">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground">Target</p>
-                <p className="text-lg font-bold text-amber-600 dark:text-amber-400">$1.00</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground">Mint Burn</p>
-                <p className="text-lg font-bold text-red-600 dark:text-red-400">{metrics.burnRate}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground">Transfer Tax</p>
-                <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{metrics.transferTax}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground">LP Seed</p>
-                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{metrics.lpDepth}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-cyan-500/10 to-transparent border-cyan-500/20">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground">Reward/Mo</p>
-                <p className="text-lg font-bold text-cyan-600 dark:text-cyan-400">{metrics.targetReward}</p>
-              </CardContent>
-            </Card>
+          {/* Hero Metrics */}
+          <motion.div variants={fadeIn} className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+            {[
+              { label: "Max Supply", value: "10B", color: "primary" },
+              { label: "Launch Floor", value: metrics.launchPrice, color: "green" },
+              { label: "Target Price", value: "$1.00", color: "amber" },
+              { label: "Mint Burn", value: `${metrics.burnRate}%`, color: "red" },
+              { label: "Transfer Tax", value: `${metrics.transferTax}%`, color: "purple" },
+              { label: "LP Seed", value: metrics.lpDepth, color: "blue" },
+              { label: "Reward/Mo", value: metrics.targetReward, color: "cyan" },
+            ].map((item, idx) => (
+              <Card 
+                key={idx} 
+                className={`bg-gradient-to-br from-${item.color}-500/10 to-transparent border-${item.color}-500/20 hover:border-${item.color}-500/40 transition-colors`}
+              >
+                <CardContent className="p-4 text-center">
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{item.label}</p>
+                  <p className={`text-xl font-bold mt-1 text-${item.color}-600 dark:text-${item.color}-400`}>{item.value}</p>
+                </CardContent>
+              </Card>
+            ))}
           </motion.div>
 
-          {/* Core Economics */}
+          {/* Core Economics Card */}
           <motion.div variants={fadeIn}>
-            <Card className="overflow-hidden border-primary/20">
-              <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent">
-                <CardTitle className="flex items-center gap-2">
-                  <Coins className="h-5 w-5 text-primary" />
-                  Core Economics
-                </CardTitle>
-                <CardDescription>Foundational tokenomics parameters</CardDescription>
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Coins className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle>Core Economics</CardTitle>
+                      <CardDescription>Foundational tokenomics parameters</CardDescription>
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="divide-y">
-                  {coreEconomics.map(({ key, icon, category }) => (
+                <div className="divide-y divide-border/50">
+                  {coreEconomics.map(({ key, icon: Icon, category }) => (
                     <div key={key} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary">{icon}</div>
+                        <div className="p-2 rounded-lg bg-muted">
+                          <Icon className="h-4 w-4 text-primary" />
+                        </div>
                         <div>
                           <p className="font-medium">{questionLabels[key]}</p>
                           <p className="text-xs text-muted-foreground">{category}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-primary">{getDisplayValue(answers[key])}</p>
+                        <p className="font-semibold">{getDisplayValue(answers[key])}</p>
                         {notes[key] && (
-                          <p className="text-xs text-muted-foreground max-w-xs truncate">{notes[key]}</p>
+                          <p className="text-xs text-muted-foreground max-w-[200px] truncate">{notes[key]}</p>
                         )}
                       </div>
                     </div>
@@ -521,25 +562,30 @@ export default function AdminFinalTokenomics() {
             </Card>
           </motion.div>
 
+          {/* Two Column Grid */}
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Sustainability */}
             <motion.div variants={fadeIn}>
-              <Card className="h-full border-green-500/20">
-                <CardHeader className="bg-gradient-to-r from-green-500/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Scale className="h-5 w-5 text-green-500" />
-                    Sustainability Economics
-                  </CardTitle>
-                  <CardDescription>LP depth, sell pressure, floor defense</CardDescription>
+              <Card className="h-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-green-500/10">
+                      <Scale className="h-5 w-5 text-green-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Sustainability</CardTitle>
+                      <CardDescription>LP depth, sell pressure, floor defense</CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {sustainabilityMetrics.map(({ key, icon, category }) => (
-                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <CardContent className="space-y-3">
+                  {sustainabilityMetrics.map(({ key, icon: Icon, category }) => (
+                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                       <div className="flex items-center gap-2">
-                        <span className="text-green-500">{icon}</span>
+                        <Icon className="h-4 w-4 text-green-500" />
                         <span className="text-sm font-medium">{questionLabels[key]}</span>
                       </div>
-                      <span className="text-sm font-semibold">{getDisplayValue(answers[key])}</span>
+                      <span className="text-sm font-semibold text-right max-w-[180px] truncate">{getDisplayValue(answers[key])}</span>
                     </div>
                   ))}
                 </CardContent>
@@ -548,22 +594,26 @@ export default function AdminFinalTokenomics() {
 
             {/* User Experience */}
             <motion.div variants={fadeIn}>
-              <Card className="h-full border-blue-500/20">
-                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    User Experience
-                  </CardTitle>
-                  <CardDescription>Rewards, psychology, frequency</CardDescription>
+              <Card className="h-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-500/10">
+                      <Users className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">User Experience</CardTitle>
+                      <CardDescription>Rewards, psychology, frequency</CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {userExperience.map(({ key, icon, category }) => (
-                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <CardContent className="space-y-3">
+                  {userExperience.map(({ key, icon: Icon, category }) => (
+                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                       <div className="flex items-center gap-2">
-                        <span className="text-blue-500">{icon}</span>
+                        <Icon className="h-4 w-4 text-blue-500" />
                         <span className="text-sm font-medium">{questionLabels[key]}</span>
                       </div>
-                      <span className="text-sm font-semibold">{getDisplayValue(answers[key])}</span>
+                      <span className="text-sm font-semibold text-right max-w-[180px] truncate">{getDisplayValue(answers[key])}</span>
                     </div>
                   ))}
                 </CardContent>
@@ -572,22 +622,26 @@ export default function AdminFinalTokenomics() {
 
             {/* Investor Pitch */}
             <motion.div variants={fadeIn}>
-              <Card className="h-full border-amber-500/20">
-                <CardHeader className="bg-gradient-to-r from-amber-500/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-amber-500" />
-                    Investor Value Proposition
-                  </CardTitle>
-                  <CardDescription>Thesis, moat, 10x narrative</CardDescription>
+              <Card className="h-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-amber-500/10">
+                      <Target className="h-5 w-5 text-amber-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Investor Value Proposition</CardTitle>
+                      <CardDescription>Thesis, moat, 10x narrative</CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {investorPitch.map(({ key, icon, category }) => (
-                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <CardContent className="space-y-3">
+                  {investorPitch.map(({ key, icon: Icon, category }) => (
+                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                       <div className="flex items-center gap-2">
-                        <span className="text-amber-500">{icon}</span>
+                        <Icon className="h-4 w-4 text-amber-500" />
                         <span className="text-sm font-medium">{questionLabels[key]}</span>
                       </div>
-                      <span className="text-sm font-semibold text-right max-w-[200px]">{getDisplayValue(answers[key])}</span>
+                      <span className="text-sm font-semibold text-right max-w-[180px] truncate">{getDisplayValue(answers[key])}</span>
                     </div>
                   ))}
                 </CardContent>
@@ -596,22 +650,26 @@ export default function AdminFinalTokenomics() {
 
             {/* Technical Innovation */}
             <motion.div variants={fadeIn}>
-              <Card className="h-full border-purple-500/20">
-                <CardHeader className="bg-gradient-to-r from-purple-500/10 to-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Lightbulb className="h-5 w-5 text-purple-500" />
-                    Smart Contract Innovation
-                  </CardTitle>
-                  <CardDescription>LP automation, staking, exchanges</CardDescription>
+              <Card className="h-full">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-purple-500/10">
+                      <Lightbulb className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Smart Contract Innovation</CardTitle>
+                      <CardDescription>LP automation, staking, exchanges</CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {technicalInnovation.map(({ key, icon, category }) => (
-                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <CardContent className="space-y-3">
+                  {technicalInnovation.map(({ key, icon: Icon, category }) => (
+                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                       <div className="flex items-center gap-2">
-                        <span className="text-purple-500">{icon}</span>
+                        <Icon className="h-4 w-4 text-purple-500" />
                         <span className="text-sm font-medium">{questionLabels[key]}</span>
                       </div>
-                      <span className="text-sm font-semibold text-right max-w-[200px]">{getDisplayValue(answers[key])}</span>
+                      <span className="text-sm font-semibold text-right max-w-[180px] truncate">{getDisplayValue(answers[key])}</span>
                     </div>
                   ))}
                 </CardContent>
@@ -619,54 +677,54 @@ export default function AdminFinalTokenomics() {
             </motion.div>
           </div>
 
-          {/* Quick Reference Card */}
+          {/* Smart Contract Parameters */}
           <motion.div variants={fadeIn}>
-            <Card className="border-foreground/20 bg-gradient-to-br from-foreground/5 to-transparent">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                  Quick Reference: Smart Contract Parameters
-                </CardTitle>
-                <CardDescription>Copy these values for contract deployment</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-lg bg-background border">
-                    <p className="text-xs text-muted-foreground mb-1">MAX_SUPPLY</p>
-                    <p className="font-mono text-sm font-bold">10,000,000,000</p>
+            <Card>
+              <CardHeader className="border-b">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-foreground/5">
+                    <CheckCircle2 className="h-5 w-5 text-primary" />
                   </div>
-                  <div className="p-4 rounded-lg bg-background border">
-                    <p className="text-xs text-muted-foreground mb-1">MINT_BURN_RATE</p>
-                    <p className="font-mono text-sm font-bold">{metrics.burnRate.replace('%', '')}%</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-background border">
-                    <p className="text-xs text-muted-foreground mb-1">TRANSFER_TAX</p>
-                    <p className="font-mono text-sm font-bold">{metrics.transferTax.replace('%', '')}%</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-background border">
-                    <p className="text-xs text-muted-foreground mb-1">INITIAL_LP_USDC</p>
-                    <p className="font-mono text-sm font-bold">{metrics.lpDepth}</p>
+                  <div>
+                    <CardTitle>Smart Contract Parameters</CardTitle>
+                    <CardDescription>Copy these values for contract deployment</CardDescription>
                   </div>
                 </div>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  {contractParams.map((param) => (
+                    <div 
+                      key={param.label}
+                      className="p-4 rounded-lg bg-muted/50 border hover:border-primary/50 transition-colors group cursor-pointer"
+                      onClick={() => copyToClipboard(param.label, param.raw)}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs text-muted-foreground font-medium">{param.label}</p>
+                        {copiedField === param.label ? (
+                          <Check className="h-3.5 w-3.5 text-green-500" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </div>
+                      <p className="font-mono text-lg font-bold">{param.value}</p>
+                    </div>
+                  ))}
+                </div>
 
-                <Separator className="my-4" />
+                <Separator className="my-6" />
 
                 <div className="grid sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                    <p className="text-xs text-muted-foreground mb-1">FOUNDER_ALLOCATION</p>
-                    <p className="font-mono text-sm font-bold">2.5% (250M tokens)</p>
-                    <p className="text-xs text-muted-foreground mt-1">{getDisplayValue(answers.founder_vesting)}</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                    <p className="text-xs text-muted-foreground mb-1">TREASURY_ALLOCATION</p>
-                    <p className="font-mono text-sm font-bold">7.5% (750M tokens)</p>
-                    <p className="text-xs text-muted-foreground mt-1">2-year vest, multisig</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                    <p className="text-xs text-muted-foreground mb-1">COMMUNITY_REWARDS</p>
-                    <p className="font-mono text-sm font-bold">90% (9B tokens)</p>
-                    <p className="text-xs text-muted-foreground mt-1">Earned through activity</p>
-                  </div>
+                  {allocationParams.map((param) => (
+                    <div key={param.label} className="p-4 rounded-lg bg-primary/5 border border-primary/10">
+                      <p className="text-xs text-muted-foreground font-medium mb-2">{param.label}</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-mono text-lg font-bold">{param.value}</span>
+                        <span className="text-sm text-muted-foreground">({param.tokens})</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">{param.note}</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -674,16 +732,23 @@ export default function AdminFinalTokenomics() {
 
           {/* Completion Status */}
           <motion.div variants={fadeIn}>
-            <Card className="border-muted">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Framework Completion</span>
-                  <span className="text-sm font-medium">{completionCount} questions answered</span>
+            <Card>
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium">Framework Completion</span>
+                  <span className="text-sm text-muted-foreground">{completionCount} questions answered</span>
                 </div>
                 <Progress value={Math.min((completionCount / 40) * 100, 100)} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Based on your active version: {versionName || "Default"}
-                </p>
+                <div className="flex items-center justify-between mt-3">
+                  <p className="text-xs text-muted-foreground">
+                    Active version: <span className="font-medium text-foreground">{versionName || "Default"}</span>
+                  </p>
+                  <Button variant="ghost" size="sm" asChild>
+                    <a href="/admin/tokenomics-framework">
+                      Edit Framework <ArrowRight className="ml-1 h-3 w-3" />
+                    </a>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
