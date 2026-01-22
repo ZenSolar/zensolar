@@ -1934,25 +1934,74 @@ export default function AdminTokenomicsFramework() {
       
       {/* Quick Jump */}
       <Separator />
-      <div className="text-center">
+      <div className="text-center pb-6">
         <p className="text-sm text-muted-foreground mb-3">Jump to dimension:</p>
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-2 max-h-[200px] overflow-y-auto px-2">
           {dimensions.map((dim, i) => {
             const firstQuestionIndex = frameworkQuestions.findIndex(q => q.dimension === dim);
+            const dimQuestions = dimensionGroups[dim] || [];
+            const dimAnswered = dimQuestions.filter(q => answers[q.id] !== undefined).length;
+            const isComplete = dimAnswered === dimQuestions.length;
             return (
               <Button
                 key={dim}
                 variant={currentDimension === dim ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setCurrentQuestionIndex(firstQuestionIndex)}
-                className="text-xs"
+                className={cn(
+                  "text-xs relative",
+                  isComplete && "ring-1 ring-emerald-500/50"
+                )}
               >
                 {dim}
+                {isComplete && (
+                  <CheckCircle2 className="h-3 w-3 text-emerald-500 absolute -top-1 -right-1" />
+                )}
               </Button>
             );
           })}
         </div>
       </div>
+
+      {/* Bottom action bar for mobile */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-3 sm:hidden z-50">
+        <div className="flex items-center justify-between gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={goPrev} 
+            disabled={currentQuestionIndex === 0}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          
+          <div className="flex-1 text-center">
+            <span className="text-xs text-muted-foreground">
+              {currentQuestionIndex + 1} / {frameworkQuestions.length}
+            </span>
+          </div>
+          
+          <Button 
+            size="sm"
+            onClick={currentVersionId ? updateCurrentVersion : saveAsNewVersion}
+            disabled={isSaving || !hasUnsavedChanges}
+            variant="outline"
+          >
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          </Button>
+          
+          <Button 
+            size="sm"
+            onClick={goNext}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Add bottom padding for fixed bar on mobile */}
+      <div className="h-16 sm:hidden" />
     </div>
   );
 }
