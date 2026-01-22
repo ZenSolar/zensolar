@@ -1,8 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { 
   Sparkles, 
   ChevronRight, 
@@ -14,19 +16,17 @@ import {
   TrendingUp,
   Users,
   Coins,
-  Zap,
-  BarChart3,
   Lock,
   Rocket,
   RefreshCw,
-  ArrowRight,
   Brain,
   Gem,
   Scale,
-  Clock,
   Flame,
-  Award,
-  Globe
+  Globe,
+  Save,
+  Cloud,
+  CloudOff
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -373,6 +373,10 @@ export default function AdminTokenomicsFramework() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
   const currentQuestion = frameworkQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / frameworkQuestions.length) * 100;
@@ -383,10 +387,75 @@ export default function AdminTokenomicsFramework() {
   
   const answeredCount = Object.keys(answers).length;
   const isCurrentAnswered = currentQuestion && answers[currentQuestion.id] !== undefined;
+
+  // Load saved answers from database
+  const loadSavedAnswers = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setIsLoadingData(true);
+      const { data, error } = await supabase
+        .from('tokenomics_framework_responses')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (error) throw error;
+      
+      if (data?.answers) {
+        setAnswers(data.answers as Record<string, string | string[] | number>);
+        setLastSaved(new Date(data.updated_at));
+      }
+    } catch (error) {
+      console.error('Error loading saved answers:', error);
+      toast.error('Failed to load saved answers');
+    } finally {
+      setIsLoadingData(false);
+    }
+  }, [user]);
+
+  // Save answers to database
+  const saveAnswers = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setIsSaving(true);
+      
+      const { error } = await supabase
+        .from('tokenomics_framework_responses')
+        .upsert({
+          user_id: user.id,
+          answers: answers,
+          version: 1,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        });
+      
+      if (error) throw error;
+      
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+      toast.success('Framework responses saved successfully');
+    } catch (error) {
+      console.error('Error saving answers:', error);
+      toast.error('Failed to save responses');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [user, answers]);
+
+  // Load saved answers on mount
+  useEffect(() => {
+    if (user && isAdmin) {
+      loadSavedAnswers();
+    }
+  }, [user, isAdmin, loadSavedAnswers]);
   
   // Handle answer changes
   const handleSingleAnswer = (value: string) => {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
+    setHasUnsavedChanges(true);
   };
   
   const handleMultipleAnswer = (value: string, checked: boolean) => {
@@ -398,14 +467,17 @@ export default function AdminTokenomicsFramework() {
         return { ...prev, [currentQuestion.id]: current.filter(v => v !== value) };
       }
     });
+    setHasUnsavedChanges(true);
   };
   
   const handleTextAnswer = (value: string) => {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
+    setHasUnsavedChanges(true);
   };
   
   const handleNumberAnswer = (value: number) => {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
+    setHasUnsavedChanges(true);
   };
   
   const goNext = () => {
@@ -422,10 +494,25 @@ export default function AdminTokenomicsFramework() {
     }
   };
   
-  const resetFramework = () => {
-    setAnswers({});
-    setCurrentQuestionIndex(0);
-    setShowAnalysis(false);
+  const resetFramework = async () => {
+    if (!user) return;
+    
+    try {
+      await supabase
+        .from('tokenomics_framework_responses')
+        .delete()
+        .eq('user_id', user.id);
+      
+      setAnswers({});
+      setCurrentQuestionIndex(0);
+      setShowAnalysis(false);
+      setHasUnsavedChanges(false);
+      setLastSaved(null);
+      toast.success('Framework reset successfully');
+    } catch (error) {
+      console.error('Error resetting framework:', error);
+      toast.error('Failed to reset framework');
+    }
   };
   
   // Generate analysis based on answers
@@ -498,10 +585,11 @@ export default function AdminTokenomicsFramework() {
     return insights;
   }, [showAnalysis, answers]);
 
-  if (authLoading || adminLoading) {
+  if (authLoading || adminLoading || isLoadingData) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Loading tokenomics framework...</p>
       </div>
     );
   }
@@ -657,7 +745,11 @@ export default function AdminTokenomicsFramework() {
           </Card>
         )}
         
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-4">
+          <Button onClick={saveAnswers} disabled={isSaving} className="gap-2">
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save Analysis
+          </Button>
           <Button onClick={resetFramework} variant="outline" className="gap-2">
             <RefreshCw className="h-4 w-4" />
             Start Over
@@ -859,7 +951,34 @@ export default function AdminTokenomicsFramework() {
           Previous
         </Button>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Save Status */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {hasUnsavedChanges ? (
+              <>
+                <CloudOff className="h-4 w-4 text-amber-500" />
+                <span>Unsaved</span>
+              </>
+            ) : lastSaved ? (
+              <>
+                <Cloud className="h-4 w-4 text-emerald-500" />
+                <span>Saved</span>
+              </>
+            ) : null}
+          </div>
+          
+          {/* Save Button */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={saveAnswers} 
+            disabled={isSaving || !hasUnsavedChanges}
+            className="gap-1"
+          >
+            {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+            Save
+          </Button>
+          
           {isCurrentAnswered && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
