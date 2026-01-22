@@ -481,6 +481,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tokenomics_framework_responses: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       user_rewards: {
         Row: {
           calculated_at: string
