@@ -1301,18 +1301,18 @@ export default function AdminTokenomicsFramework() {
       </AnimatePresence>
       
       {/* Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:justify-between">
         <Button 
           variant="outline" 
           onClick={goPrev} 
           disabled={currentQuestionIndex === 0}
-          className="gap-2"
+          className="gap-2 order-2 sm:order-1"
         >
           <ChevronLeft className="h-4 w-4" />
           Previous
         </Button>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3 order-1 sm:order-2">
           {/* Save Status */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             {hasUnsavedChanges ? (
@@ -1345,12 +1345,12 @@ export default function AdminTokenomicsFramework() {
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
             </motion.div>
           )}
-          <span className="text-sm text-muted-foreground">
-            {answeredCount} of {frameworkQuestions.length} answered
+          <span className="text-sm text-muted-foreground whitespace-nowrap">
+            {answeredCount} of {frameworkQuestions.length}
           </span>
         </div>
         
-        <Button onClick={goNext} className="gap-2">
+        <Button onClick={goNext} className="gap-2 order-3">
           {currentQuestionIndex === frameworkQuestions.length - 1 ? (
             <>
               View Analysis
