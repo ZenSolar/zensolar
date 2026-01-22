@@ -18,7 +18,10 @@ import {
   Globe,
   Award,
   Sparkles,
-  Loader2
+  Loader2,
+  DollarSign,
+  Percent,
+  AlertTriangle
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -67,13 +70,23 @@ export default function InvestmentThesis() {
       </div>
     );
   }
+  
+  // Updated growth projections with conversion rate context
+  // Conversion Rate = % of total users who become paying subscribers ($9.99/mo)
   const growthProjections = [
-    { users: "1,000", monthlyLP: "$1,500", annualLP: "$18,000", tokenBurn: "~500K/mo" },
-    { users: "5,000", monthlyLP: "$7,500", annualLP: "$90,000", tokenBurn: "~2.5M/mo" },
-    { users: "10,000", monthlyLP: "$15,000", annualLP: "$180,000", tokenBurn: "~5M/mo" },
-    { users: "25,000", monthlyLP: "$37,500", annualLP: "$450,000", tokenBurn: "~12.5M/mo" },
-    { users: "50,000", monthlyLP: "$75,000", annualLP: "$900,000", tokenBurn: "~25M/mo" },
-    { users: "100,000", monthlyLP: "$150,000", annualLP: "$1,800,000", tokenBurn: "~50M/mo" },
+    { totalUsers: "2,500", conversionRate: "40%", paidUsers: "1,000", monthlyLP: "$4,995", annualLP: "$59,940", rewardValue: "~$1,000/user" },
+    { totalUsers: "12,500", conversionRate: "40%", paidUsers: "5,000", monthlyLP: "$24,975", annualLP: "$299,700", rewardValue: "~$1,000/user" },
+    { totalUsers: "25,000", conversionRate: "40%", paidUsers: "10,000", monthlyLP: "$49,950", annualLP: "$599,400", rewardValue: "~$1,000/user" },
+    { totalUsers: "62,500", conversionRate: "40%", paidUsers: "25,000", monthlyLP: "$124,875", annualLP: "$1,498,500", rewardValue: "~$1,000/user" },
+    { totalUsers: "125,000", conversionRate: "40%", paidUsers: "50,000", monthlyLP: "$249,750", annualLP: "$2,997,000", rewardValue: "~$1,000/user" },
+    { totalUsers: "250,000", conversionRate: "40%", paidUsers: "100,000", monthlyLP: "$499,500", annualLP: "$5,994,000", rewardValue: "~$1,000/user" },
+  ];
+
+  // Fresh Start vs Lifetime Data comparison
+  const sustainabilityComparison = [
+    { model: "Lifetime Data (Immediate)", tokens: "4.25M", lpRatio: "8,509:1", priceImpact: "$0.21 crash", sustainable: false },
+    { model: "Lifetime Data (6mo Vest)", tokens: "810K/mo", lpRatio: "1,620:1", priceImpact: "$0.55 start", sustainable: false },
+    { model: "Fresh Start ✓", tokens: "102K/mo", lpRatio: "204:1", priceImpact: "$0.91 stable", sustainable: true },
   ];
 
   const competitiveAdvantages = [
@@ -145,23 +158,35 @@ export default function InvestmentThesis() {
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              $ZSOLAR isn't speculation—it's a utility token with real revenue flowing directly 
-              to liquidity. As our user base grows, so does the token's price floor.
+              $ZSOLAR isn't speculation—it's a utility token backed by real subscription revenue. 
+              Our <strong className="text-foreground">Fresh Start Model</strong> ensures sustainable 
+              token supply while users earn <strong className="text-foreground">~$1,000/month</strong> in rewards.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 pt-4">
               <Badge className="px-4 py-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
                 <CheckCircle2 className="h-4 w-4 mr-2" />
-                50% Subscription → LP
+                42x More Sustainable
+              </Badge>
+              <Badge className="px-4 py-2 bg-primary/10 text-primary border-primary/30">
+                <DollarSign className="h-4 w-4 mr-2" />
+                $1.00 Price Floor
               </Badge>
               <Badge className="px-4 py-2 bg-amber-500/10 text-amber-600 border-amber-500/30">
                 <Flame className="h-4 w-4 mr-2" />
-                10% Mint Burn + 3.5% Transfer
+                15% Mint Burn
               </Badge>
               <Badge className="px-4 py-2 bg-blue-500/10 text-blue-600 border-blue-500/30">
-                <Lock className="h-4 w-4 mr-2" />
-                10B Max Supply
+                <Percent className="h-4 w-4 mr-2" />
+                40%+ Conversion Target
               </Badge>
+            </div>
+            
+            <div className="pt-6 max-w-2xl mx-auto">
+              <p className="text-sm text-muted-foreground">
+                <strong className="text-foreground">Conversion Rate</strong> = % of total users who become paying subscribers ($9.99/mo). 
+                At 40% conversion, each 10K users generates <strong className="text-primary">$19,980/month</strong> in LP injection.
+              </p>
             </div>
           </motion.div>
         </div>
@@ -188,6 +213,103 @@ export default function InvestmentThesis() {
                 real business revenue into permanent liquidity. This creates a mathematically 
                 rising price floor as the platform scales.
               </p>
+            </CardContent>
+          </Card>
+        </motion.section>
+
+        {/* Fresh Start Model - The 42x Advantage */}
+        <motion.section {...fadeIn} transition={{ delay: 0.15 }}>
+          <Card className="border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 via-background to-primary/5 shadow-xl">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-emerald-500/20">
+                  <Zap className="h-6 w-6 text-emerald-500" />
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    Fresh Start Model
+                    <Badge className="bg-emerald-500/20 text-emerald-600">42x More Sustainable</Badge>
+                  </CardTitle>
+                  <CardDescription>The foundation of our $1.00 price floor strategy</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-4 rounded-lg border-2 border-emerald-500/30 bg-emerald-500/5">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Core Principle:</strong> When users connect their Tesla, Enphase, or other devices, 
+                  their <strong className="text-emerald-600">baseline is captured at that moment</strong>. They earn tokens 
+                  <strong className="text-emerald-600"> only for NEW activity</strong> going forward—not historical data.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-semibold">Model</th>
+                      <th className="px-4 py-3 text-left font-semibold">Tokens/Month</th>
+                      <th className="px-4 py-3 text-left font-semibold">LP Ratio</th>
+                      <th className="px-4 py-3 text-left font-semibold">Price Impact</th>
+                      <th className="px-4 py-3 text-left font-semibold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sustainabilityComparison.map((row, index) => (
+                      <tr key={row.model} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                        <td className="px-4 py-3 font-medium">{row.model}</td>
+                        <td className="px-4 py-3">{row.tokens}</td>
+                        <td className="px-4 py-3">{row.lpRatio}</td>
+                        <td className="px-4 py-3">
+                          <span className={row.sustainable ? "text-emerald-600 font-semibold" : "text-destructive"}>
+                            {row.priceImpact}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {row.sustainable ? (
+                            <Badge className="bg-emerald-500/20 text-emerald-600">Recommended</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground">High Risk</Badge>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="p-4 rounded-lg border bg-card/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    <p className="font-semibold text-sm">Price Protection</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    If 10% of tokens are sold, price drops only to ~$0.91 (vs $0.21 crash with lifetime dumps). 
+                    LP injection pushes it back up.
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="h-5 w-5 text-emerald-500" />
+                    <p className="font-semibold text-sm">Viral Trigger</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Users earning <strong>~$1,000/month</strong> (1,000 kWh + miles @ $1/token) become 
+                    natural evangelists driving word-of-mouth growth.
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Coins className="h-5 w-5 text-amber-500" />
+                    <p className="font-semibold text-sm">Pioneer NFTs</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Beta users with significant historical data receive exclusive Pioneer NFTs—
+                    non-inflationary recognition that unlocks governance perks.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </motion.section>
@@ -272,7 +394,9 @@ export default function InvestmentThesis() {
           <div className="text-center mb-8">
             <Badge variant="secondary" className="mb-4">Growth Projections</Badge>
             <h2 className="text-3xl font-bold">Scaling Economics</h2>
-            <p className="text-muted-foreground mt-2">As user base grows, LP injection compounds</p>
+            <p className="text-muted-foreground mt-2">
+              With 40% <span className="text-primary font-medium">conversion rate</span> (% of total users paying $9.99/mo), LP injection scales predictably
+            </p>
           </div>
 
           <Card className="overflow-hidden shadow-lg">
@@ -280,27 +404,41 @@ export default function InvestmentThesis() {
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-6 py-4 text-left font-semibold">Paying Users</th>
-                    <th className="px-6 py-4 text-left font-semibold">Monthly LP Injection</th>
-                    <th className="px-6 py-4 text-left font-semibold">Annual LP Growth</th>
-                    <th className="px-6 py-4 text-left font-semibold">Est. Token Burn</th>
+                    <th className="px-4 py-4 text-left font-semibold">Total Users</th>
+                    <th className="px-4 py-4 text-left font-semibold">Conversion</th>
+                    <th className="px-4 py-4 text-left font-semibold">Paid Subscribers</th>
+                    <th className="px-4 py-4 text-left font-semibold">Monthly LP</th>
+                    <th className="px-4 py-4 text-left font-semibold">Annual LP</th>
+                    <th className="px-4 py-4 text-left font-semibold">Reward Value</th>
                   </tr>
                 </thead>
                 <tbody>
                   {growthProjections.map((row, index) => (
-                    <tr key={row.users} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                      <td className="px-6 py-4">
-                        <span className="font-semibold text-primary">{row.users}</span>
+                    <tr key={row.totalUsers} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                      <td className="px-4 py-4 text-muted-foreground">{row.totalUsers}</td>
+                      <td className="px-4 py-4">
+                        <Badge variant="outline" className="text-xs">{row.conversionRate}</Badge>
                       </td>
-                      <td className="px-6 py-4 font-medium">{row.monthlyLP}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
+                        <span className="font-semibold text-primary">{row.paidUsers}</span>
+                      </td>
+                      <td className="px-4 py-4 font-medium">{row.monthlyLP}</td>
+                      <td className="px-4 py-4">
                         <span className="font-bold text-emerald-600">{row.annualLP}</span>
                       </td>
-                      <td className="px-6 py-4 text-muted-foreground">{row.tokenBurn}</td>
+                      <td className="px-4 py-4">
+                        <Badge className="bg-amber-500/20 text-amber-600">{row.rewardValue}</Badge>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="p-4 bg-muted/30 border-t">
+              <p className="text-xs text-muted-foreground">
+                <strong>Conversion Rate</strong> = percentage of total users who become paying subscribers ($9.99/month). 
+                Higher conversion = more LP injection = stronger price floor. Target: 40%+ for optimal sustainability.
+              </p>
             </div>
           </Card>
         </motion.section>
