@@ -25,7 +25,9 @@ import {
   PieChart,
   FileText,
   Sparkles,
-  Crown
+  Crown,
+  BookMarked,
+  LineChart
 } from "lucide-react";
 import zenLogo from "@/assets/zen-sidebar-icon.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -418,6 +420,38 @@ export function AppSidebar() {
                     >
                       <Crown className="h-4 w-4" />
                       <span className="font-semibold">FINAL $ZSOLAR</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Growth Projections">
+                    <NavLink 
+                      to="/admin/growth-projections"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <LineChart className="h-4 w-4" />
+                      <span>Growth Projections</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Glossary">
+                    <NavLink 
+                      to="/admin/glossary"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <BookMarked className="h-4 w-4" />
+                      <span>Glossary</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
