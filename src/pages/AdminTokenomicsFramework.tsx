@@ -825,6 +825,12 @@ export default function AdminTokenomicsFramework() {
     setHasUnsavedChanges(true);
   };
   
+  const handleNotesChange = (value: string) => {
+    const notesKey = `${currentQuestion.id}_notes`;
+    setAnswers(prev => ({ ...prev, [notesKey]: value }));
+    setHasUnsavedChanges(true);
+  };
+  
   const goNext = () => {
     if (currentQuestionIndex < frameworkQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -1295,6 +1301,20 @@ export default function AdminTokenomicsFramework() {
                   <p className="text-sm text-amber-700 dark:text-amber-400">{currentQuestion.insight}</p>
                 </div>
               )}
+              
+              {/* Optional Notes Field */}
+              <div className="mt-4 space-y-2">
+                <Label htmlFor="question-notes" className="text-sm text-muted-foreground flex items-center gap-2">
+                  <span>📝</span> Your notes (optional)
+                </Label>
+                <Textarea
+                  id="question-notes"
+                  value={(answers[`${currentQuestion.id}_notes`] as string) || ''}
+                  onChange={(e) => handleNotesChange(e.target.value)}
+                  placeholder="Add your thoughts, context, or suggestions for this question..."
+                  className="min-h-[80px] text-sm bg-muted/30 border-dashed"
+                />
+              </div>
             </CardContent>
           </Card>
         </motion.div>
