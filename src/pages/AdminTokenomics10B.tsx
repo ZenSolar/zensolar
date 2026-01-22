@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 import { 
   Loader2, 
   Coins, 
@@ -386,10 +387,40 @@ export default function AdminTokenomics10B() {
     );
   }
 
+  // Export data for PDF/Excel
+  const getExportData = () => [
+    { section: "Token Strategy", metric: "Max Supply", value: "10,000,000,000" },
+    { section: "Token Strategy", metric: "Launch Floor Price", value: "$0.10" },
+    { section: "Token Strategy", metric: "Target Price", value: "$1.00" },
+    { section: "Token Strategy", metric: "Initial LP Seed", value: `$${initialLPSeed.toLocaleString()}` },
+    { section: "Token Strategy", metric: "Initial Circulating", value: `${(initialLPSeed / STARTING_PRICE).toLocaleString()} tokens` },
+    { section: "Distribution", metric: "Community Rewards", value: "90% (9B tokens)" },
+    { section: "Distribution", metric: "Treasury", value: "7.5% (750M, 2yr vest)" },
+    { section: "Distribution", metric: "Founder", value: "2.5% (250M, 3yr vest)" },
+    { section: "Deflation", metric: "Mint Burn Rate", value: `${mintBurnRate}%` },
+    { section: "Deflation", metric: "Transfer Tax", value: "7% (3% burn, 2% LP, 2% treasury)" },
+    { section: "Current Model", metric: "Paying Users", value: payingUsers.toLocaleString() },
+    { section: "Current Model", metric: "Avg Monthly Activity", value: avgMonthlyActivity.toLocaleString() },
+    { section: "Current Model", metric: "Sell Pressure", value: `${sellPressure}%` },
+    { section: "Economics", metric: "Monthly LP Injection", value: `$${viralEconomics.monthlyLPInjection.toLocaleString()}` },
+    { section: "Economics", metric: "Sell Pressure (USDC)", value: `$${viralEconomics.sellPressureUSDC.toLocaleString()}` },
+    { section: "Economics", metric: "LP Coverage Ratio", value: `${(viralEconomics.lpRatio * 100).toFixed(0)}%` },
+    { section: "Economics", metric: "Net LP Flow", value: `$${viralEconomics.netLPFlow.toLocaleString()}` },
+    { section: "Economics", metric: "Price After Sell", value: `$${viralEconomics.priceAfterSell.toFixed(2)}` },
+    { section: "Impact", metric: "Monthly CO2 Offset", value: `${viralEconomics.monthlyImpactScore.toLocaleString()} kg` },
+    { section: "Impact", metric: "Annual CO2 Offset", value: `${viralEconomics.annualImpactTons.toLocaleString()} tons` },
+  ];
+
   return (
     <div className="container max-w-6xl mx-auto px-4 pt-4 pb-8 space-y-8">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
+        <div className="flex justify-end mb-2">
+          <ExportButtons 
+            pageTitle="10B Tokenomics" 
+            getData={getExportData}
+          />
+        </div>
         <Badge variant="outline" className="text-primary border-primary">
           <Coins className="h-3 w-3 mr-1" />
           10B Strategy
