@@ -21,7 +21,10 @@ import {
   BarChart3,
   Sparkles,
   PiggyBank,
-  ArrowRight
+  ArrowRight,
+  Zap,
+  Shield,
+  Award
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
@@ -82,15 +85,14 @@ export default function AdminTokenomics10B() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
-  // Price projection data - starting at $0.50-$1.00 floor price
-  // Price projection data - starting at $0.50-$1.00 floor price
+  // Price projection data - starting at $1.00 floor price (Fresh Start Model)
   // Math: Price = USDC / Tokens in LP
-  // $75,000 USDC / 100,000 tokens = $0.75 per token
+  // $100,000 USDC / 100,000 tokens = $1.00 per token
   const projectionData = useMemo(() => {
     const data = [];
-    const STARTING_PRICE = 0.75; // $0.75 target starting price
-    const initialLPUSDC = 75_000; // $75K USDC seed
-    const initialLPTokens = initialLPUSDC / STARTING_PRICE; // 100,000 tokens to achieve $0.75
+    const STARTING_PRICE = 1.00; // $1.00 target starting price
+    const initialLPUSDC = 100_000; // $100K USDC seed
+    const initialLPTokens = initialLPUSDC / STARTING_PRICE; // 100,000 tokens to achieve $1.00
     
     // Total circulating includes LP + unlocked tokens outside LP
     let circulatingSupply = 150_000; // Start with 150K tokens total circulating
@@ -273,8 +275,8 @@ export default function AdminTokenomics10B() {
                   <div className="space-y-2">
                     <p className="font-semibold text-sm text-amber-600 dark:text-amber-400">Launch Price Model</p>
                     <p className="text-xs text-muted-foreground">
-                      <strong>At TGE:</strong> 100,000 $ZSOLAR tokens seeded into the Liquidity Pool against $75,000 USDC, 
-                      establishing a <span className="text-primary font-semibold">$0.75 starting price</span> ($75K ÷ 100K = $0.75/token).
+                      <strong>At TGE:</strong> 100,000 $ZSOLAR tokens seeded into the Liquidity Pool against $100,000 USDC, 
+                      establishing a <span className="text-primary font-semibold">$1.00 starting price</span> ($100K ÷ 100K = $1.00/token).
                     </p>
                     <p className="text-xs text-muted-foreground">
                       <strong>Over Time:</strong> Milestone unlocks release additional tokens as the paying user base grows. 
@@ -425,6 +427,108 @@ export default function AdminTokenomics10B() {
               <p className="text-sm text-muted-foreground">
                 Annual net burn exceeds new mints post-50K users, creating genuine scarcity and sustainable price appreciation.
               </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Fresh Start Model - Official Launch Strategy */}
+      <motion.div {...fadeIn} transition={{ delay: 0.45 }}>
+        <Card className="border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 via-background to-primary/5">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/20">
+                <Zap className="h-6 w-6 text-emerald-500" />
+              </div>
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  Fresh Start Model
+                  <Badge className="bg-emerald-500/20 text-emerald-600">Official Launch Strategy</Badge>
+                </CardTitle>
+                <CardDescription>Mainnet token minting begins from zero baseline at device connection</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Core Principle */}
+            <div className="p-4 rounded-lg border-2 border-emerald-500/30 bg-emerald-500/5">
+              <div className="flex items-start gap-3">
+                <Shield className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />
+                <div className="space-y-2">
+                  <p className="font-semibold text-sm text-emerald-600 dark:text-emerald-400">Core Principle</p>
+                  <p className="text-sm text-muted-foreground">
+                    When a user connects their Tesla, Enphase, SolarEdge, or Wallbox account, the system captures their 
+                    <strong className="text-foreground"> current lifetime readings as baseline</strong>. Users earn tokens 
+                    <strong className="text-foreground"> only for NEW activity</strong> generated after connection—ensuring 
+                    token supply scales with actual ongoing clean energy behavior, not historical accumulation.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Why Fresh Start */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="p-4 rounded-lg border bg-card/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  <p className="font-semibold text-sm">$1.00 Price Floor</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  By limiting minted supply to ~100K tokens/month (100 active users), subscription LP injections 
+                  ($499/mo) maintain a sustainable 204:1 token-to-dollar ratio vs. 8,509:1 with lifetime data.
+                </p>
+              </div>
+              <div className="p-4 rounded-lg border bg-card/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <Droplets className="h-5 w-5 text-blue-500" />
+                  <p className="font-semibold text-sm">LP Sustainability</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  If 10% of tokens are sold, price drops only to ~$0.91 (vs. $0.21 crash with lifetime dumps). 
+                  Next month's LP injection + burns push price back up naturally.
+                </p>
+              </div>
+              <div className="p-4 rounded-lg border bg-card/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-5 w-5 text-emerald-500" />
+                  <p className="font-semibold text-sm">Viral Potential</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Users earning ~$1,000/month in $ZSOLAR (1,000 kWh + miles) at $1.00/token creates 
+                  word-of-mouth referrals that drive organic growth.
+                </p>
+              </div>
+            </div>
+            
+            {/* Technical Implementation */}
+            <div className="p-4 rounded-lg bg-muted/50 border">
+              <p className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                Technical Implementation
+              </p>
+              <div className="space-y-2 text-xs font-mono text-muted-foreground">
+                <p>1. User connects device account (OAuth flow)</p>
+                <p>2. Edge function captures: <code className="bg-background px-1 rounded">baseline_data = current_lifetime_totals</code></p>
+                <p>3. On sync: <code className="bg-background px-1 rounded">pending = lifetime_totals - baseline_data</code></p>
+                <p>4. On mint: <code className="bg-background px-1 rounded">baseline_data = new_lifetime_totals</code></p>
+                <p>5. Next cycle: <code className="bg-background px-1 rounded">pending = 0</code> until new activity occurs</p>
+              </div>
+            </div>
+            
+            {/* Beta User Recognition */}
+            <div className="p-4 rounded-lg border bg-amber-500/5 border-amber-500/20">
+              <div className="flex items-start gap-3">
+                <Award className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+                <div className="space-y-2">
+                  <p className="font-semibold text-sm text-amber-600 dark:text-amber-400">Beta User Recognition: Pioneer NFTs</p>
+                  <p className="text-xs text-muted-foreground">
+                    To honor beta users' historical contributions without creating sell pressure, users with significant 
+                    lifetime data receive exclusive <strong className="text-foreground">Pioneer NFTs</strong> (Bronze/Silver/Gold/Platinum tiers). 
+                    These are non-tradeable recognition badges that unlock future governance perks and VIP benefits—
+                    not inflationary token rewards.
+                  </p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
