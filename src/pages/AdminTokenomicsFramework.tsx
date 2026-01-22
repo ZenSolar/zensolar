@@ -26,7 +26,8 @@ import {
   Globe,
   Save,
   Cloud,
-  CloudOff
+  CloudOff,
+  Plus
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +41,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VersionHistoryPanel } from "@/components/admin/VersionHistoryPanel";
+
+interface VersionRecord {
+  id: string;
+  version: number;
+  version_name: string | null;
+  is_active: boolean;
+  answers: Record<string, string | string[] | number>;
+  created_at: string;
+  updated_at: string;
+}
 
 // Types for the framework
 interface QuestionOption {
@@ -377,6 +389,8 @@ export default function AdminTokenomicsFramework() {
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [versions, setVersions] = useState<VersionRecord[]>([]);
+  const [currentVersionId, setCurrentVersionId] = useState<string | null>(null);
   
   const currentQuestion = frameworkQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / frameworkQuestions.length) * 100;
@@ -388,8 +402,8 @@ export default function AdminTokenomicsFramework() {
   const answeredCount = Object.keys(answers).length;
   const isCurrentAnswered = currentQuestion && answers[currentQuestion.id] !== undefined;
 
-  // Load saved answers from database
-  const loadSavedAnswers = useCallback(async () => {
+  // Load all versions from database
+  const loadVersions = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -398,59 +412,229 @@ export default function AdminTokenomicsFramework() {
         .from('tokenomics_framework_responses')
         .select('*')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       
-      if (data?.answers) {
-        setAnswers(data.answers as Record<string, string | string[] | number>);
-        setLastSaved(new Date(data.updated_at));
+      if (data && data.length > 0) {
+        const typedVersions: VersionRecord[] = data.map(d => ({
+          id: d.id,
+          version: d.version,
+          version_name: d.version_name,
+          is_active: d.is_active ?? false,
+          answers: d.answers as Record<string, string | string[] | number>,
+          created_at: d.created_at,
+          updated_at: d.updated_at
+        }));
+        setVersions(typedVersions);
+        
+        // Load the active version, or the most recent one
+        const activeVersion = typedVersions.find(v => v.is_active) || typedVersions[0];
+        if (activeVersion) {
+          setAnswers(activeVersion.answers);
+          setCurrentVersionId(activeVersion.id);
+          setLastSaved(new Date(activeVersion.updated_at));
+        }
       }
     } catch (error) {
-      console.error('Error loading saved answers:', error);
-      toast.error('Failed to load saved answers');
+      console.error('Error loading versions:', error);
+      toast.error('Failed to load saved versions');
     } finally {
       setIsLoadingData(false);
     }
   }, [user]);
 
-  // Save answers to database
-  const saveAnswers = useCallback(async () => {
+  // Save current answers as a new version
+  const saveAsNewVersion = useCallback(async () => {
     if (!user) return;
+    
+    try {
+      setIsSaving(true);
+      
+      // Get the next version number
+      const nextVersion = versions.length > 0 ? Math.max(...versions.map(v => v.version)) + 1 : 1;
+      
+      // Set all other versions as not active
+      if (versions.length > 0) {
+        await supabase
+          .from('tokenomics_framework_responses')
+          .update({ is_active: false })
+          .eq('user_id', user.id);
+      }
+      
+      // Insert new version
+      const { data, error } = await supabase
+        .from('tokenomics_framework_responses')
+        .insert({
+          user_id: user.id,
+          answers: answers,
+          version: nextVersion,
+          version_name: `Version ${nextVersion}`,
+          is_active: true,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      // Update local state
+      const newVersion: VersionRecord = {
+        id: data.id,
+        version: data.version,
+        version_name: data.version_name,
+        is_active: true,
+        answers: data.answers as Record<string, string | string[] | number>,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      
+      setVersions(prev => [newVersion, ...prev.map(v => ({ ...v, is_active: false }))]);
+      setCurrentVersionId(data.id);
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+      toast.success(`Saved as Version ${nextVersion}`);
+    } catch (error) {
+      console.error('Error saving new version:', error);
+      toast.error('Failed to save version');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [user, answers, versions]);
+
+  // Update current version
+  const updateCurrentVersion = useCallback(async () => {
+    if (!user || !currentVersionId) return;
     
     try {
       setIsSaving(true);
       
       const { error } = await supabase
         .from('tokenomics_framework_responses')
-        .upsert({
-          user_id: user.id,
+        .update({
           answers: answers,
-          version: 1,
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id'
-        });
+        })
+        .eq('id', currentVersionId);
       
       if (error) throw error;
       
+      // Update local state
+      setVersions(prev => prev.map(v => 
+        v.id === currentVersionId 
+          ? { ...v, answers, updated_at: new Date().toISOString() }
+          : v
+      ));
+      
       setHasUnsavedChanges(false);
       setLastSaved(new Date());
-      toast.success('Framework responses saved successfully');
+      toast.success('Version updated');
     } catch (error) {
-      console.error('Error saving answers:', error);
-      toast.error('Failed to save responses');
+      console.error('Error updating version:', error);
+      toast.error('Failed to update version');
     } finally {
       setIsSaving(false);
     }
-  }, [user, answers]);
+  }, [user, answers, currentVersionId]);
 
-  // Load saved answers on mount
+  // Load a specific version
+  const loadVersion = useCallback((version: VersionRecord) => {
+    setAnswers(version.answers);
+    setCurrentVersionId(version.id);
+    setHasUnsavedChanges(false);
+    setLastSaved(new Date(version.updated_at));
+    toast.success(`Loaded "${version.version_name || `Version ${version.version}`}"`);
+  }, []);
+
+  // Delete a version
+  const deleteVersion = useCallback(async (versionId: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('tokenomics_framework_responses')
+        .delete()
+        .eq('id', versionId);
+      
+      if (error) throw error;
+      
+      // Update local state
+      const remaining = versions.filter(v => v.id !== versionId);
+      setVersions(remaining);
+      
+      // If we deleted the current version, load another one
+      if (currentVersionId === versionId && remaining.length > 0) {
+        loadVersion(remaining[0]);
+      }
+      
+      toast.success('Version deleted');
+    } catch (error) {
+      console.error('Error deleting version:', error);
+      toast.error('Failed to delete version');
+    }
+  }, [user, versions, currentVersionId, loadVersion]);
+
+  // Set a version as active
+  const setActiveVersion = useCallback(async (versionId: string) => {
+    if (!user) return;
+    
+    try {
+      // Set all versions as not active
+      await supabase
+        .from('tokenomics_framework_responses')
+        .update({ is_active: false })
+        .eq('user_id', user.id);
+      
+      // Set the selected version as active
+      const { error } = await supabase
+        .from('tokenomics_framework_responses')
+        .update({ is_active: true })
+        .eq('id', versionId);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setVersions(prev => prev.map(v => ({
+        ...v,
+        is_active: v.id === versionId
+      })));
+      
+      toast.success('Active version updated');
+    } catch (error) {
+      console.error('Error setting active version:', error);
+      toast.error('Failed to set active version');
+    }
+  }, [user]);
+
+  // Rename a version
+  const renameVersion = useCallback(async (versionId: string, newName: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('tokenomics_framework_responses')
+        .update({ version_name: newName })
+        .eq('id', versionId);
+      
+      if (error) throw error;
+      
+      setVersions(prev => prev.map(v => 
+        v.id === versionId ? { ...v, version_name: newName } : v
+      ));
+      
+      toast.success('Version renamed');
+    } catch (error) {
+      console.error('Error renaming version:', error);
+      toast.error('Failed to rename version');
+    }
+  }, [user]);
+
+  // Load versions on mount
   useEffect(() => {
     if (user && isAdmin) {
-      loadSavedAnswers();
+      loadVersions();
     }
-  }, [user, isAdmin, loadSavedAnswers]);
+  }, [user, isAdmin, loadVersions]);
   
   // Handle answer changes
   const handleSingleAnswer = (value: string) => {
@@ -494,25 +678,13 @@ export default function AdminTokenomicsFramework() {
     }
   };
   
-  const resetFramework = async () => {
-    if (!user) return;
-    
-    try {
-      await supabase
-        .from('tokenomics_framework_responses')
-        .delete()
-        .eq('user_id', user.id);
-      
-      setAnswers({});
-      setCurrentQuestionIndex(0);
-      setShowAnalysis(false);
-      setHasUnsavedChanges(false);
-      setLastSaved(null);
-      toast.success('Framework reset successfully');
-    } catch (error) {
-      console.error('Error resetting framework:', error);
-      toast.error('Failed to reset framework');
-    }
+  const resetFramework = () => {
+    setAnswers({});
+    setCurrentQuestionIndex(0);
+    setShowAnalysis(false);
+    setHasUnsavedChanges(true);
+    setCurrentVersionId(null);
+    toast.success('Started fresh - save when ready to create a new version');
   };
   
   // Generate analysis based on answers
@@ -623,6 +795,18 @@ export default function AdminTokenomicsFramework() {
           <h1 className="text-3xl font-bold">Your Tokenomics Profile</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">Based on your {answeredCount} responses, here's a strategic analysis of your tokenomics framework.</p>
         </motion.div>
+        
+        {/* Version History */}
+        <VersionHistoryPanel
+          versions={versions}
+          currentAnswers={answers}
+          questions={frameworkQuestions}
+          onLoadVersion={loadVersion}
+          onDeleteVersion={deleteVersion}
+          onSetActive={setActiveVersion}
+          onRenameVersion={renameVersion}
+          isLoading={isLoadingData}
+        />
         
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-3">
@@ -746,13 +930,17 @@ export default function AdminTokenomicsFramework() {
         )}
         
         <div className="flex justify-center gap-4">
-          <Button onClick={saveAnswers} disabled={isSaving} className="gap-2">
+          <Button onClick={currentVersionId ? updateCurrentVersion : saveAsNewVersion} disabled={isSaving} className="gap-2">
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save Analysis
+            {currentVersionId ? 'Update Version' : 'Save Analysis'}
+          </Button>
+          <Button onClick={saveAsNewVersion} disabled={isSaving} variant="outline" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Save as New Version
           </Button>
           <Button onClick={resetFramework} variant="outline" className="gap-2">
             <RefreshCw className="h-4 w-4" />
-            Start Over
+            Start Fresh
           </Button>
         </div>
       </div>
@@ -774,6 +962,18 @@ export default function AdminTokenomicsFramework() {
           <span className="block mt-1 text-sm font-medium text-primary">First-Mover Advantage: You're creating a new category.</span>
         </p>
       </motion.div>
+      
+      {/* Version History */}
+      <VersionHistoryPanel
+        versions={versions}
+        currentAnswers={answers}
+        questions={frameworkQuestions}
+        onLoadVersion={loadVersion}
+        onDeleteVersion={deleteVersion}
+        onSetActive={setActiveVersion}
+        onRenameVersion={renameVersion}
+        isLoading={isLoadingData}
+      />
       
       {/* Progress */}
       <div className="space-y-2">
@@ -971,12 +1171,12 @@ export default function AdminTokenomicsFramework() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={saveAnswers} 
+            onClick={currentVersionId ? updateCurrentVersion : saveAsNewVersion} 
             disabled={isSaving || !hasUnsavedChanges}
             className="gap-1"
           >
             {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-            Save
+            {currentVersionId ? 'Update' : 'Save'}
           </Button>
           
           {isCurrentAnswered && (
