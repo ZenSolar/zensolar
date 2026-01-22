@@ -4,7 +4,6 @@ import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import { 
   Target, 
@@ -12,15 +11,16 @@ import {
   TrendingUp, 
   Droplets, 
   Rocket, 
-  CheckCircle2, 
-  AlertCircle,
+  CheckCircle2,
   Zap,
   DollarSign,
   Flame,
   ArrowUp,
-  Crown
+  Crown,
+  Loader2
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 // Constants
 const SUBSCRIPTION_PRICE = 9.99;
@@ -74,7 +74,7 @@ export default function AdminFlywheelTracker() {
   if (authLoading || adminLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -97,7 +97,7 @@ export default function AdminFlywheelTracker() {
 
   const progressPercent = Math.min((CURRENT_USERS / TIPPING_POINT) * 100, 100);
   const currentMonthlyLP = CURRENT_USERS * LP_PER_USER;
-  const monthsToTipping = Math.ceil((TIPPING_POINT - CURRENT_USERS) / (CURRENT_USERS * 0.15)); // Assume 15% MoM growth
+  const monthsToTipping = Math.ceil((TIPPING_POINT - CURRENT_USERS) / (CURRENT_USERS * 0.15));
   const currentMilestone = MILESTONES.find(m => m.users > CURRENT_USERS) || MILESTONES[MILESTONES.length - 1];
   const previousMilestone = MILESTONES[MILESTONES.indexOf(currentMilestone) - 1];
 
@@ -113,25 +113,39 @@ export default function AdminFlywheelTracker() {
     return value.toLocaleString();
   };
 
+  // Export data helper
+  const getExportData = () => [
+    { section: "Current", metric: "Current Users", value: CURRENT_USERS },
+    { section: "Current", metric: "Tipping Point Target", value: TIPPING_POINT },
+    { section: "Current", metric: "Progress %", value: `${progressPercent.toFixed(1)}%` },
+    { section: "Current", metric: "Monthly LP", value: formatCurrency(currentMonthlyLP) },
+    { section: "Current", metric: "Est. Months to Tipping", value: monthsToTipping },
+    ...MILESTONES.map(m => ({ section: "Milestone", users: m.users, description: m.description, monthlyLP: formatCurrency(m.lpMonthly) })),
+    ...projectionData.slice(0, 24).map(d => ({ section: "Projection", month: d.month, users: d.users, cumulativeLP: d.cumulativeLP })),
+  ];
+
+
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-6xl space-y-6">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }} 
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-2"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
-        <div className="flex items-center justify-center gap-2">
+        <div className="text-center md:text-left space-y-2">
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
             <Rocket className="h-3 w-3 mr-1" />
             Flywheel Tracker
           </Badge>
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            25K Subscriber Tipping Point
+          </h1>
+          <p className="text-muted-foreground max-w-2xl">
+            Track progress toward the inflection point where monthly LP injection equals the entire initial liquidity seed.
+          </p>
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold">25K Subscriber Tipping Point</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Track progress toward the inflection point where monthly LP injection equals the entire initial liquidity seed.
-          <strong className="text-foreground"> This is THE number that makes investors say "sky's the limit."</strong>
-        </p>
+        <ExportButtons pageTitle="Flywheel Tracker" getData={getExportData} />
       </motion.div>
 
       {/* Hero Progress Card */}

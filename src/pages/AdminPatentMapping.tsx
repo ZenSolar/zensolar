@@ -22,8 +22,8 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -41,6 +41,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -183,6 +184,14 @@ export default function AdminPatentMapping() {
     }
   };
 
+  // Export data helper
+  const getExportData = () => [
+    ...systemArchitectureItems.map(i => ({ section: "Architecture", item: i.item, name: i.name, status: i.status, location: i.location })),
+    ...processFlowSteps.map(s => ({ section: "Process Flow", step: s.step, name: s.name, status: s.status, implementation: s.implementation })),
+    ...patentClaims.map(c => ({ section: "Patent Claims", claim: c.claim, description: c.description, status: c.status })),
+    ...patentabilityFactors.map(f => ({ section: "Patentability", factor: f.factor, score: f.score, positive: f.positive })),
+  ];
+
   return (
     <motion.div
       initial="initial"
@@ -191,24 +200,28 @@ export default function AdminPatentMapping() {
       className="container mx-auto pt-4 pb-8 px-4 max-w-7xl space-y-6"
     >
       {/* Header */}
-      <motion.div variants={fadeIn} className="text-center space-y-3">
-        <Badge variant="outline" className="text-primary border-primary">
-          <Scale className="h-3 w-3 mr-1" />
-          Patent Analysis
-        </Badge>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-          Patent Mapping Analysis
-        </h1>
-        <p className="text-muted-foreground max-w-3xl mx-auto text-sm sm:text-base">
-          Cross-reference between Provisional Patent Application (April 12, 2025) and current ZenSolar implementation
-        </p>
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          <Badge variant="secondary" className="text-xs sm:text-sm max-w-full">
-            <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
-            <span className="truncate">System and Method for Tokenizing and Gamifying Sustainable Behaviors</span>
+      <motion.div variants={fadeIn} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="text-center md:text-left space-y-2">
+          <Badge variant="outline" className="text-primary border-primary">
+            <Scale className="h-3 w-3 mr-1" />
+            Patent Analysis
           </Badge>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            Patent Mapping Analysis
+          </h1>
+          <p className="text-muted-foreground max-w-3xl text-sm sm:text-base">
+            Cross-reference between Provisional Patent Application (April 12, 2025) and current ZenSolar implementation
+          </p>
         </div>
+        <ExportButtons pageTitle="Patent Mapping" getData={getExportData} />
       </motion.div>
+      
+      <div className="flex items-center justify-center gap-2 flex-wrap">
+        <Badge variant="secondary" className="text-xs sm:text-sm max-w-full">
+          <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
+          <span className="truncate">System and Method for Tokenizing and Gamifying Sustainable Behaviors</span>
+        </Badge>
+      </div>
 
       {/* Implementation Summary */}
       <motion.div variants={fadeIn}>
