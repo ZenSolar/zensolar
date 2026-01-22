@@ -205,7 +205,7 @@ export default function AdminTokenomics10B() {
   };
 
   // Calculate the viral economics model
-  // Key insight: LP injection + cumulative growth must defend $0.50 floor
+  // Key insight: LP injection + cumulative growth must defend $0.10 floor
   const viralEconomics = useMemo(() => {
     // Monthly Revenue from paying subscribers
     const mrr = payingUsers * SUBSCRIPTION.price;
@@ -218,7 +218,7 @@ export default function AdminTokenomics10B() {
     const tokensToLP = grossTokensMinted * 0.03;
     const tokensToTreasury = grossTokensMinted * 0.02;
     
-    // Sell Pressure Calculation at $0.50 floor price
+    // Sell Pressure Calculation at $0.10 floor price
     const tokensSold = tokensToUsers * (sellPressure / 100);
     const sellPressureUSDC = tokensSold * STARTING_PRICE;
     
@@ -250,7 +250,7 @@ export default function AdminTokenomics10B() {
     
     // Health thresholds:
     // >= 1.0 = Optimal (LP injection covers ALL sell pressure, price rises)
-    // >= 0.7 = Healthy (LP covers most, price stable around $0.50)
+    // >= 0.7 = Healthy (LP covers most, price stable around $0.10)
     // < 0.7 = At Risk (price pressure below floor)
     const isOptimal = lpCoverage >= 1.0;
     const isHealthy = lpCoverage >= 0.7;
@@ -285,9 +285,9 @@ export default function AdminTokenomics10B() {
     };
   }, [payingUsers, avgMonthlyActivity, initialLPSeed, mintBurnRate, sellPressure]);
 
-  // Price projection data - starting at $0.50 floor price (Fresh Start Model)
+  // Price projection data - starting at $0.10 floor price (Fresh Start Model)
   // Math: Price = USDC / Tokens in LP
-  // $125,000 USDC / 250,000 tokens = $0.50 per token
+  // $300,000 USDC / 3,000,000 tokens = $0.10 per token
   const projectionData = useMemo(() => {
     const data = [];
     const initialLPUSDC = initialLPSeed;
@@ -315,7 +315,7 @@ export default function AdminTokenomics10B() {
       const lpInjection = subRevenue * 0.5; // 50% to LP (USDC side)
       
       // Burns from transactions (3.5% of volume)
-      const txVolume = monthlyPaidUsers * 5 * 50; // 5 tx/user, $50 avg at $0.50 price
+      const txVolume = monthlyPaidUsers * 5 * 10; // 5 tx/user, $10 avg at $0.10 price
       const txTokens = price > 0 ? txVolume / price : 0;
       const burnFromTx = txTokens * 0.035;
       
@@ -482,10 +482,10 @@ export default function AdminTokenomics10B() {
               <div className="p-4 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Initial Circulating</span>
-                  <Badge className="bg-primary/20 text-primary">250K tokens</Badge>
+                  <Badge className="bg-primary/20 text-primary">3M tokens</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Seeded into LP with $125K USDC for $0.50 starting price floor
+                  Seeded into LP with $300K USDC for $0.10 starting price floor
                 </p>
               </div>
               
@@ -494,15 +494,15 @@ export default function AdminTokenomics10B() {
                 <div className="flex items-start gap-3">
                   <Rocket className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
                   <div className="space-y-2">
-                    <p className="font-semibold text-sm text-amber-600 dark:text-amber-400">$0.50 Launch Price Model</p>
+                    <p className="font-semibold text-sm text-amber-600 dark:text-amber-400">$0.10 Launch Price Model (10x Narrative)</p>
                     <p className="text-xs text-muted-foreground">
-                      <strong>At TGE:</strong> 250,000 $ZSOLAR tokens seeded into the Liquidity Pool against $125,000 USDC, 
-                      establishing a <span className="text-primary font-semibold">$0.50 starting price</span> ($125K ÷ 250K = $0.50/token).
+                      <strong>At TGE:</strong> 3,000,000 $ZSOLAR tokens seeded into the Liquidity Pool against $300,000 USDC, 
+                      establishing a <span className="text-primary font-semibold">$0.10 starting price</span> ($300K ÷ 3M = $0.10/token).
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      <strong>Target Range:</strong> The $0.50-$1.00 band creates a balanced floor where users earn 
-                      <strong className="text-foreground"> $400-$800/month</strong> (800-1,000 tokens × $0.50-$0.80), 
-                      driving organic word-of-mouth while subscription LP flow maintains stability.
+                      <strong>Target Range:</strong> The $0.10-$1.00 band creates a compelling 10x growth narrative where users earn 
+                      <strong className="text-foreground"> $100-$1,000/month</strong> as price appreciates (1,000 tokens × $0.10-$1.00), 
+                      driving viral word-of-mouth while subscription LP flow maintains stability.
                     </p>
                   </div>
                 </div>
@@ -557,6 +557,7 @@ export default function AdminTokenomics10B() {
                 <p className="text-sm font-medium mb-2">Transfer Tax: {TRANSFER_TAX.total}%</p>
                 <div className="flex gap-4 text-xs text-muted-foreground">
                   <span>🔥 {TRANSFER_TAX.burn}% burn</span>
+                  <span>💧 {TRANSFER_TAX.lp}% LP</span>
                   <span>🏛️ {TRANSFER_TAX.treasury}% treasury</span>
                 </div>
               </div>
@@ -692,10 +693,10 @@ export default function AdminTokenomics10B() {
               <div className="p-4 rounded-lg border bg-card/50">
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="h-5 w-5 text-primary" />
-                  <p className="font-semibold text-sm">$0.50 Price Floor</p>
+                  <p className="font-semibold text-sm">$0.10 Price Floor (10x to $1.00)</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  $125K USDC paired with 250K tokens establishes the floor. With 5K paying subs generating 
+                  $300K USDC paired with 3M tokens establishes the floor. With 5K paying subs generating 
                   $25K/mo LP injection, the system absorbs 15-25% sell rates while maintaining stability.
                 </p>
               </div>
@@ -705,7 +706,7 @@ export default function AdminTokenomics10B() {
                   <p className="font-semibold text-sm">LP Sustainability</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  At 20% sell rate, monthly sell pressure (~$400K at 5K users) is offset by LP injection + burns.
+                  At 20% sell rate, monthly sell pressure is offset by LP injection + aggressive burns (20% mint).
                   The model targets LP coverage ≥ 0.7x to maintain "Healthy" status.
                 </p>
               </div>
@@ -715,7 +716,7 @@ export default function AdminTokenomics10B() {
                   <p className="font-semibold text-sm">Viral Potential</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Users earning ~$400-$800/month in $ZSOLAR (1,000 tokens × $0.50-$0.80) creates 
+                  Users earning ~$100-$1,000/month in $ZSOLAR (1,000 tokens × $0.10-$1.00 as price grows) creates 
                   compelling social proof that drives referrals and organic growth.
                 </p>
               </div>
@@ -905,7 +906,7 @@ export default function AdminTokenomics10B() {
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">USDC paired 1:2 for $0.50 floor</p>
+                <p className="text-xs text-muted-foreground">USDC paired with 3M tokens for $0.10 floor</p>
               </div>
               
               <div className="space-y-3">
@@ -940,7 +941,7 @@ export default function AdminTokenomics10B() {
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">Tokens burned at mint (15% recommended)</p>
+                <p className="text-xs text-muted-foreground">Tokens burned at mint (20% recommended)</p>
               </div>
               
               <div className="space-y-3">
@@ -1065,8 +1066,8 @@ export default function AdminTokenomics10B() {
                   </p>
                   <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
                     <li>5,000+ paying subscribers ($50K+/mo MRR)</li>
-                    <li>$125K initial LP seed for $0.50 floor</li>
-                    <li>15% mint burn for sustainable deflation</li>
+                    <li>$300K initial LP seed for $0.10 floor</li>
+                    <li>20% mint burn for aggressive deflation</li>
                     <li>15-25% monthly sell rate (realistic expectation)</li>
                   </ul>
                 </div>
@@ -1075,8 +1076,8 @@ export default function AdminTokenomics10B() {
                     <strong className="text-foreground">Viral Trigger Point:</strong>
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    When users consistently earn <strong className="text-primary">$400-$800/month</strong> in $ZSOLAR 
-                    at $0.50-$0.80/token (1,000 kWh + miles typical), social sharing + referrals compound. 
+                    When users consistently earn <strong className="text-primary">$100-$1,000/month</strong> in $ZSOLAR 
+                    as price grows from $0.10→$1.00 (1,000 tokens/month typical), social sharing + referrals compound. 
                     Each referral adds $4.99/mo to LP, creating a sustainable flywheel.
                   </p>
                 </div>
@@ -1096,7 +1097,7 @@ export default function AdminTokenomics10B() {
               </div>
               <div>
                 <CardTitle>Breakeven Analysis</CardTitle>
-                <CardDescription>Minimum paying subscribers needed to maintain $0.50 floor at different sell rates</CardDescription>
+                <CardDescription>Minimum paying subscribers needed to maintain $0.10 floor at different sell rates</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -1140,7 +1141,7 @@ export default function AdminTokenomics10B() {
               <p className="text-sm text-muted-foreground">
                 <strong className="text-foreground">Key Insight:</strong> At the expected 20% sell rate, you need 
                 <strong className="text-primary"> ~4,000 paying subscribers</strong> generating $20K/mo LP injection to fully 
-                absorb sell pressure and maintain the $0.50 floor. Below this, price will drift but stabilize due to reduced 
+                absorb sell pressure and maintain the $0.10 floor. Below this, price will drift but stabilize due to reduced 
                 selling incentive at lower prices.
               </p>
             </div>
@@ -1154,7 +1155,7 @@ export default function AdminTokenomics10B() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Rocket className="h-5 w-5 text-primary" />
-              Price Trajectory: $0.50 → $1.00
+              Price Trajectory: $0.10 → $1.00 (10x Growth)
             </CardTitle>
             <CardDescription>Milestone-based path to target price range</CardDescription>
           </CardHeader>
@@ -1167,42 +1168,42 @@ export default function AdminTokenomics10B() {
                 {[
                   { 
                     phase: "Launch", 
-                    price: "$0.50", 
+                    price: "$0.10", 
                     subs: "0", 
-                    lp: "$125K",
-                    description: "TGE: 250K tokens + $125K USDC seeded in LP",
+                    lp: "$300K",
+                    description: "TGE: 3M tokens + $300K USDC seeded in LP",
                     color: "bg-primary"
                   },
                   { 
                     phase: "Early Traction", 
-                    price: "$0.55", 
+                    price: "$0.15", 
                     subs: "1,000", 
-                    lp: "$130K",
+                    lp: "$325K",
                     description: "First 1K paying subs, LP growing from subscriptions",
                     color: "bg-blue-500"
                   },
                   { 
                     phase: "Product-Market Fit", 
-                    price: "$0.65", 
+                    price: "$0.35", 
                     subs: "5,000", 
-                    lp: "$175K",
+                    lp: "$400K",
                     description: "LP injection exceeds sell pressure, price rising",
                     color: "bg-emerald-500"
                   },
                   { 
                     phase: "Scaling", 
-                    price: "$0.80", 
+                    price: "$0.60", 
                     subs: "15,000", 
-                    lp: "$350K",
-                    description: "Viral referrals driving growth, burns accelerating",
+                    lp: "$550K",
+                    description: "Viral referrals driving growth, 20% burns accelerating",
                     color: "bg-teal-500"
                   },
                   { 
                     phase: "Target Range", 
                     price: "$1.00", 
                     subs: "25,000+", 
-                    lp: "$500K+",
-                    description: "Users earning $800-$1,000/mo, max viral potential",
+                    lp: "$750K+",
+                    description: "Users earning $1,000/mo, max viral potential achieved",
                     color: "bg-amber-500"
                   },
                 ].map((milestone, index) => (
