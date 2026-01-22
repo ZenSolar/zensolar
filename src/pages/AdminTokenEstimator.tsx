@@ -23,6 +23,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Bar, BarChart, Cell, ReferenceLine } from "recharts";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -271,6 +272,17 @@ export default function AdminTokenEstimator() {
           <Badge className="bg-amber-500/20 text-amber-600">20% Mint Burn</Badge>
           <Badge className="bg-blue-500/20 text-blue-600">$300K LP Seed</Badge>
         </div>
+        <ExportButtons 
+          pageTitle="Tokenomics Simulator" 
+          getData={() => projectionData.map(d => ({
+            month: d.month,
+            price: `$${d.price.toFixed(2)}`,
+            lpUSDC: formatCurrency(d.lpUSDC),
+            totalBurned: formatNumber(d.totalBurned),
+            users: d.users,
+            marketCap: formatCurrency(d.marketCap)
+          }))} 
+        />
       </motion.div>
 
       {/* Fixed Tokenomics Constants */}

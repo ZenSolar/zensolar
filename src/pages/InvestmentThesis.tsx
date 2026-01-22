@@ -29,6 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -138,6 +139,27 @@ export default function InvestmentThesis() {
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
         
         <div className="container max-w-6xl mx-auto px-4 py-16 sm:py-24 relative">
+          <div className="flex justify-end mb-4">
+            <ExportButtons 
+              pageTitle="Investment Thesis" 
+              getData={() => [
+                { metric: "Max Supply", value: "10B $ZSOLAR" },
+                { metric: "Launch Price", value: "$0.10" },
+                { metric: "Target Price", value: "$1.00 (10x)" },
+                { metric: "Mint Burn", value: "20%" },
+                { metric: "Transfer Tax", value: "7%" },
+                { metric: "Subscription", value: "$9.99/month" },
+                { metric: "LP Injection", value: "50% of subscriptions" },
+                ...growthProjections.map(p => ({
+                  payingUsers: p.payingUsers,
+                  monthlyLP: p.monthlyLP,
+                  annualLP: p.annualLP,
+                  rewardValue: p.rewardValue,
+                  priceEstimate: p.priceEstimate
+                }))
+              ]} 
+            />
+          </div>
           <motion.div 
             initial={{ opacity: 0, y: -30 }} 
             animate={{ opacity: 1, y: 0 }} 

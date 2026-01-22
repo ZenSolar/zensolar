@@ -28,6 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { ExportButtons } from "@/components/admin/ExportButtons";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -286,6 +287,13 @@ export default function AdminFundraising() {
         <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
           Track milestones, model cap table scenarios, and plan raise strategy for $ZSOLAR
         </p>
+        <ExportButtons 
+          pageTitle="Fundraising Dashboard" 
+          getData={() => [
+            ...milestones.map(m => ({ milestone: m.title, status: m.completed ? "Completed" : "Pending", date: m.date, description: m.description })),
+            ...raiseScenarios.map(r => ({ stage: r.stage, amount: r.amount, valuation: r.valuation, dilution: r.dilution }))
+          ]} 
+        />
       </motion.div>
 
       {/* Quick Stats */}
