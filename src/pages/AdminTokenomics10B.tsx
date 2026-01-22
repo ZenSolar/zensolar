@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Loader2, 
   Coins, 
@@ -70,6 +71,49 @@ const TRANSFER_TAX = {
   total: 7,
 };
 
+type ViralPresetKey = "conservative" | "base" | "viral";
+
+const VIRAL_ECONOMICS_PRESETS: Record<
+  ViralPresetKey,
+  {
+    label: string;
+    totalUsers: number;
+    conversionRate: number;
+    avgMonthlyActivity: number;
+    initialLPSeed: number;
+    mintBurnRate: number;
+    sellPressure: number;
+  }
+> = {
+  conservative: {
+    label: "Conservative",
+    totalUsers: 10000,
+    conversionRate: 40,
+    avgMonthlyActivity: 500,
+    initialLPSeed: 250000,
+    mintBurnRate: 25,
+    sellPressure: 1,
+  },
+  base: {
+    label: "Base",
+    totalUsers: 100000,
+    conversionRate: 40,
+    avgMonthlyActivity: 900,
+    initialLPSeed: 250000,
+    mintBurnRate: 20,
+    sellPressure: 1,
+  },
+  viral: {
+    label: "Viral",
+    totalUsers: 100000,
+    conversionRate: 80,
+    avgMonthlyActivity: 1900,
+    initialLPSeed: 1000000,
+    mintBurnRate: 15,
+    sellPressure: 5,
+  },
+};
+
 // Milestone Unlocks tied to paying users + Impact Score
 // Launch: 250K tokens paired with $250K USDC for $1.00 floor
 const UNLOCK_MILESTONES = [
@@ -101,12 +145,25 @@ export default function AdminTokenomics10B() {
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
   // Viral Economics Calculator State
-  const [totalUsers, setTotalUsers] = useState(10000);
-  const [conversionRate, setConversionRate] = useState(40);
-  const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(1000); // kWh + miles combined
-  const [initialLPSeed, setInitialLPSeed] = useState(250000);
-  const [mintBurnRate, setMintBurnRate] = useState(15);
-  const [sellPressure, setSellPressure] = useState(5); // % of tokens sold monthly
+  const DEFAULT_PRESET: ViralPresetKey = "base";
+  const [scenarioPreset, setScenarioPreset] = useState<ViralPresetKey>(DEFAULT_PRESET);
+  const [totalUsers, setTotalUsers] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].totalUsers);
+  const [conversionRate, setConversionRate] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].conversionRate);
+  const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].avgMonthlyActivity); // kWh + miles combined
+  const [initialLPSeed, setInitialLPSeed] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].initialLPSeed);
+  const [mintBurnRate, setMintBurnRate] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].mintBurnRate);
+  const [sellPressure, setSellPressure] = useState(VIRAL_ECONOMICS_PRESETS[DEFAULT_PRESET].sellPressure); // % of tokens sold monthly
+
+  const applyScenarioPreset = (key: ViralPresetKey) => {
+    const preset = VIRAL_ECONOMICS_PRESETS[key];
+    setScenarioPreset(key);
+    setTotalUsers(preset.totalUsers);
+    setConversionRate(preset.conversionRate);
+    setAvgMonthlyActivity(preset.avgMonthlyActivity);
+    setInitialLPSeed(preset.initialLPSeed);
+    setMintBurnRate(preset.mintBurnRate);
+    setSellPressure(preset.sellPressure);
+  };
 
   // Calculate the viral economics model
   // Key insight: LP injection must exceed or match the USDC withdrawn by sellers
@@ -137,10 +194,18 @@ export default function AdminTokenomics10B() {
     // If LP injection >= sell pressure, price stays at or above $1.00
     // If LP injection < sell pressure, price drops proportionally
     const netLPFlow = monthlyLPInjection - sellPressureUSDC;
-    const priceMultiplier = lpCoverage >= 1 
-      ? 1 + (netLPFlow / initialLPSeed) * 0.1 // Price appreciation when LP grows
-      : Math.max(0.5, lpCoverage); // Price drops proportionally but floors at $0.50
-    const priceAfterSell = Math.min(2.00, Math.max(0.50, 1.00 * priceMultiplier));
+    let priceAfterSell = 1.0;
+    if (lpCoverage >= 1) {
+      // LP is growing net of sell pressure
+      priceAfterSell = 1 + (netLPFlow / initialLPSeed) * 0.1;
+    } else if (lpCoverage >= 0.7) {
+      // "Healthy" band: allow only mild drift below $1.00
+      priceAfterSell = 1 - (1 - lpCoverage) * 0.15;
+    } else {
+      // "At Risk" band: price falls with coverage ratio (floored)
+      priceAfterSell = Math.max(0.5, lpCoverage);
+    }
+    priceAfterSell = Math.min(2.0, Math.max(0.5, priceAfterSell));
     
     // Sustainability Score: 100% means LP fully covers sell pressure
     const sustainabilityScore = Math.min(lpCoverage, 2); // Cap at 200%
@@ -672,6 +737,20 @@ export default function AdminTokenomics10B() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="text-sm font-medium">Scenario Preset</div>
+              <Select value={scenarioPreset} onValueChange={(v) => applyScenarioPreset(v as ViralPresetKey)}>
+                <SelectTrigger className="w-[240px]">
+                  <SelectValue placeholder="Choose a preset" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="conservative">Conservative (Optimal)</SelectItem>
+                  <SelectItem value="base">Base (Healthy)</SelectItem>
+                  <SelectItem value="viral">Viral (Stress Test)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Input Controls */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-3">
