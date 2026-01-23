@@ -53,7 +53,7 @@ export default function About() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-12 mx-auto dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] dark:brightness-110"
+            className="h-12 mx-auto dark:animate-logo-glow"
           />
           <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-xl -z-10" />
         </div>
