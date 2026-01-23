@@ -57,7 +57,7 @@ const benefits = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
       {/* Navigation - with safe area padding for mobile notches */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
         <div className="container max-w-6xl mx-auto px-4 flex h-16 items-center justify-between gap-4">
@@ -65,7 +65,7 @@ export default function Landing() {
             <img 
               src={zenLogo} 
               alt="ZenSolar" 
-              className="h-8 w-auto"
+              className="h-8 w-auto dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]"
             />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
@@ -93,15 +93,20 @@ export default function Landing() {
 
       {/* Hero Section - account for safe area top */}
       <section className="relative pt-[calc(4rem+env(safe-area-inset-top)+2rem)] pb-16 md:pt-[calc(5rem+env(safe-area-inset-top)+2.5rem)] md:pb-20">
-        {/* Simplified static background - no blur transforms */}
+        {/* Enhanced dark mode background with glow effects */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <div 
-            className="absolute top-20 -left-20 w-72 h-72 rounded-full opacity-20"
+            className="absolute top-20 -left-20 w-72 h-72 rounded-full opacity-20 dark:opacity-40 dark:blur-3xl"
             style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }}
           />
           <div 
-            className="absolute bottom-20 -right-20 w-72 h-72 rounded-full opacity-15"
+            className="absolute bottom-20 -right-20 w-72 h-72 rounded-full opacity-15 dark:opacity-35 dark:blur-3xl"
             style={{ background: 'radial-gradient(circle, hsl(142 76% 36%) 0%, transparent 70%)' }}
+          />
+          {/* Additional glow orb for dark mode */}
+          <div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-0 dark:opacity-20 blur-3xl"
+            style={{ background: 'radial-gradient(circle, hsl(199 89% 48%) 0%, transparent 70%)' }}
           />
         </div>
 
@@ -165,7 +170,7 @@ export default function Landing() {
       </section>
 
       {/* SEGI Minting Infographic Section */}
-      <section className="py-12 md:py-16 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-12 md:py-16 bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-primary/5">
         <div className="container max-w-5xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -202,7 +207,7 @@ export default function Landing() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 md:py-24 bg-muted/40 border-y border-border/40">
+      <section className="py-20 md:py-24 bg-muted/40 dark:bg-muted/20 border-y border-border/40 dark:border-primary/10">
         <div className="container max-w-6xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -228,7 +233,7 @@ export default function Landing() {
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ delay: index * 0.08, duration: 0.4 }}
               >
-                <Card className="h-full bg-card border-border/60 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+                <Card className="h-full bg-card border-border/60 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300 dark:bg-card/80">
                   <CardContent className="p-6 text-center">
                     <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} mb-4 shadow-lg`}>
                       <feature.icon className="h-7 w-7 text-white" />
@@ -298,7 +303,7 @@ export default function Landing() {
               transition={{ duration: 0.4 }}
               className="relative"
             >
-              <Card className="relative bg-gradient-to-br from-card via-card to-muted/80 border-border/60 shadow-xl">
+              <Card className="relative bg-gradient-to-br from-card via-card to-muted/80 border-border/60 shadow-xl dark:shadow-primary/10 dark:border-primary/20">
                 <CardContent className="p-8 md:p-10">
                   <div className="text-center space-y-6">
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/25">
@@ -330,7 +335,7 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-24 bg-muted/40 border-t border-border/40">
+      <section className="py-20 md:py-24 bg-muted/40 dark:bg-muted/20 border-t border-border/40 dark:border-primary/10">
         <div className="container max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -372,8 +377,7 @@ export default function Landing() {
               <img 
                 src={zenLogo} 
                 alt="ZenSolar" 
-                className="h-6 w-auto dark:brightness-0 dark:invert"
-                style={{ mixBlendMode: 'multiply' }}
+                className="h-6 w-auto dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]"
               />
               <span className="text-sm text-muted-foreground">© 2026 ZenSolar. Patent Pending.</span>
             </div>
