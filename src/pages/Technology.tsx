@@ -30,7 +30,7 @@ const segiLayers = [
     title: 'API Aggregation',
     subtitle: 'Universal Connectivity',
     description: 'Secure OAuth connections to Tesla, Enphase, SolarEdge, Wallbox, and more. No hardware required.',
-    gradient: 'from-blue-500 to-blue-600',
+    gradient: 'from-emerald-400 to-emerald-500',
     detail: 'Zero hardware installation',
   },
   {
@@ -38,7 +38,7 @@ const segiLayers = [
     title: 'Data Normalization',
     subtitle: 'Unified Metrics',
     description: 'Every provider\'s unique data format is converted into a standardized Impact Score for fair, consistent rewards.',
-    gradient: 'from-emerald-500 to-emerald-600',
+    gradient: 'from-cyan-400 to-cyan-500',
     detail: 'Cross-platform compatibility',
   },
   {
@@ -46,7 +46,7 @@ const segiLayers = [
     title: 'Verification Engine',
     subtitle: 'Tamper-Proof Validation',
     description: 'Cryptographically signed data pulled directly from manufacturer APIs. Timestamps and device IDs ensure authenticity.',
-    gradient: 'from-violet-500 to-violet-600',
+    gradient: 'from-blue-400 to-blue-500',
     detail: 'Immutable verification',
   },
   {
@@ -54,7 +54,7 @@ const segiLayers = [
     title: 'Smart Contract Bridge',
     subtitle: 'Blockchain Integration',
     description: 'Activity is packaged into transaction payloads and minted as $ZSOLAR tokens and NFTs directly to your wallet.',
-    gradient: 'from-amber-500 to-amber-600',
+    gradient: 'from-emerald-500 to-cyan-500',
     detail: 'In-app minting',
   },
 ];
@@ -115,7 +115,7 @@ export default function Technology() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-400/5 via-cyan-400/5 to-transparent" />
         <div className="container max-w-5xl mx-auto px-4 py-16 md:py-24 relative">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -182,10 +182,10 @@ export default function Technology() {
             </div>
             
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-emerald-500/10 rounded-3xl blur-3xl" />
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-cyan-400/10 to-blue-500/10 rounded-3xl blur-3xl" />
               <Card className="relative bg-card/80 backdrop-blur border-border/60">
                 <CardContent className="p-8 flex flex-col items-center text-center space-y-6">
-                  <div className="p-6 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-2xl shadow-primary/20">
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 shadow-2xl shadow-cyan-500/20">
                     <Cpu className="h-16 w-16 text-white" />
                   </div>
                   <div className="space-y-2">
@@ -371,7 +371,7 @@ export default function Technology() {
 
           <div className="relative">
             {/* Connection line - desktop */}
-            <div className="hidden md:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
+            <div className="hidden md:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-emerald-400/20 via-cyan-400 to-blue-500/20" />
             
             <div className="grid grid-cols-2 md:grid-cols-5 gap-8 relative">
               {journeySteps.map((item, index) => (
@@ -383,7 +383,7 @@ export default function Technology() {
                   transition={{ delay: index * 0.1, duration: 0.5 }}
                   className="text-center"
                 >
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-600 text-white font-bold text-xl mb-4 shadow-lg shadow-primary/20 relative z-10">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-white font-bold text-xl mb-4 shadow-lg shadow-cyan-500/20 relative z-10">
                     {item.step}
                   </div>
                   <p className="font-semibold mb-1">{item.title}</p>
@@ -437,8 +437,8 @@ export default function Technology() {
             >
               <Card className="bg-gradient-to-br from-card to-muted/50 border-border/60">
                 <CardContent className="p-8 text-center space-y-4">
-                  <div className="inline-flex p-4 rounded-2xl bg-blue-500/10">
-                    <Lock className="h-12 w-12 text-blue-500" />
+                  <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-emerald-400/10 via-cyan-400/10 to-blue-500/10">
+                    <Lock className="h-12 w-12 text-cyan-500" />
                   </div>
                   <p className="text-2xl font-bold">Zero Password Access</p>
                   <p className="text-sm text-muted-foreground">
@@ -505,7 +505,7 @@ export default function Technology() {
               No hardware. No hassle. Just rewards.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 shadow-lg shadow-primary/20 px-8">
+            <Button asChild size="lg" className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 hover:opacity-90 shadow-lg shadow-cyan-500/20 px-8">
                 <Link to="/">
                   Go to Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />
