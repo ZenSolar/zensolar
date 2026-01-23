@@ -116,8 +116,8 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section - account for safe area top */}
-      <section ref={heroRef} className="relative pt-[calc(4rem+env(safe-area-inset-top)+2rem)] pb-16 md:pt-[calc(5rem+env(safe-area-inset-top)+2.5rem)] md:pb-20">
+      {/* Hero Section - optimized for iPhone SE through Pro Max + Android */}
+      <section ref={heroRef} className="relative pt-[calc(4rem+env(safe-area-inset-top)+clamp(1rem,4vw,2.5rem))] pb-[clamp(2.5rem,6vw,5rem)]">
         {/* Parallax background orbs with glow effects */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <motion.div 
@@ -167,7 +167,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="text-center space-y-8 max-w-3xl mx-auto"
+            className="text-center flex flex-col items-center gap-[clamp(1.25rem,4vw,2.5rem)] max-w-3xl mx-auto"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -199,12 +199,12 @@ export default function Landing() {
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-[clamp(1rem,3.2vw,1.25rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               ZenSolar rewards households with $ZSOLAR tokens for every kWh produced, 
               EV mile driven, and battery cycle stored.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-[clamp(0.75rem,2vw,1rem)] pt-[clamp(0.25rem,1vw,0.5rem)] w-full">
               <Link to="/demo">
                 <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/30 animate-pulse">
                   <Hexagon className="mr-2 h-5 w-5" />
