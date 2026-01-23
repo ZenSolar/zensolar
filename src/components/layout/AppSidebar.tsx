@@ -30,6 +30,7 @@ import {
   LineChart
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
+import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -131,9 +132,9 @@ export function AppSidebar() {
         {/* Logo/Brand - optimized sizing */}
         <div className="p-3 flex items-center gap-3">
           <img 
-            src={zenLogo} 
+            src={collapsed ? zenFavicon : zenLogo} 
             alt="ZenSolar" 
-            className="h-8 w-auto object-contain flex-shrink-0 dark:animate-logo-glow"
+            className={`${collapsed ? 'h-8 w-8' : 'h-8 w-auto'} object-contain flex-shrink-0 dark:animate-logo-glow`}
           />
           {!collapsed && (
             <div className="flex flex-col min-w-0">
