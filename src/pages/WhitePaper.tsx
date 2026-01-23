@@ -12,9 +12,10 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useRef } from "react";
-import zenLogo from '@/assets/zen-logo-horizontal.png';
+import { useState, useRef, useEffect } from "react";
+import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
 import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
+import { supabase } from "@/integrations/supabase/client";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -102,7 +103,17 @@ const worldBenefits = [
 export default function WhitePaper() {
   const { toast } = useToast();
   const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+  }, []);
 
   const handleShare = async () => {
     const shareData = {
@@ -175,33 +186,35 @@ export default function WhitePaper() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Fixed Navigation Header - with safe area inset for mobile notches */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
-        <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
-          <Link to="/" className="flex items-center shrink-0">
-            <img 
-              src={zenLogo} 
-              alt="ZenSolar" 
-              className="h-8 w-auto"
-              style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
-            />
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/auth">
-              <Button variant="ghost" size="sm" className="px-2 sm:px-3">Log In</Button>
+      {/* Fixed Navigation Header - only shown for unauthenticated users (landing page visitors) */}
+      {!isAuthenticated && (
+        <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
+          <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
+            <Link to="/" className="flex items-center shrink-0">
+              <img 
+                src={zenLogo} 
+                alt="ZenSolar" 
+                className="h-8 w-auto dark:brightness-0 dark:invert"
+                style={{ mixBlendMode: 'multiply' }}
+              />
             </Link>
-            <Link to="/auth">
-              <Button size="sm" className="bg-primary hover:bg-primary/90 px-2 sm:px-4">
-                <span className="hidden sm:inline">Get Started</span>
-                <span className="sm:hidden">Start</span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link to="/auth">
+                <Button variant="ghost" size="sm" className="px-2 sm:px-3">Log In</Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="sm" className="bg-primary hover:bg-primary/90 px-2 sm:px-4">
+                  <span className="hidden sm:inline">Get Started</span>
+                  <span className="sm:hidden">Start</span>
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
-      {/* Main content with proper top padding for fixed header + safe area */}
-      <div ref={contentRef} className="container max-w-4xl mx-auto px-4 pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)] pb-8 space-y-12">
+      {/* Main content with proper top padding - different for authenticated vs unauthenticated */}
+      <div ref={contentRef} className={`container max-w-4xl mx-auto px-4 pb-8 space-y-12 ${isAuthenticated ? 'pt-6' : 'pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)]'}`}>
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -214,8 +227,8 @@ export default function WhitePaper() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-16 w-auto md:h-24 object-contain mx-auto"
-            style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
+            className="h-16 w-auto md:h-24 object-contain mx-auto dark:brightness-0 dark:invert"
+            style={{ mixBlendMode: 'multiply' }}
           />
         </div>
         
