@@ -166,31 +166,31 @@ export default function Technology() {
               <div className="flex-shrink-0 p-4 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-xl mx-auto md:mx-0">
                 <Cpu className="h-12 w-12 text-white" />
               </div>
-              <div className="space-y-4 text-center md:text-left">
-                <h2 className="text-2xl font-bold">What is SEGI?</h2>
-                <p className="text-muted-foreground leading-relaxed">
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-center md:text-left">What is SEGI?</h2>
+                <p className="text-muted-foreground leading-relaxed text-center md:text-left">
                   Think of SEGI as a <strong className="text-foreground">universal translator</strong> that sits between your 
                   energy hardware and the blockchain. It's a software layer that:
                 </p>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start gap-2">
+                <ul className="space-y-3 text-muted-foreground max-w-md mx-auto md:mx-0">
+                  <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-foreground">Connects</strong> to Tesla, Enphase, SolarEdge, Wallbox (and more coming)</span>
+                    <span className="text-center flex-1"><strong className="text-foreground">Connects</strong> to Tesla, Enphase, SolarEdge, Wallbox (and more coming)</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-foreground">Verifies</strong> your actual energy production—no self-reporting</span>
+                    <span className="text-center flex-1"><strong className="text-foreground">Verifies</strong> your actual energy production—no self-reporting</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-foreground">Converts</strong> that data into blockchain-certified rewards</span>
+                    <span className="text-center flex-1"><strong className="text-foreground">Converts</strong> that data into blockchain-certified rewards</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-foreground">Mints</strong> $ZSOLAR tokens AND collectible NFTs directly from the app to your wallet! 🚀</span>
+                    <span className="text-center flex-1"><strong className="text-foreground">Mints</strong> $ZSOLAR tokens AND collectible NFTs directly from the app to your wallet! 🚀</span>
                   </li>
                 </ul>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-center md:text-left">
                   The innovation? <strong className="text-foreground">It's 100% software</strong>. No IoT dongles. No gateway boxes. 
                   No technician visits. You connect in 60 seconds and start earning—then mint your rewards with a single tap.
                 </p>

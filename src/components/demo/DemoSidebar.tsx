@@ -76,7 +76,7 @@ export function DemoSidebar() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-8 w-auto object-contain flex-shrink-0 dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] dark:brightness-110" 
+            className="h-8 w-auto object-contain flex-shrink-0 dark:animate-logo-glow" 
           />
           {!collapsed && (
             <div className="flex flex-col">

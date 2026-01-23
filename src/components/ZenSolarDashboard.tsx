@@ -201,7 +201,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-10 w-auto object-contain dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] dark:brightness-110" 
+            className="h-10 w-auto object-contain dark:animate-logo-glow" 
           />
           <div>
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
