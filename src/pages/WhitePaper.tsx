@@ -145,41 +145,84 @@ export default function WhitePaper() {
     setIsExportingPDF(true);
     toast({ title: "Generating PDF...", description: "This may take a moment." });
 
+    const fileName = `ZenSolar-WhitePaper-${new Date().toISOString().split("T")[0]}.pdf`;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     try {
       const html2pdf = (await import("html2pdf.js")).default;
       const element = contentRef.current;
-      const fileName = `ZenSolar-WhitePaper-${new Date().toISOString().split("T")[0]}.pdf`;
 
       const opt = {
         margin: [10, 10, 10, 10] as [number, number, number, number],
         filename: fileName,
-        image: { type: "jpeg" as const, quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
+        image: { type: "jpeg" as const, quality: 0.9 },
+        html2canvas: { 
+          scale: isMobile ? 1.5 : 2, 
+          useCORS: true, 
+          logging: false,
+          allowTaint: true,
+          scrollY: -window.scrollY,
+        },
         jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
         pagebreak: { mode: ["avoid-all", "css", "legacy"] },
       };
 
-      // Check if mobile - use blob download method
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
       if (isMobile) {
-        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Mobile: generate blob and try multiple download methods
+        try {
+          const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          
+          // Try using navigator.share for iOS/Android
+          if (navigator.share && navigator.canShare?.({ files: [new File([pdfBlob], fileName, { type: "application/pdf" })] })) {
+            const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+            await navigator.share({ files: [file], title: "ZenSolar White Paper" });
+            toast({ title: "PDF ready to share!" });
+          } else {
+            // Fallback: open in new tab (works better on iOS Safari)
+            const newTab = window.open(blobUrl, "_blank");
+            if (newTab) {
+              toast({ title: "PDF opened in new tab", description: "Use your browser's share/save option." });
+            } else {
+              // Last resort: create download link
+              const link = document.createElement("a");
+              link.href = blobUrl;
+              link.download = fileName;
+              link.style.display = "none";
+              document.body.appendChild(link);
+              link.click();
+              setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+              }, 1000);
+              toast({ title: "PDF downloading...", description: "Check your Downloads folder." });
+            }
+          }
+          
+          // Cleanup after delay
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+        } catch (mobileError) {
+          console.error("Mobile PDF error:", mobileError);
+          // Ultimate fallback: use browser print
+          toast({ 
+            title: "Opening print dialog", 
+            description: "Select 'Save as PDF' from the options." 
+          });
+          setTimeout(() => window.print(), 500);
+        }
       } else {
+        // Desktop: standard save
         await html2pdf().set(opt).from(element).save();
+        toast({ title: "PDF downloaded!", description: fileName });
       }
-
-      toast({ title: "PDF downloaded!", description: fileName });
     } catch (error) {
       console.error("PDF export error:", error);
-      toast({ title: "Export failed", description: "Please try again or use browser print.", variant: "destructive" });
+      // Fallback to browser print for all errors
+      toast({ 
+        title: "Opening print dialog", 
+        description: "Select 'Save as PDF' to download." 
+      });
+      setTimeout(() => window.print(), 500);
     } finally {
       setIsExportingPDF(false);
     }
