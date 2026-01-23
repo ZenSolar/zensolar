@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sun, Zap, Coins, Leaf, Users, Globe, ArrowRight, Cpu, Sparkles, Shield, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import zenLogo from "@/assets/zen-logo-stacked.png";
+import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 
 const features = [
   {
@@ -53,9 +53,7 @@ export default function About() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            width={180}
-            height={72}
-            className="h-20 mx-auto rounded-xl shadow-lg"
+            className="h-12 mx-auto dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] dark:brightness-110"
           />
           <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-xl -z-10" />
         </div>

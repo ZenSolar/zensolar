@@ -15,7 +15,7 @@ import {
   Award,
   Play
 } from "lucide-react";
-import zenLogo from "@/assets/zen-logo-stacked.png";
+import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
@@ -73,10 +73,13 @@ export function DemoSidebar() {
 
         {/* Logo/Brand */}
         <div className="p-4 flex items-center gap-3">
-          <img src={zenLogo} alt="ZenSolar" className="h-14 w-14 rounded-xl object-cover flex-shrink-0" />
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            className="h-8 w-auto object-contain flex-shrink-0 dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] dark:brightness-110" 
+          />
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-lg text-sidebar-foreground">ZenSolar</span>
               <span className="text-xs text-sidebar-foreground/60">Earn blockchain rewards from clean energy use</span>
             </div>
           )}

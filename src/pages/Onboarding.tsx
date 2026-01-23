@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Sun, Wallet, Zap, CheckCircle2, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
-import zenLogo from "@/assets/zen-logo-stacked.png";
+import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 
 const steps = [
   {
@@ -14,7 +14,7 @@ const steps = [
     icon: Sparkles,
     content: (
       <div className="space-y-4 text-center">
-        <img src={zenLogo} alt="ZenSolar" width={168} height={80} className="h-20 mx-auto rounded-xl" />
+        <img src={zenLogo} alt="ZenSolar" className="h-10 mx-auto dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] dark:brightness-110" />
         <p className="text-muted-foreground">
           ZenSolar tracks your solar production, EV miles, and sustainable actions 
           to reward you with $ZSOLAR tokens and NFTs on the blockchain.

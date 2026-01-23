@@ -3,6 +3,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 
 interface TopNavProps {
   isDemo?: boolean;
@@ -34,6 +35,16 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
             </Badge>
           )}
         </div>
+        
+        {/* Centered Logo */}
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            className="h-7 w-auto object-contain dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] dark:brightness-110"
+          />
+        </div>
+        
         <ThemeToggle />
       </div>
       {/* Border below everything */}

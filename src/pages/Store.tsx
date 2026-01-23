@@ -12,7 +12,7 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import merchTshirt from "@/assets/merch-tshirt.jpg";
 import merchHoodie from "@/assets/merch-hoodie.jpg";
 import merchCap from "@/assets/merch-cap.jpg";
-import zenLogo from "@/assets/zen-logo-stacked.png";
+import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 
 // Product images
 import teslaGiftCardImg from "@/assets/store/tesla-gift-card.jpg";
@@ -612,7 +612,7 @@ export default function Store() {
                 <img 
                   src={zenLogo} 
                   alt="ZenSolar" 
-                  className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl object-cover shadow-xl ring-2 ring-secondary/30"
+                  className="relative h-10 w-auto object-contain dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] dark:brightness-110"
                 />
               </div>
               <div>
