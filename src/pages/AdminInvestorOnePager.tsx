@@ -19,7 +19,9 @@ import {
   Award,
   DollarSign,
   Globe,
-  Lock
+  Lock,
+  Star,
+  Sparkles
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ExportButtons } from "@/components/admin/ExportButtons";
@@ -68,6 +70,12 @@ const USE_OF_FUNDS = [
   { category: "Marketing & Growth", amount: "$200K", percentage: 15 },
   { category: "Mainnet & Infrastructure", amount: "$150K", percentage: 10 },
   { category: "Reserve", amount: "$225K", percentage: 10 },
+];
+
+const MOONSHOT_SCENARIOS = [
+  { price: "$5", label: "Conservative", subs: "50K+", driver: "Net-negative issuance", color: "amber" },
+  { price: "$10", label: "Viral Adoption", subs: "100K+", driver: "Institutional interest", color: "orange" },
+  { price: "$20+", label: "ESG Integration", subs: "250K+", driver: "Carbon market adoption", color: "purple" },
 ];
 
 export default function AdminInvestorOnePager() {
@@ -374,8 +382,56 @@ export default function AdminInvestorOnePager() {
         </Card>
       </motion.div>
 
+      {/* Moonshot Scenarios */}
+      <motion.div {...fadeIn} transition={{ delay: 0.45 }}>
+        <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-purple-500/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Rocket className="h-5 w-5 text-amber-500" />
+              Moonshot Scenarios
+              <Badge className="bg-amber-500/20 text-amber-600 text-xs ml-2">Beyond $1.00</Badge>
+            </CardTitle>
+            <CardDescription>Aggressive deflation + viral adoption = wealth creation potential</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-3">
+              {MOONSHOT_SCENARIOS.map((scenario) => (
+                <div 
+                  key={scenario.price} 
+                  className={`p-4 rounded-xl text-center border ${
+                    scenario.color === 'amber' ? 'bg-amber-500/5 border-amber-500/30' :
+                    scenario.color === 'orange' ? 'bg-orange-500/5 border-orange-500/30' :
+                    'bg-purple-500/5 border-purple-500/30'
+                  }`}
+                >
+                  {scenario.color === 'amber' && <Star className="h-6 w-6 text-amber-500 mx-auto mb-2" />}
+                  {scenario.color === 'orange' && <Rocket className="h-6 w-6 text-orange-500 mx-auto mb-2" />}
+                  {scenario.color === 'purple' && <Sparkles className="h-6 w-6 text-purple-500 mx-auto mb-2" />}
+                  <p className={`text-2xl font-bold ${
+                    scenario.color === 'amber' ? 'text-amber-600' :
+                    scenario.color === 'orange' ? 'text-orange-600' :
+                    'text-purple-600'
+                  }`}>{scenario.price}</p>
+                  <p className="font-medium text-sm">{scenario.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{scenario.subs} subscribers</p>
+                  <p className="text-xs text-muted-foreground">{scenario.driver}</p>
+                </div>
+              ))}
+            </div>
+            <div className="bg-muted/30 rounded-lg p-4 border">
+              <p className="text-sm text-muted-foreground">
+                <strong className="text-foreground">Wealth Math:</strong> 100K tokens earned over 8 years = 
+                <span className="font-mono text-primary"> $100K</span> at $1.00, 
+                <span className="font-mono text-amber-600"> $500K</span> at $5.00, 
+                <span className="font-mono text-purple-600"> $1M+</span> at $10.00
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Footer CTA */}
-      <motion.div {...fadeIn} transition={{ delay: 0.45 }} className="text-center space-y-4 pb-8">
+      <motion.div {...fadeIn} transition={{ delay: 0.5 }} className="text-center space-y-4 pb-8">
         <Separator />
         <p className="text-sm text-muted-foreground">
           For detailed financial models, see the <strong>Admin Tokenomics 10B</strong> and <strong>Investment Thesis</strong> pages.
