@@ -163,7 +163,7 @@ export default function Technology() {
         <Card className="bg-gradient-to-br from-primary/10 via-background to-emerald-500/10 border-primary/30 overflow-hidden">
           <CardContent className="pt-6 space-y-6">
             <div className="flex flex-col md:flex-row items-start gap-6">
-              <div className="flex-shrink-0 p-4 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-xl">
+              <div className="flex-shrink-0 p-4 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-xl mx-auto md:mx-0">
                 <Cpu className="h-12 w-12 text-white" />
               </div>
               <div className="space-y-4">

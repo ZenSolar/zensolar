@@ -65,8 +65,7 @@ export default function Landing() {
             <img 
               src={zenLogo} 
               alt="ZenSolar" 
-              className="h-9 w-auto dark:brightness-0 dark:invert"
-              style={{ mixBlendMode: 'multiply' }}
+              className="h-8 w-auto"
             />
           </Link>
           <nav className="hidden md:flex items-center gap-6">

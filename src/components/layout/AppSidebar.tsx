@@ -133,8 +133,7 @@ export function AppSidebar() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-10 w-10 rounded-lg object-contain flex-shrink-0"
-            style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
+            className="h-12 w-12 rounded-lg object-cover flex-shrink-0"
           />
           {!collapsed && (
             <div className="flex flex-col min-w-0">
