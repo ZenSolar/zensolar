@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorks as HowItWorksSteps } from '@/components/dashboard/HowItWorks';
+import { SEGIMintingInfographic } from '@/components/landing/SEGIMintingInfographic';
 import { Coins, Image, Wallet, Shield, Sparkles, TrendingUp, Cpu, ArrowRight, Zap, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -45,11 +46,20 @@ export default function HowItWorks() {
         </Link>
       </motion.div>
 
-      {/* Quick Steps Overview */}
+      {/* SEGI Connect → Verify → Mint Infographic */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
+      >
+        <SEGIMintingInfographic />
+      </motion.div>
+
+      {/* Quick Steps Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
       >
         <Card className="overflow-hidden">
           <CardHeader className="pb-4 bg-gradient-to-r from-muted/50 to-muted/20">
