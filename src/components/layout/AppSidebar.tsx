@@ -139,7 +139,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col min-w-0">
               <span className="font-bold text-base text-sidebar-foreground leading-tight">ZenSolar</span>
-              <span className="text-[11px] text-sidebar-foreground/60 leading-tight truncate">Earn blockchain rewards</span>
+              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">Earn Blockchain Rewards From Your Clean Energy Use</span>
             </div>
           )}
         </div>
