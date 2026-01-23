@@ -195,7 +195,7 @@ export default function Landing() {
             <h1 className="text-[clamp(2.6rem,8.5vw,5rem)] font-bold tracking-tight leading-[1.06]">
               Turn Clean Energy Into{' '}
               <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Digital Wealth
+                Digital Income
               </span>
             </h1>
             
