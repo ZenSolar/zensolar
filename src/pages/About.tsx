@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sun, Zap, Coins, Leaf, Users, Globe, ArrowRight, Cpu, Sparkles, Shield, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
+import { SEO } from "@/components/SEO";
 
 const features = [
   {
@@ -42,7 +43,13 @@ const stats = [
 
 export default function About() {
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+    <>
+      <SEO 
+        title="About ZenSolar"
+        description="Learn about ZenSolar's mission to reward clean energy production. Connect solar, EV, and battery systems to earn blockchain-verified tokens and NFTs."
+        url="https://zensolar.lovable.app/about"
+      />
+      <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Hero */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -262,6 +269,7 @@ export default function About() {
           </Button>
         </div>
       </motion.div>
-    </div>
+      </div>
+    </>
   );
 }
