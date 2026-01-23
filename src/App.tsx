@@ -16,7 +16,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 
 // Eagerly load critical path pages
 import Auth from "./pages/Auth";
-import Index from "./pages/Index";
+import { RootRoute } from "./components/RootRoute";
 
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
@@ -192,16 +192,8 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <Index />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    {/* Root route - shows Landing for guests, Dashboard for auth users */}
+                    <Route path="/" element={<RootRoute />} />
                     <Route 
                       path="/how-it-works" 
                       element={
