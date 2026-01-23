@@ -55,9 +55,9 @@ const segiLayers = [
     icon: Binary,
     title: 'Layer 4: Smart Contract Bridge',
     tagline: 'Energy → Blockchain Magic ✨',
-    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2 to mint $ZSOLAR tokens directly to your wallet.',
+    description: 'This is where the magic happens! SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. With one tap in the app, you mint $ZSOLAR tokens AND collectible milestone NFTs directly to your wallet. No external tools needed—it all happens right here.',
     gradient: 'from-amber-500 to-orange-500',
-    highlight: 'Automated on-chain minting',
+    highlight: 'In-app minting to your wallet! 🚀',
   },
 ];
 
@@ -114,9 +114,9 @@ const blockchainFlow = [
   },
   {
     step: 4,
-    emoji: '⛓️',
-    title: 'Mint to Blockchain',
-    description: 'Smart contracts mint $ZSOLAR and milestone NFTs directly to your wallet.',
+    emoji: '🚀',
+    title: 'Mint Right From the App!',
+    description: 'Tap a button and our smart contracts mint $ZSOLAR tokens + collectible NFTs directly to your connected wallet. No external sites, no complexity—just rewards, delivered instantly.',
   },
   {
     step: 5,
@@ -185,10 +185,14 @@ export default function Technology() {
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                     <span><strong className="text-foreground">Converts</strong> that data into blockchain-certified rewards</span>
                   </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <span><strong className="text-foreground">Mints</strong> $ZSOLAR tokens AND collectible NFTs directly from the app to your wallet! 🚀</span>
+                  </li>
                 </ul>
                 <p className="text-muted-foreground leading-relaxed">
                   The innovation? <strong className="text-foreground">It's 100% software</strong>. No IoT dongles. No gateway boxes. 
-                  No technician visits. You connect in 60 seconds and start earning.
+                  No technician visits. You connect in 60 seconds and start earning—then mint your rewards with a single tap.
                 </p>
               </div>
             </div>

@@ -15,7 +15,7 @@ import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { DemoOnboardingGuide } from '@/components/demo/DemoOnboardingGuide';
 import { DemoRewardActions, DemoRewardActionsRef, MintCategory as DemoMintCategory } from '@/components/demo/DemoRewardActions';
-import zenLogo from '@/assets/zen-logo.png';
+import zenLogo from '@/assets/zen-logo-stacked.png';
 import { toast } from 'sonner';
 
 // Simple SVG icons for social platforms

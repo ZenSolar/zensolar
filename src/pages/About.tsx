@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sun, Zap, Coins, Leaf, Users, Globe, ArrowRight, Cpu, Sparkles, Shield, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import zenLogo from "@/assets/zen-logo-full-new.jpeg";
+import zenLogo from "@/assets/zen-logo-stacked.png";
 
 const features = [
   {
