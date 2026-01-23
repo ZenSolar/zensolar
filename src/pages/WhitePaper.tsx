@@ -11,6 +11,7 @@ import {
   DollarSign, Download, Loader2
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef } from "react";
 import zenLogo from '@/assets/zen-logo-horizontal.png';
@@ -173,35 +174,44 @@ export default function WhitePaper() {
     }
   };
 
+  // Check if user is in PWA mode (standalone) - hide landing header in PWA
+  const isPWA = typeof window !== 'undefined' && 
+    (window.matchMedia('(display-mode: standalone)').matches || 
+     (window.navigator as any).standalone === true);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Fixed Navigation Header - with safe area inset for mobile notches */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
-        <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
-          <Link to="/" className="flex items-center shrink-0">
-            <img 
-              src={zenLogo} 
-              alt="ZenSolar" 
-              className="h-8 w-auto"
-              style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
-            />
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/auth">
-              <Button variant="ghost" size="sm" className="px-2 sm:px-3">Log In</Button>
+      {/* Fixed Navigation Header - only show on web landing, not in PWA */}
+      {!isPWA && (
+        <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
+          <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
+            <Link to="/" className="flex items-center shrink-0">
+              <img 
+                src={zenLogo} 
+                alt="ZenSolar" 
+                className="h-8 w-auto mix-blend-normal"
+              />
             </Link>
-            <Link to="/auth">
-              <Button size="sm" className="bg-primary hover:bg-primary/90 px-2 sm:px-4">
-                <span className="hidden sm:inline">Get Started</span>
-                <span className="sm:hidden">Start</span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link to="/auth">
+                <Button variant="ghost" size="sm" className="px-2 sm:px-3">Log In</Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="sm" className="bg-primary hover:bg-primary/90 px-2 sm:px-4">
+                  <span className="hidden sm:inline">Get Started</span>
+                  <span className="sm:hidden">Start</span>
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
-      {/* Main content with proper top padding for fixed header + safe area */}
-      <div ref={contentRef} className="container max-w-4xl mx-auto px-4 pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)] pb-8 space-y-12">
+      {/* Main content with proper top padding - adjusts based on PWA vs web */}
+      <div ref={contentRef} className={cn(
+        "container max-w-4xl mx-auto px-4 pb-8 space-y-12",
+        isPWA ? "pt-[calc(env(safe-area-inset-top)+1.5rem)]" : "pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)]"
+      )}>
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -209,13 +219,12 @@ export default function WhitePaper() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="text-center space-y-6 pt-4"
       >
-        {/* Clean Logo - transparent background */}
-        <div className="inline-block">
+        {/* Clean Logo - transparent background using mix-blend-mode */}
+        <div className="inline-block bg-transparent">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-16 w-auto md:h-24 object-contain mx-auto"
-            style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
+            className="h-16 w-auto md:h-24 object-contain mx-auto mix-blend-normal"
           />
         </div>
         
