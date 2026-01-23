@@ -19,7 +19,12 @@ import {
   Binary,
   Fingerprint,
   Gauge,
-  Hexagon
+  Hexagon,
+  Lightbulb,
+  Target,
+  Battery,
+  Car,
+  Sun
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -28,61 +33,52 @@ const segiLayers = [
   {
     icon: Cloud,
     title: 'API Aggregation',
-    subtitle: 'The Foundation of Digital Energy Rewards',
-    description: 'Secure OAuth 2.0 connections to the world\'s leading energy providers—Tesla, Enphase, SolarEdge, Wallbox, and more. No custom hardware. No technician visits. Just your existing equipment, verified and rewarded.',
+    subtitle: 'Universal Hardware Support',
+    description: 'Secure OAuth 2.0 connections to Tesla, Enphase, SolarEdge, Wallbox, and more. No custom hardware. No technician visits. Just your existing equipment.',
     gradient: 'from-emerald-400 to-emerald-500',
-    detail: 'Zero hardware installation',
+    detail: 'Zero installation required',
   },
   {
     icon: RefreshCw,
     title: 'Data Normalization',
     subtitle: 'Unified Metrics Engine',
-    description: 'Every provider speaks a different language. Our normalization engine converts Tesla\'s kWh, Enphase\'s microinverter data, and Wallbox\'s charging sessions into a standardized Impact Score—ensuring fair, consistent rewards across all devices.',
+    description: 'Every provider speaks a different language. Our engine converts all formats into a standardized Impact Score—ensuring fair rewards across all devices.',
     gradient: 'from-cyan-400 to-cyan-500',
     detail: 'Cross-platform compatibility',
   },
   {
     icon: Fingerprint,
     title: 'Verification Engine',
-    subtitle: 'Converting Clean Energy Into Blockchain Wealth',
-    description: 'Cryptographically signed data pulled directly from manufacturer APIs. Device IDs, timestamps, and production values are verified against historical patterns—eliminating fraud and ensuring only genuine clean energy activity is rewarded.',
+    subtitle: 'Fraud-Proof Validation',
+    description: 'Cryptographically signed data pulled directly from manufacturer APIs. Device IDs, timestamps, and values are verified—eliminating fraud.',
     gradient: 'from-blue-400 to-blue-500',
-    detail: 'Tamper-proof validation',
+    detail: 'Tamper-proof authentication',
   },
   {
     icon: Binary,
     title: 'Smart Contract Bridge',
     subtitle: 'One-Tap Blockchain Minting',
-    description: 'Verified activity is packaged into transaction payloads and minted as $ZSOLAR tokens and milestone NFTs directly to your wallet—all from within the app. No external platforms. No complexity. Just rewards.',
+    description: 'Verified activity becomes $ZSOLAR tokens and milestone NFTs minted directly to your wallet—all from within the app.',
     gradient: 'from-emerald-500 to-cyan-500',
     detail: 'In-app minting',
   },
 ];
 
-const keyAdvantages = [
+const theProblem = [
   {
-    icon: Rocket,
-    title: 'Instant Setup',
-    stat: '60s',
-    description: 'Connect your devices and start earning in under a minute—no hardware, no waiting.',
+    icon: Battery,
+    title: 'No Ongoing Incentives',
+    description: 'Solar owners get a one-time tax credit, then nothing. After the check clears, there\'s no financial reward for continued production.',
   },
   {
-    icon: Globe,
-    title: 'Hardware Agnostic',
-    stat: '4+',
-    description: 'Works with Tesla, Enphase, SolarEdge, Wallbox, and more. One platform for all your clean energy assets.',
+    icon: Car,
+    title: 'EVs Are Pure Cost',
+    description: 'EV drivers pay for electricity but receive no rewards for displacing gasoline. Every mile is an expense, not an asset.',
   },
   {
-    icon: Shield,
-    title: 'Verified Data',
-    stat: '100%',
-    description: 'API-verified production data. No self-reporting. No manipulation. Just truth.',
-  },
-  {
-    icon: Gauge,
-    title: 'Real-Time Rewards',
-    stat: 'Live',
-    description: 'Watch your $ZSOLAR balance and NFT progress update as you generate clean energy.',
+    icon: Sun,
+    title: 'Fragmented Ecosystems',
+    description: 'Each hardware vendor operates in isolation. There\'s no unified way to track, verify, and reward clean energy activity across devices.',
   },
 ];
 
@@ -104,10 +100,10 @@ const journeySteps = [
 ];
 
 const securityPoints = [
-  { icon: Key, text: 'OAuth 2.0 authentication—zero password sharing' },
-  { icon: Lock, text: 'End-to-end encryption for all data transmission' },
-  { icon: Server, text: 'Credentials stay with manufacturers—we never store passwords' },
-  { icon: LinkIcon, text: 'Immutable blockchain records for every mint' },
+  { icon: Key, text: 'OAuth 2.0—zero password sharing' },
+  { icon: Lock, text: 'End-to-end encryption' },
+  { icon: Server, text: 'Credentials stay with manufacturers' },
+  { icon: LinkIcon, text: 'Immutable blockchain records' },
 ];
 
 export default function Technology() {
@@ -124,7 +120,7 @@ export default function Technology() {
             className="text-center space-y-6"
           >
             <Badge variant="outline" className="px-4 py-1.5 border-primary/30 bg-primary/5 text-primary font-medium tracking-wide">
-              Patent Pending
+              Patent Pending • April 2025
             </Badge>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
@@ -138,14 +134,60 @@ export default function Technology() {
             </p>
             
             <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              The patent-pending technology that transforms verified clean energy data into blockchain-certified digital wealth—without hardware installation, without technician visits, without complexity.
+              The patent-pending technology that transforms verified clean energy data 
+              into blockchain-certified digital wealth—without hardware, without complexity.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* What is SEGI */}
+      {/* The Problem - with 🤔 */}
       <section className="py-16 md:py-20 border-t border-border/40">
+        <div className="container max-w-5xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <div className="text-5xl mb-4">🤔</div>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+              The Problem
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Clean energy households are <strong className="text-foreground">underrewarded</strong>. 
+              Millions have invested in solar, EVs, and batteries—but after the initial tax credit, 
+              there's no ongoing financial incentive for continued sustainability.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {theProblem.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+              >
+                <Card className="h-full bg-card hover:bg-muted/30 border-border/60 transition-all duration-300">
+                  <CardContent className="p-6 text-center">
+                    <div className="inline-flex p-3 rounded-xl bg-destructive/10 mb-4">
+                      <item.icon className="h-6 w-6 text-destructive" />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* The Solution - with 💡 */}
+      <section className="py-16 md:py-20 bg-muted/30 border-y border-border/40">
         <div className="container max-w-5xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -155,20 +197,25 @@ export default function Technology() {
             className="grid lg:grid-cols-2 gap-12 items-center"
           >
             <div className="space-y-6">
+              <div className="text-5xl">💡</div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                The Foundation of Digital Energy Rewards
+                The Solution: SEGI
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                SEGI is the technical heart of ZenSolar—a proprietary software layer that creates a universal bridge between your existing clean energy hardware and the blockchain. We're not asking you to buy new equipment. We're rewarding the investments you've already made.
+                SEGI creates a <strong className="text-foreground">universal bridge</strong> between 
+                your existing clean energy hardware and the blockchain. We're not asking you to buy 
+                new equipment—we're rewarding the investments you've already made.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Unlike hardware-dependent solutions that require custom IoT devices and technician installations, SEGI works entirely through secure API connections to the world's leading energy providers.
+                Unlike hardware-dependent solutions requiring custom IoT devices and technician 
+                installations, SEGI works entirely through secure API connections. Connect in 
+                60 seconds. Start earning immediately.
               </p>
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {[
-                  { label: 'Connect', desc: 'Tesla, Enphase, SolarEdge, Wallbox, and more' },
-                  { label: 'Verify', desc: 'Cryptographic proof of production—no self-reporting' },
-                  { label: 'Mint', desc: '$ZSOLAR tokens & milestone NFTs directly in-app' },
+                  { label: 'Connect', desc: 'Tesla, Enphase, SolarEdge, Wallbox & more' },
+                  { label: 'Verify', desc: 'Cryptographic proof—no self-reporting' },
+                  { label: 'Mint', desc: '$ZSOLAR tokens & NFTs directly in-app' },
                 ].map((item) => (
                   <li key={item.label} className="flex items-start gap-3">
                     <div className="mt-1 p-1 rounded-full bg-primary/10">
@@ -205,8 +252,8 @@ export default function Technology() {
         </div>
       </section>
 
-      {/* The Four Layers */}
-      <section className="py-16 md:py-20 bg-muted/30 border-y border-border/40">
+      {/* The Four Layers - with ⚙️ */}
+      <section className="py-16 md:py-20">
         <div className="container max-w-5xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -215,11 +262,13 @@ export default function Technology() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
+            <div className="text-5xl mb-4">⚙️</div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               Four-Layer Architecture
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Each layer performs a specialized function, working together seamlessly.
+              Each layer performs a specialized function, working together to convert 
+              clean energy activity into blockchain wealth.
             </p>
           </motion.div>
 
@@ -244,13 +293,14 @@ export default function Technology() {
                             Layer {index + 1}
                           </p>
                           <h3 className="text-lg font-semibold">{layer.title}</h3>
+                          <p className="text-sm text-primary font-medium">{layer.subtitle}</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">
                           {layer.description}
                         </p>
-                        <p className="text-xs font-medium text-primary">
+                        <Badge variant="outline" className="text-xs">
                           {layer.detail}
-                        </p>
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -261,46 +311,7 @@ export default function Technology() {
         </div>
       </section>
 
-      {/* Key Advantages - Stats Grid */}
-      <section className="py-16 md:py-20">
-        <div className="container max-w-5xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              Key Advantages
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {keyAdvantages.map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="text-center"
-              >
-                <div className="inline-flex p-3 rounded-xl bg-primary/10 mb-4">
-                  <item.icon className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-3xl md:text-4xl font-bold text-foreground mb-1">
-                  {item.stat}
-                </p>
-                <p className="text-sm font-semibold mb-1">{item.title}</p>
-                <p className="text-xs text-muted-foreground">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Comparison Table */}
+      {/* Comparison Table - with 📊 */}
       <section className="py-16 md:py-20 bg-muted/30 border-y border-border/40">
         <div className="container max-w-4xl mx-auto px-4">
           <motion.div
@@ -310,9 +321,13 @@ export default function Technology() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
+            <div className="text-5xl mb-4">📊</div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               SEGI vs. Legacy Solutions
             </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Why software-only beats hardware-dependent every time.
+            </p>
           </motion.div>
 
           <motion.div
@@ -327,7 +342,7 @@ export default function Technology() {
                   <thead>
                     <tr className="bg-muted/50">
                       <th className="text-left py-4 px-6 font-semibold text-sm">Feature</th>
-                      <th className="text-left py-4 px-6 font-semibold text-sm text-muted-foreground">Legacy</th>
+                      <th className="text-left py-4 px-6 font-semibold text-sm text-muted-foreground">Legacy Hardware</th>
                       <th className="text-left py-4 px-6 font-semibold text-sm text-primary">SEGI</th>
                     </tr>
                   </thead>
@@ -340,7 +355,7 @@ export default function Technology() {
                         <td className="py-4 px-6 text-sm font-medium">{row.feature}</td>
                         <td className="py-4 px-6 text-sm text-muted-foreground">{row.legacy}</td>
                         <td className="py-4 px-6 text-sm font-medium text-primary flex items-center gap-2">
-                          <Check className="h-4 w-4" />
+                          <Check className="h-4 w-4 flex-shrink-0" />
                           {row.segi}
                         </td>
                       </tr>
@@ -353,7 +368,7 @@ export default function Technology() {
         </div>
       </section>
 
-      {/* The Journey */}
+      {/* The Journey - with 🚀 */}
       <section className="py-16 md:py-20">
         <div className="container max-w-5xl mx-auto px-4">
           <motion.div
@@ -363,6 +378,7 @@ export default function Technology() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
+            <div className="text-5xl mb-4">🚀</div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               From Energy to Wallet
             </h2>
@@ -397,7 +413,7 @@ export default function Technology() {
         </div>
       </section>
 
-      {/* Security */}
+      {/* Security - with 🔒 */}
       <section className="py-16 md:py-20 bg-muted/30 border-y border-border/40">
         <div className="container max-w-4xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -408,11 +424,13 @@ export default function Technology() {
               transition={{ duration: 0.5 }}
               className="space-y-6"
             >
+              <div className="text-5xl">🔒</div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
                 Security First
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Your data protection is paramount. SEGI uses industry-standard protocols to ensure your credentials and energy data remain secure.
+                Your data protection is paramount. SEGI uses industry-standard protocols 
+                to ensure your credentials and energy data remain secure.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {securityPoints.map((point, index) => (
@@ -453,7 +471,7 @@ export default function Technology() {
         </div>
       </section>
 
-      {/* Patent Section */}
+      {/* Patent Section - with 📜 */}
       <section className="py-16 md:py-20">
         <div className="container max-w-4xl mx-auto px-4">
           <motion.div
@@ -465,9 +483,7 @@ export default function Technology() {
             <Card className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 border-amber-500/20">
               <CardContent className="p-8 md:p-12">
                 <div className="flex flex-col md:flex-row items-start gap-8">
-                  <div className="flex-shrink-0 p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-xl">
-                    <Shield className="h-10 w-10 text-white" />
-                  </div>
+                  <div className="text-6xl">📜</div>
                   <div className="space-y-4">
                     <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
                       Patent Pending • Filed April 2025
@@ -476,10 +492,14 @@ export default function Technology() {
                       Protected Innovation
                     </h3>
                     <p className="text-muted-foreground leading-relaxed">
-                      SEGI is the first system to create a software-only bridge between verified energy APIs and blockchain smart contracts. The patent application protects the specific architecture: API aggregation → data normalization → cryptographic verification → automated minting.
+                      SEGI is the <strong className="text-foreground">first system</strong> to create 
+                      a software-only bridge between verified energy APIs and blockchain smart contracts. 
+                      Our patent protects the specific architecture: API aggregation → data normalization 
+                      → cryptographic verification → automated minting.
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      <span className="font-semibold text-foreground">First-mover advantage</span> with legal protection for our unique method.
+                      <span className="font-semibold text-foreground">First-mover advantage</span> with 
+                      legal protection for our unique energy-to-blockchain verification method.
                     </p>
                   </div>
                 </div>
@@ -499,6 +519,7 @@ export default function Technology() {
             transition={{ duration: 0.5 }}
             className="space-y-6"
           >
+            <div className="text-5xl">✨</div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
               Experience SEGI
             </h2>
@@ -507,7 +528,7 @@ export default function Technology() {
               No hardware. No hassle. Just rewards.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button asChild size="lg" className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 hover:opacity-90 shadow-lg shadow-cyan-500/20 px-8">
+              <Button asChild size="lg" className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 hover:opacity-90 shadow-lg shadow-cyan-500/20 px-8">
                 <Link to="/">
                   Go to Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />

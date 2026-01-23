@@ -13,9 +13,10 @@ import {
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useRef } from "react";
-import zenLogo from '@/assets/zen-logo-horizontal.png';
+import { useState, useRef, useEffect } from "react";
+import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
 import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
+import { TopNav } from '@/components/layout/TopNav';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -174,22 +175,31 @@ export default function WhitePaper() {
     }
   };
 
-  // Check if user is in PWA mode (standalone) - hide landing header in PWA
-  const isPWA = typeof window !== 'undefined' && 
-    (window.matchMedia('(display-mode: standalone)').matches || 
-     (window.navigator as any).standalone === true);
+  // Check if user is in PWA mode (standalone) - show TopNav in PWA, show landing header on web
+  const [isPWA, setIsPWA] = useState(false);
+  
+  useEffect(() => {
+    const checkPWA = () => {
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || 
+        (window.navigator as any).standalone === true;
+      setIsPWA(standalone);
+    };
+    checkPWA();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Fixed Navigation Header - only show on web landing, not in PWA */}
-      {!isPWA && (
+      {/* Show TopNav with sidebar access in PWA, show landing header on web */}
+      {isPWA ? (
+        <TopNav />
+      ) : (
         <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
           <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
             <Link to="/" className="flex items-center shrink-0">
               <img 
                 src={zenLogo} 
                 alt="ZenSolar" 
-                className="h-8 w-auto mix-blend-normal"
+                className="h-8 w-auto"
               />
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -210,7 +220,7 @@ export default function WhitePaper() {
       {/* Main content with proper top padding - adjusts based on PWA vs web */}
       <div ref={contentRef} className={cn(
         "container max-w-4xl mx-auto px-4 pb-8 space-y-12",
-        isPWA ? "pt-[calc(env(safe-area-inset-top)+1.5rem)]" : "pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)]"
+        isPWA ? "pt-[calc(env(safe-area-inset-top)+5rem)]" : "pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)]"
       )}>
       {/* Hero Section */}
       <motion.div 
@@ -219,12 +229,12 @@ export default function WhitePaper() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="text-center space-y-6 pt-4"
       >
-        {/* Clean Logo - transparent background using mix-blend-mode */}
-        <div className="inline-block bg-transparent">
+        {/* Clean Logo - transparent background */}
+        <div className="inline-block">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-16 w-auto md:h-24 object-contain mx-auto mix-blend-normal"
+            className="h-16 w-auto md:h-24 object-contain mx-auto"
           />
         </div>
         
