@@ -5,9 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Sun, Zap, Battery, Car, Coins, Shield, TrendingUp, 
-  ChevronRight, Sparkles, Globe, ArrowRight
+  ChevronRight, Sparkles, Globe, ArrowRight, Play, Hexagon
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal.png';
+import mintingFlowVideo from '@/assets/minting-flow-demo.mp4';
 
 const features = [
   {
@@ -124,15 +125,17 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+              <Link to="/demo">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/30 animate-pulse">
+                  <Hexagon className="mr-2 h-5 w-5" />
+                  Mint Tokens & NFTs Now
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
               <Link to="/auth">
                 <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
                   Start Earning Today
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/demo">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8">
-                  Try the Demo
                 </Button>
               </Link>
             </div>
@@ -147,6 +150,75 @@ export default function Landing() {
                 <Globe className="h-4 w-4 text-primary" />
                 <span>Built on Base L2</span>
               </div>
+              <div className="flex items-center gap-2">
+                <Hexagon className="h-4 w-4 text-amber-500" />
+                <span>In-App Minting</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Minting Demo Video Section */}
+      <section className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30">
+        <div className="container max-w-5xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+          >
+            <Badge variant="outline" className="mb-4 border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <Play className="h-3.5 w-3.5 mr-2" />
+              See It In Action
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Mint Tokens & NFTs{' '}
+              <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                Directly From the App
+              </span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Our patent-pending SEGI technology verifies your energy production and lets you mint $ZSOLAR tokens 
+              and milestone NFTs with just one tap—no external tools needed.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/10 border border-border/60"
+          >
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-auto"
+            >
+              <source src={mintingFlowVideo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                  <Hexagon className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-white text-shadow">Dashboard → Wallet</p>
+                  <p className="text-xs text-white/80">One-tap minting powered by SEGI</p>
+                </div>
+              </div>
+              <Link to="/demo">
+                <Button size="sm" className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30">
+                  Try Demo
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>
