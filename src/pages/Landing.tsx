@@ -176,9 +176,9 @@ export default function Landing() {
             >
               <Badge 
                 variant="outline" 
-                className="px-3 sm:px-6 py-1.5 sm:py-2 text-[clamp(0.68rem,3vw,1rem)] whitespace-nowrap flex-nowrap border-primary/60 bg-primary/15 text-primary font-semibold tracking-tight leading-none shadow-lg shadow-primary/30 ring-2 ring-primary/20 animate-pulse"
+                className="inline-flex items-center max-w-[95vw] px-[clamp(0.5rem,2vw,1.5rem)] py-[clamp(0.375rem,1vw,0.625rem)] text-[clamp(0.65rem,2.8vw,1rem)] whitespace-nowrap border-primary/60 bg-primary/15 text-primary font-semibold tracking-tight leading-none shadow-lg shadow-primary/30 ring-2 ring-primary/20 animate-pulse"
               >
-                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                <Sparkles className="h-[clamp(0.75rem,2.5vw,1rem)] w-[clamp(0.75rem,2.5vw,1rem)] mr-[clamp(0.25rem,1vw,0.5rem)] flex-shrink-0" />
                 <span className="whitespace-nowrap">Now in Beta on Base Blockchain Network</span>
               </Badge>
             </motion.div>
