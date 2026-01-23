@@ -302,16 +302,8 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/white-paper" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <WhitePaper />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    {/* Public White Paper - accessible without auth */}
+                    <Route path="/white-paper" element={<WhitePaper />} />
                     <Route 
                       path="/feedback" 
                       element={
