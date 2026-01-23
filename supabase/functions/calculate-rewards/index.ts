@@ -52,12 +52,30 @@ function isChargerDevice(deviceType: string): boolean {
 
 // ============================================
 
+// ============================================
+// TOKENOMICS CONSTANTS (10B Strategy - $0.10 Floor)
+// ============================================
+// These values are synchronized with:
+// - src/lib/tokenomics.ts (frontend constants)
+// - contracts/ZenSolar.sol (smart contract)
+// - docs/TOKENOMICS_OPTIMIZATION_FRAMEWORK.md
+// ============================================
+
 // Reward rates - 1 $ZSOLAR per unit
 const REWARD_RATES = {
   solar_production: 1,    // 1 $ZSOLAR per kWh produced
   battery_discharge: 1,   // 1 $ZSOLAR per kWh discharged from battery
   ev_miles: 1,            // 1 $ZSOLAR per mile driven
   ev_charging: 1,         // 1 $ZSOLAR per kWh charged
+};
+
+// Mint distribution (what happens when tokens are minted)
+// User receives 75%, 20% burned, 3% LP, 2% treasury
+const MINT_DISTRIBUTION = {
+  user: 75,
+  burn: 20,    // OPTIMIZED: 20% mint burn rate
+  lp: 3,
+  treasury: 2,
 };
 
 // ==============================================================================
