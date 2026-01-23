@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { SEGIMintingInfographic } from '@/components/landing/SEGIMintingInfographic';
+import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 const features = [
@@ -255,6 +256,20 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <SEGIMintingInfographic showCTA={true} />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* SEGI Technology Deep Dive */}
+      <section className="py-16 md:py-20">
+        <div className="container max-w-4xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+          >
+            <SEGIFlowDiagram />
           </motion.div>
         </div>
       </section>
