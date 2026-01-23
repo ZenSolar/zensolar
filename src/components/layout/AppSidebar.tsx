@@ -128,13 +128,18 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        {/* Logo/Brand */}
-        <div className="p-4 flex items-center gap-3">
-          <img src={zenLogo} alt="ZenSolar" className="h-14 w-14 rounded-xl object-cover flex-shrink-0" />
+        {/* Logo/Brand - optimized sizing */}
+        <div className="p-3 flex items-center gap-3">
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            className="h-10 w-10 rounded-lg object-contain flex-shrink-0"
+            style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
+          />
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="font-bold text-lg text-sidebar-foreground">ZenSolar</span>
-              <span className="text-xs text-sidebar-foreground/60">Earn blockchain rewards from clean energy use</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-base text-sidebar-foreground leading-tight">ZenSolar</span>
+              <span className="text-[11px] text-sidebar-foreground/60 leading-tight truncate">Earn blockchain rewards</span>
             </div>
           )}
         </div>
