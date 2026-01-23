@@ -7,7 +7,7 @@ import {
   Sun, Zap, Battery, Car, Coins, Shield, TrendingUp, 
   ChevronRight, Sparkles, Globe, ArrowRight, Hexagon
 } from 'lucide-react';
-import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
+import zenLogo from '@/assets/zen-logo-horizontal.png';
 import { SEGIMintingInfographic } from '@/components/landing/SEGIMintingInfographic';
 
 const features = [
@@ -66,6 +66,7 @@ export default function Landing() {
               src={zenLogo} 
               alt="ZenSolar" 
               className="h-9 w-auto"
+              style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
             />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
@@ -373,6 +374,7 @@ export default function Landing() {
                 src={zenLogo} 
                 alt="ZenSolar" 
                 className="h-6 w-auto"
+                style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
               />
               <span className="text-sm text-muted-foreground">© 2026 ZenSolar. Patent Pending.</span>
             </div>
