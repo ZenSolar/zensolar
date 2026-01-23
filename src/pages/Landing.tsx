@@ -7,7 +7,7 @@ import {
   Sun, Zap, Battery, Car, Coins, Shield, TrendingUp, 
   ChevronRight, Sparkles, Globe, ArrowRight
 } from 'lucide-react';
-import zenLogo from '@/assets/zen-logo.png';
+import zenLogo from '@/assets/zen-logo-horizontal.png';
 
 const features = [
   {
@@ -321,7 +321,7 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto" />
-              <span className="text-sm text-muted-foreground">© 2024 ZenSolar. Patent Pending.</span>
+              <span className="text-sm text-muted-foreground">© 2026 ZenSolar. Patent Pending.</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>

@@ -13,7 +13,8 @@ import {
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef } from "react";
-import zenLogo from '@/assets/zen-logo.png';
+import zenLogo from '@/assets/zen-logo-horizontal.png';
+import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -174,11 +175,11 @@ export default function WhitePaper() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Public Navigation Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={zenLogo} alt="ZenSolar" className="h-8 w-auto" />
+      {/* Fixed Navigation Header - properly separated from content */}
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md">
+        <div className="container max-w-4xl mx-auto px-4 flex h-16 items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <img src={zenLogo} alt="ZenSolar" className="h-9 w-auto" />
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/auth">
@@ -193,7 +194,8 @@ export default function WhitePaper() {
         </div>
       </header>
 
-      <div ref={contentRef} className="container max-w-4xl mx-auto px-4 pt-20 pb-8 space-y-12">
+      {/* Main content with proper top padding for fixed header */}
+      <div ref={contentRef} className="container max-w-4xl mx-auto px-4 pt-24 pb-8 space-y-12">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -324,6 +326,9 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
+        
+        {/* SEGI Flow Diagram */}
+        <SEGIFlowDiagram />
       </motion.section>
 
       {/* Our Mission */}
