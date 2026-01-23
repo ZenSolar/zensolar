@@ -12,7 +12,7 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import merchTshirt from "@/assets/merch-tshirt.jpg";
 import merchHoodie from "@/assets/merch-hoodie.jpg";
 import merchCap from "@/assets/merch-cap.jpg";
-import zenLogo from "@/assets/zen-sidebar-icon.png";
+import zenLogo from "@/assets/zen-logo-stacked.png";
 
 // Product images
 import teslaGiftCardImg from "@/assets/store/tesla-gift-card.jpg";

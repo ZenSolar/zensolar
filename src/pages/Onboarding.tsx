@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Sun, Wallet, Zap, CheckCircle2, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
-import zenLogo from "@/assets/zen-logo-full-new.jpeg";
+import zenLogo from "@/assets/zen-logo-stacked.png";
 
 const steps = [
   {

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { 
-  CloudCog, RefreshCw, Shield, Cpu, Coins, ChevronRight, Zap 
+  CloudCog, RefreshCw, Shield, Cpu, Coins, ChevronRight, Zap, Sparkles, Award 
 } from "lucide-react";
 
 const layers = [
@@ -35,7 +35,7 @@ const layers = [
     id: 4,
     icon: Cpu,
     title: "Smart Contract Bridge",
-    description: "Automated minting on Base L2",
+    description: "Triggers in-app minting of $ZSOLAR & NFTs directly to your wallet",
     color: "from-amber-500 to-orange-500",
     delay: 0.45,
   },
@@ -57,7 +57,8 @@ export function SEGIFlowDiagram() {
           </Badge>
         </div>
         <p className="text-muted-foreground text-sm mt-2">
-          Our hardware-agnostic, software-only architecture converts verified energy activity into blockchain rewards—no custom IoT required.
+          Our hardware-agnostic, software-only architecture converts verified energy activity into blockchain rewards—
+          <strong className="text-foreground">minted directly from the app to your wallet</strong>.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -118,28 +119,43 @@ export function SEGIFlowDiagram() {
           </div>
         </div>
         
-        {/* Result */}
+        {/* The Coolest Part - In-App Minting */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.8, duration: 0.4 }}
-          className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 via-emerald-500/10 to-cyan-500/10 border border-primary/20"
+          className="p-4 rounded-xl bg-gradient-to-r from-primary/15 via-emerald-500/15 to-amber-500/15 border border-primary/30"
         >
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shadow-lg">
-            <Coins className="h-6 w-6 text-white" />
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="h-4 w-4 text-amber-500" />
+            <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide">The Coolest Part</span>
           </div>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">$ZSOLAR + NFTs</p>
-            <p className="text-sm text-muted-foreground">Delivered directly to your wallet</p>
+          <div className="flex items-center gap-4">
+            <div className="flex -space-x-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shadow-lg ring-2 ring-background">
+                <Coins className="h-5 w-5 text-white" />
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg ring-2 ring-background">
+                <Award className="h-5 w-5 text-white" />
+              </div>
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">Mint $ZSOLAR + NFTs right from the app! 🚀</p>
+              <p className="text-sm text-muted-foreground">Tap a button, and SEGI sends tokens & achievement NFTs directly to your connected wallet.</p>
+            </div>
           </div>
+        </motion.div>
+
+        {/* Learn More Link */}
+        <div className="flex justify-end">
           <Link 
             to="/technology" 
             className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
           >
-            Learn More <ChevronRight className="h-4 w-4" />
+            Explore full technology breakdown <ChevronRight className="h-4 w-4" />
           </Link>
-        </motion.div>
+        </div>
       </CardContent>
     </Card>
   );

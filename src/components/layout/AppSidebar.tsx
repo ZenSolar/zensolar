@@ -29,7 +29,7 @@ import {
   BookMarked,
   LineChart
 } from "lucide-react";
-import zenLogo from "@/assets/zen-sidebar-icon.png";
+import zenLogo from "@/assets/zen-logo-stacked.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";

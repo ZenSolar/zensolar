@@ -15,7 +15,7 @@ import {
   Award,
   Play
 } from "lucide-react";
-import zenLogo from "@/assets/zen-sidebar-icon.png";
+import zenLogo from "@/assets/zen-logo-stacked.png";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
