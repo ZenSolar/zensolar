@@ -1200,88 +1200,105 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       {/* Result Dialog */}
       <Dialog open={resultDialog.open} onOpenChange={(open) => setResultDialog({ ...resultDialog, open })}>
-        <DialogContent className="max-w-[calc(100vw-24px)] max-h-[calc(100dvh-32px)] overflow-y-auto sm:max-w-md p-4 sm:p-6">
-          <div className="py-3 sm:py-6 space-y-3 sm:space-y-5">
-            {/* Success/Error Icon */}
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto">
-              {resultDialog.success ? (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-secondary/20 via-secondary/10 to-secondary/5 flex items-center justify-center ring-2 ring-secondary/20 shadow-xl">
-                  <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-secondary" />
+        {/*
+          Mobile UX:
+          Keep the top-right X (provided by DialogContent) and the bottom CTA visible at all times.
+          Only the middle body scrolls when content is longer than the viewport.
+        */}
+        <DialogContent className="max-w-[calc(100vw-24px)] w-[calc(100vw-24px)] sm:max-w-md max-h-[calc(100dvh-24px)] p-0 overflow-hidden">
+          <div className="grid max-h-[calc(100dvh-24px)] grid-rows-[auto,1fr,auto]">
+            {/* Header */}
+            <div className="px-4 pt-4 sm:px-6 sm:pt-6 pr-14">
+              <div className="space-y-2">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto">
+                  {resultDialog.success ? (
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-secondary/20 via-secondary/10 to-secondary/5 flex items-center justify-center ring-2 ring-secondary/20 shadow-xl">
+                      <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-secondary" />
+                    </div>
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
+                      <AlertCircle className="h-8 w-8 sm:h-10 sm:w-10 text-destructive" />
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
-                  <AlertCircle className="h-8 w-8 sm:h-10 sm:w-10 text-destructive" />
+
+                <div className="text-center space-y-1">
+                  <h3 className={resultDialog.success ? 'text-lg sm:text-xl font-bold text-secondary' : 'text-lg sm:text-xl font-bold text-destructive'}>
+                    {resultDialog.success ? (
+                      <>
+                        {resultDialog.type === 'token' && 'Tokens Minted!'}
+                        {resultDialog.type === 'nft' && 'Welcome NFT Minted!'}
+                        {resultDialog.type === 'milestone' && 'Milestone NFTs Claimed!'}
+                        {resultDialog.type === 'combo' && 'Combo NFTs Minted!'}
+                      </>
+                    ) : (
+                      'Minting Failed'
+                    )}
+                  </h3>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Title */}
-            <div className="text-center space-y-1 sm:space-y-2">
-              <h3 className={resultDialog.success ? 'text-lg sm:text-xl font-bold text-secondary' : 'text-lg sm:text-xl font-bold text-destructive'}>
-                {resultDialog.success ? (
-                  <>
-                    {resultDialog.type === 'token' && 'Tokens Minted!'}
-                    {resultDialog.type === 'nft' && 'Welcome NFT Minted!'}
-                    {resultDialog.type === 'milestone' && 'Milestone NFTs Claimed!'}
-                    {resultDialog.type === 'combo' && 'Combo NFTs Minted!'}
-                  </>
-                ) : (
-                  'Minting Failed'
+            {/* Scrollable Body */}
+            <div className="px-4 pb-3 sm:px-6 sm:pb-5 overflow-y-auto overscroll-contain">
+              <div className="space-y-3 sm:space-y-5">
+                <div className="text-center text-sm text-muted-foreground whitespace-pre-line">
+                  {resultDialog.message}
+                </div>
+
+                {/* Transaction Hash */}
+                {resultDialog.success && resultDialog.txHash && (
+                  <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-3 sm:p-4 border border-border/60">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-2">Transaction Hash</p>
+                    <code className="text-xs break-all text-foreground font-mono">{resultDialog.txHash}</code>
+                    <a
+                      href={getExplorerUrl(resultDialog.txHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 bg-primary/8 hover:bg-primary/12 px-4 py-2 rounded-lg transition-all duration-200"
+                    >
+                      View on BaseScan <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
                 )}
-              </h3>
-              <div className="text-sm text-muted-foreground whitespace-pre-line">
-                {resultDialog.message}
+
+                {/* Success message */}
+                {resultDialog.success && (
+                  <div className="bg-gradient-to-br from-secondary/15 via-secondary/10 to-secondary/5 rounded-xl p-3 sm:p-4 border border-secondary/20">
+                    <p className="text-sm text-muted-foreground">
+                      {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet!'}
+                      {resultDialog.type === 'nft' && 'Your Welcome NFT has been minted! Check your wallet or OpenSea to view it.'}
+                      {resultDialog.type === 'milestone' && 'Your milestone NFTs have been claimed! View them in your wallet or on OpenSea.'}
+                      {resultDialog.type === 'combo' && 'Your combo achievement NFTs have been minted! These celebrate your multi-category progress.'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Manual Token Add Instructions - show immediately for better UX */}
+                {resultDialog.success && resultDialog.type === 'token' && (
+                  <ManualTokenAddPanel />
+                )}
+
+                {/* Diagnostics panel for debugging wallet_watchAsset - Admin only */}
+                {isAdmin && (
+                  <WatchAssetDiagnostics
+                    attempts={watchAssetAttempts}
+                    onClear={clearWatchAssetDiagnostics}
+                  />
+                )}
               </div>
             </div>
-            
-            {/* Transaction Hash */}
-            {resultDialog.success && resultDialog.txHash && (
-              <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-3 sm:p-4 border border-border/60">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-2">Transaction Hash</p>
-                <code className="text-xs break-all text-foreground font-mono">{resultDialog.txHash}</code>
-                <a
-                  href={getExplorerUrl(resultDialog.txHash)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 bg-primary/8 hover:bg-primary/12 px-4 py-2 rounded-lg transition-all duration-200"
-                >
-                  View on BaseScan <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </div>
-            )}
 
-            {/* Success message */}
-            {resultDialog.success && (
-              <div className="bg-gradient-to-br from-secondary/15 via-secondary/10 to-secondary/5 rounded-xl p-3 sm:p-4 border border-secondary/20">
-                <p className="text-sm text-muted-foreground">
-                  {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet!'}
-                  {resultDialog.type === 'nft' && 'Your Welcome NFT has been minted! Check your wallet or OpenSea to view it.'}
-                  {resultDialog.type === 'milestone' && 'Your milestone NFTs have been claimed! View them in your wallet or on OpenSea.'}
-                  {resultDialog.type === 'combo' && 'Your combo achievement NFTs have been minted! These celebrate your multi-category progress.'}
-                </p>
-              </div>
-            )}
-            
-            {/* Manual Token Add Instructions - show immediately for better UX */}
-            {resultDialog.success && resultDialog.type === 'token' && (
-              <ManualTokenAddPanel />
-            )}
-            
-            {/* Diagnostics panel for debugging wallet_watchAsset - Admin only */}
-            {isAdmin && (
-              <WatchAssetDiagnostics 
-                attempts={watchAssetAttempts} 
-                onClear={clearWatchAssetDiagnostics} 
-              />
-            )}
-            
-            <Button 
-              onClick={() => setResultDialog({ ...resultDialog, open: false })}
-              className={`w-full h-11 rounded-xl ${resultDialog.success ? 'bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25' : ''}`}
-              variant={resultDialog.success ? "default" : "outline"}
-            >
-              {resultDialog.success ? 'Awesome!' : 'Close'}
-            </Button>
+            {/* Fixed Footer CTA */}
+            <div className="px-4 pb-4 sm:px-6 sm:pb-6 pt-2">
+              <Button
+                onClick={() => setResultDialog({ ...resultDialog, open: false })}
+                className={`w-full h-11 rounded-xl ${resultDialog.success ? 'bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25' : ''}`}
+                variant={resultDialog.success ? 'default' : 'outline'}
+              >
+                {resultDialog.success ? 'Awesome!' : 'Close'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
