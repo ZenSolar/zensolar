@@ -154,6 +154,16 @@ export default {
             filter: "drop-shadow(0 0 16px rgba(16, 185, 129, 0.6)) brightness(1.15)"
           },
         },
+        "breathing-glow": {
+          "0%, 100%": { 
+            boxShadow: "0 4px 20px -6px hsl(var(--primary) / 0.25), 0 0 24px hsl(var(--primary) / 0.15)",
+            transform: "scale(1)"
+          },
+          "50%": { 
+            boxShadow: "0 8px 32px -4px hsl(var(--primary) / 0.4), 0 0 48px hsl(var(--primary) / 0.25)",
+            transform: "scale(1.02)"
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -168,6 +178,7 @@ export default {
         "icon-glow": "icon-glow 1.5s ease-in-out infinite",
         "sidebar-glow": "sidebar-glow 2s ease-in-out infinite",
         "logo-glow": "logo-glow 3s ease-in-out infinite",
+        "breathing-glow": "breathing-glow 4s ease-in-out infinite",
       },
     },
   },
