@@ -117,12 +117,12 @@ export function ManualTokenAddPanel() {
   };
 
   return (
-    <div className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 space-y-3">
-      <div className="flex items-center gap-2.5">
-        <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-          <Wallet className="h-4 w-4 text-primary" />
+    <div className="p-3 sm:p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 space-y-2.5 sm:space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-primary/20 flex items-center justify-center">
+          <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
         </div>
-        <span className="text-sm font-semibold text-foreground">Add $ZSOLAR to Your Wallet</span>
+        <span className="text-xs sm:text-sm font-semibold text-foreground">Add $ZSOLAR to Your Wallet</span>
       </div>
       
       {/* Network status & switch button for MetaMask */}
@@ -194,12 +194,12 @@ export function ManualTokenAddPanel() {
         )}
       </p>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         {/* Contract Address */}
-        <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-background/80 border border-border/60 shadow-sm">
+        <div className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-lg bg-background/80 border border-border/60 shadow-sm">
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Contract Address</div>
-            <div className="text-[11px] font-mono break-all leading-snug text-foreground/90 mt-0.5">{ZSOLAR_TOKEN_ADDRESS}</div>
+            <div className="text-[9px] sm:text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Contract Address</div>
+            <div className="text-[10px] sm:text-[11px] font-mono break-all leading-snug text-foreground/90 mt-0.5">{ZSOLAR_TOKEN_ADDRESS}</div>
           </div>
           <Button
             variant="outline"
@@ -216,10 +216,10 @@ export function ManualTokenAddPanel() {
         </div>
 
         {/* Symbol */}
-        <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-background/80 border border-border/60 shadow-sm">
+        <div className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-lg bg-background/80 border border-border/60 shadow-sm">
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Symbol</div>
-            <div className="text-xs font-mono text-foreground/90 mt-0.5">{ZSOLAR_TOKEN_SYMBOL}</div>
+            <div className="text-[9px] sm:text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Symbol</div>
+            <div className="text-[10px] sm:text-xs font-mono text-foreground/90 mt-0.5">{ZSOLAR_TOKEN_SYMBOL}</div>
           </div>
           <Button
             variant="outline"
@@ -236,10 +236,10 @@ export function ManualTokenAddPanel() {
         </div>
 
         {/* Decimals */}
-        <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-background/80 border border-border/60 shadow-sm">
+        <div className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-lg bg-background/80 border border-border/60 shadow-sm">
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Decimals</div>
-            <div className="text-xs font-mono text-foreground/90 mt-0.5">{ZSOLAR_TOKEN_DECIMALS}</div>
+            <div className="text-[9px] sm:text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Decimals</div>
+            <div className="text-[10px] sm:text-xs font-mono text-foreground/90 mt-0.5">{ZSOLAR_TOKEN_DECIMALS}</div>
           </div>
           <Button
             variant="outline"
