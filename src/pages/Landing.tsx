@@ -9,6 +9,7 @@ import {
   ChevronRight, Sparkles, Globe, ArrowRight, Hexagon
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 const features = [
@@ -221,49 +222,16 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* SEGI Minting Section - Text Only */}
+      {/* SEGI Technology Section */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-primary/5">
-        <div className="container max-w-3xl mx-auto px-4">
+        <div className="container max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5 }}
-            className="text-center space-y-6"
           >
-            <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              <Hexagon className="h-3.5 w-3.5 mr-2" />
-              Mint In-App
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Tokens & NFTs{' '}
-              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Directly From the App
-              </span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-              Our patent-pending SEGI technology verifies your energy production and lets you mint $ZSOLAR tokens 
-              and milestone NFTs with just one tap—no external tools needed.
-            </p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="pt-4 space-y-4"
-            >
-              <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
-                <Sparkles className="h-3.5 w-3.5 mr-2" />
-                Patent-Pending SEGI Technology
-              </Badge>
-              <h3 className="text-2xl md:text-3xl font-bold">
-                How In-App Minting Works
-              </h3>
-              <p className="text-muted-foreground">
-                Three simple steps from clean energy to blockchain rewards
-              </p>
-            </motion.div>
+            <SEGIFlowDiagram />
           </motion.div>
         </div>
       </section>
