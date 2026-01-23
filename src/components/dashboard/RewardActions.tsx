@@ -1200,24 +1200,24 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       {/* Result Dialog */}
       <Dialog open={resultDialog.open} onOpenChange={(open) => setResultDialog({ ...resultDialog, open })}>
-        <DialogContent className="max-w-[calc(100vw-24px)] max-h-[calc(100dvh-48px)] overflow-y-auto sm:max-w-md">
-          <div className="py-6 space-y-5">
+        <DialogContent className="max-w-[calc(100vw-24px)] max-h-[calc(100dvh-32px)] overflow-y-auto sm:max-w-md p-4 sm:p-6">
+          <div className="py-3 sm:py-6 space-y-3 sm:space-y-5">
             {/* Success/Error Icon */}
-            <div className="relative w-20 h-20 mx-auto">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto">
               {resultDialog.success ? (
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-secondary/20 via-secondary/10 to-secondary/5 flex items-center justify-center ring-2 ring-secondary/20 shadow-xl">
-                  <CheckCircle2 className="h-10 w-10 text-secondary" />
+                  <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-secondary" />
                 </div>
               ) : (
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
-                  <AlertCircle className="h-10 w-10 text-destructive" />
+                  <AlertCircle className="h-8 w-8 sm:h-10 sm:w-10 text-destructive" />
                 </div>
               )}
             </div>
 
             {/* Title */}
-            <div className="text-center space-y-2">
-              <h3 className={resultDialog.success ? 'text-xl font-bold text-secondary' : 'text-xl font-bold text-destructive'}>
+            <div className="text-center space-y-1 sm:space-y-2">
+              <h3 className={resultDialog.success ? 'text-lg sm:text-xl font-bold text-secondary' : 'text-lg sm:text-xl font-bold text-destructive'}>
                 {resultDialog.success ? (
                   <>
                     {resultDialog.type === 'token' && 'Tokens Minted!'}
@@ -1236,7 +1236,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             
             {/* Transaction Hash */}
             {resultDialog.success && resultDialog.txHash && (
-              <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-4 border border-border/60">
+              <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-3 sm:p-4 border border-border/60">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-2">Transaction Hash</p>
                 <code className="text-xs break-all text-foreground font-mono">{resultDialog.txHash}</code>
                 <a
@@ -1252,7 +1252,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
             {/* Success message */}
             {resultDialog.success && (
-              <div className="bg-gradient-to-br from-secondary/15 via-secondary/10 to-secondary/5 rounded-xl p-4 border border-secondary/20">
+              <div className="bg-gradient-to-br from-secondary/15 via-secondary/10 to-secondary/5 rounded-xl p-3 sm:p-4 border border-secondary/20">
                 <p className="text-sm text-muted-foreground">
                   {resultDialog.type === 'token' && 'Your $ZSOLAR tokens have been minted to your wallet!'}
                   {resultDialog.type === 'nft' && 'Your Welcome NFT has been minted! Check your wallet or OpenSea to view it.'}
