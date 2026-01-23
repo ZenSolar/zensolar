@@ -220,7 +220,7 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {activityUnits > 0 ? '🔥 Ready to mint — you receive 93% as tokens' : 'No activity to mint yet'}
+            {activityUnits > 0 ? '🔥 Ready to mint — you receive 75% as tokens' : 'No activity to mint yet'}
           </p>
 
           {/* Tokens to receive - prominent display with USD value */}

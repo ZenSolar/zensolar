@@ -101,8 +101,8 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
   // Total activity units from pending rewards
   const totalActivityUnits = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
   
-  // User receives 93% of activity units as tokens
-  const totalPendingTokens = Math.floor(totalActivityUnits * 0.93);
+  // User receives 75% of activity units as tokens (20% burn)
+  const totalPendingTokens = Math.floor(totalActivityUnits * 0.75);
 
   const getCategoryActivityUnits = (category: MintCategory): number => {
     if (category === 'all') return totalActivityUnits;
@@ -114,7 +114,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
   };
   
   const getCategoryTokens = (category: MintCategory): number => {
-    return Math.floor(getCategoryActivityUnits(category) * 0.93);
+    return Math.floor(getCategoryActivityUnits(category) * 0.75);
   };
 
   const getCategoryLabel = (category: MintCategory): string => {
@@ -429,14 +429,14 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
               <span>{pendingMintCategory && getCategoryActivityUnits(pendingMintCategory).toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span>You Receive (93%)</span>
+              <span>You Receive (75%)</span>
               <span className="font-medium text-primary">
                 {pendingMintCategory && getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR
               </span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Burn (5%) + LP (1%) + Treasury (1%)</span>
-              <span>{pendingMintCategory && Math.floor(getCategoryActivityUnits(pendingMintCategory) * 0.07).toLocaleString()}</span>
+              <span>Burn (20%) + LP (3%) + Treasury (2%)</span>
+              <span>{pendingMintCategory && Math.floor(getCategoryActivityUnits(pendingMintCategory) * 0.25).toLocaleString()}</span>
             </div>
           </div>
 

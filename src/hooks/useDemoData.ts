@@ -234,8 +234,8 @@ export function useDemoData() {
       tokens += breakdown.chargingKwh;
     }
     
-    // User receives 93% (5% burn, 1% LP, 1% treasury)
-    const userTokens = Math.floor(tokens * 0.93);
+    // User receives 75% (20% burn, 3% LP, 2% treasury)
+    const userTokens = Math.floor(tokens * 0.75);
     
     // Clear pending rewards after mint
     setActivityData(prev => ({
