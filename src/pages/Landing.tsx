@@ -56,9 +56,9 @@ const benefits = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="container max-w-6xl mx-auto px-4 flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img src={zenLogo} alt="ZenSolar" className="h-10 w-auto" />
@@ -86,54 +86,59 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32">
-        {/* Background effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-3xl" />
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28">
+        {/* Simplified static background - no blur transforms */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div 
+            className="absolute top-20 -left-20 w-72 h-72 rounded-full opacity-20"
+            style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }}
+          />
+          <div 
+            className="absolute bottom-20 -right-20 w-72 h-72 rounded-full opacity-15"
+            style={{ background: 'radial-gradient(circle, hsl(142 76% 36%) 0%, transparent 70%)' }}
+          />
         </div>
 
-        <div className="container max-w-6xl mx-auto px-4 relative z-10">
+        <div className="container max-w-6xl mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center space-y-6 max-w-3xl mx-auto"
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="text-center space-y-8 max-w-3xl mx-auto"
           >
-            <Badge variant="outline" className="px-4 py-1.5 border-primary/30 bg-primary/5">
-              <Sparkles className="h-3.5 w-3.5 mr-2 text-primary" />
+            <Badge variant="outline" className="px-4 py-1.5 border-primary/40 bg-primary/10 text-primary font-medium">
+              <Sparkles className="h-3.5 w-3.5 mr-2" />
               Now in Beta on Base Network
             </Badge>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
               Turn Clean Energy Into{' '}
-              <span className="bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 Digital Wealth
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               ZenSolar rewards households with $ZSOLAR tokens for every kWh produced, 
-              EV mile driven, and battery cycle stored. Your sustainability, your rewards.
+              EV mile driven, and battery cycle stored.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
               <Link to="/auth">
-                <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90 shadow-lg shadow-primary/25">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
                   Start Earning Today
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/demo">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8">
                   Try the Demo
                 </Button>
               </Link>
             </div>
 
             {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-6 pt-8 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center gap-8 pt-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary" />
                 <span>Patent Pending</span>
@@ -148,12 +153,13 @@ export default function Landing() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 md:py-24 bg-muted/40 border-y border-border/40">
         <div className="container max-w-6xl mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.4 }}
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -164,22 +170,22 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ delay: index * 0.08, duration: 0.4 }}
               >
-                <Card className="h-full bg-card/50 backdrop-blur border-border/50 hover:border-primary/30 transition-colors">
+                <Card className="h-full bg-card border-border/60 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
                   <CardContent className="p-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} mb-4`}>
+                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} mb-4 shadow-lg`}>
                       <feature.icon className="h-7 w-7 text-white" />
                     </div>
                     <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -189,39 +195,40 @@ export default function Landing() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20">
+      <section className="py-20 md:py-24">
         <div className="container max-w-6xl mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -16 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.4 }}
               className="space-y-8"
             >
               <div>
-                <Badge variant="outline" className="mb-4 border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400">
+                <Badge variant="outline" className="mb-4 border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                   Why ZenSolar?
                 </Badge>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
                   Beyond Tax Credits—
                   <br />
                   <span className="text-primary">Perpetual Rewards</span>
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground leading-relaxed">
                   Federal incentives are one-time and bureaucratic. $ZSOLAR rewards are ongoing, 
-                  automatic, and grow as the token appreciates—a renewable income for renewable energy.
+                  automatic, and grow as the token appreciates.
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {benefits.map((benefit, index) => (
                   <motion.div
                     key={benefit.title}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -16 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border border-border/50"
+                    viewport={{ once: true, margin: '-30px' }}
+                    transition={{ delay: index * 0.08, duration: 0.4 }}
+                    className="flex items-start gap-4 p-4 rounded-xl bg-muted/60 border border-border/60 hover:border-primary/30 transition-colors"
                   >
                     <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                       <benefit.icon className="h-5 w-5 text-primary" />
@@ -236,26 +243,26 @@ export default function Landing() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 16 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.4 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-emerald-500/20 rounded-3xl blur-3xl" />
-              <Card className="relative bg-gradient-to-br from-card to-muted border-border/50">
-                <CardContent className="p-8">
+              <Card className="relative bg-gradient-to-br from-card via-card to-muted/80 border-border/60 shadow-xl">
+                <CardContent className="p-8 md:p-10">
                   <div className="text-center space-y-6">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-emerald-600">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/25">
                       <Coins className="h-10 w-10 text-white" />
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground mb-2">Average Monthly Earnings</p>
-                      <p className="text-5xl font-bold bg-gradient-to-r from-emerald-500 to-cyan-500 bg-clip-text text-transparent">
+                      <p className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                         $800
                       </p>
                       <p className="text-sm text-muted-foreground mt-2">at $1.00 token price</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                    <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border/60">
                       <div>
                         <p className="text-2xl font-bold text-primary">10x</p>
                         <p className="text-xs text-muted-foreground">Growth potential</p>
@@ -274,31 +281,32 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
+      <section className="py-20 md:py-24 bg-muted/40 border-t border-border/40">
         <div className="container max-w-4xl mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.4 }}
             className="text-center space-y-6"
           >
             <h2 className="text-3xl md:text-4xl font-bold">
               Ready to Monetize Your{' '}
               <span className="text-primary">Clean Energy?</span>
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
               Join the ZenSolar community and start earning blockchain rewards for the sustainable 
               lifestyle you're already living.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
               <Link to="/auth">
-                <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90 shadow-lg shadow-primary/25">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
                   Create Free Account
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/white-paper">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8">
                   Read White Paper
                 </Button>
               </Link>
