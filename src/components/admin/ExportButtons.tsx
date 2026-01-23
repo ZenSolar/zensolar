@@ -37,11 +37,43 @@ export function ExportButtons({ pageTitle, getData, getFileName, className = "" 
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
-      await html2pdf().set(opt).from(element).save();
-      toast.success(`${pageTitle} exported as PDF`);
+      // Check if mobile device
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // For mobile: generate blob and open in new tab for download
+        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `${fileName}.pdf`;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        
+        // Try click first, fallback to opening in new tab
+        try {
+          link.click();
+        } catch {
+          window.open(blobUrl, '_blank');
+        }
+        
+        // Cleanup
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        }, 1000);
+        
+        toast.success(`${pageTitle} PDF ready - check your downloads or new tab`);
+      } else {
+        // Desktop: use standard save method
+        await html2pdf().set(opt).from(element).save();
+        toast.success(`${pageTitle} exported as PDF`);
+      }
     } catch (error) {
       console.error("PDF export error:", error);
-      toast.error("Failed to export PDF");
+      toast.error("Failed to export PDF. Try using your browser's Share or Print feature.");
     } finally {
       setIsExportingPDF(false);
     }
