@@ -175,27 +175,33 @@ export default function WhitePaper() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Fixed Navigation Header - properly separated from content */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md">
-        <div className="container max-w-4xl mx-auto px-4 flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img src={zenLogo} alt="ZenSolar" className="h-9 w-auto" />
+      {/* Fixed Navigation Header - with safe area inset for mobile notches */}
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
+        <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
+          <Link to="/" className="flex items-center shrink-0">
+            <img 
+              src={zenLogo} 
+              alt="ZenSolar" 
+              className="h-8 w-auto"
+              style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
+            />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link to="/auth">
-              <Button variant="ghost" size="sm">Log In</Button>
+              <Button variant="ghost" size="sm" className="px-2 sm:px-3">Log In</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm" className="bg-primary hover:bg-primary/90">
-                Get Started
+              <Button size="sm" className="bg-primary hover:bg-primary/90 px-2 sm:px-4">
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Start</span>
               </Button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main content with proper top padding for fixed header */}
-      <div ref={contentRef} className="container max-w-4xl mx-auto px-4 pt-24 pb-8 space-y-12">
+      {/* Main content with proper top padding for fixed header + safe area */}
+      <div ref={contentRef} className="container max-w-4xl mx-auto px-4 pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)] pb-8 space-y-12">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -203,12 +209,13 @@ export default function WhitePaper() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="text-center space-y-6 pt-4"
       >
-        {/* Clean Logo - no blur effects */}
+        {/* Clean Logo - transparent background */}
         <div className="inline-block">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-20 w-auto md:h-28 object-contain mx-auto"
+            className="h-16 w-auto md:h-24 object-contain mx-auto"
+            style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
           />
         </div>
         

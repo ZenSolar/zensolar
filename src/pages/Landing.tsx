@@ -5,10 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Sun, Zap, Battery, Car, Coins, Shield, TrendingUp, 
-  ChevronRight, Sparkles, Globe, ArrowRight, Play, Hexagon
+  ChevronRight, Sparkles, Globe, ArrowRight, Hexagon
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal.png';
-import mintingFlowVideo from '@/assets/minting-flow-demo.mp4';
+import { SEGIMintingInfographic } from '@/components/landing/SEGIMintingInfographic';
 
 const features = [
   {
@@ -58,11 +58,16 @@ const benefits = [
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container max-w-6xl mx-auto px-4 flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={zenLogo} alt="ZenSolar" className="h-10 w-auto" />
+      {/* Navigation - with safe area padding for mobile notches */}
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
+        <div className="container max-w-6xl mx-auto px-4 flex h-16 items-center justify-between gap-4">
+          <Link to="/" className="flex items-center shrink-0">
+            <img 
+              src={zenLogo} 
+              alt="ZenSolar" 
+              className="h-9 w-auto"
+              style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
+            />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/white-paper" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -72,13 +77,14 @@ export default function Landing() {
               Demo
             </Link>
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/auth">
-              <Button variant="ghost" size="sm">Log In</Button>
+              <Button variant="ghost" size="sm" className="px-3">Log In</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm" className="bg-primary hover:bg-primary/90">
-                Get Started
+              <Button size="sm" className="bg-primary hover:bg-primary/90 px-3 sm:px-4">
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Start</span>
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
@@ -86,8 +92,8 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28">
+      {/* Hero Section - account for safe area top */}
+      <section className="relative pt-[calc(4rem+env(safe-area-inset-top)+2rem)] pb-16 md:pt-[calc(5rem+env(safe-area-inset-top)+2.5rem)] md:pb-20">
         {/* Simplified static background - no blur transforms */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <div 
@@ -141,7 +147,7 @@ export default function Landing() {
             </div>
 
             {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-8 pt-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary" />
                 <span>Patent Pending</span>
@@ -159,23 +165,23 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Minting Demo Video Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30">
+      {/* SEGI Minting Infographic Section */}
+      <section className="py-12 md:py-16 bg-gradient-to-b from-background to-muted/30">
         <div className="container max-w-5xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-10"
+            className="text-center mb-8"
           >
             <Badge variant="outline" className="mb-4 border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              <Play className="h-3.5 w-3.5 mr-2" />
-              See It In Action
+              <Hexagon className="h-3.5 w-3.5 mr-2" />
+              Mint In-App
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Mint Tokens & NFTs{' '}
-              <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+              Tokens & NFTs{' '}
+              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 Directly From the App
               </span>
             </h2>
@@ -186,40 +192,12 @@ export default function Landing() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/10 border border-border/60"
           >
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-auto"
-            >
-              <source src={mintingFlowVideo} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                  <Hexagon className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-white text-shadow">Dashboard → Wallet</p>
-                  <p className="text-xs text-white/80">One-tap minting powered by SEGI</p>
-                </div>
-              </div>
-              <Link to="/demo">
-                <Button size="sm" className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30">
-                  Try Demo
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
+            <SEGIMintingInfographic showCTA={true} />
           </motion.div>
         </div>
       </section>
@@ -387,12 +365,17 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-border/40">
+      {/* Footer - with safe area padding */}
+      <footer className="py-8 border-t border-border/40 pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto" />
+            <div className="flex items-center gap-3">
+              <img 
+                src={zenLogo} 
+                alt="ZenSolar" 
+                className="h-6 w-auto"
+                style={{ filter: 'drop-shadow(0 0 0 transparent)' }}
+              />
               <span className="text-sm text-muted-foreground">© 2026 ZenSolar. Patent Pending.</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
