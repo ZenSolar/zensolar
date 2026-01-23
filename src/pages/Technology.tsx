@@ -166,7 +166,7 @@ export default function Technology() {
               <div className="flex-shrink-0 p-4 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-xl mx-auto md:mx-0">
                 <Cpu className="h-12 w-12 text-white" />
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 text-center md:text-left">
                 <h2 className="text-2xl font-bold">What is SEGI?</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   Think of SEGI as a <strong className="text-foreground">universal translator</strong> that sits between your 
@@ -219,13 +219,19 @@ export default function Technology() {
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 + index * 0.1 }}
+              whileHover={{ scale: 1.02, y: -4 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <Card className="hover:border-primary/40 transition-colors">
+              <Card className="hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300 cursor-pointer">
                 <CardContent className="pt-6">
                   <div className="flex items-start gap-4">
-                    <div className={`flex-shrink-0 p-3 rounded-xl bg-gradient-to-br ${layer.gradient} shadow-lg`}>
+                    <motion.div 
+                      className={`flex-shrink-0 p-3 rounded-xl bg-gradient-to-br ${layer.gradient} shadow-lg`}
+                      whileHover={{ rotate: 5, scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
                       <layer.icon className="h-6 w-6 text-white" />
-                    </div>
+                    </motion.div>
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-bold text-lg">{layer.title}</h3>
