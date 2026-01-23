@@ -183,19 +183,19 @@ export default function Technology() {
                 <ul className="space-y-3 text-muted-foreground max-w-md mx-auto md:mx-0">
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-center flex-1"><strong className="text-foreground">Connects</strong> to Tesla, Enphase, SolarEdge, Wallbox (and more coming)</span>
+                    <span className="text-left"><strong className="text-foreground">Connects</strong> to Tesla, Enphase, SolarEdge, Wallbox (and more coming)</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-center flex-1"><strong className="text-foreground">Verifies</strong> your actual energy production—no self-reporting</span>
+                    <span className="text-left"><strong className="text-foreground">Verifies</strong> your actual energy production—no self-reporting</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-center flex-1"><strong className="text-foreground">Converts</strong> that data into blockchain-certified rewards</span>
+                    <span className="text-left"><strong className="text-foreground">Converts</strong> that data into blockchain-certified rewards</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-center flex-1"><strong className="text-foreground">Mints</strong> $ZSOLAR tokens AND collectible NFTs directly from the app to your wallet! 🚀</span>
+                    <span className="text-left"><strong className="text-foreground">Mints</strong> $ZSOLAR tokens AND collectible NFTs directly from the app to your wallet! 🚀</span>
                   </li>
                 </ul>
                 <p className="text-muted-foreground leading-relaxed text-center md:text-left">
