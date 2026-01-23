@@ -636,7 +636,7 @@ export function useDashboardData() {
         Math.floor(homeChargerKwh);
       
       // Pending activity units (1:1 ratio with activity)
-      // User receives 93% of this as tokens (5% burn, 1% LP, 1% treasury)
+      // User receives 75% of this as tokens (20% burn, 3% LP, 2% treasury)
       const pendingActivityUnits = 
         Math.floor(pendingSolar) +
         Math.floor(pendingEvMiles) +
@@ -644,7 +644,7 @@ export function useDashboardData() {
         Math.floor(pendingCharging);
       
       // What user will actually receive after fee distribution
-      const pendingTokens = Math.floor(pendingActivityUnits * 0.93);
+      const pendingTokens = Math.floor(pendingActivityUnits * 0.75);
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
 

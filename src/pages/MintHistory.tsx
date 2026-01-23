@@ -133,7 +133,7 @@ export default function MintHistory() {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-accent', sub: '$ZSOLAR (93%)' },
+            { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-accent', sub: '$ZSOLAR (75%)' },
             { label: 'NFTs Earned', value: totalNftsMinted, icon: Award, gradient: 'from-amber-500 to-orange-600', sub: 'Total NFTs' },
             { label: 'Transactions', value: transactions.length, icon: Hash, gradient: 'from-blue-500 to-indigo-600', sub: 'On-chain' },
             { label: 'Pending Tokens', value: pendingActivity.totalTokens, icon: TrendingUp, gradient: 'from-emerald-500 to-teal-600', sub: "You'll receive", loading: isPendingLoading },
@@ -163,7 +163,7 @@ export default function MintHistory() {
                 <TrendingUp className="h-5 w-5 text-amber-600" />
                 Pending Activity Breakdown
               </CardTitle>
-              <CardDescription>Activity since last mint — you receive 93% as tokens</CardDescription>
+              <CardDescription>Activity since last mint — you receive 75% as tokens (20% burn)</CardDescription>
             </CardHeader>
             <CardContent>
               {isPendingLoading ? (

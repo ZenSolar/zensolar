@@ -239,8 +239,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   // Total activity units from pending rewards
   const totalActivityUnits = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
   
-  // User receives 93% of activity units as tokens (5% burn, 1% LP, 1% treasury)
-  const totalPendingTokens = Math.floor(totalActivityUnits * 0.93);
+  // User receives 75% of activity units as tokens (20% burn, 3% LP, 2% treasury)
+  const totalPendingTokens = Math.floor(totalActivityUnits * 0.75);
 
   // Get the amount for a specific category (activity units, before fee distribution)
   const getCategoryActivityUnits = (category: MintCategory): number => {
@@ -252,9 +252,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return 0;
   };
   
-  // Get tokens user will receive for a category (after 93% distribution)
+  // Get tokens user will receive for a category (after 75% distribution)
   const getCategoryTokens = (category: MintCategory): number => {
-    return Math.floor(getCategoryActivityUnits(category) * 0.93);
+    return Math.floor(getCategoryActivityUnits(category) * 0.75);
   };
 
   // Add the ZSOLAR token to the connected wallet using wallet_watchAsset (best-effort)
@@ -1089,7 +1089,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        You receive 93% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} activity units
+                        You receive 75% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} activity units (20% burn)
                       </p>
                     </div>
                   </div>
