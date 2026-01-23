@@ -29,13 +29,13 @@ const marketStats = [
 const userBenefits = [
   {
     icon: Coins,
-    title: "Passive Income from Green Energy",
-    description: "Earn $400-$800/month in $ZSOLAR tokens for activities you're already doing—generating solar power, driving electric, and storing energy.",
+    title: "Significant Side Income",
+    description: "Earn $400-$1,000/month in $ZSOLAR tokens—transforming your clean energy activities into a meaningful income stream that rivals traditional tax incentives.",
   },
   {
     icon: Sparkles,
-    title: "Collectible NFT Achievements",
-    description: "Unlock unique NFTs as you hit sustainability milestones. Each NFT represents verified environmental impact and can be redeemed for additional tokens.",
+    title: "Beyond Tax Credits",
+    description: "Federal incentives are one-time and bureaucratic. $ZSOLAR rewards are ongoing, automatic, and grow as the token appreciates—a renewable income source for renewable energy.",
   },
   {
     icon: Shield,
@@ -45,7 +45,7 @@ const userBenefits = [
   {
     icon: TrendingUp,
     title: "Appreciating Utility Token",
-    description: "Spend $ZSOLAR in the ZenSolar Store today while benefiting from long-term appreciation as the ecosystem grows.",
+    description: "As $ZSOLAR grows from $0.10 to $1.00+, early adopters multiply their rewards 10x—creating generational wealth from sustainability.",
   },
 ];
 
@@ -75,23 +75,23 @@ const investorBenefits = [
 const worldBenefits = [
   {
     icon: Sun,
-    title: "Accelerating Solar Adoption",
-    description: "By making solar ownership more profitable, we accelerate the transition away from fossil fuels at the residential level.",
+    title: "Market-Driven Solar Adoption",
+    description: "By creating perpetual income incentives, $ZSOLAR accelerates solar adoption faster than one-time tax credits ever could—turning policy into profit.",
   },
   {
     icon: Car,
-    title: "Incentivizing Electric Transportation",
-    description: "Every EV mile driven earns rewards, making the switch from gas vehicles financially attractive beyond just fuel savings.",
+    title: "Supercharging EV Growth",
+    description: "Every EV mile driven earns rewards. When driving electric generates $200+/month in side income, the economic case for EVs becomes undeniable.",
   },
   {
     icon: Battery,
-    title: "Supporting Grid Stability",
-    description: "Battery storage rewards encourage homeowners to act as distributed energy resources, reducing strain on aging infrastructure.",
+    title: "Grid Resilience & Independence",
+    description: "Battery storage rewards encourage homeowners to become distributed energy resources—reducing dependency on aging infrastructure and fossil peakers.",
   },
   {
     icon: Globe,
-    title: "Democratizing Climate Finance",
-    description: "For the first time, individual households can participate in—and profit from—the clean energy economy alongside institutional investors.",
+    title: "Policy-Proof Climate Finance",
+    description: "Unlike federal incentives that change with elections, $ZSOLAR provides permanent, decentralized rewards—making clean energy adoption immune to political shifts.",
   },
 ];
 
@@ -339,10 +339,226 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      {/* Replacing Federal Incentives */}
+      <motion.section {...fadeIn} transition={{ delay: 0.27 }} className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="px-3 py-1">Chapter 4</Badge>
+          <h2 className="text-3xl font-bold">Replacing Federal Tax Incentives</h2>
+        </div>
+        
+        <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-500/20">
+                <Landmark className="h-5 w-5 text-amber-600" />
+              </div>
+              The Problem With Tax Credits
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-muted-foreground text-lg">
+              For decades, federal and state tax incentives have been the primary driver of residential clean energy 
+              adoption. The 30% Investment Tax Credit (ITC), EV tax credits up to $7,500, and various state rebates 
+              have made sustainability more accessible. <strong className="text-foreground">But this model is fundamentally broken.</strong>
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-5 rounded-xl bg-destructive/5 border border-destructive/20 space-y-3">
+                <h4 className="font-semibold text-destructive flex items-center gap-2">
+                  <span className="text-lg">❌</span> One-Time Benefits
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Tax credits are claimed once, then disappear. Your solar panels produce value every day for 25+ years—
+                  why should you only be rewarded once?
+                </p>
+              </div>
+              <div className="p-5 rounded-xl bg-destructive/5 border border-destructive/20 space-y-3">
+                <h4 className="font-semibold text-destructive flex items-center gap-2">
+                  <span className="text-lg">❌</span> Political Vulnerability
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Every election cycle threatens clean energy incentives. Subsidies change, expire, or get repealed—
+                  creating uncertainty for homeowners and investors alike.
+                </p>
+              </div>
+              <div className="p-5 rounded-xl bg-destructive/5 border border-destructive/20 space-y-3">
+                <h4 className="font-semibold text-destructive flex items-center gap-2">
+                  <span className="text-lg">❌</span> Bureaucratic Complexity
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Claiming tax credits requires navigating IRS forms, income thresholds, phase-outs, and transfer rules. 
+                  Many eligible households simply don't claim what they're owed.
+                </p>
+              </div>
+              <div className="p-5 rounded-xl bg-destructive/5 border border-destructive/20 space-y-3">
+                <h4 className="font-semibold text-destructive flex items-center gap-2">
+                  <span className="text-lg">❌</span> Inequitable Distribution
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Tax credits primarily benefit those with tax liability. Lower-income households who lease panels 
+                  or don't owe enough taxes often receive reduced or zero benefit.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 to-green-500/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/20">
+                <Coins className="h-5 w-5 text-emerald-600" />
+              </div>
+              The $ZSOLAR Solution
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-muted-foreground text-lg">
+              <strong className="text-foreground">$ZSOLAR creates a perpetual, decentralized incentive layer</strong> that 
+              works alongside—or entirely independent of—government policy. Instead of waiting for Washington to act, 
+              we've built a market-driven reward system that pays users every single month.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-3">
+                <h4 className="font-semibold text-emerald-600 flex items-center gap-2">
+                  <span className="text-lg">✓</span> Ongoing Rewards
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Earn $ZSOLAR every month based on verified production. Your solar panels, EV, and batteries 
+                  generate income for as long as you own them—not just once.
+                </p>
+              </div>
+              <div className="p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-3">
+                <h4 className="font-semibold text-emerald-600 flex items-center gap-2">
+                  <span className="text-lg">✓</span> Policy-Immune
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Blockchain rewards don't depend on elections or legislation. $ZSOLAR operates on immutable 
+                  smart contracts—no politician can vote away your earnings.
+                </p>
+              </div>
+              <div className="p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-3">
+                <h4 className="font-semibold text-emerald-600 flex items-center gap-2">
+                  <span className="text-lg">✓</span> Instant & Automatic
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  No paperwork. No tax forms. No accountants. Connect your devices, and rewards appear in your 
+                  wallet automatically—verified on-chain and ready to use.
+                </p>
+              </div>
+              <div className="p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-3">
+                <h4 className="font-semibold text-emerald-600 flex items-center gap-2">
+                  <span className="text-lg">✓</span> Universally Accessible
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Whether you own or lease, have high or low tax liability—$ZSOLAR rewards are distributed 
+                  proportionally to energy activity, not financial status.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-muted/30 rounded-xl p-6 border border-border/50">
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">💡</div>
+                <div>
+                  <h4 className="font-semibold text-lg mb-2">The Math: $ZSOLAR vs. Federal Tax Credit</h4>
+                  <p className="text-muted-foreground mb-4">
+                    A typical $30,000 solar installation receives a one-time $9,000 federal tax credit. Compare that 
+                    to $ZSOLAR earnings:
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                    <div className="p-4 rounded-lg bg-background/50">
+                      <p className="font-semibold mb-2">Federal Tax Credit</p>
+                      <p className="text-2xl font-bold text-muted-foreground">$9,000</p>
+                      <p className="text-xs text-muted-foreground">One time, year of purchase</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                      <p className="font-semibold mb-2">$ZSOLAR (at $1.00/token)</p>
+                      <p className="text-2xl font-bold text-primary">$96,000+</p>
+                      <p className="text-xs text-muted-foreground">~$400/mo × 20 years of production</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              Driving Market Growth
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-muted-foreground text-lg">
+              The clean energy market has historically relied on government incentives to drive adoption. 
+              <strong className="text-foreground"> $ZSOLAR introduces a new demand catalyst:</strong> the promise of perpetual 
+              income from sustainability investments.
+            </p>
+
+            <div className="space-y-4">
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-muted/30 border border-border/50">
+                <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                  <Sun className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">Accelerating Solar Sales</h4>
+                  <p className="text-sm text-muted-foreground">
+                    When solar installers can pitch "$400-$800/month in side income" alongside utility savings and tax 
+                    credits, conversion rates will skyrocket. $ZSOLAR becomes a sales accelerator for the entire industry.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-muted/30 border border-border/50">
+                <div className="h-10 w-10 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
+                  <Car className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">EV Adoption Catalyst</h4>
+                  <p className="text-sm text-muted-foreground">
+                    The #1 barrier to EV adoption is upfront cost. When consumers realize their electric miles 
+                    generate $100-$200/month in token income, the total cost of ownership becomes dramatically favorable.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-muted/30 border border-border/50">
+                <div className="h-10 w-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
+                  <Battery className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">Battery Storage Demand</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Home batteries have struggled for ROI justification. $ZSOLAR rewards for storage activity make 
+                    batteries not just grid-resilient, but income-generating assets.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl p-6 border border-primary/20 text-center">
+              <p className="text-lg font-medium text-foreground mb-2">
+                The Flywheel Effect
+              </p>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                More users → More demand for clean energy hardware → Larger TAM → More users discovering $ZSOLAR → 
+                Deeper liquidity → Higher token value → Even more compelling user economics
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.section>
+
       {/* How Users Benefit */}
       <motion.section {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 4</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 5</Badge>
           <h2 className="text-3xl font-bold">How Users Benefit</h2>
         </div>
         
@@ -376,10 +592,11 @@ export default function WhitePaper() {
             <div className="flex items-center gap-4">
               <div className="text-4xl">💰</div>
               <div>
-                <h3 className="font-semibold text-lg">Monthly Earning Potential</h3>
+                <h3 className="font-semibold text-lg">Significant Side Income Potential</h3>
                 <p className="text-muted-foreground">
-                  Active solar households with EV can earn <strong className="text-foreground">$400-$800/month</strong> in 
-                  $ZSOLAR tokens based on verified energy production, EV miles, and battery activity.
+                  Active solar households with EV can earn <strong className="text-foreground">$400-$1,000/month</strong> in 
+                  $ZSOLAR tokens—transforming clean energy ownership into a recurring income stream that 
+                  compounds as the token appreciates toward $1.00.
                 </p>
               </div>
             </div>
@@ -390,7 +607,7 @@ export default function WhitePaper() {
       {/* How Investors Benefit */}
       <motion.section {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 5</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
           <h2 className="text-3xl font-bold">How Investors Benefit</h2>
         </div>
         
@@ -464,7 +681,7 @@ export default function WhitePaper() {
       {/* How the World Benefits */}
       <motion.section {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
           <h2 className="text-3xl font-bold">How the World Benefits</h2>
         </div>
         
@@ -510,7 +727,7 @@ export default function WhitePaper() {
       {/* The Vision */}
       <motion.section {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
           <h2 className="text-3xl font-bold">The Vision</h2>
         </div>
         
@@ -540,7 +757,7 @@ export default function WhitePaper() {
       {/* Competitive Advantage */}
       <motion.section {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
           <h2 className="text-3xl font-bold">Competitive Moat</h2>
         </div>
         
