@@ -7,10 +7,12 @@ import {
   Sun, Zap, Coins, Leaf, Users, Globe, ArrowRight, 
   TrendingUp, Shield, Cpu, Target, Sparkles, Battery,
   Car, Home, Building2, Landmark, Heart, Rocket,
-  ChevronRight, ExternalLink, FileText
+  ChevronRight, ExternalLink, FileText, Share2, Star,
+  DollarSign
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import zenLogo from "@/assets/zen-logo-full-new.jpeg";
+import { useToast } from "@/hooks/use-toast";
+import zenLogo from "@/assets/zen-icon-transparent.png";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -96,6 +98,31 @@ const worldBenefits = [
 ];
 
 export default function WhitePaper() {
+  const { toast } = useToast();
+
+  const handleShare = async () => {
+    const shareData = {
+      title: "ZenSolar White Paper",
+      text: "Turning Clean Energy Into Digital Wealth - Learn how $ZSOLAR rewards households for sustainable living.",
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+        toast({ title: "Shared successfully!" });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({ title: "Link copied to clipboard!" });
+      }
+    } catch (err) {
+      if ((err as Error).name !== "AbortError") {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({ title: "Link copied to clipboard!" });
+      }
+    }
+  };
+
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 space-y-12">
       {/* Hero Section */}
@@ -104,22 +131,34 @@ export default function WhitePaper() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-6"
       >
-        <div className="relative inline-block">
-          <img 
-            src={zenLogo} 
-            alt="ZenSolar" 
-            width={200}
-            height={80}
-            className="h-24 mx-auto rounded-xl shadow-lg"
-          />
-          <div className="absolute -inset-3 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-xl -z-10" />
+        {/* Polished Logo */}
+        <div className="relative inline-flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 via-primary/20 to-cyan-500/30 rounded-full blur-2xl scale-150" />
+          <div className="relative">
+            <img 
+              src={zenLogo} 
+              alt="ZenSolar" 
+              className="h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-2xl"
+            />
+          </div>
         </div>
         
         <div className="space-y-4">
-          <Badge variant="outline" className="px-4 py-1.5 border-primary/30 bg-primary/5 text-sm">
-            <FileText className="h-3.5 w-3.5 mr-2 text-primary" />
-            White Paper v1.0
-          </Badge>
+          <div className="flex items-center justify-center gap-2">
+            <Badge variant="outline" className="px-4 py-1.5 border-primary/30 bg-primary/5 text-sm">
+              <FileText className="h-3.5 w-3.5 mr-2 text-primary" />
+              White Paper v1.0
+            </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              Share
+            </Button>
+          </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
             Turning Clean Energy Into{' '}
@@ -754,10 +793,97 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      {/* Moonshot Scenarios */}
+      <motion.section {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
+          <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
+            Moonshot Scenarios <Rocket className="h-7 w-7 text-amber-500" />
+          </h2>
+        </div>
+        
+        <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-yellow-500/5">
+          <CardContent className="pt-6 space-y-6">
+            <p className="text-muted-foreground text-lg">
+              While our <strong className="text-foreground">$1.00 target</strong> creates noticeable passive income, 
+              aggressive deflation, viral adoption, and institutional demand could drive $ZSOLAR to{' '}
+              <strong className="text-foreground">$5, $10, or even $20+ per token</strong>—transforming passive 
+              income into genuine wealth creation.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-5 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 text-center">
+                <Star className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+                <p className="text-3xl font-bold text-amber-600">$5.00</p>
+                <p className="text-sm text-muted-foreground mt-1">Conservative Moonshot</p>
+                <p className="text-xs text-muted-foreground mt-2">50K+ subs, net-negative issuance</p>
+              </div>
+              <div className="p-5 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 text-center">
+                <Rocket className="h-8 w-8 text-orange-500 mx-auto mb-3" />
+                <p className="text-3xl font-bold text-orange-600">$10.00</p>
+                <p className="text-sm text-muted-foreground mt-1">Viral Adoption</p>
+                <p className="text-xs text-muted-foreground mt-2">100K+ subs, institutional interest</p>
+              </div>
+              <div className="p-5 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 text-center">
+                <Sparkles className="h-8 w-8 text-purple-500 mx-auto mb-3" />
+                <p className="text-3xl font-bold text-purple-600">$20+</p>
+                <p className="text-sm text-muted-foreground mt-1">ESG/Carbon Integration</p>
+                <p className="text-xs text-muted-foreground mt-2">Carbon market adoption, regulatory tailwinds</p>
+              </div>
+            </div>
+
+            <div className="bg-muted/30 rounded-xl p-6 border border-border/50 space-y-4">
+              <h4 className="font-semibold text-lg flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-emerald-500" />
+                Wealth Creation Math
+              </h4>
+              <p className="text-muted-foreground">
+                An active household earning <strong className="text-foreground">1,000 tokens/month</strong> over 
+                8+ years accumulates <strong className="text-foreground">100,000+ $ZSOLAR</strong>:
+              </p>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="p-3 rounded-lg bg-background/50">
+                  <p className="text-xl font-bold text-primary">$100K</p>
+                  <p className="text-xs text-muted-foreground">at $1.00</p>
+                </div>
+                <div className="p-3 rounded-lg bg-background/50">
+                  <p className="text-xl font-bold text-amber-600">$500K</p>
+                  <p className="text-xs text-muted-foreground">at $5.00</p>
+                </div>
+                <div className="p-3 rounded-lg bg-background/50">
+                  <p className="text-xl font-bold text-purple-600">$1M+</p>
+                  <p className="text-xs text-muted-foreground">at $10.00</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="font-semibold">Key Moonshot Drivers:</h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { title: "Aggressive Deflation", desc: "20% mint burn + 7% transfer tax compounds into net-negative issuance" },
+                  { title: "Flywheel Scarcity", desc: "100K+ subs = $500K+/mo LP injections against shrinking supply" },
+                  { title: "Institutional ESG Demand", desc: "Carbon credits, ESG funds, impact investors create external buy pressure" },
+                  { title: "Regulatory Tailwinds", desc: "Government carbon pricing could supercharge verified energy tokens" },
+                ].map((item) => (
+                  <div key={item.title} className="flex items-start gap-3 p-3 rounded-lg bg-muted/20">
+                    <ChevronRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="font-medium text-sm">{item.title}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.section>
+
       {/* Competitive Advantage */}
       <motion.section {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
           <h2 className="text-3xl font-bold">Competitive Moat</h2>
         </div>
         
