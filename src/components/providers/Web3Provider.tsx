@@ -9,9 +9,11 @@ const queryClient = new QueryClient();
 // Context to share AppKit initialization state
 interface AppKitContextValue {
   isInitialized: boolean;
+  /** Whether WalletConnect is configured (env/localStorage). */
+  hasProjectId: boolean;
 }
 
-const AppKitContext = createContext<AppKitContextValue>({ isInitialized: false });
+const AppKitContext = createContext<AppKitContextValue>({ isInitialized: false, hasProjectId: false });
 
 export function useAppKitInitialized() {
   return useContext(AppKitContext);
@@ -23,21 +25,24 @@ interface Web3ProviderProps {
 
 // Module-level flag to track initialization
 let appKitInitialized = false;
+let appKitInitAttempted = false;
 
 // Initialize AppKit at module load time (before any React render)
 // This ensures createAppKit is called before useAppKit hooks
 function initializeAppKit() {
   if (appKitInitialized) return true;
+  if (appKitInitAttempted) return false;
   if (typeof window === 'undefined') return false;
   
   // Skip AppKit initialization if project ID is invalid
   if (!HAS_WALLETCONNECT_PROJECT_ID) {
     console.log('[Web3Provider] Skipping AppKit initialization - no valid WalletConnect Project ID');
-    appKitInitialized = true; // Mark as done so we don't retry
-    return true;
+    appKitInitAttempted = true;
+    return false;
   }
   
   try {
+    appKitInitAttempted = true;
     createAppKit({
       adapters: [wagmiAdapter],
       networks,
@@ -73,8 +78,8 @@ function initializeAppKit() {
     return true;
   } catch (error) {
     console.error('[Web3Provider] AppKit initialization failed:', error);
-    appKitInitialized = true; // Mark as done so we don't crash repeatedly
-    return true;
+    // Don't mark initialized; keep it false so components never call useAppKit.
+    return false;
   }
 }
 
@@ -83,19 +88,20 @@ initializeAppKit();
 
 export function Web3Provider({ children }: Web3ProviderProps) {
   const [isInitialized, setIsInitialized] = useState(appKitInitialized);
+  const [hasProjectId, setHasProjectId] = useState(HAS_WALLETCONNECT_PROJECT_ID);
   
   useEffect(() => {
     // Double-check initialization and update state
-    if (!appKitInitialized) {
-      initializeAppKit();
-    }
+    setHasProjectId(HAS_WALLETCONNECT_PROJECT_ID);
+
+    const didInit = initializeAppKit();
     // Small delay to ensure AppKit internal state is fully ready
-    const timer = setTimeout(() => setIsInitialized(true), 50);
+    const timer = setTimeout(() => setIsInitialized(didInit && appKitInitialized), 50);
     return () => clearTimeout(timer);
   }, []);
   
   return (
-    <AppKitContext.Provider value={{ isInitialized }}>
+    <AppKitContext.Provider value={{ isInitialized, hasProjectId }}>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           {children}

@@ -29,7 +29,74 @@ function normalizeAddress(addr?: string | null) {
 
 export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTokens, isDemo = false, showDiagnostics = false }: ConnectWalletProps) {
   // AppKit initialization state
-  const { isInitialized } = useAppKitInitialized();
+  const { isInitialized, hasProjectId } = useAppKitInitialized();
+
+  const [isWcAutoConfiguring, setIsWcAutoConfiguring] = useState(false);
+
+  const fetchAndPersistWalletConnectProjectId = useCallback(async () => {
+    if (typeof window === 'undefined') return null;
+
+    // If it was manually configured already, don't touch it.
+    const existing = window.localStorage.getItem('walletconnect_project_id')?.trim();
+    if (existing) return existing;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('get-walletconnect-project-id');
+      if (error) throw error;
+
+      const projectId = (data as any)?.projectId?.trim?.() ?? '';
+      if (!projectId) return null;
+
+      window.localStorage.setItem('walletconnect_project_id', projectId);
+      return projectId;
+    } catch (err) {
+      console.warn('[ConnectWallet] Could not auto-fetch WalletConnect Project ID:', err);
+      return null;
+    }
+  }, []);
+
+  // Auto-configure WalletConnect Project ID even BEFORE AppKit is initialized.
+  // This prevents the "createAppKit before useAppKit" crash on web browsers when env vars are missing.
+  useEffect(() => {
+    if (isDemo) return;
+    if (HAS_WALLETCONNECT_PROJECT_ID) return;
+    if (typeof window === 'undefined') return;
+
+    const attemptedKey = 'wc_project_id_autoconfig_attempted';
+    if (window.sessionStorage.getItem(attemptedKey)) return;
+    window.sessionStorage.setItem(attemptedKey, '1');
+
+    setIsWcAutoConfiguring(true);
+    fetchAndPersistWalletConnectProjectId()
+      .then((projectId) => {
+        if (!projectId) return;
+        toast.success('WalletConnect configured. Reloading…');
+        setTimeout(() => window.location.reload(), 250);
+      })
+      .finally(() => setIsWcAutoConfiguring(false));
+  }, [fetchAndPersistWalletConnectProjectId, isDemo]);
+
+  if (!isDemo && !hasProjectId) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+            <BrandedSpinner size="sm" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">
+              {isWcAutoConfiguring ? 'Configuring WalletConnect…' : 'WalletConnect not configured'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {isWcAutoConfiguring
+                ? 'This takes a moment. The page will reload automatically.'
+                : 'Please refresh to retry, or open diagnostics from the wallet section once loaded.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   // Show loading state until AppKit is ready (prevents "createAppKit not called" errors)
   if (!isInitialized && !isDemo) {
@@ -212,24 +279,7 @@ function ConnectWalletInner({ walletAddress, onConnect, onDisconnect, onMintToke
     }
   }, []);
 
-  // Auto-configure WalletConnect Project ID (important for PWA where env vars aren't present)
-  useEffect(() => {
-    if (HAS_WALLETCONNECT_PROJECT_ID) return;
-    if (typeof window === 'undefined') return;
-
-    const attemptedKey = 'wc_project_id_autoconfig_attempted';
-    if (window.sessionStorage.getItem(attemptedKey)) return;
-    window.sessionStorage.setItem(attemptedKey, '1');
-
-    setIsWcAutoConfiguring(true);
-    fetchAndPersistWalletConnectProjectId()
-      .then((projectId) => {
-        if (!projectId) return;
-        toast.success('WalletConnect configured. Reloading…');
-        setTimeout(() => window.location.reload(), 250);
-      })
-      .finally(() => setIsWcAutoConfiguring(false));
-  }, [fetchAndPersistWalletConnectProjectId]);
+  // Auto-configure WalletConnect Project ID handled in parent component.
 
   // Handler to open the mint tokens dialog
   const handleAddToken = useCallback(() => {
