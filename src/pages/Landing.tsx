@@ -176,9 +176,9 @@ export default function Landing() {
             >
               <Badge 
                 variant="outline" 
-                className="px-6 py-2.5 text-base border-primary/60 bg-primary/15 text-primary font-semibold shadow-lg shadow-primary/30 ring-2 ring-primary/20 animate-pulse"
+                className="px-4 sm:px-6 py-2 text-sm sm:text-base whitespace-nowrap border-primary/60 bg-primary/15 text-primary font-semibold shadow-lg shadow-primary/30 ring-2 ring-primary/20 animate-pulse"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 Now in Beta on Base Blockchain Network
               </Badge>
             </motion.div>
