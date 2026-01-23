@@ -176,9 +176,9 @@ export default function Landing() {
             >
               <Badge 
                 variant="outline" 
-                className="inline-flex items-center max-w-[95vw] px-[clamp(0.5rem,2vw,1.5rem)] py-[clamp(0.375rem,1vw,0.625rem)] text-[clamp(0.65rem,2.8vw,1rem)] whitespace-nowrap border-primary/60 bg-primary/15 text-primary font-semibold tracking-tight leading-none shadow-lg shadow-primary/30 ring-2 ring-primary/20 animate-pulse"
+                className="inline-flex items-center max-w-[min(95vw,44rem)] px-[clamp(0.75rem,3vw,2.25rem)] py-[clamp(0.6rem,1.6vw,0.95rem)] text-[clamp(0.78rem,2.6vw,1.05rem)] whitespace-nowrap flex-nowrap border-primary/60 bg-primary/15 text-primary font-semibold tracking-tight leading-none ring-2 ring-primary/20 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35),0_0_36px_hsl(var(--primary)/0.22)] animate-pulse"
               >
-                <Sparkles className="h-[clamp(0.75rem,2.5vw,1rem)] w-[clamp(0.75rem,2.5vw,1rem)] mr-[clamp(0.25rem,1vw,0.5rem)] flex-shrink-0" />
+                <Sparkles className="h-[clamp(0.9rem,2.4vw,1.15rem)] w-[clamp(0.9rem,2.4vw,1.15rem)] mr-[clamp(0.35rem,1.2vw,0.6rem)] flex-shrink-0" />
                 <span className="whitespace-nowrap">Now in Beta on Base Blockchain Network</span>
               </Badge>
             </motion.div>
@@ -189,10 +189,10 @@ export default function Landing() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="h-12 md:h-16 w-auto mx-auto dark:animate-logo-glow"
+              className="h-[clamp(3rem,7vw,4.75rem)] w-auto mx-auto dark:animate-logo-glow"
             />
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+            <h1 className="text-[clamp(2.6rem,8.5vw,5rem)] font-bold tracking-tight leading-[1.06]">
               Turn Clean Energy Into{' '}
               <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 Digital Wealth
