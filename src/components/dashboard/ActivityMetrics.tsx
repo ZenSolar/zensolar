@@ -58,8 +58,8 @@ interface ActivityMetricsProps {
   onMintSuccess?: () => void;
 }
 
-// Default token price in USD (pre-populated at $0.23 per token)
-const DEFAULT_TOKEN_PRICE = 0.23;
+// Default token price in USD ($0.10 launch floor per optimized 10B strategy)
+const DEFAULT_TOKEN_PRICE = 0.10;
 
 export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCategory, onMintSuccess }: ActivityMetricsProps) {
   const [tokenPrice, setTokenPrice] = useState<number>(DEFAULT_TOKEN_PRICE);

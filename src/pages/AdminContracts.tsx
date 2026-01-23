@@ -124,25 +124,31 @@ const CONTRACT_BATTERY_MILESTONES = [500, 1000, 2500, 5000, 10000, 25000, 50000]
 const CONTRACT_CHARGING_MILESTONES = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000]; // 8 tiers
 const CONTRACT_EV_MILES_MILESTONES = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000]; // 10 tiers
 
-// Tokenomics from contracts (10B Strategy)
+// Tokenomics from contracts (10B Strategy - OPTIMIZED $0.10 FLOOR)
 const TOKENOMICS = {
   maxSupply: '10,000,000,000',
-  founderAllocation: '250,000,000',
-  treasuryAllocation: '750,000,000',
-  communityRewards: '9,000,000,000',
+  founderAllocation: '250,000,000', // 2.5% with 3-year vest, 6-month cliff
+  treasuryAllocation: '750,000,000', // 7.5% with 2-year vest
+  communityRewards: '9,000,000,000', // 90% dual-gated for subscribers
   tokensPerUnit: '1 ZSOLAR per kWh/mile',
+  launchPrice: 0.10, // $0.10 launch floor (10x narrative to $1.00)
+  targetPrice: 1.00, // $1.00 long-term target
+  lpSeed: 300_000, // $300K USDC paired with 3M tokens
+  // OPTIMIZED: 20% Mint Burn Rate
   mintDistribution: {
-    user: 85,
-    burn: 10,
+    user: 75,
+    burn: 20,
     lp: 3,
     treasury: 2,
   },
+  // 7% Transfer Tax (deflationary pressure)
   transferTax: {
-    burn: 3.5,
-    treasury: 3.5,
+    burn: 3,
+    lp: 2,
+    treasury: 2,
     total: 7,
   },
-  redemptionBurnFee: 5, // Raised to 5-10%
+  redemptionBurnFee: 5, // 5% store redemption burn
 };
 
 export default function AdminContracts() {
