@@ -28,32 +28,32 @@ const segiLayers = [
   {
     icon: Cloud,
     title: 'API Aggregation',
-    subtitle: 'Universal Connectivity',
-    description: 'Secure OAuth connections to Tesla, Enphase, SolarEdge, Wallbox, and more. No hardware required.',
+    subtitle: 'The Foundation of Digital Energy Rewards',
+    description: 'Secure OAuth 2.0 connections to the world\'s leading energy providers—Tesla, Enphase, SolarEdge, Wallbox, and more. No custom hardware. No technician visits. Just your existing equipment, verified and rewarded.',
     gradient: 'from-emerald-400 to-emerald-500',
     detail: 'Zero hardware installation',
   },
   {
     icon: RefreshCw,
     title: 'Data Normalization',
-    subtitle: 'Unified Metrics',
-    description: 'Every provider\'s unique data format is converted into a standardized Impact Score for fair, consistent rewards.',
+    subtitle: 'Unified Metrics Engine',
+    description: 'Every provider speaks a different language. Our normalization engine converts Tesla\'s kWh, Enphase\'s microinverter data, and Wallbox\'s charging sessions into a standardized Impact Score—ensuring fair, consistent rewards across all devices.',
     gradient: 'from-cyan-400 to-cyan-500',
     detail: 'Cross-platform compatibility',
   },
   {
     icon: Fingerprint,
     title: 'Verification Engine',
-    subtitle: 'Tamper-Proof Validation',
-    description: 'Cryptographically signed data pulled directly from manufacturer APIs. Timestamps and device IDs ensure authenticity.',
+    subtitle: 'Converting Clean Energy Into Blockchain Wealth',
+    description: 'Cryptographically signed data pulled directly from manufacturer APIs. Device IDs, timestamps, and production values are verified against historical patterns—eliminating fraud and ensuring only genuine clean energy activity is rewarded.',
     gradient: 'from-blue-400 to-blue-500',
-    detail: 'Immutable verification',
+    detail: 'Tamper-proof validation',
   },
   {
     icon: Binary,
     title: 'Smart Contract Bridge',
-    subtitle: 'Blockchain Integration',
-    description: 'Activity is packaged into transaction payloads and minted as $ZSOLAR tokens and NFTs directly to your wallet.',
+    subtitle: 'One-Tap Blockchain Minting',
+    description: 'Verified activity is packaged into transaction payloads and minted as $ZSOLAR tokens and milestone NFTs directly to your wallet—all from within the app. No external platforms. No complexity. Just rewards.',
     gradient: 'from-emerald-500 to-cyan-500',
     detail: 'In-app minting',
   },
@@ -64,50 +64,50 @@ const keyAdvantages = [
     icon: Rocket,
     title: 'Instant Setup',
     stat: '60s',
-    description: 'Connect and start earning in under a minute',
+    description: 'Connect your devices and start earning in under a minute—no hardware, no waiting.',
   },
   {
     icon: Globe,
     title: 'Hardware Agnostic',
     stat: '4+',
-    description: 'Major providers supported, more coming',
+    description: 'Works with Tesla, Enphase, SolarEdge, Wallbox, and more. One platform for all your clean energy assets.',
   },
   {
     icon: Shield,
     title: 'Verified Data',
     stat: '100%',
-    description: 'API-verified, no self-reporting',
+    description: 'API-verified production data. No self-reporting. No manipulation. Just truth.',
   },
   {
     icon: Gauge,
-    title: 'Real-Time',
+    title: 'Real-Time Rewards',
     stat: 'Live',
-    description: 'Watch your rewards grow instantly',
+    description: 'Watch your $ZSOLAR balance and NFT progress update as you generate clean energy.',
   },
 ];
 
 const comparisonData = [
-  { feature: 'Hardware Required', legacy: 'Custom IoT devices', segi: 'None' },
-  { feature: 'Setup Time', legacy: '2-4 weeks', segi: '60 seconds' },
-  { feature: 'Vendor Support', legacy: 'Single provider', segi: 'Multi-vendor' },
-  { feature: 'Data Verification', legacy: 'Self-reported', segi: 'API-verified' },
-  { feature: 'Maintenance', legacy: 'Ongoing', segi: 'Zero' },
-  { feature: 'User Cost', legacy: '$100-500+', segi: 'Free' },
+  { feature: 'Hardware Required', legacy: 'Custom IoT devices ($100-500+)', segi: 'None—software only' },
+  { feature: 'Setup Time', legacy: '2-4 weeks (technician install)', segi: '60 seconds (OAuth connect)' },
+  { feature: 'Vendor Support', legacy: 'Single provider lock-in', segi: 'Multi-vendor ecosystem' },
+  { feature: 'Data Verification', legacy: 'Self-reported (fraud risk)', segi: 'API-verified (tamper-proof)' },
+  { feature: 'Maintenance', legacy: 'Ongoing hardware updates', segi: 'Zero maintenance' },
+  { feature: 'Scalability', legacy: 'Limited by hardware costs', segi: 'Unlimited—add devices instantly' },
 ];
 
 const journeySteps = [
-  { step: 1, title: 'Connect', description: 'Link your devices via secure OAuth' },
-  { step: 2, title: 'Track', description: 'SEGI monitors your energy activity' },
-  { step: 3, title: 'Calculate', description: 'Rewards computed automatically' },
-  { step: 4, title: 'Mint', description: 'One tap to claim tokens & NFTs' },
-  { step: 5, title: 'Own', description: 'Assets delivered to your wallet' },
+  { step: 1, title: 'Connect', description: 'Link Tesla, Enphase, or other devices via secure OAuth' },
+  { step: 2, title: 'Baseline', description: 'SEGI captures your starting point—only new activity earns rewards' },
+  { step: 3, title: 'Track', description: 'Real-time monitoring of solar, EV, and battery activity' },
+  { step: 4, title: 'Mint', description: 'One tap to claim $ZSOLAR tokens & milestone NFTs in-app' },
+  { step: 5, title: 'Own', description: 'Digital assets delivered directly to your connected wallet' },
 ];
 
 const securityPoints = [
-  { icon: Key, text: 'OAuth 2.0 authentication' },
-  { icon: Lock, text: 'End-to-end encryption' },
-  { icon: Server, text: 'Credentials stay with manufacturers' },
-  { icon: LinkIcon, text: 'Immutable blockchain records' },
+  { icon: Key, text: 'OAuth 2.0 authentication—zero password sharing' },
+  { icon: Lock, text: 'End-to-end encryption for all data transmission' },
+  { icon: Server, text: 'Credentials stay with manufacturers—we never store passwords' },
+  { icon: LinkIcon, text: 'Immutable blockchain records for every mint' },
 ];
 
 export default function Technology() {
@@ -137,8 +137,8 @@ export default function Technology() {
               Software-Enabled Gateway Interface
             </p>
             
-            <p className="text-base text-muted-foreground max-w-xl mx-auto">
-              The patent-pending technology that transforms verified energy data into blockchain rewards—without hardware.
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              The patent-pending technology that transforms verified clean energy data into blockchain-certified digital wealth—without hardware installation, without technician visits, without complexity.
             </p>
           </motion.div>
         </div>
@@ -156,17 +156,19 @@ export default function Technology() {
           >
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                A Universal Bridge
+                The Foundation of Digital Energy Rewards
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                SEGI is a software layer that connects your existing clean energy hardware to the blockchain. 
-                No custom devices. No technician visits. Just your equipment, verified and rewarded.
+                SEGI is the technical heart of ZenSolar—a proprietary software layer that creates a universal bridge between your existing clean energy hardware and the blockchain. We're not asking you to buy new equipment. We're rewarding the investments you've already made.
+              </p>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Unlike hardware-dependent solutions that require custom IoT devices and technician installations, SEGI works entirely through secure API connections to the world's leading energy providers.
               </p>
               <ul className="space-y-4">
                 {[
-                  { label: 'Connect', desc: 'Tesla, Enphase, SolarEdge, Wallbox' },
-                  { label: 'Verify', desc: 'Cryptographic proof of production' },
-                  { label: 'Mint', desc: '$ZSOLAR tokens & NFTs in-app' },
+                  { label: 'Connect', desc: 'Tesla, Enphase, SolarEdge, Wallbox, and more' },
+                  { label: 'Verify', desc: 'Cryptographic proof of production—no self-reporting' },
+                  { label: 'Mint', desc: '$ZSOLAR tokens & milestone NFTs directly in-app' },
                 ].map((item) => (
                   <li key={item.label} className="flex items-start gap-3">
                     <div className="mt-1 p-1 rounded-full bg-primary/10">
