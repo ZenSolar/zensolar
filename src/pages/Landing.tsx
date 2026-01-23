@@ -176,7 +176,7 @@ export default function Landing() {
             >
               <Badge 
                 variant="outline" 
-                className="inline-flex items-center max-w-[min(95vw,44rem)] px-[clamp(0.75rem,3vw,2.25rem)] py-[clamp(0.6rem,1.6vw,0.95rem)] text-[clamp(0.78rem,2.6vw,1.05rem)] whitespace-nowrap flex-nowrap border-primary/60 bg-primary/15 text-primary font-semibold tracking-tight leading-none ring-2 ring-primary/20 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35),0_0_36px_hsl(var(--primary)/0.22)] animate-pulse"
+                className="inline-flex items-center max-w-[min(95vw,44rem)] px-[clamp(0.75rem,3vw,2.25rem)] py-[clamp(0.6rem,1.6vw,0.95rem)] text-[clamp(0.78rem,2.6vw,1.05rem)] whitespace-nowrap flex-nowrap border-primary/50 bg-primary/10 text-primary font-semibold tracking-tight leading-none ring-1 ring-primary/20 animate-breathing-glow"
               >
                 <Sparkles className="h-[clamp(0.9rem,2.4vw,1.15rem)] w-[clamp(0.9rem,2.4vw,1.15rem)] mr-[clamp(0.35rem,1.2vw,0.6rem)] flex-shrink-0" />
                 <span className="whitespace-nowrap">Now in Beta on Base Blockchain Network</span>
@@ -204,16 +204,16 @@ export default function Landing() {
               EV mile driven, and battery cycle stored.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-[clamp(0.75rem,2vw,1rem)] pt-[clamp(0.25rem,1vw,0.5rem)] w-full">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 w-full">
               <Link to="/demo">
-                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/30 animate-pulse">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-all shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02]">
                   <Hexagon className="mr-2 h-5 w-5" />
                   Mint Tokens & NFTs Now
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:scale-[1.02]">
                   Start Earning Today
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -221,16 +221,16 @@ export default function Landing() {
             </div>
 
             {/* Trust indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <Shield className="h-4 w-4 text-primary" />
                 <span>Patent Pending</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <Globe className="h-4 w-4 text-primary" />
                 <span>Built on Base L2</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <Hexagon className="h-4 w-4 text-amber-500" />
                 <span>In-App Minting</span>
               </div>
@@ -240,24 +240,24 @@ export default function Landing() {
       </section>
 
       {/* SEGI Minting Section */}
-      <section className="py-12 md:py-16 bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-primary/5">
-        <div className="container max-w-4xl mx-auto px-4 space-y-12">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-primary/5">
+        <div className="container max-w-4xl mx-auto px-4 space-y-10">
           {/* Intro Text */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5 }}
-            className="text-center space-y-6"
+            className="text-center space-y-5"
           >
             <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
               <Hexagon className="h-3.5 w-3.5 mr-2" />
-              Mint In-App
+              One-Tap Minting
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold">
+            <h2 className="text-3xl md:text-4xl font-bold leading-tight">
               Tokens & NFTs{' '}
               <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Directly From the App
+                Minted In-App
               </span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
@@ -265,7 +265,7 @@ export default function Landing() {
               and milestone NFTs with just one tap—no external tools needed.
             </p>
 
-            <div className="pt-4 space-y-4">
+            <div className="pt-4 space-y-3">
               <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
                 <Sparkles className="h-3.5 w-3.5 mr-2" />
                 Patent-Pending SEGI Technology
@@ -274,7 +274,7 @@ export default function Landing() {
                 How In-App Minting Works
               </h3>
               <p className="text-muted-foreground">
-                Three simple steps from clean energy to blockchain rewards
+                Our 4-layer architecture seamlessly converts energy data to blockchain rewards
               </p>
             </div>
           </motion.div>
@@ -292,7 +292,7 @@ export default function Landing() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 md:py-24 bg-muted/40 dark:bg-muted/20 border-y border-border/40 dark:border-primary/10">
+      <section className="py-16 md:py-20 bg-muted/30 dark:bg-muted/10 border-y border-border/30 dark:border-primary/10">
         <div className="container max-w-6xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -309,7 +309,7 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -318,12 +318,12 @@ export default function Landing() {
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ delay: index * 0.08, duration: 0.4 }}
               >
-                <Card className="h-full bg-card border-border/60 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300 dark:bg-card/80">
-                  <CardContent className="p-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} mb-4 shadow-lg`}>
-                      <feature.icon className="h-7 w-7 text-white" />
+                <Card className="h-full bg-card/80 border-border/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 dark:hover:shadow-primary/15 transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="p-5 text-center">
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} mb-3 shadow-lg`}>
+                      <feature.icon className="h-6 w-6 text-white" />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                    <h3 className="font-semibold text-base mb-1.5">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
@@ -334,7 +334,7 @@ export default function Landing() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 md:py-24">
+      <section className="py-16 md:py-20">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div
@@ -367,7 +367,7 @@ export default function Landing() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: '-30px' }}
                     transition={{ delay: index * 0.08, duration: 0.4 }}
-                    className="flex items-start gap-4 p-4 rounded-xl bg-muted/60 border border-border/60 hover:border-primary/30 transition-colors"
+                    className="flex items-start gap-4 p-4 rounded-xl bg-muted/40 border border-border/40 hover:border-primary/30 hover:bg-muted/60 transition-all duration-200"
                   >
                     <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                       <benefit.icon className="h-5 w-5 text-primary" />
@@ -388,7 +388,7 @@ export default function Landing() {
               transition={{ duration: 0.4 }}
               className="relative"
             >
-              <Card className="relative bg-gradient-to-br from-card via-card to-muted/80 border-border/60 shadow-xl dark:shadow-primary/10 dark:border-primary/20">
+              <Card className="relative bg-gradient-to-br from-card via-card to-muted/60 border-border/50 shadow-2xl dark:shadow-primary/10 dark:border-primary/20 overflow-hidden">
                 <CardContent className="p-8 md:p-10">
                   <div className="text-center space-y-6">
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/25">
@@ -420,7 +420,7 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-24 bg-muted/40 dark:bg-muted/20 border-t border-border/40 dark:border-primary/10">
+      <section className="py-16 md:py-20 bg-muted/30 dark:bg-muted/10 border-t border-border/30 dark:border-primary/10">
         <div className="container max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -439,7 +439,7 @@ export default function Landing() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
               <Link to="/auth">
-                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:scale-[1.02]">
                   Create Free Account
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
