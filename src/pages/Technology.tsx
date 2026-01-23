@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { SEO } from '@/components/SEO';
 
 const segiLayers = [
   {
@@ -135,7 +136,14 @@ const securityFeatures = [
 
 export default function Technology() {
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 space-y-10">
+    <>
+      <SEO 
+        title="SEGI Technology - Patent-Pending Clean Energy Verification"
+        description="Discover ZenSolar's patent-pending SEGI technology: a 4-layer system that connects to manufacturer APIs, normalizes data, verifies activity, and mints blockchain rewards."
+        url="https://zensolar.lovable.app/technology"
+        image="https://zensolar.lovable.app/og-technology.png"
+      />
+      <div className="container max-w-4xl mx-auto px-4 py-8 space-y-10">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -464,6 +472,7 @@ export default function Technology() {
           </Button>
         </div>
       </motion.div>
-    </div>
+      </div>
+    </>
   );
 }

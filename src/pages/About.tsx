@@ -48,6 +48,7 @@ export default function About() {
         title="About ZenSolar"
         description="Learn about ZenSolar's mission to reward clean energy production. Connect solar, EV, and battery systems to earn blockchain-verified tokens and NFTs."
         url="https://zensolar.lovable.app/about"
+        image="https://zensolar.lovable.app/og-about.png"
       />
       <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Hero */}
