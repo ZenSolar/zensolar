@@ -197,13 +197,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       
       <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
-        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[120px]">
+        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[100px]">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            width={168}
-            height={80}
-            className="h-20 w-auto object-contain dark:brightness-110 dark:contrast-110" 
+            width={120}
+            height={60}
+            className="h-14 w-auto object-contain dark:brightness-110 dark:contrast-110" 
           />
           <div>
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>

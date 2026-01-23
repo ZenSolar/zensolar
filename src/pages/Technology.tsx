@@ -30,15 +30,15 @@ const segiLayers = [
   {
     icon: Cloud,
     title: 'Layer 1: API Aggregation',
-    tagline: 'The Universal Translator 🌐',
-    description: 'SEGI speaks every language in the clean energy world. Tesla? ✓ Enphase? ✓ SolarEdge? ✓ Wallbox? ✓ We connect to manufacturer clouds via secure OAuth—no hardware dongles, no gateway boxes, no technician visits.',
+    tagline: 'Universal Translator',
+    description: 'SEGI speaks every language in the clean energy world. Tesla, Enphase, SolarEdge, Wallbox—we connect to manufacturer clouds via secure OAuth. No hardware dongles, no gateway boxes, no technician visits.',
     gradient: 'from-blue-500 to-cyan-500',
     highlight: 'Zero hardware required',
   },
   {
     icon: RefreshCw,
     title: 'Layer 2: Data Normalization',
-    tagline: 'Making Apples = Apples 🍎',
+    tagline: 'Unified Standards',
     description: 'Every provider reports data differently. Tesla talks in miles, Enphase speaks Watt-hours, Wallbox counts in kWh. SEGI normalizes everything into a unified "Impact Score" (0.7 kg CO₂ per kWh). One metric to rule them all.',
     gradient: 'from-emerald-500 to-green-500',
     highlight: 'Unified impact scoring',
@@ -46,7 +46,7 @@ const segiLayers = [
   {
     icon: Fingerprint,
     title: 'Layer 3: Verification Engine',
-    tagline: 'Trust, But Verify 🔍',
+    tagline: 'Cryptographic Proof',
     description: 'Anyone can claim they drove 1,000 miles. SEGI doesn\'t take your word for it—it pulls cryptographically signed data directly from manufacturer APIs. Timestamps, device IDs, and production values are all tamper-evident.',
     gradient: 'from-purple-500 to-pink-500',
     highlight: 'Tamper-proof verification',
@@ -54,10 +54,10 @@ const segiLayers = [
   {
     icon: Binary,
     title: 'Layer 4: Smart Contract Bridge',
-    tagline: 'Energy → Blockchain Magic ✨',
-    description: 'This is where the magic happens! SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. With one tap in the app, you mint $ZSOLAR tokens AND collectible milestone NFTs directly to your wallet. No external tools needed—it all happens right here.',
+    tagline: 'On-Chain Rewards',
+    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. With one tap in the app, you mint $ZSOLAR tokens AND collectible milestone NFTs directly to your wallet.',
     gradient: 'from-amber-500 to-orange-500',
-    highlight: 'In-app minting to your wallet! 🚀',
+    highlight: 'In-app minting to your wallet',
   },
 ];
 
@@ -167,7 +167,7 @@ export default function Technology() {
                 <Cpu className="h-12 w-12 text-white" />
               </div>
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold">So What Actually IS SEGI? 🤔</h2>
+                <h2 className="text-2xl font-bold">What is SEGI?</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   Think of SEGI as a <strong className="text-foreground">universal translator</strong> that sits between your 
                   energy hardware and the blockchain. It's a software layer that:
@@ -208,7 +208,7 @@ export default function Technology() {
         className="space-y-6"
       >
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">How SEGI Works: The 4 Layers 🧱</h2>
+          <h2 className="text-2xl font-bold mb-2">How SEGI Works: The 4 Layers</h2>
           <p className="text-muted-foreground">Under the hood, SEGI is a layered architecture—each piece doing its job perfectly.</p>
         </div>
         
@@ -254,7 +254,7 @@ export default function Technology() {
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-xl">
               <Trophy className="h-6 w-6 text-emerald-500" />
-              Why This Matters (The "So What?") 🎯
+              Why This Matters
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -291,7 +291,7 @@ export default function Technology() {
           <CardHeader className="bg-muted/40">
             <CardTitle className="flex items-center gap-3 text-xl">
               <Zap className="h-6 w-6 text-primary" />
-              SEGI vs. Traditional Approaches ⚔️
+              SEGI vs. Traditional Approaches
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -329,7 +329,7 @@ export default function Technology() {
           <CardHeader className="bg-gradient-to-r from-primary/10 to-emerald-500/10">
             <CardTitle className="flex items-center gap-3 text-xl">
               <Coins className="h-6 w-6 text-primary" />
-              From Solar Panel to Wallet: The Journey 🚀
+              From Solar Panel to Wallet: The Journey
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -371,7 +371,7 @@ export default function Technology() {
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-xl">
               <Lock className="h-6 w-6 text-blue-500" />
-              Security & Privacy 🔐
+              Security & Privacy
             </CardTitle>
           </CardHeader>
           <CardContent>
