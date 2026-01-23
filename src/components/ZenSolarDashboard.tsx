@@ -19,7 +19,7 @@ import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Loader2 } from 'lucide-react';
-import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 // Simple SVG icons for social platforms
 const FacebookIcon = () => (
@@ -201,7 +201,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-10 w-auto object-contain" 
+            className="h-10 w-auto object-contain dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] dark:brightness-110" 
           />
           <div>
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>

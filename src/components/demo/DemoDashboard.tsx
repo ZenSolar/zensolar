@@ -15,7 +15,7 @@ import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { DemoOnboardingGuide } from '@/components/demo/DemoOnboardingGuide';
 import { DemoRewardActions, DemoRewardActionsRef, MintCategory as DemoMintCategory } from '@/components/demo/DemoRewardActions';
-import zenLogo from '@/assets/zen-logo-stacked.png';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { toast } from 'sonner';
 
 // Simple SVG icons for social platforms
@@ -190,13 +190,11 @@ export function DemoDashboard() {
       
       <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border overflow-x-hidden">
         {/* Dashboard Header with Logo */}
-        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[120px]">
+        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[100px]">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            width={168}
-            height={80}
-            className="h-20 w-auto object-contain dark:brightness-110 dark:contrast-110" 
+            className="h-10 w-auto object-contain dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] dark:brightness-110" 
           />
           <div>
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>

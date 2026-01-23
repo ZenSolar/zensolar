@@ -13,7 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from "react";
-import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -194,8 +194,7 @@ export default function WhitePaper() {
               <img 
                 src={zenLogo} 
                 alt="ZenSolar" 
-                className="h-8 w-auto dark:brightness-0 dark:invert"
-                style={{ mixBlendMode: 'multiply' }}
+                className="h-8 w-auto dark:drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] dark:brightness-110"
               />
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -227,8 +226,7 @@ export default function WhitePaper() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-16 w-auto md:h-24 object-contain mx-auto dark:brightness-0 dark:invert"
-            style={{ mixBlendMode: 'multiply' }}
+            className="h-16 w-auto md:h-24 object-contain mx-auto dark:drop-shadow-[0_0_12px_rgba(16,185,129,0.5)] dark:brightness-110"
           />
         </div>
         

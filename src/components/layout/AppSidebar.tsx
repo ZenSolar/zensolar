@@ -29,7 +29,7 @@ import {
   BookMarked,
   LineChart
 } from "lucide-react";
-import zenLogo from "@/assets/zen-logo-stacked.png";
+import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -133,11 +133,10 @@ export function AppSidebar() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-12 w-12 rounded-lg object-cover flex-shrink-0"
+            className="h-8 w-auto object-contain flex-shrink-0 dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] dark:brightness-110"
           />
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="font-bold text-base text-sidebar-foreground leading-tight">ZenSolar</span>
               <span className="text-[10px] text-sidebar-foreground/60 leading-tight">Earn Blockchain Rewards From Your Clean Energy Use</span>
             </div>
           )}

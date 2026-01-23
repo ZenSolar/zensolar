@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import zenLogo from '@/assets/zen-logo-horizontal.png';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface DashboardHeaderProps {
   isDemo?: boolean;
@@ -31,7 +31,7 @@ export function DashboardHeader({ isDemo = false }: DashboardHeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-3">
-          <img src={zenLogo} alt="ZenSolar" width={67} height={32} className="h-8" />
+          <img src={zenLogo} alt="ZenSolar" className="h-8 w-auto dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] dark:brightness-110" />
           <div className="flex flex-col">
             <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
             <span className="text-[10px] text-primary/70 font-medium hidden sm:block">✦ Patent Pending</span>
