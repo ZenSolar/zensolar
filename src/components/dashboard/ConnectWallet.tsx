@@ -59,7 +59,7 @@ export function ConnectWallet({ walletAddress, onConnect, onDisconnect, onMintTo
 }
 
 function ConnectWalletInner({ walletAddress, onConnect, onDisconnect, onMintTokens, isDemo = false, showDiagnostics = false }: ConnectWalletProps) {
-  // AppKit hooks - now safe to call since parent verified initialization
+  // AppKit hooks - safe to call since parent verified initialization
   const { open } = useAppKit();
   const { address, isConnected } = useAppKitAccount();
   const { open: isModalOpen } = useAppKitState();
