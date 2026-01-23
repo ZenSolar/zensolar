@@ -169,10 +169,19 @@ export default function Landing() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="text-center space-y-8 max-w-3xl mx-auto"
           >
-            <Badge variant="outline" className="px-4 py-1.5 border-primary/40 bg-primary/10 text-primary font-medium">
-              <Sparkles className="h-3.5 w-3.5 mr-2" />
-              Now in Beta on Base Network
-            </Badge>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Badge 
+                variant="outline" 
+                className="px-6 py-2.5 text-base border-primary/60 bg-primary/15 text-primary font-semibold shadow-lg shadow-primary/30 ring-2 ring-primary/20 animate-pulse"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Now in Beta on Base Blockchain Network
+              </Badge>
+            </motion.div>
 
             <motion.img
               src={zenLogo}
