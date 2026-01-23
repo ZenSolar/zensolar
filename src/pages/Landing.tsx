@@ -11,6 +11,7 @@ import {
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { SEO } from '@/components/SEO';
 
 const features = [
   {
@@ -73,7 +74,14 @@ export default function Landing() {
   const orb3Opacity = useTransform(scrollYProgress, [0, 0.5], [0.2, 0.4]);
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
+    <>
+      <SEO 
+        title="ZenSolar - Earn Crypto for Clean Energy"
+        description="Transform your solar production, EV miles, and battery storage into $ZSOLAR tokens and NFTs. Patent-pending SEGI technology verifies your clean energy impact."
+        url="https://zensolar.lovable.app"
+        image="https://zensolar.lovable.app/og-image.png"
+      />
+      <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
       {/* Navigation - with safe area padding for mobile notches */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
         <div className="container max-w-6xl mx-auto px-4 flex h-16 items-center justify-between gap-4">
@@ -457,6 +465,7 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

@@ -16,6 +16,7 @@ import { useState, useRef, useEffect } from "react";
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
 import { supabase } from "@/integrations/supabase/client";
+import { SEO } from "@/components/SEO";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -185,7 +186,14 @@ export default function WhitePaper() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEO 
+        title="ZenSolar White Paper - Clean Energy Blockchain Rewards"
+        description="Read the ZenSolar White Paper: mission, market opportunity, SEGI technology, and tokenomics for turning clean energy into blockchain rewards."
+        url="https://zensolar.lovable.app/white-paper"
+        image="https://zensolar.lovable.app/og-whitepaper.png"
+      />
+      <div className="min-h-screen bg-background">
       {/* Fixed Navigation Header - only shown for unauthenticated users (landing page visitors) */}
       {!isAuthenticated && (
         <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
@@ -1064,6 +1072,7 @@ export default function WhitePaper() {
         </div>
       </motion.footer>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -2,10 +2,18 @@ import { Coins, Zap, Award, TrendingUp, Lock, Users, Rocket, Bell, Sparkles, Bat
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { SEO } from "@/components/SEO";
 
 export default function Tokenomics() {
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+    <>
+      <SEO 
+        title="$ZSOLAR Tokenomics - Clean Energy Token Economics"
+        description="Learn about $ZSOLAR tokenomics: 10B total supply, 20% mint burn rate, and kWh-based minting. Turn your solar production and EV miles into real crypto rewards."
+        url="https://zensolar.lovable.app/tokenomics"
+        image="https://zensolar.lovable.app/og-tokenomics.png"
+      />
+      <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
         <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-xl">
@@ -132,6 +140,7 @@ export default function Tokenomics() {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+      </div>
+    </>
   );
 }
