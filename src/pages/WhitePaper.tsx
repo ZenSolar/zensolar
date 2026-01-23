@@ -13,10 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef } from "react";
-
-// Use public path with cache-bust for PWA reliability
-const LOGO_URL = "/zs-icon-192.png?v=2";
-const LOGO_FALLBACK = "/apple-touch-icon.png?v=14";
+import zenLogo from '@/assets/zen-logo.png';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -103,7 +100,6 @@ const worldBenefits = [
 
 export default function WhitePaper() {
   const { toast } = useToast();
-  const [logoSrc, setLogoSrc] = useState(LOGO_URL);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -186,15 +182,12 @@ export default function WhitePaper() {
       >
         {/* Polished Logo with fallback */}
         <div className="relative inline-flex items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 via-cyan-500/20 to-blue-500/30 rounded-full blur-2xl scale-150" />
-          <div className="relative">
-            <img 
-              src={logoSrc} 
-              alt="ZenSolar" 
-              className="h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-2xl"
-              onError={() => setLogoSrc(LOGO_FALLBACK)}
-            />
-          </div>
+          <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl scale-150" />
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            className="h-24 w-auto md:h-32 object-contain relative z-10 drop-shadow-2xl"
+          />
         </div>
         
         <div className="space-y-4">
