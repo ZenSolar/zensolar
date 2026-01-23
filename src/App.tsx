@@ -61,6 +61,7 @@ const AdminFinalTokenomics = lazy(() => import("./pages/AdminFinalTokenomics"));
 const AdminGlossary = lazy(() => import("./pages/AdminGlossary"));
 const AdminGrowthProjections = lazy(() => import("./pages/AdminGrowthProjections"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
+const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -294,8 +295,8 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    {/* Public White Paper - accessible without auth */}
-                    <Route path="/white-paper" element={<WhitePaper />} />
+                    {/* White Paper - conditionally wrapped in AppLayout based on auth */}
+                    <Route path="/white-paper" element={<WhitePaperWrapper />} />
                     <Route 
                       path="/feedback" 
                       element={
