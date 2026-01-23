@@ -8,11 +8,15 @@ import {
   TrendingUp, Shield, Cpu, Target, Sparkles, Battery,
   Car, Home, Building2, Landmark, Heart, Rocket,
   ChevronRight, ExternalLink, FileText, Share2, Star,
-  DollarSign
+  DollarSign, Download, Loader2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import zenLogo from "@/assets/zen-icon-transparent.png";
+import { useState, useRef } from "react";
+
+// Use public path with cache-bust for PWA reliability
+const LOGO_URL = "/zs-icon-192.png?v=2";
+const LOGO_FALLBACK = "/apple-touch-icon.png?v=14";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -99,6 +103,9 @@ const worldBenefits = [
 
 export default function WhitePaper() {
   const { toast } = useToast();
+  const [logoSrc, setLogoSrc] = useState(LOGO_URL);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleShare = async () => {
     const shareData = {
@@ -123,28 +130,75 @@ export default function WhitePaper() {
     }
   };
 
+  const handleExportPDF = async () => {
+    if (!contentRef.current) return;
+    
+    setIsExportingPDF(true);
+    toast({ title: "Generating PDF...", description: "This may take a moment." });
+
+    try {
+      const html2pdf = (await import("html2pdf.js")).default;
+      const element = contentRef.current;
+      const fileName = `ZenSolar-WhitePaper-${new Date().toISOString().split("T")[0]}.pdf`;
+
+      const opt = {
+        margin: [10, 10, 10, 10] as [number, number, number, number],
+        filename: fileName,
+        image: { type: "jpeg" as const, quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      };
+
+      // Check if mobile - use blob download method
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        await html2pdf().set(opt).from(element).save();
+      }
+
+      toast({ title: "PDF downloaded!", description: fileName });
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast({ title: "Export failed", description: "Please try again or use browser print.", variant: "destructive" });
+    } finally {
+      setIsExportingPDF(false);
+    }
+  };
+
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 space-y-12">
+    <div ref={contentRef} className="container max-w-4xl mx-auto px-4 py-8 space-y-12">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-6"
       >
-        {/* Polished Logo */}
+        {/* Polished Logo with fallback */}
         <div className="relative inline-flex items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 via-primary/20 to-cyan-500/30 rounded-full blur-2xl scale-150" />
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 via-cyan-500/20 to-blue-500/30 rounded-full blur-2xl scale-150" />
           <div className="relative">
             <img 
-              src={zenLogo} 
+              src={logoSrc} 
               alt="ZenSolar" 
               className="h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-2xl"
+              onError={() => setLogoSrc(LOGO_FALLBACK)}
             />
           </div>
         </div>
         
         <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <Badge variant="outline" className="px-4 py-1.5 border-primary/30 bg-primary/5 text-sm">
               <FileText className="h-3.5 w-3.5 mr-2 text-primary" />
               White Paper v1.0
@@ -158,11 +212,25 @@ export default function WhitePaper() {
               <Share2 className="h-3.5 w-3.5" />
               Share
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPDF}
+              disabled={isExportingPDF}
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+            >
+              {isExportingPDF ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
+              PDF
+            </Button>
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
             Turning Clean Energy Into{' '}
-            <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 bg-clip-text text-transparent">
               Digital Wealth
             </span>
           </h1>
