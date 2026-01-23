@@ -173,7 +173,27 @@ export default function WhitePaper() {
   };
 
   return (
-    <div ref={contentRef} className="container max-w-4xl mx-auto px-4 py-8 space-y-12">
+    <div className="min-h-screen bg-background">
+      {/* Public Navigation Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <img src={zenLogo} alt="ZenSolar" className="h-8 w-auto" />
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/auth">
+              <Button variant="ghost" size="sm">Log In</Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="sm" className="bg-primary hover:bg-primary/90">
+                Get Started
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div ref={contentRef} className="container max-w-4xl mx-auto px-4 py-8 space-y-12">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -1021,6 +1041,7 @@ export default function WhitePaper() {
           </p>
         </div>
       </motion.footer>
+      </div>
     </div>
   );
 }
