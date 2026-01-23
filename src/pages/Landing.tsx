@@ -165,6 +165,15 @@ export default function Landing() {
               <Sparkles className="h-3.5 w-3.5 mr-2" />
               Now in Beta on Base Network
             </Badge>
+
+            <motion.img
+              src={zenLogo}
+              alt="ZenSolar"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="h-12 md:h-16 w-auto mx-auto dark:animate-logo-glow"
+            />
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
               Turn Clean Energy Into{' '}
