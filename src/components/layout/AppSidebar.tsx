@@ -54,6 +54,7 @@ const mainNavItems = [
   { title: "NFT Collection", url: "/nft-collection", icon: Award },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag },
   { title: "How It Works", url: "/how-it-works", icon: BookOpen },
+  { title: "White Paper", url: "/white-paper", icon: FileText },
   { title: "Technology", url: "/technology", icon: Cpu },
   { title: "Tokenomics", url: "/tokenomics", icon: Coins },
   { title: "Mint History", url: "/mint-history", icon: History },

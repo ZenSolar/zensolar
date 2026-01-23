@@ -60,6 +60,7 @@ const AdminFlywheelTracker = lazy(() => import("./pages/AdminFlywheelTracker"));
 const AdminFinalTokenomics = lazy(() => import("./pages/AdminFinalTokenomics"));
 const AdminGlossary = lazy(() => import("./pages/AdminGlossary"));
 const AdminGrowthProjections = lazy(() => import("./pages/AdminGrowthProjections"));
+const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -297,6 +298,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <About />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/white-paper" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <WhitePaper />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
