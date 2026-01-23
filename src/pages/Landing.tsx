@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
 import { SEGIMintingInfographic } from '@/components/landing/SEGIMintingInfographic';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 const features = [
   {
@@ -56,6 +58,20 @@ const benefits = [
 ];
 
 export default function Landing() {
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+
+  // Parallax transforms for background orbs
+  const orb1Y = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const orb2Y = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const orb3Y = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const orb1Scale = useTransform(scrollYProgress, [0, 1], [1, 1.3]);
+  const orb2Scale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
+  const orb3Opacity = useTransform(scrollYProgress, [0, 0.5], [0.2, 0.4]);
+
   return (
     <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
       {/* Navigation - with safe area padding for mobile notches */}
@@ -77,6 +93,7 @@ export default function Landing() {
             </Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-4">
+            <ThemeToggle />
             <Link to="/auth">
               <Button variant="ghost" size="sm" className="px-3">Log In</Button>
             </Link>
@@ -92,21 +109,48 @@ export default function Landing() {
       </header>
 
       {/* Hero Section - account for safe area top */}
-      <section className="relative pt-[calc(4rem+env(safe-area-inset-top)+2rem)] pb-16 md:pt-[calc(5rem+env(safe-area-inset-top)+2.5rem)] md:pb-20">
-        {/* Enhanced dark mode background with glow effects */}
+      <section ref={heroRef} className="relative pt-[calc(4rem+env(safe-area-inset-top)+2rem)] pb-16 md:pt-[calc(5rem+env(safe-area-inset-top)+2.5rem)] md:pb-20">
+        {/* Parallax background orbs with glow effects */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div 
+          <motion.div 
             className="absolute top-20 -left-20 w-72 h-72 rounded-full opacity-20 dark:opacity-40 dark:blur-3xl"
-            style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }}
+            style={{ 
+              background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
+              y: orb1Y,
+              scale: orb1Scale
+            }}
           />
-          <div 
+          <motion.div 
             className="absolute bottom-20 -right-20 w-72 h-72 rounded-full opacity-15 dark:opacity-35 dark:blur-3xl"
-            style={{ background: 'radial-gradient(circle, hsl(142 76% 36%) 0%, transparent 70%)' }}
+            style={{ 
+              background: 'radial-gradient(circle, hsl(142 76% 36%) 0%, transparent 70%)',
+              y: orb2Y,
+              scale: orb2Scale
+            }}
           />
-          {/* Additional glow orb for dark mode */}
-          <div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-0 dark:opacity-20 blur-3xl"
-            style={{ background: 'radial-gradient(circle, hsl(199 89% 48%) 0%, transparent 70%)' }}
+          {/* Additional glow orb for dark mode with parallax */}
+          <motion.div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl hidden dark:block"
+            style={{ 
+              background: 'radial-gradient(circle, hsl(199 89% 48%) 0%, transparent 70%)',
+              y: orb3Y,
+              opacity: orb3Opacity
+            }}
+          />
+          {/* Extra floating orbs for more depth */}
+          <motion.div 
+            className="absolute top-1/4 right-1/4 w-48 h-48 rounded-full opacity-10 dark:opacity-25 blur-2xl"
+            style={{ 
+              background: 'radial-gradient(circle, hsl(280 80% 60%) 0%, transparent 70%)',
+              y: useTransform(scrollYProgress, [0, 1], [0, -60])
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/3 left-1/4 w-36 h-36 rounded-full opacity-10 dark:opacity-20 blur-2xl"
+            style={{ 
+              background: 'radial-gradient(circle, hsl(45 100% 50%) 0%, transparent 70%)',
+              y: useTransform(scrollYProgress, [0, 1], [0, 100])
+            }}
           />
         </div>
 
