@@ -16,6 +16,7 @@ import {
   Play
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
+import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
@@ -74,9 +75,9 @@ export function DemoSidebar() {
         {/* Logo/Brand */}
         <div className="p-4 flex items-center gap-3">
           <img 
-            src={zenLogo} 
+            src={collapsed ? zenFavicon : zenLogo} 
             alt="ZenSolar" 
-            className="h-8 w-auto object-contain flex-shrink-0 dark:animate-logo-glow" 
+            className={`${collapsed ? 'h-8 w-8' : 'h-8 w-auto'} object-contain flex-shrink-0 dark:animate-logo-glow`}
           />
           {!collapsed && (
             <div className="flex flex-col">
