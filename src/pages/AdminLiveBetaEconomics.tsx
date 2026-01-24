@@ -115,7 +115,69 @@ export default function AdminLiveBetaEconomics() {
   const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(500); // kWh equivalent
   const [simulatedMonths, setSimulatedMonths] = useState(6);
   
-  // Loading and auth checks
+  // Calculate simulation data - MUST be before any early returns
+  const lpSeed = getActiveLPSeed();
+  
+  const simulationData = useMemo(() => {
+    const data = [];
+    let cumulativeMinted = 0;
+    let cumulativeBurned = 0;
+    let cumulativeLP = lpSeed.usdcAmount;
+    let cumulativeTreasury = 0;
+    let currentTokenSupply = lpSeed.tokenAmount;
+    
+    for (let month = 0; month <= simulatedMonths; month++) {
+      const monthlyTokensMinted = month === 0 ? 0 : 
+        simulatedUsers * avgMonthlyActivity * LIVE_BETA_MULTIPLIER;
+      
+      const userTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.user / 100);
+      const burnTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.burn / 100);
+      const lpTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.lp / 100);
+      const treasuryTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.treasury / 100);
+      
+      const subscriptionLPInjection = month === 0 ? 0 :
+        simulatedUsers * SUBSCRIPTION.monthlyPrice * (SUBSCRIPTION.lpContribution / 100);
+      
+      cumulativeMinted += monthlyTokensMinted;
+      cumulativeBurned += burnTokens;
+      cumulativeLP += subscriptionLPInjection;
+      cumulativeTreasury += treasuryTokens;
+      currentTokenSupply += (userTokens + lpTokens + treasuryTokens);
+      
+      const priceImpact = month === 0 ? 0 : 
+        (subscriptionLPInjection / cumulativeLP) * 0.5;
+      const currentPrice = PRICES.launchFloor * (1 + priceImpact * month);
+      
+      data.push({
+        month: `M${month}`,
+        minted: Math.round(cumulativeMinted),
+        burned: Math.round(cumulativeBurned),
+        lpDepth: Math.round(cumulativeLP),
+        treasury: Math.round(cumulativeTreasury),
+        price: Math.round(currentPrice * 1000) / 1000,
+        userTokens: Math.round(userTokens),
+      });
+    }
+    
+    return data;
+  }, [simulatedUsers, avgMonthlyActivity, simulatedMonths, lpSeed]);
+  
+  const summaryMetrics = useMemo(() => {
+    const final = simulationData[simulationData.length - 1];
+    const initial = simulationData[0];
+    
+    return {
+      totalMinted: final.minted,
+      totalBurned: final.burned,
+      burnRate: final.minted > 0 ? ((final.burned / final.minted) * 100).toFixed(1) : '0',
+      lpGrowth: ((final.lpDepth - initial.lpDepth) / initial.lpDepth * 100).toFixed(1),
+      priceChange: ((final.price - initial.price) / initial.price * 100).toFixed(1),
+      monthlySubscriptionLP: simulatedUsers * SUBSCRIPTION.monthlyPrice * (SUBSCRIPTION.lpContribution / 100),
+      avgTokensPerUser: final.minted > 0 ? Math.round(final.minted / simulatedUsers) : 0,
+    };
+  }, [simulationData, simulatedUsers]);
+  
+  // Loading and auth checks - AFTER all hooks
   if (authLoading || adminLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -140,74 +202,6 @@ export default function AdminLiveBetaEconomics() {
       </div>
     );
   }
-
-  // Calculate simulation data
-  const lpSeed = getActiveLPSeed();
-  
-  const simulationData = useMemo(() => {
-    const data = [];
-    let cumulativeMinted = 0;
-    let cumulativeBurned = 0;
-    let cumulativeLP = lpSeed.usdcAmount;
-    let cumulativeTreasury = 0;
-    let currentTokenSupply = lpSeed.tokenAmount;
-    
-    for (let month = 0; month <= simulatedMonths; month++) {
-      // Monthly activity per user × users × reward rate (10x in Live Beta)
-      const monthlyTokensMinted = month === 0 ? 0 : 
-        simulatedUsers * avgMonthlyActivity * LIVE_BETA_MULTIPLIER;
-      
-      // Mint distribution
-      const userTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.user / 100);
-      const burnTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.burn / 100);
-      const lpTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.lp / 100);
-      const treasuryTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.treasury / 100);
-      
-      // Subscription LP injection (50% of $9.99 × users)
-      const subscriptionLPInjection = month === 0 ? 0 :
-        simulatedUsers * SUBSCRIPTION.monthlyPrice * (SUBSCRIPTION.lpContribution / 100);
-      
-      cumulativeMinted += monthlyTokensMinted;
-      cumulativeBurned += burnTokens;
-      cumulativeLP += subscriptionLPInjection;
-      cumulativeTreasury += treasuryTokens;
-      currentTokenSupply += (userTokens + lpTokens + treasuryTokens); // Burned tokens removed
-      
-      // Simplified AMM price calculation
-      // Price = LP_USDC / Token_Supply_In_Pool
-      const priceImpact = month === 0 ? 0 : 
-        (subscriptionLPInjection / cumulativeLP) * 0.5; // Positive price pressure
-      const currentPrice = PRICES.launchFloor * (1 + priceImpact * month);
-      
-      data.push({
-        month: `M${month}`,
-        minted: Math.round(cumulativeMinted),
-        burned: Math.round(cumulativeBurned),
-        lpDepth: Math.round(cumulativeLP),
-        treasury: Math.round(cumulativeTreasury),
-        price: Math.round(currentPrice * 1000) / 1000,
-        userTokens: Math.round(userTokens),
-      });
-    }
-    
-    return data;
-  }, [simulatedUsers, avgMonthlyActivity, simulatedMonths, lpSeed]);
-  
-  // Summary metrics
-  const summaryMetrics = useMemo(() => {
-    const final = simulationData[simulationData.length - 1];
-    const initial = simulationData[0];
-    
-    return {
-      totalMinted: final.minted,
-      totalBurned: final.burned,
-      burnRate: final.minted > 0 ? ((final.burned / final.minted) * 100).toFixed(1) : '0',
-      lpGrowth: ((final.lpDepth - initial.lpDepth) / initial.lpDepth * 100).toFixed(1),
-      priceChange: ((final.price - initial.price) / initial.price * 100).toFixed(1),
-      monthlySubscriptionLP: simulatedUsers * SUBSCRIPTION.monthlyPrice * (SUBSCRIPTION.lpContribution / 100),
-      avgTokensPerUser: final.minted > 0 ? Math.round(final.minted / simulatedUsers) : 0,
-    };
-  }, [simulationData, simulatedUsers]);
 
   // Pie chart data for mint distribution
   const distributionData = [
