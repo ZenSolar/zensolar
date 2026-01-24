@@ -9,7 +9,32 @@
 
 // === LIVE BETA MODE ===
 // When true, applies 10x reward multiplier for testing with scaled-down LP
-export const IS_LIVE_BETA = import.meta.env.VITE_LIVE_BETA_MODE === 'true';
+// Can be toggled via localStorage or environment variable
+
+const LIVE_BETA_STORAGE_KEY = 'zensolar_live_beta_mode';
+
+// Get Live Beta state from localStorage or env var
+export const getLiveBetaMode = (): boolean => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(LIVE_BETA_STORAGE_KEY);
+    if (stored !== null) {
+      return stored === 'true';
+    }
+  }
+  return import.meta.env.VITE_LIVE_BETA_MODE === 'true';
+};
+
+// Toggle Live Beta mode (persists to localStorage)
+export const setLiveBetaMode = (enabled: boolean): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(LIVE_BETA_STORAGE_KEY, String(enabled));
+    // Dispatch custom event for components to react
+    window.dispatchEvent(new CustomEvent('liveBetaModeChange', { detail: enabled }));
+  }
+};
+
+// Initial state (for static imports)
+export const IS_LIVE_BETA = getLiveBetaMode();
 export const LIVE_BETA_MULTIPLIER = 10; // 10x rewards in Live Beta
 
 // === TOKEN SUPPLY ===

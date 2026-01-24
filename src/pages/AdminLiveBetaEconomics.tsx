@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { ExportButtons } from '@/components/admin/ExportButtons';
 import { 
   Loader2, 
@@ -28,6 +30,7 @@ import {
   Coins,
   Clock,
   AlertCircle,
+  Power,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -44,7 +47,6 @@ import {
   ReferenceLine,
 } from 'recharts';
 import {
-  IS_LIVE_BETA,
   LIVE_BETA_MULTIPLIER,
   LIVE_BETA_CONFIG,
   MINT_DISTRIBUTION,
@@ -54,6 +56,9 @@ import {
   formatTokenAmount,
   formatUSD,
   getActiveLPSeed,
+  getLiveBetaMode,
+  setLiveBetaMode,
+  LP_SEED,
 } from '@/lib/tokenomics';
 import {
   Tooltip as UITooltip,
@@ -110,13 +115,32 @@ export default function AdminLiveBetaEconomics() {
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
   const { metrics: onChainMetrics, refresh: refreshOnChainMetrics } = useOnChainMetrics(30000);
   
+  // Live Beta toggle state
+  const [isLiveBeta, setIsLiveBeta] = useState(getLiveBetaMode);
+  
+  // Listen for changes from other components
+  useEffect(() => {
+    const handleChange = (e: CustomEvent<boolean>) => {
+      setIsLiveBeta(e.detail);
+    };
+    window.addEventListener('liveBetaModeChange', handleChange as EventListener);
+    return () => window.removeEventListener('liveBetaModeChange', handleChange as EventListener);
+  }, []);
+  
+  // Toggle handler
+  const handleToggleLiveBeta = useCallback((enabled: boolean) => {
+    setLiveBetaMode(enabled);
+    setIsLiveBeta(enabled);
+  }, []);
+  
   // Simulation state
   const [simulatedUsers, setSimulatedUsers] = useState(10);
   const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(500); // kWh equivalent
   const [simulatedMonths, setSimulatedMonths] = useState(6);
   
-  // Calculate simulation data - MUST be before any early returns
-  const lpSeed = getActiveLPSeed();
+  // Calculate LP seed based on current mode
+  const lpSeed = isLiveBeta ? LP_SEED.liveBeta : LP_SEED.mainnet;
+  const rewardMultiplier = isLiveBeta ? LIVE_BETA_MULTIPLIER : 1;
   
   const simulationData = useMemo(() => {
     const data = [];
@@ -128,7 +152,7 @@ export default function AdminLiveBetaEconomics() {
     
     for (let month = 0; month <= simulatedMonths; month++) {
       const monthlyTokensMinted = month === 0 ? 0 : 
-        simulatedUsers * avgMonthlyActivity * LIVE_BETA_MULTIPLIER;
+        simulatedUsers * avgMonthlyActivity * rewardMultiplier;
       
       const userTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.user / 100);
       const burnTokens = monthlyTokensMinted * (MINT_DISTRIBUTION.burn / 100);
@@ -160,7 +184,7 @@ export default function AdminLiveBetaEconomics() {
     }
     
     return data;
-  }, [simulatedUsers, avgMonthlyActivity, simulatedMonths, lpSeed]);
+  }, [simulatedUsers, avgMonthlyActivity, simulatedMonths, lpSeed, rewardMultiplier]);
   
   const summaryMetrics = useMemo(() => {
     const final = simulationData[simulationData.length - 1];
@@ -220,8 +244,8 @@ export default function AdminLiveBetaEconomics() {
 
   const getExportData = () => {
     return [
-      { section: 'Config', metric: 'Mode', value: IS_LIVE_BETA ? 'Live Beta' : 'Mainnet' },
-      { section: 'Config', metric: 'Reward Multiplier', value: `${LIVE_BETA_MULTIPLIER}x` },
+      { section: 'Config', metric: 'Mode', value: isLiveBeta ? 'Live Beta' : 'Mainnet' },
+      { section: 'Config', metric: 'Reward Multiplier', value: `${rewardMultiplier}x` },
       { section: 'Config', metric: 'LP Seed (USDC)', value: formatUSD(lpSeed.usdcAmount) },
       { section: 'Config', metric: 'LP Seed (Tokens)', value: formatTokenAmount(lpSeed.tokenAmount) },
       { section: 'Config', metric: 'Initial Price', value: formatUSD(lpSeed.initialPrice) },
@@ -257,38 +281,53 @@ export default function AdminLiveBetaEconomics() {
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Live Beta Economics</h1>
             <Badge 
-              variant={IS_LIVE_BETA ? "default" : "secondary"}
-              className={IS_LIVE_BETA ? "bg-solar text-solar-foreground" : ""}
+              variant={isLiveBeta ? "default" : "secondary"}
+              className={isLiveBeta ? "bg-solar text-solar-foreground" : ""}
             >
-              {IS_LIVE_BETA ? '🔥 LIVE BETA ACTIVE' : 'Mainnet Config'}
+              {isLiveBeta ? '🔥 LIVE BETA ACTIVE' : 'Mainnet Config'}
             </Badge>
           </div>
           <p className="text-muted-foreground">
             Real-time flywheel visualization for investor demos
           </p>
         </div>
-        <ExportButtons 
-          pageTitle="Live Beta Economics" 
-          getData={getExportData}
-        />
+        <div className="flex items-center gap-4">
+          {/* Live Beta Toggle */}
+          <div className="flex items-center gap-3 bg-muted/50 px-4 py-2 rounded-lg border">
+            <Power className={`h-4 w-4 ${isLiveBeta ? 'text-solar' : 'text-muted-foreground'}`} />
+            <Label htmlFor="live-beta-toggle" className="text-sm font-medium cursor-pointer">
+              Live Beta
+            </Label>
+            <Switch
+              id="live-beta-toggle"
+              checked={isLiveBeta}
+              onCheckedChange={handleToggleLiveBeta}
+              className="data-[state=checked]:bg-solar"
+            />
+          </div>
+          <ExportButtons 
+            pageTitle="Live Beta Economics" 
+            getData={getExportData}
+          />
+        </div>
       </motion.div>
 
       {/* Status Banner */}
       <motion.div variants={fadeIn} initial="hidden" animate="visible">
-        <Card className={IS_LIVE_BETA ? "border-solar/50 bg-solar/5" : "border-muted"}>
+        <Card className={isLiveBeta ? "border-solar/50 bg-solar/5" : "border-muted"}>
           <CardContent className="py-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className={`p-2 rounded-full ${IS_LIVE_BETA ? 'bg-solar/20' : 'bg-muted'}`}>
-                  <Activity className={`h-5 w-5 ${IS_LIVE_BETA ? 'text-solar' : 'text-muted-foreground'}`} />
+                <div className={`p-2 rounded-full ${isLiveBeta ? 'bg-solar/20' : 'bg-muted'}`}>
+                  <Activity className={`h-5 w-5 ${isLiveBeta ? 'text-solar' : 'text-muted-foreground'}`} />
                 </div>
                 <div>
                   <p className="font-medium">
-                    {IS_LIVE_BETA ? 'Live Beta Mode Enabled' : 'Running Mainnet Configuration'}
+                    {isLiveBeta ? 'Live Beta Mode Enabled' : 'Running Mainnet Configuration'}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {IS_LIVE_BETA 
-                      ? `${LIVE_BETA_MULTIPLIER}x reward multiplier • Scaled LP pool • Test USDC`
+                    {isLiveBeta 
+                      ? `${rewardMultiplier}x reward multiplier • Scaled LP pool • Test USDC`
                       : 'Standard 1x rewards • Full LP configuration'
                     }
                   </p>
@@ -296,7 +335,7 @@ export default function AdminLiveBetaEconomics() {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="font-mono">
-                  {IS_LIVE_BETA ? LIVE_BETA_CONFIG.testUSDCContract.slice(0, 10) + '...' : 'Mainnet USDC'}
+                  {isLiveBeta ? LIVE_BETA_CONFIG.testUSDCContract.slice(0, 10) + '...' : 'Mainnet USDC'}
                 </Badge>
               </div>
             </div>
@@ -422,7 +461,7 @@ export default function AdminLiveBetaEconomics() {
               <Zap className="h-4 w-4 text-solar" />
               <Badge variant="secondary" className="text-[10px]">MULTIPLIER</Badge>
             </div>
-            <p className="text-xl sm:text-2xl font-bold">{IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1}x</p>
+            <p className="text-xl sm:text-2xl font-bold">{rewardMultiplier}x</p>
             <p className="text-xs text-muted-foreground">Reward rate</p>
           </CardContent>
         </Card>
