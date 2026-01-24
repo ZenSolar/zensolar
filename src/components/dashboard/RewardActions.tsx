@@ -1205,8 +1205,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           Keep the top-right X (provided by DialogContent) and the bottom CTA visible at all times.
           Only the middle body scrolls when content is longer than the viewport.
         */}
-        <DialogContent className="max-w-[calc(100vw-24px)] w-[calc(100vw-24px)] sm:max-w-md max-h-[calc(100dvh-24px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] p-0 overflow-hidden">
-          <div className="grid max-h-[calc(100dvh-24px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] grid-rows-[auto,1fr,auto]">
+        <DialogContent className="max-w-[calc(100vw-24px)] w-[calc(100vw-24px)] sm:max-w-md max-h-[calc(100dvh_-_24px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] mt-[env(safe-area-inset-top)] p-0 overflow-hidden">
+          <div className="grid max-h-[calc(100dvh_-_24px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] grid-rows-[auto,1fr,auto]">
             {/* Header */}
             <div className="px-4 pt-4 sm:px-6 sm:pt-6 pr-14">
               <div className="space-y-2">

@@ -266,7 +266,7 @@ export function NFTMintFlow({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[calc(100dvh-24px)] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-md max-h-[calc(100dvh_-_24px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] mt-[env(safe-area-inset-top)] p-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {/* STEP 1: Confirmation */}
           {step === 'confirm' && (
@@ -483,7 +483,7 @@ export function NFTMintFlow({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3, type: 'spring', damping: 20 }}
-              className="grid grid-rows-[auto,1fr,auto] h-full max-h-[calc(100dvh-24px)]"
+              className="grid grid-rows-[auto,1fr,auto] h-full max-h-[calc(100dvh_-_24px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))]"
             >
               {/* Fixed Header */}
               <div className="text-center pt-4 sm:pt-6 px-4 sm:px-6 pr-14 space-y-2">
@@ -619,7 +619,7 @@ export function NFTMintFlow({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="grid grid-rows-[auto,1fr,auto] h-full max-h-[calc(100dvh-24px)]"
+              className="grid grid-rows-[auto,1fr,auto] h-full max-h-[calc(100dvh_-_24px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))]"
             >
               {/* Fixed Header */}
               <div className="text-center pt-4 sm:pt-6 px-4 sm:px-6 pr-14 space-y-2">
