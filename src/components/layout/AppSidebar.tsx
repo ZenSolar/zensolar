@@ -27,7 +27,8 @@ import {
   Sparkles,
   Crown,
   BookMarked,
-  LineChart
+  LineChart,
+  Flame
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -425,6 +426,22 @@ export function AppSidebar() {
                     >
                       <Crown className="h-4 w-4" />
                       <span className="font-semibold">FINAL $ZSOLAR</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Live Beta Economics">
+                    <NavLink 
+                      to="/admin/live-beta-economics"
+                      onClick={handleNavClick}
+                      className={({ isActive }) => 
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                          : "hover:bg-sidebar-accent/50 text-solar"
+                      }
+                    >
+                      <Flame className="h-4 w-4" />
+                      <span className="font-semibold">Live Beta Economics</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

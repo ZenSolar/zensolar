@@ -7,6 +7,11 @@
  * Reference: docs/TOKENOMICS_OPTIMIZATION_FRAMEWORK.md
  */
 
+// === LIVE BETA MODE ===
+// When true, applies 10x reward multiplier for testing with scaled-down LP
+export const IS_LIVE_BETA = import.meta.env.VITE_LIVE_BETA_MODE === 'true';
+export const LIVE_BETA_MULTIPLIER = 10; // 10x rewards in Live Beta
+
 // === TOKEN SUPPLY ===
 export const MAX_SUPPLY = 10_000_000_000; // 10 billion hard cap
 
@@ -26,10 +31,22 @@ export const PRICES = {
 
 // === LIQUIDITY POOL ===
 export const LP_SEED = {
-  usdcAmount: 300_000, // $300K USDC
-  tokenAmount: 3_000_000, // 3M tokens
-  initialPrice: 0.10, // = $300K / 3M tokens
+  // Mainnet values
+  mainnet: {
+    usdcAmount: 300_000, // $300K USDC
+    tokenAmount: 3_000_000, // 3M tokens
+    initialPrice: 0.10, // = $300K / 3M tokens
+  },
+  // Live Beta values (1:100 scale)
+  liveBeta: {
+    usdcAmount: 1_000, // $1K test USDC
+    tokenAmount: 10_000, // 10K tokens
+    initialPrice: 0.10, // Same price point
+  },
 } as const;
+
+// Get the appropriate LP seed based on mode
+export const getActiveLPSeed = () => IS_LIVE_BETA ? LP_SEED.liveBeta : LP_SEED.mainnet;
 
 // === MINT DISTRIBUTION (what happens when tokens are minted) ===
 export const MINT_DISTRIBUTION = {
@@ -48,17 +65,34 @@ export const TRANSFER_TAX = {
 } as const;
 
 // === REWARD RATES ===
-export const REWARD_RATES = {
+// Base rates - multiplied by LIVE_BETA_MULTIPLIER when in Live Beta mode
+export const BASE_REWARD_RATES = {
   solarProduction: 1, // 1 $ZSOLAR per kWh produced
   batteryDischarge: 1, // 1 $ZSOLAR per kWh discharged
   evMiles: 1, // 1 $ZSOLAR per mile driven
   evCharging: 1, // 1 $ZSOLAR per kWh charged
 } as const;
 
+// Active reward rates (applies multiplier in Live Beta)
+export const REWARD_RATES = {
+  solarProduction: BASE_REWARD_RATES.solarProduction * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  batteryDischarge: BASE_REWARD_RATES.batteryDischarge * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  evMiles: BASE_REWARD_RATES.evMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  evCharging: BASE_REWARD_RATES.evCharging * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+} as const;
+
 // === SUBSCRIPTION ===
 export const SUBSCRIPTION = {
   monthlyPrice: 9.99, // $9.99/month Pro subscription
   lpContribution: 50, // 50% of subscription goes to LP
+} as const;
+
+// === LIVE BETA SIMULATION ===
+export const LIVE_BETA_CONFIG = {
+  targetUsers: 10, // 10 beta users
+  simulatedSubscriptions: 10, // Simulate 10 paying users
+  monthlyLPInjection: 10 * 9.99 * 0.5, // $49.95/month to LP
+  testUSDCContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
 } as const;
 
 // === REDEMPTION ===
@@ -136,4 +170,18 @@ export function calculateTokenValue(tokens: number, price: number = PRICES.launc
  */
 export function calculateMonthlyLPInjection(subscribers: number): number {
   return subscribers * SUBSCRIPTION.monthlyPrice * (SUBSCRIPTION.lpContribution / 100);
+}
+
+/**
+ * Get reward multiplier based on mode
+ */
+export function getRewardMultiplier(): number {
+  return IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1;
+}
+
+/**
+ * Calculate effective reward rate for activity type
+ */
+export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RATES): number {
+  return BASE_REWARD_RATES[activityType] * getRewardMultiplier();
 }
