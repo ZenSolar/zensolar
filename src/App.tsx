@@ -60,6 +60,7 @@ const AdminFlywheelTracker = lazy(() => import("./pages/AdminFlywheelTracker"));
 const AdminFinalTokenomics = lazy(() => import("./pages/AdminFinalTokenomics"));
 const AdminGlossary = lazy(() => import("./pages/AdminGlossary"));
 const AdminGrowthProjections = lazy(() => import("./pages/AdminGrowthProjections"));
+const AdminLiveBetaEconomics = lazy(() => import("./pages/AdminLiveBetaEconomics"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 
@@ -443,6 +444,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminAIFeedbackLoop />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/live-beta-economics" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminLiveBetaEconomics />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
