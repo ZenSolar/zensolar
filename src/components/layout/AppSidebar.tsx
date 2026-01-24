@@ -19,24 +19,24 @@ import {
   Award,
   Target,
   BarChart3,
-  Scale,
   DollarSign,
-  Calculator,
-  PieChart,
   FileText,
-  Sparkles,
   Crown,
-  BookMarked,
-  LineChart,
-  Flame
+  Flame,
+  ChevronDown,
+  ChevronRight,
+  FileCode,
+  Briefcase
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LiveBetaIndicator } from "./LiveBetaIndicator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import {
   Sidebar,
@@ -72,10 +72,42 @@ const secondaryNavItems = [
   { title: "Feedback", url: "/feedback", icon: MessageSquarePlus },
 ];
 
+// Consolidated admin menu structure
+const adminMenuGroups = {
+  core: [
+    { title: "Admin Panel", url: "/admin", icon: Shield },
+    { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+    { title: "Users", url: "/admin/users", icon: Users },
+  ],
+  economics: [
+    { title: "Live Beta Economics", url: "/admin/live-beta-economics", icon: Flame, highlight: true },
+    { title: "FINAL $ZSOLAR", url: "/admin/final-tokenomics", icon: Crown, highlight: true },
+    { title: "Revenue Flywheel", url: "/admin/revenue-flywheel", icon: TrendingUp },
+    { title: "Flywheel Tracker", url: "/admin/flywheel-tracker", icon: Target },
+    { title: "Token Estimator", url: "/admin/token-estimator", icon: Coins },
+    { title: "10B Tokenomics", url: "/admin/tokenomics-10b", icon: Coins },
+    { title: "Tokenomics Framework", url: "/admin/tokenomics-framework", icon: Coins },
+  ],
+  investor: [
+    { title: "Investment Thesis", url: "/admin/investment-thesis", icon: Briefcase },
+    { title: "Investor One-Pager", url: "/admin/investor-one-pager", icon: FileText },
+    { title: "Fundraising", url: "/admin/fundraising", icon: DollarSign },
+    { title: "Growth Projections", url: "/admin/growth-projections", icon: TrendingUp },
+  ],
+  technical: [
+    { title: "Smart Contracts", url: "/admin/contracts", icon: FileCode },
+    { title: "EV API Reference", url: "/admin/ev-api-reference", icon: Car },
+    { title: "Patent Mapping", url: "/admin/patent-mapping", icon: FileText },
+    { title: "AI Feedback Loop", url: "/admin/ai-feedback-loop", icon: Cpu },
+    { title: "Glossary", url: "/admin/glossary", icon: BookOpen },
+  ],
+};
+
 export function AppSidebar() {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAdmin } = useAdminCheck();
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -202,297 +234,125 @@ export function AppSidebar() {
         {/* Admin Navigation - Only visible to admins */}
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupLabel className="flex items-center gap-2">
+              Admin
+              <LiveBetaIndicator collapsed={collapsed} />
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Admin Panel">
-                    <NavLink 
-                      to="/admin"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Shield className="h-4 w-4" />
-                      <span>Admin Panel</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Analytics">
-                    <NavLink 
-                      to="/admin/analytics"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <BarChart3 className="h-4 w-4" />
-                      <span>Analytics</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="EV API Reference">
-                    <NavLink 
-                      to="/admin/ev-api-reference"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Car className="h-4 w-4" />
-                      <span>EV API Reference</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Revenue Flywheel">
-                    <NavLink 
-                      to="/admin/revenue-flywheel"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <TrendingUp className="h-4 w-4" />
-                      <span>Revenue Flywheel</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Flywheel Tracker">
-                    <NavLink 
-                      to="/admin/flywheel-tracker"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Target className="h-4 w-4" />
-                      <span>Flywheel Tracker</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Investment Thesis">
-                    <NavLink 
-                      to="/admin/investment-thesis"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Target className="h-4 w-4" />
-                      <span>Investment Thesis</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Patent Mapping">
-                    <NavLink 
-                      to="/admin/patent-mapping"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Scale className="h-4 w-4" />
-                      <span>Patent Mapping</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Fundraising">
-                    <NavLink 
-                      to="/admin/fundraising"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <DollarSign className="h-4 w-4" />
-                      <span>Fundraising</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Token Estimator">
-                    <NavLink 
-                      to="/admin/token-estimator"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Calculator className="h-4 w-4" />
-                      <span>Token Estimator</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="10B Tokenomics">
-                    <NavLink 
-                      to="/admin/tokenomics-10b"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <PieChart className="h-4 w-4" />
-                      <span>10B Tokenomics</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Investor One-Pager">
-                    <NavLink 
-                      to="/admin/investor-one-pager"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <FileText className="h-4 w-4" />
-                      <span>Investor One-Pager</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Tokenomics Framework">
-                    <NavLink 
-                      to="/admin/tokenomics-framework"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      <span>Tokenomics Framework</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="AI Feedback Loop">
-                    <NavLink 
-                      to="/admin/ai-feedback-loop"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Cpu className="h-4 w-4" />
-                      <span>AI Feedback Loop</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Final Tokenomics">
-                    <NavLink 
-                      to="/admin/final-tokenomics"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50 text-primary"
-                      }
-                    >
-                      <Crown className="h-4 w-4" />
-                      <span className="font-semibold">FINAL $ZSOLAR</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Live Beta Economics">
-                    <NavLink 
-                      to="/admin/live-beta-economics"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50 text-solar"
-                      }
-                    >
-                      <Flame className="h-4 w-4" />
-                      <span className="font-semibold">Live Beta Economics</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Growth Projections">
-                    <NavLink 
-                      to="/admin/growth-projections"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <LineChart className="h-4 w-4" />
-                      <span>Growth Projections</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Glossary">
-                    <NavLink 
-                      to="/admin/glossary"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <BookMarked className="h-4 w-4" />
-                      <span>Glossary</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Registered Users">
-                    <NavLink 
-                      to="/admin/users"
-                      onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <Users className="h-4 w-4" />
-                      <span>Registered Users</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {/* Core Admin */}
+                {adminMenuGroups.core.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <NavLink 
+                        to={item.url}
+                        end={item.url === "/admin"}
+                        onClick={handleNavClick}
+                        className={({ isActive }) => 
+                          isActive 
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                            : "hover:bg-sidebar-accent/50"
+                        }
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+
+                {/* Economics Submenu */}
+                <Collapsible defaultOpen={location.pathname.includes('economics') || location.pathname.includes('flywheel') || location.pathname.includes('tokenomics') || location.pathname.includes('token-estimator')}>
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
+                      <Coins className="h-4 w-4" />
+                      {!collapsed && <span>Economics</span>}
+                      {!collapsed && <ChevronDown className="h-3 w-3 ml-auto transition-transform group-data-[state=open]:rotate-180" />}
+                    </CollapsibleTrigger>
+                  </SidebarMenuItem>
+                  <CollapsibleContent>
+                    {adminMenuGroups.economics.map((item) => (
+                      <SidebarMenuItem key={item.title} className="pl-4">
+                        <SidebarMenuButton asChild tooltip={item.title}>
+                          <NavLink 
+                            to={item.url}
+                            onClick={handleNavClick}
+                            className={({ isActive }) => 
+                              isActive 
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
+                            }
+                          >
+                            <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Investor Submenu */}
+                <Collapsible defaultOpen={location.pathname.includes('investor') || location.pathname.includes('fundraising') || location.pathname.includes('investment') || location.pathname.includes('growth')}>
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
+                      <Briefcase className="h-4 w-4" />
+                      {!collapsed && <span>Investor</span>}
+                      {!collapsed && <ChevronDown className="h-3 w-3 ml-auto transition-transform group-data-[state=open]:rotate-180" />}
+                    </CollapsibleTrigger>
+                  </SidebarMenuItem>
+                  <CollapsibleContent>
+                    {adminMenuGroups.investor.map((item) => (
+                      <SidebarMenuItem key={item.title} className="pl-4">
+                        <SidebarMenuButton asChild tooltip={item.title}>
+                          <NavLink 
+                            to={item.url}
+                            onClick={handleNavClick}
+                            className={({ isActive }) => 
+                              isActive 
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                                : "hover:bg-sidebar-accent/50"
+                            }
+                          >
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Technical Submenu */}
+                <Collapsible defaultOpen={location.pathname.includes('contracts') || location.pathname.includes('ev-api') || location.pathname.includes('patent') || location.pathname.includes('ai-feedback') || location.pathname.includes('glossary')}>
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
+                      <FileCode className="h-4 w-4" />
+                      {!collapsed && <span>Technical</span>}
+                      {!collapsed && <ChevronDown className="h-3 w-3 ml-auto transition-transform group-data-[state=open]:rotate-180" />}
+                    </CollapsibleTrigger>
+                  </SidebarMenuItem>
+                  <CollapsibleContent>
+                    {adminMenuGroups.technical.map((item) => (
+                      <SidebarMenuItem key={item.title} className="pl-4">
+                        <SidebarMenuButton asChild tooltip={item.title}>
+                          <NavLink 
+                            to={item.url}
+                            onClick={handleNavClick}
+                            className={({ isActive }) => 
+                              isActive 
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                                : "hover:bg-sidebar-accent/50"
+                            }
+                          >
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
