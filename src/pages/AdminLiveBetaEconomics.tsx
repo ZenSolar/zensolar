@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { useOnChainMetrics } from '@/hooks/useOnChainMetrics';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,12 +19,15 @@ import {
   Wallet,
   Users,
   ArrowRight,
-  CheckCircle2,
   Activity,
   BarChart3,
   RefreshCw,
   ExternalLink,
-  Info
+  Info,
+  Database,
+  Coins,
+  Clock,
+  AlertCircle,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -46,7 +50,6 @@ import {
   MINT_DISTRIBUTION,
   TRANSFER_TAX,
   PRICES,
-  LP_SEED,
   SUBSCRIPTION,
   formatTokenAmount,
   formatUSD,
@@ -64,7 +67,6 @@ const fadeIn = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-// Simulated real-time metrics (in production, fetch from Supabase/chain)
 interface LiveMetrics {
   totalMinted: number;
   totalBurned: number;
@@ -106,12 +108,12 @@ export default function AdminLiveBetaEconomics() {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
+  const { metrics: onChainMetrics, refresh: refreshOnChainMetrics } = useOnChainMetrics(30000);
   
   // Simulation state
   const [simulatedUsers, setSimulatedUsers] = useState(10);
   const [avgMonthlyActivity, setAvgMonthlyActivity] = useState(500); // kWh equivalent
   const [simulatedMonths, setSimulatedMonths] = useState(6);
-  const [metrics, setMetrics] = useState<LiveMetrics>(INITIAL_METRICS);
   
   // Loading and auth checks
   if (authLoading || adminLoading) {
@@ -304,6 +306,100 @@ export default function AdminLiveBetaEconomics() {
                 </Badge>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Real-Time On-Chain Metrics */}
+      <motion.div variants={fadeIn} initial="hidden" animate="visible">
+        <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Database className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Real-Time On-Chain Data</CardTitle>
+                <Badge variant="outline" className="ml-2">
+                  {onChainMetrics.isLoading ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    'LIVE'
+                  )}
+                </Badge>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={refreshOnChainMetrics}
+                disabled={onChainMetrics.isLoading}
+              >
+                <RefreshCw className={`h-4 w-4 ${onChainMetrics.isLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
+            <CardDescription className="flex items-center gap-2">
+              {onChainMetrics.lastUpdated ? (
+                <>
+                  <Clock className="h-3 w-3" />
+                  Last updated: {onChainMetrics.lastUpdated.toLocaleTimeString()}
+                </>
+              ) : (
+                'Fetching data from blockchain...'
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {onChainMetrics.error ? (
+              <div className="flex items-center gap-2 text-destructive text-sm">
+                <AlertCircle className="h-4 w-4" />
+                {onChainMetrics.error}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="text-center p-3 rounded-lg bg-background/80">
+                  <Coins className="h-5 w-5 mx-auto mb-1 text-primary" />
+                  <p className="text-lg font-bold">{formatTokenAmount(onChainMetrics.totalMinted)}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Total Minted</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-background/80">
+                  <Flame className="h-5 w-5 mx-auto mb-1 text-destructive" />
+                  <p className="text-lg font-bold">{formatTokenAmount(onChainMetrics.totalBurned)}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Total Burned</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-background/80">
+                  <Activity className="h-5 w-5 mx-auto mb-1 text-green-500" />
+                  <p className="text-lg font-bold">{formatTokenAmount(onChainMetrics.circulatingSupply)}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Circulating</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-background/80">
+                  <Droplets className="h-5 w-5 mx-auto mb-1 text-solar" />
+                  <p className="text-lg font-bold">{formatUSD(onChainMetrics.lpUsdcBalance)}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">LP Depth</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-background/80">
+                  <TrendingUp className="h-5 w-5 mx-auto mb-1 text-primary" />
+                  <p className="text-lg font-bold">{formatUSD(onChainMetrics.estimatedPrice)}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Est. Price</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-background/80">
+                  <BarChart3 className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
+                  <p className="text-lg font-bold">{onChainMetrics.mintTransactionCount}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Mint TXs</p>
+                </div>
+              </div>
+            )}
+            
+            {/* LP Token Ratio */}
+            {!onChainMetrics.error && onChainMetrics.lpTokenBalance > 0 && (
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">LP Token Balance:</span>
+                  <span className="font-mono">{formatTokenAmount(onChainMetrics.lpTokenBalance)} $ZSOLAR</span>
+                </div>
+                <div className="flex items-center justify-between text-sm mt-1">
+                  <span className="text-muted-foreground">Treasury Balance:</span>
+                  <span className="font-mono">{formatTokenAmount(onChainMetrics.treasuryBalance)} $ZSOLAR</span>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
