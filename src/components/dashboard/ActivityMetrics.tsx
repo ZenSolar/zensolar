@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useState } from 'react';
 import { ActivityData, calculateCO2Offset } from '@/types/dashboard';
+import { getRewardMultiplier } from '@/lib/tokenomics';
 import { MetricCard } from './MetricCard';
 import {
   Sun,
@@ -113,7 +114,9 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
   const homeChargerKwh = Math.max(0, Math.floor(data.pendingHomeChargerKwh || 0));
 
   const activityUnits = current.solarKwh + current.evMiles + current.batteryKwh + current.chargingKwh;
-  const tokensToReceive = Math.floor(activityUnits * 0.93);
+  // Apply Live Beta multiplier (10x or 1x) then 75% user share
+  const rawTokens = activityUnits * getRewardMultiplier();
+  const tokensToReceive = Math.floor(rawTokens * 0.75);
 
   // CO2 should reflect the same "current activity" basis shown in the UI
   const currentCo2Offset = Math.floor(

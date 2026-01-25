@@ -635,16 +635,17 @@ export function useDashboardData() {
         Math.floor(superchargerKwh) +
         Math.floor(homeChargerKwh);
       
-      // Pending activity units (1:1 ratio with activity)
-      // User receives 75% of this as tokens (20% burn, 3% LP, 2% treasury)
+      // Pending activity units (1:1 ratio with activity, before any multipliers)
       const pendingActivityUnits = 
         Math.floor(pendingSolar) +
         Math.floor(pendingEvMiles) +
         Math.floor(pendingBattery) +
         Math.floor(pendingCharging);
       
-      // What user will actually receive after fee distribution
-      const pendingTokens = Math.floor(pendingActivityUnits * 0.75);
+      // Import dynamically to get current Live Beta state
+      // Tokens = activity units × Live Beta multiplier (10x or 1x) × 75% user share
+      const { calculatePendingTokens } = await import('@/lib/tokenomics');
+      const pendingTokens = calculatePendingTokens(pendingActivityUnits);
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
