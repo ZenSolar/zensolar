@@ -65,13 +65,15 @@ export const LP_SEED = {
   // Live Beta values - Scaled for 10 users with 10x multiplier
   // Math: 10 users × 750 kWh/mo × 10x = 75K tokens/mo minted
   // After 75% distribution: ~56K tokens to users/mo
-  // LP sized to absorb ~3 months of issuance while maintaining $0.10 floor
+  // LP must absorb ~3 months sell pressure at 25% sell rate = 42K tokens
+  // Sized with buffer for stability
   liveBeta: {
-    usdcAmount: 500, // $500 test USDC (scaled 1:600 from mainnet)
-    tokenAmount: 5_000, // 5K tokens to maintain $0.10 price
+    usdcAmount: 5_000, // $5K test USDC
+    tokenAmount: 50_000, // 50K tokens to maintain $0.10 price
     initialPrice: 0.10, // Same $0.10 floor - user excitement preserved!
-    expectedMonthlyMint: 75_000, // 10 users × 750 kWh × 10x
+    expectedMonthlyMint: 75_000, // 10 users × 750 kWh × 10x (raw)
     expectedUserTokens: 56_250, // After 75% distribution
+    sellPressureBuffer: 3, // Months of coverage at 25% sell rate
   },
 } as const;
 
