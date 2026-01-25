@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LiveBetaIndicator } from "./LiveBetaIndicator";
+import { LiveBetaToggle } from "./LiveBetaToggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import {
@@ -175,6 +176,13 @@ export function AppSidebar() {
             </div>
           )}
         </div>
+
+        {/* Live Beta Toggle - visible to admins only */}
+        {isAdmin && (
+          <div className="px-3 pb-2">
+            <LiveBetaToggle collapsed={collapsed} />
+          </div>
+        )}
 
         {/* Main Navigation */}
         <SidebarGroup>
