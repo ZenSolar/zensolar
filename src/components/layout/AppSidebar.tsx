@@ -98,6 +98,7 @@ const adminMenuGroups = {
   technical: [
     { title: "Smart Contracts", url: "/admin/contracts", icon: FileCode },
     { title: "EV API Reference", url: "/admin/ev-api-reference", icon: Car },
+    { title: "Competitive Intel", url: "/admin/competitive-intel", icon: Shield },
     { title: "Patent Mapping", url: "/admin/patent-mapping", icon: FileText },
     { title: "AI Feedback Loop", url: "/admin/ai-feedback-loop", icon: Cpu },
     { title: "Glossary", url: "/admin/glossary", icon: BookOpen },

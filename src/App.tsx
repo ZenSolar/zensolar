@@ -61,6 +61,7 @@ const AdminFinalTokenomics = lazy(() => import("./pages/AdminFinalTokenomics"));
 const AdminGlossary = lazy(() => import("./pages/AdminGlossary"));
 const AdminGrowthProjections = lazy(() => import("./pages/AdminGrowthProjections"));
 const AdminLiveBetaEconomics = lazy(() => import("./pages/AdminLiveBetaEconomics"));
+const AdminCompetitiveIntel = lazy(() => import("./pages/AdminCompetitiveIntel"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 
@@ -454,6 +455,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminLiveBetaEconomics />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/competitive-intel" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminCompetitiveIntel />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
