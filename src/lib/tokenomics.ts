@@ -198,15 +198,33 @@ export function calculateMonthlyLPInjection(subscribers: number): number {
 }
 
 /**
- * Get reward multiplier based on mode
+ * Get reward multiplier based on CURRENT mode (dynamic, not cached)
+ * This must be called at runtime, not import time, to reflect toggle changes
  */
 export function getRewardMultiplier(): number {
-  return IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1;
+  return getLiveBetaMode() ? LIVE_BETA_MULTIPLIER : 1;
 }
 
 /**
- * Calculate effective reward rate for activity type
+ * Calculate effective reward rate for activity type (dynamic)
  */
 export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RATES): number {
   return BASE_REWARD_RATES[activityType] * getRewardMultiplier();
+}
+
+/**
+ * Calculate raw activity units with Live Beta multiplier applied
+ * Call this on each activity unit to get the pre-fee token amount
+ */
+export function calculateRawTokensFromActivity(activityUnits: number): number {
+  return Math.floor(activityUnits * getRewardMultiplier());
+}
+
+/**
+ * Calculate final tokens user receives (with Live Beta multiplier + 75% distribution)
+ * This is the complete calculation: activity units → apply 10x if Live Beta → apply 75%
+ */
+export function calculatePendingTokens(activityUnits: number): number {
+  const rawTokens = calculateRawTokensFromActivity(activityUnits);
+  return Math.floor(rawTokens * (MINT_DISTRIBUTION.user / 100));
 }

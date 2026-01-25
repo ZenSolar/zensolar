@@ -95,7 +95,11 @@ export default function MintHistory() {
       }
 
       const totalActivityUnits = Math.floor(evMiles) + Math.floor(solarKwh) + Math.floor(batteryKwh) + Math.floor(evChargingKwh);
-      setPendingActivity({ solarKwh, batteryKwh, evMiles, evChargingKwh, totalTokens: Math.floor(totalActivityUnits * 0.93) });
+      // Apply Live Beta multiplier (10x or 1x) then 75% user share
+      const { getRewardMultiplier } = await import('@/lib/tokenomics');
+      const multiplier = getRewardMultiplier();
+      const totalTokens = Math.floor(totalActivityUnits * multiplier * 0.75);
+      setPendingActivity({ solarKwh, batteryKwh, evMiles, evChargingKwh, totalTokens });
     } catch (error) {
       console.error('Error fetching pending activity:', error);
     } finally {

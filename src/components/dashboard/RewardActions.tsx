@@ -25,6 +25,7 @@ import { WatchAssetDiagnostics, type WatchAssetAttempt } from './WatchAssetDiagn
 import { ManualTokenAddPanel } from './ManualTokenAddPanel';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
+import { getRewardMultiplier } from '@/lib/tokenomics';
 
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
@@ -236,11 +237,15 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     }
   };
 
+  // Get Live Beta multiplier dynamically (10x or 1x)
+  const multiplier = getRewardMultiplier();
+  
   // Total activity units from pending rewards
   const totalActivityUnits = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
   
-  // User receives 75% of activity units as tokens (20% burn, 3% LP, 2% treasury)
-  const totalPendingTokens = Math.floor(totalActivityUnits * 0.75);
+  // Apply Live Beta multiplier then 75% user share (20% burn, 3% LP, 2% treasury)
+  const totalRawTokens = totalActivityUnits * multiplier;
+  const totalPendingTokens = Math.floor(totalRawTokens * 0.75);
 
   // Get the amount for a specific category (activity units, before fee distribution)
   const getCategoryActivityUnits = (category: MintCategory): number => {
@@ -252,9 +257,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return 0;
   };
   
-  // Get tokens user will receive for a category (after 75% distribution)
+  // Get tokens user will receive for a category (with Live Beta multiplier + 75% distribution)
   const getCategoryTokens = (category: MintCategory): number => {
-    return Math.floor(getCategoryActivityUnits(category) * 0.75);
+    const categoryUnits = getCategoryActivityUnits(category);
+    return Math.floor(categoryUnits * multiplier * 0.75);
   };
 
   // Add the ZSOLAR token to the connected wallet using wallet_watchAsset (best-effort)
