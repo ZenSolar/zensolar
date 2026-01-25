@@ -62,16 +62,21 @@ export const LP_SEED = {
     tokenAmount: 3_000_000, // 3M tokens
     initialPrice: 0.10, // = $300K / 3M tokens
   },
-  // Live Beta values (1:100 scale)
+  // Live Beta values - Scaled for 10 users with 10x multiplier
+  // Math: 10 users × 750 kWh/mo × 10x = 75K tokens/mo minted
+  // After 75% distribution: ~56K tokens to users/mo
+  // LP sized to absorb ~3 months of issuance while maintaining $0.10 floor
   liveBeta: {
-    usdcAmount: 1_000, // $1K test USDC
-    tokenAmount: 10_000, // 10K tokens
-    initialPrice: 0.10, // Same price point
+    usdcAmount: 500, // $500 test USDC (scaled 1:600 from mainnet)
+    tokenAmount: 5_000, // 5K tokens to maintain $0.10 price
+    initialPrice: 0.10, // Same $0.10 floor - user excitement preserved!
+    expectedMonthlyMint: 75_000, // 10 users × 750 kWh × 10x
+    expectedUserTokens: 56_250, // After 75% distribution
   },
 } as const;
 
 // Get the appropriate LP seed based on mode
-export const getActiveLPSeed = () => IS_LIVE_BETA ? LP_SEED.liveBeta : LP_SEED.mainnet;
+export const getActiveLPSeed = () => getLiveBetaMode() ? LP_SEED.liveBeta : LP_SEED.mainnet;
 
 // === MINT DISTRIBUTION (what happens when tokens are minted) ===
 export const MINT_DISTRIBUTION = {
