@@ -1,9 +1,12 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "./ThemeToggle";
 import { Badge } from "@/components/ui/badge";
-import { Play } from "lucide-react";
+import { Play, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { getLiveBetaMode } from "@/lib/tokenomics";
+import { useState, useEffect } from "react";
 
 interface TopNavProps {
   isDemo?: boolean;
@@ -15,6 +18,27 @@ interface TopNavProps {
  * Uses fixed positioning so it always stays visible regardless of scroll depth.
  */
 export function TopNav({ isDemo = false, className }: TopNavProps) {
+  const { isAdmin } = useAdminCheck();
+  const [isLiveBeta, setIsLiveBeta] = useState(getLiveBetaMode());
+
+  useEffect(() => {
+    const handleModeChange = (event: CustomEvent<boolean>) => {
+      setIsLiveBeta(event.detail);
+    };
+
+    window.addEventListener('liveBetaModeChange', handleModeChange as EventListener);
+    
+    // Poll for changes in case of external updates
+    const interval = setInterval(() => {
+      setIsLiveBeta(getLiveBetaMode());
+    }, 2000);
+
+    return () => {
+      window.removeEventListener('liveBetaModeChange', handleModeChange as EventListener);
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <header 
       className={cn(
@@ -32,6 +56,13 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
             <Badge variant="outline" className="gap-1.5 text-xs bg-primary/10 text-primary border-primary/20">
               <Play className="h-3 w-3" />
               Demo Mode
+            </Badge>
+          )}
+          {/* Live Beta indicator for admins */}
+          {!isDemo && isAdmin && isLiveBeta && (
+            <Badge variant="outline" className="gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
+              <Flame className="h-3 w-3 animate-pulse" />
+              Beta 10x
             </Badge>
           )}
         </div>
