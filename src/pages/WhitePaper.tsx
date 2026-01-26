@@ -748,10 +748,159 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
-      {/* How Users Benefit */}
+      {/* Market Landscape & Competitive Positioning */}
       <motion.section {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 5</Badge>
+          <h2 className="text-3xl font-bold">Market Landscape & Competitive Positioning</h2>
+        </div>
+
+        <Card>
+          <CardContent className="pt-6 space-y-6">
+            <div>
+              <h3 className="font-semibold text-lg mb-3">First-Mover Advantage in Verified Energy Tokenization</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                The intersection of clean energy and blockchain technology represents one of the most compelling opportunities 
+                in the emerging decentralized economy. While numerous projects have attempted to bridge these domains, the 
+                market has lacked a comprehensive, consumer-accessible solution that transforms verified energy activity into 
+                on-chain value without requiring specialized hardware, complex integrations, or technical expertise.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">ZenSolar enters this market as the first platform to deliver true on-demand 
+                token minting triggered by real-time, API-verified energy data across multiple verticals</strong>—Solar Production, 
+                Battery Storage, Electric Vehicle Usage, and EV Charging. This first-mover position is not merely temporal; it 
+                represents a fundamental architectural breakthrough that existing and emerging approaches have not replicated.
+              </p>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="font-semibold text-lg mb-3">The SEGI Innovation: Patent-Pending Technology</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Software-Enabled Gateway 
+                Interface (SEGI)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
+                to blockchain value. Unlike legacy approaches that rely on hardware installations, periodic manual reporting, or 
+                distribution from pre-minted token pools, SEGI operates as a pure software layer that:
+              </p>
+              <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
+                <li><strong className="text-foreground">Aggregates</strong> data from existing consumer devices (Tesla, Enphase, SolarEdge, Wallbox, and expandable to dozens of additional vehicle brands) without requiring proprietary hardware</li>
+                <li><strong className="text-foreground">Verifies</strong> energy production, consumption, storage, and transportation metrics through authenticated API connections with millisecond-level precision</li>
+                <li><strong className="text-foreground">Computes</strong> a unified "Impact Score" that translates diverse energy activities into a single, auditable reward metric</li>
+                <li><strong className="text-foreground">Mints</strong> $ZSOLAR tokens directly to user wallets on Base L2 (Ethereum) in a trustless, verifiable transaction—not distributed from a pre-allocated pool, but created on-demand based on proven activity</li>
+              </ol>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                This architecture represents a <strong className="text-foreground">paradigm shift</strong> from the "earn-from-pool" 
+                models prevalent in the market to a "mint-on-proof" model where every token in circulation is backed by verified 
+                clean energy impact.
+              </p>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Deflationary Economics: A First-of-Its-Kind Model</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                ZenSolar's tokenomics introduce an innovative deflationary mechanism unprecedented in the energy-to-crypto sector. 
+                While alternative approaches typically operate on inflationary emission schedules (distributing tokens from fixed 
+                supplies over multi-year periods), ZenSolar implements a fundamentally different model:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li><strong className="text-foreground">Mint-Time Deflation:</strong> A portion of every reward mint is simultaneously burned—creating immediate deflationary pressure at the point of token creation</li>
+                <li><strong className="text-foreground">Transfer-Time Sustainability:</strong> Secondary market transactions contribute to ecosystem health through allocations to permanent burns, liquidity pools, and development treasury</li>
+                <li><strong className="text-foreground">No Pre-Minted Supply:</strong> Unlike projects with fixed total supplies awaiting distribution, $ZSOLAR's circulating supply is determined entirely by verified user activity—ensuring the token economy scales organically with real-world adoption</li>
+              </ul>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                This model solves the fundamental tension in reward-based tokenomics: how to incentivize participation without 
+                creating unsustainable inflation. By applying burn mechanics at multiple points, ZenSolar creates a self-balancing 
+                system where increased adoption actually strengthens token scarcity.
+              </p>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Unified Multi-Vertical Aggregation</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                The clean energy ecosystem is inherently fragmented—solar installations, battery systems, electric vehicles, and 
+                charging infrastructure each represent distinct hardware categories, API ecosystems, and data formats. Existing 
+                market participants have universally focused on single verticals: solar-only rewards, EV-mileage tracking, or 
+                charging-station tokens.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <strong className="text-foreground">ZenSolar is the first and only platform to unify all four energy verticals 
+                into a single, cohesive rewards interface.</strong> A homeowner with rooftop solar, a home battery, an electric 
+                vehicle, and a charger earns $ZSOLAR across their entire energy footprint—not through four separate apps with four 
+                different tokens, but through one dashboard with one universal reward currency.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                This unified approach creates powerful network effects: users who connect one device are incentivized to connect 
+                additional devices, and the platform's value proposition strengthens with each integration. The milestone NFT 
+                system further rewards multi-device adoption, creating a virtuous cycle of engagement.
+              </p>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Hardware Agnosticism as Strategic Moat</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                A critical differentiator in ZenSolar's architecture is its complete hardware independence. The platform requires 
+                no proprietary devices, no "mining nodes," no physical installations beyond what users already own. This creates 
+                three strategic advantages:
+              </p>
+              <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
+                <li><strong className="text-foreground">Zero Barrier to Entry:</strong> Users with existing compatible devices can begin earning within 60 seconds of account creation</li>
+                <li><strong className="text-foreground">Scalable Economics:</strong> Without hardware costs, the platform can operate at software-company margins while alternative approaches bear manufacturing, distribution, and support costs</li>
+                <li><strong className="text-foreground">Future-Proof Extensibility:</strong> As new energy devices enter the market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), SEGI can integrate new APIs without hardware retrofits</li>
+              </ol>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Intellectual Property Strategy</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                ZenSolar's first-mover advantage is reinforced by a deliberate intellectual property strategy. The patent-pending 
+                SEGI architecture covers the novel combination of:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li>API-based energy data verification from consumer devices</li>
+                <li>Real-time impact score computation across multiple energy categories</li>
+                <li>On-demand token minting triggered by verified activity thresholds</li>
+                <li>Deflationary burn mechanics applied at the point of minting</li>
+              </ul>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                Comprehensive patent landscape research has identified no existing claims covering this methodology. The closest 
+                prior art addresses hardware-dependent systems rather than software-only gateway interfaces. This IP position 
+                creates a defensive moat that compounds over time as the patent application progresses.
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl p-6 border border-primary/20">
+              <h3 className="font-semibold text-lg mb-3">Competitive Positioning Summary</h3>
+              <p className="text-muted-foreground leading-relaxed mb-3">
+                ZenSolar occupies a unique position in the market: the only platform combining verified on-demand minting, 
+                deflationary tokenomics, multi-vertical aggregation, and hardware agnosticism into a consumer-accessible 
+                application. This is not an incremental improvement over existing solutions—it represents a <strong className="text-foreground">
+                category-defining innovation</strong> that establishes new standards for how clean energy participation 
+                translates to blockchain value.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                As the clean energy transition accelerates and consumer adoption of solar, storage, and EVs continues its 
+                exponential growth, ZenSolar is positioned to become the default rewards layer for the entire ecosystem—not 
+                by competing on any single vertical, but by unifying them all under a technologically superior, economically 
+                sustainable, and legally defensible platform.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.section>
+
+      {/* How Users Benefit */}
+      <motion.section {...fadeIn} transition={{ delay: 0.35 }} className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
           <h2 className="text-3xl font-bold">How Users Benefit</h2>
         </div>
         
@@ -800,7 +949,7 @@ export default function WhitePaper() {
       {/* How Investors Benefit */}
       <motion.section {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
           <h2 className="text-3xl font-bold">How Investors Benefit</h2>
         </div>
         
@@ -874,7 +1023,7 @@ export default function WhitePaper() {
       {/* How the World Benefits */}
       <motion.section {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
           <h2 className="text-3xl font-bold">How the World Benefits</h2>
         </div>
         
@@ -920,7 +1069,7 @@ export default function WhitePaper() {
       {/* The Vision */}
       <motion.section {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
           <h2 className="text-3xl font-bold">The Vision</h2>
         </div>
         
@@ -950,7 +1099,7 @@ export default function WhitePaper() {
       {/* Moonshot Scenarios */}
       <motion.section {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
           <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
             Moonshot Scenarios <Rocket className="h-7 w-7 text-amber-500" />
           </h2>
