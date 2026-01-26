@@ -11,7 +11,8 @@ import {
   Battery,
   Car,
   Sun,
-  Coins
+  Coins,
+  FileText
 } from "lucide-react";
 
 interface Competitor {
@@ -142,6 +143,175 @@ export default function AdminCompetitiveIntel() {
           Strategic analysis of energy-to-crypto competitors and ZenSolar's market positioning
         </p>
       </div>
+
+      {/* White Paper Chapter Draft */}
+      <Card className="border-solar/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-solar" />
+            White Paper Chapter Draft: Market Landscape & Competitive Positioning
+          </CardTitle>
+          <CardDescription>Ready for inclusion in White Paper when approved</CardDescription>
+        </CardHeader>
+        <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+          <div className="space-y-6 text-muted-foreground leading-relaxed">
+            <div className="p-4 rounded-lg border border-solar/20 bg-solar/5">
+              <p className="text-xs text-solar font-medium mb-2">📋 DRAFT — PENDING APPROVAL</p>
+              <p className="text-xs text-muted-foreground">This chapter is ready for insertion into the White Paper as Chapter 5 (before Roadmap).</p>
+            </div>
+
+            <h3 className="text-foreground font-semibold text-lg">5. Market Landscape & Competitive Positioning</h3>
+            
+            <h4 className="text-foreground font-medium">5.1 First-Mover Advantage in Verified Energy Tokenization</h4>
+            <p>
+              The intersection of clean energy and blockchain technology represents one of the most compelling opportunities 
+              in the emerging decentralized economy. While numerous projects have attempted to bridge these domains, the 
+              market has lacked a comprehensive, consumer-accessible solution that transforms verified energy activity into 
+              on-chain value without requiring specialized hardware, complex integrations, or technical expertise.
+            </p>
+            <p>
+              <strong className="text-foreground">ZenSolar enters this market as the first platform to deliver true on-demand 
+              token minting triggered by real-time, API-verified energy data across multiple verticals</strong>—Solar Production, 
+              Battery Storage, Electric Vehicle Usage, and EV Charging. This first-mover position is not merely temporal; it 
+              represents a fundamental architectural breakthrough that existing and emerging competitors have not replicated.
+            </p>
+
+            <h4 className="text-foreground font-medium">5.2 The SEGI Innovation: Patent-Pending Technology</h4>
+            <p>
+              At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Software-Enabled Gateway 
+              Interface (SEGI)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
+              to blockchain value. Unlike legacy approaches that rely on hardware installations, periodic manual reporting, or 
+              distribution from pre-minted token pools, SEGI operates as a pure software layer that:
+            </p>
+            <ol className="list-decimal pl-6 space-y-2">
+              <li>
+                <strong className="text-foreground">Aggregates</strong> data from existing consumer devices (Tesla, Enphase, 
+                SolarEdge, Wallbox, and expandable to 37+ vehicle brands via Smartcar) without requiring proprietary hardware
+              </li>
+              <li>
+                <strong className="text-foreground">Verifies</strong> energy production, consumption, storage, and transportation 
+                metrics through authenticated API connections with millisecond-level precision
+              </li>
+              <li>
+                <strong className="text-foreground">Computes</strong> a unified "Impact Score" that translates diverse energy 
+                activities into a single, auditable reward metric
+              </li>
+              <li>
+                <strong className="text-foreground">Mints</strong> $ZSOLAR tokens directly to user wallets on Base L2 (Ethereum) 
+                in a trustless, verifiable transaction—not distributed from a pre-allocated pool, but created on-demand based 
+                on proven activity
+              </li>
+            </ol>
+            <p>
+              This architecture represents a <strong className="text-foreground">paradigm shift</strong> from the "earn-from-pool" 
+              models prevalent in the market to a "mint-on-proof" model where every token in circulation is backed by verified 
+              clean energy impact.
+            </p>
+
+            <h4 className="text-foreground font-medium">5.3 Deflationary Economics: A First-of-Its-Kind Model</h4>
+            <p>
+              ZenSolar's tokenomics introduce an innovative deflationary mechanism unprecedented in the energy-to-crypto sector. 
+              While competing projects typically operate on inflationary emission schedules (distributing tokens from fixed 
+              supplies over multi-year periods), ZenSolar implements:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>
+                <strong className="text-foreground">20% Mint Burn:</strong> For every 100 tokens minted as user rewards, 
+                20 tokens are simultaneously burned—creating immediate deflationary pressure at the point of creation
+              </li>
+              <li>
+                <strong className="text-foreground">7% Transfer Tax:</strong> Secondary market transactions contribute to 
+                ecosystem sustainability: 3% burned (permanent deflation), 2% to liquidity pools (market stability), and 
+                2% to treasury (ongoing development)
+              </li>
+              <li>
+                <strong className="text-foreground">No Pre-Minted Supply:</strong> Unlike projects with fixed total supplies 
+                awaiting distribution, $ZSOLAR's circulating supply is determined entirely by verified user activity—ensuring 
+                the token economy scales organically with real-world adoption
+              </li>
+            </ul>
+            <p>
+              This model solves the fundamental tension in reward-based tokenomics: how to incentivize participation without 
+              creating unsustainable inflation. By burning tokens at both minting and transfer, ZenSolar creates a self-balancing 
+              system where increased adoption actually strengthens token scarcity.
+            </p>
+
+            <h4 className="text-foreground font-medium">5.4 Unified Multi-Vertical Aggregation</h4>
+            <p>
+              The clean energy ecosystem is inherently fragmented—solar installations, battery systems, electric vehicles, and 
+              charging infrastructure each represent distinct hardware categories, API ecosystems, and data formats. Existing 
+              market participants have universally focused on single verticals: solar-only rewards, EV-mileage tracking, or 
+              charging-station tokens.
+            </p>
+            <p>
+              <strong className="text-foreground">ZenSolar is the first and only platform to unify all four energy verticals 
+              into a single, cohesive rewards interface.</strong> A homeowner with rooftop solar, a Tesla Powerwall, a Model Y, 
+              and a home charger earns $ZSOLAR across their entire energy footprint—not through four separate apps with four 
+              different tokens, but through one dashboard with one universal reward currency.
+            </p>
+            <p>
+              This unified approach creates powerful network effects: users who connect one device are incentivized to connect 
+              additional devices, and the platform's value proposition strengthens with each integration. The "combo bonus" 
+              NFT system further rewards multi-device adoption, creating a virtuous cycle of engagement.
+            </p>
+
+            <h4 className="text-foreground font-medium">5.5 Hardware Agnosticism as Strategic Moat</h4>
+            <p>
+              A critical differentiator in ZenSolar's architecture is its complete hardware independence. The platform requires 
+              no proprietary devices, no "mining nodes," no physical installations beyond what users already own. This creates 
+              three strategic advantages:
+            </p>
+            <ol className="list-decimal pl-6 space-y-2">
+              <li>
+                <strong className="text-foreground">Zero Barrier to Entry:</strong> Users with existing compatible devices 
+                can begin earning within 60 seconds of account creation
+              </li>
+              <li>
+                <strong className="text-foreground">Scalable Economics:</strong> Without hardware COGS, the platform can 
+                operate at software-company margins while competitors bear manufacturing, distribution, and support costs
+              </li>
+              <li>
+                <strong className="text-foreground">Future-Proof Extensibility:</strong> As new energy devices enter the 
+                market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), SEGI can integrate 
+                new APIs without hardware retrofits
+              </li>
+            </ol>
+
+            <h4 className="text-foreground font-medium">5.6 Intellectual Property Strategy</h4>
+            <p>
+              ZenSolar's first-mover advantage is reinforced by a deliberate intellectual property strategy. The patent-pending 
+              SEGI architecture covers the novel combination of:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>API-based energy data verification from consumer devices</li>
+              <li>Real-time impact score computation across multiple energy categories</li>
+              <li>On-demand token minting triggered by verified activity thresholds</li>
+              <li>Deflationary burn mechanics applied at the point of minting</li>
+            </ul>
+            <p>
+              Comprehensive patent landscape research has identified no existing claims covering this methodology. The closest 
+              prior art addresses hardware-dependent systems (physical solar installations generating RECs) rather than 
+              software-only gateway interfaces. This IP position creates a defensive moat that compounds over time as the 
+              patent application progresses.
+            </p>
+
+            <h4 className="text-foreground font-medium">5.7 Competitive Positioning Summary</h4>
+            <p>
+              ZenSolar occupies a unique position in the market: the only platform combining verified on-demand minting, 
+              deflationary tokenomics, multi-vertical aggregation, and hardware agnosticism into a consumer-accessible 
+              application. This is not an incremental improvement over existing solutions—it represents a <strong className="text-foreground">
+              category-defining innovation</strong> that establishes new standards for how clean energy participation 
+              translates to blockchain value.
+            </p>
+            <p>
+              As the clean energy transition accelerates and consumer adoption of solar, storage, and EVs continues its 
+              exponential growth, ZenSolar is positioned to become the default rewards layer for the entire ecosystem—not 
+              by competing on any single vertical, but by unifying them all under a technologically superior, economically 
+              sustainable, and legally defensible platform.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Executive Summary */}
       <Card>
