@@ -291,6 +291,125 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Competitive Edge Section */}
+      <section className="py-16 md:py-20">
+        <div className="container max-w-4xl mx-auto px-4 space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="text-center space-y-4"
+          >
+            <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
+              <Shield className="h-3.5 w-3.5 mr-2" />
+              First-Mover Advantage
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+              A{' '}
+              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                Category-Defining
+              </span>
+              {' '}Innovation
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
+              ZenSolar isn't an incremental improvement—it's the first platform to unify verified energy 
+              data with true on-demand blockchain minting.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+            >
+              <Card className="h-full bg-card/80 border-border/50 hover:border-primary/40 transition-all">
+                <CardContent className="p-6 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Hexagon className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="font-semibold">Mint-on-Proof Architecture</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Unlike legacy systems that distribute from pre-minted pools, SEGI creates tokens 
+                    on-demand—each one backed by verified clean energy activity.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ delay: 0.15, duration: 0.4 }}
+            >
+              <Card className="h-full bg-card/80 border-border/50 hover:border-primary/40 transition-all">
+                <CardContent className="p-6 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                      <TrendingUp className="h-5 w-5 text-emerald-500" />
+                    </div>
+                    <h3 className="font-semibold">Deflationary by Design</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Our innovative tokenomics apply burn mechanics at minting and transfer, creating 
+                    sustainable scarcity as adoption grows.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+            >
+              <Card className="h-full bg-card/80 border-border/50 hover:border-primary/40 transition-all">
+                <CardContent className="p-6 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                      <Globe className="h-5 w-5 text-amber-500" />
+                    </div>
+                    <h3 className="font-semibold">Unified Multi-Vertical</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The first and only platform aggregating Solar, Battery, EV, and Charging rewards 
+                    into one dashboard with one token.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ delay: 0.25, duration: 0.4 }}
+            >
+              <Card className="h-full bg-card/80 border-border/50 hover:border-primary/40 transition-all">
+                <CardContent className="p-6 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Shield className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <h3 className="font-semibold">Patent-Pending IP</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    SEGI's software-only gateway methodology is protected by pending patents—no 
+                    existing claims cover this approach.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
       <section className="py-16 md:py-20 bg-muted/30 dark:bg-muted/10 border-y border-border/30 dark:border-primary/10">
         <div className="container max-w-6xl mx-auto px-4">
