@@ -96,6 +96,7 @@ const adminMenuGroups = {
     { title: "Growth Projections", url: "/admin/growth-projections", icon: TrendingUp },
   ],
   technical: [
+    { title: "Security Architecture", url: "/admin/security", icon: Shield },
     { title: "Smart Contracts", url: "/admin/contracts", icon: FileCode },
     { title: "EV API Reference", url: "/admin/ev-api-reference", icon: Car },
     { title: "Competitive Intel", url: "/admin/competitive-intel", icon: Shield },
@@ -333,7 +334,7 @@ export function AppSidebar() {
                 </Collapsible>
 
                 {/* Technical Submenu */}
-                <Collapsible defaultOpen={location.pathname.includes('contracts') || location.pathname.includes('ev-api') || location.pathname.includes('patent') || location.pathname.includes('ai-feedback') || location.pathname.includes('glossary')}>
+                <Collapsible defaultOpen={location.pathname.includes('security') || location.pathname.includes('contracts') || location.pathname.includes('ev-api') || location.pathname.includes('patent') || location.pathname.includes('ai-feedback') || location.pathname.includes('glossary')}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
                       <FileCode className="h-4 w-4" />
