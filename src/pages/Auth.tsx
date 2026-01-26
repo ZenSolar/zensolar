@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { TurnstileWidget } from '@/components/TurnstileWidget';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -42,6 +43,45 @@ export default function Auth() {
   // Reset password state
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // Turnstile CAPTCHA state
+  const turnstileTokenRef = useRef<string | null>(null);
+  const [turnstileVerified, setTurnstileVerified] = useState(false);
+
+  const handleTurnstileVerify = (token: string) => {
+    turnstileTokenRef.current = token;
+    setTurnstileVerified(true);
+  };
+
+  const handleTurnstileExpire = () => {
+    turnstileTokenRef.current = null;
+    setTurnstileVerified(false);
+  };
+
+  const verifyTurnstileToken = async (): Promise<boolean> => {
+    const token = turnstileTokenRef.current;
+    if (!token) {
+      // In development without a configured key, allow through
+      console.log('[Auth] No turnstile token, allowing in development');
+      return true;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-turnstile', {
+        body: { token },
+      });
+
+      if (error) {
+        console.error('[Auth] Turnstile verification error:', error);
+        return false;
+      }
+
+      return data?.success === true;
+    } catch (err) {
+      console.error('[Auth] Turnstile verification failed:', err);
+      return false;
+    }
+  };
 
   useEffect(() => {
     // Check if coming back from password reset email
@@ -76,6 +116,15 @@ export default function Auth() {
     }
 
     setIsLoading(true);
+    
+    // Verify Turnstile CAPTCHA
+    const captchaValid = await verifyTurnstileToken();
+    if (!captchaValid) {
+      toast.error('Security verification failed. Please try again.');
+      setIsLoading(false);
+      return;
+    }
+    
     const { error } = await signIn(loginEmail, loginPassword);
     setIsLoading(false);
 
@@ -105,6 +154,15 @@ export default function Auth() {
     }
 
     setIsLoading(true);
+    
+    // Verify Turnstile CAPTCHA
+    const captchaValid = await verifyTurnstileToken();
+    if (!captchaValid) {
+      toast.error('Security verification failed. Please try again.');
+      setIsLoading(false);
+      return;
+    }
+    
     const { data, error } = await signUp(signupEmail, signupPassword, signupDisplayName, referralCode || undefined);
     setIsLoading(false);
 
@@ -433,6 +491,14 @@ export default function Auth() {
                           </Button>
                         </div>
                       </div>
+                      
+                      {/* Turnstile CAPTCHA - invisible widget */}
+                      <TurnstileWidget 
+                        onVerify={handleTurnstileVerify}
+                        onExpire={handleTurnstileExpire}
+                        size="invisible"
+                      />
+                      
                       <Button 
                         type="submit" 
                         className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
@@ -505,6 +571,14 @@ export default function Auth() {
                           className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary uppercase"
                         />
                       </div>
+                      
+                      {/* Turnstile CAPTCHA - invisible widget */}
+                      <TurnstileWidget 
+                        onVerify={handleTurnstileVerify}
+                        onExpire={handleTurnstileExpire}
+                        size="invisible"
+                      />
+                      
                       <Button 
                         type="submit" 
                         className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
