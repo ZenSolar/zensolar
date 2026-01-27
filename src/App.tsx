@@ -63,6 +63,7 @@ const AdminGrowthProjections = lazy(() => import("./pages/AdminGrowthProjections
 const AdminLiveBetaEconomics = lazy(() => import("./pages/AdminLiveBetaEconomics"));
 const AdminCompetitiveIntel = lazy(() => import("./pages/AdminCompetitiveIntel"));
 const AdminSecurityArchitecture = lazy(() => import("./pages/AdminSecurityArchitecture"));
+const AdminBootstrapCalculator = lazy(() => import("./pages/AdminBootstrapCalculator"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 
@@ -476,6 +477,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminSecurityArchitecture />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/bootstrap-calculator" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminBootstrapCalculator />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
