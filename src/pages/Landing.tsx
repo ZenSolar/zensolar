@@ -200,7 +200,7 @@ export default function Landing() {
             </h1>
             
             <p className="text-[clamp(1rem,3.2vw,1.25rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              ZenSolar rewards households with $ZSOLAR tokens for every solar kWh produced, 
+              ZenSolar rewards households and EV drivers with $ZSOLAR tokens for every solar kWh produced, 
               battery kWh discharged, EV mile driven, and kWh used to charge your EV.
             </p>
 
