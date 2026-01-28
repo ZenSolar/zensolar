@@ -12,7 +12,7 @@ const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 
 export function SEO({
   title = 'ZenSolar - Gamifying Clean Energy Use',
-  description = 'Earn $ZSOLAR tokens and NFTs for sustainable energy actions. Track solar, EV, and battery metrics.',
+  description = 'Earn $ZSOLAR For Your Clean Energy Use',
   image = DEFAULT_IMAGE,
   url = BASE_URL,
 }: SEOProps) {
