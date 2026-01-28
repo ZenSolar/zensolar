@@ -211,7 +211,7 @@ export default function Landing() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Battery className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                  <span>Every battery kWh you discharge</span>
+                  <span>Every kWh your battery discharges</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Car className="h-5 w-5 text-blue-500 flex-shrink-0" />
