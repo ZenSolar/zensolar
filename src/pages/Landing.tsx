@@ -204,21 +204,21 @@ export default function Landing() {
               <p className="mb-4">
                 ZenSolar rewards your clean energy choices with <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
               </p>
-              <ul className="space-y-2.5 text-left inline-block">
-                <li className="flex items-center gap-3">
-                  <Sun className="h-5 w-5 text-amber-500 flex-shrink-0" />
+              <ul className="space-y-2 text-left inline-block text-[clamp(0.9rem,2.5vw,1.05rem)]">
+                <li className="flex items-center gap-2.5">
+                  <Sun className="h-4 w-4 text-amber-500 flex-shrink-0" />
                   <span>Every kWh your solar panels produce</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Battery className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                <li className="flex items-center gap-2.5">
+                  <Battery className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                   <span>Every kWh your battery discharges</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Car className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                <li className="flex items-center gap-2.5">
+                  <Car className="h-4 w-4 text-blue-500 flex-shrink-0" />
                   <span>Every EV mile you drive</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Zap className="h-5 w-5 text-purple-500 flex-shrink-0" />
+                <li className="flex items-center gap-2.5">
+                  <Zap className="h-4 w-4 text-purple-500 flex-shrink-0" />
                   <span>Every kWh from charging your EV</span>
                 </li>
               </ul>
