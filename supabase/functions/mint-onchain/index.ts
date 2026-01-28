@@ -128,7 +128,8 @@ async function recordTransaction(
   walletAddress: string,
   tokensMinted: number = 0,
   nftsMinted: number[] = [],
-  status: string = "confirmed"
+  status: string = "confirmed",
+  isBetaMint: boolean = false
 ) {
   try {
     const nftNames = nftsMinted.map(id => NFT_NAMES[id] || `Token #${id}`);
@@ -143,8 +144,9 @@ async function recordTransaction(
       nfts_minted: nftsMinted,
       nft_names: nftNames,
       status,
+      is_beta_mint: isBetaMint,
     });
-    console.log("Transaction recorded:", txHash);
+    console.log("Transaction recorded:", txHash, isBetaMint ? "(beta)" : "");
   } catch (error) {
     console.error("Failed to record transaction:", error);
   }
@@ -424,7 +426,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { walletAddress, tokenIds, comboTypes, category } = body;
+    const { walletAddress, tokenIds, comboTypes, category, isBetaMint = false } = body;
 
     if (!walletAddress) {
       return new Response(JSON.stringify({ error: "Wallet address required" }), {
@@ -561,7 +563,9 @@ Deno.serve(async (req) => {
           "register",
           walletAddress,
           0,
-          [0] // Welcome NFT token ID
+          [0], // Welcome NFT token ID
+          "confirmed",
+          isBetaMint
         );
       }
 
@@ -757,7 +761,9 @@ Deno.serve(async (req) => {
           "mint-rewards",
           walletAddress,
           expectedTokens,
-          newNfts
+          newNfts,
+          "confirmed",
+          isBetaMint
         );
 
         // CRITICAL: Update baselines ONLY for devices that were minted (in deviceIdsToUpdate)
@@ -924,7 +930,9 @@ Deno.serve(async (req) => {
           "mint-combos",
           walletAddress,
           0,
-          tokenIds
+          tokenIds,
+          "confirmed",
+          isBetaMint
         );
       }
 
@@ -1146,7 +1154,9 @@ Deno.serve(async (req) => {
             "claim-milestone-nfts",
             walletAddress,
             0,
-            newNfts
+            newNfts,
+            "confirmed",
+            isBetaMint
           );
         }
       }
@@ -1219,7 +1229,9 @@ Deno.serve(async (req) => {
             "mint-specific-nft",
             walletAddress,
             0,
-            [0]
+            [0],
+            "confirmed",
+            isBetaMint
           );
         }
 
@@ -1266,7 +1278,9 @@ Deno.serve(async (req) => {
             "mint-specific-nft",
             walletAddress,
             0,
-            [tokenId]
+            [tokenId],
+            "confirmed",
+            isBetaMint
           );
         }
 
@@ -1311,7 +1325,9 @@ Deno.serve(async (req) => {
               "mint-specific-nft",
               walletAddress,
               0,
-              newNfts
+              newNfts,
+              "confirmed",
+              isBetaMint
             );
           }
         }

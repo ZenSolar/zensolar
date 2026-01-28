@@ -25,7 +25,7 @@ import { WatchAssetDiagnostics, type WatchAssetAttempt } from './WatchAssetDiagn
 import { ManualTokenAddPanel } from './ManualTokenAddPanel';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
-import { getRewardMultiplier } from '@/lib/tokenomics';
+import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
 
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
@@ -415,6 +415,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           action: 'mint-rewards',
           walletAddress,
           category, // 'solar', 'ev_miles', 'battery', 'charging', or 'all'
+          isBetaMint: getLiveBetaMode(),
         },
       });
 
@@ -556,6 +557,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         body: {
           action: 'register',
           walletAddress,
+          isBetaMint: getLiveBetaMode(),
         },
       });
 
@@ -641,6 +643,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           action: 'claim-milestone-nfts',
           walletAddress,
           specificTokenId: nft.tokenId,
+          isBetaMint: getLiveBetaMode(),
         },
       });
 
@@ -700,6 +703,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           walletAddress,
           tokenIds: [combo.tokenId],
           comboTypes: [combo.comboType],
+          isBetaMint: getLiveBetaMode(),
         },
       });
 

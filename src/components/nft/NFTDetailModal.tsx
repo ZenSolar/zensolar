@@ -25,6 +25,7 @@ import {
 import { NFTBadge } from '@/components/ui/nft-badge';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
+import { getLiveBetaMode } from '@/lib/tokenomics';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -201,7 +202,8 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange, onMint
         body: { 
           action: 'mint-specific-nft', 
           walletAddress,
-          tokenId
+          tokenId,
+          isBetaMint: getLiveBetaMode()
         },
       });
 
