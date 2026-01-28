@@ -219,7 +219,7 @@ export default function Landing() {
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Zap className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                  <span>Every kWh from charging your EV</span>
+                  <span>Every kWh used to charge your EV</span>
                 </li>
               </ul>
             </div>
