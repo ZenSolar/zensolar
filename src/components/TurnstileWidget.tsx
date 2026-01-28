@@ -1,8 +1,8 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
-// Turnstile site key - using the invisible widget
-// In production, replace with your actual site key
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'; // Test key for development
+// Fallback test key for development (always passes)
+const TURNSTILE_TEST_KEY = '1x00000000000000000000AA';
 
 declare global {
   interface Window {
@@ -44,13 +44,33 @@ export function TurnstileWidget({
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const scriptLoadedRef = useRef(false);
+  const [siteKey, setSiteKey] = useState<string | null>(null);
+
+  // Fetch site key from edge function
+  useEffect(() => {
+    const fetchSiteKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-turnstile-site-key');
+        if (error) {
+          console.error('[Turnstile] Failed to fetch site key:', error);
+          setSiteKey(TURNSTILE_TEST_KEY);
+          return;
+        }
+        setSiteKey(data?.siteKey || TURNSTILE_TEST_KEY);
+      } catch (err) {
+        console.error('[Turnstile] Error fetching site key:', err);
+        setSiteKey(TURNSTILE_TEST_KEY);
+      }
+    };
+    fetchSiteKey();
+  }, []);
 
   const renderWidget = useCallback(() => {
-    if (!containerRef.current || !window.turnstile || widgetIdRef.current) return;
+    if (!containerRef.current || !window.turnstile || widgetIdRef.current || !siteKey) return;
 
     try {
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
+        sitekey: siteKey,
         callback: onVerify,
         'error-callback': onError,
         'expired-callback': onExpire,
@@ -62,7 +82,7 @@ export function TurnstileWidget({
       console.error('[Turnstile] Failed to render widget:', error);
       onError?.(error as Error);
     }
-  }, [onVerify, onError, onExpire, theme, size]);
+  }, [onVerify, onError, onExpire, theme, size, siteKey]);
 
   useEffect(() => {
     // If Turnstile is already loaded, render immediately
