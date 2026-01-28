@@ -208,21 +208,24 @@ export default function Landing() {
               <ul className="space-y-2.5 text-left inline-block">
                 <li className="flex items-center gap-3">
                   <Sun className="h-5 w-5 text-amber-500 flex-shrink-0" />
-                  <span>Every solar kWh produced</span>
+                  <span>Every solar kWh you generate</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Battery className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                  <span>Battery storage kWh discharged</span>
+                  <span>Every battery kWh you discharge</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Car className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                  <span>EV mile driven</span>
+                  <span>Every EV mile you drive</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Zap className="h-5 w-5 text-purple-500 flex-shrink-0" />
-                  <span>EV charging kWh</span>
+                  <span>Every EV kWh you charge</span>
                 </li>
               </ul>
+              <p className="mt-5 text-base italic text-foreground/80">
+                Your clean energy lifestyle is already generating value—now capture it.
+              </p>
             </div>
 
             {/* CTA Buttons */}
