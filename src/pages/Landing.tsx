@@ -212,12 +212,12 @@ export default function Landing() {
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium">
                 <span className="flex items-center gap-1.5 text-amber-500">
                   <Sun className="h-4 w-4" />
-                  kWh Solar
+                  Solar kWh
                 </span>
                 <span className="text-border/60">•</span>
                 <span className="flex items-center gap-1.5 text-emerald-500">
                   <Battery className="h-4 w-4" />
-                  kWh Battery
+                  Battery kWh
                 </span>
                 <span className="text-border/60">•</span>
                 <span className="flex items-center gap-1.5 text-blue-500">
@@ -227,7 +227,7 @@ export default function Landing() {
                 <span className="text-border/60">•</span>
                 <span className="flex items-center gap-1.5 text-purple-500">
                   <Zap className="h-4 w-4" />
-                  kWh EV Charging
+                  EV Charging kWh
                 </span>
               </div>
             </div>
