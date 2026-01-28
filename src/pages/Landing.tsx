@@ -204,25 +204,8 @@ export default function Landing() {
               Earn <span className="text-primary font-semibold">$ZSOLAR</span> tokens and <span className="text-primary font-semibold">NFTs</span> for every kWh you produce, store, drive, or charge.
             </p>
 
-            {/* CTA Buttons - Primary focus */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 w-full">
-              <Link to="/demo">
-                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-all shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02]">
-                  <Hexagon className="mr-2 h-5 w-5" />
-                  Mint Tokens & NFTs Now
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:scale-[1.02]">
-                  Start Earning Today
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-
-            {/* Reward categories - Supporting info below CTAs */}
-            <div className="flex flex-col items-center gap-2 pt-4">
+            {/* Reward categories - Supporting info */}
+            <div className="flex flex-col items-center gap-2 pt-2">
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
                 Earn for
               </p>
@@ -249,8 +232,25 @@ export default function Landing() {
               </div>
             </div>
 
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 w-full">
+              <Link to="/demo">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-all shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02]">
+                  <Hexagon className="mr-2 h-5 w-5" />
+                  Mint Tokens & NFTs Now
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:scale-[1.02]">
+                  Start Earning Today
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+
             {/* Trust indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <Shield className="h-4 w-4 text-primary" />
                 <span>Patent Pending</span>
