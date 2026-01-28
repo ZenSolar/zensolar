@@ -199,21 +199,10 @@ export default function Landing() {
               </span>
             </h1>
             
-            {/* Two-line value proposition */}
-            <div className="text-[clamp(1.05rem,3vw,1.3rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed space-y-2">
-              <p>
-                Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for every...
-              </p>
-              <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[clamp(0.95rem,2.8vw,1.15rem)] font-medium">
-                <span className="text-amber-500">solar kWh</span>
-                <span className="text-muted-foreground/50">·</span>
-                <span className="text-emerald-500">battery kWh</span>
-                <span className="text-muted-foreground/50">·</span>
-                <span className="text-blue-500">EV mile</span>
-                <span className="text-muted-foreground/50">·</span>
-                <span className="text-purple-500">charging kWh</span>
-              </p>
-            </div>
+            {/* Single clear value proposition */}
+            <p className="text-[clamp(1.05rem,3vw,1.3rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for every solar kWh produced, battery kWh discharged, EV mile driven, and kWh used to charge your EV.
+            </p>
 
             {/* Reward categories - Clean inline display */}
             <div className="flex flex-col items-center gap-3 pt-3">
