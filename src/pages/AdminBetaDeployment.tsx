@@ -95,17 +95,17 @@ function copyToClipboard(text: string, label: string) {
 
 function ContractAddressCard({ label, address, basescanPath }: { label: string; address: string; basescanPath?: string }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-      <div>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-muted/50 rounded-lg">
+      <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{label}</p>
-        <code className="text-xs text-muted-foreground font-mono">{address}</code>
+        <code className="text-xs text-muted-foreground font-mono break-all">{address}</code>
       </div>
-      <div className="flex gap-2">
-        <Button variant="ghost" size="icon" onClick={() => copyToClipboard(address, label)}>
+      <div className="flex gap-2 flex-shrink-0">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyToClipboard(address, label)}>
           <Copy className="h-4 w-4" />
         </Button>
         {basescanPath && (
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
             <a href={`https://sepolia.basescan.org/address/${address}${basescanPath}`} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />
             </a>
@@ -120,25 +120,25 @@ function DeploymentStep({ step, index, isActive }: { step: DeploymentStepData; i
   const getStatusIcon = () => {
     switch (step.status) {
       case "complete":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />;
       case "active":
-        return <RefreshCw className="h-5 w-5 text-solar animate-spin" />;
+        return <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 text-solar animate-spin" />;
       default:
-        return <Circle className="h-5 w-5 text-muted-foreground" />;
+        return <Circle className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />;
     }
   };
 
   return (
-    <div className={`flex items-start gap-4 p-4 rounded-lg border ${isActive ? 'border-solar bg-solar/5' : 'border-border'}`}>
+    <div className={`flex items-start gap-3 p-3 sm:p-4 rounded-lg border ${isActive ? 'border-solar bg-solar/5' : 'border-border'}`}>
       <div className="flex-shrink-0 mt-0.5">
         {getStatusIcon()}
       </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">Step {index}</Badge>
-          <h4 className="font-medium">{step.title}</h4>
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className="text-xs">Step {index}</Badge>
+          <h4 className="font-medium text-sm sm:text-base">{step.title}</h4>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">{step.description}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">{step.description}</p>
       </div>
     </div>
   );
@@ -165,59 +165,59 @@ export default function AdminBetaDeployment() {
     : PRE_LP_STATE.price;
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-6xl mx-auto overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Rocket className="h-8 w-8 text-solar" />
-            Beta Deployment Guide
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+            <Rocket className="h-6 w-6 sm:h-8 sm:w-8 text-solar flex-shrink-0" />
+            <span className="truncate">Beta Deployment</span>
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Deploy ZSOLAR/USDC liquidity pool on Base Sepolia testnet
+          <p className="text-sm text-muted-foreground mt-1">
+            Deploy ZSOLAR/USDC on Base Sepolia
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button variant="outline" size="sm" onClick={refresh} disabled={betaMetrics.isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${betaMetrics.isLoading ? 'animate-spin' : ''}`} />
-            Refresh
+            <RefreshCw className={`h-4 w-4 ${betaMetrics.isLoading ? 'animate-spin' : ''}`} />
+            <span className="ml-1 hidden sm:inline">Refresh</span>
           </Button>
-          <Badge variant="outline" className="text-solar border-solar">
-            Base Sepolia Testnet
+          <Badge variant="outline" className="text-solar border-solar text-xs whitespace-nowrap">
+            Sepolia
           </Badge>
         </div>
       </div>
 
       {/* Side-by-Side Comparison: Target vs Actual */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Target State (Pre-LP Seed) */}
         <Card className="border-muted">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Coins className="h-5 w-5 text-muted-foreground" />
-              Target (LP Seed)
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Coins className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
+              <span>Target (LP Seed)</span>
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Initial state after deployment
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <span className="text-xs text-muted-foreground">LP ZSOLAR</span>
-                <p className="text-lg font-bold">{formatTokenAmount(PRE_LP_STATE.lpTokens)}</p>
+          <CardContent className="px-3 sm:px-6">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div className="p-2 sm:p-3 bg-muted/50 rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">LP ZSOLAR</span>
+                <p className="text-sm sm:text-lg font-bold">{formatTokenAmount(PRE_LP_STATE.lpTokens)}</p>
               </div>
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <span className="text-xs text-muted-foreground">LP USDC</span>
-                <p className="text-lg font-bold">{formatUSD(PRE_LP_STATE.lpUsdc)}</p>
+              <div className="p-2 sm:p-3 bg-muted/50 rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">LP USDC</span>
+                <p className="text-sm sm:text-lg font-bold">{formatUSD(PRE_LP_STATE.lpUsdc)}</p>
               </div>
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <span className="text-xs text-muted-foreground">Floor Price</span>
-                <p className="text-lg font-bold">{formatUSD(PRE_LP_STATE.price)}</p>
+              <div className="p-2 sm:p-3 bg-muted/50 rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">Floor Price</span>
+                <p className="text-sm sm:text-lg font-bold">{formatUSD(PRE_LP_STATE.price)}</p>
               </div>
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <span className="text-xs text-muted-foreground">User Mints</span>
-                <p className="text-lg font-bold">0</p>
+              <div className="p-2 sm:p-3 bg-muted/50 rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">User Mints</span>
+                <p className="text-sm sm:text-lg font-bold">0</p>
               </div>
             </div>
           </CardContent>
@@ -225,42 +225,42 @@ export default function AdminBetaDeployment() {
 
         {/* Actual State (Live Beta Metrics) */}
         <Card className="border-solar/30 bg-solar/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-solar" />
-              Actual (Beta Mints)
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-base sm:text-lg flex flex-wrap items-center gap-2">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-solar flex-shrink-0" />
+              <span>Actual (Beta)</span>
               {betaMetrics.mintTransactionCount > 0 && (
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="text-xs">
                   {betaMetrics.mintTransactionCount} txns
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>
-              Live metrics from beta mode mints only
+            <CardDescription className="text-xs sm:text-sm">
+              Live metrics from beta mints
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-background rounded-lg">
-                <span className="text-xs text-muted-foreground">LP ZSOLAR</span>
-                <p className="text-lg font-bold">{formatTokenAmount(currentLpTokens)}</p>
+          <CardContent className="px-3 sm:px-6">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div className="p-2 sm:p-3 bg-background rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">LP ZSOLAR</span>
+                <p className="text-sm sm:text-lg font-bold">{formatTokenAmount(currentLpTokens)}</p>
                 {betaMetrics.totalMinted > 0 && (
-                  <span className="text-xs text-green-500">+{formatTokenAmount(betaMetrics.totalMinted * lpRate)}</span>
+                  <span className="text-[10px] sm:text-xs text-green-500">+{formatTokenAmount(betaMetrics.totalMinted * lpRate)}</span>
                 )}
               </div>
-              <div className="p-3 bg-background rounded-lg">
-                <span className="text-xs text-muted-foreground">LP USDC</span>
-                <p className="text-lg font-bold">{formatUSD(PRE_LP_STATE.lpUsdc)}</p>
+              <div className="p-2 sm:p-3 bg-background rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">LP USDC</span>
+                <p className="text-sm sm:text-lg font-bold">{formatUSD(PRE_LP_STATE.lpUsdc)}</p>
               </div>
-              <div className="p-3 bg-background rounded-lg">
-                <span className="text-xs text-muted-foreground">Est. Price</span>
-                <p className="text-lg font-bold">{formatUSD(estimatedPrice)}</p>
+              <div className="p-2 sm:p-3 bg-background rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">Est. Price</span>
+                <p className="text-sm sm:text-lg font-bold">{formatUSD(estimatedPrice)}</p>
               </div>
-              <div className="p-3 bg-background rounded-lg">
-                <span className="text-xs text-muted-foreground">User Mints</span>
-                <p className="text-lg font-bold">{formatTokenAmount(betaMetrics.totalMinted)}</p>
+              <div className="p-2 sm:p-3 bg-background rounded-lg">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">User Mints</span>
+                <p className="text-sm sm:text-lg font-bold">{formatTokenAmount(betaMetrics.totalMinted)}</p>
                 {betaMetrics.totalBurned > 0 && (
-                  <span className="text-xs text-orange-500">🔥 {formatTokenAmount(betaMetrics.totalBurned)}</span>
+                  <span className="text-[10px] sm:text-xs text-orange-500">🔥 {formatTokenAmount(betaMetrics.totalBurned)}</span>
                 )}
               </div>
             </div>
@@ -268,11 +268,11 @@ export default function AdminBetaDeployment() {
         </Card>
       </div>
 
-      <Tabs defaultValue="guide" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="guide">Deployment Guide</TabsTrigger>
-          <TabsTrigger value="contracts">Contract Addresses</TabsTrigger>
-          <TabsTrigger value="parameters">Pre-Calculated Values</TabsTrigger>
+      <Tabs defaultValue="guide" className="space-y-4 sm:space-y-6">
+        <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1">
+          <TabsTrigger value="guide" className="flex-1 min-w-[80px] text-xs sm:text-sm">Guide</TabsTrigger>
+          <TabsTrigger value="contracts" className="flex-1 min-w-[80px] text-xs sm:text-sm">Contracts</TabsTrigger>
+          <TabsTrigger value="parameters" className="flex-1 min-w-[80px] text-xs sm:text-sm">Values</TabsTrigger>
         </TabsList>
 
         <TabsContent value="guide" className="space-y-6">
