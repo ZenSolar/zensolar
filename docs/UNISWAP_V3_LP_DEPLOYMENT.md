@@ -20,7 +20,7 @@ This guide walks you through creating a Uniswap V3 liquidity pool on Base Sepoli
 
 ### ✅ Wallet Requirements
 
-- **Minter Wallet**: `0x70918Aa38d19BbBE0BD3e00C008442978c0e5cB1`
+- **Minter Wallet**: `0x79ded21cF400F3ce354914D91fb209737d76b16D`
 - **Testnet ETH**: ~0.1 ETH for gas (from Base Sepolia faucet)
 - **Test USDC**: 1,000 USDC from faucet
 - **ZSOLAR Tokens**: 10,000 tokens (already minted)
@@ -32,7 +32,7 @@ This guide walks you through creating a Uniswap V3 liquidity pool on Base Sepoli
 ### 1.1 Get Base Sepolia ETH
 
 1. Go to [Base Sepolia Faucet](https://www.coinbase.com/faucets/base-ethereum-goerli-faucet)
-2. Enter: `0x70918Aa38d19BbBE0BD3e00C008442978c0e5cB1`
+2. Enter: `0x79ded21cF400F3ce354914D91fb209737d76b16D`
 3. Request 0.1 ETH
 
 ### 1.2 Get Test USDC
