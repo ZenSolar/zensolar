@@ -46,7 +46,6 @@ export default function About() {
     <>
       <SEO 
         title="About ZenSolar"
-        description="Learn about ZenSolar's mission to reward clean energy production. Connect solar, EV, and battery systems to earn blockchain-verified tokens and NFTs."
         url="https://zensolar.lovable.app/about"
         image="https://zensolar.lovable.app/og-about.png"
       />

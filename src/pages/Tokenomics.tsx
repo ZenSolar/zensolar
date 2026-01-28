@@ -16,7 +16,6 @@ export default function Tokenomics() {
     <>
       <SEO 
         title="$ZSOLAR Tokenomics - Clean Energy Token Economics"
-        description="Learn about $ZSOLAR tokenomics: 10B total supply, $0.10 launch floor, 20% mint burn rate, and 7% transfer tax. Turn your solar production and EV miles into real crypto rewards."
         url="https://zensolar.lovable.app/tokenomics"
         image="https://zensolar.lovable.app/og-tokenomics.png"
       />
