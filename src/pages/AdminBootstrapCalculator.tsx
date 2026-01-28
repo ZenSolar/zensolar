@@ -199,7 +199,6 @@ export default function AdminBootstrapCalculator() {
     <TooltipProvider>
       <SEO 
         title="Bootstrap Calculator | Admin"
-        description="Interactive tokenomics calculator for bootstrap growth model"
       />
       
       <div className="container max-w-7xl mx-auto px-4 py-8 space-y-6">

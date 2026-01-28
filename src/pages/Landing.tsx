@@ -76,8 +76,7 @@ export default function Landing() {
   return (
     <>
       <SEO 
-        title="ZenSolar - Earn Crypto for Clean Energy"
-        description="Transform your solar production, EV miles, and battery storage into $ZSOLAR tokens and NFTs. Patent-pending SEGI technology verifies your clean energy impact."
+        title="Earn $ZSOLAR For Your Clean Energy Use"
         url="https://zensolar.lovable.app"
         image="https://zensolar.lovable.app/og-image.png"
       />

@@ -2,7 +2,6 @@ import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title?: string;
-  description?: string;
   image?: string;
   url?: string;
 }
@@ -11,21 +10,16 @@ const BASE_URL = 'https://zensolar.lovable.app';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 
 export function SEO({
-  title = 'ZenSolar - Gamifying Clean Energy Use',
-  description = 'Earn $ZSOLAR For Your Clean Energy Use',
+  title = 'Earn $ZSOLAR For Your Clean Energy Use',
   image = DEFAULT_IMAGE,
   url = BASE_URL,
 }: SEOProps) {
-  const fullTitle = title.includes('ZenSolar') ? title : `${title} | ZenSolar`;
-
   return (
     <Helmet>
-      <title>{fullTitle}</title>
-      <meta name="description" content={description} />
+      <title>{title}</title>
 
       {/* Open Graph */}
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      <meta property="og:title" content={title} />
       <meta property="og:type" content="website" />
       <meta property="og:url" content={url} />
       <meta property="og:image" content={image} />
@@ -35,8 +29,7 @@ export function SEO({
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@ZenSolar" />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
+      <meta name="twitter:title" content={title} />
       <meta name="twitter:image" content={image} />
     </Helmet>
   );

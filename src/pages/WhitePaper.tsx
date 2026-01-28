@@ -232,7 +232,6 @@ export default function WhitePaper() {
     <>
       <SEO 
         title="ZenSolar White Paper - Clean Energy Blockchain Rewards"
-        description="Read the ZenSolar White Paper: mission, market opportunity, SEGI technology, and tokenomics for turning clean energy into blockchain rewards."
         url="https://zensolar.lovable.app/white-paper"
         image="https://zensolar.lovable.app/og-whitepaper.png"
       />

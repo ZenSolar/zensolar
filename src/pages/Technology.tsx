@@ -139,7 +139,6 @@ export default function Technology() {
     <>
       <SEO 
         title="SEGI Technology - Patent-Pending Clean Energy Verification"
-        description="Discover ZenSolar's patent-pending SEGI technology: a 4-layer system that connects to manufacturer APIs, normalizes data, verifies activity, and mints blockchain rewards."
         url="https://zensolar.lovable.app/technology"
         image="https://zensolar.lovable.app/og-technology.png"
       />
