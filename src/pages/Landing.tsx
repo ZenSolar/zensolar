@@ -202,7 +202,7 @@ export default function Landing() {
             {/* Core value proposition with clean bullet list */}
             <div className="text-[clamp(1.05rem,3vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed text-center">
               <p className="mb-4">
-                ZenSolar rewards you with<br />
+                ZenSolar rewards people with solar and EVs with<br />
                 <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
               </p>
               <ul className="space-y-2.5 text-left inline-block">
@@ -220,7 +220,7 @@ export default function Landing() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Zap className="h-5 w-5 text-purple-500 flex-shrink-0" />
-                  <span>Every EV kWh you charge</span>
+                  <span>Every kWh from charging your EV</span>
                 </li>
               </ul>
               <p className="mt-5 text-base italic text-foreground/80">
