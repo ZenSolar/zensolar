@@ -207,7 +207,7 @@ export default function Landing() {
               <ul className="space-y-2.5 text-left inline-block">
                 <li className="flex items-center gap-3">
                   <Sun className="h-5 w-5 text-amber-500 flex-shrink-0" />
-                  <span>Every solar kWh you generate</span>
+                  <span>Every kWh your solar panels produce</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Battery className="h-5 w-5 text-emerald-500 flex-shrink-0" />
