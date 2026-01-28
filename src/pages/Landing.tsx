@@ -204,30 +204,22 @@ export default function Landing() {
               <p className="mb-4">
                 ZenSolar rewards your clean energy choices with <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
               </p>
-              <ul className="space-y-3 text-left inline-block">
-                <li className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-amber-500/5 border border-amber-500/10 hover:bg-amber-500/10 transition-colors">
-                  <div className="p-1.5 rounded-lg bg-amber-500/15">
-                    <Sun className="h-5 w-5 text-amber-500 flex-shrink-0" />
-                  </div>
+              <ul className="space-y-2.5 text-left inline-block">
+                <li className="flex items-center gap-3">
+                  <Sun className="h-5 w-5 text-amber-500 flex-shrink-0" />
                   <span>Every kWh your solar panels produce</span>
                 </li>
-                <li className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-500/10 transition-colors">
-                  <div className="p-1.5 rounded-lg bg-emerald-500/15">
-                    <Battery className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                  </div>
+                <li className="flex items-center gap-3">
+                  <Battery className="h-5 w-5 text-emerald-500 flex-shrink-0" />
                   <span>Every kWh your battery discharges</span>
                 </li>
-                <li className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-blue-500/5 border border-blue-500/10 hover:bg-blue-500/10 transition-colors">
-                  <div className="p-1.5 rounded-lg bg-blue-500/15">
-                    <Car className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                  </div>
-                  <span>Every mile your EV drives</span>
+                <li className="flex items-center gap-3">
+                  <Car className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <span>Every EV mile you drive</span>
                 </li>
-                <li className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-purple-500/5 border border-purple-500/10 hover:bg-purple-500/10 transition-colors">
-                  <div className="p-1.5 rounded-lg bg-purple-500/15">
-                    <Zap className="h-5 w-5 text-purple-500 flex-shrink-0" />
-                  </div>
-                  <span>Every kWh your charger delivers</span>
+                <li className="flex items-center gap-3">
+                  <Zap className="h-5 w-5 text-purple-500 flex-shrink-0" />
+                  <span>Every kWh from charging your EV</span>
                 </li>
               </ul>
             </div>
