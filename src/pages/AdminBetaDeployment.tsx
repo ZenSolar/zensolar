@@ -19,7 +19,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
-import { useOnChainMetrics } from "@/hooks/useOnChainMetrics";
+// Pre-LP state - no need for live metrics hook on this page
 import { formatTokenAmount, formatUSD } from "@/lib/tokenomics";
 
 // Contract addresses
@@ -143,8 +143,16 @@ function DeploymentStep({ step, index, isActive }: { step: DeploymentStepData; i
   );
 }
 
+// Pre-LP initial state values (before any user minting)
+const PRE_LP_STATE = {
+  lpTokens: 10000,      // 10,000 ZSOLAR seeded to LP
+  lpUsdc: 1000,         // $1,000 USDC seeded to LP
+  price: 0.10,          // $0.10 floor price
+  totalMinted: 0,       // No user mints yet
+  totalBurned: 0,       // No burns yet
+};
+
 export default function AdminBetaDeployment() {
-  const { metrics, refresh } = useOnChainMetrics();
   const [activeStep, setActiveStep] = useState(0);
 
   return (
@@ -165,45 +173,50 @@ export default function AdminBetaDeployment() {
         </Badge>
       </div>
 
-      {/* Live Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <Coins className="h-4 w-4" />
-              <span className="text-sm">Total Minted</span>
+      {/* Pre-LP Initial State Metrics */}
+      <Card className="border-solar/30 bg-solar/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Coins className="h-5 w-5 text-solar" />
+            Pre-LP Initial State
+          </CardTitle>
+          <CardDescription>
+            Target metrics after completing deployment steps
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-3 bg-background rounded-lg">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <Droplets className="h-4 w-4 text-blue-500" />
+                <span className="text-xs">LP ZSOLAR</span>
+              </div>
+              <p className="text-xl font-bold">{formatTokenAmount(PRE_LP_STATE.lpTokens)}</p>
             </div>
-            <p className="text-2xl font-bold">{formatTokenAmount(metrics.totalMinted)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <Flame className="h-4 w-4 text-orange-500" />
-              <span className="text-sm">Total Burned</span>
+            <div className="p-3 bg-background rounded-lg">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <Droplets className="h-4 w-4 text-green-500" />
+                <span className="text-xs">LP USDC</span>
+              </div>
+              <p className="text-xl font-bold">{formatUSD(PRE_LP_STATE.lpUsdc)}</p>
             </div>
-            <p className="text-2xl font-bold">{formatTokenAmount(metrics.totalBurned)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <Droplets className="h-4 w-4 text-blue-500" />
-              <span className="text-sm">LP Depth</span>
+            <div className="p-3 bg-background rounded-lg">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <Wallet className="h-4 w-4 text-solar" />
+                <span className="text-xs">Floor Price</span>
+              </div>
+              <p className="text-xl font-bold">{formatUSD(PRE_LP_STATE.price)}</p>
             </div>
-            <p className="text-2xl font-bold">{formatUSD(metrics.lpUsdcBalance)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <Wallet className="h-4 w-4 text-green-500" />
-              <span className="text-sm">Est. Price</span>
+            <div className="p-3 bg-background rounded-lg">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <Flame className="h-4 w-4 text-orange-500" />
+                <span className="text-xs">User Mints</span>
+              </div>
+              <p className="text-xl font-bold">{formatTokenAmount(PRE_LP_STATE.totalMinted)}</p>
             </div>
-            <p className="text-2xl font-bold">{formatUSD(metrics.estimatedPrice)}</p>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="guide" className="space-y-6">
         <TabsList>
@@ -455,9 +468,11 @@ export default function AdminBetaDeployment() {
                 <li>Go to the pool address and verify reserves in <strong>Read Contract</strong> → <code className="bg-muted px-1 rounded">slot0</code></li>
                 <li>Enable Live Beta mode in ZenSolar admin panel</li>
               </ol>
-              <Button onClick={refresh} className="mt-4">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh On-Chain Metrics
+              <Button asChild className="mt-4">
+                <a href="/admin/live-beta-economics" className="inline-flex items-center">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  View Live Metrics
+                </a>
               </Button>
             </CardContent>
           </Card>
