@@ -199,10 +199,33 @@ export default function Landing() {
               </span>
             </h1>
             
-            <p className="text-[clamp(1rem,3.2vw,1.25rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              ZenSolar rewards households and EV drivers with $ZSOLAR tokens for every solar kWh produced, 
-              battery kWh discharged, EV mile driven, and kWh used to charge your EV.
+            <p className="text-[clamp(1.05rem,3.4vw,1.35rem)] text-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+              Earn <span className="text-primary font-semibold">$ZSOLAR</span> tokens for your clean energy lifestyle
             </p>
+            
+            <p className="text-[clamp(0.9rem,2.8vw,1.1rem)] text-muted-foreground max-w-xl mx-auto">
+              Whether you have solar, an EV, or both—every kWh counts.
+            </p>
+
+            {/* Reward Category Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-medium text-sm">
+                <Sun className="h-4 w-4" />
+                <span>Solar kWh</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/15 to-green-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-medium text-sm">
+                <Battery className="h-4 w-4" />
+                <span>Battery kWh</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/15 to-cyan-500/15 border border-blue-500/30 text-blue-600 dark:text-blue-400 font-medium text-sm">
+                <Car className="h-4 w-4" />
+                <span>EV Miles</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/15 to-pink-500/15 border border-purple-500/30 text-purple-600 dark:text-purple-400 font-medium text-sm">
+                <Zap className="h-4 w-4" />
+                <span>Charging kWh</span>
+              </div>
+            </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 w-full">
               <Link to="/demo">
