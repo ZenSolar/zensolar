@@ -456,7 +456,7 @@ export default function Technology() {
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
           Connect your devices and start earning $ZSOLAR rewards in under a minute. 
-          No hardware, no hassle—just clean energy → digital wealth.
+          No hardware, no hassle—just clean energy → digital income.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 shadow-lg">
