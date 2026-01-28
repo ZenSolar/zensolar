@@ -222,9 +222,20 @@ export default function Landing() {
                   <span>Every kWh used to charge your EV</span>
                 </li>
               </ul>
-              <p className="mt-4 text-lg italic text-primary/90 dark:text-primary drop-shadow-sm tracking-wide">
-                Start monetizing your sustainable lifestyle →
+              {/* Option 1: Editorial Uppercase */}
+              <p className="mt-4 text-sm uppercase tracking-[0.25em] font-light text-muted-foreground">
+                Start monetizing your sustainable lifestyle
               </p>
+              
+              {/* Option 2: Warm Glow Effect */}
+              <p className="mt-3 text-lg italic text-amber-500 dark:text-amber-400" style={{ textShadow: '0 0 20px rgba(251, 191, 36, 0.5), 0 0 40px rgba(251, 191, 36, 0.3)' }}>
+                Start monetizing your sustainable lifestyle
+              </p>
+              
+              {/* Option 3: Badge/Pill Style */}
+              <div className="mt-3 inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-r from-primary/15 to-amber-500/15 border border-primary/40 shadow-sm">
+                <span className="text-sm font-medium text-foreground">Start monetizing your sustainable lifestyle →</span>
+              </div>
             </div>
 
             {/* CTA Buttons */}
