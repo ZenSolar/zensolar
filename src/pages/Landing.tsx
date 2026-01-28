@@ -222,10 +222,13 @@ export default function Landing() {
                   <span>Every kWh used to charge your EV</span>
                 </li>
               </ul>
+              <p className="mt-5 text-lg font-semibold text-foreground">
+                Monetize Your Sustainable Lifestyle
+              </p>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-5 w-full">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3 w-full">
               <Link to="/demo">
                 <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-base bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-all shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02]">
                   <Hexagon className="mr-2 h-5 w-5" />
