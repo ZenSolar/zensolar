@@ -11,10 +11,57 @@ Step-by-step guide to create and seed a ZSOLAR/USDC liquidity pool on Base Sepol
 | Contract | Address |
 |----------|---------|
 | **ZSOLAR Token** | `0xAb13cc345C8a3e88B876512A3fdD93cE334B20FE` |
+| **ZenSolar Controller** | `0x54542Ad80FACbedA774465fE9724c281FBaf7437` |
 | **Test USDC** | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
 | **Uniswap V3 Factory** | `0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24` |
 | **NonfungiblePositionManager** | `0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2` |
 | **Minter Wallet** | `0x79ded21cF400F3ce354914D91fb209737d76b16D` |
+
+---
+
+## Step 0: Mint Initial ZSOLAR Supply
+
+Before creating the LP, you need ZSOLAR tokens in your minter wallet.
+
+### Option A: Via ZenSolar Controller (if owner)
+
+1. Go to **ZenSolar Controller** on BaseScan:
+   ```
+   https://sepolia.basescan.org/address/0x54542Ad80FACbedA774465fE9724c281FBaf7437#writeContract
+   ```
+
+2. Click **"Connect to Web3"** with the contract owner wallet
+
+3. Find **`mintRewards`** (or similar admin mint function) and enter:
+   | Parameter | Value |
+   |-----------|-------|
+   | to | `0x79ded21cF400F3ce354914D91fb209737d76b16D` |
+   | tokenAmount | `10000000000000000000000` (10,000 × 10^18) |
+   | nftIds | `[]` (empty array) |
+
+4. Click **"Write"** → Confirm in MetaMask
+
+### Option B: Via ZSOLAR Token Direct (if minter role assigned)
+
+1. Go to **ZSOLAR Token** on BaseScan:
+   ```
+   https://sepolia.basescan.org/address/0xAb13cc345C8a3e88B876512A3fdD93cE334B20FE#writeContract
+   ```
+
+2. Find **`mint`** function and enter:
+   | Parameter | Value |
+   |-----------|-------|
+   | to | `0x79ded21cF400F3ce354914D91fb209737d76b16D` |
+   | amount | `10000000000000000000000` (10,000 × 10^18) |
+
+3. Click **"Write"** → Confirm in MetaMask
+
+### Verify Balance
+
+After minting, check your balance:
+1. Go to ZSOLAR Token → **Read Contract** → `balanceOf`
+2. Enter: `0x79ded21cF400F3ce354914D91fb209737d76b16D`
+3. Should show: `10000000000000000000000` (10,000 tokens)
 
 ---
 
