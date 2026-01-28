@@ -199,39 +199,12 @@ export default function Landing() {
               </span>
             </h1>
             
-            <p className="text-[clamp(1.05rem,3.4vw,1.35rem)] text-foreground font-medium max-w-2xl mx-auto leading-relaxed">
-              Earn <span className="text-primary font-semibold">$ZSOLAR</span> tokens and <span className="text-primary font-semibold">NFTs</span> for your clean energy lifestyle
-            </p>
-            
-            <p className="text-[clamp(0.9rem,2.8vw,1.1rem)] text-muted-foreground max-w-xl mx-auto">
-              Whether you have solar, an EV, or both—every kWh counts.
+            {/* Single clear value proposition */}
+            <p className="text-[clamp(1rem,3vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed">
+              Earn <span className="text-primary font-semibold">$ZSOLAR</span> tokens and <span className="text-primary font-semibold">NFTs</span> for every kWh you produce, store, drive, or charge.
             </p>
 
-            {/* Reward Category Pills */}
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-sm text-muted-foreground font-medium">
-                1 <span className="text-primary font-semibold">$ZSOLAR</span> =
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-medium text-sm">
-                  <Sun className="h-4 w-4" />
-                  <span>Solar kWh</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/15 to-green-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-medium text-sm">
-                  <Battery className="h-4 w-4" />
-                  <span>Battery kWh</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/15 to-cyan-500/15 border border-blue-500/30 text-blue-600 dark:text-blue-400 font-medium text-sm">
-                  <Car className="h-4 w-4" />
-                  <span>EV Mile</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/15 to-pink-500/15 border border-purple-500/30 text-purple-600 dark:text-purple-400 font-medium text-sm">
-                  <Zap className="h-4 w-4" />
-                  <span>EV Charging kWh</span>
-                </div>
-              </div>
-            </div>
-
+            {/* CTA Buttons - Primary focus */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 w-full">
               <Link to="/demo">
                 <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-all shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02]">
@@ -248,8 +221,36 @@ export default function Landing() {
               </Link>
             </div>
 
+            {/* Reward categories - Supporting info below CTAs */}
+            <div className="flex flex-col items-center gap-2 pt-4">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+                Earn for
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5 text-amber-500">
+                  <Sun className="h-3.5 w-3.5" />
+                  Solar
+                </span>
+                <span className="text-border">•</span>
+                <span className="flex items-center gap-1.5 text-emerald-500">
+                  <Battery className="h-3.5 w-3.5" />
+                  Battery
+                </span>
+                <span className="text-border">•</span>
+                <span className="flex items-center gap-1.5 text-blue-500">
+                  <Car className="h-3.5 w-3.5" />
+                  EV Miles
+                </span>
+                <span className="text-border">•</span>
+                <span className="flex items-center gap-1.5 text-purple-500">
+                  <Zap className="h-3.5 w-3.5" />
+                  Charging
+                </span>
+              </div>
+            </div>
+
             {/* Trust indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <Shield className="h-4 w-4 text-primary" />
                 <span>Patent Pending</span>
