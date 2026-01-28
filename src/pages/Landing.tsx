@@ -199,37 +199,29 @@ export default function Landing() {
               </span>
             </h1>
             
-            {/* Single clear value proposition */}
-            <p className="text-[clamp(1.05rem,3vw,1.3rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              ZenSolar rewards you with <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for your clean energy lifestyle.
-            </p>
-
-            {/* Reward categories - Clean inline display */}
-            <div className="flex flex-col items-center gap-3 pt-3">
-              <p className="text-xs text-muted-foreground/80 uppercase tracking-widest font-medium">
-                EARN FROM YOUR:
+            {/* Core value proposition with clean bullet list */}
+            <div className="text-[clamp(1.05rem,3vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed text-center">
+              <p className="mb-4">
+                ZenSolar rewards you with <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium">
-                <span className="flex items-center gap-1.5 text-amber-500">
-                  <Sun className="h-4 w-4" />
-                  Solar kWh
-                </span>
-                <span className="text-border/60">•</span>
-                <span className="flex items-center gap-1.5 text-emerald-500">
-                  <Battery className="h-4 w-4" />
-                  Battery kWh
-                </span>
-                <span className="text-border/60">•</span>
-                <span className="flex items-center gap-1.5 text-blue-500">
-                  <Car className="h-4 w-4" />
-                  EV Miles
-                </span>
-                <span className="text-border/60">•</span>
-                <span className="flex items-center gap-1.5 text-purple-500">
-                  <Zap className="h-4 w-4" />
-                  EV Charging kWh
-                </span>
-              </div>
+              <ul className="space-y-2.5 text-left inline-block">
+                <li className="flex items-center gap-3">
+                  <Sun className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                  <span>Every solar kWh produced</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Battery className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                  <span>Battery storage kWh discharged</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Car className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <span>EV mile driven</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Zap className="h-5 w-5 text-purple-500 flex-shrink-0" />
+                  <span>EV charging kWh</span>
+                </li>
+              </ul>
             </div>
 
             {/* CTA Buttons */}
