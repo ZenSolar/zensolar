@@ -174,6 +174,7 @@ export type Database = {
           created_at: string
           gas_used: string | null
           id: string
+          is_beta_mint: boolean
           nft_names: string[] | null
           nfts_minted: number[] | null
           status: string
@@ -188,6 +189,7 @@ export type Database = {
           created_at?: string
           gas_used?: string | null
           id?: string
+          is_beta_mint?: boolean
           nft_names?: string[] | null
           nfts_minted?: number[] | null
           status?: string
@@ -202,6 +204,7 @@ export type Database = {
           created_at?: string
           gas_used?: string | null
           id?: string
+          is_beta_mint?: boolean
           nft_names?: string[] | null
           nfts_minted?: number[] | null
           status?: string

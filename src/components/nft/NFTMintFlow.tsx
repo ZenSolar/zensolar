@@ -20,6 +20,7 @@ import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
 import { getNftArtwork } from '@/lib/nftArtwork';
+import { getLiveBetaMode } from '@/lib/tokenomics';
 import type { NFTMilestone } from '@/lib/nftMilestones';
 
 // NFT Contract address on Base Sepolia
@@ -161,7 +162,8 @@ export function NFTMintFlow({
         const { data, error: fnError } = await supabase.functions.invoke('mint-onchain', {
           body: {
             action: 'register',
-            walletAddress
+            walletAddress,
+            isBetaMint: getLiveBetaMode()
           }
         });
 
@@ -185,7 +187,8 @@ export function NFTMintFlow({
             action: 'mint-combos',
             walletAddress,
             tokenIds: [tokenId],
-            comboTypes: [comboTypeMap[tokenId] || "combo"]
+            comboTypes: [comboTypeMap[tokenId] || "combo"],
+            isBetaMint: getLiveBetaMode()
           }
         });
 
@@ -197,7 +200,8 @@ export function NFTMintFlow({
           body: {
             action: 'claim-milestone-nfts',
             walletAddress,
-            specificTokenId: tokenId
+            specificTokenId: tokenId,
+            isBetaMint: getLiveBetaMode()
           }
         });
 
