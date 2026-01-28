@@ -26,7 +26,8 @@ import {
   ChevronDown,
   ChevronRight,
   FileCode,
-  Briefcase
+  Briefcase,
+  Rocket
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -96,6 +97,7 @@ const adminMenuGroups = {
     { title: "Growth Projections", url: "/admin/growth-projections", icon: TrendingUp },
   ],
   technical: [
+    { title: "Beta Deployment", url: "/admin/beta-deployment", icon: Rocket, highlight: true },
     { title: "Security Architecture", url: "/admin/security", icon: Shield },
     { title: "Smart Contracts", url: "/admin/contracts", icon: FileCode },
     { title: "EV API Reference", url: "/admin/ev-api-reference", icon: Car },
@@ -334,7 +336,7 @@ export function AppSidebar() {
                 </Collapsible>
 
                 {/* Technical Submenu */}
-                <Collapsible defaultOpen={location.pathname.includes('security') || location.pathname.includes('contracts') || location.pathname.includes('ev-api') || location.pathname.includes('patent') || location.pathname.includes('ai-feedback') || location.pathname.includes('glossary')}>
+                <Collapsible defaultOpen={location.pathname.includes('security') || location.pathname.includes('contracts') || location.pathname.includes('ev-api') || location.pathname.includes('patent') || location.pathname.includes('ai-feedback') || location.pathname.includes('glossary') || location.pathname.includes('beta-deployment')}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
                       <FileCode className="h-4 w-4" />
@@ -352,10 +354,10 @@ export function AppSidebar() {
                             className={({ isActive }) => 
                               isActive 
                                 ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : "hover:bg-sidebar-accent/50"
+                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
                             }
                           >
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
