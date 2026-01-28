@@ -11,7 +11,7 @@ const BASE_URL = 'https://zensolar.lovable.app';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 
 export function SEO({
-  title = 'ZenSolar - Earn $ZSOLAR For Clean Energy',
+  title = 'ZenSolar - Earn $ZSOLAR For Your Clean Energy',
   description = 'Earn $ZSOLAR tokens and NFTs for sustainable energy actions. Track solar, EV, and battery metrics.',
   image = DEFAULT_IMAGE,
   url = BASE_URL,
