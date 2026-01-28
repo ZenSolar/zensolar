@@ -207,7 +207,7 @@ export default function Landing() {
             {/* Reward categories - Clean inline display */}
             <div className="flex flex-col items-center gap-3 pt-3">
               <p className="text-xs text-muted-foreground/80 uppercase tracking-widest font-medium">
-                Earn for
+                Earn for:
               </p>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium">
                 <span className="flex items-center gap-1.5 text-amber-500">
