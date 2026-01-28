@@ -189,81 +189,86 @@ export default function Landing() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="h-[clamp(3rem,7vw,4.75rem)] w-auto mx-auto dark:animate-logo-glow"
+              className="h-[clamp(3.5rem,8vw,5.5rem)] w-auto mx-auto dark:animate-logo-glow drop-shadow-lg"
             />
             
-            <h1 className="text-[clamp(2.6rem,8.5vw,5rem)] font-bold tracking-tight leading-[1.06]">
+            <h1 className="text-[clamp(2.4rem,8vw,4.5rem)] font-bold tracking-tight leading-[1.1]">
               Turn Clean Energy Into{' '}
-              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">
                 Digital Income
               </span>
             </h1>
             
             {/* Single clear value proposition */}
-            <p className="text-[clamp(1rem,3vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              Earn <span className="text-primary font-semibold">$ZSOLAR</span> tokens and <span className="text-primary font-semibold">NFTs</span> for every kWh you produce, store, drive, or charge.
+            <p className="text-[clamp(1.05rem,3vw,1.3rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for every kWh you produce, store, drive, or charge.
             </p>
 
-            {/* Reward categories - Supporting info */}
-            <div className="flex flex-col items-center gap-2 pt-2">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+            {/* Reward categories - Clean inline display */}
+            <div className="flex flex-col items-center gap-3 pt-3">
+              <p className="text-xs text-muted-foreground/80 uppercase tracking-widest font-medium">
                 Earn for
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium">
                 <span className="flex items-center gap-1.5 text-amber-500">
-                  <Sun className="h-3.5 w-3.5" />
+                  <Sun className="h-4 w-4" />
                   Solar
                 </span>
-                <span className="text-border">•</span>
+                <span className="text-border/60">•</span>
                 <span className="flex items-center gap-1.5 text-emerald-500">
-                  <Battery className="h-3.5 w-3.5" />
+                  <Battery className="h-4 w-4" />
                   Battery
                 </span>
-                <span className="text-border">•</span>
+                <span className="text-border/60">•</span>
                 <span className="flex items-center gap-1.5 text-blue-500">
-                  <Car className="h-3.5 w-3.5" />
+                  <Car className="h-4 w-4" />
                   EV Miles
                 </span>
-                <span className="text-border">•</span>
+                <span className="text-border/60">•</span>
                 <span className="flex items-center gap-1.5 text-purple-500">
-                  <Zap className="h-3.5 w-3.5" />
+                  <Zap className="h-4 w-4" />
                   EV Charging
                 </span>
               </div>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 w-full">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-5 w-full">
               <Link to="/demo">
-                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-all shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02]">
+                <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-base bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:opacity-90 transition-all shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02]">
                   <Hexagon className="mr-2 h-5 w-5" />
                   Mint Tokens & NFTs Now
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button size="lg" className="w-full sm:w-auto px-8 bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:scale-[1.02]">
+                <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-base bg-gradient-to-r from-primary to-emerald-600 hover:opacity-90 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/45 hover:scale-[1.02]">
                   Start Earning Today
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
 
-            {/* Trust indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
+            {/* Trust indicators - More pronounced */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-6"
+            >
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-emerald-500/10 border border-primary/30 shadow-sm hover:shadow-md hover:border-primary/50 transition-all cursor-default">
                 <Shield className="h-4 w-4 text-primary" />
-                <span>Patent Pending</span>
+                <span className="text-sm font-medium text-foreground">Patent Pending</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
-                <Globe className="h-4 w-4 text-primary" />
-                <span>Built on Base L2</span>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 shadow-sm hover:shadow-md hover:border-blue-500/50 transition-all cursor-default">
+                <Globe className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-foreground">Built on Base L2</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 shadow-sm hover:shadow-md hover:border-amber-500/50 transition-all cursor-default">
                 <Hexagon className="h-4 w-4 text-amber-500" />
-                <span>In-App Minting</span>
+                <span className="text-sm font-medium text-foreground">In-App Minting</span>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
