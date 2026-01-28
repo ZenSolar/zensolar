@@ -222,9 +222,6 @@ export default function Landing() {
                   <span>Every kWh from charging your EV</span>
                 </li>
               </ul>
-              <p className="mt-5 text-base italic text-foreground/80">
-                Your clean energy lifestyle is already generating value—now capture it.
-              </p>
             </div>
 
             {/* CTA Buttons */}
