@@ -266,11 +266,7 @@ export default function Landing() {
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 shadow-sm hover:shadow-md hover:border-amber-500/50 transition-all cursor-default">
                 <Hexagon className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-medium text-foreground">Tokens & NFTs Minted In-App</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 shadow-sm hover:shadow-md hover:border-purple-500/50 transition-all cursor-default">
-                <Zap className="h-4 w-4 text-purple-500" />
-                <span className="text-sm font-medium text-foreground">One-Tap Minting</span>
+                <span className="text-sm font-medium text-foreground">In-App Minting</span>
               </div>
             </motion.div>
           </motion.div>
