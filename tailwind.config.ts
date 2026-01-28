@@ -156,12 +156,12 @@ export default {
         },
         "breathing-glow": {
           "0%, 100%": { 
-            boxShadow: "0 4px 20px -6px hsl(var(--primary) / 0.25), 0 0 24px hsl(var(--primary) / 0.15)",
+            boxShadow: "0 4px 24px -4px hsl(var(--primary) / 0.4), 0 0 32px hsl(var(--primary) / 0.25)",
             transform: "scale(1)"
           },
           "50%": { 
-            boxShadow: "0 8px 32px -4px hsl(var(--primary) / 0.4), 0 0 48px hsl(var(--primary) / 0.25)",
-            transform: "scale(1.02)"
+            boxShadow: "0 8px 48px -2px hsl(var(--primary) / 0.6), 0 0 64px hsl(var(--primary) / 0.4)",
+            transform: "scale(1.03)"
           },
         },
       },
