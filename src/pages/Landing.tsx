@@ -222,8 +222,8 @@ export default function Landing() {
                   <span>Every kWh used to charge your EV</span>
                 </li>
               </ul>
-              <p className="mt-4 text-lg italic bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Monetize Your Sustainable Lifestyle
+              <p className="mt-4 text-lg italic text-primary/90 dark:text-primary drop-shadow-sm tracking-wide">
+                Start monetizing your sustainable lifestyle →
               </p>
             </div>
 
