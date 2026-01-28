@@ -201,7 +201,7 @@ export default function Landing() {
             
             {/* Single clear value proposition */}
             <p className="text-[clamp(1.05rem,3vw,1.3rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for every kWh you produce, store, drive, or charge.
+              Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for every solar kWh produced, battery kWh discharged, EV mile driven, and kWh used to charge your EV.
             </p>
 
             {/* Reward categories - Clean inline display */}
