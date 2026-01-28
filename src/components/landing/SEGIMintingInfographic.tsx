@@ -153,7 +153,7 @@ export function SEGIMintingInfographic({ showCTA = true, compact = false }: SEGI
               </div>
             </div>
             <div>
-              <p className="font-semibold text-foreground">Tokens + NFTs = Digital Wealth</p>
+              <p className="font-semibold text-foreground">Tokens + NFTs = Digital Income</p>
               <p className="text-sm text-muted-foreground">Minted directly to your wallet, forever yours</p>
             </div>
           </div>

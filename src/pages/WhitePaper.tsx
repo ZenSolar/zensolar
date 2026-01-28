@@ -51,7 +51,7 @@ const userBenefits = [
   {
     icon: TrendingUp,
     title: "Appreciating Utility Token",
-    description: "As $ZSOLAR grows from $0.10 to $1.00+, early adopters multiply their rewards 10x—creating generational wealth from sustainability.",
+    description: "As $ZSOLAR grows from $0.10 to $1.00+, early adopters multiply their rewards 10x—creating lasting income from sustainability.",
   },
 ];
 
@@ -119,7 +119,7 @@ export default function WhitePaper() {
   const handleShare = async () => {
     const shareData = {
       title: "ZenSolar White Paper",
-      text: "Turning Clean Energy Into Digital Wealth - Learn how $ZSOLAR rewards households for sustainable living.",
+      text: "Turning Clean Energy Into Digital Income - Learn how $ZSOLAR rewards households for sustainable living.",
       url: window.location.href,
     };
 
@@ -315,7 +315,7 @@ export default function WhitePaper() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
             Turning Clean Energy Into{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Digital Wealth
+              Digital Income
             </span>
           </h1>
           
@@ -416,7 +416,7 @@ export default function WhitePaper() {
               
               <blockquote className="text-2xl md:text-3xl font-medium text-foreground leading-relaxed max-w-2xl mx-auto">
                 "To recognize and reward everyday climate heroes by converting their sustainable actions into 
-                verifiable, on-chain wealth."
+                verifiable, on-chain income."
               </blockquote>
               
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
