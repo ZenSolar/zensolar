@@ -350,12 +350,12 @@ export default function Auth() {
               />
             </div>
             
-            {/* Mobile tagline - 3 lines with bright glow */}
+            {/* Mobile tagline - 3 lines with bright white glow */}
             <div className="mt-6 mb-5 lg:hidden">
               <p 
                 className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed"
                 style={{ 
-                  textShadow: '0 0 10px rgba(16, 185, 129, 0.9), 0 0 20px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4)' 
+                  textShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.7), 0 0 24px rgba(255, 255, 255, 0.5), 0 0 32px rgba(16, 185, 129, 0.4)' 
                 }}
               >
                 <span className="block">The World's First</span>
