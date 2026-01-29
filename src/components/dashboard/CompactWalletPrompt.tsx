@@ -62,10 +62,12 @@ export function CompactWalletPrompt() {
             onClick={handleConnect}
           >
             <svg className="h-4 w-4" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#0052FF"/>
-              <path d="M16 6C10.477 6 6 10.477 6 16C6 21.523 10.477 26 16 26C21.523 26 26 21.523 26 16C26 10.477 21.523 6 16 6ZM12.5 19.5C12.5 20.052 12.052 20.5 11.5 20.5C10.948 20.5 10.5 20.052 10.5 19.5V12.5C10.5 11.948 10.948 11.5 11.5 11.5C12.052 11.5 12.5 11.948 12.5 12.5V19.5ZM21.5 19.5C21.5 20.052 21.052 20.5 20.5 20.5C19.948 20.5 19.5 20.052 19.5 19.5V12.5C19.5 11.948 19.948 11.5 20.5 11.5C21.052 11.5 21.5 11.948 21.5 12.5V19.5Z" fill="white"/>
+              <circle cx="16" cy="16" r="16" fill="#0500FF"/>
+              <path d="M23.4 10.4L16 4L8.6 10.4L16 12.8L23.4 10.4Z" fill="white"/>
+              <path d="M8.6 10.4V17.6L16 24V16.8L8.6 10.4Z" fill="white" fillOpacity="0.7"/>
+              <path d="M23.4 10.4V17.6L16 24V16.8L23.4 10.4Z" fill="white"/>
             </svg>
-            Coinbase
+            Trust Wallet
           </Button>
           <Button
             variant="outline"
