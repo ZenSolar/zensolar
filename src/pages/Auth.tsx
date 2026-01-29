@@ -350,7 +350,7 @@ export default function Auth() {
               />
             </div>
             
-            {/* Mobile tagline - 2 lines with bright glow */}
+            {/* Mobile tagline - 3 lines with bright glow */}
             <div className="mt-6 mb-5 lg:hidden">
               <p 
                 className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed"
@@ -359,7 +359,8 @@ export default function Auth() {
                 }}
               >
                 <span className="block">The World's First</span>
-                <span className="block mt-1">One-Tap, Mint-on-Proof Clean Energy Platform</span>
+                <span className="block mt-1">One-Tap, Mint-on-Proof</span>
+                <span className="block mt-1">Clean Energy Platform</span>
               </p>
             </div>
             
