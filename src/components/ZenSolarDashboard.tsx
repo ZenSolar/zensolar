@@ -10,6 +10,7 @@ import { ActivityMetrics, MintCategory } from './dashboard/ActivityMetrics';
 import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory } from './dashboard/RewardActions';
 import { RewardProgress } from './dashboard/RewardProgress';
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
+import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
@@ -73,6 +74,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   // Use connectedAccounts from useDashboardData which syncs with profile
   const energyAccounts = connectedAccounts;
   const hasEnergyConnected = energyAccounts.some(acc => acc.connected);
+  const hasWalletConnected = !!profile?.wallet_address;
   
   // Get connected provider names for display
   const connectedProviders = energyAccounts
@@ -156,7 +158,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        {/* Compact Setup Prompt for new users without energy accounts */}
+        {/* Onboarding Cards - Show until both wallet AND energy are connected */}
+        {!hasWalletConnected && (
+          <AnimatedItem>
+            <CompactWalletPrompt />
+          </AnimatedItem>
+        )}
+        
         {!hasEnergyConnected && (
           <AnimatedItem>
             <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
