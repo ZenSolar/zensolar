@@ -802,6 +802,22 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             Connect your wallet above to mint tokens
           </p>
         )}
+
+        {/* Refresh Dashboard Button - Below MINT $ZSOLAR TOKENS */}
+        <Button
+          onClick={onRefresh}
+          disabled={isLoading}
+          variant="outline"
+          className="w-full"
+          size="lg"
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="mr-2 h-4 w-4" />
+          )}
+          REFRESH DASHBOARD
+        </Button>
       </div>
 
       {/* Token Category Selection Dialog */}
