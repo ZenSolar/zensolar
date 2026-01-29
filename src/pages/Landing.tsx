@@ -620,7 +620,12 @@ export default function Landing() {
 
       {/* Footer - with safe area padding */}
       <footer className="py-8 border-t border-border/40 pb-[calc(2rem+env(safe-area-inset-bottom))]">
-        <div className="container max-w-6xl mx-auto px-4">
+        <div className="container max-w-6xl mx-auto px-4 space-y-4">
+          {/* Tagline */}
+          <p className="text-center text-sm text-muted-foreground tracking-wide">
+            The World's First One-Tap, Mint-on-Proof Web3 Clean Energy Platform
+          </p>
+          
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <img 
