@@ -360,7 +360,7 @@ export default function Auth() {
               >
                 <span className="block">The World's First</span>
                 <span className="block mt-1">One-Tap, Mint-on-Proof</span>
-                <span className="block mt-1">Clean Energy Platform</span>
+                <span className="block mt-1">Web3 Clean Energy Platform</span>
               </p>
             </div>
             
