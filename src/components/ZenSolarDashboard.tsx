@@ -5,6 +5,7 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { useConfetti } from '@/hooks/useConfetti';
 import { DashboardHeader } from './dashboard/DashboardHeader';
+import { DashboardFooter } from './dashboard/DashboardFooter';
 import { ActivityMetrics, MintCategory } from './dashboard/ActivityMetrics';
 import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory } from './dashboard/RewardActions';
 import { RewardProgress } from './dashboard/RewardProgress';
@@ -256,6 +257,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
       </AnimatedContainer>
+      
+      {/* Dashboard Footer */}
+      <DashboardFooter />
     </div>
   );
 }
