@@ -16,7 +16,7 @@ export function DashboardFooter() {
             className="h-8 w-auto object-contain mb-2 dark:animate-logo-glow" 
           />
           <p className="text-xs text-muted-foreground">
-            The world's first patent-pending energy-to-crypto gateway
+            The World's First One-Tap, Mint-on-Proof Clean Energy Platform
           </p>
         </div>
 
