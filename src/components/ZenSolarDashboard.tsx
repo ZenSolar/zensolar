@@ -139,7 +139,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               Mint $ZSOLAR tokens and NFTs directly to your wallet — powered by{' '}
               <Link 
                 to="/technology" 
-                className="text-primary hover:text-primary/80 font-medium underline underline-offset-2 transition-colors"
+                className="text-primary hover:text-primary/80 font-semibold underline underline-offset-2 transition-all duration-300 hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
               >
                 patent-pending SEGI technology
               </Link>.
