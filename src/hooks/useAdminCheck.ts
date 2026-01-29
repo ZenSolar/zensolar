@@ -1,11 +1,25 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { getUserViewMode } from '@/lib/userViewMode';
 
 export function useAdminCheck() {
   const { user, isLoading: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [userViewMode, setUserViewMode] = useState(getUserViewMode());
+
+  // Listen for user view mode changes
+  useEffect(() => {
+    const handleModeChange = (event: CustomEvent<boolean>) => {
+      setUserViewMode(event.detail);
+    };
+
+    window.addEventListener('userViewModeChange', handleModeChange as EventListener);
+    return () => {
+      window.removeEventListener('userViewModeChange', handleModeChange as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -48,7 +62,10 @@ export function useAdminCheck() {
   }, [user, authLoading]);
 
   return {
+    // isAdmin is the real admin status (for sidebar toggles visibility)
     isAdmin,
+    // isAdminView is false when user view mode is on (for content visibility)
+    isAdminView: userViewMode ? false : isAdmin,
     isChecking: authLoading || isChecking,
   };
 }

@@ -797,85 +797,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           )}
         </Button>
 
-        {/* NFT Collection Button - shows all eligible NFTs */}
-        <Button
-          onClick={() => navigate('/nft-collection')}
-          disabled={isLoading || isMinting}
-          className="w-full bg-primary hover:bg-primary/90"
-          size="lg"
-        >
-          <Images className="mr-2 h-4 w-4" />
-          MINT ZENSOLAR NFTS
-          {eligibility && eligibility.totalEligible > 0 && (
-            <Badge variant="secondary" className="ml-2 bg-white/20">
-              {eligibility.totalEligible} available
-            </Badge>
-          )}
-        </Button>
-
-        {/* Milestone NFTs Button - show if eligible */}
-        {eligibleMilestones > 0 && (
-          <Button
-            onClick={handleOpenMilestoneDialog}
-            disabled={isLoading || isMinting || !walletAddress}
-            className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
-            size="lg"
-          >
-            <Trophy className="mr-2 h-4 w-4" />
-            MINT MILESTONE NFTS
-            <Badge variant="secondary" className="ml-2 bg-white/20">
-              {eligibleMilestones}
-            </Badge>
-          </Button>
-        )}
-
-        {/* Combo NFTs Button - always show as the last CTA (disabled if none eligible) */}
-        {walletAddress && hasWelcomeNFT && (
-          <Button
-            onClick={handleOpenComboDialog}
-            disabled={isLoading || isMinting || eligibleCombos === 0}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-60"
-            size="lg"
-          >
-            <Sparkles className="mr-2 h-4 w-4" />
-            MINT COMBO NFTS
-            <Badge variant="secondary" className="ml-2 bg-white/20">
-              {eligibleCombos}
-            </Badge>
-          </Button>
-        )}
-
-        {/* Status message */}
-        {walletAddress && hasWelcomeNFT && eligibleMilestones === 0 && eligibleCombos === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-2">
-            ✅ All available NFTs claimed! Keep earning to unlock more milestones.
-          </p>
-        )}
-
         {!walletAddress && (
           <p className="text-xs text-muted-foreground text-center">
-            Connect your wallet above to mint tokens and NFTs
+            Connect your wallet above to mint tokens
           </p>
         )}
-
-
-        <Button
-          onClick={async () => {
-            await onRefresh();
-            await checkEligibility();
-          }}
-          disabled={isLoading || isMinting}
-          variant="outline"
-          className="w-full"
-          size="lg"
-        >
-          {isLoading || checkingEligibility ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="mr-2 h-4 w-4" />
-          )}
-          REFRESH DASHBOARD
-        </Button>
       </div>
 
       {/* Token Category Selection Dialog */}

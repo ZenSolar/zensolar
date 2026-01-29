@@ -38,6 +38,7 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LiveBetaIndicator } from "./LiveBetaIndicator";
 import { LiveBetaToggle } from "./LiveBetaToggle";
+import { UserViewToggle } from "./UserViewToggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import {
@@ -181,10 +182,11 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Live Beta Toggle - visible to admins only */}
+        {/* Live Beta Toggle + User View Toggle - visible to admins only */}
         {isAdmin && (
-          <div className="px-3 pb-2">
+          <div className="px-3 pb-2 space-y-2">
             <LiveBetaToggle collapsed={collapsed} />
+            <UserViewToggle collapsed={collapsed} />
           </div>
         )}
 
