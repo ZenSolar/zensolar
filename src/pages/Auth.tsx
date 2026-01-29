@@ -341,7 +341,7 @@ export default function Auth() {
         <Card className="w-full max-w-md bg-white/[0.03] backdrop-blur-xl border-white/10 shadow-2xl">
           <CardHeader className="text-center pb-6 pt-8">
             {/* Mobile logo */}
-            <div className="flex justify-center mb-5 lg:hidden">
+            <div className="flex justify-center lg:hidden">
               <img 
                 src={zenLogo} 
                 alt="ZenSolar" 
@@ -350,16 +350,20 @@ export default function Auth() {
               />
             </div>
             
-            {/* Mobile tagline - evenly spaced with bright glow */}
-            <p className="text-[10px] uppercase tracking-[0.18em] text-primary font-semibold mt-5 mb-4 lg:hidden drop-shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse">
-              The World's First One-Tap, Mint-on-Proof Clean Energy Platform
-            </p>
+            {/* Mobile tagline - structured line breaks for clean wrapping */}
+            <div className="mt-6 mb-5 lg:hidden">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed drop-shadow-[0_0_10px_rgba(16,185,129,0.7)]">
+                <span className="block">The World's First</span>
+                <span className="block mt-0.5">One-Tap, Mint-on-Proof</span>
+                <span className="block mt-0.5 text-slate-400">Clean Energy Platform</span>
+              </p>
+            </div>
             
             {/* Decorative divider */}
-            <div className="flex items-center justify-center gap-3 my-4 lg:hidden">
-              <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-              <div className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse" />
-              <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <div className="flex items-center justify-center gap-2 mb-5 lg:hidden">
+              <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary/40" />
+              <Zap className="h-3 w-3 text-primary/60" />
+              <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary/40" />
             </div>
             
             <CardTitle className="text-2xl font-bold text-white">
