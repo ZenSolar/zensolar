@@ -339,37 +339,26 @@ export default function Auth() {
       {/* Right side - Auth form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 relative z-10">
         <Card className="w-full max-w-md bg-white/[0.03] backdrop-blur-xl border-white/10 shadow-2xl">
-          <CardHeader className="text-center pb-4 pt-6 space-y-0">
-            {/* Mobile logo with glow */}
-            <div className="flex justify-center mb-5 lg:hidden">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/40 rounded-full blur-2xl scale-[2] animate-pulse" />
-                <img 
-                  src={zenLogo} 
-                  alt="ZenSolar" 
-                  fetchPriority="high" 
-                  className="h-9 w-auto object-contain relative z-10 animate-logo-glow" 
-                />
-              </div>
+          <CardHeader className="text-center pb-6 pt-8">
+            {/* Mobile logo */}
+            <div className="flex justify-center mb-8 lg:hidden">
+              <img 
+                src={zenLogo} 
+                alt="ZenSolar" 
+                fetchPriority="high" 
+                className="h-10 w-auto object-contain animate-logo-glow" 
+              />
             </div>
             
-            {/* Mobile tagline with glowing animation - perfectly centered */}
-            <div className="lg:hidden mb-5 flex flex-col items-center">
-              <p className="text-[10px] uppercase tracking-[0.25em] text-primary font-bold animate-text-glow">
-                The World's First
-              </p>
-              <p className="text-sm uppercase tracking-[0.12em] text-white font-bold mt-1.5 animate-text-glow" style={{ animationDelay: '0.3s' }}>
-                One-Tap, Mint-on-Proof
-              </p>
-              <p className="text-[11px] uppercase tracking-[0.1em] text-slate-300 font-semibold mt-1">
-                Clean Energy Platform
-              </p>
-            </div>
+            {/* Mobile tagline - clean single line with subtle glow */}
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary/90 font-medium mb-6 lg:hidden animate-text-glow">
+              The World's First One-Tap, Mint-on-Proof Clean Energy Platform
+            </p>
             
-            <CardTitle className="text-2xl font-bold text-white !mt-0">
+            <CardTitle className="text-2xl font-bold text-white">
               {mode === 'forgot' ? 'Reset Password' : mode === 'reset' ? 'New Password' : 'Welcome'}
             </CardTitle>
-            <CardDescription className="text-slate-400 !mt-2 text-sm">
+            <CardDescription className="text-slate-400 mt-2">
               {mode === 'forgot' 
                 ? "Enter your email to receive a reset link"
                 : mode === 'reset'
