@@ -73,8 +73,8 @@ const investorBenefits = [
   },
   {
     icon: Cpu,
-    title: "Patent-Pending Technology",
-    description: "First-mover advantage with patent-pending 'energy-to-blockchain' verification system. Hardware-neutral approach creates defensible moat.",
+    title: "Patent-Pending Mint-on-Proof",
+    description: "First-mover advantage with patent-pending 'Mint-on-Proof' verification system. Hardware-neutral approach creates defensible moat.",
   },
 ];
 
@@ -341,10 +341,10 @@ export default function WhitePaper() {
           <CardContent className="prose prose-lg dark:prose-invert max-w-none relative z-10 space-y-4">
             <p className="text-muted-foreground text-lg leading-relaxed">
               <strong className="text-foreground">ZenSolar</strong> is a blockchain-powered rewards platform that 
-              transforms clean energy production into verifiable digital assets. By connecting solar systems, 
-              electric vehicles, and battery storage to our patent-pending Software-Enabled Gateway Interface (SEGI), 
+              transforms clean energy production into verifiable digital assets. Using our patent-pending 
+              <strong className="text-primary"> Mint-on-Proof</strong> architecture powered by SEGI (Software-Enabled Gateway Interface), 
               users earn <strong className="text-foreground">$ZSOLAR tokens</strong> and collectible NFTs proportional 
-              to their environmental impact.
+              to their verified environmental impact—with just one tap.
             </p>
             <p className="text-muted-foreground text-lg leading-relaxed">
               We're not asking anyone to change their behavior—we're <em>rewarding</em> the millions of homeowners 
@@ -382,12 +382,12 @@ export default function WhitePaper() {
                   <Cpu className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Patent-Pending Technology</h3>
+                  <h3 className="font-semibold text-lg mb-2">Patent-Pending Mint-on-Proof Technology</h3>
                   <p className="text-muted-foreground">
-                    Our <strong className="text-foreground">Software-Enabled Gateway Interface (SEGI)</strong> is a 
-                    proprietary system for tokenizing sustainable behaviors using blockchain. Unlike hardware-dependent 
-                    solutions, SEGI works entirely through secure API connections—making onboarding instant and 
-                    maintenance-free.
+                    Our <strong className="text-foreground">Software-Enabled Gateway Interface (SEGI)</strong> powers the world's first 
+                    <strong className="text-primary"> Mint-on-Proof</strong> architecture—a proprietary system for tokenizing sustainable 
+                    behaviors using blockchain. Unlike hardware-dependent solutions, SEGI works entirely through secure API 
+                    connections—making onboarding instant and one-tap minting possible.
                   </p>
                 </div>
               </div>

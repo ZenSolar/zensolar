@@ -34,7 +34,7 @@ export default function HowItWorks() {
         </Badge>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground">How ZenSolar Works</h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          Turn your clean energy production into blockchain rewards
+          Turn your clean energy production into blockchain rewards with our <strong className="text-primary">Mint-on-Proof</strong> technology
         </p>
         <Link 
           to="/technology" 
@@ -92,7 +92,7 @@ export default function HowItWorks() {
           </CardHeader>
           <CardContent className="space-y-5 relative z-10">
             <p className="text-muted-foreground">
-              <strong className="text-foreground">$ZSOLAR tokens</strong> are ERC-20 digital currency you earn by generating clean solar energy and charging your EV. Built on Base L2 for fast, low-cost transactions—and we cover all gas fees so minting is free for you.
+              <strong className="text-foreground">$ZSOLAR tokens</strong> are ERC-20 digital currency you earn through our <strong className="text-primary">Mint-on-Proof</strong> system—generating clean solar energy and charging your EV. Built on Base L2 for fast, low-cost transactions—and we cover all gas fees so minting is free for you.
             </p>
             <div className="grid gap-4">
               {[

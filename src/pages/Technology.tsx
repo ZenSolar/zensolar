@@ -55,10 +55,10 @@ const segiLayers = [
   {
     icon: Binary,
     title: 'Layer 4: Smart Contract Bridge',
-    tagline: 'On-Chain Rewards',
-    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. With one tap in the app, you mint $ZSOLAR tokens AND collectible milestone NFTs directly to your wallet.',
+    tagline: 'Mint-on-Proof',
+    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. With one tap in the app, you mint $ZSOLAR tokens AND collectible milestone NFTs directly to your wallet—our signature Mint-on-Proof architecture.',
     gradient: 'from-amber-500 to-orange-500',
-    highlight: 'In-app minting to your wallet',
+    highlight: 'One-tap minting to your wallet',
   },
 ];
 
@@ -157,7 +157,7 @@ export default function Technology() {
           Meet <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">SEGI</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          <strong>Software-Enabled Gateway Interface</strong>—the patent-pending tech that turns your clean energy into blockchain rewards, no hardware required.
+          <strong>Software-Enabled Gateway Interface</strong>—the patent-pending <strong className="text-primary">Mint-on-Proof</strong> tech that turns your clean energy into blockchain rewards, no hardware required.
         </p>
       </motion.div>
 
