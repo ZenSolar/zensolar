@@ -1,290 +1,193 @@
 
 
-# Energy Command Center - Clean Single-Column Redesign
+# Energy Command Center Fixes + NFT Milestone Card Reimagining
 
-## The Goal
+## Overview
 
-Transform the current 2-column grid layout into the cleaner full-width single-column design shown in your screenshot, while keeping all the merged functionality (tap-to-mint, Total Available Tokens, etc.).
-
----
-
-## Key Design Changes
-
-### Current Layout (2-column grid)
-```
-+------------------------------------------+
-| ⚡ Energy Command Center    [Tesla] MINT |
-+------------------------------------------+
-| [Solar]      [EV Miles]                  |
-| 1,234 kWh    567 mi                      |
-+------------------------------------------+
-| [Battery]    [Charging]                  |
-| 89 kWh       234 kWh                     |
-+------------------------------------------+
-```
-
-### Target Layout (Single-column, screenshot style)
-```
-+------------------------------------------+
-| ⚡ Energy Command Center    [Tesla] MINT |
-| Last updated 2:45 PM                     |
-+------------------------------------------+
-| [☀️]  Tesla Solar Roof Energy Produced   |
-|       3,854 kWh                      [→] |
-+------------------------------------------+
-| [🚗]  Model Y Long Range Miles Driven    |
-|       7,360 mi                       [→] |
-+------------------------------------------+
-| [🔋]  Powerwall 2 Energy Discharged      |
-|       965 kWh                        [→] |
-+------------------------------------------+
-| [⚡]  Tesla Supercharger                  |
-|       268 kWh                        [→] |
-+------------------------------------------+
-| [⚡]  Wall Connector Home Charging        |
-|       1,238 kWh                      [→] |
-+------------------------------------------+
-| [💰]  Total Available Tokens             |
-|       2,124 $ZSOLAR · ≈$212.40       [→] |
-+------------------------------------------+
-| NFTs: 12/42  |  Lifetime: 15,234 tokens  |
-+------------------------------------------+
-```
+This plan addresses two key areas:
+1. **Fix unit text colors** in Activity Fields (keep kWh/mi white instead of colored)
+2. **Completely redesign the NFT Milestone Card** with an ultra-minimal, image-focused approach
 
 ---
 
-## Technical Changes
+## Part 1: Fix Activity Field Unit Colors
 
-### 1. Card Layout - Full Width Single Column
+### Current Issue
+In `src/components/dashboard/ActivityMetrics.tsx`, the unit text (kWh, mi) uses `styles.text` which applies category colors (amber, blue, emerald, purple).
 
-**Before:**
+### Solution
+Change the unit span to use `text-muted-foreground` for inactive and `text-foreground/70` for active states, maintaining white/neutral text.
+
+**File:** `src/components/dashboard/ActivityMetrics.tsx`
+
+**Current Code (Lines 398-402):**
 ```tsx
-<div className="grid grid-cols-2 gap-2">
-  <ActivityField ... />
-  <ActivityField ... />
-</div>
+<span className={cn(
+  "text-base font-semibold ml-1",
+  active ? styles.text : "text-muted-foreground"
+)}>{unit}</span>
 ```
 
-**After:**
+**New Code:**
 ```tsx
-<div className="space-y-2">
-  <ActivityField ... />
-  <ActivityField ... />
-</div>
+<span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
 ```
 
-### 2. ActivityField Component - New Design
+This keeps the unit text neutral/white regardless of active state.
 
-Replace the current compact layout with a clean horizontal card:
+---
+
+## Part 2: NFT Milestone Card - Complete Reimagining
+
+### Design Philosophy
+Inspired by Apple/Tesla minimalism. The card should feel like a premium collectible preview, not a data dashboard.
+
+### New Concept: "Next NFT Preview"
+
+**Visual Layout:**
+```text
++----------------------------------------------------------+
+|  [12 Earned]                              [View All →]   |
+|                                                          |
+|  +--------------------------------------------------+    |
+|  |                                                  |    |
+|  |          [Large NFT Artwork Image]               |    |
+|  |              (Next to unlock)                    |    |
+|  |                                                  |    |
+|  +--------------------------------------------------+    |
+|                                                          |
+|              "Photonic"                                  |
+|         ☀️ Solar · 1,000 kWh                             |
+|                                                          |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●○○○○○○○           |
+|           750 / 1,000 kWh                                |
+|                                                          |
+|  +------+  +------+  +------+  +------+                  |
+|  | ☀️ 1 |  | 🔋 0 |  | 🚗 2 |  | ⚡ 1 |    Category dots |
+|  +------+  +------+  +------+  +------+                  |
++----------------------------------------------------------+
+```
+
+### Key Features
+
+1. **Badge Counter** - Simple "12 Earned" badge in top-left
+2. **Hero Image** - Large, beautiful NFT artwork taking center stage
+3. **NFT Name** - Clean typography below the image
+4. **Category + Threshold** - "Solar · 1,000 kWh" with icon
+5. **Minimal Progress** - Thin, elegant progress bar
+6. **Category Dots** - Tiny indicators showing earned count per category (Solar, Battery, EV Miles, Charging) - matches user's requested order
+
+### Category Cycling Logic
+
+The card automatically shows the **next unlockable NFT** in priority order:
+1. Solar (if next milestone available)
+2. Battery (if next milestone available)
+3. EV Miles (if next milestone available)
+4. EV Charging (if next milestone available)
+
+If all categories are complete, show a "Collection Complete" celebration state.
+
+---
+
+## Technical Implementation
+
+### New Component Structure
+
+**File:** `src/components/dashboard/RewardProgress.tsx` (Complete Rewrite)
 
 ```tsx
-function ActivityField({
-  icon: Icon,
-  label,        // Device-specific: "Tesla Solar Roof Energy Produced"
-  value,
-  unit,
-  color,
-  active,
-  onTap,
-}: ActivityFieldProps) {
-  const styles = colorStyles[color];
-
+// Core component structure
+export function RewardProgress({
+  solarKwh,
+  evMilesDriven,
+  evChargingKwh,
+  batteryDischargedKwh,
+}: RewardProgressProps) {
+  // Calculate next milestone across all categories (priority: solar, battery, ev_miles, charging)
+  const nextMilestone = getNextPriorityMilestone(solarKwh, batteryKwh, evMiles, chargingKwh);
+  
+  // Get NFT artwork for the next milestone
+  const artwork = getNftArtwork(nextMilestone?.id);
+  
   return (
-    <motion.div
-      onClick={onTap}
-      whileTap={onTap ? { scale: 0.98 } : undefined}
-      className={cn(
-        "p-3 rounded-xl border transition-all flex items-center gap-3",
-        active && onTap 
-          ? "cursor-pointer border-border/50 bg-card hover:bg-muted/30" 
-          : "border-border/50 bg-muted/30"
-      )}
-    >
-      {/* Large rounded icon square */}
-      <div className={cn("p-3 rounded-xl", styles.solidBg)}>
-        <Icon className={cn("h-5 w-5", styles.iconColor)} />
-      </div>
-      
-      {/* Label + Value */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-muted-foreground truncate">{label}</p>
-        <p className="text-xl font-bold text-foreground">
-          {value.toLocaleString()}
-          <span className="text-base font-normal text-muted-foreground ml-1">{unit}</span>
-        </p>
-      </div>
-      
-      {/* Tap indicator */}
-      {active && onTap && (
-        <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-      )}
-    </motion.div>
+    <Card className="overflow-hidden">
+      <CardContent className="p-4 space-y-4">
+        {/* Header: Badge + View All */}
+        <div className="flex items-center justify-between">
+          <Badge variant="secondary">{totalEarned} Earned</Badge>
+          <Link to="/nft-collection">View All <ChevronRight /></Link>
+        </div>
+        
+        {/* Hero NFT Image */}
+        <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
+          <img src={artwork} className="object-cover w-full h-full" />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 p-3">
+            <p className="text-white font-semibold">{nextMilestone.name}</p>
+          </div>
+        </div>
+        
+        {/* Category Label + Progress */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <CategoryIcon category={nextMilestone.category} />
+            <span>{categoryName} · {threshold.toLocaleString()} {unit}</span>
+          </div>
+          <Progress value={progressPercent} className="h-1.5" />
+          <p className="text-xs text-muted-foreground">
+            {currentValue.toLocaleString()} / {threshold.toLocaleString()} {unit}
+          </p>
+        </div>
+        
+        {/* Category Summary Dots */}
+        <div className="grid grid-cols-4 gap-2 pt-2 border-t">
+          <CategoryDot icon={Sun} count={solarEarned.length} total={8} color="amber" />
+          <CategoryDot icon={Battery} count={batteryEarned.length} total={7} color="emerald" />
+          <CategoryDot icon={Car} count={evMilesEarned.length} total={10} color="blue" />
+          <CategoryDot icon={Zap} count={chargingEarned.length} total={8} color="purple" />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 ```
 
-### 3. Color Styles - Solid Backgrounds (Like Screenshot)
+### Helper Function: Priority Milestone Selection
 
 ```tsx
-const colorStyles = {
-  amber: { 
-    solidBg: 'bg-amber-500',        // Solid background
-    iconColor: 'text-white',         // White icon
-  },
-  blue: { 
-    solidBg: 'bg-blue-500', 
-    iconColor: 'text-white',
-  },
-  emerald: { 
-    solidBg: 'bg-emerald-500', 
-    iconColor: 'text-white',
-  },
-  purple: { 
-    solidBg: 'bg-purple-500', 
-    iconColor: 'text-white',
-  },
-  olive: { 
-    solidBg: 'bg-yellow-600',        // For charging (matches screenshot)
-    iconColor: 'text-white',
-  },
-  teal: { 
-    solidBg: 'bg-teal-500',          // For CO2 offset
-    iconColor: 'text-white',
-  },
-};
+function getNextPriorityMilestone(solar, battery, evMiles, charging) {
+  // Check in priority order: Solar → Battery → EV Miles → EV Charging
+  const solarNext = getNextMilestone(solar, SOLAR_MILESTONES);
+  if (solarNext) return { ...solarNext, category: 'solar', currentValue: solar };
+  
+  const batteryNext = getNextMilestone(battery, BATTERY_MILESTONES);
+  if (batteryNext) return { ...batteryNext, category: 'battery', currentValue: battery };
+  
+  const evNext = getNextMilestone(evMiles, EV_MILES_MILESTONES);
+  if (evNext) return { ...evNext, category: 'ev_miles', currentValue: evMiles };
+  
+  const chargeNext = getNextMilestone(charging, EV_CHARGING_MILESTONES);
+  if (chargeNext) return { ...chargeNext, category: 'charging', currentValue: charging };
+  
+  return null; // All categories complete
+}
 ```
 
-### 4. Device-Specific Labels
+### Category Dot Component
 
-Pass `deviceLabels` through to ActivityMetrics and use them for dynamic labels:
-
-```tsx
-// In ZenSolarDashboard.tsx - pass deviceLabels
-<ActivityMetrics
-  data={activityData}
-  deviceLabels={activityData.deviceLabels}  // Already available
-  ...
-/>
-
-// In ActivityMetrics - use device labels for field labels
-const solarLabel = deviceLabels?.solar 
-  ? `${deviceLabels.solar} Energy Produced` 
-  : 'Solar Energy Produced';
-
-const evLabel = deviceLabels?.vehicle 
-  ? `${deviceLabels.vehicle} Miles Driven` 
-  : 'EV Miles Driven';
-
-const batteryLabel = deviceLabels?.powerwall 
-  ? `${deviceLabels.powerwall} Energy Discharged` 
-  : 'Battery Discharged';
-
-// For charging - show separate fields if we have both supercharger and home
-const superchargerLabel = 'Tesla Supercharger';
-const homeChargerLabel = deviceLabels?.wallConnector 
-  ? `${deviceLabels.wallConnector} Home Charging` 
-  : 'Home Charging';
-```
-
-### 5. Split Charging into Separate Fields (Like Screenshot)
-
-The screenshot shows Tesla Supercharger and Wall Connector as separate rows. Update to show them separately when both have values:
+Tiny, clean indicator showing earned count per category:
 
 ```tsx
-{/* Charging - show supercharger and home separately if data exists */}
-{(current.superchargerKwh > 0) && (
-  <ActivityField
-    icon={Zap}
-    label="Tesla Supercharger"
-    value={current.superchargerKwh}
-    unit="kWh"
-    color="olive"
-    active={current.superchargerKwh > 0}
-    onTap={onMintCategory ? () => onMintCategory('supercharger') : undefined}
-  />
-)}
-{(current.homeChargerKwh > 0) && (
-  <ActivityField
-    icon={Zap}
-    label={homeChargerLabel}
-    value={current.homeChargerKwh}
-    unit="kWh"
-    color="olive"
-    active={current.homeChargerKwh > 0}
-    onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
-  />
-)}
-{/* Fallback combined charging if neither has specific data */}
-{current.superchargerKwh === 0 && current.homeChargerKwh === 0 && current.chargingKwh > 0 && (
-  <ActivityField
-    icon={Zap}
-    label="EV Charging"
-    value={current.chargingKwh}
-    unit="kWh"
-    color="purple"
-    active={current.chargingKwh > 0}
-    onTap={onMintCategory ? () => onMintCategory('charging') : undefined}
-  />
-)}
-```
-
-### 6. Total Available Tokens - Same Card Style
-
-Make Total Available Tokens match the activity field design:
-
-```tsx
-<motion.div
-  onClick={() => onMintCategory?.('all')}
-  whileTap={{ scale: 0.98 }}
-  className="p-3 rounded-xl border border-primary/30 bg-primary/5 flex items-center gap-3 cursor-pointer"
->
-  <div className="p-3 rounded-xl bg-primary">
-    <Coins className="h-5 w-5 text-primary-foreground" />
-  </div>
-  <div className="flex-1">
-    <p className="text-sm text-muted-foreground">Total Available Tokens</p>
-    <p className="text-xl font-bold text-foreground">
-      {tokensToReceive.toLocaleString()}
-      <span className="text-base font-normal text-muted-foreground ml-1">$ZSOLAR</span>
-    </p>
-    <p className="text-xs text-primary">≈ ${(tokensToReceive * tokenPrice).toFixed(2)}</p>
-  </div>
-  <ChevronRight className="h-5 w-5 text-muted-foreground" />
-</motion.div>
-```
-
----
-
-## Props Updates
-
-### CurrentActivity Type
-
-Add separate supercharger and home charger values:
-
-```tsx
-type CurrentActivity = {
-  solarKwh: number;
-  evMiles: number;
-  batteryKwh: number;
-  chargingKwh: number;        // Combined total
-  superchargerKwh?: number;   // Tesla Supercharger only
-  homeChargerKwh?: number;    // Home Charger only
-};
-```
-
-### ZenSolarDashboard.tsx
-
-Update to pass the separate values:
-
-```tsx
-const currentActivity = {
-  solarKwh: Math.max(0, Math.floor(activityData.pendingSolarKwh || 0)),
-  evMiles: Math.max(0, Math.floor(activityData.pendingEvMiles || 0)),
-  batteryKwh: Math.max(0, Math.floor(activityData.pendingBatteryKwh || 0)),
-  chargingKwh: Math.max(0, Math.floor(activityData.pendingChargingKwh || 0)),
-  superchargerKwh: Math.max(0, Math.floor(activityData.pendingSuperchargerKwh || 0)),
-  homeChargerKwh: Math.max(0, Math.floor(activityData.pendingHomeChargerKwh || 0)),
-};
+function CategoryDot({ icon: Icon, count, total, color }) {
+  const styles = colorStyles[color];
+  return (
+    <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-muted/30">
+      <div className={cn("p-1.5 rounded-md", styles.bg)}>
+        <Icon className={cn("h-3.5 w-3.5", styles.text)} />
+      </div>
+      <span className="text-xs font-semibold tabular-nums">{count}/{total}</span>
+    </div>
+  );
+}
 ```
 
 ---
@@ -293,22 +196,50 @@ const currentActivity = {
 
 | File | Changes |
 |------|---------|
-| `src/components/dashboard/ActivityMetrics.tsx` | Complete redesign: single-column layout, solid color icon backgrounds, device-specific labels, separate charging fields |
-| `src/components/ZenSolarDashboard.tsx` | Pass `superchargerKwh` and `homeChargerKwh` separately in `currentActivity` |
-| `src/components/demo/DemoDashboard.tsx` | Same updates as ZenSolarDashboard for consistency |
+| `src/components/dashboard/ActivityMetrics.tsx` | Fix unit text color from `styles.text` to neutral |
+| `src/components/dashboard/RewardProgress.tsx` | Complete rewrite with new minimal design |
+| `src/lib/nftMilestones.ts` | Add `getNextPriorityMilestone()` helper function |
 
 ---
 
 ## Visual Comparison
 
-| Element | Current | New (Screenshot Style) |
-|---------|---------|------------------------|
-| Layout | 2-column grid | Single-column stack |
-| Icons | Small, transparent bg | Large, solid colored square |
-| Labels | Generic ("Solar Produced") | Device-specific ("Tesla Solar Roof Energy Produced") |
-| Charging | Combined single field | Separate Supercharger + Home Charger rows |
-| Card size | Compact, cramped | Full-width, breathable |
-| Tap indicator | Subtle chevron | Clear right chevron |
+| Element | Before (Complex) | After (Minimal) |
+|---------|-----------------|-----------------|
+| Navigation | 4-tab interface | None (auto-cycles) |
+| Progress bars | One per category per tab | Single progress bar |
+| Earned badges | Scrolling horizontal list | Simple count badge |
+| NFT imagery | Small icon badges | Large hero artwork |
+| Category info | Per-tab breakdown | Compact 4-dot summary |
+| Combo section | Separate labeled section | Removed (accessible via View All) |
+| Total height | ~250px+ (with scrolling) | ~280px (fixed, no scroll) |
 
-This design is cleaner, more scannable, and shows users exactly which devices are generating their rewards. The Tesla-style minimal aesthetic with solid color icons and generous whitespace creates a premium feel.
+---
+
+## Color Consistency Check
+
+Verified landing page colors match dashboard:
+- **Solar**: `from-amber-500 to-orange-500` 
+- **EV Miles**: `from-blue-500 to-cyan-500`
+- **Battery**: `from-emerald-500 to-green-500`
+- **EV Charging**: `from-purple-500 to-pink-500`
+
+These gradients are correctly used in `ActivityMetrics.tsx` for icon backgrounds.
+
+---
+
+## Responsive Considerations
+
+- **Mobile (< 640px)**: Hero image takes full card width
+- **Desktop**: Can optionally show 2 upcoming NFTs side-by-side
+- **All sizes**: Category dots remain compact 4-column grid
+
+---
+
+## Animation Polish
+
+- **Hero Image**: Subtle scale on hover (`hover:scale-102`)
+- **Progress Bar**: Animate width on load
+- **Badge Counter**: Pulse effect when new NFT earned
+- **Card Entry**: Fade-in with `framer-motion`
 
