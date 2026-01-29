@@ -204,55 +204,65 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedP
 
           <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} providers={refreshInfo?.providers} />
 
-          {/* Activity breakdown - compact grid with tap-to-mint */}
-          <div className="grid grid-cols-2 gap-2">
-            <ActivityCard
+          {/* Activity breakdown - original MetricCard style with tap-to-mint */}
+          <div className="grid grid-cols-1 gap-3">
+            <MetricCardWithMint
               icon={Sun}
-              value={current.solarKwh}
+              value={current.solarKwh.toLocaleString()}
+              label="Solar Energy"
+              sublabel={solarLabel}
               unit="kWh"
-              label={solarLabel}
+              colorClass="text-solar"
+              bgClass="bg-solar/10"
               active={current.solarKwh > 0}
-              colorClass="solar"
               onTap={current.solarKwh > 0 ? () => onMintCategory?.('solar') : undefined}
             />
 
-            <ActivityCard
+            <MetricCardWithMint
               icon={Car}
-              value={current.evMiles}
+              value={current.evMiles.toLocaleString()}
+              label="EV Miles"
+              sublabel={evLabel}
               unit="mi"
-              label={evLabel}
+              colorClass="text-energy"
+              bgClass="bg-energy/10"
               active={current.evMiles > 0}
-              colorClass="energy"
               onTap={current.evMiles > 0 ? () => onMintCategory?.('ev_miles') : undefined}
             />
 
-            <ActivityCard
+            <MetricCardWithMint
               icon={Battery}
-              value={current.batteryKwh}
+              value={current.batteryKwh.toLocaleString()}
+              label="Battery Storage"
+              sublabel={batteryLabel}
               unit="kWh"
-              label={batteryLabel}
+              colorClass="text-secondary"
+              bgClass="bg-secondary/10"
               active={current.batteryKwh > 0}
-              colorClass="secondary"
               onTap={current.batteryKwh > 0 ? () => onMintCategory?.('battery') : undefined}
             />
 
-            <ActivityCard
+            <MetricCardWithMint
               icon={Zap}
-              value={superchargerKwh}
+              value={superchargerKwh.toLocaleString()}
+              label="Supercharger"
+              sublabel={superchargerLabel}
               unit="kWh"
-              label={superchargerLabel}
+              colorClass="text-accent-foreground"
+              bgClass="bg-accent/10"
               active={superchargerKwh > 0}
-              colorClass="accent"
               onTap={superchargerKwh > 0 ? () => onMintCategory?.('supercharger') : undefined}
             />
 
-            <ActivityCard
+            <MetricCardWithMint
               icon={Zap}
-              value={homeChargerKwh}
+              value={homeChargerKwh.toLocaleString()}
+              label="Home Charger"
+              sublabel={homeChargerLabel}
               unit="kWh"
-              label={homeChargerLabel}
+              colorClass="text-accent-foreground"
+              bgClass="bg-accent/10"
               active={homeChargerKwh > 0}
-              colorClass="accent"
               onTap={homeChargerKwh > 0 ? () => onMintCategory?.('home_charger') : undefined}
             />
           </div>
@@ -367,81 +377,70 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedP
   );
 }
 
-// Compact activity card component with tap-to-mint
-interface ActivityCardProps {
+// Original MetricCard-style component with tap-to-mint functionality
+interface MetricCardWithMintProps {
   icon: React.ComponentType<{ className?: string }>;
-  value: number;
-  unit: string;
+  value: string;
   label: string;
+  sublabel: string;
+  unit: string;
+  colorClass: string;
+  bgClass: string;
   active: boolean;
-  colorClass: 'solar' | 'energy' | 'secondary' | 'accent';
   onTap?: () => void;
 }
 
-function ActivityCard({ icon: Icon, value, unit, label, active, colorClass, onTap }: ActivityCardProps) {
-  // Map color classes to actual Tailwind classes (can't use dynamic class names)
-  const colorStyles = {
-    solar: {
-      bg: active ? 'bg-solar/10' : 'bg-muted/30',
-      border: active ? 'border-solar/30' : 'border-border/50',
-      iconBg: active ? 'bg-solar/20' : 'bg-muted',
-      iconColor: active ? 'text-solar' : 'text-muted-foreground',
-    },
-    energy: {
-      bg: active ? 'bg-energy/10' : 'bg-muted/30',
-      border: active ? 'border-energy/30' : 'border-border/50',
-      iconBg: active ? 'bg-energy/20' : 'bg-muted',
-      iconColor: active ? 'text-energy' : 'text-muted-foreground',
-    },
-    secondary: {
-      bg: active ? 'bg-secondary/10' : 'bg-muted/30',
-      border: active ? 'border-secondary/30' : 'border-border/50',
-      iconBg: active ? 'bg-secondary/20' : 'bg-muted',
-      iconColor: active ? 'text-secondary' : 'text-muted-foreground',
-    },
-    accent: {
-      bg: active ? 'bg-accent/10' : 'bg-muted/30',
-      border: active ? 'border-accent/30' : 'border-border/50',
-      iconBg: active ? 'bg-accent/20' : 'bg-muted',
-      iconColor: active ? 'text-accent-foreground' : 'text-muted-foreground',
-    },
-  };
-
-  const styles = colorStyles[colorClass];
+function MetricCardWithMint({ 
+  icon: Icon, 
+  value, 
+  label, 
+  sublabel, 
+  unit, 
+  colorClass, 
+  bgClass, 
+  active, 
+  onTap 
+}: MetricCardWithMintProps) {
   const isTappable = active && onTap;
 
   const content = (
-    <>
-      <div className={`p-2 rounded-lg ${styles.iconBg} relative`}>
-        <Icon className={`h-4 w-4 ${styles.iconColor}`} />
+    <div className="flex items-center gap-4 w-full">
+      <div className={`p-3 rounded-xl ${bgClass} relative shrink-0`}>
+        <Icon className={`h-6 w-6 ${colorClass}`} />
         {/* Pulse indicator for tappable cards */}
         {isTappable && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
           </span>
         )}
       </div>
-      <div className="flex flex-col min-w-0 flex-1">
-        <span className="text-base font-semibold text-foreground leading-tight">
-          {value.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{unit}</span>
-        </span>
-        <span className="text-[10px] text-muted-foreground truncate">{label}</span>
-        {/* Tap to mint hint */}
-        {isTappable && (
-          <span className="text-[9px] text-primary font-medium mt-0.5">Tap to mint</span>
-        )}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-1.5">
+          <span className={`text-2xl font-bold ${active ? colorClass : 'text-muted-foreground'}`}>
+            {value}
+          </span>
+          <span className="text-sm text-muted-foreground">{unit}</span>
+        </div>
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground truncate">{sublabel}</p>
       </div>
-    </>
+      {isTappable && (
+        <div className="shrink-0 flex flex-col items-center gap-1">
+          <ChevronRight className="h-5 w-5 text-primary" />
+          <span className="text-[10px] text-primary font-medium">Mint</span>
+        </div>
+      )}
+    </div>
   );
 
   if (isTappable) {
     return (
       <motion.button
         onClick={onTap}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className={`flex items-center gap-2.5 p-3 rounded-xl transition-all border ${styles.bg} ${styles.border} cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 text-left w-full`}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        className={`p-4 rounded-xl transition-all border-2 ${active ? 'border-primary/30 bg-card/80 shadow-md shadow-primary/5' : 'border-border/50 bg-muted/30'} cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 text-left w-full`}
       >
         {content}
       </motion.button>
@@ -449,7 +448,7 @@ function ActivityCard({ icon: Icon, value, unit, label, active, colorClass, onTa
   }
 
   return (
-    <div className={`flex items-center gap-2.5 p-3 rounded-xl transition-all border ${styles.bg} ${styles.border}`}>
+    <div className={`p-4 rounded-xl transition-all border ${active ? 'border-border bg-card/50' : 'border-border/50 bg-muted/30'}`}>
       {content}
     </div>
   );
