@@ -1,24 +1,21 @@
-import { Award, TrendingUp, Sparkles, ChevronRight, Trophy, Zap, Car, Battery, Sun } from 'lucide-react';
+import { Award, ChevronRight, Sun, Car, Battery, Zap, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
   EV_CHARGING_MILESTONES,
   BATTERY_MILESTONES,
-  COMBO_MILESTONES,
   calculateEarnedMilestones,
-  getNextMilestone,
   calculateComboAchievements,
-  type NFTMilestone,
+  getNextPriorityMilestone,
+  getCategoryDisplayName,
 } from '@/lib/nftMilestones';
-import { NFTBadge, NFTBadgeInline } from '@/components/ui/nft-badge';
+import { getNftArtwork } from '@/lib/nftArtwork';
 
 interface RewardProgressProps {
   tokensEarned: number;
@@ -30,294 +27,238 @@ interface RewardProgressProps {
   isNewUser?: boolean;
 }
 
-interface CategoryProgressProps {
-  title: string;
-  icon: React.ReactNode;
-  value: number;
-  unit: string;
-  milestones: NFTMilestone[];
-  earnedMilestones: NFTMilestone[];
-  nextMilestone: NFTMilestone | null;
-  accentColor: string;
+// Color styles matching landing page gradients
+const categoryStyles = {
+  solar: {
+    gradient: 'from-amber-500 to-orange-500',
+    bg: 'bg-amber-500/10',
+    text: 'text-amber-500',
+    glow: 'shadow-amber-500/30',
+  },
+  battery: {
+    gradient: 'from-emerald-500 to-green-500',
+    bg: 'bg-emerald-500/10',
+    text: 'text-emerald-500',
+    glow: 'shadow-emerald-500/30',
+  },
+  ev_miles: {
+    gradient: 'from-blue-500 to-cyan-500',
+    bg: 'bg-blue-500/10',
+    text: 'text-blue-500',
+    glow: 'shadow-blue-500/30',
+  },
+  charging: {
+    gradient: 'from-purple-500 to-pink-500',
+    bg: 'bg-purple-500/10',
+    text: 'text-purple-500',
+    glow: 'shadow-purple-500/30',
+  },
+};
+
+const categoryIcons = {
+  solar: Sun,
+  battery: Battery,
+  ev_miles: Car,
+  charging: Zap,
+};
+
+interface CategoryDotProps {
+  icon: React.ElementType;
+  count: number;
+  total: number;
+  color: 'solar' | 'battery' | 'ev_miles' | 'charging';
+  isActive?: boolean;
 }
 
-function CategoryProgress({ 
-  title, 
-  icon, 
-  value, 
-  unit, 
-  milestones, 
-  earnedMilestones, 
-  nextMilestone,
-  accentColor
-}: CategoryProgressProps) {
-  const progress = nextMilestone
-    ? (value / nextMilestone.threshold) * 100
-    : 100;
-  
-  const remaining = nextMilestone
-    ? nextMilestone.threshold - value
-    : 0;
-
-  return (
-    <div className="space-y-3">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className={`p-1.5 rounded-md ${accentColor}`}>
-            {icon}
-          </div>
-          <span className="font-medium text-sm">{title}</span>
-        </div>
-        <span className="text-xs text-muted-foreground">
-          {earnedMilestones.length}/{milestones.length} earned
-        </span>
-      </div>
-
-      {/* Earned NFTs */}
-      {earnedMilestones.length > 0 && (
-        <ScrollArea className="w-full">
-          <div className="flex gap-2 pb-2">
-            {earnedMilestones.map((milestone) => (
-              <motion.div
-                key={milestone.id}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-              >
-                <NFTBadgeInline
-                  milestoneId={milestone.id}
-                  name={milestone.name}
-                  color={milestone.color}
-                  isEarned={true}
-                />
-              </motion.div>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      )}
-
-      {/* Next milestone progress */}
-      {nextMilestone ? (
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground flex items-center gap-1.5">
-              Next: <NFTBadge milestoneId={nextMilestone.id} size="sm" color={nextMilestone.color} /> <strong className="text-foreground">{nextMilestone.name}</strong>
-            </span>
-            <span className="text-muted-foreground tabular-nums">
-              {value.toLocaleString()} / {nextMilestone.threshold.toLocaleString()} {unit}
-            </span>
-          </div>
-          <Progress value={Math.min(progress, 100)} className="h-2" />
-          <p className="text-[10px] text-muted-foreground">
-            {remaining.toLocaleString()} more {unit} to unlock
-          </p>
-        </div>
-      ) : earnedMilestones.length === milestones.length ? (
-        <div className="text-center py-2">
-          <span className="text-xs text-primary font-medium">🎉 Category Complete!</span>
-        </div>
-      ) : (
-        <p className="text-xs text-muted-foreground">Start tracking to earn NFTs</p>
-      )}
-    </div>
-  );
-}
-
-function ComboAchievements({ combos }: { combos: NFTMilestone[] }) {
-  if (combos.length === 0) return null;
+function CategoryDot({ icon: Icon, count, total, color, isActive }: CategoryDotProps) {
+  const styles = categoryStyles[color];
   
   return (
-    <div className="space-y-3 pt-3 border-t border-border/50">
-      <div className="flex items-center gap-2">
-        <Trophy className="h-4 w-4 text-accent" />
-        <span className="font-medium text-sm">Combo Achievements</span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {combos.map((combo) => (
-          <motion.div
-            key={combo.id}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-          >
-            <NFTBadgeInline
-              milestoneId={combo.id}
-              name={combo.name}
-              color={combo.color}
-              isEarned={true}
-              className="shadow-lg"
-            />
-          </motion.div>
-        ))}
-      </div>
-    </div>
+    <motion.div 
+      whileHover={{ scale: 1.05 }}
+      className={cn(
+        "flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all",
+        isActive 
+          ? cn("bg-gradient-to-br", styles.gradient, "shadow-lg", styles.glow)
+          : "bg-muted/50 hover:bg-muted"
+      )}
+    >
+      <Icon className={cn("h-4 w-4", isActive ? "text-white" : styles.text)} />
+      <span className={cn(
+        "text-xs font-bold tabular-nums",
+        isActive ? "text-white" : "text-foreground"
+      )}>
+        {count}/{total}
+      </span>
+    </motion.div>
   );
 }
 
 export function RewardProgress({ 
-  tokensEarned, 
   solarKwh, 
   evMilesDriven,
   evChargingKwh,
   batteryDischargedKwh,
-  nftsEarned, 
-  isNewUser = true
 }: RewardProgressProps) {
   // Calculate earned milestones for each category
   const solarEarned = calculateEarnedMilestones(solarKwh, SOLAR_MILESTONES);
+  const batteryEarned = calculateEarnedMilestones(batteryDischargedKwh, BATTERY_MILESTONES);
   const evMilesEarned = calculateEarnedMilestones(evMilesDriven, EV_MILES_MILESTONES);
   const evChargingEarned = calculateEarnedMilestones(evChargingKwh, EV_CHARGING_MILESTONES);
-  const batteryEarned = calculateEarnedMilestones(batteryDischargedKwh, BATTERY_MILESTONES);
-  
-  // Calculate combo achievements
   const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
   
-  // Get next milestones
-  const solarNext = getNextMilestone(solarKwh, SOLAR_MILESTONES);
-  const evMilesNext = getNextMilestone(evMilesDriven, EV_MILES_MILESTONES);
-  const evChargingNext = getNextMilestone(evChargingKwh, EV_CHARGING_MILESTONES);
-  const batteryNext = getNextMilestone(batteryDischargedKwh, BATTERY_MILESTONES);
-  
   // Total NFTs earned (add 1 for welcome NFT)
-  const totalEarned = 1 + solarEarned.length + evMilesEarned.length + evChargingEarned.length + batteryEarned.length + comboEarned.length;
+  const totalEarned = 1 + solarEarned.length + batteryEarned.length + evMilesEarned.length + evChargingEarned.length + comboEarned.length;
+  
+  // Get next priority milestone
+  const nextMilestone = getNextPriorityMilestone(solarKwh, batteryDischargedKwh, evMilesDriven, evChargingKwh);
+  
+  // Get artwork for next milestone
+  const artwork = nextMilestone ? getNftArtwork(nextMilestone.id) : null;
+  
+  // Calculate progress percentage
+  const progressPercent = nextMilestone 
+    ? Math.min((nextMilestone.currentValue / nextMilestone.threshold) * 100, 100)
+    : 100;
+  
+  // Get styles for current category
+  const currentStyles = nextMilestone ? categoryStyles[nextMilestone.category] : categoryStyles.solar;
+  const CurrentIcon = nextMilestone ? categoryIcons[nextMilestone.category] : Sun;
+
+  // Check if all categories are complete
+  const isComplete = !nextMilestone;
 
   return (
-    <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-transparent overflow-hidden">
-      <CardHeader className="pb-3">
+    <Card className="overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
+      <CardContent className="p-4 space-y-4">
+        {/* Header: Badge + View All */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-accent" />
-            <CardTitle className="text-base font-semibold">
-              NFT Milestones
-            </CardTitle>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs gap-1">
-              <Award className="h-3 w-3" />
-              {totalEarned} Earned
-            </Badge>
-            <Badge variant="secondary" className="text-xs gap-1">
-              <Sparkles className="h-3 w-3" />
-              Beta
-            </Badge>
-          </div>
+          <Badge variant="secondary" className="gap-1.5 px-2.5 py-1">
+            <Award className="h-3.5 w-3.5" />
+            <span className="font-semibold">{totalEarned} Earned</span>
+          </Badge>
+          <Link 
+            to="/nft-collection" 
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <span>View All</span>
+            <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Tabs defaultValue="solar" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 h-auto p-1">
-            <TabsTrigger value="solar" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-solar/15">
-              <Sun className="h-3 w-3" />
-              <span className="hidden sm:inline">Solar</span>
-            </TabsTrigger>
-            <TabsTrigger value="ev_miles" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-energy/15">
-              <Car className="h-3 w-3" />
-              <span className="hidden sm:inline">EV Miles</span>
-            </TabsTrigger>
-            <TabsTrigger value="charging" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-accent/15">
-              <Zap className="h-3 w-3" />
-              <span className="hidden sm:inline">Charging</span>
-            </TabsTrigger>
-            <TabsTrigger value="battery" className="text-xs px-2 py-1.5 gap-1 data-[state=active]:bg-secondary/15">
-              <Battery className="h-3 w-3" />
-              <span className="hidden sm:inline">Battery</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <AnimatePresence mode="wait">
-            <TabsContent value="solar" className="mt-4">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-              <CategoryProgress
-                  title="Solar Production"
-                  icon={<Sun className="h-3.5 w-3.5 text-solar-foreground" />}
-                  value={Math.floor(solarKwh)}
-                  unit="kWh"
-                  milestones={SOLAR_MILESTONES}
-                  earnedMilestones={solarEarned}
-                  nextMilestone={solarNext}
-                  accentColor="bg-solar"
-                />
-              </motion.div>
-            </TabsContent>
-            
-            <TabsContent value="ev_miles" className="mt-4">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-              <CategoryProgress
-                  title="EV Miles Driven"
-                  icon={<Car className="h-3.5 w-3.5 text-energy-foreground" />}
-                  value={Math.floor(evMilesDriven)}
-                  unit="miles"
-                  milestones={EV_MILES_MILESTONES}
-                  earnedMilestones={evMilesEarned}
-                  nextMilestone={evMilesNext}
-                  accentColor="bg-energy"
-                />
-              </motion.div>
-            </TabsContent>
-            
-            <TabsContent value="charging" className="mt-4">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-              <CategoryProgress
-                  title="EV Charging"
-                  icon={<Zap className="h-3.5 w-3.5 text-accent-foreground" />}
-                  value={Math.floor(evChargingKwh)}
-                  unit="kWh"
-                  milestones={EV_CHARGING_MILESTONES}
-                  earnedMilestones={evChargingEarned}
-                  nextMilestone={evChargingNext}
-                  accentColor="bg-accent"
-                />
-              </motion.div>
-            </TabsContent>
-            
-            <TabsContent value="battery" className="mt-4">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-              <CategoryProgress
-                  title="Battery Discharge"
-                  icon={<Battery className="h-3.5 w-3.5 text-secondary-foreground" />}
-                  value={Math.floor(batteryDischargedKwh)}
-                  unit="kWh"
-                  milestones={BATTERY_MILESTONES}
-                  earnedMilestones={batteryEarned}
-                  nextMilestone={batteryNext}
-                  accentColor="bg-secondary"
-                />
-              </motion.div>
-            </TabsContent>
-          </AnimatePresence>
-        </Tabs>
         
-        {/* Combo Achievements */}
-        <ComboAchievements combos={comboEarned} />
-
-        {/* View Full Collection Link */}
-        <div className="pt-2 flex flex-col items-center gap-2">
-          <Button asChild variant="outline" size="sm" className="gap-2">
-            <Link to="/nft-collection">
-              <Award className="h-4 w-4" />
-              View Full Collection
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          <p className="text-[10px] text-muted-foreground/60 text-center">
-            Earn NFTs across categories to unlock combo achievements! 🎯
-          </p>
+        {/* Hero NFT Image */}
+        {isComplete ? (
+          // Collection Complete State
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 flex flex-col items-center justify-center gap-3"
+          >
+            <div className="p-4 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 shadow-lg shadow-amber-500/30">
+              <Sparkles className="h-8 w-8 text-white" />
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-foreground">Collection Complete!</p>
+              <p className="text-sm text-muted-foreground">All milestones achieved 🎉</p>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.01 }}
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted group cursor-pointer"
+          >
+            {artwork && (
+              <img 
+                src={artwork} 
+                alt={nextMilestone?.name || 'Next NFT'}
+                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+              />
+            )}
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            
+            {/* NFT Name overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <div className={cn(
+                  "p-1.5 rounded-lg bg-gradient-to-br shadow-lg",
+                  currentStyles.gradient,
+                  currentStyles.glow
+                )}>
+                  <CurrentIcon className="h-3.5 w-3.5 text-white" />
+                </div>
+                <span className="text-xs font-medium text-white/80 uppercase tracking-wide">
+                  {getCategoryDisplayName(nextMilestone?.category || 'solar')} · Next Unlock
+                </span>
+              </div>
+              <p className="text-xl font-bold text-white">{nextMilestone?.name}</p>
+            </div>
+            
+            {/* Glow effect on hover */}
+            <div className={cn(
+              "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none",
+              "bg-gradient-to-t from-transparent via-transparent to-white/5"
+            )} />
+          </motion.div>
+        )}
+        
+        {/* Progress Section */}
+        {nextMilestone && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Progress to {nextMilestone.name}</span>
+              <span className="font-semibold text-foreground tabular-nums">
+                {Math.floor(nextMilestone.currentValue).toLocaleString()} / {nextMilestone.threshold.toLocaleString()} {nextMilestone.unit}
+              </span>
+            </div>
+            <div className="relative">
+              <Progress value={progressPercent} className="h-2" />
+              {/* Animated glow on progress */}
+              <motion.div 
+                className={cn(
+                  "absolute top-0 left-0 h-2 rounded-full blur-sm",
+                  `bg-gradient-to-r ${currentStyles.gradient}`
+                )}
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              />
+            </div>
+          </div>
+        )}
+        
+        {/* Category Summary Dots */}
+        <div className="grid grid-cols-4 gap-2 pt-3 border-t border-border/50">
+          <CategoryDot 
+            icon={Sun} 
+            count={solarEarned.length} 
+            total={SOLAR_MILESTONES.length} 
+            color="solar"
+            isActive={nextMilestone?.category === 'solar'}
+          />
+          <CategoryDot 
+            icon={Battery} 
+            count={batteryEarned.length} 
+            total={BATTERY_MILESTONES.length} 
+            color="battery"
+            isActive={nextMilestone?.category === 'battery'}
+          />
+          <CategoryDot 
+            icon={Car} 
+            count={evMilesEarned.length} 
+            total={EV_MILES_MILESTONES.length} 
+            color="ev_miles"
+            isActive={nextMilestone?.category === 'ev_miles'}
+          />
+          <CategoryDot 
+            icon={Zap} 
+            count={evChargingEarned.length} 
+            total={EV_CHARGING_MILESTONES.length} 
+            color="charging"
+            isActive={nextMilestone?.category === 'charging'}
+          />
         </div>
       </CardContent>
     </Card>

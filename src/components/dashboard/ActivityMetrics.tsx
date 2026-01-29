@@ -396,10 +396,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
           active ? "text-foreground" : "text-muted-foreground"
         )}>
           {value.toLocaleString()}
-          <span className={cn(
-            "text-base font-semibold ml-1",
-            active ? styles.text : "text-muted-foreground"
-          )}>{unit}</span>
+          <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
         </p>
       </div>
       
