@@ -299,15 +299,22 @@ export default function Auth() {
             />
           </div>
           
-          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">
-            The World's First
-          </p>
-          <h1 className="text-3xl font-bold text-white mb-3 tracking-tight">
-            One-Tap, Mint-on-Proof
-          </h1>
-          <h2 className="text-2xl font-semibold text-slate-300 mb-6">
-            Clean Energy Platform
-          </h2>
+          <div 
+            className="mb-6"
+            style={{ 
+              textShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.7), 0 0 24px rgba(255, 255, 255, 0.5), 0 0 32px rgba(16, 185, 129, 0.4)' 
+            }}
+          >
+            <p className="text-sm uppercase tracking-[0.2em] text-primary font-semibold mb-2">
+              The World's First
+            </p>
+            <h1 className="text-2xl font-bold text-primary mb-2 tracking-tight">
+              One-Tap, Mint-on-Proof
+            </h1>
+            <h2 className="text-xl font-semibold text-primary">
+              Web3 Clean Energy Platform
+            </h2>
+          </div>
           <p className="text-base text-slate-400 mb-12 leading-relaxed">
             Track your solar production, earn $ZSOLAR tokens, and make a positive impact on the planet.
           </p>
