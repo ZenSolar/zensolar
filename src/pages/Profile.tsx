@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +14,6 @@ import {
   CheckCircle2, 
   XCircle, 
   Loader2, 
-  Shield, 
   Zap,
   Sun,
   Car,
@@ -21,19 +21,99 @@ import {
   Users,
   ExternalLink,
   Copy,
-  Sparkles
+  Sparkles,
+  Settings,
+  Link2,
+  Unlink,
+  Share2,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { toast } from "sonner";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
+// Import brand logos
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+
+const providerLogos: Record<string, string> = {
+  tesla: teslaLogo,
+  enphase: enphaseLogo,
+  solaredge: solaredgeLogo,
+  wallbox: wallboxLogo,
+};
+
+// Simple SVG icons for social platforms
+const FacebookIcon = () => (
+  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const InstagramIcon = () => (
+  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </svg>
+);
+
+const TikTokIcon = () => (
+  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+  </svg>
+);
+
+const TwitterIcon = () => (
+  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
+const LinkedInIcon = () => (
+  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
 
 export default function Profile() {
   const { user } = useAuth();
-  const { profile, isLoading, refetch } = useProfile();
+  const { profile, isLoading, refetch, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
+  const { connectedAccounts, connectAccount, disconnectAccount } = useDashboardData();
+  
+  const [socialExpanded, setSocialExpanded] = useState(false);
 
   const handleRefresh = useCallback(async () => {
     await refetch();
     toast.success('Profile updated');
   }, [refetch]);
+
+  const handleConnectWallet = async () => {
+    // Redirect to dashboard to use wallet connect
+    toast.info('Please connect your wallet from the Dashboard');
+  };
+
+  const handleDisconnectWallet = async () => {
+    await disconnectWallet();
+    toast.success('Wallet disconnected');
+  };
+
+  const handleConnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => {
+    connectAccount(service);
+  };
+
+  const handleDisconnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => {
+    disconnectAccount(service);
+  };
+
+  const handleConnectSocial = async (id: string, handle: string) => {
+    await connectSocialAccount(id as 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'linkedin', handle);
+  };
+
+  const handleDisconnectSocial = async (id: string) => {
+    await disconnectSocialAccount(id as 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'linkedin');
+  };
 
   if (isLoading) {
     return (
@@ -74,12 +154,7 @@ export default function Profile() {
     }
   };
 
-  const connectedEnergyProviders = [
-    profile?.tesla_connected,
-    profile?.enphase_connected,
-    profile?.solaredge_connected,
-    (profile as any)?.wallbox_connected
-  ].filter(Boolean).length;
+  const connectedEnergyProviders = connectedAccounts.filter(acc => acc.connected).length;
 
   const connectedSocialAccounts = [
     profile?.facebook_connected,
@@ -88,6 +163,44 @@ export default function Profile() {
     profile?.twitter_connected,
     profile?.linkedin_connected
   ].filter(Boolean).length;
+
+  const socialAccounts = [
+    { 
+      id: 'facebook', 
+      name: 'Facebook', 
+      icon: <FacebookIcon />, 
+      connected: profile?.facebook_connected ?? false,
+      handle: profile?.facebook_handle ?? undefined,
+    },
+    { 
+      id: 'instagram', 
+      name: 'Instagram', 
+      icon: <InstagramIcon />, 
+      connected: profile?.instagram_connected ?? false,
+      handle: profile?.instagram_handle ?? undefined,
+    },
+    { 
+      id: 'tiktok', 
+      name: 'TikTok', 
+      icon: <TikTokIcon />, 
+      connected: profile?.tiktok_connected ?? false,
+      handle: profile?.tiktok_handle ?? undefined,
+    },
+    { 
+      id: 'twitter', 
+      name: 'X (Twitter)', 
+      icon: <TwitterIcon />, 
+      connected: profile?.twitter_connected ?? false,
+      handle: profile?.twitter_handle ?? undefined,
+    },
+    { 
+      id: 'linkedin', 
+      name: 'LinkedIn', 
+      icon: <LinkedInIcon />, 
+      connected: profile?.linkedin_connected ?? false,
+      handle: profile?.linkedin_handle ?? undefined,
+    },
+  ];
 
   return (
     <PullToRefreshWrapper onRefresh={handleRefresh}>
@@ -229,7 +342,71 @@ export default function Profile() {
           </Card>
         </motion.div>
 
-        {/* Connected Energy Providers */}
+        {/* Wallet Management */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-purple-500/5 to-transparent border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <Wallet className="h-5 w-5 text-purple-500" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-lg">Wallet</CardTitle>
+                  <CardDescription>Your connected crypto wallet</CardDescription>
+                </div>
+                {profile?.wallet_address ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDisconnectWallet}
+                    className="gap-2"
+                  >
+                    <Unlink className="h-4 w-4" />
+                    Disconnect
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={handleConnectWallet}
+                    className="gap-2"
+                  >
+                    <Link2 className="h-4 w-4" />
+                    Connect
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {profile?.wallet_address ? (
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                  <div className="p-2.5 rounded-xl bg-purple-500/10">
+                    <CheckCircle2 className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">Connected</p>
+                    <p className="text-xs text-muted-foreground font-mono truncate">{profile.wallet_address}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 border border-border">
+                  <div className="p-2.5 rounded-xl bg-muted">
+                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">No wallet connected</p>
+                    <p className="text-xs text-muted-foreground">Connect a wallet to mint tokens and NFTs</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Energy Providers - Full Management */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -243,7 +420,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <CardTitle className="text-lg">Energy Providers</CardTitle>
-                  <CardDescription>Connected clean energy accounts</CardDescription>
+                  <CardDescription>Manage your connected energy accounts</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -251,72 +428,115 @@ export default function Profile() {
               <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                 <EnergyProviderCard 
                   name="Tesla" 
+                  service="tesla"
                   connected={profile?.tesla_connected} 
                   icon={<Car className="h-5 w-5" />}
+                  logo={teslaLogo}
                   description="EV, Powerwall, Solar"
                   gradient="from-red-500/10 to-red-600/5"
                   iconBg="bg-red-500/10"
                   iconColor="text-red-500"
+                  onConnect={handleConnectEnergy}
+                  onDisconnect={handleDisconnectEnergy}
                 />
                 <EnergyProviderCard 
                   name="Enphase" 
+                  service="enphase"
                   connected={profile?.enphase_connected} 
                   icon={<Sun className="h-5 w-5" />}
+                  logo={enphaseLogo}
                   description="Solar microinverters"
                   gradient="from-orange-500/10 to-orange-600/5"
                   iconBg="bg-orange-500/10"
                   iconColor="text-orange-500"
+                  onConnect={handleConnectEnergy}
+                  onDisconnect={handleDisconnectEnergy}
                 />
                 <EnergyProviderCard 
                   name="SolarEdge" 
+                  service="solaredge"
                   connected={profile?.solaredge_connected} 
                   icon={<Sun className="h-5 w-5" />}
+                  logo={solaredgeLogo}
                   description="Solar inverters"
                   gradient="from-amber-500/10 to-amber-600/5"
                   iconBg="bg-amber-500/10"
                   iconColor="text-amber-500"
+                  onConnect={handleConnectEnergy}
+                  onDisconnect={handleDisconnectEnergy}
                 />
                 <EnergyProviderCard 
                   name="Wallbox" 
+                  service="wallbox"
                   connected={(profile as any)?.wallbox_connected} 
                   icon={<Battery className="h-5 w-5" />}
+                  logo={wallboxLogo}
                   description="EV charging"
                   gradient="from-green-500/10 to-green-600/5"
                   iconBg="bg-green-500/10"
                   iconColor="text-green-500"
+                  onConnect={handleConnectEnergy}
+                  onDisconnect={handleDisconnectEnergy}
                 />
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Social Accounts */}
+        {/* Social Accounts - Collapsible with Management */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
           <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-secondary/5 to-transparent border-b border-border/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-secondary/10">
-                  <Users className="h-5 w-5 text-secondary" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Social Accounts</CardTitle>
-                  <CardDescription>Linked social media profiles</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="flex flex-wrap gap-2">
-                <SocialBadge label="Facebook" connected={profile?.facebook_connected} handle={profile?.facebook_handle} />
-                <SocialBadge label="Instagram" connected={profile?.instagram_connected} handle={profile?.instagram_handle} />
-                <SocialBadge label="TikTok" connected={profile?.tiktok_connected} handle={profile?.tiktok_handle} />
-                <SocialBadge label="X" connected={profile?.twitter_connected} handle={profile?.twitter_handle} />
-                <SocialBadge label="LinkedIn" connected={profile?.linkedin_connected} handle={profile?.linkedin_handle} />
-              </div>
-            </CardContent>
+            <Collapsible open={socialExpanded} onOpenChange={setSocialExpanded}>
+              <CardHeader className="bg-gradient-to-r from-secondary/5 to-transparent border-b border-border/50">
+                <CollapsibleTrigger asChild>
+                  <button className="flex items-center gap-3 w-full text-left">
+                    <div className="p-2 rounded-lg bg-secondary/10">
+                      <Share2 className="h-5 w-5 text-secondary" />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">Social Accounts</CardTitle>
+                      <CardDescription>
+                        {connectedSocialAccounts > 0 
+                          ? `${connectedSocialAccounts} linked • Optional for sharing achievements`
+                          : 'Optional • Link to share achievements'
+                        }
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">Optional</Badge>
+                      {socialExpanded ? (
+                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </button>
+                </CollapsibleTrigger>
+              </CardHeader>
+              
+              <CollapsibleContent>
+                <CardContent className="pt-6">
+                  <div className="flex flex-wrap gap-2">
+                    {socialAccounts.map((account) => (
+                      <SocialBadge 
+                        key={account.id}
+                        id={account.id}
+                        label={account.name} 
+                        icon={account.icon}
+                        connected={account.connected} 
+                        handle={account.handle}
+                        onConnect={handleConnectSocial}
+                        onDisconnect={handleDisconnectSocial}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
         </motion.div>
       </div>
@@ -326,26 +546,34 @@ export default function Profile() {
 
 function EnergyProviderCard({ 
   name, 
+  service,
   connected, 
   icon, 
+  logo,
   description, 
   gradient, 
   iconBg, 
-  iconColor 
+  iconColor,
+  onConnect,
+  onDisconnect,
 }: { 
   name: string; 
+  service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
   connected?: boolean | null; 
   icon: React.ReactNode;
+  logo: string;
   description: string;
   gradient: string;
   iconBg: string;
   iconColor: string;
+  onConnect: (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => void;
+  onDisconnect: (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => void;
 }) {
   return (
     <div className={`relative p-4 rounded-xl bg-gradient-to-br ${gradient} border ${connected ? 'border-primary/30' : 'border-border/50'} transition-all hover:shadow-md`}>
       <div className="flex items-center gap-3">
         <div className={`p-2.5 rounded-xl ${iconBg}`}>
-          <div className={iconColor}>{icon}</div>
+          <img src={logo} alt={name} className="h-5 w-5 object-contain" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -358,32 +586,109 @@ function EnergyProviderCard({
           </div>
           <p className="text-xs text-muted-foreground">{description}</p>
         </div>
-        <Badge variant={connected ? "default" : "secondary"} className={`shrink-0 ${connected ? 'bg-primary/20 text-primary border-primary/30' : ''}`}>
-          {connected ? 'Connected' : 'Not linked'}
-        </Badge>
+        {connected ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDisconnect(service)}
+            className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Unlink className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onConnect(service)}
+            className="shrink-0"
+          >
+            <Link2 className="h-4 w-4 mr-1" />
+            Connect
+          </Button>
+        )}
       </div>
     </div>
   );
 }
 
-function SocialBadge({ label, connected, handle }: { label: string; connected?: boolean | null; handle?: string | null }) {
+function SocialBadge({ 
+  id,
+  label, 
+  icon,
+  connected, 
+  handle,
+  onConnect,
+  onDisconnect,
+}: { 
+  id: string;
+  label: string; 
+  icon: React.ReactNode;
+  connected?: boolean | null; 
+  handle?: string | null;
+  onConnect: (id: string, handle: string) => void;
+  onDisconnect: (id: string) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [handleInput, setHandleInput] = useState('');
+
+  const handleSubmit = () => {
+    if (handleInput.trim()) {
+      onConnect(id, handleInput.trim());
+      setIsEditing(false);
+      setHandleInput('');
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2 p-2 border rounded-lg bg-card">
+        <span className="text-muted-foreground">{icon}</span>
+        <input
+          type="text"
+          placeholder={`@${label.toLowerCase()}`}
+          value={handleInput}
+          onChange={(e) => setHandleInput(e.target.value)}
+          className="flex-1 bg-transparent border-none outline-none text-sm min-w-[100px]"
+          autoFocus
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+        />
+        <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
+          Cancel
+        </Button>
+        <Button size="sm" onClick={handleSubmit}>
+          Save
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <Badge 
       variant={connected ? "default" : "secondary"} 
-      className={`gap-1.5 px-3 py-2 text-sm ${
+      className={`gap-1.5 px-3 py-2 text-sm cursor-pointer ${
         connected 
           ? 'bg-gradient-to-r from-primary/20 to-secondary/20 text-foreground border-primary/30 hover:border-primary/50' 
-          : 'opacity-60'
+          : 'opacity-60 hover:opacity-100'
       } transition-all`}
+      onClick={() => {
+        if (connected) {
+          onDisconnect(id);
+        } else {
+          setIsEditing(true);
+        }
+      }}
     >
       {connected ? (
         <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
       ) : (
-        <XCircle className="h-3.5 w-3.5" />
+        <span className="text-muted-foreground">{icon}</span>
       )}
       <span>{label}</span>
       {handle && connected && (
         <span className="text-muted-foreground text-xs ml-1">@{handle}</span>
+      )}
+      {connected && (
+        <XCircle className="h-3 w-3 ml-1 text-muted-foreground hover:text-destructive" />
       )}
     </Badge>
   );
