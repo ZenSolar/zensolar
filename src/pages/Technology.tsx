@@ -257,6 +257,158 @@ export default function Technology() {
         </div>
       </motion.div>
 
+      {/* Mint-on-Proof vs Pre-Minted Pools Visual Comparison */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="space-y-6"
+      >
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <Coins className="h-3.5 w-3.5 mr-2" />
+            Token Distribution Model
+          </Badge>
+          <h2 className="text-2xl font-bold">
+            <span className="text-primary">Mint-on-Proof</span> vs Pre-Minted Pools
+          </h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            See how ZenSolar's architecture fundamentally differs from legacy reward systems
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Traditional Pre-Minted Pool */}
+          <Card className="border-red-500/20 bg-gradient-to-br from-red-500/5 to-orange-500/5 relative overflow-hidden">
+            <div className="absolute top-3 right-3">
+              <Badge variant="outline" className="text-xs border-red-500/30 text-red-500 bg-red-500/10">
+                Legacy Approach
+              </Badge>
+            </div>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-3 text-lg text-red-500">
+                <div className="p-2 rounded-lg bg-red-500/10">
+                  <Database className="h-5 w-5" />
+                </div>
+                Pre-Minted Pool
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Visual representation */}
+              <div className="relative bg-muted/50 rounded-xl p-4 border border-red-500/10">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center shadow-lg">
+                    <span className="text-2xl">🏦</span>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex flex-col gap-1">
+                    <div className="w-8 h-8 rounded-full bg-muted border-2 border-dashed border-red-300 flex items-center justify-center text-xs">👤</div>
+                    <div className="w-8 h-8 rounded-full bg-muted border-2 border-dashed border-red-300 flex items-center justify-center text-xs">👤</div>
+                    <div className="w-8 h-8 rounded-full bg-muted border-2 border-dashed border-red-300 flex items-center justify-center text-xs">👤</div>
+                  </div>
+                </div>
+                <p className="text-xs text-center text-muted-foreground">Tokens distributed from central reserve</p>
+              </div>
+              
+              {/* Drawbacks */}
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">✗</span>
+                  <span className="text-muted-foreground">Tokens created <strong className="text-foreground">before</strong> energy is verified</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">✗</span>
+                  <span className="text-muted-foreground">Central authority controls distribution</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">✗</span>
+                  <span className="text-muted-foreground">Supply inflation risk from over-minting</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">✗</span>
+                  <span className="text-muted-foreground">No direct link between energy and token creation</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Mint-on-Proof */}
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/10 via-background to-emerald-500/10 relative overflow-hidden ring-2 ring-primary/20">
+            <div className="absolute top-3 right-3">
+              <Badge className="text-xs bg-primary text-primary-foreground">
+                <Sparkles className="h-3 w-3 mr-1" />
+                ZenSolar
+              </Badge>
+            </div>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-3 text-lg text-primary">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Zap className="h-5 w-5" />
+                </div>
+                Mint-on-Proof
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Visual representation */}
+              <div className="relative bg-muted/50 rounded-xl p-4 border border-primary/20">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                    <span className="text-xl">☀️</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shadow-lg">
+                    <Shield className="h-5 w-5 text-white" />
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-primary" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg animate-pulse">
+                    <span className="text-xl">🪙</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-primary" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg">
+                    <span className="text-xl">👤</span>
+                  </div>
+                </div>
+                <p className="text-xs text-center text-muted-foreground">Energy → Verify → Mint → User Wallet</p>
+              </div>
+              
+              {/* Benefits */}
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">Tokens created <strong className="text-foreground">only after</strong> energy verified</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">Smart contracts mint directly to your wallet</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">1:1 backing—every token tied to real activity</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">One-tap minting from within the app</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Summary callout */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.35 }}
+          className="p-4 rounded-xl bg-gradient-to-r from-primary/10 via-emerald-500/10 to-amber-500/10 border border-primary/20 text-center"
+        >
+          <p className="text-sm text-muted-foreground">
+            <strong className="text-foreground">The Bottom Line:</strong> With <span className="text-primary font-semibold">Mint-on-Proof</span>, 
+            no token exists until your clean energy activity is cryptographically verified—making $ZSOLAR one of the most 
+            <strong className="text-foreground"> transparently backed</strong> tokens in the market.
+          </p>
+        </motion.div>
+      </motion.div>
+
       {/* Why It Matters */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
