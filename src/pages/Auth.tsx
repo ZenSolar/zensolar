@@ -299,11 +299,17 @@ export default function Auth() {
             />
           </div>
           
-          <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
-            Power Your Future
+          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">
+            The World's First
+          </p>
+          <h1 className="text-3xl font-bold text-white mb-3 tracking-tight">
+            One-Tap, Mint-on-Proof
           </h1>
-          <p className="text-lg text-slate-300 mb-12 leading-relaxed">
-            Track your solar production, earn rewards, and make a positive impact on the planet.
+          <h2 className="text-2xl font-semibold text-slate-300 mb-6">
+            Clean Energy Platform
+          </h2>
+          <p className="text-base text-slate-400 mb-12 leading-relaxed">
+            Track your solar production, earn $ZSOLAR tokens, and make a positive impact on the planet.
           </p>
           
           {/* Feature highlights */}
@@ -338,6 +344,10 @@ export default function Auth() {
             <div className="flex justify-center mb-4 lg:hidden">
               <img src={zenLogo} alt="ZenSolar" fetchPriority="high" className="h-12 w-auto object-contain" />
             </div>
+            {/* Mobile tagline */}
+            <p className="text-[10px] uppercase tracking-[0.15em] text-primary font-semibold mb-2 lg:hidden">
+              The World's First One-Tap, Mint-on-Proof Clean Energy Platform
+            </p>
             <CardTitle className="text-2xl font-bold text-white">
               {mode === 'forgot' ? 'Reset Password' : mode === 'reset' ? 'New Password' : 'Welcome'}
             </CardTitle>
