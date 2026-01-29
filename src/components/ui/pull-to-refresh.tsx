@@ -67,10 +67,10 @@ export function PullToRefreshIndicator({
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center overflow-hidden"
+      className="flex flex-col items-center justify-center pt-4 pb-2"
       initial={{ height: 0, opacity: 0 }}
       animate={{ 
-        height: isRefreshing ? 80 : showSuccess ? 64 : Math.min(pullDistance * 0.8, threshold),
+        height: isRefreshing ? 100 : showSuccess ? 80 : Math.min(pullDistance * 0.8 + 20, threshold + 20),
         opacity: 1 
       }}
       exit={{ height: 0, opacity: 0 }}
@@ -83,12 +83,12 @@ export function PullToRefreshIndicator({
         className={cn(
           'relative flex items-center justify-center rounded-full transition-all duration-200',
           isRefreshing 
-            ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/40' 
+            ? 'bg-primary/20 text-primary border-2 border-primary/40 backdrop-blur-sm' 
             : showSuccess
-              ? 'bg-gradient-to-br from-eco to-eco/80 text-eco-foreground shadow-lg shadow-eco/40'
+              ? 'bg-eco/20 text-eco border-2 border-eco/40 backdrop-blur-sm'
               : isReady 
-                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/30' 
-                : 'bg-muted/90 text-muted-foreground border border-border/60 backdrop-blur-sm',
+                ? 'bg-primary/20 text-primary border-2 border-primary/40 backdrop-blur-sm' 
+                : 'bg-muted/50 text-muted-foreground border border-border/40 backdrop-blur-sm',
           isBouncing && 'scale-110'
         )}
         style={{
