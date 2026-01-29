@@ -16,26 +16,14 @@ import { RefreshIndicators } from './RefreshIndicators';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-// Import brand logos for connected providers display (non-Tesla)
+// Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import teslaLogo from '@/assets/logos/tesla-t-logo.png';
 
 const providerLogos: Record<string, string> = {
   enphase: enphaseLogo,
+  tesla: teslaLogo,
 };
-
-// Tesla "T" icon as inline SVG - official design for crisp rendering
-function TeslaIcon({ className }: { className?: string }) {
-  return (
-    <svg 
-      viewBox="0 0 278 239" 
-      className={className}
-      fill="currentColor"
-    >
-      {/* Official Tesla T shape - curved arc at top with pointed bottom */}
-      <path d="M139.5 0c-36.8 0-71.4 5.6-102.5 14.7L139.5 239 242 14.7C210.9 5.6 176.3 0 139.5 0zm0 28.2c20.5 0 40.2 2.1 58.5 6.1l-58.5 147.1L80.9 34.3c18.4-4 38.1-6.1 58.6-6.1z"/>
-    </svg>
-  );
-}
 
 type CurrentActivity = {
   solarKwh: number;
@@ -128,28 +116,22 @@ export function ActivityMetrics({
           {/* Connected Provider Logos */}
           {filteredProviders.length > 0 && (
             <div className="flex items-center gap-1.5">
-              {filteredProviders.map((provider) => (
-                <div 
-                  key={provider}
-                  className={cn(
-                    "h-8 w-8 rounded-lg flex items-center justify-center",
-                    provider === 'tesla' 
-                      ? "bg-[#E82127]" 
-                      : "bg-muted/80 border border-border/50"
-                  )}
-                  title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                >
-                  {provider === 'tesla' ? (
-                    <TeslaIcon className="h-5 w-5 text-white" />
-                  ) : (
+                {filteredProviders.map((provider) => (
+                  <div 
+                    key={provider}
+                    className="h-8 w-8 rounded-lg flex items-center justify-center bg-muted/80 border border-border/50 overflow-hidden"
+                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                  >
                     <img 
                       src={providerLogos[provider]} 
                       alt={provider}
-                      className="h-4 w-4 object-contain"
+                      className={cn(
+                        "object-contain",
+                        provider === 'tesla' ? "h-6 w-6" : "h-4 w-4"
+                      )}
                     />
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
             </div>
           )}
         </div>
