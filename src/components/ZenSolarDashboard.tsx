@@ -26,7 +26,7 @@ import {
   calculateEarnedMilestones,
   calculateComboAchievements,
 } from '@/lib/nftMilestones';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface ZenSolarDashboardProps {
@@ -135,7 +135,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
           <div>
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
-            <p className="text-sm text-muted-foreground">Mint $ZSOLAR tokens and NFTs directly to your wallet — powered by patent-pending SEGI technology.</p>
+            <p className="text-sm text-muted-foreground">
+              Mint $ZSOLAR tokens and NFTs directly to your wallet — powered by{' '}
+              <Link 
+                to="/technology" 
+                className="text-primary hover:text-primary/80 font-medium underline underline-offset-2 transition-colors"
+              >
+                patent-pending SEGI technology
+              </Link>.
+            </p>
           </div>
         </AnimatedItem>
 
