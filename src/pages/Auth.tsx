@@ -350,12 +350,11 @@ export default function Auth() {
               />
             </div>
             
-            {/* Mobile tagline - structured line breaks for clean wrapping */}
+            {/* Mobile tagline - 2 lines */}
             <div className="mt-6 mb-5 lg:hidden">
               <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed drop-shadow-[0_0_10px_rgba(16,185,129,0.7)]">
                 <span className="block">The World's First</span>
-                <span className="block mt-0.5">One-Tap, Mint-on-Proof</span>
-                <span className="block mt-0.5 text-slate-400">Clean Energy Platform</span>
+                <span className="block mt-1 text-slate-300">One-Tap, Mint-on-Proof Clean Energy Platform</span>
               </p>
             </div>
             
