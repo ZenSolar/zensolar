@@ -2,9 +2,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useOnChainHoldings } from '@/hooks/useOnChainHoldings';
-import { Wallet, Coins, Images, ExternalLink, RefreshCw } from 'lucide-react';
+import { Wallet, Coins, Images, ExternalLink, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { CHAIN_ID } from '@/lib/wagmi';
 
 interface WalletHoldingsCardProps {
   walletAddress?: string;
@@ -37,7 +36,7 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">On-Chain Holdings</span>
+            <span className="text-sm font-medium">ZenSolar Holdings</span>
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -86,11 +85,11 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
           </div>
         </div>
 
-        {/* Network indicator */}
+        {/* Privacy notice */}
         <div className="mt-3 pt-3 border-t border-border/50">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            <span>Base Sepolia • Live</span>
+          <div className="flex items-start gap-2 text-xs text-muted-foreground">
+            <ShieldCheck className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary/70" />
+            <span>Only showing your ZenSolar tokens & NFTs. We cannot see your other wallet holdings.</span>
           </div>
         </div>
       </CardContent>

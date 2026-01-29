@@ -8,7 +8,8 @@ import {
   Zap,
   Gift,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -140,6 +141,7 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
     const [isCheckingStatus, setIsCheckingStatus] = useState(false);
     const [mintFlowOpen, setMintFlowOpen] = useState(false);
     const [mintingMilestone, setMintingMilestone] = useState<NFTMilestone | null>(null);
+    const [isBatchMinting, setIsBatchMinting] = useState(false);
     const { triggerCelebration, triggerGoldBurst } = useConfetti();
     const { success: hapticSuccess } = useHaptics();
 
@@ -228,6 +230,40 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
       onMintSuccess?.();
     };
 
+    // Batch mint all available NFTs
+    const handleBatchMintAll = async () => {
+      if (!walletAddress || mintableNFTs.length === 0) return;
+      
+      setIsBatchMinting(true);
+      try {
+        const tokenIds = mintableNFTs
+          .map(nft => MILESTONE_TO_TOKEN_ID[nft.id])
+          .filter((id): id is number => id !== undefined);
+
+        const { data, error } = await supabase.functions.invoke('mint-onchain', {
+          body: {
+            action: 'batch-mint-nfts',
+            walletAddress,
+            tokenIds,
+          },
+        });
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+
+        // Success!
+        triggerGoldBurst();
+        triggerCelebration();
+        hapticSuccess();
+        await checkOnChainStatus();
+        onMintSuccess?.();
+      } catch (err) {
+        console.error('Batch mint error:', err);
+      } finally {
+        setIsBatchMinting(false);
+      }
+    };
+
     return (
       <>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -272,17 +308,36 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
                   </Link>
                 </div>
               ) : (
-                <div className="space-y-2 py-1">
-                  <AnimatePresence mode="popLayout">
-                    {mintableNFTs.map((nft, index) => (
-                      <MintableNFTCard
-                        key={nft.id}
-                        milestone={nft}
-                        onMint={handleMintNFT}
-                        isMinting={mintingMilestone?.id === nft.id && mintFlowOpen}
-                      />
-                    ))}
-                  </AnimatePresence>
+                <div className="space-y-3 py-1">
+                  {/* Batch Mint All Button */}
+                  {mintableNFTs.length > 1 && (
+                    <Button
+                      onClick={handleBatchMintAll}
+                      disabled={isBatchMinting || !walletAddress}
+                      className="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                      size="lg"
+                    >
+                      {isBatchMinting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Layers className="h-4 w-4" />
+                      )}
+                      Mint All ({mintableNFTs.length} NFTs)
+                    </Button>
+                  )}
+
+                  <div className="space-y-2">
+                    <AnimatePresence mode="popLayout">
+                      {mintableNFTs.map((nft, index) => (
+                        <MintableNFTCard
+                          key={nft.id}
+                          milestone={nft}
+                          onMint={handleMintNFT}
+                          isMinting={(mintingMilestone?.id === nft.id && mintFlowOpen) || isBatchMinting}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </div>
                   
                   {/* Link to full collection */}
                   <div className="pt-3 text-center border-t border-border/50 mt-3">
