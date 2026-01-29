@@ -121,6 +121,13 @@ const glossaryTerms = [
     example: "With 20% mint burn, minting 1,000 tokens only adds 800 to circulation—200 are burned permanently."
   },
   {
+    term: "Mint-on-Proof",
+    category: "Technology",
+    icon: Zap,
+    definition: "ZenSolar's proprietary patent-pending architecture where tokens and NFTs are minted on-demand only after energy activity is cryptographically verified. Unlike legacy systems that distribute from pre-minted pools, Mint-on-Proof creates tokens backed by real, verified clean energy data—with just one tap in the app.",
+    example: "When you tap 'Mint Tokens' in the ZenSolar app, SEGI verifies your new kWh production since your last mint, then triggers the smart contract to mint exactly that amount of $ZSOLAR directly to your wallet."
+  },
+  {
     term: "MOAT (Economic Moat)",
     category: "Strategy",
     icon: Shield,
