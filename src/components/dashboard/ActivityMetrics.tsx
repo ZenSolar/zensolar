@@ -1,5 +1,5 @@
 import type React from 'react';
-import { ActivityData, DeviceLabels } from '@/types/dashboard';
+import { ActivityData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import {
   Sun,
@@ -122,7 +122,7 @@ export function ActivityMetrics({
   return (
     <Card className={cn(
       "overflow-hidden transition-all bg-card",
-      activityUnits > 0 ? 'border-primary/30 shadow-lg shadow-primary/5' : 'border-border/50'
+      activityUnits > 0 ? 'border-primary/30 shadow-lg shadow-primary/10' : 'border-border/50'
     )}>
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
@@ -134,11 +134,11 @@ export function ActivityMetrics({
           
           {/* Connected Provider Logos */}
           {filteredProviders.length > 0 && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {filteredProviders.map((provider) => (
                 <div 
                   key={provider}
-                  className="h-6 w-6 rounded-lg bg-muted p-1 flex items-center justify-center"
+                  className="h-7 w-7 rounded-lg bg-muted/80 p-1.5 flex items-center justify-center border border-border/50"
                   title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                 >
                   <img 
@@ -194,7 +194,7 @@ export function ActivityMetrics({
                   label="Tesla Supercharger"
                   value={superchargerKwh}
                   unit="kWh"
-                  color="olive"
+                  color="purple"
                   active={superchargerKwh > 0}
                   onTap={onMintCategory ? () => onMintCategory('supercharger') : undefined}
                 />
@@ -205,7 +205,7 @@ export function ActivityMetrics({
                   label={homeChargerLabel}
                   value={homeChargerKwh}
                   unit="kWh"
-                  color="olive"
+                  color="purple"
                   active={homeChargerKwh > 0}
                   onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
                 />
@@ -224,78 +224,118 @@ export function ActivityMetrics({
           ) : null}
         </div>
 
-        {/* Total Available Tokens - Same card style as activity fields */}
+        {/* Total Available Tokens - Premium Hero Card */}
         <motion.div 
           onClick={activityUnits > 0 && onMintCategory ? () => onMintCategory('all') : undefined}
           whileTap={activityUnits > 0 && onMintCategory ? { scale: 0.98 } : undefined}
+          whileHover={activityUnits > 0 && onMintCategory ? { scale: 1.01 } : undefined}
           className={cn(
-            "p-3 rounded-xl border flex items-center gap-3 transition-all",
+            "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden",
             activityUnits > 0 && onMintCategory
-              ? "cursor-pointer border-primary/30 bg-primary/5 hover:bg-primary/10"
+              ? "cursor-pointer border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
               : "border-border/50 bg-muted/30"
           )}
         >
+          {/* Animated background glow for active state */}
+          {activityUnits > 0 && (
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-emerald-500/5 animate-pulse-glow" />
+          )}
+          
           <div className={cn(
-            "p-3 rounded-xl",
-            activityUnits > 0 ? "bg-primary" : "bg-muted"
+            "relative p-3 rounded-xl transition-all",
+            activityUnits > 0 
+              ? "bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/30" 
+              : "bg-muted"
           )}>
             <Coins className={cn(
-              "h-5 w-5",
-              activityUnits > 0 ? "text-primary-foreground" : "text-muted-foreground"
+              "h-6 w-6",
+              activityUnits > 0 ? "text-white" : "text-muted-foreground"
             )} />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-muted-foreground">Total Available Tokens</p>
-            <p className="text-xl font-bold text-foreground">
+          <div className="flex-1 min-w-0 relative">
+            <p className="text-sm text-muted-foreground font-medium">Total Available Tokens</p>
+            <p className="text-2xl font-bold text-foreground tracking-tight">
               {tokensToReceive.toLocaleString()}
-              <span className="text-base font-normal text-muted-foreground ml-1">$ZSOLAR</span>
+              <span className="text-lg font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
             </p>
             <p className={cn(
-              "text-xs",
+              "text-sm font-medium",
               activityUnits > 0 ? "text-primary" : "text-muted-foreground"
             )}>
               ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} @ ${tokenPrice.toFixed(2)}
             </p>
           </div>
           {activityUnits > 0 && onMintCategory && (
-            <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+            <div className="relative flex items-center gap-1 text-primary">
+              <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
+              <ChevronRight className="h-5 w-5" />
+            </div>
           )}
         </motion.div>
 
         {/* Footer: NFTs + Lifetime */}
         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50">
-          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/50">
-            <Award className="h-4 w-4 text-primary" />
+          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50">
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <Award className="h-4 w-4 text-primary" />
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground">NFTs Earned</p>
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">NFTs Earned</p>
               <p className="text-sm font-bold text-foreground">{totalEarned} / {totalPossible}</p>
             </div>
           </div>
           
-          <div 
-            className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors"
+          <motion.div 
+            className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50 cursor-pointer hover:bg-muted/50 transition-all"
             onClick={() => window.location.href = '/mint-history'}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <Coins className="h-4 w-4 text-muted-foreground" />
+            <div className="p-1.5 rounded-lg bg-muted">
+              <Coins className="h-4 w-4 text-muted-foreground" />
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground">Lifetime Minted</p>
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Lifetime Minted</p>
               <p className="text-sm font-bold text-foreground">{data.lifetimeMinted.toLocaleString()}</p>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-          </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </motion.div>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-// Color mapping - solid backgrounds with white icons (Tesla-inspired)
+// Color mapping - matching landing page exactly with gradient backgrounds
 const colorStyles = {
-  amber: { solidBg: 'bg-amber-500', iconColor: 'text-white' },
-  blue: { solidBg: 'bg-blue-500', iconColor: 'text-white' },
-  emerald: { solidBg: 'bg-emerald-500', iconColor: 'text-white' },
-  purple: { solidBg: 'bg-purple-500', iconColor: 'text-white' },
-  olive: { solidBg: 'bg-yellow-600', iconColor: 'text-white' },
+  amber: { 
+    gradient: 'from-amber-500 to-orange-500',
+    text: 'text-amber-500',
+    glow: 'shadow-amber-500/30',
+    bg: 'bg-amber-500/10',
+    border: 'border-amber-500/30',
+  },
+  blue: { 
+    gradient: 'from-blue-500 to-cyan-500',
+    text: 'text-blue-500',
+    glow: 'shadow-blue-500/30',
+    bg: 'bg-blue-500/10',
+    border: 'border-blue-500/30',
+  },
+  emerald: { 
+    gradient: 'from-emerald-500 to-green-500',
+    text: 'text-emerald-500',
+    glow: 'shadow-emerald-500/30',
+    bg: 'bg-emerald-500/10',
+    border: 'border-emerald-500/30',
+  },
+  purple: { 
+    gradient: 'from-purple-500 to-pink-500',
+    text: 'text-purple-500',
+    glow: 'shadow-purple-500/30',
+    bg: 'bg-purple-500/10',
+    border: 'border-purple-500/30',
+  },
 };
 
 interface ActivityFieldProps {
@@ -316,33 +356,59 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
     <motion.div
       onClick={onTap}
       whileTap={isTappable ? { scale: 0.98 } : undefined}
+      whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
       className={cn(
-        "p-3 rounded-xl border transition-all flex items-center gap-3",
+        "p-3.5 rounded-xl border transition-all flex items-center gap-3.5 relative overflow-hidden",
         isTappable
-          ? "cursor-pointer border-border/50 bg-card hover:bg-muted/30"
+          ? cn("cursor-pointer bg-card hover:bg-muted/20", styles.border, `hover:shadow-lg ${styles.glow}`)
           : "border-border/50 bg-muted/30"
       )}
     >
-      {/* Large rounded icon square */}
-      <div className={cn("p-3 rounded-xl", active ? styles.solidBg : "bg-muted")}>
-        <Icon className={cn("h-5 w-5", active ? styles.iconColor : "text-muted-foreground")} />
+      {/* Subtle gradient overlay for active cards */}
+      {active && (
+        <div className={cn(
+          "absolute inset-0 opacity-[0.03] bg-gradient-to-r",
+          styles.gradient
+        )} />
+      )}
+      
+      {/* Icon with gradient background */}
+      <div className={cn(
+        "relative p-3 rounded-xl transition-all",
+        active 
+          ? cn("bg-gradient-to-br shadow-lg", styles.gradient, styles.glow)
+          : "bg-muted"
+      )}>
+        <Icon className={cn(
+          "h-5 w-5 transition-all",
+          active ? "text-white" : "text-muted-foreground"
+        )} />
       </div>
       
       {/* Label + Value */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-muted-foreground truncate">{label}</p>
+      <div className="flex-1 min-w-0 relative">
         <p className={cn(
-          "text-xl font-bold",
+          "text-sm font-medium truncate transition-colors",
+          active ? "text-foreground" : "text-muted-foreground"
+        )}>{label}</p>
+        <p className={cn(
+          "text-xl font-bold tracking-tight",
           active ? "text-foreground" : "text-muted-foreground"
         )}>
           {value.toLocaleString()}
-          <span className="text-base font-normal text-muted-foreground ml-1">{unit}</span>
+          <span className={cn(
+            "text-base font-semibold ml-1",
+            active ? styles.text : "text-muted-foreground"
+          )}>{unit}</span>
         </p>
       </div>
       
       {/* Tap indicator */}
       {isTappable && (
-        <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+        <div className={cn("flex items-center gap-1", styles.text)}>
+          <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">Mint</span>
+          <ChevronRight className="h-5 w-5" />
+        </div>
       )}
     </motion.div>
   );
