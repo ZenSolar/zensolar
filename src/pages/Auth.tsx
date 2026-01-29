@@ -350,9 +350,14 @@ export default function Auth() {
               />
             </div>
             
-            {/* Mobile tagline - 2 lines with matching glow */}
-            <div className="mt-6 mb-5 lg:hidden drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed">
+            {/* Mobile tagline - 2 lines with bright glow */}
+            <div className="mt-6 mb-5 lg:hidden">
+              <p 
+                className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed"
+                style={{ 
+                  textShadow: '0 0 10px rgba(16, 185, 129, 0.9), 0 0 20px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4)' 
+                }}
+              >
                 <span className="block">The World's First</span>
                 <span className="block mt-1">One-Tap, Mint-on-Proof Clean Energy Platform</span>
               </p>
