@@ -1,9 +1,10 @@
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { useConfetti } from '@/hooks/useConfetti';
+import { getNewUserViewMode } from '@/lib/userViewMode';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { DashboardFooter } from './dashboard/DashboardFooter';
 import { ActivityMetrics, MintCategory } from './dashboard/ActivityMetrics';
@@ -51,6 +52,19 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   // Shared token price state
   const [tokenPrice, setTokenPrice] = useState(0.10);
   
+  // New User View mode - shows onboarding cards regardless of actual status
+  const [isNewUserView, setIsNewUserView] = useState(getNewUserViewMode());
+  
+  useEffect(() => {
+    const handleModeChange = (event: CustomEvent<boolean>) => {
+      setIsNewUserView(event.detail);
+    };
+    window.addEventListener('newUserViewModeChange', handleModeChange as EventListener);
+    return () => {
+      window.removeEventListener('newUserViewModeChange', handleModeChange as EventListener);
+    };
+  }, []);
+  
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
   });
@@ -75,6 +89,10 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const energyAccounts = connectedAccounts;
   const hasEnergyConnected = energyAccounts.some(acc => acc.connected);
   const hasWalletConnected = !!profile?.wallet_address;
+  
+  // In New User View mode, always show onboarding cards
+  const showWalletPrompt = isNewUserView || !hasWalletConnected;
+  const showEnergyPrompt = isNewUserView || !hasEnergyConnected;
   
   // Get connected provider names for display
   const connectedProviders = energyAccounts
@@ -158,14 +176,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        {/* Onboarding Cards - Show until both wallet AND energy are connected */}
-        {!hasWalletConnected && (
+        {/* Onboarding Cards - Show until both wallet AND energy are connected (or in New User View mode) */}
+        {showWalletPrompt && (
           <AnimatedItem>
             <CompactWalletPrompt />
           </AnimatedItem>
         )}
         
-        {!hasEnergyConnected && (
+        {showEnergyPrompt && (
           <AnimatedItem>
             <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
           </AnimatedItem>
