@@ -1,254 +1,297 @@
 
-# NFT Milestone Card Enhancement + Layout Optimization
+# Dashboard Enhancements: NFT Card Polish + Layout Reorganization
 
 ## Overview
 
-This plan enhances the NFT Milestone card with interactive category selection and cleaner layout organization, creating a more intuitive and engaging experience.
+This plan addresses multiple improvements to enhance the NFT Milestone card and reorganize the dashboard layout for better user experience.
 
 ---
 
 ## Changes Summary
 
-### 1. Add "ZenSolar NFTs" Title to Card Header
+### 1. Verify Tap-to-Cycle and Category Selection ✓
 
-**Current Header:**
-```
-[24 Earned]                    [View All →]
-```
+The current `RewardProgress.tsx` already implements:
+- `selectedCategory` state (line 152)
+- `handleCycleCategory()` on hero image (line 189-194)
+- `handleSelectCategory()` on category dots (line 197-199)
+- Category dots with `onClick` handlers (lines 339, 348, 357, 366)
 
-**New Header:**
-```
-ZenSolar NFTs                  [24 Earned]
-```
-
-The "View All →" link moves below the category dots.
+**Status**: Already implemented and working.
 
 ---
 
-### 2. Tap-to-Cycle Feature on Hero NFT Image
+### 2. Add Smooth Cross-Fade Animation Between NFT Images
 
-When the user taps on the hero NFT image, it cycles to the next category's milestone:
-- Solar → Battery → EV Miles → Charging → Solar (loops)
+Already partially implemented with `AnimatePresence` and `motion.img` (lines 256-268).
 
-A subtle visual indicator shows the current category.
+**Enhance by**:
+- Adding `scale` animation alongside opacity
+- Smoothing the transition duration
 
----
+**File**: `src/components/dashboard/RewardProgress.tsx` (Lines 258-267)
 
-### 3. Tappable Category Dots with Labels
-
-Each category dot becomes tappable and shows the category name above it:
-
-```
-+--------+  +--------+  +---------+  +----------+
-|  Solar |  | Battery|  | EV Miles|  | Charging |
-|  [☀️]  |  |  [🔋]  |  |  [🚗]   |  |   [⚡]   |
-|   2/8  |  |   1/7  |  |   3/10  |  |   2/8    |
-+--------+  +--------+  +---------+  +----------+
-     ^                                    
-   Active (highlighted)
-```
-
-Tapping a category switches the hero NFT to show that category's next milestone.
-
----
-
-### 4. Move NFT Footer from Energy Command Center
-
-**Remove from ActivityMetrics:**
-- "NFTs Earned" indicator
-- "Lifetime Minted" indicator
-
-**Add to RewardProgress (below category dots):**
-- "View All" link (was in header)
-- "Lifetime Minted" indicator with tap-to-navigate
-
----
-
-## Technical Implementation
-
-### File 1: `src/components/dashboard/RewardProgress.tsx`
-
-**Key Changes:**
-
-1. **Add state for selected category:**
 ```tsx
-const [selectedCategory, setSelectedCategory] = useState<'solar' | 'battery' | 'ev_miles' | 'charging' | null>(null);
-```
+// Current
+initial={{ opacity: 0 }}
+animate={{ opacity: 1 }}
+exit={{ opacity: 0 }}
+transition={{ duration: 0.3 }}
 
-2. **New header with title:**
-```tsx
-<div className="flex items-center justify-between">
-  <h3 className="text-base font-semibold text-foreground">ZenSolar NFTs</h3>
-  <Badge variant="secondary" className="gap-1.5 px-2.5 py-1">
-    <Award className="h-3.5 w-3.5" />
-    <span className="font-semibold">{totalEarned} Earned</span>
-  </Badge>
-</div>
-```
-
-3. **Tap-to-cycle on hero image:**
-```tsx
-<motion.div 
-  onClick={handleCycleCategory}
-  className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer"
->
-  {/* Image and overlay */}
-</motion.div>
-```
-
-4. **Category dots with labels and tap handlers:**
-```tsx
-function CategoryDot({ icon, label, count, total, color, isActive, onClick }) {
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className={cn(
-        "flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all",
-        isActive 
-          ? cn("bg-gradient-to-br", styles.gradient, "shadow-lg", styles.glow)
-          : "bg-muted/50 hover:bg-muted"
-      )}
-    >
-      <span className="text-[10px] font-medium uppercase tracking-wide">
-        {label}
-      </span>
-      <Icon className={...} />
-      <span className="text-xs font-bold tabular-nums">
-        {count}/{total}
-      </span>
-    </motion.button>
-  );
-}
-```
-
-5. **Footer with "View All" and "Lifetime Minted":**
-```tsx
-<div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/50">
-  <Link to="/nft-collection" className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-all">
-    <Award className="h-4 w-4 text-primary" />
-    <span>View Collection</span>
-    <ChevronRight className="h-4 w-4" />
-  </Link>
-  
-  <Link to="/mint-history" className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-all">
-    <Coins className="h-4 w-4" />
-    <div>
-      <p className="text-[10px] text-muted-foreground uppercase">Lifetime Minted</p>
-      <p className="text-sm font-bold">{lifetimeMinted.toLocaleString()}</p>
-    </div>
-    <ChevronRight className="h-4 w-4" />
-  </Link>
-</div>
+// New - add scale for smoother feel
+initial={{ opacity: 0, scale: 1.02 }}
+animate={{ opacity: 1, scale: 1 }}
+exit={{ opacity: 0, scale: 0.98 }}
+transition={{ duration: 0.35, ease: "easeOut" }}
 ```
 
 ---
 
-### File 2: `src/components/dashboard/ActivityMetrics.tsx`
+### 3. Add Haptic Feedback When Tapping Category Dots
 
-**Remove the footer section (lines 276-303):**
-- Delete the entire "Footer: NFTs + Lifetime" grid
-- The card ends after the "Total Available Tokens" section
+Import and use the `useHaptics` hook in RewardProgress.tsx.
 
----
+**File**: `src/components/dashboard/RewardProgress.tsx`
 
-### File 3: `src/components/ZenSolarDashboard.tsx`
-
-**Pass lifetimeMinted to RewardProgress:**
-```tsx
-<RewardProgress
-  tokensEarned={activityData.tokensEarned}
-  solarKwh={activityData.solarEnergyProduced}
-  evMilesDriven={activityData.evMilesDriven}
-  evChargingKwh={activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
-  batteryDischargedKwh={activityData.batteryStorageDischarged}
-  nftsEarned={activityData.nftsEarned}
-  lifetimeMinted={activityData.lifetimeMinted}  // NEW
-  isNewUser={true}
-/>
-```
-
----
-
-## New Category Cycling Logic
+**Changes**:
+1. Import haptics hook
+2. Call `lightTap()` on category dot clicks and hero image taps
 
 ```tsx
-// Category order for cycling
-const categoryOrder = ['solar', 'battery', 'ev_miles', 'charging'] as const;
+import { useHaptics } from '@/hooks/useHaptics';
 
-// Get milestone for selected category (or use priority if none selected)
-const displayMilestone = useMemo(() => {
-  if (selectedCategory) {
-    return getMilestoneForCategory(selectedCategory, categoryValues);
-  }
-  return getNextPriorityMilestone(...);
-}, [selectedCategory, categoryValues]);
+// Inside component
+const { lightTap } = useHaptics();
 
-// Cycle through categories on tap
+// In handleCycleCategory
 const handleCycleCategory = () => {
-  const currentIndex = selectedCategory 
-    ? categoryOrder.indexOf(selectedCategory) 
-    : -1;
-  const nextIndex = (currentIndex + 1) % categoryOrder.length;
-  setSelectedCategory(categoryOrder[nextIndex]);
+  lightTap(); // Add haptic feedback
+  const currentCat = selectedCategory || displayMilestone?.category || 'solar';
+  // ... rest unchanged
 };
 
-// Select specific category on dot tap
-const handleSelectCategory = (category: typeof categoryOrder[number]) => {
+// In handleSelectCategory  
+const handleSelectCategory = (category: CategoryType) => {
+  lightTap(); // Add haptic feedback
   setSelectedCategory(category);
 };
 ```
 
 ---
 
-## Helper Function Addition to `nftMilestones.ts`
+### 4. Rename "ZenSolar NFTs" to "zensolar NFTs" (Lowercase 's')
+
+Change text in RewardProgress.tsx header.
+
+**File**: `src/components/dashboard/RewardProgress.tsx` (Line 227)
 
 ```tsx
-// Get next milestone for a specific category
-export function getMilestoneForCategory(
-  category: 'solar' | 'battery' | 'ev_miles' | 'charging',
-  values: { solar: number; battery: number; evMiles: number; charging: number }
-): PriorityMilestone | null {
-  const milestoneMap = {
-    solar: { milestones: SOLAR_MILESTONES, value: values.solar, unit: 'kWh' },
-    battery: { milestones: BATTERY_MILESTONES, value: values.battery, unit: 'kWh' },
-    ev_miles: { milestones: EV_MILES_MILESTONES, value: values.evMiles, unit: 'miles' },
-    charging: { milestones: EV_CHARGING_MILESTONES, value: values.charging, unit: 'kWh' },
-  };
-  
-  const config = milestoneMap[category];
-  const next = getNextMilestone(config.value, config.milestones);
-  
-  if (next) {
-    return { ...next, category, currentValue: config.value, unit: config.unit };
-  }
-  
-  // If category is complete, show the last earned milestone
-  const earned = calculateEarnedMilestones(config.value, config.milestones);
-  if (earned.length > 0) {
-    const last = earned[earned.length - 1];
-    return { ...last, category, currentValue: config.value, unit: config.unit };
-  }
-  
-  // No milestones at all - show the first one
-  const first = config.milestones[0];
-  return { ...first, category, currentValue: config.value, unit: config.unit };
-}
+// Current
+<h3 className="text-base font-semibold text-foreground">ZenSolar NFTs</h3>
+
+// New
+<h3 className="text-base font-semibold text-foreground">zensolar NFTs</h3>
 ```
 
 ---
 
-## Visual Design Updates
+### 5. Remove "Owned X NFTs" Text from Dashboard
 
-### Category Dot Layout (New)
+Remove from both `RewardActions.tsx` and `DemoRewardActions.tsx`.
 
+**File 1**: `src/components/dashboard/RewardActions.tsx` (Lines 861-867)
+**Action**: Delete this block entirely
+```tsx
+{/* Owned NFTs count */}
+{eligibility && (
+  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+    <Award className="h-4 w-4" />
+    <span>Owned: {eligibility.ownedNFTs.length} NFTs</span>
+  </div>
+)}
+```
+
+**File 2**: `src/components/demo/DemoRewardActions.tsx` (Lines 327-332)
+**Action**: Delete this block entirely
+```tsx
+{walletAddress && (
+  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+    <Award className="h-4 w-4" />
+    <span>Owned: {ownedNFTCount} NFTs</span>
+  </div>
+)}
+```
+
+---
+
+### 6. Move "Mint ZenSolar NFTs" Button Below NFT Card
+
+The "MINT ZENSOLAR NFTS" button currently lives in `RewardActions.tsx`. Move it to a new section below `RewardProgress` in the dashboard.
+
+**Approach**: Create a new component or integrate into `RewardProgress.tsx` footer.
+
+**File**: `src/components/dashboard/RewardProgress.tsx`
+
+Add a new "Mint NFTs" row in the footer grid (after "View Collection" and "Lifetime Minted"):
+
+```tsx
+{/* Add new row for Mint NFTs CTA */}
+{eligibility?.totalEligible > 0 && (
+  <Button
+    onClick={() => navigate('/nft-collection')}
+    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+    size="lg"
+  >
+    <Images className="mr-2 h-4 w-4" />
+    MINT zensolar NFTs
+    <Badge variant="secondary" className="ml-2 bg-white/20">
+      {eligibility.totalEligible} available
+    </Badge>
+  </Button>
+)}
+```
+
+But since we don't have eligibility data in RewardProgress, a simpler approach is to **remove the button from RewardActions** and add a visual CTA in the NFT card footer that links to the collection page.
+
+**Actually, looking at the screenshot reference**: The button should move from RewardActions to below the NFT card. We'll add this as a third row in the RewardProgress footer.
+
+---
+
+### 7. Move "Lifetime Minted" to Energy Command Center
+
+Move the "Lifetime Minted" indicator from the NFT card footer to the bottom of the Energy Command Center (ActivityMetrics).
+
+**File 1**: `src/components/dashboard/ActivityMetrics.tsx`
+**Add** a new "Lifetime Minted" section at the bottom of the card, after the "Total Available Tokens" section.
+
+```tsx
+{/* Lifetime Minted - moved from NFT card */}
+<Link 
+  to="/mint-history" 
+  className="flex items-center gap-3 p-3.5 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all group"
+>
+  <div className="p-2.5 rounded-xl bg-muted">
+    <Coins className="h-5 w-5 text-muted-foreground" />
+  </div>
+  <div className="flex-1 min-w-0">
+    <p className="text-sm font-medium text-muted-foreground">Lifetime Minted Tokens</p>
+    <p className="text-xl font-bold text-foreground">
+      {data.lifetimeMinted?.toLocaleString() || '0'}
+      <span className="text-sm font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
+    </p>
+  </div>
+  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+</Link>
+```
+
+**File 2**: `src/components/dashboard/RewardProgress.tsx`
+**Remove** the "Lifetime Minted" link from the footer grid, leaving only "View Collection".
+
+---
+
+### 8. Improve Tesla Logo in Energy Command Center
+
+The current Tesla logo (`src/assets/logos/tesla-logo.png`) has a red background with white text - not ideal for dark mode UI.
+
+**Solution**: Add proper styling with better contrast:
+
+**File**: `src/components/dashboard/ActivityMetrics.tsx` (Lines 139-149)
+
+Current styling:
+```tsx
+<div 
+  key={provider}
+  className="h-7 w-7 rounded-lg bg-muted/80 p-1.5 flex items-center justify-center border border-border/50"
+>
+  <img 
+    src={providerLogos[provider]} 
+    alt={provider}
+    className="h-4 w-4 object-contain"
+  />
+</div>
+```
+
+**New approach**: Use a larger container with better padding and styling:
+
+```tsx
+<div 
+  key={provider}
+  className={cn(
+    "h-8 w-8 rounded-lg p-1 flex items-center justify-center border border-border/50",
+    provider === 'tesla' 
+      ? "bg-[#E82127]" // Tesla red background to match the logo
+      : "bg-muted/80"
+  )}
+  title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+>
+  <img 
+    src={providerLogos[provider]} 
+    alt={provider}
+    className={cn(
+      "object-contain",
+      provider === 'tesla' ? "h-5 w-5 brightness-0 invert" : "h-4 w-4"
+    )}
+  />
+</div>
+```
+
+Alternatively, use just the Tesla "T" icon with inversion for better visibility, or source a proper dark-mode-friendly Tesla logo.
+
+**Simplest Fix**: Increase size and add inversion filter to make the logo more visible:
+
+```tsx
+className="h-5 w-5 object-contain dark:brightness-0 dark:invert"
+```
+
+This inverts the colors in dark mode, making the Tesla logo white on the dark background.
+
+---
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/components/dashboard/RewardProgress.tsx` | Add haptics, improve cross-fade animation, rename title to lowercase, update footer layout |
+| `src/components/dashboard/ActivityMetrics.tsx` | Add Lifetime Minted section, improve Tesla logo styling |
+| `src/components/dashboard/RewardActions.tsx` | Remove "Owned X NFTs" text, optionally remove "MINT ZENSOLAR NFTS" button (if moving) |
+| `src/components/demo/DemoRewardActions.tsx` | Remove "Owned X NFTs" text for consistency |
+| `src/components/ZenSolarDashboard.tsx` | Pass `lifetimeMinted` prop to ActivityMetrics if needed |
+| `src/components/demo/DemoDashboard.tsx` | Same changes for demo consistency |
+
+---
+
+## Visual Layout After Changes
+
+### Energy Command Center (Bottom)
 ```
 +----------------------------------------------------------+
-|  ZenSolar NFTs                            [24 Earned]    |
+|  Energy Command Center                     [Tesla] [⊙]   |
+|  Last updated 10:29 AM                                   |
+|                                                          |
+|  [Solar Energy Produced]       51,000 kWh    [MINT →]    |
+|  [EV Miles Driven]             177 mi        [MINT →]    |
+|  [Battery Discharged]          2,402 kWh     [MINT →]    |
+|  [Tesla Supercharger]          55 kWh        [MINT →]    |
+|                                                          |
+|  +----------------------------------------------------+  |
+|  | Total Available Tokens                              |  |
+|  | 0 $ZSOLAR            ≈ $0.00 @ $0.10     [MINT →]  |  |
+|  +----------------------------------------------------+  |
+|                                                          |
+|  +----------------------------------------------------+  |
+|  | 🪙 Lifetime Minted Tokens                      →   |  |
+|  |    265,174 $ZSOLAR                                 |  |
+|  +----------------------------------------------------+  |
++----------------------------------------------------------+
+```
+
+### NFT Card (After Energy Command Center)
+```
++----------------------------------------------------------+
+|  zensolar NFTs                            [24 Earned]    |
 +----------------------------------------------------------+
 |                                                          |
-|  [Hero NFT Image - Tap to Cycle Categories]              |
+|  [Hero NFT Image - Tap to Cycle]          [Tap to Browse]|
 |                                                          |
 |  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━             |
 |  750 / 1,000 kWh                                         |
@@ -259,27 +302,22 @@ export function getMilestoneForCategory(
 |  |   2/8  |  |   1/7  |  |   3/10  |  |   2/8    |       |
 |  +--------+  +--------+  +---------+  +----------+       |
 |                                                          |
-|  [View Collection →]           [Lifetime: 15,234 →]      |
+|  [View Collection →]                                     |
 +----------------------------------------------------------+
 ```
 
 ---
 
-## Files to Modify
+## Technical Notes
 
-| File | Changes |
-|------|---------|
-| `src/components/dashboard/RewardProgress.tsx` | Add title, tap-to-cycle, category labels, tappable dots, footer section |
-| `src/components/dashboard/ActivityMetrics.tsx` | Remove NFT footer section (NFTs Earned + Lifetime Minted) |
-| `src/components/ZenSolarDashboard.tsx` | Pass `lifetimeMinted` prop to RewardProgress |
-| `src/lib/nftMilestones.ts` | Add `getMilestoneForCategory()` helper function |
-| `src/components/demo/DemoDashboard.tsx` | Same changes as ZenSolarDashboard for consistency |
+1. **Haptics**: The `useHaptics` hook already exists and provides `lightTap()` for subtle feedback.
 
----
+2. **Cross-fade**: Already using `AnimatePresence` with `mode="wait"` - just need to enhance the animation values.
 
-## Animation Polish
+3. **Tesla Logo**: The current image has a red background. Options:
+   - Use CSS filter `invert` in dark mode
+   - Source a transparent/outline version of the Tesla logo
+   - Apply a white background container in dark mode
 
-- **Category dots**: Smooth scale animation on tap (`whileTap: { scale: 0.95 }`)
-- **Hero image cycle**: Fade transition between categories using `AnimatePresence`
-- **Active dot**: Pulse glow effect on the selected category
-- **Progress bar**: Animate width change when switching categories
+4. **Props Flow**: `lifetimeMinted` is already being passed to RewardProgress. We need to also pass it to ActivityMetrics.
+
