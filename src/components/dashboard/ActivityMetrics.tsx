@@ -273,34 +273,6 @@ export function ActivityMetrics({
           )}
         </motion.div>
 
-        {/* Footer: NFTs + Lifetime */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50">
-          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50">
-            <div className="p-1.5 rounded-lg bg-primary/10">
-              <Award className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">NFTs Earned</p>
-              <p className="text-sm font-bold text-foreground">{totalEarned} / {totalPossible}</p>
-            </div>
-          </div>
-          
-          <motion.div 
-            className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50 cursor-pointer hover:bg-muted/50 transition-all"
-            onClick={() => window.location.href = '/mint-history'}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <div className="p-1.5 rounded-lg bg-muted">
-              <Coins className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Lifetime Minted</p>
-              <p className="text-sm font-bold text-foreground">{data.lifetimeMinted.toLocaleString()}</p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </motion.div>
-        </div>
       </CardContent>
     </Card>
   );

@@ -170,6 +170,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             evChargingKwh={activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
             batteryDischargedKwh={activityData.batteryStorageDischarged}
             nftsEarned={activityData.nftsEarned}
+            lifetimeMinted={activityData.lifetimeMinted}
             isNewUser={true}
           />
         </AnimatedItem>
