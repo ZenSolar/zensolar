@@ -23,15 +23,16 @@ const providerLogos: Record<string, string> = {
   enphase: enphaseLogo,
 };
 
-// Tesla "T" icon as inline SVG for crisp rendering
+// Tesla "T" icon as inline SVG - official design for crisp rendering
 function TeslaIcon({ className }: { className?: string }) {
   return (
     <svg 
-      viewBox="0 0 100 100" 
+      viewBox="0 0 278 239" 
       className={className}
       fill="currentColor"
     >
-      <path d="M50 5C30.5 5 12.5 10.5 5 17.5L50 95L95 17.5C87.5 10.5 69.5 5 50 5ZM50 12C60 12 70 14 77.5 17.5L50 75L22.5 17.5C30 14 40 12 50 12Z" />
+      {/* Official Tesla T shape - curved arc at top with pointed bottom */}
+      <path d="M139.5 0c-36.8 0-71.4 5.6-102.5 14.7L139.5 239 242 14.7C210.9 5.6 176.3 0 139.5 0zm0 28.2c20.5 0 40.2 2.1 58.5 6.1l-58.5 147.1L80.9 34.3c18.4-4 38.1-6.1 58.6-6.1z"/>
     </svg>
   );
 }

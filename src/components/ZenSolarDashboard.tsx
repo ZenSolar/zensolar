@@ -163,6 +163,20 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
+        {/* Aesthetic Section Divider */}
+        <AnimatedItem className="py-2">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+            </div>
+            <div className="relative flex items-center gap-2 px-4 bg-background">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
+            </div>
+          </div>
+        </AnimatedItem>
+
         {/* NFT Milestones - Beta */}
         <AnimatedItem>
           <RewardProgress
@@ -177,31 +191,16 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        {/* NFT Mint + Refresh Buttons - Below NFT Card */}
-        <AnimatedItem className="space-y-3">
+        {/* NFT Mint Button - Below NFT Card with Glow Animation */}
+        <AnimatedItem>
           <Button
             onClick={() => navigate('/nft-collection')}
             disabled={dataLoading}
-            className="w-full bg-primary hover:bg-primary/90"
+            className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
             size="lg"
           >
             <Images className="mr-2 h-4 w-4" />
             MINT ZENSOLAR NFTs
-          </Button>
-          
-          <Button
-            onClick={refreshDashboard}
-            disabled={dataLoading}
-            variant="outline"
-            className="w-full"
-            size="lg"
-          >
-            {dataLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            REFRESH DASHBOARD
           </Button>
         </AnimatedItem>
         
