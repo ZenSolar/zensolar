@@ -16,14 +16,25 @@ import { RefreshIndicators } from './RefreshIndicators';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-// Import brand logos for connected providers display
-import teslaLogo from '@/assets/logos/tesla-logo.png';
+// Import brand logos for connected providers display (non-Tesla)
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 
 const providerLogos: Record<string, string> = {
-  tesla: teslaLogo,
   enphase: enphaseLogo,
 };
+
+// Tesla "T" icon as inline SVG for crisp rendering
+function TeslaIcon({ className }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 100 100" 
+      className={className}
+      fill="currentColor"
+    >
+      <path d="M50 5C30.5 5 12.5 10.5 5 17.5L50 95L95 17.5C87.5 10.5 69.5 5 50 5ZM50 12C60 12 70 14 77.5 17.5L50 75L22.5 17.5C30 14 40 12 50 12Z" />
+    </svg>
+  );
+}
 
 type CurrentActivity = {
   solarKwh: number;
@@ -120,21 +131,22 @@ export function ActivityMetrics({
                 <div 
                   key={provider}
                   className={cn(
-                    "h-8 w-8 rounded-lg p-1 flex items-center justify-center border border-border/50",
+                    "h-8 w-8 rounded-lg flex items-center justify-center",
                     provider === 'tesla' 
                       ? "bg-[#E82127]" 
-                      : "bg-muted/80"
+                      : "bg-muted/80 border border-border/50"
                   )}
                   title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                 >
-                  <img 
-                    src={providerLogos[provider]} 
-                    alt={provider}
-                    className={cn(
-                      "object-contain",
-                      provider === 'tesla' ? "h-5 w-5 brightness-0 invert" : "h-4 w-4"
-                    )}
-                  />
+                  {provider === 'tesla' ? (
+                    <TeslaIcon className="h-5 w-5 text-white" />
+                  ) : (
+                    <img 
+                      src={providerLogos[provider]} 
+                      alt={provider}
+                      className="h-4 w-4 object-contain"
+                    />
+                  )}
                 </div>
               ))}
             </div>

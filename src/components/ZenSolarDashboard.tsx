@@ -14,7 +14,8 @@ import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
-import { Loader2 } from 'lucide-react';
+import { Button } from './ui/button';
+import { Loader2, Images, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
@@ -32,7 +33,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     lastUpdatedAt,
   } = useDashboardData();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { isAdmin } = useAdminCheck();
+  const { isAdmin, isAdminView } = useAdminCheck();
   const { triggerConfetti } = useConfetti();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   
@@ -175,16 +176,44 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             isNewUser={true}
           />
         </AnimatedItem>
+
+        {/* NFT Mint + Refresh Buttons - Below NFT Card */}
+        <AnimatedItem className="space-y-3">
+          <Button
+            onClick={() => navigate('/nft-collection')}
+            disabled={dataLoading}
+            className="w-full bg-primary hover:bg-primary/90"
+            size="lg"
+          >
+            <Images className="mr-2 h-4 w-4" />
+            MINT ZENSOLAR NFTs
+          </Button>
+          
+          <Button
+            onClick={refreshDashboard}
+            disabled={dataLoading}
+            variant="outline"
+            className="w-full"
+            size="lg"
+          >
+            {dataLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            REFRESH DASHBOARD
+          </Button>
+        </AnimatedItem>
         
         {/* Admin-only Baseline Reset Tool */}
-        {isAdmin && (
+        {isAdminView && (
           <AnimatedItem>
             <AdminBaselineReset onResetComplete={refreshDashboard} />
           </AnimatedItem>
         )}
 
         {/* Admin-only NFT Reset Tool */}
-        {isAdmin && (
+        {isAdminView && (
           <AnimatedItem>
             <NFTResetPanel />
           </AnimatedItem>

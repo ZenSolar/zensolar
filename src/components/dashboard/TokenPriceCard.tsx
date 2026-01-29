@@ -69,30 +69,25 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange 
           <CardContent className="relative p-3">
             <button
               onClick={() => setIsCollapsed(false)}
-              className="w-full flex items-center justify-between gap-4 group"
+              className="w-full flex items-center justify-between gap-3 group"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-gradient-to-br from-primary/30 to-primary/10">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="p-1.5 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex-shrink-0">
                   <Coins className="h-4 w-4 text-primary" />
                 </div>
                 <span className="font-bold text-foreground">$ZSOLAR</span>
                 <span className="text-muted-foreground">|</span>
                 <span className="font-bold text-foreground">${tokenPrice.toFixed(2)}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <motion.div 
-                  className="flex items-center gap-1.5"
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <motion.span 
+                  className="font-bold text-eco"
                   animate={showPulse ? { scale: [1, 1.05, 1] } : {}}
                   transition={{ duration: 0.3 }}
                 >
-                  <span className="font-bold text-eco">
-                    ${totalValueUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    ({tokensHeld.toLocaleString()})
-                  </span>
-                </motion.div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  ${totalValueUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </motion.span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
               </div>
             </button>
           </CardContent>

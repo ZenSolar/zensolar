@@ -229,7 +229,7 @@ export function RewardProgress({
       <CardContent className="p-4 space-y-4">
         {/* Header: Title + Earned Badge */}
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-foreground">zensolar NFTs</h3>
+          <h3 className="text-base font-semibold text-foreground">ZenSolar NFTs</h3>
           <Badge variant="secondary" className="gap-1.5 px-2.5 py-1">
             <Award className="h-3.5 w-3.5" />
             <span className="font-semibold">{totalEarned} Earned</span>
