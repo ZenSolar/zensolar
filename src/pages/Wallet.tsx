@@ -13,7 +13,8 @@ import {
   ExternalLink,
   Copy,
   CheckCircle2,
-  ArrowUpRight
+  ArrowUpRight,
+  ShieldCheck
 } from 'lucide-react';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS } from '@/lib/wagmi';
 import { useState } from 'react';
@@ -274,10 +275,22 @@ export default function Wallet() {
           </AnimatedItem>
         )}
 
-        {/* Network Info */}
+        {/* Privacy & Network Info */}
         <AnimatedItem>
           <Card className="bg-muted/30">
-            <CardContent className="p-4">
+            <CardContent className="p-4 space-y-3">
+              {/* Privacy Notice */}
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">Your Privacy is Protected</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This page only displays your <strong>ZenSolar tokens and NFTs</strong>. We query our specific smart contracts and cannot see any other tokens, NFTs, or assets in your wallet.
+                  </p>
+                </div>
+              </div>
+
+              {/* Network Info */}
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
@@ -285,8 +298,8 @@ export default function Wallet() {
                 </div>
                 <span className="font-medium">Base Sepolia (Testnet)</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Balances update automatically every 30 seconds. Pull to refresh for instant update.
+              <p className="text-xs text-muted-foreground">
+                Balances update automatically every 30 seconds.
               </p>
             </CardContent>
           </Card>
