@@ -206,3 +206,52 @@ export function getTotalNftCount(): number {
     EV_MILES_MILESTONES.length +
     COMBO_MILESTONES.length;
 }
+
+// Priority milestone with category context
+export interface PriorityMilestone extends NFTMilestone {
+  category: 'solar' | 'battery' | 'ev_miles' | 'charging';
+  currentValue: number;
+  unit: string;
+}
+
+// Get the next priority milestone across all categories
+// Priority order: Solar → Battery → EV Miles → EV Charging
+export function getNextPriorityMilestone(
+  solarKwh: number,
+  batteryKwh: number,
+  evMiles: number,
+  chargingKwh: number
+): PriorityMilestone | null {
+  const solarNext = getNextMilestone(solarKwh, SOLAR_MILESTONES);
+  if (solarNext) {
+    return { ...solarNext, category: 'solar', currentValue: solarKwh, unit: 'kWh' };
+  }
+  
+  const batteryNext = getNextMilestone(batteryKwh, BATTERY_MILESTONES);
+  if (batteryNext) {
+    return { ...batteryNext, category: 'battery', currentValue: batteryKwh, unit: 'kWh' };
+  }
+  
+  const evNext = getNextMilestone(evMiles, EV_MILES_MILESTONES);
+  if (evNext) {
+    return { ...evNext, category: 'ev_miles', currentValue: evMiles, unit: 'miles' };
+  }
+  
+  const chargeNext = getNextMilestone(chargingKwh, EV_CHARGING_MILESTONES);
+  if (chargeNext) {
+    return { ...chargeNext, category: 'charging', currentValue: chargingKwh, unit: 'kWh' };
+  }
+  
+  return null; // All categories complete
+}
+
+// Get category display name
+export function getCategoryDisplayName(category: string): string {
+  const names: Record<string, string> = {
+    solar: 'Solar',
+    battery: 'Battery',
+    ev_miles: 'EV Miles',
+    charging: 'Charging',
+  };
+  return names[category] || category;
+}
