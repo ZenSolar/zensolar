@@ -68,29 +68,26 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           )}
         </div>
         
-        {/* Centered Logo with Beta Badge as corner overlay - Links to Dashboard */}
+        {/* Centered Logo with Beta Badge underneath - Links to Dashboard */}
         <Link 
           to="/" 
-          className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity"
+          className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity flex flex-col items-center gap-0"
         >
-          <div className="relative">
-            <img 
-              src={zenLogo} 
-              alt="ZenSolar" 
-              className="h-7 w-auto object-contain dark:animate-logo-glow"
-            />
-            {/* Corner overlay badge - bottom right */}
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            className="h-7 w-auto object-contain dark:animate-logo-glow"
+          />
+          <span 
+            className="relative overflow-hidden text-[6px] font-semibold uppercase tracking-[0.15em] text-primary bg-primary/10 px-1.5 py-px rounded-sm border border-primary/20"
+          >
+            {/* Shimmer overlay */}
             <span 
-              className="absolute -bottom-1.5 -right-6 overflow-hidden text-[7px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded border border-primary/30 shadow-sm"
-            >
-              {/* Shimmer overlay */}
-              <span 
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/40 to-transparent animate-shimmer"
-                style={{ backgroundSize: '200% 100%' }}
-              />
-              <span className="relative">Beta</span>
-            </span>
-          </div>
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-shimmer"
+              style={{ backgroundSize: '200% 100%' }}
+            />
+            <span className="relative">Beta</span>
+          </span>
         </Link>
         
         <ThemeToggle />
