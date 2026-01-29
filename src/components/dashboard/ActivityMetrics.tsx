@@ -1,5 +1,5 @@
 import type React from 'react';
-import { ActivityData, calculateCO2Offset } from '@/types/dashboard';
+import { ActivityData, DeviceLabels } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import {
   Sun,
@@ -9,7 +9,6 @@ import {
   Coins,
   Award,
   ChevronRight,
-  Sparkles,
   Gauge,
 } from 'lucide-react';
 import {
@@ -24,7 +23,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 // Import brand logos for connected providers display
 import teslaLogo from '@/assets/logos/tesla-logo.png';
@@ -40,6 +39,8 @@ type CurrentActivity = {
   evMiles: number;
   batteryKwh: number;
   chargingKwh: number;
+  superchargerKwh?: number;
+  homeChargerKwh?: number;
 };
 
 type RefreshInfo = {
@@ -67,6 +68,8 @@ export function ActivityMetrics({
   onMintSuccess,
   tokenPrice = 0.10,
 }: ActivityMetricsProps) {
+  const deviceLabels = data.deviceLabels;
+  
   // Calculate earned NFTs locally using actual energy data (uses lifetime for NFT progress)
   const solarEarned = calculateEarnedMilestones(data.solarEnergyProduced, SOLAR_MILESTONES);
   const batteryEarned = calculateEarnedMilestones(data.batteryStorageDischarged, BATTERY_MILESTONES);
@@ -79,12 +82,14 @@ export function ActivityMetrics({
   const totalEarned = 1 + solarEarned.length + evMilesEarned.length + chargingEarned.length + batteryEarned.length + comboEarned.length;
   const totalPossible = getTotalNftCount();
 
-  // "Current Activity" is what is mintable: lifetime until first mint, then delta since last mint.
+  // "Current Activity" is what is mintable
   const current: CurrentActivity = currentActivity ?? {
     solarKwh: Math.max(0, Math.floor(data.pendingSolarKwh || 0)),
     evMiles: Math.max(0, Math.floor(data.pendingEvMiles || 0)),
     batteryKwh: Math.max(0, Math.floor(data.pendingBatteryKwh || 0)),
     chargingKwh: Math.max(0, Math.floor(data.pendingChargingKwh || 0)),
+    superchargerKwh: Math.max(0, Math.floor(data.pendingSuperchargerKwh || 0)),
+    homeChargerKwh: Math.max(0, Math.floor(data.pendingHomeChargerKwh || 0)),
   };
 
   const activityUnits = current.solarKwh + current.evMiles + current.batteryKwh + current.chargingKwh;
@@ -95,8 +100,30 @@ export function ActivityMetrics({
   // Filter to only Tesla/Enphase
   const filteredProviders = connectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
+  // Device-specific labels
+  const solarLabel = deviceLabels?.solar 
+    ? `${deviceLabels.solar} Energy Produced` 
+    : 'Solar Energy Produced';
+  const evLabel = deviceLabels?.vehicle 
+    ? `${deviceLabels.vehicle} Miles Driven` 
+    : 'EV Miles Driven';
+  const batteryLabel = deviceLabels?.powerwall 
+    ? `${deviceLabels.powerwall} Energy Discharged` 
+    : 'Battery Discharged';
+  const homeChargerLabel = deviceLabels?.wallConnector 
+    ? `${deviceLabels.wallConnector} Home Charging` 
+    : 'Home Charging';
+
+  // Separate charging values
+  const superchargerKwh = current.superchargerKwh ?? 0;
+  const homeChargerKwh = current.homeChargerKwh ?? 0;
+  const hasSeparateCharging = superchargerKwh > 0 || homeChargerKwh > 0;
+
   return (
-    <Card className={`overflow-hidden transition-all ${activityUnits > 0 ? 'border-primary/30 shadow-lg shadow-primary/5' : 'border-border/50'} bg-card`}>
+    <Card className={cn(
+      "overflow-hidden transition-all bg-card",
+      activityUnits > 0 ? 'border-primary/30 shadow-lg shadow-primary/5' : 'border-border/50'
+    )}>
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
         <div className="flex items-center justify-between">
@@ -105,105 +132,134 @@ export function ActivityMetrics({
             Energy Command Center
           </h2>
           
-          {/* Connected Provider Logos + Mint All Button */}
-          <div className="flex items-center gap-2">
-            {filteredProviders.length > 0 && (
-              <div className="flex items-center gap-1">
-                {filteredProviders.map((provider) => (
-                  <div 
-                    key={provider}
-                    className="h-5 w-5 rounded-md bg-muted p-0.5 flex items-center justify-center"
-                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                  >
-                    <img 
-                      src={providerLogos[provider]} 
-                      alt={provider}
-                      className="h-3.5 w-3.5 object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            {activityUnits > 0 && onMintCategory && (
-              <Button
-                size="sm"
-                variant="default"
-                className="gap-1 h-7 text-xs font-medium"
-                onClick={() => onMintCategory('all')}
-              >
-                <Sparkles className="h-3 w-3" />
-                MINT ALL
-              </Button>
-            )}
-          </div>
+          {/* Connected Provider Logos */}
+          {filteredProviders.length > 0 && (
+            <div className="flex items-center gap-1">
+              {filteredProviders.map((provider) => (
+                <div 
+                  key={provider}
+                  className="h-6 w-6 rounded-lg bg-muted p-1 flex items-center justify-center"
+                  title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                >
+                  <img 
+                    src={providerLogos[provider]} 
+                    alt={provider}
+                    className="h-4 w-4 object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Single last updated time */}
         <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
 
-        {/* Activity Grid - 2 columns */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Activity Fields - Single Column */}
+        <div className="space-y-2">
           <ActivityField
             icon={Sun}
-            label="Solar Produced"
+            label={solarLabel}
             value={current.solarKwh}
             unit="kWh"
             color="amber"
             active={current.solarKwh > 0}
-            onTap={current.solarKwh > 0 ? () => onMintCategory?.('solar') : undefined}
+            onTap={current.solarKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
           />
           <ActivityField
             icon={Car}
-            label="EV Miles"
+            label={evLabel}
             value={current.evMiles}
             unit="mi"
             color="blue"
             active={current.evMiles > 0}
-            onTap={current.evMiles > 0 ? () => onMintCategory?.('ev_miles') : undefined}
+            onTap={current.evMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
           />
           <ActivityField
             icon={Battery}
-            label="Battery Discharged"
+            label={batteryLabel}
             value={current.batteryKwh}
             unit="kWh"
             color="emerald"
             active={current.batteryKwh > 0}
-            onTap={current.batteryKwh > 0 ? () => onMintCategory?.('battery') : undefined}
+            onTap={current.batteryKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
           />
-          <ActivityField
-            icon={Zap}
-            label="EV Charging"
-            value={current.chargingKwh}
-            unit="kWh"
-            color="purple"
-            active={current.chargingKwh > 0}
-            onTap={current.chargingKwh > 0 ? () => onMintCategory?.('charging') : undefined}
-          />
+          
+          {/* Charging - show separate fields if we have granular data */}
+          {hasSeparateCharging ? (
+            <>
+              {superchargerKwh > 0 && (
+                <ActivityField
+                  icon={Zap}
+                  label="Tesla Supercharger"
+                  value={superchargerKwh}
+                  unit="kWh"
+                  color="olive"
+                  active={superchargerKwh > 0}
+                  onTap={onMintCategory ? () => onMintCategory('supercharger') : undefined}
+                />
+              )}
+              {homeChargerKwh > 0 && (
+                <ActivityField
+                  icon={Zap}
+                  label={homeChargerLabel}
+                  value={homeChargerKwh}
+                  unit="kWh"
+                  color="olive"
+                  active={homeChargerKwh > 0}
+                  onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
+                />
+              )}
+            </>
+          ) : current.chargingKwh > 0 ? (
+            <ActivityField
+              icon={Zap}
+              label="EV Charging"
+              value={current.chargingKwh}
+              unit="kWh"
+              color="purple"
+              active={current.chargingKwh > 0}
+              onTap={onMintCategory ? () => onMintCategory('charging') : undefined}
+            />
+          ) : null}
         </div>
 
         {/* Total Available Tokens - Same card style as activity fields */}
         <motion.div 
-          className={`p-3 rounded-lg ${activityUnits > 0 ? 'bg-primary/5 border border-primary/20' : 'bg-muted/30 border border-border/50'}`}
-          animate={activityUnits > 0 ? { scale: [1, 1.003, 1] } : {}}
-          transition={{ duration: 2, repeat: Infinity }}
+          onClick={activityUnits > 0 && onMintCategory ? () => onMintCategory('all') : undefined}
+          whileTap={activityUnits > 0 && onMintCategory ? { scale: 0.98 } : undefined}
+          className={cn(
+            "p-3 rounded-xl border flex items-center gap-3 transition-all",
+            activityUnits > 0 && onMintCategory
+              ? "cursor-pointer border-primary/30 bg-primary/5 hover:bg-primary/10"
+              : "border-border/50 bg-muted/30"
+          )}
         >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${activityUnits > 0 ? 'bg-primary/10' : 'bg-muted'}`}>
-                <Coins className={`h-5 w-5 ${activityUnits > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Available Tokens</p>
-                <p className="text-xl font-bold text-foreground">
-                  {tokensToReceive.toLocaleString()}
-                  <span className="text-sm font-normal text-muted-foreground ml-1">$ZSOLAR</span>
-                </p>
-                <p className={`text-xs ${activityUnits > 0 ? 'text-primary' : 'text-muted-foreground'}`}>
-                  ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} @ ${tokenPrice.toFixed(2)}
-                </p>
-              </div>
-            </div>
+          <div className={cn(
+            "p-3 rounded-xl",
+            activityUnits > 0 ? "bg-primary" : "bg-muted"
+          )}>
+            <Coins className={cn(
+              "h-5 w-5",
+              activityUnits > 0 ? "text-primary-foreground" : "text-muted-foreground"
+            )} />
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-muted-foreground">Total Available Tokens</p>
+            <p className="text-xl font-bold text-foreground">
+              {tokensToReceive.toLocaleString()}
+              <span className="text-base font-normal text-muted-foreground ml-1">$ZSOLAR</span>
+            </p>
+            <p className={cn(
+              "text-xs",
+              activityUnits > 0 ? "text-primary" : "text-muted-foreground"
+            )}>
+              ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} @ ${tokenPrice.toFixed(2)}
+            </p>
+          </div>
+          {activityUnits > 0 && onMintCategory && (
+            <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+          )}
         </motion.div>
 
         {/* Footer: NFTs + Lifetime */}
@@ -233,12 +289,13 @@ export function ActivityMetrics({
   );
 }
 
-// Color mapping to match landing page
+// Color mapping - solid backgrounds with white icons (Tesla-inspired)
 const colorStyles = {
-  amber: { icon: 'text-amber-500', bg: 'bg-amber-500/10', activeBorder: 'border-amber-500/30' },
-  blue: { icon: 'text-blue-500', bg: 'bg-blue-500/10', activeBorder: 'border-blue-500/30' },
-  emerald: { icon: 'text-emerald-500', bg: 'bg-emerald-500/10', activeBorder: 'border-emerald-500/30' },
-  purple: { icon: 'text-purple-500', bg: 'bg-purple-500/10', activeBorder: 'border-purple-500/30' },
+  amber: { solidBg: 'bg-amber-500', iconColor: 'text-white' },
+  blue: { solidBg: 'bg-blue-500', iconColor: 'text-white' },
+  emerald: { solidBg: 'bg-emerald-500', iconColor: 'text-white' },
+  purple: { solidBg: 'bg-purple-500', iconColor: 'text-white' },
+  olive: { solidBg: 'bg-yellow-600', iconColor: 'text-white' },
 };
 
 interface ActivityFieldProps {
@@ -255,38 +312,38 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
   const styles = colorStyles[color];
   const isTappable = active && onTap;
 
-  const content = (
-    <>
-      <div className="flex items-center gap-2 mb-1">
-        <div className={`p-1.5 rounded-md ${styles.bg}`}>
-          <Icon className={`h-4 w-4 ${styles.icon}`} />
-        </div>
-        <span className="text-xs text-muted-foreground font-medium">{label}</span>
-        {isTappable && <ChevronRight className="h-3.5 w-3.5 text-primary ml-auto" />}
-      </div>
-      <p className={`text-xl font-bold ${active ? 'text-foreground' : 'text-muted-foreground'}`}>
-        {value.toLocaleString()}
-        <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>
-      </p>
-    </>
-  );
-
-  if (isTappable) {
-    return (
-      <motion.button
-        onClick={onTap}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className={`p-3 rounded-lg text-left transition-all border ${styles.activeBorder} bg-card/80 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50`}
-      >
-        {content}
-      </motion.button>
-    );
-  }
-
   return (
-    <div className={`p-3 rounded-lg border border-border/50 bg-muted/30`}>
-      {content}
-    </div>
+    <motion.div
+      onClick={onTap}
+      whileTap={isTappable ? { scale: 0.98 } : undefined}
+      className={cn(
+        "p-3 rounded-xl border transition-all flex items-center gap-3",
+        isTappable
+          ? "cursor-pointer border-border/50 bg-card hover:bg-muted/30"
+          : "border-border/50 bg-muted/30"
+      )}
+    >
+      {/* Large rounded icon square */}
+      <div className={cn("p-3 rounded-xl", active ? styles.solidBg : "bg-muted")}>
+        <Icon className={cn("h-5 w-5", active ? styles.iconColor : "text-muted-foreground")} />
+      </div>
+      
+      {/* Label + Value */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-muted-foreground truncate">{label}</p>
+        <p className={cn(
+          "text-xl font-bold",
+          active ? "text-foreground" : "text-muted-foreground"
+        )}>
+          {value.toLocaleString()}
+          <span className="text-base font-normal text-muted-foreground ml-1">{unit}</span>
+        </p>
+      </div>
+      
+      {/* Tap indicator */}
+      {isTappable && (
+        <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+      )}
+    </motion.div>
   );
 }

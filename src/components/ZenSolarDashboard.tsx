@@ -78,6 +78,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     evMiles: Math.max(0, Math.floor(activityData.pendingEvMiles || 0)),
     batteryKwh: Math.max(0, Math.floor(activityData.pendingBatteryKwh || 0)),
     chargingKwh: Math.max(0, Math.floor(activityData.pendingChargingKwh || 0)),
+    superchargerKwh: Math.max(0, Math.floor(activityData.pendingSuperchargerKwh || 0)),
+    homeChargerKwh: Math.max(0, Math.floor(activityData.pendingHomeChargerKwh || 0)),
   };
 
   if (profileLoading) {
