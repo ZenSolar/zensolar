@@ -1,174 +1,194 @@
 
 
-# Dashboard UI/UX Improvements Plan
+# Energy Command Center - Tesla-Inspired Redesign
 
-## Issues Identified
+## Overview
 
-### 1. Dashboard Component Order is Wrong
-Looking at `ActivityMetrics.tsx`, the order is currently:
-1. **Rewards Summary** (lines 148-224)
-2. **Pending Rewards** (lines 226-399)  
-3. **Energy Command Center** (lines 401-463)
-
-This is inverted from what we want. The Energy Command Center should be the HERO section.
-
-### 2. Collapsible Token Price Card
-The `TokenPriceCard` component needs to support a collapsed state showing just the live price and total holdings in a compact single row.
-
-### 3. Merge Pending Rewards into Energy Command Center
-Currently there are three separate sections. We'll consolidate to:
-- "Tap to mint" on each energy category card
-- Change "Total Activity Units" to "Total Available Tokens"
-- Remove the separate "Pending Rewards" card
-
-### 4. Add Dashboard Link to Logo in TopNav
-The ZenSolar logo in `TopNav.tsx` needs to be clickable and navigate to `/` (dashboard).
-
-### 5. Remove LiveBetaIndicator from Admin Sidebar Section
-In `AppSidebar.tsx` line 251, `<LiveBetaIndicator collapsed={collapsed} />` is shown next to the "Admin" label. This should be removed since the toggle at the top of the sidebar is sufficient.
-
-### 6. Add Google Sign-In
-Integrate Google OAuth into the Auth page using Lovable Cloud's managed authentication.
+A comprehensive redesign of the Energy Command Center to achieve a sleek, minimal, Tesla-inspired aesthetic that prioritizes clarity, functionality, and visual elegance.
 
 ---
 
-## Technical Implementation
+## Technical Changes
 
-### File: `src/components/dashboard/TokenPriceCard.tsx`
+### 1. Icon Consistency with Landing Page
+
+**Current State:** ActivityMetrics uses generic Lucide icons
+**Target State:** Match landing page icon colors exactly
+
+| Field | Current Icon | Landing Page Style |
+|-------|-------------|-------------------|
+| Solar | `Sun` (text-solar) | `Sun` with `text-amber-500` |
+| EV Miles | `Car` (text-energy) | `Car` with `text-blue-500` |
+| Battery | `Battery` (text-secondary) | `Battery` with `text-emerald-500` |
+| Charging | `Zap` (text-accent) | `Zap` with `text-purple-500` |
+
+---
+
+### 2. Unified Token Price (Sync with TokenPriceCard)
+
+**Problem:** ActivityMetrics has its own `tokenPrice` state (hardcoded $0.10) while TokenPriceCard has a separate editable price
+
+**Solution:** 
+- Accept `tokenPrice` as a prop from parent `ZenSolarDashboard`
+- TokenPriceCard will lift its state up OR use a shared context
+- Both components display the same price
+
+**Implementation:**
+```
+ZenSolarDashboard.tsx:
+- Add tokenPrice state: const [tokenPrice, setTokenPrice] = useState(0.10);
+- Pass to TokenPriceCard: <TokenPriceCard onPriceChange={setTokenPrice} ... />
+- Pass to ActivityMetrics: <ActivityMetrics tokenPrice={tokenPrice} ... />
+
+ActivityMetrics.tsx:
+- Remove internal tokenPrice state
+- Accept tokenPrice as prop
+- Remove price edit popover (centralized in TokenPriceCard)
+```
+
+---
+
+### 3. LiveBetaToggle Text Update
+
+**File:** `src/components/layout/LiveBetaToggle.tsx`
 
 **Changes:**
-- Add `isCollapsed` state (default: true to save space)
-- Add ChevronDown/ChevronUp toggle button
-- When collapsed: Show single row with "$0.23 | $287.50 (1,250 tokens)"
-- When expanded: Show current full layout
-
-```
-Collapsed State:
-+------------------------------------------+
-| $ZSOLAR  |  $0.23  |  $287.50 (1,250) ▼  |
-+------------------------------------------+
-
-Expanded State (current layout):
-+------------------------------------------+
-| $ZSOLAR Token                    Live ▲  |
-| Token Price         Your Holdings        |
-| $0.23               $287.50              |
-| (Click to edit)     1,250 tokens         |
-+------------------------------------------+
-```
-
-### File: `src/components/dashboard/ActivityMetrics.tsx`
-
-**Changes:**
-1. **Remove "Rewards Summary" section** (lines 148-224) - This duplicates info and clutters the dashboard
-2. **Rename "Pending Rewards" to "Energy Command Center"** and make it THE hero section
-3. **Remove the current "Energy Command Center" section** (lines 401-463) - Merge its content into the new hero
-4. **Add provider logos** to the hero section header
-5. **Change "Total Activity Units" to "Total Available Tokens"**
-6. **Keep "Tap to mint"** functionality on each category card (already implemented)
-7. **Move "Lifetime Minted" link to the hero section** (compact, at bottom)
-
-**New Structure:**
-```
-+------------------------------------------+
-| ⚡ ENERGY COMMAND CENTER     [Tesla][📡] |
-| Connected: Tesla, Enphase        🔄 2m   |
-+------------------------------------------+
-|  ☀️ 1,234 kWh    🚗 567 mi              |
-|  Solar (tap)     EV Miles (tap)         |
-+------------------------------------------+
-|  🔋 89 kWh       ⚡ 234 kWh              |
-|  Battery (tap)   Charging (tap)         |
-+------------------------------------------+
-| 💰 Total Available Tokens: 2,124 $ZSOLAR |
-| ≈ $212.40 USD @ $0.10/token             |
-| [MINT ALL]                              |
-+------------------------------------------+
-| NFTs: 12/42  |  Lifetime: 15,234 tokens |
-+------------------------------------------+
-```
-
-### File: `src/components/layout/TopNav.tsx`
-
-**Changes:**
-- Wrap the logo `<img>` in a `<Link to="/">` component
-- Add cursor pointer and hover effects
+- When OFF: Display "Live Beta" (not "Mainnet Mode")
+- When ON: Display "Live Beta (10x)" (unchanged)
 
 ```tsx
-<Link to="/" className="hover:opacity-80 transition-opacity">
-  <img 
-    src={zenLogo} 
-    alt="ZenSolar" 
-    className="h-7 w-auto object-contain dark:animate-logo-glow"
-  />
-</Link>
+// Line 81
+{isLiveBeta ? "Live Beta (10x)" : "Live Beta"}
+
+// Tooltip Line 56
+<p>{isLiveBeta ? "Live Beta ON (10x)" : "Live Beta OFF"}</p>
 ```
 
-### File: `src/components/layout/AppSidebar.tsx`
+---
 
-**Changes:**
-- Remove `<LiveBetaIndicator collapsed={collapsed} />` from line 251
-- The Admin section label will just show "Admin" without the indicator badge
+### 4. Simplified Refresh Indicator
 
-Before:
+**File:** `src/components/dashboard/RefreshIndicators.tsx`
+
+**Current:** Shows Tesla, Enphase, SolarEdge, Wallbox pills
+**Target:** Single "Last updated 2:45 PM" text only
+
+**New Component:**
 ```tsx
-<SidebarGroupLabel className="flex items-center gap-2">
-  Admin
-  <LiveBetaIndicator collapsed={collapsed} />
-</SidebarGroupLabel>
+export function RefreshIndicators({ lastUpdatedAt }: { lastUpdatedAt?: string | null }) {
+  const time = formatTime(lastUpdatedAt ?? undefined);
+  
+  return (
+    <span className="text-xs text-muted-foreground">
+      Last updated{time ? ` ${time}` : ''}
+    </span>
+  );
+}
 ```
 
-After:
-```tsx
-<SidebarGroupLabel>Admin</SidebarGroupLabel>
+---
+
+### 5. Tesla-Inspired Activity Fields Redesign
+
+**Design Philosophy:**
+- Clean, minimal cards with generous whitespace
+- Label ABOVE the value (like "Solar Energy Produced" above "1,234 kWh")
+- Subtle borders, no heavy gradients
+- Compact, uniform sizing
+- Tap-to-mint is elegant and non-intrusive
+
+**New Card Structure:**
+```
++----------------------------------------+
+| ☀️  Solar Energy Produced         [→] |
+|     1,234 kWh                          |
++----------------------------------------+
 ```
 
-### File: `src/pages/Auth.tsx`
+**Key Style Changes:**
+- Reduce padding from `p-4` to `p-3`
+- Smaller icons: `h-5 w-5` instead of `h-6 w-6`
+- Label on top, value below (reversed order)
+- Remove sublabel (redundant)
+- Unified card height
+- Subtle tap indicator (just chevron, no pulse badge on every card)
 
-**Changes:**
-- Add Google Sign-In button using Lovable Cloud's managed OAuth
-- Import lovable module: `import { lovable } from "@/integrations/lovable/index"`
-- Add Google button below the email/password forms (both login and signup tabs)
-- Add divider "or continue with"
+---
 
-**UI Addition (after each form, before "Try Demo Mode"):**
+### 6. Total Available Tokens - Same Card Style
 
-```tsx
-{/* Social Login Divider */}
-<div className="relative my-6">
-  <div className="absolute inset-0 flex items-center">
-    <span className="w-full border-t border-white/10" />
-  </div>
-  <div className="relative flex justify-center text-xs uppercase">
-    <span className="bg-[#0a1628] px-2 text-slate-500">or continue with</span>
-  </div>
-</div>
+**Current:** Large hero treatment with p-5, big icons, animations
+**Target:** Match activity field styling - same compact height and treatment
 
-{/* Google Sign In Button */}
-<Button
-  type="button"
-  variant="outline"
-  className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10"
-  onClick={handleGoogleSignIn}
-  disabled={isLoading}
->
-  <GoogleIcon className="mr-2 h-4 w-4" />
-  Continue with Google
-</Button>
+**New Design:**
+```
++----------------------------------------+
+| 💰  Total Available Tokens        [→] |
+|     2,124 $ZSOLAR · $212.40 USD        |
++----------------------------------------+
+| [MINT ALL]                             |
++----------------------------------------+
 ```
 
-**Handler:**
+---
+
+### 7. Complete ActivityMetrics.tsx Restructure
+
+**New Component Layout:**
 ```tsx
-const handleGoogleSignIn = async () => {
-  setIsLoading(true);
-  const { error } = await lovable.auth.signInWithOAuth("google", {
-    redirect_uri: window.location.origin,
-  });
-  if (error) {
-    toast.error("Failed to sign in with Google");
-    setIsLoading(false);
-  }
-};
+<Card className="overflow-hidden border-border/50 bg-card">
+  <CardContent className="p-4 space-y-3">
+    
+    {/* Header Row */}
+    <div className="flex items-center justify-between">
+      <h2 className="text-base font-semibold flex items-center gap-2">
+        <Gauge className="h-4 w-4 text-primary" />
+        Energy Command Center
+      </h2>
+      <div className="flex items-center gap-2">
+        {/* Provider logos */}
+        {connectedProviders.map(...)}
+        {/* Mint All button */}
+      </div>
+    </div>
+    
+    {/* Single last updated time */}
+    <span className="text-xs text-muted-foreground">
+      Last updated 2:45 PM
+    </span>
+    
+    {/* Activity Grid - 2 columns on mobile */}
+    <div className="grid grid-cols-2 gap-2">
+      <ActivityField icon={Sun} label="Solar Produced" value="1,234" unit="kWh" color="amber" onTap={...} />
+      <ActivityField icon={Car} label="EV Miles" value="567" unit="mi" color="blue" onTap={...} />
+      <ActivityField icon={Battery} label="Battery Discharged" value="89" unit="kWh" color="emerald" onTap={...} />
+      <ActivityField icon={Zap} label="EV Charging" value="234" unit="kWh" color="purple" onTap={...} />
+    </div>
+    
+    {/* Total Available Tokens - Same card style */}
+    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs text-muted-foreground">Total Available Tokens</p>
+          <p className="text-xl font-bold">
+            2,124 <span className="text-sm text-muted-foreground">$ZSOLAR</span>
+          </p>
+          <p className="text-xs text-primary">≈ $212.40 @ $0.10</p>
+        </div>
+        <Button size="sm" className="gap-1">
+          <Sparkles className="h-3.5 w-3.5" />
+          MINT ALL
+        </Button>
+      </div>
+    </div>
+    
+    {/* Footer: NFTs + Lifetime */}
+    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50">
+      ...
+    </div>
+    
+  </CardContent>
+</Card>
 ```
 
 ---
@@ -177,22 +197,44 @@ const handleGoogleSignIn = async () => {
 
 | File | Changes |
 |------|---------|
-| `src/components/dashboard/TokenPriceCard.tsx` | Add collapsible functionality with compact collapsed view |
-| `src/components/dashboard/ActivityMetrics.tsx` | Complete restructure - merge sections into single "Energy Command Center" hero |
-| `src/components/layout/TopNav.tsx` | Wrap logo in Link to "/" |
-| `src/components/layout/AppSidebar.tsx` | Remove LiveBetaIndicator from Admin label |
-| `src/pages/Auth.tsx` | Add Google Sign-In button and handler |
+| `src/components/dashboard/ActivityMetrics.tsx` | Complete redesign with Tesla aesthetic, icon color matching, simplified fields, label-above-value layout, unified token price prop |
+| `src/components/dashboard/TokenPriceCard.tsx` | Add `onPriceChange` callback prop to lift state up |
+| `src/components/dashboard/RefreshIndicators.tsx` | Simplify to single timestamp, remove provider pills |
+| `src/components/layout/LiveBetaToggle.tsx` | Change "Mainnet Mode" to "Live Beta" when off |
+| `src/components/ZenSolarDashboard.tsx` | Add shared tokenPrice state, pass to both TokenPriceCard and ActivityMetrics |
 
 ---
 
-## Summary of User-Facing Changes
+## Visual Comparison
 
-1. **Token Price Card** - Now collapsible, showing compact "$0.23 | $287.50" when collapsed
-2. **Dashboard Order** - Energy Command Center is now THE hero section immediately below token price
-3. **Merged UI** - No more separate "Rewards Summary" and "Pending Rewards" cards - everything unified
-4. **Tap to Mint** - Each energy category card is tappable to mint that category
-5. **Total Available Tokens** - Replaces "Total Activity Units" label
-6. **Logo Navigation** - Tap the ZenSolar logo in header to return to dashboard
-7. **Cleaner Admin Menu** - No more "Mainnet Mode" badge next to Admin label
-8. **Google Sign-In** - New social login option on registration/login page
+### Before (Current)
+- Cluttered provider pills (Tesla, Enphase, SolarEdge, Wallbox)
+- Value displayed first, label below
+- Large inconsistent card sizes
+- Separate token price state
+- "Mainnet Mode" text
+
+### After (Tesla-Inspired)
+- Single "Last updated 2:45 PM" timestamp
+- Label above value (industry standard)
+- 2-column grid with uniform compact cards
+- Synchronized token price across components
+- "Live Beta" text
+- Icon colors match landing page
+- Clean, minimal, generous whitespace
+- Subtle tap indicators
+- Unified Total Available Tokens card size
+
+---
+
+## Color Mapping (Landing Page Alignment)
+
+```tsx
+const fieldColors = {
+  solar: { icon: 'text-amber-500', bg: 'bg-amber-500/10' },
+  ev: { icon: 'text-blue-500', bg: 'bg-blue-500/10' },
+  battery: { icon: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  charging: { icon: 'text-purple-500', bg: 'bg-purple-500/10' },
+};
+```
 
