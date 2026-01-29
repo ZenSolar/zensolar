@@ -79,9 +79,14 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
             className="h-6 w-auto object-contain dark:animate-logo-glow"
           />
           <span 
-            className="text-[8px] font-semibold uppercase tracking-[0.2em] text-primary/70 bg-primary/10 px-1.5 py-px rounded-sm"
+            className="relative overflow-hidden text-[8px] font-semibold uppercase tracking-[0.2em] text-primary bg-primary/10 px-2 py-0.5 rounded-sm border border-primary/20"
           >
-            Beta
+            {/* Shimmer overlay */}
+            <span 
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-shimmer"
+              style={{ backgroundSize: '200% 100%' }}
+            />
+            <span className="relative">Beta</span>
           </span>
         </Link>
         
