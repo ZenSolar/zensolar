@@ -48,6 +48,7 @@ const Store = lazy(() => import("./pages/Store"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Technology = lazy(() => import("./pages/Technology"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
+const Wallet = lazy(() => import("./pages/Wallet"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
 const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
@@ -328,8 +329,18 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <NftCollection />
-                      </AppLayout>
-                    </ProtectedRoute>
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/wallet" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Wallet />
+                          </AppLayout>
+                        </ProtectedRoute>
                       } 
                     />
                     <Route 

@@ -27,7 +27,8 @@ import {
   ChevronRight,
   FileCode,
   Briefcase,
-  Rocket
+  Rocket,
+  Wallet
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -69,6 +70,7 @@ const mainNavItems = [
 
 const secondaryNavItems = [
   { title: "Profile", url: "/profile", icon: User },
+  { title: "Wallet", url: "/wallet", icon: Wallet },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "About", url: "/about", icon: HelpCircle },
   { title: "Help", url: "/help", icon: MessageSquarePlus },
