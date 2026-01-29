@@ -324,12 +324,6 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         </p>
       )}
 
-      {walletAddress && (
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Award className="h-4 w-4" />
-          <span>Owned: {ownedNFTCount} NFTs</span>
-        </div>
-      )}
 
       {/* Refresh Button - Outline style */}
       <Button
