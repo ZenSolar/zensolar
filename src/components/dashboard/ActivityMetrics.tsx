@@ -1,25 +1,16 @@
 import type React from 'react';
 import { ActivityData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
+import { Link } from 'react-router-dom';
 import {
   Sun,
   Car,
   Battery,
   Zap,
   Coins,
-  Award,
   ChevronRight,
   Gauge,
 } from 'lucide-react';
-import {
-  calculateEarnedMilestones,
-  calculateComboAchievements,
-  SOLAR_MILESTONES,
-  BATTERY_MILESTONES,
-  EV_CHARGING_MILESTONES,
-  EV_MILES_MILESTONES,
-  getTotalNftCount,
-} from '@/lib/nftMilestones';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
 import { motion } from 'framer-motion';
@@ -57,6 +48,7 @@ interface ActivityMetricsProps {
   onMintCategory?: (category: MintCategory) => void;
   onMintSuccess?: () => void;
   tokenPrice?: number;
+  lifetimeMinted?: number;
 }
 
 export function ActivityMetrics({ 
@@ -67,20 +59,9 @@ export function ActivityMetrics({
   onMintCategory, 
   onMintSuccess,
   tokenPrice = 0.10,
+  lifetimeMinted = 0,
 }: ActivityMetricsProps) {
   const deviceLabels = data.deviceLabels;
-  
-  // Calculate earned NFTs locally using actual energy data (uses lifetime for NFT progress)
-  const solarEarned = calculateEarnedMilestones(data.solarEnergyProduced, SOLAR_MILESTONES);
-  const batteryEarned = calculateEarnedMilestones(data.batteryStorageDischarged, BATTERY_MILESTONES);
-  const chargingKwhLifetime = data.teslaSuperchargerKwh + data.homeChargerKwh;
-  const chargingEarned = calculateEarnedMilestones(chargingKwhLifetime, EV_CHARGING_MILESTONES);
-  const evMilesEarned = calculateEarnedMilestones(data.evMilesDriven, EV_MILES_MILESTONES);
-  const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, chargingEarned, batteryEarned);
-
-  // Total earned (including Welcome NFT)
-  const totalEarned = 1 + solarEarned.length + evMilesEarned.length + chargingEarned.length + batteryEarned.length + comboEarned.length;
-  const totalPossible = getTotalNftCount();
 
   // "Current Activity" is what is mintable
   const current: CurrentActivity = currentActivity ?? {
@@ -138,13 +119,21 @@ export function ActivityMetrics({
               {filteredProviders.map((provider) => (
                 <div 
                   key={provider}
-                  className="h-7 w-7 rounded-lg bg-muted/80 p-1.5 flex items-center justify-center border border-border/50"
+                  className={cn(
+                    "h-8 w-8 rounded-lg p-1 flex items-center justify-center border border-border/50",
+                    provider === 'tesla' 
+                      ? "bg-[#E82127]" 
+                      : "bg-muted/80"
+                  )}
                   title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                 >
                   <img 
                     src={providerLogos[provider]} 
                     alt={provider}
-                    className="h-4 w-4 object-contain"
+                    className={cn(
+                      "object-contain",
+                      provider === 'tesla' ? "h-5 w-5 brightness-0 invert" : "h-4 w-4"
+                    )}
                   />
                 </div>
               ))}
@@ -272,6 +261,24 @@ export function ActivityMetrics({
             </div>
           )}
         </motion.div>
+
+        {/* Lifetime Minted Tokens - moved from NFT card */}
+        <Link 
+          to="/mint-history" 
+          className="flex items-center gap-3 p-3.5 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all group"
+        >
+          <div className="p-2.5 rounded-xl bg-muted">
+            <Coins className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-muted-foreground">Lifetime Minted Tokens</p>
+            <p className="text-xl font-bold text-foreground">
+              {lifetimeMinted?.toLocaleString() || '0'}
+              <span className="text-sm font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
+            </p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+        </Link>
 
       </CardContent>
     </Card>

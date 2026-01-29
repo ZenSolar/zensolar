@@ -265,6 +265,7 @@ export function DemoDashboard() {
             refreshInfo={{ lastUpdatedAt }}
             onMintCategory={profile.wallet_address ? handleMintCategory : undefined}
             onMintSuccess={handleMintSuccess}
+            lifetimeMinted={activityData.lifetimeMinted}
           />
         </AnimatedItem>
 

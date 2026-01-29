@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Award, ChevronRight, Sun, Car, Battery, Zap, Sparkles, Coins } from 'lucide-react';
+import { Award, ChevronRight, Sun, Car, Battery, Zap, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useHaptics } from '@/hooks/useHaptics';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
@@ -146,8 +147,10 @@ export function RewardProgress({
   evMilesDriven,
   evChargingKwh,
   batteryDischargedKwh,
-  lifetimeMinted = 0,
 }: RewardProgressProps) {
+  // Haptic feedback hook
+  const { lightTap } = useHaptics();
+  
   // State for selected category (null = auto priority)
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
   
@@ -187,6 +190,7 @@ export function RewardProgress({
   
   // Cycle through categories on tap
   const handleCycleCategory = () => {
+    lightTap(); // Haptic feedback
     const currentCat = selectedCategory || displayMilestone?.category || 'solar';
     const currentIndex = categoryOrder.indexOf(currentCat as CategoryType);
     const nextIndex = (currentIndex + 1) % categoryOrder.length;
@@ -195,6 +199,7 @@ export function RewardProgress({
   
   // Select specific category on dot tap
   const handleSelectCategory = (category: CategoryType) => {
+    lightTap(); // Haptic feedback
     setSelectedCategory(category);
   };
   
@@ -224,7 +229,7 @@ export function RewardProgress({
       <CardContent className="p-4 space-y-4">
         {/* Header: Title + Earned Badge */}
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-foreground">ZenSolar NFTs</h3>
+          <h3 className="text-base font-semibold text-foreground">zensolar NFTs</h3>
           <Badge variant="secondary" className="gap-1.5 px-2.5 py-1">
             <Award className="h-3.5 w-3.5" />
             <span className="font-semibold">{totalEarned} Earned</span>
@@ -260,10 +265,10 @@ export function RewardProgress({
                   src={artwork} 
                   alt={displayMilestone?.name || 'Next NFT'}
                   className="object-cover w-full h-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, scale: 1.02 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
                 />
               )}
             </AnimatePresence>
@@ -367,8 +372,8 @@ export function RewardProgress({
           />
         </div>
         
-        {/* Footer: View Collection + Lifetime Minted */}
-        <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/50">
+        {/* Footer: View Collection */}
+        <div className="pt-3 border-t border-border/50">
           <Link 
             to="/nft-collection" 
             className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-all group"
@@ -377,20 +382,6 @@ export function RewardProgress({
               <Award className="h-4 w-4 text-primary" />
             </div>
             <span className="flex-1 text-sm font-medium text-foreground">View Collection</span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-          
-          <Link 
-            to="/mint-history" 
-            className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-all group"
-          >
-            <div className="p-1.5 rounded-lg bg-muted">
-              <Coins className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Lifetime Minted</p>
-              <p className="text-sm font-bold text-foreground">{lifetimeMinted.toLocaleString()}</p>
-            </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>

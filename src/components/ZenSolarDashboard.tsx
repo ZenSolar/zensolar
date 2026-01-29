@@ -143,6 +143,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onMintCategory={profile?.wallet_address ? handleMintCategory : undefined}
             onMintSuccess={handleMintSuccess}
             tokenPrice={tokenPrice}
+            lifetimeMinted={activityData.lifetimeMinted}
           />
         </AnimatedItem>
 

@@ -858,13 +858,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           </p>
         )}
 
-        {/* Owned NFTs count */}
-        {eligibility && (
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Award className="h-4 w-4" />
-            <span>Owned: {eligibility.ownedNFTs.length} NFTs</span>
-          </div>
-        )}
 
         <Button
           onClick={async () => {
