@@ -13,6 +13,7 @@ import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
+import { NFTQuickMintDialog, NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Button } from './ui/button';
@@ -26,15 +27,13 @@ import {
   calculateEarnedMilestones,
   calculateComboAchievements,
 } from '@/lib/nftMilestones';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-
 interface ZenSolarDashboardProps {
   isDemo?: boolean;
 }
 
 export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
-  const navigate = useNavigate();
   const {
     activityData,
     isLoading: dataLoading,
@@ -46,6 +45,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { isAdmin, isAdminView } = useAdminCheck();
   const { triggerConfetti } = useConfetti();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
+  const nftQuickMintRef = useRef<NFTQuickMintDialogRef>(null);
   
   // Shared token price state
   const [tokenPrice, setTokenPrice] = useState(0.10);
@@ -159,7 +159,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* Compact Setup Prompt for new users without energy accounts */}
         {!hasEnergyConnected && (
           <AnimatedItem>
-            <CompactSetupPrompt onConnectEnergy={() => navigate('/profile')} />
+            <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
           </AnimatedItem>
         )}
         
@@ -223,7 +223,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
         <AnimatedItem className="space-y-3">
           <Button
-            onClick={() => navigate('/nft-collection')}
+            onClick={() => nftQuickMintRef.current?.openDialog()}
             disabled={dataLoading}
             className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
             size="lg"
@@ -250,6 +250,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             REFRESH DASHBOARD
           </Button>
         </AnimatedItem>
+
+        {/* NFT Quick Mint Dialog */}
+        <NFTQuickMintDialog
+          ref={nftQuickMintRef}
+          walletAddress={profile?.wallet_address}
+          activityData={activityData}
+          onMintSuccess={refreshDashboard}
+        />
         
         {/* Admin-only Baseline Reset Tool */}
         {isAdminView && (
