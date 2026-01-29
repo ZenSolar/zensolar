@@ -261,7 +261,7 @@ export default function Landing() {
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 shadow-sm hover:shadow-md hover:border-amber-500/50 transition-all cursor-default">
                 <Hexagon className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-medium text-foreground">In-App Minting</span>
+                <span className="text-sm font-medium text-foreground">Mint-on-Proof</span>
               </div>
             </motion.div>
           </motion.div>
@@ -290,7 +290,7 @@ export default function Landing() {
               </span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-              Our patent-pending SEGI technology verifies your energy production and lets you mint $ZSOLAR tokens 
+              Our patent-pending <strong className="text-primary">Mint-on-Proof</strong> technology verifies your energy production and lets you mint $ZSOLAR tokens 
               and milestone NFTs with just one tap—no external tools needed.
             </p>
 

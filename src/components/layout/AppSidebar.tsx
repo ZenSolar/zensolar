@@ -177,7 +177,7 @@ export function AppSidebar() {
           />
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">Earn Blockchain Rewards From Your Clean Energy Use</span>
+              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">One-Tap, Mint-on-Proof Clean Energy Platform</span>
             </div>
           )}
         </div>
