@@ -68,16 +68,11 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           )}
         </div>
         
-        {/* Centered Logo with Beta Badge underneath - Links to Dashboard */}
+        {/* Centered Logo with Beta Badge on top - Links to Dashboard */}
         <Link 
           to="/" 
           className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity flex flex-col items-center gap-0.5"
         >
-          <img 
-            src={zenLogo} 
-            alt="ZenSolar" 
-            className="h-6 w-auto object-contain dark:animate-logo-glow"
-          />
           <span 
             className="relative overflow-hidden text-[8px] font-semibold uppercase tracking-[0.2em] text-primary bg-primary/10 px-2 py-0.5 rounded-sm border border-primary/20"
           >
@@ -88,6 +83,11 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
             />
             <span className="relative">Beta</span>
           </span>
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            className="h-6 w-auto object-contain dark:animate-logo-glow"
+          />
         </Link>
         
         <ThemeToggle />
