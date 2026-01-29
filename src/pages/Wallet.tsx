@@ -14,15 +14,19 @@ import {
   Copy,
   CheckCircle2,
   ArrowUpRight,
-  ShieldCheck
+  ShieldCheck,
+  TrendingUp
 } from 'lucide-react';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS } from '@/lib/wagmi';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
-import { getMilestoneForTokenId, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
+import { getMilestoneForTokenId } from '@/lib/nftTokenMapping';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { SEO } from '@/components/SEO';
+
+// Live token price (testnet simulation)
+const LIVE_TOKEN_PRICE = 0.10;
 
 // Helper to get NFT image from token ID
 function getImageForTokenId(tokenId: number): string {
@@ -72,7 +76,14 @@ export default function Wallet() {
 
   const formattedBalance = parseFloat(tokenBalance).toLocaleString(undefined, {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 4,
+    maximumFractionDigits: 2,
+  });
+
+  // Calculate USD value
+  const usdValue = parseFloat(tokenBalance) * LIVE_TOKEN_PRICE;
+  const formattedUsdValue = usdValue.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 
   const basescanUrl = `https://sepolia.basescan.org/address/${walletAddress}`;
@@ -108,16 +119,16 @@ export default function Wallet() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        <SEO title="Wallet | ZenSolar" />
+    <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+      <SEO title="Wallet | ZenSolar" />
       
       <AnimatedContainer>
         {/* Header */}
-        <AnimatedItem className="flex items-center justify-between">
+        <AnimatedItem className="flex items-center justify-between mb-1">
           <div>
             <h1 className="text-2xl font-bold">My Wallet</h1>
             <p className="text-sm text-muted-foreground">
-              Real-time on-chain holdings from Base Sepolia
+              Real-time on-chain holdings
             </p>
           </div>
           <Button
@@ -125,35 +136,36 @@ export default function Wallet() {
             size="sm"
             onClick={refetch}
             disabled={holdingsLoading}
+            className="gap-2"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${holdingsLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${holdingsLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </AnimatedItem>
 
         {/* Wallet Address Card */}
         <AnimatedItem>
-          <Card>
+          <Card className="border-primary/20 bg-gradient-to-r from-primary/5 via-background to-primary/5">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center">
                     <WalletIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Connected Wallet</p>
-                    <p className="font-mono font-medium">{shortenedAddress}</p>
+                    <p className="text-xs text-muted-foreground font-medium">Connected Wallet</p>
+                    <p className="font-mono font-semibold text-foreground">{shortenedAddress}</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" onClick={copyAddress}>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={copyAddress} className="h-9 w-9">
                     {copied ? (
                       <CheckCircle2 className="h-4 w-4 text-primary" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
                   </Button>
-                  <Button variant="ghost" size="icon" asChild>
+                  <Button variant="ghost" size="icon" asChild className="h-9 w-9">
                     <a href={basescanUrl} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4" />
                     </a>
@@ -164,66 +176,100 @@ export default function Wallet() {
           </Card>
         </AnimatedItem>
 
-        {/* Holdings Grid */}
-        <AnimatedItem className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Token Balance Card */}
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
-            <CardHeader className="pb-2">
+        {/* Live Token Price Indicator */}
+        <AnimatedItem>
+          <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-background to-emerald-500/5">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Coins className="h-4 w-4 text-primary" />
-                  $ZSOLAR Tokens
-                </CardTitle>
-                <Badge variant="secondary" className="text-xs">ERC-20</Badge>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium">$ZSOLAR Price</p>
+                    <p className="font-bold text-lg text-emerald-600 dark:text-emerald-400">
+                      ${LIVE_TOKEN_PRICE.toFixed(2)} <span className="text-xs font-normal text-muted-foreground">USD</span>
+                    </p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="border-emerald-500/50 text-emerald-600 dark:text-emerald-400 text-xs">
+                  Base Sepolia
+                </Badge>
               </div>
-            </CardHeader>
-            <CardContent>
+            </CardContent>
+          </Card>
+        </AnimatedItem>
+
+        {/* Token Balance Card - Hero */}
+        <AnimatedItem>
+          <Card className="overflow-hidden border-primary/20">
+            <div className="bg-gradient-to-br from-primary/15 via-primary/5 to-background p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-5 w-5 text-primary" />
+                  <span className="font-semibold">$ZSOLAR Tokens</span>
+                </div>
+                <Badge className="bg-primary/20 text-primary border-0 text-xs">ERC-20</Badge>
+              </div>
+              
               {holdingsLoading ? (
-                <Skeleton className="h-10 w-32" />
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-48" />
+                  <Skeleton className="h-5 w-32" />
+                </div>
               ) : (
                 <div>
-                  <p className="text-3xl font-bold">{formattedBalance}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-4xl font-bold tracking-tight">{formattedBalance}</p>
+                  <p className="text-lg font-semibold text-primary mt-1">
+                    ≈ ${formattedUsdValue} USD
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
                     In your connected wallet
                   </p>
                 </div>
               )}
-              <Button variant="link" className="px-0 mt-2 h-auto text-xs" asChild>
+              
+              <Button variant="link" className="px-0 mt-3 h-auto text-xs text-primary" asChild>
                 <a href={tokenContractUrl} target="_blank" rel="noopener noreferrer">
                   View Contract <ArrowUpRight className="h-3 w-3 ml-1" />
                 </a>
               </Button>
-            </CardContent>
+            </div>
           </Card>
+        </AnimatedItem>
 
-          {/* NFT Count Card */}
-          <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Images className="h-4 w-4 text-secondary" />
-                  ZenSolar NFTs
-                </CardTitle>
-                <Badge variant="secondary" className="text-xs">ERC-1155</Badge>
+        {/* NFT Count Card */}
+        <AnimatedItem>
+          <Card className="overflow-hidden border-secondary/20">
+            <div className="bg-gradient-to-br from-secondary/15 via-secondary/5 to-background p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Images className="h-5 w-5 text-secondary" />
+                  <span className="font-semibold">ZenSolar NFTs</span>
+                </div>
+                <Badge className="bg-secondary/20 text-secondary border-0 text-xs">ERC-1155</Badge>
               </div>
-            </CardHeader>
-            <CardContent>
+              
               {holdingsLoading ? (
-                <Skeleton className="h-10 w-16" />
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-20" />
+                  <Skeleton className="h-4 w-28" />
+                </div>
               ) : (
                 <div>
-                  <p className="text-3xl font-bold">{nftCount}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-4xl font-bold tracking-tight">{nftCount}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
                     Milestone NFTs owned
                   </p>
                 </div>
               )}
-              <Button variant="link" className="px-0 mt-2 h-auto text-xs" asChild>
+              
+              <Button variant="link" className="px-0 mt-3 h-auto text-xs text-secondary" asChild>
                 <a href={nftContractUrl} target="_blank" rel="noopener noreferrer">
                   View Contract <ArrowUpRight className="h-3 w-3 ml-1" />
                 </a>
               </Button>
-            </CardContent>
+            </div>
           </Card>
         </AnimatedItem>
 
@@ -277,28 +323,28 @@ export default function Wallet() {
 
         {/* Privacy & Network Info */}
         <AnimatedItem>
-          <Card className="bg-muted/30">
-            <CardContent className="p-4 space-y-3">
+          <Card className="bg-muted/30 border-muted">
+            <CardContent className="p-4 space-y-4">
               {/* Privacy Notice */}
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
                 <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-foreground">Your Privacy is Protected</p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                     This page only displays your <strong>ZenSolar tokens and NFTs</strong>. We query our specific smart contracts and cannot see any other tokens, NFTs, or assets in your wallet.
                   </p>
                 </div>
               </div>
 
               {/* Network Info */}
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-sm px-1">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-muted-foreground">Network</span>
                 </div>
-                <span className="font-medium">Base Sepolia (Testnet)</span>
+                <Badge variant="outline" className="font-medium">Base Sepolia</Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground text-center">
                 Balances update automatically every 30 seconds.
               </p>
             </CardContent>
