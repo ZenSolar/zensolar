@@ -16,7 +16,7 @@ export function DashboardFooter() {
             className="h-8 w-auto object-contain mb-2 dark:animate-logo-glow" 
           />
           <p className="text-xs text-muted-foreground">
-            Rewarding sustainable energy choices
+            The world's first energy-to-crypto gateway
           </p>
         </div>
 
