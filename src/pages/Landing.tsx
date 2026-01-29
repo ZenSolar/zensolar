@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { SectionDivider } from '@/components/ui/section-divider';
 import { 
   Sun, Zap, Battery, Car, Coins, Shield, TrendingUp, 
   ChevronRight, Sparkles, Globe, ArrowRight, Hexagon
@@ -268,6 +269,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Divider: Hero → SEGI */}
+      <SectionDivider variant="chevron" />
+
       {/* SEGI Minting Section */}
       <section className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-primary/5">
         <div className="container max-w-4xl mx-auto px-4 space-y-10">
@@ -319,6 +323,9 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+
+      {/* Divider: SEGI → Competitive Edge */}
+      <SectionDivider variant="diamond" />
 
       {/* Competitive Edge Section */}
       <section className="py-16 md:py-20">
@@ -439,8 +446,11 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Divider: Competitive Edge → Features */}
+      <SectionDivider variant="angle" />
+
       {/* Features Grid */}
-      <section className="py-16 md:py-20 bg-muted/30 dark:bg-muted/10 border-y border-border/30 dark:border-primary/10">
+      <section className="py-16 md:py-20 bg-muted/30 dark:bg-muted/10">
         <div className="container max-w-6xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -480,6 +490,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Divider: Features → Benefits */}
+      <SectionDivider variant="angle" flip />
 
       {/* Benefits Section */}
       <section className="py-16 md:py-20">
@@ -567,8 +580,11 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Divider: Benefits → CTA */}
+      <SectionDivider variant="chevron" />
+
       {/* CTA Section */}
-      <section className="py-16 md:py-20 bg-muted/30 dark:bg-muted/10 border-t border-border/30 dark:border-primary/10">
+      <section className="py-16 md:py-20 bg-muted/30 dark:bg-muted/10">
         <div className="container max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
