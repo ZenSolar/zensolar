@@ -2,25 +2,16 @@ import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { useAppKit } from '@reown/appkit/react';
 
 // Import wallet logos
 import baseWalletLogo from '@/assets/wallets/base-wallet.png';
 
-interface CompactWalletPromptProps {
-  onConnectWallet?: () => void;
-}
-
-export function CompactWalletPrompt({ onConnectWallet }: CompactWalletPromptProps) {
+export function CompactWalletPrompt() {
   const navigate = useNavigate();
-  const { open } = useAppKit();
 
   const handleConnect = () => {
-    if (onConnectWallet) {
-      onConnectWallet();
-    } else {
-      open();
-    }
+    // Navigate to profile page where wallet connection is properly handled
+    navigate('/profile');
   };
 
   return (
@@ -90,7 +81,7 @@ export function CompactWalletPrompt({ onConnectWallet }: CompactWalletPromptProp
         </div>
         
         <p className="text-xs text-muted-foreground text-center">
-          Or manage your wallet on the{' '}
+          Connect your wallet on the{' '}
           <button 
             onClick={() => navigate('/profile')}
             className="text-token hover:underline font-medium"
