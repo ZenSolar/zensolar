@@ -24,9 +24,9 @@ function easeOutCubic(x: number): number {
 
 export function usePullToRefresh({
   onRefresh,
-  threshold = 80,
-  maxPull = 140,
-  activationDelay = 30,
+  threshold = 100,
+  maxPull = 160,
+  activationDelay = 80,
 }: UsePullToRefreshOptions): UsePullToRefreshReturn {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);

@@ -134,7 +134,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
           <div>
             <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
-            <p className="text-sm text-muted-foreground">Earn $ZSOLAR tokens and ZenSolar NFT's from your clean energy use</p>
+            <p className="text-sm text-muted-foreground">Mint $ZSOLAR tokens and NFTs directly to your wallet</p>
           </div>
         </AnimatedItem>
 
