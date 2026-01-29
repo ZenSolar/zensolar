@@ -351,9 +351,16 @@ export default function Auth() {
             </div>
             
             {/* Mobile tagline - evenly spaced with bright glow */}
-            <p className="text-[10px] uppercase tracking-[0.18em] text-primary font-semibold my-5 lg:hidden drop-shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-primary font-semibold mt-5 mb-4 lg:hidden drop-shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse">
               The World's First One-Tap, Mint-on-Proof Clean Energy Platform
             </p>
+            
+            {/* Decorative divider */}
+            <div className="flex items-center justify-center gap-3 my-4 lg:hidden">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+              <div className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse" />
+              <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            </div>
             
             <CardTitle className="text-2xl font-bold text-white">
               {mode === 'forgot' ? 'Reset Password' : mode === 'reset' ? 'New Password' : 'Welcome'}
