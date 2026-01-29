@@ -145,86 +145,8 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedP
 
   return (
     <div className="space-y-6">
-      {/* 1. REWARDS SUMMARY - At the top */}
-      <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card to-card/80">
-        <CardContent className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <Award className="h-5 w-5 text-primary" />
-              Rewards Summary
-            </h2>
-            
-            {/* Connected Provider Logos */}
-            {connectedProviders.length > 0 && (
-              <div className="flex items-center gap-1.5">
-                {connectedProviders.map((provider) => (
-                  <div 
-                    key={provider}
-                    className="h-6 w-6 rounded-md bg-muted/50 p-0.5 flex items-center justify-center"
-                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                  >
-                    <img 
-                      src={providerLogos[provider]} 
-                      alt={provider}
-                      className="h-4 w-4 object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} providers={refreshInfo?.providers} />
-
-          {/* Lifetime Minted - Links to Mint History */}
-          <div
-            className="p-3 rounded-xl bg-muted/50 border border-border cursor-pointer hover:bg-muted/80 transition-all hover:border-primary/30 group"
-            onClick={() => window.location.href = '/mint-history'}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                  <Coins className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Lifetime Minted</p>
-                  <p className="text-xs text-muted-foreground">View mint history</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-foreground">{data.lifetimeMinted.toLocaleString()}</span>
-                <span className="text-xs text-muted-foreground">$ZSOLAR</span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
-              <div className="p-2.5 rounded-full bg-primary/20">
-                <Award className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">NFTs Earned</p>
-                <p className="text-lg font-bold text-foreground">{totalEarned} / {totalPossible}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
-              <div className="p-2.5 rounded-full bg-accent/20">
-                <Users className="h-5 w-5 text-accent-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">Referral Tokens</p>
-                <p className="text-lg font-bold text-foreground">{data.referralTokens.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">$ZSOLAR</span></p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 2. PENDING REWARDS - What can be minted NOW */}
-      <Card className={`overflow-hidden transition-all ${activityUnits > 0 ? 'border-primary/40 shadow-xl shadow-primary/10 ring-1 ring-primary/20' : 'border-border'}`}>
+      {/* ENERGY COMMAND CENTER - THE HERO SECTION */}
+      <Card className={`overflow-hidden transition-all ${activityUnits > 0 ? 'border-primary/40 shadow-xl shadow-primary/10 ring-1 ring-primary/20' : 'border-eco/20'} bg-gradient-to-br from-eco/5 via-card to-card`}>
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -238,29 +160,102 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedP
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
                 </motion.span>
               )}
-              Pending Rewards
+              <Gauge className="h-5 w-5 text-eco" />
+              Energy Command Center
             </h2>
-            {activityUnits > 0 && onMintCategory && (
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="gap-1.5 h-9 text-xs font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
-                  onClick={() => onMintCategory('all')}
+            
+            {/* Connected Provider Logos + Mint All Button */}
+            <div className="flex items-center gap-2">
+              {connectedProviders.length > 0 && (
+                <div className="flex items-center gap-1">
+                  {connectedProviders.map((provider) => (
+                    <div 
+                      key={provider}
+                      className="h-5 w-5 rounded-md bg-eco/10 p-0.5 flex items-center justify-center"
+                      title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                    >
+                      <img 
+                        src={providerLogos[provider]} 
+                        alt={provider}
+                        className="h-3.5 w-3.5 object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {activityUnits > 0 && onMintCategory && (
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  <Sparkles className="h-4 w-4" />
-                  MINT ALL
-                </Button>
-              </motion.div>
-            )}
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="gap-1.5 h-8 text-xs font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+                    onClick={() => onMintCategory('all')}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    MINT ALL
+                  </Button>
+                </motion.div>
+              )}
+            </div>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            {activityUnits > 0 ? '🔥 Ready to mint — you receive 75% as tokens' : 'No activity to mint yet'}
-          </p>
+          <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} providers={refreshInfo?.providers} />
+
+          {/* Activity breakdown - compact grid with tap-to-mint */}
+          <div className="grid grid-cols-2 gap-2">
+            <ActivityCard
+              icon={Sun}
+              value={current.solarKwh}
+              unit="kWh"
+              label={solarLabel}
+              active={current.solarKwh > 0}
+              colorClass="solar"
+              onTap={current.solarKwh > 0 ? () => onMintCategory?.('solar') : undefined}
+            />
+
+            <ActivityCard
+              icon={Car}
+              value={current.evMiles}
+              unit="mi"
+              label={evLabel}
+              active={current.evMiles > 0}
+              colorClass="energy"
+              onTap={current.evMiles > 0 ? () => onMintCategory?.('ev_miles') : undefined}
+            />
+
+            <ActivityCard
+              icon={Battery}
+              value={current.batteryKwh}
+              unit="kWh"
+              label={batteryLabel}
+              active={current.batteryKwh > 0}
+              colorClass="secondary"
+              onTap={current.batteryKwh > 0 ? () => onMintCategory?.('battery') : undefined}
+            />
+
+            <ActivityCard
+              icon={Zap}
+              value={superchargerKwh}
+              unit="kWh"
+              label={superchargerLabel}
+              active={superchargerKwh > 0}
+              colorClass="accent"
+              onTap={superchargerKwh > 0 ? () => onMintCategory?.('supercharger') : undefined}
+            />
+
+            <ActivityCard
+              icon={Zap}
+              value={homeChargerKwh}
+              unit="kWh"
+              label={homeChargerLabel}
+              active={homeChargerKwh > 0}
+              colorClass="accent"
+              onTap={homeChargerKwh > 0 ? () => onMintCategory?.('home_charger') : undefined}
+            />
+          </div>
 
           {/* Tokens to receive - prominent display with USD value */}
           <motion.div 
@@ -277,7 +272,7 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedP
                 <Coins className={`h-7 w-7 ${activityUnits > 0 ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
               </motion.div>
               <div className="flex-1">
-                <p className="text-sm text-muted-foreground font-medium">Tokens You'll Receive</p>
+                <p className="text-sm text-muted-foreground font-medium">Total Available Tokens</p>
                 <motion.p 
                   className="text-3xl font-bold text-foreground"
                   animate={activityUnits > 0 ? { scale: [1, 1.02, 1] } : {}}
@@ -333,7 +328,7 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedP
                           </Button>
                         </div>
                         <p className="text-[10px] text-muted-foreground">
-                          Default: $0.23 (estimated)
+                          Default: $0.10 (launch floor)
                         </p>
                       </div>
                     </PopoverContent>
@@ -343,124 +338,31 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedP
             </div>
           </motion.div>
 
-          {/* Activity breakdown - compact grid with tap-to-mint */}
-          <div className="grid grid-cols-2 gap-2">
-            <ActivityCard
-              icon={Sun}
-              value={current.solarKwh}
-              unit="kWh"
-              label={solarLabel}
-              active={current.solarKwh > 0}
-              colorClass="solar"
-              onTap={current.solarKwh > 0 ? () => onMintCategory?.('solar') : undefined}
-            />
-
-            <ActivityCard
-              icon={Car}
-              value={current.evMiles}
-              unit="mi"
-              label={evLabel}
-              active={current.evMiles > 0}
-              colorClass="energy"
-              onTap={current.evMiles > 0 ? () => onMintCategory?.('ev_miles') : undefined}
-            />
-
-            <ActivityCard
-              icon={Battery}
-              value={current.batteryKwh}
-              unit="kWh"
-              label={batteryLabel}
-              active={current.batteryKwh > 0}
-              colorClass="secondary"
-              onTap={current.batteryKwh > 0 ? () => onMintCategory?.('battery') : undefined}
-            />
-
-            <ActivityCard
-              icon={Zap}
-              value={superchargerKwh}
-              unit="kWh"
-              label={superchargerLabel}
-              active={superchargerKwh > 0}
-              colorClass="accent"
-              onTap={superchargerKwh > 0 ? () => onMintCategory?.('supercharger') : undefined}
-            />
-
-            <ActivityCard
-              icon={Zap}
-              value={homeChargerKwh}
-              unit="kWh"
-              label={homeChargerLabel}
-              active={homeChargerKwh > 0}
-              colorClass="accent"
-              onTap={homeChargerKwh > 0 ? () => onMintCategory?.('home_charger') : undefined}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 3. ENERGY COMMAND CENTER (Mintable activity units) */}
-      <Card className="overflow-hidden border-eco/20 bg-gradient-to-br from-eco/5 via-card to-card">
-        <CardContent className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <Gauge className="h-5 w-5 text-eco" />
-              Energy Command Center
-            </h2>
-            
-            {/* Connected Provider Logos in Command Center */}
-            {connectedProviders.length > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] text-muted-foreground mr-1">Connected:</span>
-                {connectedProviders.map((provider) => (
-                  <div 
-                    key={provider}
-                    className="h-5 w-5 rounded-md bg-eco/10 p-0.5 flex items-center justify-center"
-                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                  >
-                    <img 
-                      src={providerLogos[provider]} 
-                      alt={provider}
-                      className="h-3.5 w-3.5 object-contain"
-                    />
-                  </div>
-                ))}
+          {/* Summary row: NFTs + Lifetime Minted */}
+          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/50">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/5 border border-primary/10">
+              <Award className="h-4 w-4 text-primary" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-muted-foreground">NFTs Earned</p>
+                <p className="text-sm font-bold text-foreground">{totalEarned} / {totalPossible}</p>
               </div>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground -mt-2">
-            Since your last mint (or lifetime totals until your first mint)
-          </p>
-
-          <div className="space-y-2">
-            <MetricCard icon={Sun} label={solarLabel} value={current.solarKwh} unit="kWh" tone="solar" />
-            <MetricCard icon={Car} label={evLabel} value={current.evMiles} unit="mi" tone="energy" />
-            <MetricCard icon={Battery} label={batteryLabel} value={current.batteryKwh} unit="kWh" tone="secondary" />
-            <MetricCard icon={Zap} label={superchargerLabel} value={superchargerKwh} unit="kWh" tone="accent" />
-            <MetricCard icon={Zap} label={homeChargerLabel} value={homeChargerKwh} unit="kWh" tone="accent" />
-            <MetricCard icon={Leaf} label="CO2 Offset" value={currentCo2Offset} unit="lbs" tone="eco" />
-          </div>
-
-          {/* Total Activity Summary */}
-          <motion.div 
-            className="mt-4 pt-4 border-t border-border/50"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-eco/10 to-eco/5 border border-eco/20">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-eco/20">
-                  <Sparkles className="h-4 w-4 text-eco" />
-                </div>
-                <span className="text-sm font-medium text-foreground">Total Activity Units</span>
-              </div>
-              <span className="text-lg font-bold text-eco">
-                {(current.solarKwh + current.evMiles + current.batteryKwh + superchargerKwh + homeChargerKwh).toLocaleString()}
-              </span>
             </div>
-          </motion.div>
+            
+            <div 
+              className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => window.location.href = '/mint-history'}
+            >
+              <Coins className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-muted-foreground">Lifetime Minted</p>
+                <p className="text-sm font-bold text-foreground">{data.lifetimeMinted.toLocaleString()}</p>
+              </div>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+          </div>
         </CardContent>
       </Card>
+
     </div>
   );
 }

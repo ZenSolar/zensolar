@@ -7,6 +7,7 @@ import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { getLiveBetaMode } from "@/lib/tokenomics";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 interface TopNavProps {
   isDemo?: boolean;
@@ -67,14 +68,14 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           )}
         </div>
         
-        {/* Centered Logo */}
-        <div className="absolute left-1/2 -translate-x-1/2">
+        {/* Centered Logo - Links to Dashboard */}
+        <Link to="/" className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
             className="h-7 w-auto object-contain dark:animate-logo-glow"
           />
-        </div>
+        </Link>
         
         <ThemeToggle />
       </div>
