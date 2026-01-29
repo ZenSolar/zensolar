@@ -8,9 +8,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface TokenPriceCardProps {
   tokensHeld: number;
   defaultPrice?: number;
+  onPriceChange?: (price: number) => void;
 }
 
-export function TokenPriceCard({ tokensHeld, defaultPrice = 0.23 }: TokenPriceCardProps) {
+export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange }: TokenPriceCardProps) {
   const [tokenPrice, setTokenPrice] = useState<number>(defaultPrice);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(defaultPrice.toString());
@@ -19,6 +20,12 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.23 }: TokenPriceCa
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const totalValueUSD = tokensHeld * tokenPrice;
+
+  // Notify parent when price changes
+  const updatePrice = (newPrice: number) => {
+    setTokenPrice(newPrice);
+    onPriceChange?.(newPrice);
+  };
 
   // Pulse animation when tokens change
   useEffect(() => {
@@ -34,7 +41,7 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.23 }: TokenPriceCa
   const handlePriceSubmit = () => {
     const parsed = parseFloat(inputValue);
     if (!isNaN(parsed) && parsed >= 0) {
-      setTokenPrice(parsed);
+      updatePrice(parsed);
     } else {
       setInputValue(tokenPrice.toString());
     }

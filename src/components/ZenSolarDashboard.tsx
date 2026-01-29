@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -30,12 +30,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     refreshDashboard,
     connectedAccounts,
     lastUpdatedAt,
-    providerRefresh,
   } = useDashboardData();
   const { profile, isLoading: profileLoading } = useProfile();
   const { isAdmin } = useAdminCheck();
   const { triggerConfetti } = useConfetti();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
+  
+  // Shared token price state
+  const [tokenPrice, setTokenPrice] = useState(0.10);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
@@ -115,7 +117,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* Token Price Card - Prominent at top */}
         <AnimatedItem>
-          <TokenPriceCard tokensHeld={activityData.lifetimeMinted} />
+          <TokenPriceCard 
+            tokensHeld={activityData.lifetimeMinted} 
+            defaultPrice={0.10}
+            onPriceChange={setTokenPrice}
+          />
         </AnimatedItem>
 
         {/* Compact Setup Prompt for new users without energy accounts */}
@@ -130,10 +136,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <ActivityMetrics
             data={activityData}
             currentActivity={currentActivity}
-            refreshInfo={{ lastUpdatedAt, providers: providerRefresh }}
+            refreshInfo={{ lastUpdatedAt }}
             connectedProviders={connectedProviders}
             onMintCategory={profile?.wallet_address ? handleMintCategory : undefined}
             onMintSuccess={handleMintSuccess}
+            tokenPrice={tokenPrice}
           />
         </AnimatedItem>
 

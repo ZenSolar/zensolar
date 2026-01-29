@@ -260,7 +260,7 @@ export function DemoDashboard() {
           <ActivityMetrics
             data={activityData}
             currentActivity={currentActivity}
-            refreshInfo={{ lastUpdatedAt, providers: providerRefresh }}
+            refreshInfo={{ lastUpdatedAt }}
             onMintCategory={profile.wallet_address ? handleMintCategory : undefined}
             onMintSuccess={handleMintSuccess}
           />
