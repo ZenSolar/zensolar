@@ -53,7 +53,7 @@ export function LiveBetaToggle({ collapsed = false }: LiveBetaToggleProps) {
           </button>
         </TooltipTrigger>
         <TooltipContent side="right">
-          <p>{isLiveBeta ? "Live Beta ON (10x)" : "Mainnet Mode"}</p>
+          <p>{isLiveBeta ? "Live Beta ON (10x)" : "Live Beta OFF"}</p>
           <p className="text-xs text-muted-foreground">Click to toggle</p>
         </TooltipContent>
       </Tooltip>
@@ -78,7 +78,7 @@ export function LiveBetaToggle({ collapsed = false }: LiveBetaToggleProps) {
             isLiveBeta ? "text-solar" : "text-muted-foreground"
           }`}
         >
-          {isLiveBeta ? "Live Beta (10x)" : "Mainnet Mode"}
+          {isLiveBeta ? "Live Beta (10x)" : "Live Beta"}
         </Label>
       </div>
       <Switch
