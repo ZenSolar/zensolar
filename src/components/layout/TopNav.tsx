@@ -68,13 +68,19 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           )}
         </div>
         
-        {/* Centered Logo - Links to Dashboard */}
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity">
+        {/* Centered Logo with Beta Badge - Links to Dashboard */}
+        <Link to="/" className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity flex items-center gap-2">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
             className="h-7 w-auto object-contain dark:animate-logo-glow"
           />
+          <Badge 
+            variant="outline" 
+            className="text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-primary/20 to-emerald-500/20 text-primary border-primary/40 px-2 py-0.5 animate-pulse"
+          >
+            Beta
+          </Badge>
         </Link>
         
         <ThemeToggle />
