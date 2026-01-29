@@ -16,7 +16,7 @@ export function DashboardFooter() {
             className="h-8 w-auto object-contain mb-2 dark:animate-logo-glow" 
           />
           <p className="text-xs text-muted-foreground">
-            The world's first energy-to-crypto gateway
+            The world's first patent-pending energy-to-crypto gateway
           </p>
         </div>
 
@@ -27,7 +27,7 @@ export function DashboardFooter() {
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <Store className="h-4 w-4" />
-            Store
+            $ZSOLAR Store
           </Link>
           <Link 
             to="/how-it-works" 
