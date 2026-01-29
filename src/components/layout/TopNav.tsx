@@ -79,9 +79,9 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
               alt="ZenSolar" 
               className="h-7 w-auto object-contain dark:animate-logo-glow"
             />
-            {/* Corner overlay badge */}
+            {/* Corner overlay badge - bottom right */}
             <span 
-              className="absolute -top-1.5 -right-6 overflow-hidden text-[7px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded border border-primary/30 shadow-sm"
+              className="absolute -bottom-1.5 -right-6 overflow-hidden text-[7px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded border border-primary/30 shadow-sm"
             >
               {/* Shimmer overlay */}
               <span 
