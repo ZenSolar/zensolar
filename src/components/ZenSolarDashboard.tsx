@@ -15,7 +15,16 @@ import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
+import {
+  SOLAR_MILESTONES,
+  EV_MILES_MILESTONES,
+  EV_CHARGING_MILESTONES,
+  BATTERY_MILESTONES,
+  calculateEarnedMilestones,
+  calculateComboAchievements,
+} from '@/lib/nftMilestones';
 import { useNavigate } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
@@ -71,6 +80,17 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
   const firstName = profile?.display_name?.trim().split(/\s+/)[0];
   const dashboardTitle = firstName ? `Welcome, ${firstName}` : 'Dashboard';
+
+  // Calculate total NFTs available for minting (1 welcome + milestones + combos)
+  const solarEarned = calculateEarnedMilestones(activityData.solarEnergyProduced, SOLAR_MILESTONES);
+  const batteryEarned = calculateEarnedMilestones(activityData.batteryStorageDischarged, BATTERY_MILESTONES);
+  const evMilesEarned = calculateEarnedMilestones(activityData.evMilesDriven, EV_MILES_MILESTONES);
+  const evChargingEarned = calculateEarnedMilestones(
+    activityData.teslaSuperchargerKwh + activityData.homeChargerKwh, 
+    EV_CHARGING_MILESTONES
+  );
+  const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
+  const totalNftsAvailable = 1 + solarEarned.length + batteryEarned.length + evMilesEarned.length + evChargingEarned.length + comboEarned.length;
 
   // "Current Activity" is what is mintable: lifetime until first mint, then delta since last mint.
   // We centralize rounding here so Pending Rewards and Current Activity always match.
@@ -192,7 +212,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
-        <AnimatedItem>
+        <AnimatedItem className="space-y-3">
           <Button
             onClick={() => navigate('/nft-collection')}
             disabled={dataLoading}
@@ -201,6 +221,24 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           >
             <Images className="mr-2 h-4 w-4" />
             MINT ZENSOLAR NFTs
+            <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
+              {totalNftsAvailable}
+            </Badge>
+          </Button>
+          
+          <Button
+            onClick={refreshDashboard}
+            disabled={dataLoading}
+            variant="outline"
+            className="w-full"
+            size="lg"
+          >
+            {dataLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            REFRESH DASHBOARD
           </Button>
         </AnimatedItem>
         
