@@ -14,7 +14,6 @@ import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { NFTQuickMintDialog, NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
-import { WalletHoldingsCard } from './dashboard/WalletHoldingsCard';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Button } from './ui/button';
@@ -155,11 +154,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             defaultPrice={0.10}
             onPriceChange={setTokenPrice}
           />
-        </AnimatedItem>
-
-        {/* On-Chain Wallet Holdings */}
-        <AnimatedItem>
-          <WalletHoldingsCard walletAddress={profile?.wallet_address ?? undefined} />
         </AnimatedItem>
 
         {/* Compact Setup Prompt for new users without energy accounts */}

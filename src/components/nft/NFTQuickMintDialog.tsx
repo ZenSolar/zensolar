@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useConfetti } from '@/hooks/useConfetti';
+import { toast } from 'sonner';
 import { useHaptics } from '@/hooks/useHaptics';
 import { NFTMintFlow } from './NFTMintFlow';
 import { getNftArtwork } from '@/lib/nftArtwork';
@@ -255,6 +256,9 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
         triggerGoldBurst();
         triggerCelebration();
         hapticSuccess();
+        toast.success(`Successfully minted ${tokenIds.length} NFTs!`, {
+          description: 'Your milestone NFTs are now on-chain in your wallet.',
+        });
         await checkOnChainStatus();
         onMintSuccess?.();
       } catch (err) {
