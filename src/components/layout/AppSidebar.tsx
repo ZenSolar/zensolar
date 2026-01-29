@@ -246,10 +246,7 @@ export function AppSidebar() {
         {/* Admin Navigation - Only visible to admins */}
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2">
-              Admin
-              <LiveBetaIndicator collapsed={collapsed} />
-            </SidebarGroupLabel>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {/* Core Admin */}

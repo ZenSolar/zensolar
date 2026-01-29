@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, Sparkles } from 'lucide-react';
+import { TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -16,6 +16,7 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.23 }: TokenPriceCa
   const [inputValue, setInputValue] = useState(defaultPrice.toString());
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const totalValueUSD = tokensHeld * tokenPrice;
 
@@ -49,6 +50,51 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.23 }: TokenPriceCa
     }
   };
 
+  // Collapsed view - compact single row
+  if (isCollapsed) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
+        <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 shadow-lg shadow-primary/5">
+          <CardContent className="relative p-3">
+            <button
+              onClick={() => setIsCollapsed(false)}
+              className="w-full flex items-center justify-between gap-4 group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-gradient-to-br from-primary/30 to-primary/10">
+                  <Coins className="h-4 w-4 text-primary" />
+                </div>
+                <span className="font-bold text-foreground">$ZSOLAR</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="font-bold text-foreground">${tokenPrice.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <motion.div 
+                  className="flex items-center gap-1.5"
+                  animate={showPulse ? { scale: [1, 1.05, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <span className="font-bold text-eco">
+                    ${totalValueUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    ({tokensHeld.toLocaleString()})
+                  </span>
+                </motion.div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </div>
+            </button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Expanded view - full layout
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -76,14 +122,22 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.23 }: TokenPriceCa
               </motion.div>
               <span className="font-bold text-lg text-foreground">$ZSOLAR Token</span>
             </div>
-            <motion.div 
-              className="flex items-center gap-1.5 text-xs text-eco bg-eco/10 px-3 py-1.5 rounded-full border border-eco/20"
-              animate={{ scale: [1, 1.02, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <TrendingUp className="h-3.5 w-3.5" />
-              <span className="font-medium">Live</span>
-            </motion.div>
+            <div className="flex items-center gap-2">
+              <motion.div 
+                className="flex items-center gap-1.5 text-xs text-eco bg-eco/10 px-3 py-1.5 rounded-full border border-eco/20"
+                animate={{ scale: [1, 1.02, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <TrendingUp className="h-3.5 w-3.5" />
+                <span className="font-medium">Live</span>
+              </motion.div>
+              <button
+                onClick={() => setIsCollapsed(true)}
+                className="p-1.5 rounded-md hover:bg-muted/50 transition-colors"
+              >
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
