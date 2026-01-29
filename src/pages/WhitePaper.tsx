@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from "react";
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
+import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofComparison';
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 
@@ -397,6 +398,9 @@ export default function WhitePaper() {
         
         {/* SEGI Flow Diagram */}
         <SEGIFlowDiagram />
+
+        {/* Mint-on-Proof Comparison */}
+        <MintOnProofComparison autoPlay={true} showControls={false} />
       </motion.section>
 
       {/* Our Mission */}
