@@ -1,249 +1,367 @@
 
-# Dashboard Enhancements: NFT Card Polish + Layout Reorganization
+# Dashboard Enhancements: Button Relocation, Tesla Logo, User View Toggle, and Mobile Fixes
 
 ## Overview
 
-This plan addresses multiple improvements to enhance the NFT Milestone card and reorganize the dashboard layout for better user experience.
+This plan addresses multiple UI improvements requested:
+1. Move "MINT ZENSOLAR NFTs" button below the NFT card
+2. Add "REFRESH DASHBOARD" button below it  
+3. Fix the NFT card title to "ZenSolar NFTs"
+4. Replace the Tesla logo with a proper inline SVG "T" icon
+5. Add "Live User View" toggle for admins in the sidebar
+6. Fix mobile token price card cutoff and collapsed view content
 
 ---
 
 ## Changes Summary
 
-### 1. Verify Tap-to-Cycle and Category Selection ✓
+### 1. Move "MINT ZENSOLAR NFTs" Button Below NFT Card
 
-The current `RewardProgress.tsx` already implements:
-- `selectedCategory` state (line 152)
-- `handleCycleCategory()` on hero image (line 189-194)
-- `handleSelectCategory()` on category dots (line 197-199)
-- Category dots with `onClick` handlers (lines 339, 348, 357, 366)
+**Current location**: Inside `RewardActions.tsx` (lines 800-814)
 
-**Status**: Already implemented and working.
+**New location**: Below the `RewardProgress` component in `ZenSolarDashboard.tsx`
 
----
+The button navigates to `/nft-collection` and shows the number of eligible NFTs.
 
-### 2. Add Smooth Cross-Fade Animation Between NFT Images
+**File**: `src/components/ZenSolarDashboard.tsx`
 
-Already partially implemented with `AnimatePresence` and `motion.img` (lines 256-268).
-
-**Enhance by**:
-- Adding `scale` animation alongside opacity
-- Smoothing the transition duration
-
-**File**: `src/components/dashboard/RewardProgress.tsx` (Lines 258-267)
+Add after RewardProgress component:
 
 ```tsx
-// Current
-initial={{ opacity: 0 }}
-animate={{ opacity: 1 }}
-exit={{ opacity: 0 }}
-transition={{ duration: 0.3 }}
-
-// New - add scale for smoother feel
-initial={{ opacity: 0, scale: 1.02 }}
-animate={{ opacity: 1, scale: 1 }}
-exit={{ opacity: 0, scale: 0.98 }}
-transition={{ duration: 0.35, ease: "easeOut" }}
-```
-
----
-
-### 3. Add Haptic Feedback When Tapping Category Dots
-
-Import and use the `useHaptics` hook in RewardProgress.tsx.
-
-**File**: `src/components/dashboard/RewardProgress.tsx`
-
-**Changes**:
-1. Import haptics hook
-2. Call `lightTap()` on category dot clicks and hero image taps
-
-```tsx
-import { useHaptics } from '@/hooks/useHaptics';
-
-// Inside component
-const { lightTap } = useHaptics();
-
-// In handleCycleCategory
-const handleCycleCategory = () => {
-  lightTap(); // Add haptic feedback
-  const currentCat = selectedCategory || displayMilestone?.category || 'solar';
-  // ... rest unchanged
-};
-
-// In handleSelectCategory  
-const handleSelectCategory = (category: CategoryType) => {
-  lightTap(); // Add haptic feedback
-  setSelectedCategory(category);
-};
-```
-
----
-
-### 4. Rename "ZenSolar NFTs" to "zensolar NFTs" (Lowercase 's')
-
-Change text in RewardProgress.tsx header.
-
-**File**: `src/components/dashboard/RewardProgress.tsx` (Line 227)
-
-```tsx
-// Current
-<h3 className="text-base font-semibold text-foreground">ZenSolar NFTs</h3>
-
-// New
-<h3 className="text-base font-semibold text-foreground">zensolar NFTs</h3>
-```
-
----
-
-### 5. Remove "Owned X NFTs" Text from Dashboard
-
-Remove from both `RewardActions.tsx` and `DemoRewardActions.tsx`.
-
-**File 1**: `src/components/dashboard/RewardActions.tsx` (Lines 861-867)
-**Action**: Delete this block entirely
-```tsx
-{/* Owned NFTs count */}
-{eligibility && (
-  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-    <Award className="h-4 w-4" />
-    <span>Owned: {eligibility.ownedNFTs.length} NFTs</span>
-  </div>
-)}
-```
-
-**File 2**: `src/components/demo/DemoRewardActions.tsx` (Lines 327-332)
-**Action**: Delete this block entirely
-```tsx
-{walletAddress && (
-  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-    <Award className="h-4 w-4" />
-    <span>Owned: {ownedNFTCount} NFTs</span>
-  </div>
-)}
-```
-
----
-
-### 6. Move "Mint ZenSolar NFTs" Button Below NFT Card
-
-The "MINT ZENSOLAR NFTS" button currently lives in `RewardActions.tsx`. Move it to a new section below `RewardProgress` in the dashboard.
-
-**Approach**: Create a new component or integrate into `RewardProgress.tsx` footer.
-
-**File**: `src/components/dashboard/RewardProgress.tsx`
-
-Add a new "Mint NFTs" row in the footer grid (after "View Collection" and "Lifetime Minted"):
-
-```tsx
-{/* Add new row for Mint NFTs CTA */}
-{eligibility?.totalEligible > 0 && (
+{/* NFT Mint Button - Below NFT Card */}
+<AnimatedItem className="space-y-3">
   <Button
     onClick={() => navigate('/nft-collection')}
-    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+    disabled={dataLoading}
+    className="w-full bg-primary hover:bg-primary/90"
     size="lg"
   >
     <Images className="mr-2 h-4 w-4" />
-    MINT zensolar NFTs
-    <Badge variant="secondary" className="ml-2 bg-white/20">
-      {eligibility.totalEligible} available
-    </Badge>
+    MINT ZENSOLAR NFTs
+    {/* Badge with eligible count passed from RewardActions eligibility state */}
   </Button>
+  
+  <Button
+    onClick={refreshDashboard}
+    disabled={dataLoading}
+    variant="outline"
+    className="w-full"
+    size="lg"
+  >
+    {dataLoading ? (
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+    ) : (
+      <RefreshCw className="mr-2 h-4 w-4" />
+    )}
+    REFRESH DASHBOARD
+  </Button>
+</AnimatedItem>
+```
+
+**Note**: Since eligibility data is currently in `RewardActions`, we need to either:
+- Lift the eligibility state up to ZenSolarDashboard (preferred)
+- Or create a simpler version that navigates to collection without showing count
+
+For simplicity, we'll use a streamlined version that links to the collection page.
+
+---
+
+### 2. Remove Duplicate Buttons from RewardActions
+
+**File**: `src/components/dashboard/RewardActions.tsx`
+
+**Remove** (lines 800-878):
+- The "MINT ZENSOLAR NFTS" button 
+- The "MINT MILESTONE NFTS" button
+- The "MINT COMBO NFTS" button  
+- The "REFRESH DASHBOARD" button
+- Status messages
+
+Keep only the MINT $ZSOLAR TOKENS button and dialogs, since those are triggered via ref from the dashboard.
+
+---
+
+### 3. Fix NFT Card Title to "ZenSolar NFTs"
+
+**File**: `src/components/dashboard/RewardProgress.tsx` (line 232)
+
+**Current**:
+```tsx
+<h3 className="text-base font-semibold text-foreground">zensolar NFTs</h3>
+```
+
+**Change to**:
+```tsx
+<h3 className="text-base font-semibold text-foreground">ZenSolar NFTs</h3>
+```
+
+---
+
+### 4. Replace Tesla Logo with Inline SVG "T" Icon
+
+The current Tesla logo PNG is not rendering well. Replace with an inline SVG of the Tesla "T" icon.
+
+**File**: `src/components/dashboard/ActivityMetrics.tsx`
+
+**Add a TeslaIcon component** at the top:
+
+```tsx
+// Tesla "T" icon as inline SVG for crisp rendering
+function TeslaIcon({ className }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 100 100" 
+      className={className}
+      fill="currentColor"
+    >
+      <path d="M50 5C30.5 5 12.5 10.5 5 17.5L50 95L95 17.5C87.5 10.5 69.5 5 50 5ZM50 12C60 12 70 14 77.5 17.5L50 75L22.5 17.5C30 14 40 12 50 12Z" />
+    </svg>
+  );
+}
+```
+
+**Replace the logo rendering** (lines 117-141):
+
+```tsx
+{/* Connected Provider Logos */}
+{filteredProviders.length > 0 && (
+  <div className="flex items-center gap-1.5">
+    {filteredProviders.map((provider) => (
+      <div 
+        key={provider}
+        className={cn(
+          "h-8 w-8 rounded-lg flex items-center justify-center",
+          provider === 'tesla' 
+            ? "bg-[#E82127] text-white" 
+            : "bg-muted/80 border border-border/50"
+        )}
+        title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+      >
+        {provider === 'tesla' ? (
+          <TeslaIcon className="h-5 w-5" />
+        ) : (
+          <img 
+            src={providerLogos[provider]} 
+            alt={provider}
+            className="h-4 w-4 object-contain"
+          />
+        )}
+      </div>
+    ))}
+  </div>
 )}
 ```
 
-But since we don't have eligibility data in RewardProgress, a simpler approach is to **remove the button from RewardActions** and add a visual CTA in the NFT card footer that links to the collection page.
-
-**Actually, looking at the screenshot reference**: The button should move from RewardActions to below the NFT card. We'll add this as a third row in the RewardProgress footer.
+This renders a crisp white "T" on a Tesla red background.
 
 ---
 
-### 7. Move "Lifetime Minted" to Energy Command Center
+### 5. Add "Live User View" Toggle to Admin Sidebar
 
-Move the "Lifetime Minted" indicator from the NFT card footer to the bottom of the Energy Command Center (ActivityMetrics).
+Add a new toggle below "Live Beta Toggle" that allows admins to view the app as a non-admin user would see it.
 
-**File 1**: `src/components/dashboard/ActivityMetrics.tsx`
-**Add** a new "Lifetime Minted" section at the bottom of the card, after the "Total Available Tokens" section.
+**File 1**: `src/lib/userViewMode.ts` (NEW FILE)
 
 ```tsx
-{/* Lifetime Minted - moved from NFT card */}
-<Link 
-  to="/mint-history" 
-  className="flex items-center gap-3 p-3.5 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all group"
->
-  <div className="p-2.5 rounded-xl bg-muted">
-    <Coins className="h-5 w-5 text-muted-foreground" />
-  </div>
-  <div className="flex-1 min-w-0">
-    <p className="text-sm font-medium text-muted-foreground">Lifetime Minted Tokens</p>
-    <p className="text-xl font-bold text-foreground">
-      {data.lifetimeMinted?.toLocaleString() || '0'}
-      <span className="text-sm font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
-    </p>
-  </div>
-  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-</Link>
+// User view mode management - allows admins to see the app as regular users
+const USER_VIEW_KEY = 'zensolar_user_view_mode';
+
+export function getUserViewMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(USER_VIEW_KEY) === 'true';
+}
+
+export function setUserViewMode(enabled: boolean): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(USER_VIEW_KEY, String(enabled));
+  window.dispatchEvent(new CustomEvent('userViewModeChange', { detail: enabled }));
+}
 ```
 
-**File 2**: `src/components/dashboard/RewardProgress.tsx`
-**Remove** the "Lifetime Minted" link from the footer grid, leaving only "View Collection".
+**File 2**: `src/components/layout/UserViewToggle.tsx` (NEW FILE)
+
+```tsx
+import { useState, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { getUserViewMode, setUserViewMode } from "@/lib/userViewMode";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+interface UserViewToggleProps {
+  collapsed?: boolean;
+}
+
+export function UserViewToggle({ collapsed = false }: UserViewToggleProps) {
+  const [isUserView, setIsUserView] = useState(getUserViewMode());
+
+  useEffect(() => {
+    const handleModeChange = (event: CustomEvent<boolean>) => {
+      setIsUserView(event.detail);
+    };
+
+    window.addEventListener('userViewModeChange', handleModeChange as EventListener);
+    return () => {
+      window.removeEventListener('userViewModeChange', handleModeChange as EventListener);
+    };
+  }, []);
+
+  const handleToggle = (checked: boolean) => {
+    setUserViewMode(checked);
+    setIsUserView(checked);
+  };
+
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button 
+            onClick={() => handleToggle(!isUserView)}
+            className={`flex items-center justify-center p-2 rounded-md transition-colors ${
+              isUserView 
+                ? "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30" 
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            {isUserView ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          <p>{isUserView ? "User View ON" : "User View OFF"}</p>
+          <p className="text-xs text-muted-foreground">See as regular user</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <div className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+      isUserView 
+        ? "bg-blue-500/10 border border-blue-500/30" 
+        : "bg-muted/50 border border-border"
+    }`}>
+      <div className="flex items-center gap-2">
+        {isUserView ? (
+          <Eye className="h-4 w-4 text-blue-500 flex-shrink-0" />
+        ) : (
+          <EyeOff className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        )}
+        <Label 
+          htmlFor="user-view-toggle" 
+          className={`text-xs font-medium cursor-pointer ${
+            isUserView ? "text-blue-500" : "text-muted-foreground"
+          }`}
+        >
+          {isUserView ? "User View ON" : "User View"}
+        </Label>
+      </div>
+      <Switch
+        id="user-view-toggle"
+        checked={isUserView}
+        onCheckedChange={handleToggle}
+        className="data-[state=checked]:bg-blue-500"
+      />
+    </div>
+  );
+}
+```
+
+**File 3**: `src/components/layout/AppSidebar.tsx`
+
+Add import and render after LiveBetaToggle:
+
+```tsx
+import { UserViewToggle } from "./UserViewToggle";
+
+// In render, after LiveBetaToggle (line 187-189):
+{isAdmin && (
+  <div className="px-3 pb-2">
+    <LiveBetaToggle collapsed={collapsed} />
+    <div className="mt-2">
+      <UserViewToggle collapsed={collapsed} />
+    </div>
+  </div>
+)}
+```
+
+**File 4**: `src/hooks/useAdminCheck.ts`
+
+Update to respect user view mode:
+
+```tsx
+import { getUserViewMode } from '@/lib/userViewMode';
+
+// Inside the hook, modify the return:
+// If user view mode is on, return isAdmin as false for UI purposes
+const userViewMode = getUserViewMode();
+return { isAdmin: userViewMode ? false : isAdmin };
+```
+
+Wait - this would affect the sidebar toggle visibility too. Better approach:
+
+Return both `isAdmin` and `isAdminView`:
+```tsx
+return { 
+  isAdmin,  // Always true for real admins (for sidebar toggles)
+  isAdminView: userViewMode ? false : isAdmin  // False when user view is on (for content)
+};
+```
+
+Then use `isAdminView` in dashboard components but `isAdmin` for sidebar toggles.
 
 ---
 
-### 8. Improve Tesla Logo in Energy Command Center
+### 6. Fix Mobile Token Price Card Cutoff
 
-The current Tesla logo (`src/assets/logos/tesla-logo.png`) has a red background with white text - not ideal for dark mode UI.
+**Issue**: On mobile, the dropdown chevron is cut off and the collapsed view shows too much content.
 
-**Solution**: Add proper styling with better contrast:
+**File**: `src/components/dashboard/TokenPriceCard.tsx`
 
-**File**: `src/components/dashboard/ActivityMetrics.tsx` (Lines 139-149)
+**Fix 1**: Remove lifetime minted from collapsed view (lines 82-93)
 
-Current styling:
+**Current collapsed view shows**:
+- Token symbol + price
+- Holdings value + token count
+- Dropdown chevron
+
+**New collapsed view should show**:
+- Token symbol + price  
+- Holdings value (USD only, no token count)
+- Dropdown chevron (visible)
+
+**Change the collapsed view button layout** (lines 70-96):
+
 ```tsx
-<div 
-  key={provider}
-  className="h-7 w-7 rounded-lg bg-muted/80 p-1.5 flex items-center justify-center border border-border/50"
+<button
+  onClick={() => setIsCollapsed(false)}
+  className="w-full flex items-center justify-between gap-3 group"
 >
-  <img 
-    src={providerLogos[provider]} 
-    alt={provider}
-    className="h-4 w-4 object-contain"
-  />
-</div>
+  <div className="flex items-center gap-2.5 min-w-0">
+    <div className="p-1.5 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex-shrink-0">
+      <Coins className="h-4 w-4 text-primary" />
+    </div>
+    <span className="font-bold text-foreground">$ZSOLAR</span>
+    <span className="text-muted-foreground">|</span>
+    <span className="font-bold text-foreground">${tokenPrice.toFixed(2)}</span>
+  </div>
+  <div className="flex items-center gap-2 flex-shrink-0">
+    <motion.span 
+      className="font-bold text-eco"
+      animate={showPulse ? { scale: [1, 1.05, 1] } : {}}
+      transition={{ duration: 0.3 }}
+    >
+      ${totalValueUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+    </motion.span>
+    <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+  </div>
+</button>
 ```
 
-**New approach**: Use a larger container with better padding and styling:
-
-```tsx
-<div 
-  key={provider}
-  className={cn(
-    "h-8 w-8 rounded-lg p-1 flex items-center justify-center border border-border/50",
-    provider === 'tesla' 
-      ? "bg-[#E82127]" // Tesla red background to match the logo
-      : "bg-muted/80"
-  )}
-  title={provider.charAt(0).toUpperCase() + provider.slice(1)}
->
-  <img 
-    src={providerLogos[provider]} 
-    alt={provider}
-    className={cn(
-      "object-contain",
-      provider === 'tesla' ? "h-5 w-5 brightness-0 invert" : "h-4 w-4"
-    )}
-  />
-</div>
-```
-
-Alternatively, use just the Tesla "T" icon with inversion for better visibility, or source a proper dark-mode-friendly Tesla logo.
-
-**Simplest Fix**: Increase size and add inversion filter to make the logo more visible:
-
-```tsx
-className="h-5 w-5 object-contain dark:brightness-0 dark:invert"
-```
-
-This inverts the colors in dark mode, making the Tesla logo white on the dark background.
+Key changes:
+- Removed the token count `({tokensHeld.toLocaleString()})` from collapsed view
+- Added `flex-shrink-0` to prevent chevron from being cut off
+- Reduced gap from `gap-4` to `gap-3`
+- Added `min-w-0` to left side to allow truncation if needed
 
 ---
 
@@ -251,73 +369,64 @@ This inverts the colors in dark mode, making the Tesla logo white on the dark ba
 
 | File | Changes |
 |------|---------|
-| `src/components/dashboard/RewardProgress.tsx` | Add haptics, improve cross-fade animation, rename title to lowercase, update footer layout |
-| `src/components/dashboard/ActivityMetrics.tsx` | Add Lifetime Minted section, improve Tesla logo styling |
-| `src/components/dashboard/RewardActions.tsx` | Remove "Owned X NFTs" text, optionally remove "MINT ZENSOLAR NFTS" button (if moving) |
-| `src/components/demo/DemoRewardActions.tsx` | Remove "Owned X NFTs" text for consistency |
-| `src/components/ZenSolarDashboard.tsx` | Pass `lifetimeMinted` prop to ActivityMetrics if needed |
+| `src/components/dashboard/RewardProgress.tsx` | Fix title to "ZenSolar NFTs" |
+| `src/components/dashboard/ActivityMetrics.tsx` | Add TeslaIcon SVG component, replace PNG logo |
+| `src/components/dashboard/RewardActions.tsx` | Remove NFT buttons and refresh button (keep token mint only) |
+| `src/components/dashboard/TokenPriceCard.tsx` | Fix mobile collapsed view, remove token count, ensure chevron visible |
+| `src/components/ZenSolarDashboard.tsx` | Add NFT mint button + refresh button below RewardProgress |
 | `src/components/demo/DemoDashboard.tsx` | Same changes for demo consistency |
+| `src/components/layout/AppSidebar.tsx` | Add UserViewToggle below LiveBetaToggle |
+| `src/lib/userViewMode.ts` | NEW - User view mode state management |
+| `src/components/layout/UserViewToggle.tsx` | NEW - Toggle component for admin sidebar |
+| `src/hooks/useAdminCheck.ts` | Add `isAdminView` return value that respects user view mode |
+
+---
+
+## New Files
+
+### `src/lib/userViewMode.ts`
+State management for the "view as user" toggle, using localStorage and custom events for synchronization.
+
+### `src/components/layout/UserViewToggle.tsx`
+UI toggle component matching the style of LiveBetaToggle with collapsed/expanded variants.
 
 ---
 
 ## Visual Layout After Changes
 
-### Energy Command Center (Bottom)
+### Dashboard Order:
+1. Logo + Welcome Header
+2. Token Price Card (collapsed by default)
+3. Compact Setup Prompt (if no energy connected)
+4. Energy Command Center (with proper Tesla "T" icon)
+5. MINT $ZSOLAR TOKENS button (in RewardActions)
+6. ZenSolar NFTs card
+7. **MINT ZENSOLAR NFTs button** ← Moved here
+8. **REFRESH DASHBOARD button** ← Moved here
+9. Admin tools (if admin)
+
+### Token Price Card Collapsed (Mobile Fixed):
 ```
 +----------------------------------------------------------+
-|  Energy Command Center                     [Tesla] [⊙]   |
-|  Last updated 10:29 AM                                   |
-|                                                          |
-|  [Solar Energy Produced]       51,000 kWh    [MINT →]    |
-|  [EV Miles Driven]             177 mi        [MINT →]    |
-|  [Battery Discharged]          2,402 kWh     [MINT →]    |
-|  [Tesla Supercharger]          55 kWh        [MINT →]    |
-|                                                          |
-|  +----------------------------------------------------+  |
-|  | Total Available Tokens                              |  |
-|  | 0 $ZSOLAR            ≈ $0.00 @ $0.10     [MINT →]  |  |
-|  +----------------------------------------------------+  |
-|                                                          |
-|  +----------------------------------------------------+  |
-|  | 🪙 Lifetime Minted Tokens                      →   |  |
-|  |    265,174 $ZSOLAR                                 |  |
-|  +----------------------------------------------------+  |
+| 🪙 $ZSOLAR | $0.10                    $0.00       ⌄      |
 +----------------------------------------------------------+
 ```
+- Removed token count from collapsed view
+- Chevron always visible with flex-shrink-0
 
-### NFT Card (After Energy Command Center)
+### Tesla Logo (Fixed):
 ```
-+----------------------------------------------------------+
-|  zensolar NFTs                            [24 Earned]    |
-+----------------------------------------------------------+
-|                                                          |
-|  [Hero NFT Image - Tap to Cycle]          [Tap to Browse]|
-|                                                          |
-|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━             |
-|  750 / 1,000 kWh                                         |
-|                                                          |
-|  +--------+  +--------+  +---------+  +----------+       |
-|  |  Solar |  | Battery|  | EV Miles|  | Charging |       |
-|  |  [☀️]  |  |  [🔋]  |  |  [🚗]   |  |   [⚡]   |       |
-|  |   2/8  |  |   1/7  |  |   3/10  |  |   2/8    |       |
-|  +--------+  +--------+  +---------+  +----------+       |
-|                                                          |
-|  [View Collection →]                                     |
-+----------------------------------------------------------+
++-------------------+
+|  [Tesla T Icon]   |  ← Crisp white "T" on red background
++-------------------+
 ```
 
----
-
-## Technical Notes
-
-1. **Haptics**: The `useHaptics` hook already exists and provides `lightTap()` for subtle feedback.
-
-2. **Cross-fade**: Already using `AnimatePresence` with `mode="wait"` - just need to enhance the animation values.
-
-3. **Tesla Logo**: The current image has a red background. Options:
-   - Use CSS filter `invert` in dark mode
-   - Source a transparent/outline version of the Tesla logo
-   - Apply a white background container in dark mode
-
-4. **Props Flow**: `lifetimeMinted` is already being passed to RewardProgress. We need to also pass it to ActivityMetrics.
-
+### Admin Sidebar:
+```
++------------------+
+|  [ZenSolar Logo] |
++------------------+
+|  Live Beta (10x) |  ← Toggle
+|  User View       |  ← NEW Toggle
++------------------+
+```
