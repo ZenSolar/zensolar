@@ -16,6 +16,7 @@ import {
   Sparkles,
   DollarSign,
   Settings2,
+  Gauge,
 } from 'lucide-react';
 import {
   calculateEarnedMilestones,
@@ -37,6 +38,19 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
+// Import brand logos for connected providers display
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+
+const providerLogos: Record<string, string> = {
+  tesla: teslaLogo,
+  enphase: enphaseLogo,
+  solaredge: solaredgeLogo,
+  wallbox: wallboxLogo,
+};
+
 type CurrentActivity = {
   solarKwh: number;
   evMiles: number;
@@ -55,6 +69,7 @@ interface ActivityMetricsProps {
   data: ActivityData;
   currentActivity?: CurrentActivity;
   refreshInfo?: RefreshInfo;
+  connectedProviders?: string[];
   onMintCategory?: (category: MintCategory) => void;
   onMintSuccess?: () => void;
 }
@@ -62,7 +77,7 @@ interface ActivityMetricsProps {
 // Default token price in USD ($0.10 launch floor per optimized 10B strategy)
 const DEFAULT_TOKEN_PRICE = 0.10;
 
-export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCategory, onMintSuccess }: ActivityMetricsProps) {
+export function ActivityMetrics({ data, currentActivity, refreshInfo, connectedProviders = [], onMintCategory, onMintSuccess }: ActivityMetricsProps) {
   const [tokenPrice, setTokenPrice] = useState<number>(DEFAULT_TOKEN_PRICE);
   const [priceInput, setPriceInput] = useState<string>(DEFAULT_TOKEN_PRICE.toString());
   const labels = data.deviceLabels || {};
@@ -133,10 +148,31 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
       {/* 1. REWARDS SUMMARY - At the top */}
       <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card to-card/80">
         <CardContent className="p-4 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <Award className="h-5 w-5 text-primary" />
-            Rewards Summary
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+              <Award className="h-5 w-5 text-primary" />
+              Rewards Summary
+            </h2>
+            
+            {/* Connected Provider Logos */}
+            {connectedProviders.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                {connectedProviders.map((provider) => (
+                  <div 
+                    key={provider}
+                    className="h-6 w-6 rounded-md bg-muted/50 p-0.5 flex items-center justify-center"
+                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                  >
+                    <img 
+                      src={providerLogos[provider]} 
+                      alt={provider}
+                      className="h-4 w-4 object-contain"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           
           <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} providers={refreshInfo?.providers} />
 
@@ -362,13 +398,35 @@ export function ActivityMetrics({ data, currentActivity, refreshInfo, onMintCate
         </CardContent>
       </Card>
 
-      {/* 3. CURRENT ACTIVITY (Mintable activity units) */}
-      <Card className="overflow-hidden border-eco/20">
+      {/* 3. ENERGY COMMAND CENTER (Mintable activity units) */}
+      <Card className="overflow-hidden border-eco/20 bg-gradient-to-br from-eco/5 via-card to-card">
         <CardContent className="p-4 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <Leaf className="h-5 w-5 text-eco" />
-            Current Activity
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+              <Gauge className="h-5 w-5 text-eco" />
+              Energy Command Center
+            </h2>
+            
+            {/* Connected Provider Logos in Command Center */}
+            {connectedProviders.length > 0 && (
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-muted-foreground mr-1">Connected:</span>
+                {connectedProviders.map((provider) => (
+                  <div 
+                    key={provider}
+                    className="h-5 w-5 rounded-md bg-eco/10 p-0.5 flex items-center justify-center"
+                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                  >
+                    <img 
+                      src={providerLogos[provider]} 
+                      alt={provider}
+                      className="h-3.5 w-3.5 object-contain"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground -mt-2">
             Since your last mint (or lifetime totals until your first mint)
           </p>
