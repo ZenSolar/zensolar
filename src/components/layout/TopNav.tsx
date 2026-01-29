@@ -68,19 +68,21 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           )}
         </div>
         
-        {/* Centered Logo with Beta Badge - Links to Dashboard */}
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity flex items-center gap-2">
+        {/* Centered Logo with Beta Badge underneath - Links to Dashboard */}
+        <Link 
+          to="/" 
+          className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity flex flex-col items-center gap-0.5"
+        >
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-7 w-auto object-contain dark:animate-logo-glow"
+            className="h-6 w-auto object-contain dark:animate-logo-glow"
           />
-          <Badge 
-            variant="outline" 
-            className="text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-primary/20 to-emerald-500/20 text-primary border-primary/40 px-2 py-0.5 animate-pulse"
+          <span 
+            className="text-[8px] font-semibold uppercase tracking-[0.2em] text-primary/70 bg-primary/10 px-1.5 py-px rounded-sm"
           >
             Beta
-          </Badge>
+          </span>
         </Link>
         
         <ThemeToggle />
