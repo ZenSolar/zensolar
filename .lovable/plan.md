@@ -1,195 +1,198 @@
 
-# Dashboard UI/UX Redesign Plan
 
-## Problem Analysis
+# Dashboard UI/UX Improvements Plan
 
-The current dashboard has several areas taking up prime real estate that could be better organized:
+## Issues Identified
 
-1. **ConnectWallet** - Full card at the top of dashboard
-2. **ConnectAccounts** (Energy) - Another full card
-3. **ConnectSocialAccounts** - Third account connection card
-4. **GettingStartedGuide** - Large onboarding wizard (already hides after energy connected)
-5. **HowItWorks** - Educational content (already hides after energy connected)
+### 1. Dashboard Component Order is Wrong
+Looking at `ActivityMetrics.tsx`, the order is currently:
+1. **Rewards Summary** (lines 148-224)
+2. **Pending Rewards** (lines 226-399)  
+3. **Energy Command Center** (lines 401-463)
 
-These setup/account management sections push the **most important content** (ActivityMetrics with live energy stats) far down the page.
+This is inverted from what we want. The Energy Command Center should be the HERO section.
 
----
+### 2. Collapsible Token Price Card
+The `TokenPriceCard` component needs to support a collapsed state showing just the live price and total holdings in a compact single row.
 
-## Proposed Information Architecture
+### 3. Merge Pending Rewards into Energy Command Center
+Currently there are three separate sections. We'll consolidate to:
+- "Tap to mint" on each energy category card
+- Change "Total Activity Units" to "Total Available Tokens"
+- Remove the separate "Pending Rewards" card
 
-### Dashboard Focus: "Energy Command Center"
-The dashboard should answer: **"What's my energy doing right now, and what can I earn?"**
+### 4. Add Dashboard Link to Logo in TopNav
+The ZenSolar logo in `TopNav.tsx` needs to be clickable and navigate to `/` (dashboard).
 
-**New Dashboard Priority Order:**
-1. Welcome header with logo
-2. Token Price Card (current portfolio value)
-3. **"Energy Command Center"** (renamed from "Current Activity") - THE HERO SECTION
-4. Pending Rewards (what you can mint NOW)
-5. Reward Actions (mint button)
-6. NFT Milestones progress
-7. (Admin tools if admin)
+### 5. Remove LiveBetaIndicator from Admin Sidebar Section
+In `AppSidebar.tsx` line 251, `<LiveBetaIndicator collapsed={collapsed} />` is shown next to the "Admin" label. This should be removed since the toggle at the top of the sidebar is sufficient.
 
-### Move to Profile/Settings:
-- Wallet connection management
-- Energy account connections
-- Social account connections
-
-### Sidebar Quick Access:
-- Add compact connection status indicators to the Account section
-
----
-
-## Detailed Changes
-
-### 1. Rename "Current Activity" to "Energy Command Center"
-
-Gamification-focused alternatives considered:
-- **"Energy Command Center"** - Makes user feel in control, like a mission control
-- **"Power Station"** - Your personal energy hub
-- **"Energy Arena"** - Where the action happens
-- **"Your Energy Matrix"** - Sci-fi vibes
-
-**Recommendation: "Energy Command Center"** - It feels empowering and game-like while still being descriptive.
-
-### 2. Add Provider Logos to Activity Metrics
-
-Show which providers are feeding data into each metric category. This keeps users aware of their connected accounts without needing a separate section.
-
-**Visual Design:**
-```
-+------------------------------------------+
-|  ⚡ Energy Command Center                 |
-|  [Tesla logo] [Enphase logo] Connected   |
-+------------------------------------------+
-|  ☀️ Solar: 1,234 kWh    [Enphase logo]   |
-|  🚗 EV Miles: 567 mi    [Tesla logo]     |
-|  🔋 Battery: 89 kWh     [Tesla logo]     |
-|  ⚡ Charging: 234 kWh   [Tesla logo]     |
-+------------------------------------------+
-```
-
-### 3. Move Connection Management Off Dashboard
-
-**Option A: Move to Profile Page**
-- Profile already displays connected accounts (read-only badges)
-- Add edit/connect functionality to the existing cards
-- Natural place for "account management"
-
-**Option B: Move to Settings Page**
-- Settings is for "configuration"
-- Add new "Connected Accounts" section
-
-**Recommendation: Move to Profile Page**
-- Profile shows "who you are" (identity + accounts)
-- Add "Manage" buttons to existing provider cards
-- Profile becomes the hub for all account management
-
-### 4. Streamlined Dashboard for Returning Users
-
-For users with accounts already connected:
-
-```
-+------------------------------------------+
-|           [ZenSolar Logo]                 |
-|        Welcome, [FirstName]              |
-|  Earn $ZSOLAR tokens from clean energy   |
-+------------------------------------------+
-
-+------------------------------------------+
-|  💰 $ZSOLAR Token                        |
-|  $0.23 price  |  $287.50 Your Holdings   |
-|  1,250 tokens minted to wallet           |
-+------------------------------------------+
-
-+------------------------------------------+
-|  ⚡ ENERGY COMMAND CENTER                 |
-|  Connected: [Tesla] [Enphase]    🔄 2m   |
-+------------------------------------------+
-|  ☀️ 1,234 kWh  🚗 567 mi                 |
-|  🔋 89 kWh     ⚡ 234 kWh                |
-+------------------------------------------+
-
-+------------------------------------------+
-|  🎯 PENDING REWARDS                       |
-|  2,124 $ZSOLAR ready to mint             |
-|  [MINT ALL] button                       |
-+------------------------------------------+
-
-+------------------------------------------+
-|  📈 NFT Milestones                       |
-|  [Progress tabs...]                      |
-+------------------------------------------+
-```
-
-### 5. New User Experience (No Accounts Connected)
-
-Keep the GettingStartedGuide but make it more compact and action-focused:
-
-```
-+------------------------------------------+
-|  🚀 Get Started                          |
-|  Connect an energy account to begin      |
-|  [Connect Tesla] [Connect Enphase] ...   |
-+------------------------------------------+
-```
-
-After connection, this disappears and the full Command Center appears.
+### 6. Add Google Sign-In
+Integrate Google OAuth into the Auth page using Lovable Cloud's managed authentication.
 
 ---
 
 ## Technical Implementation
 
-### Files to Modify:
+### File: `src/components/dashboard/TokenPriceCard.tsx`
 
-1. **`src/components/ZenSolarDashboard.tsx`**
-   - Remove `ConnectWallet`, `ConnectAccounts`, `ConnectSocialAccounts` components from main render
-   - Keep `GettingStartedGuide` for new users (already conditionally hidden)
-   - Reorder remaining components for better priority
+**Changes:**
+- Add `isCollapsed` state (default: true to save space)
+- Add ChevronDown/ChevronUp toggle button
+- When collapsed: Show single row with "$0.23 | $287.50 (1,250 tokens)"
+- When expanded: Show current full layout
 
-2. **`src/components/dashboard/ActivityMetrics.tsx`**
-   - Rename "Current Activity" to "Energy Command Center"
-   - Add `connectedProviders` prop to show provider logos
-   - Add compact provider logo display in the header
+```
+Collapsed State:
++------------------------------------------+
+| $ZSOLAR  |  $0.23  |  $287.50 (1,250) ▼  |
++------------------------------------------+
 
-3. **`src/pages/Profile.tsx`**
-   - Convert read-only provider cards to actionable cards
-   - Add "Connect"/"Disconnect" buttons to each provider
-   - Add wallet connection/disconnection UI
-   - Add social accounts management section
+Expanded State (current layout):
++------------------------------------------+
+| $ZSOLAR Token                    Live ▲  |
+| Token Price         Your Holdings        |
+| $0.23               $287.50              |
+| (Click to edit)     1,250 tokens         |
++------------------------------------------+
+```
 
-4. **`src/components/layout/AppSidebar.tsx`** (optional enhancement)
-   - Add small connection status indicators next to Profile menu item
-   - Show green dots or provider count
+### File: `src/components/dashboard/ActivityMetrics.tsx`
 
-5. **Create new component: `src/components/dashboard/CompactSetupPrompt.tsx`**
-   - Minimal prompt for users without connected accounts
-   - "Connect an energy account to start earning" with quick action buttons
+**Changes:**
+1. **Remove "Rewards Summary" section** (lines 148-224) - This duplicates info and clutters the dashboard
+2. **Rename "Pending Rewards" to "Energy Command Center"** and make it THE hero section
+3. **Remove the current "Energy Command Center" section** (lines 401-463) - Merge its content into the new hero
+4. **Add provider logos** to the hero section header
+5. **Change "Total Activity Units" to "Total Available Tokens"**
+6. **Keep "Tap to mint"** functionality on each category card (already implemented)
+7. **Move "Lifetime Minted" link to the hero section** (compact, at bottom)
 
-6. **Create: `src/components/profile/ManageEnergyAccounts.tsx`**
-   - Extracted account management UI for Profile page
-   - Reuses existing ConnectAccounts logic
+**New Structure:**
+```
++------------------------------------------+
+| ⚡ ENERGY COMMAND CENTER     [Tesla][📡] |
+| Connected: Tesla, Enphase        🔄 2m   |
++------------------------------------------+
+|  ☀️ 1,234 kWh    🚗 567 mi              |
+|  Solar (tap)     EV Miles (tap)         |
++------------------------------------------+
+|  🔋 89 kWh       ⚡ 234 kWh              |
+|  Battery (tap)   Charging (tap)         |
++------------------------------------------+
+| 💰 Total Available Tokens: 2,124 $ZSOLAR |
+| ≈ $212.40 USD @ $0.10/token             |
+| [MINT ALL]                              |
++------------------------------------------+
+| NFTs: 12/42  |  Lifetime: 15,234 tokens |
++------------------------------------------+
+```
 
-7. **Create: `src/components/profile/ManageWallet.tsx`**
-   - Extracted wallet management UI for Profile page
-   - Reuses existing ConnectWallet logic
+### File: `src/components/layout/TopNav.tsx`
+
+**Changes:**
+- Wrap the logo `<img>` in a `<Link to="/">` component
+- Add cursor pointer and hover effects
+
+```tsx
+<Link to="/" className="hover:opacity-80 transition-opacity">
+  <img 
+    src={zenLogo} 
+    alt="ZenSolar" 
+    className="h-7 w-auto object-contain dark:animate-logo-glow"
+  />
+</Link>
+```
+
+### File: `src/components/layout/AppSidebar.tsx`
+
+**Changes:**
+- Remove `<LiveBetaIndicator collapsed={collapsed} />` from line 251
+- The Admin section label will just show "Admin" without the indicator badge
+
+Before:
+```tsx
+<SidebarGroupLabel className="flex items-center gap-2">
+  Admin
+  <LiveBetaIndicator collapsed={collapsed} />
+</SidebarGroupLabel>
+```
+
+After:
+```tsx
+<SidebarGroupLabel>Admin</SidebarGroupLabel>
+```
+
+### File: `src/pages/Auth.tsx`
+
+**Changes:**
+- Add Google Sign-In button using Lovable Cloud's managed OAuth
+- Import lovable module: `import { lovable } from "@/integrations/lovable/index"`
+- Add Google button below the email/password forms (both login and signup tabs)
+- Add divider "or continue with"
+
+**UI Addition (after each form, before "Try Demo Mode"):**
+
+```tsx
+{/* Social Login Divider */}
+<div className="relative my-6">
+  <div className="absolute inset-0 flex items-center">
+    <span className="w-full border-t border-white/10" />
+  </div>
+  <div className="relative flex justify-center text-xs uppercase">
+    <span className="bg-[#0a1628] px-2 text-slate-500">or continue with</span>
+  </div>
+</div>
+
+{/* Google Sign In Button */}
+<Button
+  type="button"
+  variant="outline"
+  className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10"
+  onClick={handleGoogleSignIn}
+  disabled={isLoading}
+>
+  <GoogleIcon className="mr-2 h-4 w-4" />
+  Continue with Google
+</Button>
+```
+
+**Handler:**
+```tsx
+const handleGoogleSignIn = async () => {
+  setIsLoading(true);
+  const { error } = await lovable.auth.signInWithOAuth("google", {
+    redirect_uri: window.location.origin,
+  });
+  if (error) {
+    toast.error("Failed to sign in with Google");
+    setIsLoading(false);
+  }
+};
+```
 
 ---
 
-## Summary of Benefits
+## Files to Modify
 
-| Before | After |
-|--------|-------|
-| 3 account connection cards on dashboard | Energy stats front and center |
-| "Current Activity" (boring name) | "Energy Command Center" (gamified) |
-| No provider logos in activity view | Provider logos show data sources |
-| Account management scattered | All account management on Profile |
-| Setup takes prime dashboard space | Compact setup prompt for new users |
+| File | Changes |
+|------|---------|
+| `src/components/dashboard/TokenPriceCard.tsx` | Add collapsible functionality with compact collapsed view |
+| `src/components/dashboard/ActivityMetrics.tsx` | Complete restructure - merge sections into single "Energy Command Center" hero |
+| `src/components/layout/TopNav.tsx` | Wrap logo in Link to "/" |
+| `src/components/layout/AppSidebar.tsx` | Remove LiveBetaIndicator from Admin label |
+| `src/pages/Auth.tsx` | Add Google Sign-In button and handler |
 
 ---
 
-## Questions Resolved
+## Summary of User-Facing Changes
 
-- **Where to move connections?** Profile page (identity + accounts hub)
-- **What title for activity area?** "Energy Command Center"
-- **How to show connected providers?** Logos in the Energy Command Center header
+1. **Token Price Card** - Now collapsible, showing compact "$0.23 | $287.50" when collapsed
+2. **Dashboard Order** - Energy Command Center is now THE hero section immediately below token price
+3. **Merged UI** - No more separate "Rewards Summary" and "Pending Rewards" cards - everything unified
+4. **Tap to Mint** - Each energy category card is tappable to mint that category
+5. **Total Available Tokens** - Replaces "Total Activity Units" label
+6. **Logo Navigation** - Tap the ZenSolar logo in header to return to dashboard
+7. **Cleaner Admin Menu** - No more "Mainnet Mode" badge next to Admin label
+8. **Google Sign-In** - New social login option on registration/login page
 
