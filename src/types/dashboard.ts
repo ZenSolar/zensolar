@@ -18,6 +18,43 @@ export interface SolarDeviceData {
 }
 
 /**
+ * Per-device battery data for displaying multiple Powerwalls independently
+ */
+export interface BatteryDeviceData {
+  deviceId: string;
+  deviceName: string;
+  provider: 'tesla';
+  lifetimeKwh: number;
+  pendingKwh: number;
+}
+
+/**
+ * Per-device EV data for displaying multiple vehicles independently
+ */
+export interface EVDeviceData {
+  deviceId: string;
+  deviceName: string;
+  provider: 'tesla';
+  lifetimeMiles: number;
+  pendingMiles: number;
+  lifetimeChargingKwh: number;
+  pendingChargingKwh: number;
+  lifetimeSuperchargerKwh: number;
+  pendingSuperchargerKwh: number;
+}
+
+/**
+ * Per-device charger data for displaying multiple chargers independently
+ */
+export interface ChargerDeviceData {
+  deviceId: string;
+  deviceName: string;
+  provider: 'tesla' | 'wallbox';
+  lifetimeKwh: number;
+  pendingKwh: number;
+}
+
+/**
  * IMPORTANT: Token Issuance Rules
  * 
  * Each unit of activity (kWh, mile) can ONLY generate tokens ONCE.
@@ -58,8 +95,11 @@ export interface ActivityData {
   co2OffsetPounds: number;
   deviceLabels?: DeviceLabels;
   
-  // Per-device solar data for displaying multiple solar systems
+  // Per-device data for displaying multiple devices independently
   solarDevices?: SolarDeviceData[];
+  batteryDevices?: BatteryDeviceData[];
+  evDevices?: EVDeviceData[];
+  chargerDevices?: ChargerDeviceData[];
 }
 
 export interface ConnectedAccount {

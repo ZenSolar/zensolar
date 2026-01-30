@@ -8,12 +8,14 @@ interface SwipeableActivityFieldProps {
   children: React.ReactNode;
   onHide: () => void;
   disabled?: boolean;
+  locked?: boolean; // True if this field has a connected provider (cannot be hidden)
 }
 
 export function SwipeableActivityField({ 
   children, 
   onHide,
-  disabled = false 
+  disabled = false,
+  locked = false 
 }: SwipeableActivityFieldProps) {
   const [isDragging, setIsDragging] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
@@ -37,7 +39,8 @@ export function SwipeableActivityField({
     }
   };
 
-  if (disabled) {
+  // If disabled or locked (connected provider), render children without swipe
+  if (disabled || locked) {
     return <>{children}</>;
   }
 

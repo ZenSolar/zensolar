@@ -1,5 +1,5 @@
 import type React from 'react';
-import { ActivityData, SolarDeviceData } from '@/types/dashboard';
+import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link } from 'react-router-dom';
 import {
@@ -15,6 +15,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
 import { SwipeableActivityField } from './SwipeableActivityField';
 import { HiddenFieldsRestore } from './HiddenFieldsRestore';
+import { SwipeHintTooltip } from './SwipeHintTooltip';
+import { useSwipeHintShown } from '@/hooks/useSwipeHintShown';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
@@ -76,7 +78,23 @@ export function ActivityMetrics({
   const isHidden = (field: HideableField) => hiddenFields.includes(field);
   const deviceLabels = data.deviceLabels;
   const solarDevices = data.solarDevices || [];
+  const batteryDevices = data.batteryDevices || [];
+  const evDevices = data.evDevices || [];
+  const chargerDevices = data.chargerDevices || [];
+  
   const hasMultipleSolarDevices = solarDevices.length > 1;
+  const hasMultipleBatteryDevices = batteryDevices.length > 1;
+  const hasMultipleEvDevices = evDevices.length > 1;
+  const hasMultipleChargerDevices = chargerDevices.length > 1;
+
+  // Swipe hint for first-time users
+  const { shouldShowHint, markHintSeen } = useSwipeHintShown();
+
+  // Check if provider is connected for each category (locked = cannot hide)
+  const hasSolarConnected = connectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
+  const hasBatteryConnected = connectedProviders.includes('tesla') && batteryDevices.length > 0;
+  const hasEvConnected = connectedProviders.includes('tesla') && evDevices.length > 0;
+  const hasChargingConnected = (connectedProviders.includes('tesla') || connectedProviders.includes('wallbox')) && chargerDevices.length > 0;
 
   // "Current Activity" is what is mintable
   const current: CurrentActivity = currentActivity ?? {
@@ -92,8 +110,17 @@ export function ActivityMetrics({
   const totalPendingSolarFromDevices = hasMultipleSolarDevices
     ? solarDevices.reduce((sum, d) => sum + Math.floor(d.pendingKwh), 0)
     : current.solarKwh;
+    
+  // Calculate totals from per-device data when available
+  const totalPendingBatteryFromDevices = hasMultipleBatteryDevices
+    ? batteryDevices.reduce((sum, d) => sum + Math.floor(d.pendingKwh), 0)
+    : current.batteryKwh;
+    
+  const totalPendingEvFromDevices = hasMultipleEvDevices
+    ? evDevices.reduce((sum, d) => sum + Math.floor(d.pendingMiles), 0)
+    : current.evMiles;
 
-  const activityUnits = totalPendingSolarFromDevices + current.evMiles + current.batteryKwh + current.chargingKwh;
+  const activityUnits = totalPendingSolarFromDevices + totalPendingEvFromDevices + totalPendingBatteryFromDevices + current.chargingKwh;
   // Apply Live Beta multiplier (10x or 1x) then 75% user share
   const rawTokens = activityUnits * getRewardMultiplier();
   const tokensToReceive = Math.floor(rawTokens * 0.75);
@@ -101,7 +128,7 @@ export function ActivityMetrics({
   // Filter to only Tesla/Enphase
   const filteredProviders = connectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
-  // Device-specific labels (used when single solar device)
+  // Device-specific labels (used when single device)
   const solarLabel = deviceLabels?.solar 
     ? `${deviceLabels.solar} Energy Produced` 
     : 'Solar Energy Produced';
@@ -119,6 +146,10 @@ export function ActivityMetrics({
   const superchargerKwh = current.superchargerKwh ?? 0;
   const homeChargerKwh = current.homeChargerKwh ?? 0;
   const hasSeparateCharging = superchargerKwh > 0 || homeChargerKwh > 0;
+
+  // Determine if we should show the swipe hint
+  // Only show if there's at least one field that can be hidden (not connected)
+  const hasHideableFields = !hasSolarConnected || !hasBatteryConnected || !hasEvConnected || !hasChargingConnected;
 
   return (
     <Card className={cn(
@@ -159,12 +190,20 @@ export function ActivityMetrics({
         {/* Single last updated time */}
         <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
 
+        {/* Swipe Hint Tooltip - only show for first-time users with hideable fields */}
+        {hasHideableFields && (
+          <SwipeHintTooltip 
+            show={shouldShowHint} 
+            onDismiss={markHintSeen} 
+          />
+        )}
+
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
         <div className="space-y-2">
           {/* Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
             hasMultipleSolarDevices ? (
-              // Multiple solar devices - show each independently (first one is swipeable)
+              // Multiple solar devices - show each independently
               solarDevices.map((device, index) => {
                 const pendingKwh = Math.floor(device.pendingKwh);
                 const field = (
@@ -181,14 +220,22 @@ export function ActivityMetrics({
                 );
                 // Only first solar device is swipeable (hides all solar)
                 return index === 0 && onHideField ? (
-                  <SwipeableActivityField key={device.deviceId} onHide={() => onHideField('solar')}>
+                  <SwipeableActivityField 
+                    key={device.deviceId} 
+                    onHide={() => onHideField('solar')}
+                    locked={hasSolarConnected}
+                  >
                     {field}
                   </SwipeableActivityField>
                 ) : field;
               })
             ) : (
               // Single solar device - use existing logic
-              <SwipeableActivityField onHide={() => onHideField?.('solar')} disabled={!onHideField}>
+              <SwipeableActivityField 
+                onHide={() => onHideField?.('solar')} 
+                disabled={!onHideField}
+                locked={hasSolarConnected}
+              >
                 <ActivityField
                   icon={Sun}
                   label={solarLabel}
@@ -202,41 +249,107 @@ export function ActivityMetrics({
             )
           )}
           
-          {/* EV Miles */}
+          {/* EV Miles - Show individual vehicles if multiple */}
           {!isHidden('ev_miles') && (
-            <SwipeableActivityField onHide={() => onHideField?.('ev_miles')} disabled={!onHideField}>
-              <ActivityField
-                icon={Car}
-                label={evLabel}
-                value={current.evMiles}
-                unit="mi"
-                color="blue"
-                active={current.evMiles > 0}
-                onTap={current.evMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
-              />
-            </SwipeableActivityField>
+            hasMultipleEvDevices ? (
+              evDevices.map((device, index) => {
+                const pendingMiles = Math.floor(device.pendingMiles);
+                const field = (
+                  <ActivityField
+                    key={device.deviceId}
+                    icon={Car}
+                    label={`${device.deviceName} Miles Driven`}
+                    value={pendingMiles}
+                    unit="mi"
+                    color="blue"
+                    active={pendingMiles > 0}
+                    onTap={pendingMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
+                  />
+                );
+                return index === 0 && onHideField ? (
+                  <SwipeableActivityField 
+                    key={device.deviceId} 
+                    onHide={() => onHideField('ev_miles')}
+                    locked={hasEvConnected}
+                  >
+                    {field}
+                  </SwipeableActivityField>
+                ) : field;
+              })
+            ) : (
+              <SwipeableActivityField 
+                onHide={() => onHideField?.('ev_miles')} 
+                disabled={!onHideField}
+                locked={hasEvConnected}
+              >
+                <ActivityField
+                  icon={Car}
+                  label={evLabel}
+                  value={current.evMiles}
+                  unit="mi"
+                  color="blue"
+                  active={current.evMiles > 0}
+                  onTap={current.evMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
+                />
+              </SwipeableActivityField>
+            )
           )}
           
-          {/* Battery */}
+          {/* Battery - Show individual Powerwalls if multiple */}
           {!isHidden('battery') && (
-            <SwipeableActivityField onHide={() => onHideField?.('battery')} disabled={!onHideField}>
-              <ActivityField
-                icon={Battery}
-                label={batteryLabel}
-                value={current.batteryKwh}
-                unit="kWh"
-                color="emerald"
-                active={current.batteryKwh > 0}
-                onTap={current.batteryKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
-              />
-            </SwipeableActivityField>
+            hasMultipleBatteryDevices ? (
+              batteryDevices.map((device, index) => {
+                const pendingKwh = Math.floor(device.pendingKwh);
+                const field = (
+                  <ActivityField
+                    key={device.deviceId}
+                    icon={Battery}
+                    label={`${device.deviceName} Discharged`}
+                    value={pendingKwh}
+                    unit="kWh"
+                    color="emerald"
+                    active={pendingKwh > 0}
+                    onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
+                  />
+                );
+                return index === 0 && onHideField ? (
+                  <SwipeableActivityField 
+                    key={device.deviceId} 
+                    onHide={() => onHideField('battery')}
+                    locked={hasBatteryConnected}
+                  >
+                    {field}
+                  </SwipeableActivityField>
+                ) : field;
+              })
+            ) : (
+              <SwipeableActivityField 
+                onHide={() => onHideField?.('battery')} 
+                disabled={!onHideField}
+                locked={hasBatteryConnected}
+              >
+                <ActivityField
+                  icon={Battery}
+                  label={batteryLabel}
+                  value={current.batteryKwh}
+                  unit="kWh"
+                  color="emerald"
+                  active={current.batteryKwh > 0}
+                  onTap={current.batteryKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
+                />
+              </SwipeableActivityField>
+            )
           )}
           
-          {/* Charging - show separate fields if we have granular data */}
+          {/* Charging - show separate fields if we have granular data or multiple chargers */}
           {hasSeparateCharging ? (
             <>
               {superchargerKwh > 0 && !isHidden('supercharger') && (
-                <SwipeableActivityField onHide={() => onHideField?.('supercharger')} disabled={!onHideField}>
+                <SwipeableActivityField 
+                  onHide={() => onHideField?.('supercharger')} 
+                  disabled={!onHideField}
+                  locked={hasChargingConnected}
+                >
                   <ActivityField
                     icon={Zap}
                     label="Tesla Supercharger"
@@ -248,22 +361,58 @@ export function ActivityMetrics({
                   />
                 </SwipeableActivityField>
               )}
-              {homeChargerKwh > 0 && !isHidden('home_charger') && (
-                <SwipeableActivityField onHide={() => onHideField?.('home_charger')} disabled={!onHideField}>
-                  <ActivityField
-                    icon={Zap}
-                    label={homeChargerLabel}
-                    value={homeChargerKwh}
-                    unit="kWh"
-                    color="purple"
-                    active={homeChargerKwh > 0}
-                    onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
-                  />
-                </SwipeableActivityField>
+              {/* Show individual home chargers if multiple */}
+              {!isHidden('home_charger') && (
+                hasMultipleChargerDevices ? (
+                  chargerDevices.map((device, index) => {
+                    const pendingKwh = Math.floor(device.pendingKwh);
+                    const field = (
+                      <ActivityField
+                        key={device.deviceId}
+                        icon={Zap}
+                        label={`${device.deviceName} Charging`}
+                        value={pendingKwh}
+                        unit="kWh"
+                        color="purple"
+                        active={pendingKwh > 0}
+                        onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('home_charger') : undefined}
+                      />
+                    );
+                    return index === 0 && onHideField ? (
+                      <SwipeableActivityField 
+                        key={device.deviceId} 
+                        onHide={() => onHideField('home_charger')}
+                        locked={hasChargingConnected}
+                      >
+                        {field}
+                      </SwipeableActivityField>
+                    ) : field;
+                  })
+                ) : homeChargerKwh > 0 ? (
+                  <SwipeableActivityField 
+                    onHide={() => onHideField?.('home_charger')} 
+                    disabled={!onHideField}
+                    locked={hasChargingConnected}
+                  >
+                    <ActivityField
+                      icon={Zap}
+                      label={homeChargerLabel}
+                      value={homeChargerKwh}
+                      unit="kWh"
+                      color="purple"
+                      active={homeChargerKwh > 0}
+                      onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
+                    />
+                  </SwipeableActivityField>
+                ) : null
               )}
             </>
           ) : current.chargingKwh > 0 && !isHidden('charging') ? (
-            <SwipeableActivityField onHide={() => onHideField?.('charging')} disabled={!onHideField}>
+            <SwipeableActivityField 
+              onHide={() => onHideField?.('charging')} 
+              disabled={!onHideField}
+              locked={hasChargingConnected}
+            >
               <ActivityField
                 icon={Zap}
                 label="EV Charging"
