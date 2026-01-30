@@ -1013,215 +1013,23 @@ export default function Admin() {
         {/* Provider Resync Panel */}
         <ProviderResyncPanel profiles={profiles} />
 
-        {/* KPI Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Card className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Users className="h-3.5 w-3.5" />
-              Total Users
-            </div>
-            <div className="text-2xl font-bold">{aggregateKPIs.totalUsers}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Zap className="h-3.5 w-3.5" />
-              With Energy
-            </div>
-            <div className="text-2xl font-bold text-secondary">{aggregateKPIs.usersWithEnergy}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Zap className="h-3.5 w-3.5" />
-              Devices
-            </div>
-            <div className="text-2xl font-bold">{aggregateKPIs.totalDevices}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Zap className="h-3.5 w-3.5" />
-              Production
-            </div>
-            <div className="text-2xl font-bold text-primary">
-              {aggregateKPIs.totalProductionKwh >= 1000000 
-                ? `${(aggregateKPIs.totalProductionKwh / 1000000).toFixed(1)}M kWh`
-                : aggregateKPIs.totalProductionKwh >= 1000
-                ? `${(aggregateKPIs.totalProductionKwh / 1000).toFixed(1)}k kWh`
-                : `${aggregateKPIs.totalProductionKwh.toFixed(0)} kWh`
-              }
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Zap className="h-3.5 w-3.5" />
-              Tokens Earned
-            </div>
-            <div className="text-2xl font-bold text-amber-500">
-              {aggregateKPIs.totalTokens >= 1000000 
-                ? `${(aggregateKPIs.totalTokens / 1000000).toFixed(1)}M`
-                : aggregateKPIs.totalTokens >= 1000
-                ? `${(aggregateKPIs.totalTokens / 1000).toFixed(1)}k`
-                : aggregateKPIs.totalTokens.toLocaleString()
-              }
-            </div>
-          </Card>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Users className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl font-semibold">Registered Users</h2>
-            <Badge variant="secondary">{profiles.length} total</Badge>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </div>
-
-        <Card>
+        {/* User Management Link */}
+        <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle className="text-lg">User Profiles</CardTitle>
-            <CardDescription>Energy production data, devices, and tokens earned per user</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Display Name</TableHead>
-                    <TableHead>Wallet</TableHead>
-                    <TableHead>Energy Accounts</TableHead>
-                    <TableHead className="text-right">Devices</TableHead>
-                    <TableHead className="text-right">Solar (kWh)</TableHead>
-                    <TableHead className="text-right">EV Miles</TableHead>
-                    <TableHead className="text-right">Charging (kWh)</TableHead>
-                    <TableHead className="text-right">Tokens</TableHead>
-                    <TableHead>Push</TableHead>
-                    <TableHead>Joined</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {profiles.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
-                        No users registered yet
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    profiles.map((profile) => {
-                      const kpi = userKPIs.get(profile.user_id);
-                      return (
-                        <TableRow key={profile.id}>
-                          <TableCell className="font-medium">
-                            {profile.display_name || 'Anonymous'}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {formatAddress(profile.wallet_address)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-1 flex-wrap">
-                              {profile.tesla_connected && (
-                                <Badge variant="outline" className="text-xs">Tesla</Badge>
-                              )}
-                              {profile.enphase_connected && (
-                                <Badge variant="outline" className="text-xs">Enphase</Badge>
-                              )}
-                              {profile.solaredge_connected && (
-                                <Badge variant="outline" className="text-xs">SolarEdge</Badge>
-                              )}
-                              {profile.wallbox_connected && (
-                                <Badge variant="outline" className="text-xs">Wallbox</Badge>
-                              )}
-                              {!profile.tesla_connected && !profile.enphase_connected && 
-                               !profile.solaredge_connected && !profile.wallbox_connected && (
-                                <span className="text-muted-foreground text-xs">None</span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant={kpi?.device_count ? 'default' : 'secondary'}>
-                              {kpi?.device_count || 0}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {kpi && kpi.lifetime_solar_kwh > 0 ? (
-                              <span className="font-medium text-primary">
-                                {kpi.lifetime_solar_kwh >= 1000000 
-                                  ? `${(kpi.lifetime_solar_kwh / 1000000).toFixed(1)}M`
-                                  : kpi.lifetime_solar_kwh >= 1000
-                                  ? `${(kpi.lifetime_solar_kwh / 1000).toFixed(1)}k`
-                                  : kpi.lifetime_solar_kwh.toFixed(0)
-                                }
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground text-xs">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {kpi && kpi.lifetime_ev_miles > 0 ? (
-                              <span className="font-medium text-blue-500">
-                                {kpi.lifetime_ev_miles >= 1000000 
-                                  ? `${(kpi.lifetime_ev_miles / 1000000).toFixed(1)}M`
-                                  : kpi.lifetime_ev_miles >= 1000
-                                  ? `${(kpi.lifetime_ev_miles / 1000).toFixed(1)}k`
-                                  : kpi.lifetime_ev_miles.toFixed(0)
-                                }
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground text-xs">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {kpi && kpi.lifetime_charging_kwh > 0 ? (
-                              <span className="font-medium text-green-500">
-                                {kpi.lifetime_charging_kwh >= 1000000 
-                                  ? `${(kpi.lifetime_charging_kwh / 1000000).toFixed(1)}M`
-                                  : kpi.lifetime_charging_kwh >= 1000
-                                  ? `${(kpi.lifetime_charging_kwh / 1000).toFixed(1)}k`
-                                  : kpi.lifetime_charging_kwh.toFixed(0)
-                                }
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground text-xs">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {kpi && kpi.total_tokens > 0 ? (
-                              <span className="font-medium text-amber-500">
-                                {kpi.total_tokens >= 1000000 
-                                  ? `${(kpi.total_tokens / 1000000).toFixed(1)}M`
-                                  : kpi.total_tokens >= 1000
-                                  ? `${(kpi.total_tokens / 1000).toFixed(1)}k`
-                                  : kpi.total_tokens.toLocaleString()
-                                }
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground text-xs">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {pushStatuses.get(profile.user_id) ? (
-                              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                                <Bell className="h-3 w-3 mr-1" />
-                                On
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary">
-                                Off
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-sm">
-                            {formatDate(profile.created_at)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Registered Users</CardTitle>
+                <Badge variant="secondary">{profiles.length} total</Badge>
+              </div>
+              <Button onClick={() => navigate('/admin/users')}>
+                View All Users
+              </Button>
             </div>
-          </CardContent>
+            <CardDescription>
+              Full user management with email addresses, energy metrics, tokens, and NFT rewards is available on the Users page.
+            </CardDescription>
+          </CardHeader>
         </Card>
 
         {/* Support Requests */}
