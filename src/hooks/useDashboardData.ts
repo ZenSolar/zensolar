@@ -1,5 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ActivityData, ConnectedAccount, calculateCO2Offset, DeviceLabels, SolarDeviceData } from '@/types/dashboard';
+import { 
+  ActivityData, 
+  ConnectedAccount, 
+  calculateCO2Offset, 
+  DeviceLabels, 
+  SolarDeviceData,
+  BatteryDeviceData,
+  EVDeviceData,
+  ChargerDeviceData 
+} from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
@@ -34,6 +43,9 @@ const defaultActivityData: ActivityData = {
   co2OffsetPounds: 0,
   deviceLabels: undefined,
   solarDevices: [],
+  batteryDevices: [],
+  evDevices: [],
+  chargerDevices: [],
 };
 
 interface ProfileConnections {
@@ -650,17 +662,27 @@ export function useDashboardData() {
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
-      // Build per-device solar data from devicesSnapshot
+      // Build per-device arrays from devicesSnapshot
       const solarDevices: SolarDeviceData[] = [];
+      const batteryDevices: BatteryDeviceData[] = [];
+      const evDevices: EVDeviceData[] = [];
+      const chargerDevices: ChargerDeviceData[] = [];
       
-      // Helper function for baseline/lifetime extraction
+      // Helper functions for baseline/lifetime extraction
       const extractSolarWh = (obj: any): number => {
         if (!obj) return 0;
         return Number(obj.solar_wh || obj.lifetime_solar_wh || obj.solar_production_wh || obj.total_solar_produced_wh || 0);
       };
       
+      const extractBatteryWh = (obj: any): number => {
+        if (!obj) return 0;
+        return Number(obj.battery_discharge_wh || obj.total_energy_discharged_wh || obj.lifetime_battery_discharge_wh || 0);
+      };
+      
       for (const device of (devicesSnapshot || []) as any[]) {
-        // Include solar devices and battery devices that can have solar data
+        const deviceName = device.device_name || `${device.provider?.charAt(0).toUpperCase() + device.provider?.slice(1)} Device`;
+        
+        // Solar devices (including battery devices that can have solar data)
         if (canHaveSolarData(device.device_type) && device.provider) {
           const lifetimeWh = extractSolarWh(device.lifetime_totals);
           const baselineWh = extractSolarWh(device.baseline_data);
@@ -670,16 +692,73 @@ export function useDashboardData() {
           if (lifetimeWh > 0) {
             solarDevices.push({
               deviceId: device.device_id,
-              deviceName: device.device_name || `${device.provider.charAt(0).toUpperCase() + device.provider.slice(1)} Solar`,
+              deviceName,
               provider: device.provider as 'tesla' | 'enphase' | 'solaredge',
               lifetimeKwh: lifetimeWh / 1000,
               pendingKwh: pendingWh / 1000,
             });
           }
         }
+        
+        // Battery devices (Powerwalls)
+        if (isBatteryDevice(device.device_type) && device.provider) {
+          const lifetimeWh = extractBatteryWh(device.lifetime_totals);
+          const baselineWh = extractBatteryWh(device.baseline_data);
+          const pendingWh = Math.max(0, lifetimeWh - baselineWh);
+          
+          batteryDevices.push({
+            deviceId: device.device_id,
+            deviceName,
+            provider: 'tesla',
+            lifetimeKwh: lifetimeWh / 1000,
+            pendingKwh: pendingWh / 1000,
+          });
+        }
+        
+        // Vehicle devices (EVs)
+        if (isVehicleDevice(device.device_type) && device.provider) {
+          const lifetimeMiles = Number(device.lifetime_totals?.odometer || 0);
+          const baselineMiles = Number(device.baseline_data?.odometer || 0);
+          const pendingMilesVal = Math.max(0, lifetimeMiles - baselineMiles);
+          
+          const lifetimeChargingKwh = Number(device.lifetime_totals?.charging_kwh || 0);
+          const baselineChargingKwh = Number(device.baseline_data?.charging_kwh || 0);
+          const pendingChargingKwhVal = Math.max(0, lifetimeChargingKwh - baselineChargingKwh);
+          
+          const lifetimeSuperchargerKwh = Number(device.lifetime_totals?.supercharger_kwh || 0);
+          const baselineSuperchargerKwh = Number(device.baseline_data?.supercharger_kwh || 0);
+          const pendingSuperchargerKwhVal = Math.max(0, lifetimeSuperchargerKwh - baselineSuperchargerKwh);
+          
+          evDevices.push({
+            deviceId: device.device_id,
+            deviceName,
+            provider: 'tesla',
+            lifetimeMiles,
+            pendingMiles: pendingMilesVal,
+            lifetimeChargingKwh,
+            pendingChargingKwh: pendingChargingKwhVal,
+            lifetimeSuperchargerKwh,
+            pendingSuperchargerKwh: pendingSuperchargerKwhVal,
+          });
+        }
+        
+        // Charger devices (Wall Connectors, Wallbox, etc.)
+        if (isChargerDevice(device.device_type) && device.provider) {
+          const lifetimeKwh = Number(device.lifetime_totals?.charging_kwh || device.lifetime_totals?.home_charger_kwh || 0);
+          const baselineKwh = Number(device.baseline_data?.charging_kwh || 0);
+          const pendingKwhVal = Math.max(0, lifetimeKwh - baselineKwh);
+          
+          chargerDevices.push({
+            deviceId: device.device_id,
+            deviceName,
+            provider: device.provider as 'tesla' | 'wallbox',
+            lifetimeKwh,
+            pendingKwh: pendingKwhVal,
+          });
+        }
       }
       
-      console.log('Solar devices:', solarDevices);
+      console.log('Per-device data:', { solarDevices, batteryDevices, evDevices, chargerDevices });
 
       const newData: ActivityData = {
         // Lifetime minted (from confirmed blockchain transactions)
@@ -704,8 +783,11 @@ export function useDashboardData() {
         nftsEarned: earnedNFTs,
         co2OffsetPounds: 0,
         deviceLabels,
-        // Per-device solar data
+        // Per-device data
         solarDevices,
+        batteryDevices,
+        evDevices,
+        chargerDevices,
       };
 
       // Always compute CO2 from the live dashboard metrics so it stays consistent with the UI
