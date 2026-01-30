@@ -184,8 +184,9 @@ export function ActivityMetrics({
   // Separate charging values
   const superchargerKwh = current.superchargerKwh ?? 0;
   const homeChargerKwh = current.homeChargerKwh ?? 0;
-  // Show separate charging fields if we have data OR if chargers are connected (even with 0 pending)
-  const hasSeparateCharging = superchargerKwh > 0 || homeChargerKwh > 0 || hasAnyChargingConnected;
+  // Always show separate charging fields - they're core activity metrics
+  // Users can swipe to hide Home Charger if not connected, but it should always be available
+  const hasSeparateCharging = true;
 
   // Determine if we should show the swipe hint
   // Only show if there's at least one field that can be hidden (not connected)
