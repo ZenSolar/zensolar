@@ -6,7 +6,7 @@ import { useConfetti } from '@/hooks/useConfetti';
 import { ConnectAccounts } from '@/components/dashboard/ConnectAccounts';
 import { ConnectSocialAccounts } from '@/components/dashboard/ConnectSocialAccounts';
 import { DemoConnectWallet } from '@/components/dashboard/DemoConnectWallet';
-import { ActivityMetrics, MintCategory } from '@/components/dashboard/ActivityMetrics';
+import { ActivityMetrics, MintCategory, MintRequest } from '@/components/dashboard/ActivityMetrics';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { GettingStartedGuide } from '@/components/dashboard/GettingStartedGuide';
 import { HowItWorks } from '@/components/dashboard/HowItWorks';
@@ -76,9 +76,9 @@ export function DemoDashboard() {
     onRefresh: refreshDashboard,
   });
 
-  const handleMintCategory = (category: MintCategory) => {
+  const handleMintRequest = (request: MintRequest) => {
     const mappedCategory: DemoMintCategory = 
-      category === 'supercharger' || category === 'home_charger' ? 'charging' : category;
+      request.category === 'supercharger' || request.category === 'home_charger' ? 'charging' : request.category;
     demoRewardActionsRef.current?.openMintDialogForCategory?.(mappedCategory);
   };
 
@@ -263,7 +263,7 @@ export function DemoDashboard() {
             data={activityData}
             currentActivity={currentActivity}
             refreshInfo={{ lastUpdatedAt }}
-            onMintCategory={profile.wallet_address ? handleMintCategory : undefined}
+            onMintRequest={profile.wallet_address ? handleMintRequest : undefined}
             onMintSuccess={handleMintSuccess}
             lifetimeMinted={activityData.lifetimeMinted}
           />
