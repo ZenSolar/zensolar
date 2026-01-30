@@ -13,8 +13,11 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
+import { SwipeableActivityField } from './SwipeableActivityField';
+import { HiddenFieldsRestore } from './HiddenFieldsRestore';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import type { HideableField } from '@/hooks/useHiddenActivityFields';
 
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
@@ -49,6 +52,10 @@ interface ActivityMetricsProps {
   onMintSuccess?: () => void;
   tokenPrice?: number;
   lifetimeMinted?: number;
+  hiddenFields?: HideableField[];
+  onHideField?: (field: HideableField) => void;
+  onShowField?: (field: HideableField) => void;
+  onShowAllFields?: () => void;
 }
 
 export function ActivityMetrics({ 
@@ -60,7 +67,13 @@ export function ActivityMetrics({
   onMintSuccess,
   tokenPrice = 0.10,
   lifetimeMinted = 0,
+  hiddenFields = [],
+  onHideField,
+  onShowField,
+  onShowAllFields,
 }: ActivityMetricsProps) {
+  // Check if a field is hidden
+  const isHidden = (field: HideableField) => hiddenFields.includes(field);
   const deviceLabels = data.deviceLabels;
   const solarDevices = data.solarDevices || [];
   const hasMultipleSolarDevices = solarDevices.length > 1;
@@ -146,95 +159,132 @@ export function ActivityMetrics({
         {/* Single last updated time */}
         <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
 
-        {/* Activity Fields - Single Column */}
+        {/* Activity Fields - Single Column with Swipe-to-Hide */}
         <div className="space-y-2">
           {/* Solar Fields - Show individual devices if multiple, otherwise single field */}
-          {hasMultipleSolarDevices ? (
-            // Multiple solar devices - show each independently
-            solarDevices.map((device) => {
-              const pendingKwh = Math.floor(device.pendingKwh);
-              return (
+          {!isHidden('solar') && (
+            hasMultipleSolarDevices ? (
+              // Multiple solar devices - show each independently (first one is swipeable)
+              solarDevices.map((device, index) => {
+                const pendingKwh = Math.floor(device.pendingKwh);
+                const field = (
+                  <ActivityField
+                    key={device.deviceId}
+                    icon={Sun}
+                    label={`${device.deviceName} Energy Produced`}
+                    value={pendingKwh}
+                    unit="kWh"
+                    color="amber"
+                    active={pendingKwh > 0}
+                    onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
+                  />
+                );
+                // Only first solar device is swipeable (hides all solar)
+                return index === 0 && onHideField ? (
+                  <SwipeableActivityField key={device.deviceId} onHide={() => onHideField('solar')}>
+                    {field}
+                  </SwipeableActivityField>
+                ) : field;
+              })
+            ) : (
+              // Single solar device - use existing logic
+              <SwipeableActivityField onHide={() => onHideField?.('solar')} disabled={!onHideField}>
                 <ActivityField
-                  key={device.deviceId}
                   icon={Sun}
-                  label={`${device.deviceName} Energy Produced`}
-                  value={pendingKwh}
+                  label={solarLabel}
+                  value={current.solarKwh}
                   unit="kWh"
                   color="amber"
-                  active={pendingKwh > 0}
-                  onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
+                  active={current.solarKwh > 0}
+                  onTap={current.solarKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
                 />
-              );
-            })
-          ) : (
-            // Single solar device - use existing logic
-            <ActivityField
-              icon={Sun}
-              label={solarLabel}
-              value={current.solarKwh}
-              unit="kWh"
-              color="amber"
-              active={current.solarKwh > 0}
-              onTap={current.solarKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
-            />
+              </SwipeableActivityField>
+            )
           )}
-          <ActivityField
-            icon={Car}
-            label={evLabel}
-            value={current.evMiles}
-            unit="mi"
-            color="blue"
-            active={current.evMiles > 0}
-            onTap={current.evMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
-          />
-          <ActivityField
-            icon={Battery}
-            label={batteryLabel}
-            value={current.batteryKwh}
-            unit="kWh"
-            color="emerald"
-            active={current.batteryKwh > 0}
-            onTap={current.batteryKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
-          />
+          
+          {/* EV Miles */}
+          {!isHidden('ev_miles') && (
+            <SwipeableActivityField onHide={() => onHideField?.('ev_miles')} disabled={!onHideField}>
+              <ActivityField
+                icon={Car}
+                label={evLabel}
+                value={current.evMiles}
+                unit="mi"
+                color="blue"
+                active={current.evMiles > 0}
+                onTap={current.evMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
+              />
+            </SwipeableActivityField>
+          )}
+          
+          {/* Battery */}
+          {!isHidden('battery') && (
+            <SwipeableActivityField onHide={() => onHideField?.('battery')} disabled={!onHideField}>
+              <ActivityField
+                icon={Battery}
+                label={batteryLabel}
+                value={current.batteryKwh}
+                unit="kWh"
+                color="emerald"
+                active={current.batteryKwh > 0}
+                onTap={current.batteryKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
+              />
+            </SwipeableActivityField>
+          )}
           
           {/* Charging - show separate fields if we have granular data */}
           {hasSeparateCharging ? (
             <>
-              {superchargerKwh > 0 && (
-                <ActivityField
-                  icon={Zap}
-                  label="Tesla Supercharger"
-                  value={superchargerKwh}
-                  unit="kWh"
-                  color="purple"
-                  active={superchargerKwh > 0}
-                  onTap={onMintCategory ? () => onMintCategory('supercharger') : undefined}
-                />
+              {superchargerKwh > 0 && !isHidden('supercharger') && (
+                <SwipeableActivityField onHide={() => onHideField?.('supercharger')} disabled={!onHideField}>
+                  <ActivityField
+                    icon={Zap}
+                    label="Tesla Supercharger"
+                    value={superchargerKwh}
+                    unit="kWh"
+                    color="purple"
+                    active={superchargerKwh > 0}
+                    onTap={onMintCategory ? () => onMintCategory('supercharger') : undefined}
+                  />
+                </SwipeableActivityField>
               )}
-              {homeChargerKwh > 0 && (
-                <ActivityField
-                  icon={Zap}
-                  label={homeChargerLabel}
-                  value={homeChargerKwh}
-                  unit="kWh"
-                  color="purple"
-                  active={homeChargerKwh > 0}
-                  onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
-                />
+              {homeChargerKwh > 0 && !isHidden('home_charger') && (
+                <SwipeableActivityField onHide={() => onHideField?.('home_charger')} disabled={!onHideField}>
+                  <ActivityField
+                    icon={Zap}
+                    label={homeChargerLabel}
+                    value={homeChargerKwh}
+                    unit="kWh"
+                    color="purple"
+                    active={homeChargerKwh > 0}
+                    onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
+                  />
+                </SwipeableActivityField>
               )}
             </>
-          ) : current.chargingKwh > 0 ? (
-            <ActivityField
-              icon={Zap}
-              label="EV Charging"
-              value={current.chargingKwh}
-              unit="kWh"
-              color="purple"
-              active={current.chargingKwh > 0}
-              onTap={onMintCategory ? () => onMintCategory('charging') : undefined}
-            />
+          ) : current.chargingKwh > 0 && !isHidden('charging') ? (
+            <SwipeableActivityField onHide={() => onHideField?.('charging')} disabled={!onHideField}>
+              <ActivityField
+                icon={Zap}
+                label="EV Charging"
+                value={current.chargingKwh}
+                unit="kWh"
+                color="purple"
+                active={current.chargingKwh > 0}
+                onTap={onMintCategory ? () => onMintCategory('charging') : undefined}
+              />
+            </SwipeableActivityField>
           ) : null}
         </div>
+        
+        {/* Hidden Fields Restore Link */}
+        {hiddenFields.length > 0 && onShowField && onShowAllFields && (
+          <HiddenFieldsRestore 
+            hiddenFields={hiddenFields}
+            onShowField={onShowField}
+            onShowAll={onShowAllFields}
+          />
+        )}
 
         {/* Total Available Tokens - Premium Hero Card */}
         <motion.div 
