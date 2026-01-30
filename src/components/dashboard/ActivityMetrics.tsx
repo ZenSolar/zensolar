@@ -106,16 +106,6 @@ export function ActivityMetrics({
   const hasWallboxChargingSource = connectedProviders.includes('wallbox') && chargerDevices.length > 0;
   const hasChargingConnected = hasTeslaWithDevices || hasWallboxChargingSource;
   
-  // Debug log to track charging lock status
-  console.log('Charging lock debug:', { 
-    connectedProviders, 
-    evDevicesCount: evDevices.length, 
-    batteryDevicesCount: batteryDevices.length,
-    chargerDevicesCount: chargerDevices.length,
-    hasTeslaWithDevices, 
-    hasWallboxChargingSource, 
-    hasChargingConnected 
-  });
 
   // A field can only be hidden if it's NOT backed by a connected provider.
   // If a user previously hid a field and later connects the provider, the field must re-appear.
