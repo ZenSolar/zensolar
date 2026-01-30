@@ -288,7 +288,8 @@ export default function Landing() {
               One-Tap Minting
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-              Tokens & NFTs{' '}
+              Tokens & NFTs
+              <br />
               <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 Minted In-App
               </span>
