@@ -682,7 +682,8 @@ export function useDashboardData() {
       for (const device of (devicesSnapshot || []) as any[]) {
         const deviceName = device.device_name || `${device.provider?.charAt(0).toUpperCase() + device.provider?.slice(1)} Device`;
         
-        // Solar devices (including battery devices that can have solar data)
+        // Solar devices - aggregate all Tesla solar data into one entry (same site)
+        // Non-Tesla providers (Enphase, SolarEdge) are independent systems at different addresses
         if (canHaveSolarData(device.device_type) && device.provider) {
           const lifetimeWh = extractSolarWh(device.lifetime_totals);
           const baselineWh = extractSolarWh(device.baseline_data);
@@ -690,13 +691,33 @@ export function useDashboardData() {
           
           // Only add if there's actual solar data
           if (lifetimeWh > 0) {
-            solarDevices.push({
-              deviceId: device.device_id,
-              deviceName,
-              provider: device.provider as 'tesla' | 'enphase' | 'solaredge',
-              lifetimeKwh: lifetimeWh / 1000,
-              pendingKwh: pendingWh / 1000,
-            });
+            // For Tesla devices, aggregate all solar into one entry (same site assumption)
+            if (device.provider === 'tesla') {
+              const existingTeslaSolar = solarDevices.find(d => d.provider === 'tesla');
+              if (existingTeslaSolar) {
+                // Aggregate into existing Tesla solar entry
+                existingTeslaSolar.lifetimeKwh += lifetimeWh / 1000;
+                existingTeslaSolar.pendingKwh += pendingWh / 1000;
+              } else {
+                // First Tesla solar device - create entry
+                solarDevices.push({
+                  deviceId: device.device_id,
+                  deviceName,
+                  provider: 'tesla',
+                  lifetimeKwh: lifetimeWh / 1000,
+                  pendingKwh: pendingWh / 1000,
+                });
+              }
+            } else {
+              // Non-Tesla providers (Enphase, SolarEdge) - keep as separate systems
+              solarDevices.push({
+                deviceId: device.device_id,
+                deviceName,
+                provider: device.provider as 'enphase' | 'solaredge',
+                lifetimeKwh: lifetimeWh / 1000,
+                pendingKwh: pendingWh / 1000,
+              });
+            }
           }
         }
         

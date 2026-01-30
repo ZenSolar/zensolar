@@ -16,6 +16,9 @@ export function SwipeHintTooltip({ show, onDismiss }: SwipeHintTooltipProps) {
       // Delay showing the hint to let the page load
       const timer = setTimeout(() => setIsVisible(true), 1500);
       return () => clearTimeout(timer);
+    } else {
+      // If show becomes false (user dismissed), also hide immediately
+      setIsVisible(false);
     }
   }, [show]);
 
@@ -23,11 +26,16 @@ export function SwipeHintTooltip({ show, onDismiss }: SwipeHintTooltipProps) {
   useEffect(() => {
     if (isVisible) {
       const timer = setTimeout(() => {
-        onDismiss();
+        handleDismiss();
       }, 8000);
       return () => clearTimeout(timer);
     }
-  }, [isVisible, onDismiss]);
+  }, [isVisible]);
+  
+  const handleDismiss = () => {
+    setIsVisible(false);
+    onDismiss();
+  };
 
   return (
     <AnimatePresence>
@@ -45,11 +53,11 @@ export function SwipeHintTooltip({ show, onDismiss }: SwipeHintTooltipProps) {
         >
           {/* Dismiss button */}
           <button
-            onClick={onDismiss}
-            className="absolute top-2 right-2 p-1 rounded-full hover:bg-primary/10 transition-colors"
+            onClick={handleDismiss}
+            className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-primary/10 active:bg-primary/20 transition-colors touch-manipulation"
             aria-label="Dismiss hint"
           >
-            <X className="h-4 w-4 text-muted-foreground" />
+            <X className="h-5 w-5 text-muted-foreground" />
           </button>
 
           <div className="flex items-start gap-3 pr-6">
