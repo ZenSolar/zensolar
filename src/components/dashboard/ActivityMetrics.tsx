@@ -151,7 +151,8 @@ export function ActivityMetrics({
   // Separate charging values
   const superchargerKwh = current.superchargerKwh ?? 0;
   const homeChargerKwh = current.homeChargerKwh ?? 0;
-  const hasSeparateCharging = superchargerKwh > 0 || homeChargerKwh > 0;
+  // Show separate charging fields if we have data OR if chargers are connected (even with 0 pending)
+  const hasSeparateCharging = superchargerKwh > 0 || homeChargerKwh > 0 || hasChargingConnected;
 
   // Determine if we should show the swipe hint
   // Only show if there's at least one field that can be hidden (not connected)
@@ -410,7 +411,7 @@ export function ActivityMetrics({
                       </SwipeableActivityField>
                     ) : field;
                   })
-                ) : homeChargerKwh > 0 ? (
+                ) : hasChargingConnected || homeChargerKwh > 0 ? (
                   <SwipeableActivityField 
                     onHide={() => onHideField?.('home_charger')} 
                     disabled={!onHideField}
@@ -423,7 +424,7 @@ export function ActivityMetrics({
                       unit="kWh"
                       color="purple"
                       active={homeChargerKwh > 0}
-                      onTap={onMintRequest ? () => onMintRequest({ category: 'home_charger' }) : undefined}
+                      onTap={homeChargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'home_charger' }) : undefined}
                     />
                   </SwipeableActivityField>
                 ) : null
