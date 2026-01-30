@@ -21,6 +21,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { getLiveBetaMode } from '@/lib/tokenomics';
+import { promptAddZsolarToken } from '@/lib/walletAssets';
 import type { NFTMilestone } from '@/lib/nftMilestones';
 
 // NFT Contract address on Base Sepolia
@@ -251,6 +252,12 @@ export function NFTMintFlow({
       triggerGoldBurst();
       setTimeout(() => triggerCelebration(), 200);
       hapticSuccess();
+
+      // Force wallet to refresh ZSOLAR token balance after mint
+      // Using force=true bypasses the "already added" check
+      promptAddZsolarToken(true).catch(() => {
+        // Silently fail - wallet will show updated balance on next sync
+      });
 
       onMintSuccess?.();
 
