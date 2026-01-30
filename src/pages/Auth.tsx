@@ -17,6 +17,9 @@ import { lovable } from '@/integrations/lovable/index';
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
+const TAGLINE_TEXT_SHADOW =
+  '0 0 4px rgba(255, 255, 255, 0.65), 0 0 10px rgba(255, 255, 255, 0.4), 0 0 18px rgba(255, 255, 255, 0.25), 0 0 24px rgba(16, 185, 129, 0.22)';
+
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
 export default function Auth() {
@@ -268,7 +271,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#0a1628] relative overflow-hidden">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row bg-[#0a1628] relative overflow-x-hidden overflow-y-auto pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Gradient orbs */}
@@ -302,7 +305,7 @@ export default function Auth() {
           <div 
             className="mb-6"
             style={{ 
-              textShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.7), 0 0 24px rgba(255, 255, 255, 0.5), 0 0 32px rgba(16, 185, 129, 0.4)' 
+              textShadow: TAGLINE_TEXT_SHADOW,
             }}
           >
             <p className="text-sm uppercase tracking-[0.2em] text-primary font-semibold mb-2">
@@ -344,7 +347,7 @@ export default function Auth() {
       </div>
 
       {/* Right side - Auth form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 relative z-10">
+      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center p-4 sm:p-8 relative z-10">
         <Card className="w-full max-w-md bg-white/[0.03] backdrop-blur-xl border-white/10 shadow-2xl">
           <CardHeader className="text-center pb-6 pt-8">
             {/* Mobile logo */}
@@ -357,12 +360,12 @@ export default function Auth() {
               />
             </div>
             
-            {/* Mobile tagline - 3 lines with bright white glow */}
+            {/* Mobile tagline - 3 lines */}
             <div className="mt-6 mb-5 lg:hidden">
               <p 
                 className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed"
                 style={{ 
-                  textShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.7), 0 0 24px rgba(255, 255, 255, 0.5), 0 0 32px rgba(16, 185, 129, 0.4)' 
+                  textShadow: TAGLINE_TEXT_SHADOW,
                 }}
               >
                 <span className="block">The World's First</span>
