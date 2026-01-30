@@ -211,10 +211,11 @@ export function ActivityMetrics({
         {/* Total Available Tokens - Premium Hero Card */}
         <motion.div 
           onClick={activityUnits > 0 && onMintCategory ? () => onMintCategory('all') : undefined}
+          onTouchEnd={activityUnits > 0 && onMintCategory ? (e) => { e.preventDefault(); onMintCategory('all'); } : undefined}
           whileTap={activityUnits > 0 && onMintCategory ? { scale: 0.98 } : undefined}
           whileHover={activityUnits > 0 && onMintCategory ? { scale: 1.01 } : undefined}
           className={cn(
-            "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden",
+            "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden touch-manipulation",
             activityUnits > 0 && onMintCategory
               ? "cursor-pointer border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
               : "border-border/50 bg-muted/30"
@@ -326,13 +327,20 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
   const styles = colorStyles[color];
   const isTappable = active && onTap;
 
+  const handleTap = () => {
+    if (isTappable && onTap) {
+      onTap();
+    }
+  };
+
   return (
     <motion.div
-      onClick={onTap}
+      onClick={handleTap}
+      onTouchEnd={isTappable ? (e) => { e.preventDefault(); handleTap(); } : undefined}
       whileTap={isTappable ? { scale: 0.98 } : undefined}
       whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
       className={cn(
-        "p-3.5 rounded-xl border transition-all flex items-center gap-3.5 relative overflow-hidden",
+        "p-3.5 rounded-xl border transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
         isTappable
           ? cn("cursor-pointer bg-card hover:bg-muted/20", styles.border, `hover:shadow-lg ${styles.glow}`)
           : "border-border/50 bg-muted/30"
