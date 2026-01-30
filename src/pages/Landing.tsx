@@ -620,29 +620,32 @@ export default function Landing() {
 
       {/* Footer - with safe area padding */}
       <footer className="py-8 border-t border-border/40 pb-[calc(2rem+env(safe-area-inset-bottom))]">
-        <div className="container max-w-6xl mx-auto px-4 space-y-4">
-          {/* Tagline */}
-          <p className="text-center text-sm font-medium tracking-wide">
+        <div className="container max-w-6xl mx-auto px-4 space-y-3 text-center">
+          {/* Line 1: Tagline */}
+          <p className="text-sm font-medium tracking-wide">
             <span className="bg-gradient-to-r from-primary via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
               The World's First One-Tap, Mint-on-Proof Web3 Clean Energy Platform
             </span>
           </p>
           
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src={zenLogo} 
-                alt="ZenSolar" 
-                className="h-6 w-auto dark:animate-logo-glow"
-              />
-              <span className="text-sm text-muted-foreground">© 2026 ZenSolar. Patent Pending.</span>
-            </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-              <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-              <Link to="/white-paper" className="hover:text-foreground transition-colors">White Paper</Link>
-            </div>
+          {/* Line 2: Logo */}
+          <div className="flex justify-center">
+            <img 
+              src={zenLogo} 
+              alt="ZenSolar" 
+              className="h-6 w-auto dark:animate-logo-glow"
+            />
           </div>
+          
+          {/* Line 3: Links */}
+          <div className="flex justify-center items-center gap-6 text-sm text-muted-foreground">
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link to="/white-paper" className="hover:text-foreground transition-colors">White Paper</Link>
+          </div>
+          
+          {/* Line 4: Copyright */}
+          <p className="text-sm text-muted-foreground">© 2026 ZenSolar. Patent Pending.</p>
         </div>
       </footer>
       </div>
