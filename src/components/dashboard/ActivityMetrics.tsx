@@ -1,5 +1,5 @@
 import type React from 'react';
-import { ActivityData } from '@/types/dashboard';
+import { ActivityData, SolarDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link } from 'react-router-dom';
 import {
@@ -62,6 +62,8 @@ export function ActivityMetrics({
   lifetimeMinted = 0,
 }: ActivityMetricsProps) {
   const deviceLabels = data.deviceLabels;
+  const solarDevices = data.solarDevices || [];
+  const hasMultipleSolarDevices = solarDevices.length > 1;
 
   // "Current Activity" is what is mintable
   const current: CurrentActivity = currentActivity ?? {
@@ -73,7 +75,12 @@ export function ActivityMetrics({
     homeChargerKwh: Math.max(0, Math.floor(data.pendingHomeChargerKwh || 0)),
   };
 
-  const activityUnits = current.solarKwh + current.evMiles + current.batteryKwh + current.chargingKwh;
+  // Calculate total pending solar from individual devices when we have multiple
+  const totalPendingSolarFromDevices = hasMultipleSolarDevices
+    ? solarDevices.reduce((sum, d) => sum + Math.floor(d.pendingKwh), 0)
+    : current.solarKwh;
+
+  const activityUnits = totalPendingSolarFromDevices + current.evMiles + current.batteryKwh + current.chargingKwh;
   // Apply Live Beta multiplier (10x or 1x) then 75% user share
   const rawTokens = activityUnits * getRewardMultiplier();
   const tokensToReceive = Math.floor(rawTokens * 0.75);
@@ -81,7 +88,7 @@ export function ActivityMetrics({
   // Filter to only Tesla/Enphase
   const filteredProviders = connectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
-  // Device-specific labels
+  // Device-specific labels (used when single solar device)
   const solarLabel = deviceLabels?.solar 
     ? `${deviceLabels.solar} Energy Produced` 
     : 'Solar Energy Produced';
@@ -141,15 +148,36 @@ export function ActivityMetrics({
 
         {/* Activity Fields - Single Column */}
         <div className="space-y-2">
-          <ActivityField
-            icon={Sun}
-            label={solarLabel}
-            value={current.solarKwh}
-            unit="kWh"
-            color="amber"
-            active={current.solarKwh > 0}
-            onTap={current.solarKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
-          />
+          {/* Solar Fields - Show individual devices if multiple, otherwise single field */}
+          {hasMultipleSolarDevices ? (
+            // Multiple solar devices - show each independently
+            solarDevices.map((device) => {
+              const pendingKwh = Math.floor(device.pendingKwh);
+              return (
+                <ActivityField
+                  key={device.deviceId}
+                  icon={Sun}
+                  label={`${device.deviceName} Energy Produced`}
+                  value={pendingKwh}
+                  unit="kWh"
+                  color="amber"
+                  active={pendingKwh > 0}
+                  onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
+                />
+              );
+            })
+          ) : (
+            // Single solar device - use existing logic
+            <ActivityField
+              icon={Sun}
+              label={solarLabel}
+              value={current.solarKwh}
+              unit="kWh"
+              color="amber"
+              active={current.solarKwh > 0}
+              onTap={current.solarKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
+            />
+          )}
           <ActivityField
             icon={Car}
             label={evLabel}

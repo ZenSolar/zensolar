@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ActivityData, ConnectedAccount, calculateCO2Offset, DeviceLabels } from '@/types/dashboard';
+import { ActivityData, ConnectedAccount, calculateCO2Offset, DeviceLabels, SolarDeviceData } from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
@@ -33,6 +33,7 @@ const defaultActivityData: ActivityData = {
   nftsEarned: [],
   co2OffsetPounds: 0,
   deviceLabels: undefined,
+  solarDevices: [],
 };
 
 interface ProfileConnections {
@@ -342,7 +343,7 @@ export function useDashboardData() {
 
       const { data, error } = await supabase
         .from('connected_devices')
-        .select('provider, device_type, baseline_data, lifetime_totals, last_minted_at')
+        .select('device_id, device_name, device_type, provider, baseline_data, lifetime_totals, last_minted_at')
         .eq('user_id', user.id);
 
       if (error) {
@@ -649,6 +650,37 @@ export function useDashboardData() {
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
 
+      // Build per-device solar data from devicesSnapshot
+      const solarDevices: SolarDeviceData[] = [];
+      
+      // Helper function for baseline/lifetime extraction
+      const extractSolarWh = (obj: any): number => {
+        if (!obj) return 0;
+        return Number(obj.solar_wh || obj.lifetime_solar_wh || obj.solar_production_wh || obj.total_solar_produced_wh || 0);
+      };
+      
+      for (const device of (devicesSnapshot || []) as any[]) {
+        // Include solar devices and battery devices that can have solar data
+        if (canHaveSolarData(device.device_type) && device.provider) {
+          const lifetimeWh = extractSolarWh(device.lifetime_totals);
+          const baselineWh = extractSolarWh(device.baseline_data);
+          const pendingWh = Math.max(0, lifetimeWh - baselineWh);
+          
+          // Only add if there's actual solar data
+          if (lifetimeWh > 0) {
+            solarDevices.push({
+              deviceId: device.device_id,
+              deviceName: device.device_name || `${device.provider.charAt(0).toUpperCase() + device.provider.slice(1)} Solar`,
+              provider: device.provider as 'tesla' | 'enphase' | 'solaredge',
+              lifetimeKwh: lifetimeWh / 1000,
+              pendingKwh: pendingWh / 1000,
+            });
+          }
+        }
+      }
+      
+      console.log('Solar devices:', solarDevices);
+
       const newData: ActivityData = {
         // Lifetime minted (from confirmed blockchain transactions)
         lifetimeMinted,
@@ -672,6 +704,8 @@ export function useDashboardData() {
         nftsEarned: earnedNFTs,
         co2OffsetPounds: 0,
         deviceLabels,
+        // Per-device solar data
+        solarDevices,
       };
 
       // Always compute CO2 from the live dashboard metrics so it stays consistent with the UI
