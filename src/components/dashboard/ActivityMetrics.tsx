@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link } from 'react-router-dom';
@@ -575,6 +575,9 @@ interface ActivityFieldProps {
 function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }: ActivityFieldProps) {
   const styles = colorStyles[color];
   const isTappable = active && onTap;
+  
+  // Track touch start position to distinguish taps from scrolls
+  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
   const handleTap = () => {
     if (isTappable && onTap) {
@@ -582,10 +585,42 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isTappable) return;
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isTappable || !touchStartRef.current) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+    
+    // Only trigger tap if:
+    // - Movement is less than 10px in any direction
+    // - Touch duration is less than 300ms (not a long press)
+    const isQuickTap = deltaX < 10 && deltaY < 10 && deltaTime < 300;
+    
+    if (isQuickTap) {
+      e.preventDefault();
+      handleTap();
+    }
+    
+    touchStartRef.current = null;
+  };
+
   return (
     <motion.div
       onClick={handleTap}
-      onTouchEnd={isTappable ? (e) => { e.preventDefault(); handleTap(); } : undefined}
+      onTouchStart={isTappable ? handleTouchStart : undefined}
+      onTouchEnd={isTappable ? handleTouchEnd : undefined}
       whileTap={isTappable ? { scale: 0.98 } : undefined}
       whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
       className={cn(

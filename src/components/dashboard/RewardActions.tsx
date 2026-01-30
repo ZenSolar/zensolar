@@ -388,6 +388,24 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return category;
   };
 
+  // Get icon for category
+  const getCategoryIcon = (category: MintCategory) => {
+    if (category === 'solar') return Sun;
+    if (category === 'ev_miles') return Car;
+    if (category === 'battery') return Battery;
+    if (category === 'charging') return Zap;
+    return Coins; // Default for 'all'
+  };
+
+  // Get color class for category icon
+  const getCategoryColor = (category: MintCategory): string => {
+    if (category === 'solar') return 'from-amber-500/20 to-amber-500/10 text-amber-500';
+    if (category === 'ev_miles') return 'from-blue-500/20 to-blue-500/10 text-blue-500';
+    if (category === 'battery') return 'from-emerald-500/20 to-emerald-500/10 text-emerald-500';
+    if (category === 'charging') return 'from-purple-500/20 to-purple-500/10 text-purple-500';
+    return 'from-primary/20 to-primary/10 text-primary'; // Default for 'all'
+  };
+
   // Show confirmation dialog before minting
   const handleRequestMint = (category: MintCategory, deviceId?: string, deviceName?: string) => {
     if (!walletAddress) {
@@ -1034,9 +1052,15 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20">
-                <Coins className="h-5 w-5 text-primary" />
-              </span>
+              {(() => {
+                const IconComponent = pendingMintRequest ? getCategoryIcon(pendingMintRequest.category) : Coins;
+                const colorClasses = pendingMintRequest ? getCategoryColor(pendingMintRequest.category) : 'from-primary/20 to-primary/10 text-primary';
+                return (
+                  <span className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${colorClasses.split(' ').slice(0, 2).join(' ')} shadow-lg ring-1 ring-current/20`}>
+                    <IconComponent className={`h-5 w-5 ${colorClasses.split(' ').slice(2).join(' ')}`} />
+                  </span>
+                );
+              })()}
               <span className="text-xl">Confirm Minting</span>
             </DialogTitle>
             <DialogDescription className="pt-4">

@@ -700,19 +700,30 @@ export function useDashboardData() {
           }
         }
         
-        // Battery devices (Powerwalls)
+        // Battery devices (Powerwalls) - aggregate all batteries at the same site into one entry
+        // Tesla provides individual Powerwall data, but for customers with multiple Powerwalls
+        // at the same location, we should aggregate them into one "battery system" entry
         if (isBatteryDevice(device.device_type) && device.provider) {
           const lifetimeWh = extractBatteryWh(device.lifetime_totals);
           const baselineWh = extractBatteryWh(device.baseline_data);
           const pendingWh = Math.max(0, lifetimeWh - baselineWh);
           
-          batteryDevices.push({
-            deviceId: device.device_id,
-            deviceName,
-            provider: 'tesla',
-            lifetimeKwh: lifetimeWh / 1000,
-            pendingKwh: pendingWh / 1000,
-          });
+          // Check if we already have a battery device entry (aggregate multiple Powerwalls)
+          // Use the first battery device's name as the system name
+          if (batteryDevices.length > 0) {
+            // Aggregate into existing entry
+            batteryDevices[0].lifetimeKwh += lifetimeWh / 1000;
+            batteryDevices[0].pendingKwh += pendingWh / 1000;
+          } else {
+            // First battery device - create the entry
+            batteryDevices.push({
+              deviceId: device.device_id,
+              deviceName,
+              provider: 'tesla',
+              lifetimeKwh: lifetimeWh / 1000,
+              pendingKwh: pendingWh / 1000,
+            });
+          }
         }
         
         // Vehicle devices (EVs)
