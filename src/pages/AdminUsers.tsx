@@ -17,6 +17,7 @@ interface ProfileWithEmail {
   id: string;
   user_id: string;
   display_name: string | null;
+  email: string | null;
   wallet_address: string | null;
   tesla_connected: boolean;
   enphase_connected: boolean;
@@ -29,6 +30,13 @@ interface ProfileWithEmail {
   linkedin_connected: boolean;
   created_at: string;
   updated_at: string;
+}
+
+interface AuthUserInfo {
+  id: string;
+  email: string;
+  display_name: string | null;
+  created_at: string;
 }
 
 interface UserDevice {
@@ -252,7 +260,8 @@ function UserCard({ profile, kpi, hasPush }: UserRowProps) {
                   {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium truncate">{profile.display_name || 'Anonymous'}</div>
+                  <div className="font-medium truncate">{profile.display_name || profile.email || 'Anonymous'}</div>
+                  {profile.email && <div className="text-xs text-muted-foreground truncate">{profile.email}</div>}
                   <div className="text-xs text-muted-foreground">{formatDate(profile.created_at)}</div>
                 </div>
               </div>
@@ -421,8 +430,9 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
             </Button>
           </CollapsibleTrigger>
         </TableCell>
-        <TableCell className="font-medium whitespace-nowrap">
-          {profile.display_name || 'Anonymous'}
+        <TableCell className="font-medium">
+          <div className="truncate max-w-[180px]">{profile.display_name || profile.email || 'Anonymous'}</div>
+          {profile.email && <div className="text-xs text-muted-foreground truncate max-w-[180px]">{profile.email}</div>}
         </TableCell>
         <TableCell className="font-mono text-xs whitespace-nowrap">
           {formatAddress(profile.wallet_address)}
@@ -672,19 +682,35 @@ export default function AdminUsers() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchProfiles = async () => {
-    // Fetch profiles
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // Fetch profiles and auth user emails in parallel
+    const [profilesResult, authUsersResult] = await Promise.all([
+      supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+      supabase.functions.invoke<{ success: boolean; users: AuthUserInfo[] }>('admin-users'),
+    ]);
 
-    if (error) {
-      console.error('Error fetching profiles:', error);
+    if (profilesResult.error) {
+      console.error('Error fetching profiles:', profilesResult.error);
       toast.error('Failed to fetch user profiles');
       return;
     }
 
-    setProfiles(data || []);
+    // Create a map of user_id to email from auth users
+    const emailMap = new Map<string, { email: string; authDisplayName: string | null }>();
+    if (!authUsersResult.error && authUsersResult.data?.users) {
+      authUsersResult.data.users.forEach(u => {
+        emailMap.set(u.id, { email: u.email, authDisplayName: u.display_name });
+      });
+    }
+
+    // Merge profiles with emails
+    const profilesWithEmails: ProfileWithEmail[] = (profilesResult.data || []).map(p => ({
+      ...p,
+      email: emailMap.get(p.user_id)?.email || null,
+      // Use auth display_name if profile display_name is empty
+      display_name: p.display_name || emailMap.get(p.user_id)?.authDisplayName || null,
+    }));
+
+    setProfiles(profilesWithEmails);
 
     // Fetch push subscription status, devices, production, and rewards in parallel
     const [pushResult, devicesResult, productionResult, rewardsResult] = await Promise.all([
@@ -707,7 +733,7 @@ export default function AdminUsers() {
     const kpiMap = new Map<string, UserKPIs>();
     
     // Initialize for all users
-    (data || []).forEach(profile => {
+    profilesWithEmails.forEach(profile => {
       kpiMap.set(profile.user_id, {
         user_id: profile.user_id,
         device_count: 0,
@@ -846,7 +872,7 @@ export default function AdminUsers() {
     });
 
     setAggregateKPIs({
-      totalUsers: data?.length || 0,
+      totalUsers: profilesWithEmails.length,
       usersWithEnergy,
       totalDevices,
       totalProductionKwh,
