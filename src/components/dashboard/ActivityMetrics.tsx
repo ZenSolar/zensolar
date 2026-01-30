@@ -98,13 +98,16 @@ export function ActivityMetrics({
   const hasSolarConnected = connectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
   const hasBatteryConnected = connectedProviders.includes('tesla') && batteryDevices.length > 0;
   const hasEvConnected = connectedProviders.includes('tesla') && evDevices.length > 0;
-  // Charging data can come from:
-  // - Tesla vehicles (supercharging + home charging via charge history API)
-  // - Tesla / Wallbox charger devices (wall connector / EVSE)
-  // We treat Tesla-connected with ANY device as "charging connected" since the vehicle API provides charging data
-  const hasTeslaWithDevices = connectedProviders.includes('tesla') && (evDevices.length > 0 || batteryDevices.length > 0 || chargerDevices.length > 0);
-  const hasWallboxChargingSource = connectedProviders.includes('wallbox') && chargerDevices.length > 0;
-  const hasChargingConnected = hasTeslaWithDevices || hasWallboxChargingSource;
+  // Supercharger: locked if Tesla EV is connected (vehicle API provides supercharger data)
+  const hasSuperchargerConnected = connectedProviders.includes('tesla') && evDevices.length > 0;
+  
+  // Home Charger: locked only if Tesla Wall Connector OR Wallbox charger is connected
+  const hasTeslaWallConnector = connectedProviders.includes('tesla') && chargerDevices.length > 0;
+  const hasWallboxConnected = connectedProviders.includes('wallbox') && chargerDevices.length > 0;
+  const hasHomeChargerConnected = hasTeslaWallConnector || hasWallboxConnected;
+  
+  // Any charging source connected (for visibility logic)
+  const hasAnyChargingConnected = hasSuperchargerConnected || hasHomeChargerConnected;
   
 
   // A field can only be hidden if it's NOT backed by a connected provider.
@@ -118,9 +121,11 @@ export function ActivityMetrics({
       case 'ev_miles':
         return !hasEvConnected;
       case 'charging':
+        return !hasAnyChargingConnected;
       case 'supercharger':
+        return !hasSuperchargerConnected;
       case 'home_charger':
-        return !hasChargingConnected;
+        return !hasHomeChargerConnected;
       default:
         return true;
     }
@@ -180,11 +185,11 @@ export function ActivityMetrics({
   const superchargerKwh = current.superchargerKwh ?? 0;
   const homeChargerKwh = current.homeChargerKwh ?? 0;
   // Show separate charging fields if we have data OR if chargers are connected (even with 0 pending)
-  const hasSeparateCharging = superchargerKwh > 0 || homeChargerKwh > 0 || hasChargingConnected;
+  const hasSeparateCharging = superchargerKwh > 0 || homeChargerKwh > 0 || hasAnyChargingConnected;
 
   // Determine if we should show the swipe hint
   // Only show if there's at least one field that can be hidden (not connected)
-  const hasHideableFields = !hasSolarConnected || !hasBatteryConnected || !hasEvConnected || !hasChargingConnected;
+  const hasHideableFields = !hasSolarConnected || !hasBatteryConnected || !hasEvConnected || !hasSuperchargerConnected || !hasHomeChargerConnected;
 
   return (
     <Card className={cn(
@@ -395,7 +400,7 @@ export function ActivityMetrics({
                 <SwipeableActivityField 
                   onHide={() => onHideField?.('supercharger')} 
                   disabled={!onHideField}
-                  locked={hasChargingConnected}
+                  locked={hasSuperchargerConnected}
                 >
                   <ActivityField
                     icon={Zap}
@@ -433,17 +438,17 @@ export function ActivityMetrics({
                       <SwipeableActivityField 
                         key={device.deviceId} 
                         onHide={() => onHideField('home_charger')}
-                        locked={hasChargingConnected}
+                        locked={hasHomeChargerConnected}
                       >
                         {field}
                       </SwipeableActivityField>
                     ) : field;
                   })
-                ) : hasChargingConnected || homeChargerKwh > 0 ? (
+                ) : hasHomeChargerConnected || homeChargerKwh > 0 ? (
                   <SwipeableActivityField 
                     onHide={() => onHideField?.('home_charger')} 
                     disabled={!onHideField}
-                    locked={hasChargingConnected}
+                    locked={hasHomeChargerConnected}
                   >
                     <ActivityField
                       icon={Zap}
@@ -462,7 +467,7 @@ export function ActivityMetrics({
             <SwipeableActivityField 
               onHide={() => onHideField?.('charging')} 
               disabled={!onHideField}
-              locked={hasChargingConnected}
+              locked={hasAnyChargingConnected}
             >
               <ActivityField
                 icon={Zap}
