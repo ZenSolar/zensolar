@@ -769,7 +769,9 @@ export default function AdminUsers() {
           const lifetimeTotals = device.lifetime_totals as {
             odometer?: number;
             charging_kwh?: number;
+            lifetime_charging_kwh?: number;
             solar_wh?: number;
+            lifetime_solar_wh?: number;
             battery_discharge_wh?: number;
             wall_connector_wh?: number;
             updated_at?: string;
@@ -793,14 +795,26 @@ export default function AdminUsers() {
           }
           
           // Aggregate battery data from powerwall devices - prefer lifetime_totals over baseline
-          if (device.device_type === 'powerwall') {
+          if (device.device_type === 'powerwall' || device.device_type === 'battery') {
             const batteryDischargeWh = lifetimeTotals?.battery_discharge_wh ?? baselineData?.total_energy_discharged_wh ?? 0;
             existing.total_battery_discharged_kwh += batteryDischargeWh / 1000;
             
-            // Also add solar from lifetime_totals if available (Tesla solar)
+            // Also add solar from lifetime_totals if available (Tesla Powerwall can report solar)
             if (lifetimeTotals?.solar_wh) {
               existing.total_production_kwh += lifetimeTotals.solar_wh / 1000;
             }
+          }
+          
+          // Aggregate solar data from dedicated solar devices (Tesla, Enphase, SolarEdge)
+          if (device.device_type === 'solar' || device.device_type === 'solar_system') {
+            const solarWh = lifetimeTotals?.solar_wh ?? lifetimeTotals?.lifetime_solar_wh ?? baselineData?.total_solar_produced_wh ?? 0;
+            existing.total_production_kwh += solarWh / 1000;
+          }
+          
+          // Aggregate charging data from home chargers (Wallbox, Tesla Wall Connector)
+          if (device.device_type === 'home_charger' || device.device_type === 'wall_connector' || device.device_type === 'charger') {
+            const chargingKwh = lifetimeTotals?.charging_kwh ?? lifetimeTotals?.lifetime_charging_kwh ?? 0;
+            existing.total_charging_kwh += chargingKwh;
           }
         }
       });

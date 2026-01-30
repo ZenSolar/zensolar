@@ -99,12 +99,23 @@ export function ActivityMetrics({
   const hasBatteryConnected = connectedProviders.includes('tesla') && batteryDevices.length > 0;
   const hasEvConnected = connectedProviders.includes('tesla') && evDevices.length > 0;
   // Charging data can come from:
-  // - Tesla vehicles (supercharging + home charging)
+  // - Tesla vehicles (supercharging + home charging via charge history API)
   // - Tesla / Wallbox charger devices (wall connector / EVSE)
-  // We treat any connected source as "locked" (cannot be hidden).
-  const hasTeslaChargingSource = connectedProviders.includes('tesla') && (evDevices.length > 0 || chargerDevices.length > 0);
+  // We treat Tesla-connected with ANY device as "charging connected" since the vehicle API provides charging data
+  const hasTeslaWithDevices = connectedProviders.includes('tesla') && (evDevices.length > 0 || batteryDevices.length > 0 || chargerDevices.length > 0);
   const hasWallboxChargingSource = connectedProviders.includes('wallbox') && chargerDevices.length > 0;
-  const hasChargingConnected = hasTeslaChargingSource || hasWallboxChargingSource;
+  const hasChargingConnected = hasTeslaWithDevices || hasWallboxChargingSource;
+  
+  // Debug log to track charging lock status
+  console.log('Charging lock debug:', { 
+    connectedProviders, 
+    evDevicesCount: evDevices.length, 
+    batteryDevicesCount: batteryDevices.length,
+    chargerDevicesCount: chargerDevices.length,
+    hasTeslaWithDevices, 
+    hasWallboxChargingSource, 
+    hasChargingConnected 
+  });
 
   // A field can only be hidden if it's NOT backed by a connected provider.
   // If a user previously hid a field and later connects the provider, the field must re-appear.
