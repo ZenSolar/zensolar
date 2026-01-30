@@ -51,8 +51,27 @@ export default function MintHistory() {
 
   const fetchTransactions = useCallback(async () => {
     try {
-      const { data, error } = await supabase.from('mint_transactions').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
+      // Get current session to ensure we're authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log('No session found, cannot fetch transactions');
+        setIsLoading(false);
+        return;
+      }
+      
+      // RLS will filter to only show current user's transactions
+      const { data, error } = await supabase
+        .from('mint_transactions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+        
+      if (error) {
+        console.error('Error fetching mint transactions:', error);
+        throw error;
+      }
+      
+      console.log('Fetched mint transactions:', data?.length || 0, 'records');
       setTransactions((data as MintTransaction[]) || []);
     } catch (error) {
       console.error('Error fetching transactions:', error);
