@@ -80,8 +80,6 @@ export function ActivityMetrics({
   onShowField,
   onShowAllFields,
 }: ActivityMetricsProps) {
-  // Check if a field is hidden
-  const isHidden = (field: HideableField) => hiddenFields.includes(field);
   const deviceLabels = data.deviceLabels;
   const solarDevices = data.solarDevices || [];
   const batteryDevices = data.batteryDevices || [];
@@ -107,6 +105,29 @@ export function ActivityMetrics({
   const hasTeslaChargingSource = connectedProviders.includes('tesla') && (evDevices.length > 0 || chargerDevices.length > 0);
   const hasWallboxChargingSource = connectedProviders.includes('wallbox') && chargerDevices.length > 0;
   const hasChargingConnected = hasTeslaChargingSource || hasWallboxChargingSource;
+
+  // A field can only be hidden if it's NOT backed by a connected provider.
+  // If a user previously hid a field and later connects the provider, the field must re-appear.
+  const canHideField = (field: HideableField) => {
+    switch (field) {
+      case 'solar':
+        return !hasSolarConnected;
+      case 'battery':
+        return !hasBatteryConnected;
+      case 'ev_miles':
+        return !hasEvConnected;
+      case 'charging':
+      case 'supercharger':
+      case 'home_charger':
+        return !hasChargingConnected;
+      default:
+        return true;
+    }
+  };
+
+  // Check if a field is (effectively) hidden
+  const isHidden = (field: HideableField) => hiddenFields.includes(field) && canHideField(field);
+  const effectiveHiddenFields = hiddenFields.filter(canHideField);
 
   // "Current Activity" is what is mintable
   const current: CurrentActivity = currentActivity ?? {
@@ -456,9 +477,9 @@ export function ActivityMetrics({
         </div>
         
         {/* Hidden Fields Restore Link */}
-        {hiddenFields.length > 0 && onShowField && onShowAllFields && (
+        {effectiveHiddenFields.length > 0 && onShowField && onShowAllFields && (
           <HiddenFieldsRestore 
-            hiddenFields={hiddenFields}
+            hiddenFields={effectiveHiddenFields}
             onShowField={onShowField}
             onShowAll={onShowAllFields}
           />
