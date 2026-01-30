@@ -621,12 +621,15 @@ export default function Landing() {
       {/* Footer - with safe area padding */}
       <footer className="py-8 border-t border-border/40 pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <div className="container max-w-6xl mx-auto px-4 space-y-3 text-center">
-          {/* Line 1: Tagline */}
-          <p className="text-sm font-medium tracking-wide">
-            <span className="bg-gradient-to-r from-primary via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
-              The World's First One-Tap, Mint-on-Proof Web3 Clean Energy Platform
-            </span>
-          </p>
+          {/* Lines 1-2: Tagline */}
+          <div className="text-sm font-medium tracking-wide">
+            <p className="bg-gradient-to-r from-primary via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
+              The World's First One-Tap, Mint-on-Proof
+            </p>
+            <p className="bg-gradient-to-r from-primary via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
+              Web3 Clean Energy Platform
+            </p>
+          </div>
           
           {/* Line 2: Logo */}
           <div className="flex justify-center">
