@@ -4,6 +4,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { useConfetti } from '@/hooks/useConfetti';
+import { useHiddenActivityFields } from '@/hooks/useHiddenActivityFields';
 import { getNewUserViewMode } from '@/lib/userViewMode';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { DashboardFooter } from './dashboard/DashboardFooter';
@@ -46,6 +47,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { profile, isLoading: profileLoading } = useProfile();
   const { isAdmin, isAdminView } = useAdminCheck();
   const { triggerConfetti } = useConfetti();
+  const { 
+    hiddenFields, 
+    hideField, 
+    showField, 
+    showAllFields 
+  } = useHiddenActivityFields();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   const nftQuickMintRef = useRef<NFTQuickMintDialogRef>(null);
   
@@ -200,6 +207,10 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onMintSuccess={handleMintSuccess}
             tokenPrice={tokenPrice}
             lifetimeMinted={activityData.lifetimeMinted}
+            hiddenFields={hiddenFields}
+            onHideField={hideField}
+            onShowField={showField}
+            onShowAllFields={showAllFields}
           />
         </AnimatedItem>
 
