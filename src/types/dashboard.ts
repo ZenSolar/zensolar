@@ -7,6 +7,17 @@ export interface DeviceLabels {
 }
 
 /**
+ * Per-device solar data for displaying multiple solar systems independently
+ */
+export interface SolarDeviceData {
+  deviceId: string;
+  deviceName: string;
+  provider: 'tesla' | 'enphase' | 'solaredge';
+  lifetimeKwh: number;
+  pendingKwh: number;
+}
+
+/**
  * IMPORTANT: Token Issuance Rules
  * 
  * Each unit of activity (kWh, mile) can ONLY generate tokens ONCE.
@@ -46,6 +57,9 @@ export interface ActivityData {
   nftsEarned: string[];
   co2OffsetPounds: number;
   deviceLabels?: DeviceLabels;
+  
+  // Per-device solar data for displaying multiple solar systems
+  solarDevices?: SolarDeviceData[];
 }
 
 export interface ConnectedAccount {
