@@ -684,7 +684,10 @@ export function useDashboardData() {
         
         // Solar devices - aggregate all Tesla solar data into one entry (same site)
         // Non-Tesla providers (Enphase, SolarEdge) are independent systems at different addresses
-        if (canHaveSolarData(device.device_type) && device.provider) {
+        // IMPORTANT: Only use isSolarDevice() here, NOT canHaveSolarData()
+        // canHaveSolarData() includes batteries which can report solar, but we don't want
+        // Powerwalls showing up as separate solar entries - they should only appear as batteries
+        if (isSolarDevice(device.device_type) && device.provider) {
           const lifetimeWh = extractSolarWh(device.lifetime_totals);
           const baselineWh = extractSolarWh(device.baseline_data);
           const pendingWh = Math.max(0, lifetimeWh - baselineWh);
