@@ -426,7 +426,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { walletAddress, tokenIds, comboTypes, category, isBetaMint = false } = body;
+    const { walletAddress, tokenIds, comboTypes, category, deviceId, isBetaMint = false } = body;
 
     if (!walletAddress) {
       return new Response(JSON.stringify({ error: "Wallet address required" }), {
@@ -593,7 +593,7 @@ Deno.serve(async (req) => {
       // Get device breakdown from connected_devices to calculate real deltas
       const { data: devices } = await supabaseClient
         .from("connected_devices")
-        .select("id, device_type, provider, baseline_data, lifetime_totals")
+        .select("id, device_id, device_type, provider, baseline_data, lifetime_totals")
         .eq("user_id", user.id);
 
       let solarDeltaKwh = 0;
@@ -609,6 +609,11 @@ Deno.serve(async (req) => {
         const lifetime = device.lifetime_totals as Record<string, number> | null;
         
         if (!lifetime) continue;
+        
+        // Per-device filtering: if deviceId is specified, only process that specific device
+        if (deviceId && device.device_id !== deviceId) {
+          continue;
+        }
 
         // Solar devices (Tesla solar, Enphase solar_system, SolarEdge solar_system, etc.)
         if (isSolarDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'solar')) {
@@ -675,6 +680,11 @@ Deno.serve(async (req) => {
             }
           }
         }
+      }
+      
+      // Log per-device minting info
+      if (deviceId) {
+        console.log(`Per-device minting for deviceId=${deviceId}: category=${mintCategory}`);
       }
 
       const solar = BigInt(solarDeltaKwh);

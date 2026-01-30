@@ -45,12 +45,18 @@ type RefreshInfo = {
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'supercharger' | 'home_charger' | 'all';
 
+export interface MintRequest {
+  category: MintCategory;
+  deviceId?: string;
+  deviceName?: string;
+}
+
 interface ActivityMetricsProps {
   data: ActivityData;
   currentActivity?: CurrentActivity;
   refreshInfo?: RefreshInfo;
   connectedProviders?: string[];
-  onMintCategory?: (category: MintCategory) => void;
+  onMintRequest?: (request: MintRequest) => void;
   onMintSuccess?: () => void;
   tokenPrice?: number;
   lifetimeMinted?: number;
@@ -65,7 +71,7 @@ export function ActivityMetrics({
   currentActivity, 
   refreshInfo, 
   connectedProviders = [], 
-  onMintCategory, 
+  onMintRequest, 
   onMintSuccess,
   tokenPrice = 0.10,
   lifetimeMinted = 0,
@@ -203,7 +209,7 @@ export function ActivityMetrics({
           {/* Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
             hasMultipleSolarDevices ? (
-              // Multiple solar devices - show each independently
+              // Multiple solar devices - show each independently with per-device minting
               solarDevices.map((device, index) => {
                 const pendingKwh = Math.floor(device.pendingKwh);
                 const field = (
@@ -215,7 +221,11 @@ export function ActivityMetrics({
                     unit="kWh"
                     color="amber"
                     active={pendingKwh > 0}
-                    onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
+                    onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
+                      category: 'solar', 
+                      deviceId: device.deviceId,
+                      deviceName: device.deviceName 
+                    }) : undefined}
                   />
                 );
                 // Only first solar device is swipeable (hides all solar)
@@ -230,7 +240,7 @@ export function ActivityMetrics({
                 ) : field;
               })
             ) : (
-              // Single solar device - use existing logic
+              // Single solar device - use existing logic (no deviceId needed)
               <SwipeableActivityField 
                 onHide={() => onHideField?.('solar')} 
                 disabled={!onHideField}
@@ -243,7 +253,7 @@ export function ActivityMetrics({
                   unit="kWh"
                   color="amber"
                   active={current.solarKwh > 0}
-                  onTap={current.solarKwh > 0 && onMintCategory ? () => onMintCategory('solar') : undefined}
+                  onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
                 />
               </SwipeableActivityField>
             )
@@ -263,7 +273,11 @@ export function ActivityMetrics({
                     unit="mi"
                     color="blue"
                     active={pendingMiles > 0}
-                    onTap={pendingMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
+                    onTap={pendingMiles > 0 && onMintRequest ? () => onMintRequest({ 
+                      category: 'ev_miles', 
+                      deviceId: device.deviceId,
+                      deviceName: device.deviceName 
+                    }) : undefined}
                   />
                 );
                 return index === 0 && onHideField ? (
@@ -289,7 +303,7 @@ export function ActivityMetrics({
                   unit="mi"
                   color="blue"
                   active={current.evMiles > 0}
-                  onTap={current.evMiles > 0 && onMintCategory ? () => onMintCategory('ev_miles') : undefined}
+                  onTap={current.evMiles > 0 && onMintRequest ? () => onMintRequest({ category: 'ev_miles' }) : undefined}
                 />
               </SwipeableActivityField>
             )
@@ -309,7 +323,11 @@ export function ActivityMetrics({
                     unit="kWh"
                     color="emerald"
                     active={pendingKwh > 0}
-                    onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
+                    onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
+                      category: 'battery', 
+                      deviceId: device.deviceId,
+                      deviceName: device.deviceName 
+                    }) : undefined}
                   />
                 );
                 return index === 0 && onHideField ? (
@@ -335,7 +353,7 @@ export function ActivityMetrics({
                   unit="kWh"
                   color="emerald"
                   active={current.batteryKwh > 0}
-                  onTap={current.batteryKwh > 0 && onMintCategory ? () => onMintCategory('battery') : undefined}
+                  onTap={current.batteryKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'battery' }) : undefined}
                 />
               </SwipeableActivityField>
             )
@@ -357,7 +375,7 @@ export function ActivityMetrics({
                     unit="kWh"
                     color="purple"
                     active={superchargerKwh > 0}
-                    onTap={onMintCategory ? () => onMintCategory('supercharger') : undefined}
+                    onTap={onMintRequest ? () => onMintRequest({ category: 'supercharger' }) : undefined}
                   />
                 </SwipeableActivityField>
               )}
@@ -375,7 +393,11 @@ export function ActivityMetrics({
                         unit="kWh"
                         color="purple"
                         active={pendingKwh > 0}
-                        onTap={pendingKwh > 0 && onMintCategory ? () => onMintCategory('home_charger') : undefined}
+                        onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
+                          category: 'home_charger', 
+                          deviceId: device.deviceId,
+                          deviceName: device.deviceName 
+                        }) : undefined}
                       />
                     );
                     return index === 0 && onHideField ? (
@@ -401,7 +423,7 @@ export function ActivityMetrics({
                       unit="kWh"
                       color="purple"
                       active={homeChargerKwh > 0}
-                      onTap={onMintCategory ? () => onMintCategory('home_charger') : undefined}
+                      onTap={onMintRequest ? () => onMintRequest({ category: 'home_charger' }) : undefined}
                     />
                   </SwipeableActivityField>
                 ) : null
@@ -420,7 +442,7 @@ export function ActivityMetrics({
                 unit="kWh"
                 color="purple"
                 active={current.chargingKwh > 0}
-                onTap={onMintCategory ? () => onMintCategory('charging') : undefined}
+                onTap={onMintRequest ? () => onMintRequest({ category: 'charging' }) : undefined}
               />
             </SwipeableActivityField>
           ) : null}
@@ -437,13 +459,13 @@ export function ActivityMetrics({
 
         {/* Total Available Tokens - Premium Hero Card */}
         <motion.div 
-          onClick={activityUnits > 0 && onMintCategory ? () => onMintCategory('all') : undefined}
-          onTouchEnd={activityUnits > 0 && onMintCategory ? (e) => { e.preventDefault(); onMintCategory('all'); } : undefined}
-          whileTap={activityUnits > 0 && onMintCategory ? { scale: 0.98 } : undefined}
-          whileHover={activityUnits > 0 && onMintCategory ? { scale: 1.01 } : undefined}
+          onClick={activityUnits > 0 && onMintRequest ? () => onMintRequest({ category: 'all' }) : undefined}
+          onTouchEnd={activityUnits > 0 && onMintRequest ? (e) => { e.preventDefault(); onMintRequest({ category: 'all' }); } : undefined}
+          whileTap={activityUnits > 0 && onMintRequest ? { scale: 0.98 } : undefined}
+          whileHover={activityUnits > 0 && onMintRequest ? { scale: 1.01 } : undefined}
           className={cn(
             "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden touch-manipulation",
-            activityUnits > 0 && onMintCategory
+            activityUnits > 0 && onMintRequest
               ? "cursor-pointer border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
               : "border-border/50 bg-muted/30"
           )}
@@ -477,7 +499,7 @@ export function ActivityMetrics({
               ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} @ ${tokenPrice.toFixed(2)}
             </p>
           </div>
-          {activityUnits > 0 && onMintCategory && (
+          {activityUnits > 0 && onMintRequest && (
             <div className="relative flex items-center gap-1 text-primary">
               <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
               <ChevronRight className="h-5 w-5" />

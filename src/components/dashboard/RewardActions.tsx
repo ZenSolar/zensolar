@@ -32,6 +32,12 @@ const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
+export interface MintRequest {
+  category: MintCategory;
+  deviceId?: string;
+  deviceName?: string;
+}
+
 interface PendingRewards {
   solar: number;
   evMiles: number;
@@ -49,6 +55,7 @@ interface RewardActionsProps {
 export interface RewardActionsRef {
   openTokenMintDialog: () => void;
   openTokenMintDialogForCategory?: (category: MintCategory) => void;
+  openTokenMintDialogForRequest?: (request: MintRequest) => void;
 }
 
 interface MintResult {
@@ -133,7 +140,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const [showTokenAddPanel, setShowTokenAddPanel] = useState(false);
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
-  const [pendingMintCategory, setPendingMintCategory] = useState<MintCategory | null>(null);
   const [mintingProgressDialog, setMintingProgressDialog] = useState(false);
   
   // NFT Selection Dialog state
@@ -192,13 +198,25 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     }
   }, [nftMintResult]);
 
+  // Track pending mint request (with optional deviceId for per-device minting)
+  const [pendingMintRequest, setPendingMintRequest] = useState<MintRequest | null>(null);
+
   // Expose openTokenMintDialog to parent via ref
   useImperativeHandle(ref, () => ({
     openTokenMintDialog: () => setTokenMintDialog(true),
     openTokenMintDialogForCategory: (category: MintCategory) => {
       // Pre-select the category and open confirmation dialog directly
       if (walletAddress) {
-        setPendingMintCategory(category);
+        setPendingMintRequest({ category });
+        setConfirmMintDialog(true);
+      } else {
+        setTokenMintDialog(true);
+      }
+    },
+    openTokenMintDialogForRequest: (request: MintRequest) => {
+      // Pre-select the category with optional deviceId and open confirmation dialog
+      if (walletAddress) {
+        setPendingMintRequest(request);
         setConfirmMintDialog(true);
       } else {
         setTokenMintDialog(true);
@@ -371,7 +389,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   };
 
   // Show confirmation dialog before minting
-  const handleRequestMint = (category: MintCategory) => {
+  const handleRequestMint = (category: MintCategory, deviceId?: string, deviceName?: string) => {
     if (!walletAddress) {
       toast({
         title: "Wallet Required",
@@ -381,18 +399,18 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       return;
     }
     
-    setPendingMintCategory(category);
+    setPendingMintRequest({ category, deviceId, deviceName });
     setTokenMintDialog(false);
     setConfirmMintDialog(true);
   };
 
   // Actually execute the mint after confirmation
   const handleConfirmMint = async () => {
-    if (!pendingMintCategory) return;
+    if (!pendingMintRequest) return;
     
     setConfirmMintDialog(false);
-    const category = pendingMintCategory;
-    setPendingMintCategory(null);
+    const { category, deviceId, deviceName } = pendingMintRequest;
+    setPendingMintRequest(null);
     setMintingState({ isLoading: true, type: 'token', category });
     setMintingProgressDialog(true);
     setMintingProgress({ step: 'preparing', message: 'Preparing your transaction...' });
@@ -404,17 +422,21 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         throw new Error("Not authenticated");
       }
 
-      const categoryLabel = category === 'all' ? 'all categories' : category.replace('_', ' ');
+      // Create descriptive label for the mint operation
+      const categoryLabel = deviceName 
+        ? deviceName 
+        : (category === 'all' ? 'all categories' : category.replace('_', ' '));
       
       // Mint tokens directly - Welcome NFT is NOT required (it's just a free gift)
       setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
 
-      // Call mint-rewards with category parameter
+      // Call mint-rewards with category and optional deviceId for per-device minting
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-rewards',
           walletAddress,
           category, // 'solar', 'ev_miles', 'battery', 'charging', or 'all'
+          deviceId, // Optional: specific device to mint from
           isBetaMint: getLiveBetaMode(),
         },
       });
@@ -1023,19 +1045,26 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   You are about to mint tokens for:
                 </p>
                 
-                {pendingMintCategory && (
+                {pendingMintRequest && (
                   <div className="relative p-5 rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
                     <div className="relative flex flex-col gap-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold">{getCategoryLabel(pendingMintCategory)}</span>
+                        <span className="font-semibold">
+                          {pendingMintRequest.deviceName || getCategoryLabel(pendingMintRequest.category)}
+                        </span>
                         <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                          {getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR
+                          {getCategoryTokens(pendingMintRequest.category).toLocaleString()} $ZSOLAR
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        You receive 75% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} activity units (20% burn)
+                        You receive 75% of {getCategoryActivityUnits(pendingMintRequest.category).toLocaleString()} activity units (20% burn)
                       </p>
+                      {pendingMintRequest.deviceId && (
+                        <p className="text-xs text-primary/70 mt-1">
+                          Minting from specific device
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1059,7 +1088,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               variant="outline"
               onClick={() => {
                 setConfirmMintDialog(false);
-                setPendingMintCategory(null);
+                setPendingMintRequest(null);
               }}
               className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/60"
             >

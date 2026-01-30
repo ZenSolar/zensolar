@@ -8,7 +8,7 @@ import { useHiddenActivityFields } from '@/hooks/useHiddenActivityFields';
 import { getNewUserViewMode } from '@/lib/userViewMode';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { DashboardFooter } from './dashboard/DashboardFooter';
-import { ActivityMetrics, MintCategory } from './dashboard/ActivityMetrics';
+import { ActivityMetrics, MintCategory, MintRequest } from './dashboard/ActivityMetrics';
 import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory } from './dashboard/RewardActions';
 import { RewardProgress } from './dashboard/RewardProgress';
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
@@ -80,11 +80,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     rewardActionsRef.current?.openTokenMintDialog();
   };
 
-  const handleMintCategory = (category: MintCategory) => {
+  const handleMintRequest = (request: MintRequest) => {
     // Map category to RewardActions expected format (charging covers both supercharger and home_charger)
     const mappedCategory: RewardMintCategory = 
-      category === 'supercharger' || category === 'home_charger' ? 'charging' : category;
-    rewardActionsRef.current?.openTokenMintDialogForCategory?.(mappedCategory);
+      request.category === 'supercharger' || request.category === 'home_charger' ? 'charging' : request.category;
+    rewardActionsRef.current?.openTokenMintDialogForRequest?.({ 
+      category: mappedCategory, 
+      deviceId: request.deviceId,
+      deviceName: request.deviceName 
+    });
   };
 
   // Celebration animation when tokens are minted from Pending Rewards
@@ -203,7 +207,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             currentActivity={currentActivity}
             refreshInfo={{ lastUpdatedAt }}
             connectedProviders={connectedProviders}
-            onMintCategory={profile?.wallet_address ? handleMintCategory : undefined}
+            onMintRequest={profile?.wallet_address ? handleMintRequest : undefined}
             onMintSuccess={handleMintSuccess}
             tokenPrice={tokenPrice}
             lifetimeMinted={activityData.lifetimeMinted}
