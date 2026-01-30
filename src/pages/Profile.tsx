@@ -2,11 +2,15 @@ import { useCallback, useState } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useEnergyOAuth } from "@/hooks/useEnergyOAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectDialog";
+import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
+import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
 import { 
   Mail, 
   Wallet, 
@@ -80,9 +84,14 @@ const LinkedInIcon = () => (
 export default function Profile() {
   const { user } = useAuth();
   const { profile, isLoading, refetch, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
-  const { connectedAccounts, connectAccount, disconnectAccount } = useDashboardData();
+  const { connectedAccounts, connectAccount, disconnectAccount, refreshDashboard } = useDashboardData();
+  const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge, connectWallbox } = useEnergyOAuth();
   
   const [socialExpanded, setSocialExpanded] = useState(false);
+  const [solarEdgeDialogOpen, setSolarEdgeDialogOpen] = useState(false);
+  const [wallboxDialogOpen, setWallboxDialogOpen] = useState(false);
+  const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
+  const [isConnecting, setIsConnecting] = useState<string | null>(null);
 
   const handleRefresh = useCallback(async () => {
     await refetch();
@@ -99,8 +108,61 @@ export default function Profile() {
     toast.success('Wallet disconnected');
   };
 
-  const handleConnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => {
-    connectAccount(service);
+  const handleConnectEnergy = async (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => {
+    setIsConnecting(service);
+    try {
+      switch (service) {
+        case 'tesla':
+          await startTeslaOAuth();
+          break;
+        case 'enphase':
+          const result = await startEnphaseOAuth();
+          if (result?.useManualCode) {
+            setEnphaseDialogOpen(true);
+          }
+          break;
+        case 'solaredge':
+          setSolarEdgeDialogOpen(true);
+          break;
+        case 'wallbox':
+          setWallboxDialogOpen(true);
+          break;
+      }
+    } finally {
+      setIsConnecting(null);
+    }
+  };
+
+  const handleEnphaseCodeSubmit = async (code: string) => {
+    const success = await exchangeEnphaseCode(code);
+    if (success) {
+      setEnphaseDialogOpen(false);
+      connectAccount('enphase');
+      await refetch();
+      refreshDashboard();
+    }
+  };
+
+  const handleSolarEdgeConnect = async (apiKey: string, siteId: string) => {
+    const success = await connectSolarEdge(apiKey, siteId);
+    if (success) {
+      setSolarEdgeDialogOpen(false);
+      connectAccount('solaredge');
+      await refetch();
+      refreshDashboard();
+    }
+    return success;
+  };
+
+  const handleWallboxConnect = async (email: string, password: string) => {
+    const success = await connectWallbox(email, password);
+    if (success) {
+      setWallboxDialogOpen(false);
+      connectAccount('wallbox');
+      await refetch();
+      refreshDashboard();
+    }
+    return success;
   };
 
   const handleDisconnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => {
@@ -430,6 +492,7 @@ export default function Profile() {
                   name="Tesla" 
                   service="tesla"
                   connected={profile?.tesla_connected} 
+                  isConnecting={isConnecting === 'tesla'}
                   icon={<Car className="h-5 w-5" />}
                   logo={teslaLogo}
                   description="EV, Powerwall, Solar"
@@ -443,6 +506,7 @@ export default function Profile() {
                   name="Enphase" 
                   service="enphase"
                   connected={profile?.enphase_connected} 
+                  isConnecting={isConnecting === 'enphase'}
                   icon={<Sun className="h-5 w-5" />}
                   logo={enphaseLogo}
                   description="Solar microinverters"
@@ -456,6 +520,7 @@ export default function Profile() {
                   name="SolarEdge" 
                   service="solaredge"
                   connected={profile?.solaredge_connected} 
+                  isConnecting={isConnecting === 'solaredge'}
                   icon={<Sun className="h-5 w-5" />}
                   logo={solaredgeLogo}
                   description="Solar inverters"
@@ -469,6 +534,7 @@ export default function Profile() {
                   name="Wallbox" 
                   service="wallbox"
                   connected={(profile as any)?.wallbox_connected} 
+                  isConnecting={isConnecting === 'wallbox'}
                   icon={<Battery className="h-5 w-5" />}
                   logo={wallboxLogo}
                   description="EV charging"
@@ -540,6 +606,28 @@ export default function Profile() {
           </Card>
         </motion.div>
       </div>
+      
+      {/* Connection Dialogs */}
+      <SolarEdgeConnectDialog
+        open={solarEdgeDialogOpen}
+        onOpenChange={setSolarEdgeDialogOpen}
+        onSubmit={handleSolarEdgeConnect}
+      />
+      
+      <WallboxConnectDialog
+        open={wallboxDialogOpen}
+        onOpenChange={setWallboxDialogOpen}
+        onSubmit={handleWallboxConnect}
+      />
+      
+      <EnphaseCodeDialog
+        open={enphaseDialogOpen}
+        onOpenChange={setEnphaseDialogOpen}
+        onSubmit={async (code) => {
+          await handleEnphaseCodeSubmit(code);
+          return true;
+        }}
+      />
     </PullToRefreshWrapper>
   );
 }
@@ -548,6 +636,7 @@ function EnergyProviderCard({
   name, 
   service,
   connected, 
+  isConnecting,
   icon, 
   logo,
   description, 
@@ -560,6 +649,7 @@ function EnergyProviderCard({
   name: string; 
   service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
   connected?: boolean | null; 
+  isConnecting?: boolean;
   icon: React.ReactNode;
   logo: string;
   description: string;
@@ -600,10 +690,17 @@ function EnergyProviderCard({
             variant="outline"
             size="sm"
             onClick={() => onConnect(service)}
+            disabled={isConnecting}
             className="shrink-0"
           >
-            <Link2 className="h-4 w-4 mr-1" />
-            Connect
+            {isConnecting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Link2 className="h-4 w-4 mr-1" />
+                Connect
+              </>
+            )}
           </Button>
         )}
       </div>
