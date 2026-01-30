@@ -69,7 +69,8 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange 
           <CardContent className="relative p-3">
             <button
               onClick={() => setIsCollapsed(false)}
-              className="w-full flex items-center justify-between gap-3 group"
+              onTouchEnd={(e) => { e.preventDefault(); setIsCollapsed(false); }}
+              className="w-full flex items-center justify-between gap-3 group touch-manipulation"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="p-1.5 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex-shrink-0">
@@ -135,7 +136,8 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange 
               </motion.div>
               <button
                 onClick={() => setIsCollapsed(true)}
-                className="p-1.5 rounded-md hover:bg-muted/50 transition-colors"
+                onTouchEnd={(e) => { e.preventDefault(); setIsCollapsed(true); }}
+                className="p-1.5 rounded-md hover:bg-muted/50 transition-colors touch-manipulation"
               >
                 <ChevronUp className="h-4 w-4 text-muted-foreground" />
               </button>
