@@ -100,7 +100,13 @@ export function ActivityMetrics({
   const hasSolarConnected = connectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
   const hasBatteryConnected = connectedProviders.includes('tesla') && batteryDevices.length > 0;
   const hasEvConnected = connectedProviders.includes('tesla') && evDevices.length > 0;
-  const hasChargingConnected = (connectedProviders.includes('tesla') || connectedProviders.includes('wallbox')) && chargerDevices.length > 0;
+  // Charging data can come from:
+  // - Tesla vehicles (supercharging + home charging)
+  // - Tesla / Wallbox charger devices (wall connector / EVSE)
+  // We treat any connected source as "locked" (cannot be hidden).
+  const hasTeslaChargingSource = connectedProviders.includes('tesla') && (evDevices.length > 0 || chargerDevices.length > 0);
+  const hasWallboxChargingSource = connectedProviders.includes('wallbox') && chargerDevices.length > 0;
+  const hasChargingConnected = hasTeslaChargingSource || hasWallboxChargingSource;
 
   // "Current Activity" is what is mintable
   const current: CurrentActivity = currentActivity ?? {
