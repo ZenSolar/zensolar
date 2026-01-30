@@ -694,23 +694,28 @@ export function useDashboardData() {
           
           // Only add if there's actual solar data
           if (lifetimeWh > 0) {
-            // For Tesla devices, aggregate all solar into one entry (same site assumption)
+            // For Tesla devices: SKIP if a dedicated solar provider (Enphase/SolarEdge) is connected
+            // This prevents duplicate solar entries when user has e.g. Enphase for monitoring + Tesla Powerwall
+            // Tesla can also read solar production, but we want to use the dedicated provider as source of truth
             if (device.provider === 'tesla') {
-              const existingTeslaSolar = solarDevices.find(d => d.provider === 'tesla');
-              if (existingTeslaSolar) {
-                // Aggregate into existing Tesla solar entry
-                existingTeslaSolar.lifetimeKwh += lifetimeWh / 1000;
-                existingTeslaSolar.pendingKwh += pendingWh / 1000;
-              } else {
-                // First Tesla solar device - create entry
-                solarDevices.push({
-                  deviceId: device.device_id,
-                  deviceName,
-                  provider: 'tesla',
-                  lifetimeKwh: lifetimeWh / 1000,
-                  pendingKwh: pendingWh / 1000,
-                });
+              if (!hasDedicatedSolarProvider) {
+                const existingTeslaSolar = solarDevices.find(d => d.provider === 'tesla');
+                if (existingTeslaSolar) {
+                  // Aggregate into existing Tesla solar entry
+                  existingTeslaSolar.lifetimeKwh += lifetimeWh / 1000;
+                  existingTeslaSolar.pendingKwh += pendingWh / 1000;
+                } else {
+                  // First Tesla solar device - create entry
+                  solarDevices.push({
+                    deviceId: device.device_id,
+                    deviceName,
+                    provider: 'tesla',
+                    lifetimeKwh: lifetimeWh / 1000,
+                    pendingKwh: pendingWh / 1000,
+                  });
+                }
               }
+              // else: skip Tesla solar entirely - use Enphase/SolarEdge instead
             } else {
               // Non-Tesla providers (Enphase, SolarEdge) - keep as separate systems
               solarDevices.push({
