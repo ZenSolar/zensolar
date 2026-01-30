@@ -19,6 +19,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { NFTMintFlow } from './NFTMintFlow';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
+import { promptAddZsolarToken } from '@/lib/walletAssets';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
@@ -259,6 +260,12 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
         toast.success(`Successfully minted ${tokenIds.length} NFTs!`, {
           description: 'Your milestone NFTs are now on-chain in your wallet.',
         });
+        
+        // Force wallet to refresh ZSOLAR token balance after mint
+        promptAddZsolarToken(true).catch(() => {
+          // Silently fail - wallet will show updated balance on next sync
+        });
+        
         await checkOnChainStatus();
         onMintSuccess?.();
       } catch (err) {
