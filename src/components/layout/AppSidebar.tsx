@@ -104,6 +104,7 @@ const adminMenuGroups = {
   technical: [
     { title: "Beta Deployment", url: "/admin/beta-deployment", icon: Rocket, highlight: true },
     { title: "Wallet Providers", url: "/admin/wallet-providers", icon: Wallet, highlight: true },
+    { title: "Embedded Wallet Demo", url: "/admin/embedded-wallet-demo", icon: Wallet, highlight: true },
     { title: "Security Architecture", url: "/admin/security", icon: Shield },
     { title: "Smart Contracts", url: "/admin/contracts", icon: FileCode },
     { title: "EV API Reference", url: "/admin/ev-api-reference", icon: Car },
