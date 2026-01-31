@@ -41,16 +41,16 @@ const layers = [
   },
 ];
 
-export function SEGIFlowDiagram() {
+export function MintOnProofFlowDiagram() {
   return (
     <Card className="bg-gradient-to-br from-primary/5 via-background to-cyan-500/5 border-primary/20 overflow-hidden">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <CardTitle className="flex items-center gap-3 text-xl">
+            <CardTitle className="flex items-center gap-3 text-xl">
             <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-cyan-500">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            Patent-Pending SEGI Technology
+            The Mint-on-Proof™ Architecture
           </CardTitle>
           <Badge variant="outline" className="border-cyan-500/40 text-cyan-600 dark:text-cyan-400 text-xs">
             Software-Enabled Gateway Interface
@@ -142,7 +142,7 @@ export function SEGIFlowDiagram() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">Mint $ZSOLAR + NFTs right from the app! 🚀</p>
-              <p className="text-sm text-muted-foreground">Tap a button, and SEGI sends tokens & achievement NFTs directly to your connected wallet.</p>
+              <p className="text-sm text-muted-foreground">Tap a button, and Mint-on-Proof sends tokens & achievement NFTs directly to your connected wallet.</p>
             </div>
           </div>
         </motion.div>

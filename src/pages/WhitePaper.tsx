@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from "react";
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
+import { MintOnProofFlowDiagram } from '@/components/whitepaper/MintOnProofFlowDiagram';
 import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofComparison';
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
@@ -397,7 +397,7 @@ export default function WhitePaper() {
         </Card>
         
         {/* SEGI Flow Diagram */}
-        <SEGIFlowDiagram />
+        <MintOnProofFlowDiagram />
 
         {/* Mint-on-Proof Comparison */}
         <MintOnProofComparison autoPlay={true} showControls={false} />
