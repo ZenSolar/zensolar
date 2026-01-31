@@ -395,13 +395,13 @@ export default function AdminWalletProviders() {
           </p>
         </div>
 
-        <Tabs defaultValue="providers" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="user-experience">User Experience</TabsTrigger>
-            <TabsTrigger value="providers">Wallet Providers</TabsTrigger>
-            <TabsTrigger value="comparison">Feature Matrix</TabsTrigger>
-            <TabsTrigger value="offramps">Cash Out Options</TabsTrigger>
-            <TabsTrigger value="build-vs-buy">Build vs Buy</TabsTrigger>
+        <Tabs defaultValue="user-experience" className="space-y-4">
+          <TabsList className="flex w-full overflow-x-auto gap-1 h-auto p-1">
+            <TabsTrigger value="user-experience" className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3">UX Flow</TabsTrigger>
+            <TabsTrigger value="providers" className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3">Providers</TabsTrigger>
+            <TabsTrigger value="comparison" className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3">Features</TabsTrigger>
+            <TabsTrigger value="offramps" className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3">Cash Out</TabsTrigger>
+            <TabsTrigger value="build-vs-buy" className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3">Build vs Buy</TabsTrigger>
           </TabsList>
 
           {/* User Experience Flow Tab */}
@@ -646,20 +646,20 @@ export default function AdminWalletProviders() {
               </Card>
 
               {/* Step 5: Cash Out */}
-              <Card>
+              <Card className="border-green-500/30">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-eco flex items-center justify-center text-white font-bold">5</div>
                     <div>
                       <CardTitle className="text-lg">Cash Out to Bank (Future)</CardTitle>
-                      <CardDescription>Convert $ZSOLAR to USD and withdraw to bank account</CardDescription>
+                      <CardDescription>Convert $ZSOLAR to USD and withdraw to bank account — <span className="text-green-500 font-medium">100% in-app</span></CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <h4 className="font-medium text-sm text-muted-foreground">What the user would see:</h4>
+                      <h4 className="font-medium text-sm text-muted-foreground">What the user sees (never leaves ZenSolar app):</h4>
                       <div className="p-4 rounded-lg border bg-card">
                         <div className="space-y-4">
                           <div className="text-center">
@@ -682,20 +682,20 @@ export default function AdminWalletProviders() {
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <h4 className="font-medium text-sm text-muted-foreground">How it works:</h4>
+                      <h4 className="font-medium text-sm text-muted-foreground">Behind the scenes (invisible to user):</h4>
                       <div className="space-y-2 text-sm">
                         <div className="p-3 rounded-lg border flex items-start gap-2">
                           <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">1</div>
                           <div>
                             <div className="font-medium">ZSOLAR → ETH</div>
-                            <div className="text-muted-foreground">Automatic swap via Uniswap</div>
+                            <div className="text-muted-foreground">Automatic swap via Uniswap (embedded)</div>
                           </div>
                         </div>
                         <div className="p-3 rounded-lg border flex items-start gap-2">
                           <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">2</div>
                           <div>
                             <div className="font-medium">ETH → USD</div>
-                            <div className="text-muted-foreground">Off-ramp via MoonPay/Transak</div>
+                            <div className="text-muted-foreground">Off-ramp via MoonPay widget (embedded in ZenSolar)</div>
                           </div>
                         </div>
                         <div className="p-3 rounded-lg border flex items-start gap-2">
@@ -706,6 +706,22 @@ export default function AdminWalletProviders() {
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Critical clarification */}
+                      <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-sm space-y-2">
+                        <div className="flex items-center gap-2 font-medium text-green-600 dark:text-green-400">
+                          <Check className="h-4 w-4" />
+                          User NEVER leaves ZenSolar
+                        </div>
+                        <ul className="text-muted-foreground ml-6 space-y-1">
+                          <li>• MoonPay/Transak provide embedded widget SDKs</li>
+                          <li>• Widget appears as modal inside our app</li>
+                          <li>• Bank linking happens within the widget</li>
+                          <li>• One-time KYC (like Venmo/Cash App)</li>
+                          <li>• All branded with ZenSolar UI</li>
+                        </ul>
+                      </div>
+                      
                       <Badge variant="outline" className="mt-2">Requires Uniswap LP (post-launch)</Badge>
                     </div>
                   </div>
