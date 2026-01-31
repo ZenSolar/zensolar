@@ -19,7 +19,16 @@ import {
   ArrowRightLeft,
   CreditCard,
   Clock,
-  Wrench
+  Wrench,
+  Mail,
+  Smartphone,
+  Sun,
+  Gift,
+  Image,
+  ArrowRight,
+  Sparkles,
+  ChevronRight,
+  Download
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
@@ -387,12 +396,429 @@ export default function AdminWalletProviders() {
         </div>
 
         <Tabs defaultValue="providers" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="user-experience">User Experience</TabsTrigger>
             <TabsTrigger value="providers">Wallet Providers</TabsTrigger>
             <TabsTrigger value="comparison">Feature Matrix</TabsTrigger>
             <TabsTrigger value="offramps">Cash Out Options</TabsTrigger>
             <TabsTrigger value="build-vs-buy">Build vs Buy</TabsTrigger>
           </TabsList>
+
+          {/* User Experience Flow Tab */}
+          <TabsContent value="user-experience" className="space-y-6">
+            {/* Hero */}
+            <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Customer Experience with Embedded Wallet
+                </CardTitle>
+                <CardDescription>
+                  How a typical user would experience ZenSolar with Coinbase Smart Wallet or Privy integration
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* User Journey Steps */}
+            <div className="space-y-4">
+              {/* Step 1: Signup */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">1</div>
+                    <div>
+                      <CardTitle className="text-lg">Sign Up (No Wallet Needed)</CardTitle>
+                      <CardDescription>User creates account with familiar methods</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* What user sees */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">What the user sees:</h4>
+                      <div className="p-4 rounded-lg border bg-card">
+                        <div className="text-center space-y-4">
+                          <div className="text-2xl font-bold">Welcome to ZenSolar ☀️</div>
+                          <p className="text-sm text-muted-foreground">Start earning rewards for your solar energy</p>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-center gap-2 p-3 rounded-lg border bg-background hover:bg-muted/50 cursor-pointer">
+                              <Mail className="h-5 w-5 text-primary" />
+                              <span>Continue with Email</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2 p-3 rounded-lg border bg-background hover:bg-muted/50 cursor-pointer">
+                              <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                              <span>Continue with Google</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2 p-3 rounded-lg border bg-background hover:bg-muted/50 cursor-pointer">
+                              <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                              <span>Continue with Apple</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* What happens behind the scenes */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">Behind the scenes:</h4>
+                      <div className="space-y-2">
+                        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">
+                          <div className="flex items-center gap-2 font-medium text-green-600 dark:text-green-400">
+                            <Check className="h-4 w-4" />
+                            Crypto wallet created automatically
+                          </div>
+                          <p className="text-muted-foreground mt-1 ml-6">No seed phrase, no MetaMask, no extension</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">
+                          <div className="flex items-center gap-2 font-medium text-green-600 dark:text-green-400">
+                            <Check className="h-4 w-4" />
+                            Wallet secured by passkey/biometrics
+                          </div>
+                          <p className="text-muted-foreground mt-1 ml-6">Face ID, Touch ID, or device PIN</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">
+                          <div className="flex items-center gap-2 font-medium text-green-600 dark:text-green-400">
+                            <Check className="h-4 w-4" />
+                            User owns their wallet (non-custodial)
+                          </div>
+                          <p className="text-muted-foreground mt-1 ml-6">We never have access to their funds</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Step 2: Connect Solar */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-solar flex items-center justify-center text-white font-bold">2</div>
+                    <div>
+                      <CardTitle className="text-lg">Connect Solar System</CardTitle>
+                      <CardDescription>User links their Enphase, Tesla, or SolarEdge account</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">What the user sees:</h4>
+                      <div className="p-4 rounded-lg border bg-card">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 p-3 rounded-lg border bg-background">
+                            <Sun className="h-6 w-6 text-solar" />
+                            <div className="flex-1">
+                              <div className="font-medium">Enphase</div>
+                              <div className="text-xs text-muted-foreground">Connect your system</div>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div className="flex items-center gap-3 p-3 rounded-lg border bg-background">
+                            <Sun className="h-6 w-6 text-solar" />
+                            <div className="flex-1">
+                              <div className="font-medium">Tesla Solar</div>
+                              <div className="text-xs text-muted-foreground">Connect your system</div>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">User experience:</h4>
+                      <div className="p-4 rounded-lg bg-muted/50 text-sm space-y-2">
+                        <p>• OAuth login to their solar provider</p>
+                        <p>• We pull production data automatically</p>
+                        <p>• No manual data entry ever needed</p>
+                        <p>• Works exactly like connecting Spotify to other apps</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Step 3: Earn Rewards */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-token flex items-center justify-center text-white font-bold">3</div>
+                    <div>
+                      <CardTitle className="text-lg">Earn $ZSOLAR Automatically</CardTitle>
+                      <CardDescription>Tokens minted to their wallet as they produce solar energy</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">What the user sees:</h4>
+                      <div className="p-4 rounded-lg border bg-card">
+                        <div className="space-y-4">
+                          <div className="text-center">
+                            <div className="text-3xl font-bold text-token">2,450 ZSOLAR</div>
+                            <div className="text-sm text-muted-foreground">Your balance</div>
+                          </div>
+                          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-3">
+                            <Gift className="h-5 w-5 text-green-500" />
+                            <div>
+                              <div className="text-sm font-medium">+125 ZSOLAR earned today!</div>
+                              <div className="text-xs text-muted-foreground">From 15.2 kWh solar production</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">Behind the scenes:</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                          <div className="flex items-center gap-2 font-medium">
+                            <Zap className="h-4 w-4 text-primary" />
+                            Gasless transactions
+                          </div>
+                          <p className="text-muted-foreground mt-1">We sponsor all gas fees—user pays $0</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                          <div className="flex items-center gap-2 font-medium">
+                            <Shield className="h-4 w-4 text-primary" />
+                            Real blockchain tokens
+                          </div>
+                          <p className="text-muted-foreground mt-1">Tokens are on Base—user truly owns them</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Step 4: Collect NFTs */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-energy flex items-center justify-center text-white font-bold">4</div>
+                    <div>
+                      <CardTitle className="text-lg">Collect Milestone NFTs</CardTitle>
+                      <CardDescription>Unlock achievement NFTs as they reach energy milestones</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">What the user sees:</h4>
+                      <div className="p-4 rounded-lg border bg-card">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="h-16 w-16 rounded-lg bg-gradient-to-br from-solar to-energy flex items-center justify-center">
+                              <Image className="h-8 w-8 text-white" />
+                            </div>
+                            <div>
+                              <div className="font-bold">SunSpark ☀️</div>
+                              <div className="text-sm text-muted-foreground">100 kWh milestone</div>
+                              <Badge className="mt-1 bg-green-500/10 text-green-500 text-xs">Claimed!</Badge>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 opacity-60">
+                            <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                              <Image className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <div className="font-bold">Photonic 🌟</div>
+                              <div className="text-sm text-muted-foreground">500 kWh milestone</div>
+                              <div className="text-xs text-muted-foreground mt-1">350/500 kWh progress</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">User experience:</h4>
+                      <div className="p-4 rounded-lg bg-muted/50 text-sm space-y-2">
+                        <p>• One-tap claim when milestone unlocked</p>
+                        <p>• NFT appears in their collection instantly</p>
+                        <p>• No gas fees, no wallet popups</p>
+                        <p>• Can view NFTs in any wallet (OpenSea, etc.)</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Step 5: Cash Out */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-eco flex items-center justify-center text-white font-bold">5</div>
+                    <div>
+                      <CardTitle className="text-lg">Cash Out to Bank (Future)</CardTitle>
+                      <CardDescription>Convert $ZSOLAR to USD and withdraw to bank account</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">What the user would see:</h4>
+                      <div className="p-4 rounded-lg border bg-card">
+                        <div className="space-y-4">
+                          <div className="text-center">
+                            <div className="text-lg font-bold">Cash Out</div>
+                            <div className="text-sm text-muted-foreground">Convert ZSOLAR to USD</div>
+                          </div>
+                          <div className="p-3 rounded-lg border bg-background">
+                            <div className="text-sm text-muted-foreground mb-1">You're converting</div>
+                            <div className="text-xl font-bold">1,000 ZSOLAR</div>
+                          </div>
+                          <ArrowRight className="h-5 w-5 mx-auto text-muted-foreground" />
+                          <div className="p-3 rounded-lg border bg-background">
+                            <div className="text-sm text-muted-foreground mb-1">You'll receive</div>
+                            <div className="text-xl font-bold text-eco">~$24.50 USD</div>
+                          </div>
+                          <div className="p-2 rounded bg-muted text-xs text-center text-muted-foreground">
+                            Deposited to Chase Bank ****1234 in 1-2 business days
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-muted-foreground">How it works:</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="p-3 rounded-lg border flex items-start gap-2">
+                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">1</div>
+                          <div>
+                            <div className="font-medium">ZSOLAR → ETH</div>
+                            <div className="text-muted-foreground">Automatic swap via Uniswap</div>
+                          </div>
+                        </div>
+                        <div className="p-3 rounded-lg border flex items-start gap-2">
+                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">2</div>
+                          <div>
+                            <div className="font-medium">ETH → USD</div>
+                            <div className="text-muted-foreground">Off-ramp via MoonPay/Transak</div>
+                          </div>
+                        </div>
+                        <div className="p-3 rounded-lg border flex items-start gap-2">
+                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">3</div>
+                          <div>
+                            <div className="font-medium">USD → Bank</div>
+                            <div className="text-muted-foreground">ACH/wire to linked bank account</div>
+                          </div>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="mt-2">Requires Uniswap LP (post-launch)</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Comparison: Today vs Embedded */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Today's Experience vs. Embedded Wallet</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Current */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium flex items-center gap-2 text-red-500">
+                      <X className="h-4 w-4" />
+                      Current: External Wallets
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-muted-foreground">
+                        1. Download MetaMask extension/app
+                      </div>
+                      <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-muted-foreground">
+                        2. Write down 12-word seed phrase
+                      </div>
+                      <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-muted-foreground">
+                        3. Understand what "networks" are
+                      </div>
+                      <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-muted-foreground">
+                        4. Add Base Sepolia network manually
+                      </div>
+                      <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-muted-foreground">
+                        5. Approve every transaction in popup
+                      </div>
+                      <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-muted-foreground">
+                        6. Need ETH for gas fees
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm">
+                      <span className="font-medium text-red-500">Result:</span> 90%+ of non-crypto users abandon
+                    </div>
+                  </div>
+
+                  {/* Embedded */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium flex items-center gap-2 text-green-500">
+                      <Check className="h-4 w-4" />
+                      Embedded Wallet Experience
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="p-2 rounded bg-green-500/10 border border-green-500/20 text-muted-foreground">
+                        1. Sign up with email or Google ✨
+                      </div>
+                      <div className="p-2 rounded bg-green-500/10 border border-green-500/20 text-muted-foreground">
+                        2. Connect solar system
+                      </div>
+                      <div className="p-2 rounded bg-green-500/10 border border-green-500/20 text-muted-foreground">
+                        3. Start earning automatically
+                      </div>
+                      <div className="p-2 rounded bg-green-500/10 border border-green-500/20 text-muted-foreground opacity-30">
+                        (no more steps)
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">
+                      <span className="font-medium text-green-500">Result:</span> Same onboarding as Spotify or Venmo
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recommendation */}
+            <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-primary" />
+                  Recommended Implementation
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg border bg-card">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔵</span>
+                      <h4 className="font-medium">Phase 1: Coinbase Smart Wallet</h4>
+                    </div>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• Free forever (no monthly costs)</li>
+                      <li>• Native Base chain support</li>
+                      <li>• Gasless transactions built-in</li>
+                      <li>• Add alongside existing MetaMask option</li>
+                    </ul>
+                    <Badge className="mt-3 bg-green-500/10 text-green-500">Start Here</Badge>
+                  </div>
+                  <div className="p-4 rounded-lg border bg-card">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔐</span>
+                      <h4 className="font-medium">Phase 2: Privy (Scale)</h4>
+                    </div>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• Add when approaching 500+ MAU</li>
+                      <li>• Email-only login option</li>
+                      <li>• Full customization & branding</li>
+                      <li>• Enterprise features as needed</li>
+                    </ul>
+                    <Badge variant="outline" className="mt-3">Growth Phase</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Wallet Providers Tab */}
           <TabsContent value="providers" className="space-y-4">
