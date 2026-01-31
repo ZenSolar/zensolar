@@ -271,7 +271,9 @@ export default function AdminYCApplication() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <p>I chose this idea because the clean energy transition is stalling: the "One Big Beautiful Bill" (signed 2025) phases out the 30% solar ITC and $7,500 EV credits by end of 2026. Millions of households already own solar panels, EVs, and batteries but lack ongoing motivation to maximize their use—tax credits are one-time acquisition incentives, not retention incentives. ZenSolar is the retention layer.</p>
+            <p>The United States is falling behind in the global clean energy race. China dominates solar manufacturing, Europe leads in per-capita EV adoption, and American clean energy growth has stalled at the moment we need it most. We must offset as much carbon as possible—every kilowatt-hour of clean energy produced, every EV mile driven, every battery cycle stored matters. ZenSolar is the answer to accelerate adoption by transforming passive clean energy owners into actively engaged participants.</p>
+            <p>This vision is only possible now due to blockchain technology, smart contracts, and a founding mission rooted in integrity. We can cryptographically verify real-world energy production, mint rewards transparently, and create an economic flywheel that makes clean energy use financially rewarding—all without intermediaries or trust assumptions.</p>
+            <p>The timing is critical: the "One Big Beautiful Bill" (signed 2025) phases out the 30% solar ITC and $7,500 EV credits by end of 2026. Millions of households already own solar panels, EVs, and batteries but lack ongoing motivation to maximize their use—tax credits are one-time acquisition incentives, not retention incentives. ZenSolar is the retention layer.</p>
             <p>I have 14 years in cleantech—starting at SolarCity pre-IPO (Elon Musk, Chairman) where I worked closely with founders Lyndon and Peter Rive and CRO Toby Corey. I started ZenSolar in 2018 as a solar sales company but pivoted to this product after seeing the crypto-rewards opportunity. I also own a home solar + battery system and Tesla EV, so I personally experience the API silos and engagement drop-off this platform solves.</p>
             <p>I know people need this because: (1) our 19 beta users check the app daily to see "pending rewards"—something they never did with manufacturer apps, and (2) EVearn on VeChain has attracted users despite being EV-only and requiring external wallets.</p>
           </CardContent>
@@ -297,15 +299,99 @@ export default function AdminYCApplication() {
               <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p><strong>Business model:</strong></p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>$9.99/month (weekly auto-minting) — casual users</li>
+          <CardContent className="text-sm space-y-4">
+            <ul className="list-disc list-inside space-y-1">
+              <li>$9.99/month (monthly auto-minting) — casual users</li>
               <li>$19.99/month (daily auto-minting) — power users</li>
-              <li>$99-$499/month (commercial tier) — solar installers and EV fleet managers</li>
+              <li>$99-$499/month (commercial tier) — commercial solar users and EV fleet managers</li>
               <li>3.5% transaction fee on all token activity (1.5% burn, 2% treasury)</li>
             </ul>
-            <p className="mt-2">Projected 85-90% gross margin on subscriptions (SaaS-like economics). In-app store margins: Tesla gift cards (~5-10%), branded merch (~40-60%), hardware (~15-25%).</p>
+            
+            <div>
+              <p className="font-medium mb-1">The Flywheel Effect:</p>
+              <p>50% of subscription revenue is automatically injected into our liquidity pool, creating a self-reinforcing cycle: more subscribers → larger LP → higher token floor price → more valuable rewards → more subscribers. At 25,000 subscribers (our "Tipping Point"), monthly LP injections match our initial seed capital—the protocol becomes self-sustaining.</p>
+            </div>
+
+            <div>
+              <p className="font-medium mb-2">Revenue at scale:</p>
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-1">Users</th>
+                    <th className="text-left py-1">Consumer</th>
+                    <th className="text-left py-1">Commercial</th>
+                    <th className="text-left py-1">ARR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-muted">
+                    <td className="py-1">10,000</td>
+                    <td className="py-1">9,500 × $12</td>
+                    <td className="py-1">500 × $150</td>
+                    <td className="py-1 font-medium">$2.3M</td>
+                  </tr>
+                  <tr className="border-b border-muted">
+                    <td className="py-1">100,000</td>
+                    <td className="py-1">90,000 × $15</td>
+                    <td className="py-1">10,000 × $250</td>
+                    <td className="py-1 font-medium">$48M</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">1,000,000</td>
+                    <td className="py-1">900,000 × $16</td>
+                    <td className="py-1">100,000 × $350</td>
+                    <td className="py-1 font-medium">$593M</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div>
+              <p className="font-medium mb-2">Moonshot Scenarios — Multi-Year Customer Wealth Creation (1,000 tokens/month):</p>
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-1">Timeframe</th>
+                    <th className="text-left py-1">Tokens</th>
+                    <th className="text-left py-1">Value at $1</th>
+                    <th className="text-left py-1">Value at $5</th>
+                    <th className="text-left py-1">Value at $10</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-muted">
+                    <td className="py-1">Year 1</td>
+                    <td className="py-1">12,000</td>
+                    <td className="py-1">$12,000</td>
+                    <td className="py-1">$60,000</td>
+                    <td className="py-1">$120,000</td>
+                  </tr>
+                  <tr className="border-b border-muted">
+                    <td className="py-1">Year 5</td>
+                    <td className="py-1">60,000</td>
+                    <td className="py-1">$60,000</td>
+                    <td className="py-1">$300,000</td>
+                    <td className="py-1">$600,000</td>
+                  </tr>
+                  <tr className="border-b border-muted">
+                    <td className="py-1">Year 10</td>
+                    <td className="py-1">120,000</td>
+                    <td className="py-1">$120,000</td>
+                    <td className="py-1">$600,000</td>
+                    <td className="py-1">$1,200,000</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">Year 20</td>
+                    <td className="py-1">240,000</td>
+                    <td className="py-1">$240,000</td>
+                    <td className="py-1">$1,200,000</td>
+                    <td className="py-1">$2,400,000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Tesla Partnership Vision:</strong> $ZSOLAR accepted for Supercharging and Tesla Store purchases—a closed-loop economy for Tesla users.</p>
           </CardContent>
         </Card>
 
