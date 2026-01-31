@@ -10,7 +10,7 @@ import {
   ChevronRight, Sparkles, Globe, ArrowRight, Hexagon
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { SEGIFlowDiagram } from '@/components/whitepaper/SEGIFlowDiagram';
+import { MintOnProofFlowDiagram } from '@/components/whitepaper/MintOnProofFlowDiagram';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { SEO } from '@/components/SEO';
 
@@ -304,7 +304,7 @@ export default function Landing() {
             <div className="pt-4 space-y-3">
               <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
                 <Sparkles className="h-3.5 w-3.5 mr-2" />
-                Patent-Pending SEGI Technology
+                Patent-Pending Mint-on-Proof™
               </Badge>
               <h3 className="text-2xl md:text-3xl font-bold">
                 How In-App Minting Works
@@ -322,7 +322,7 @@ export default function Landing() {
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <SEGIFlowDiagram />
+            <MintOnProofFlowDiagram />
           </motion.div>
         </div>
       </section>

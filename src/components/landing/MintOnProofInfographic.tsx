@@ -38,12 +38,12 @@ const steps = [
   },
 ];
 
-interface SEGIMintingInfographicProps {
+interface MintOnProofInfographicProps {
   showCTA?: boolean;
   compact?: boolean;
 }
 
-export function SEGIMintingInfographic({ showCTA = true, compact = false }: SEGIMintingInfographicProps) {
+export function MintOnProofInfographic({ showCTA = true, compact = false }: MintOnProofInfographicProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -55,7 +55,7 @@ export function SEGIMintingInfographic({ showCTA = true, compact = false }: SEGI
         >
           <Badge variant="outline" className="px-4 py-1.5 border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
             <Sparkles className="h-3.5 w-3.5 mr-2" />
-            Patent-Pending SEGI Technology
+            Patent-Pending Mint-on-Proof™
           </Badge>
           <h2 className="text-2xl md:text-3xl font-bold">
             How In-App Minting Works

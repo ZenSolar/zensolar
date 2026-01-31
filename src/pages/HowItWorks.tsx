@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorks as HowItWorksSteps } from '@/components/dashboard/HowItWorks';
-import { SEGIMintingInfographic } from '@/components/landing/SEGIMintingInfographic';
+import { MintOnProofInfographic } from '@/components/landing/MintOnProofInfographic';
 import { Coins, Image, Wallet, Shield, Sparkles, TrendingUp, Cpu, ArrowRight, Zap, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -52,7 +52,7 @@ export default function HowItWorks() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <SEGIMintingInfographic />
+        <MintOnProofInfographic />
       </motion.div>
 
       {/* Quick Steps Overview */}

@@ -138,7 +138,7 @@ export default function Technology() {
   return (
     <>
       <SEO 
-        title="SEGI Technology - Patent-Pending Clean Energy Verification"
+        title="Mint-on-Proof™ Technology - Patent-Pending Clean Energy Verification"
         url="https://zensolar.lovable.app/technology"
         image="https://zensolar.lovable.app/og-technology.png"
       />
@@ -154,10 +154,10 @@ export default function Technology() {
           Patent Pending Technology
         </Badge>
         <h1 className="text-3xl md:text-4xl font-bold">
-          Meet <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">SEGI</span>
+          Meet <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">Mint-on-Proof™</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          <strong>Software-Enabled Gateway Interface</strong>—the patent-pending <strong className="text-primary">Mint-on-Proof</strong> tech that turns your clean energy into blockchain rewards, no hardware required.
+          Powered by <strong>SEGI (Software-Enabled Gateway Interface)</strong>—the patent-pending tech that turns your clean energy into blockchain rewards, no hardware required.
         </p>
       </motion.div>
 
@@ -174,7 +174,7 @@ export default function Technology() {
                 <Cpu className="h-12 w-12 text-white" />
               </div>
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-center md:text-left">What is SEGI?</h2>
+                <h2 className="text-2xl font-bold text-center md:text-left">What is Mint-on-Proof™?</h2>
                 <p className="text-muted-foreground leading-relaxed text-center md:text-left">
                   Think of SEGI as a <strong className="text-foreground">universal translator</strong> that sits between your 
                   energy hardware and the blockchain. It's a software layer that:
@@ -215,7 +215,7 @@ export default function Technology() {
         className="space-y-6"
       >
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">How SEGI Works: The 4 Layers</h2>
+          <h2 className="text-2xl font-bold mb-2">How Mint-on-Proof Works: The 4 Layers</h2>
           <p className="text-muted-foreground">Under the hood, SEGI is a layered architecture—each piece doing its job perfectly.</p>
         </div>
         
