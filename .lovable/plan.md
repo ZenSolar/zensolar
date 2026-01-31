@@ -1,5 +1,44 @@
+# ZenSolar YC Application Reference (Summer 2025)
 
-# ZenSolar: 50-Character Description + Mint-on-Proof Rebrand + YC Application Update
+---
+
+## ✅ Complete Question Checklist
+
+| # | Section | Question | Status | Notes |
+|---|---------|----------|--------|-------|
+| 1 | Founders | Founder profiles | ✅ | Add via YC dashboard |
+| 2 | Founders | Who writes code? | ✅ | See Q4 below |
+| 3 | Founders | Founder video (1 min intro) | ⏳ | Record before submission |
+| 4 | Company | Company name | ✅ | ZenSolar |
+| 5 | Company | 50 chars or less | ✅ | See Q3 below |
+| 6 | Company | Company URL | ✅ | https://zensolar.lovable.app |
+| 7 | Company | Demo link | ✅ | See "Demo" section |
+| 8 | Company | Tech stack (≤300 chars) | ✅ | See Q5 below |
+| 9 | Company | Where to run long-term? | ✅ | See "Location" section |
+| 10 | Company | What will you make? (≤300 words) | ✅ | See Q2 below |
+| 11 | Company | 1-min unlisted YouTube video | ⏳ | Record before submission |
+| 12 | Progress | How far along? | ✅ | See Q1 below |
+| 13 | Progress | How long working on this? | ✅ | See "Timeline" section |
+| 14 | Progress | Monthly spend / runway | ✅ | See "Financials" section |
+| 15 | Progress | Other investors? | ✅ | See "Financials" section |
+| 16 | Progress | Founder full-time commitment? | ✅ | See "Commitment" section |
+| 17 | Progress | Do you have revenue? | ✅ | See "Financials" section |
+| 18 | Progress | Gross margin per transaction? | ✅ | See "Financials" section |
+| 19 | Progress | Rejected before? What's changed? | ✅ | See "History" section |
+| 20 | Idea | Why did you pick this idea? | ✅ | See "Why This Idea" section |
+| 21 | Idea | Domain expertise? | ✅ | In "Why This Idea" section |
+| 22 | Idea | How do you know people need this? | ✅ | See "Validation" section |
+| 23 | Idea | What's new about it? | ✅ | See "Innovation" section |
+| 24 | Idea | What substitutes exist today? | ✅ | See "Competitors" section |
+| 25 | Idea | Who are competitors? | ✅ | See "Competitors" section |
+| 26 | Idea | How will you beat them? | ✅ | See "Competitors" section |
+| 27 | Equity | Shares outstanding | ✅ | See "Equity" section |
+| 28 | Equity | Equity to non-founders | ✅ | See "Equity" section |
+| 29 | Curious | Something surprising learned? | ✅ | See "Surprising Insight" section |
+
+**Legend:** ✅ = Answer ready | ⏳ = Needs video recording
+
+---
 
 ## Part 1: Best 50-Character Description Analysis
 
@@ -121,7 +160,38 @@ Files that import renamed components:
 
 ---
 
-### Question 1: How far along are you? (200-300 words)
+## Quick Reference Answers
+
+### Company Name
+**ZenSolar**
+
+### Company URL
+https://zensolar.lovable.app
+
+### Demo Link
+https://zensolar.lovable.app/demo (interactive demo mode with simulated data)
+
+### Location (Where to run long-term?)
+**San Francisco Bay Area, California** — Central to the cleantech ecosystem, Tesla HQ proximity, and crypto/Web3 talent pool.
+
+---
+
+## Founders Section
+
+### Q4: Who writes code? Who has been building?
+
+I'm a solo technical founder building with AI-assisted development. I write all code using Lovable (AI coding platform powered by Claude), with Grok (xAI) for strategy/tokenomics and Claude 3.5 Sonnet for code reviews.
+
+No non-founder has written code. The codebase includes 50+ React components, 20+ Supabase edge functions, and 3 Solidity smart contracts—all built in 9 months while learning blockchain development from scratch. This is my first software product, built entirely with AI tools.
+
+### Founder Video (1 min intro)
+⏳ **TO RECORD** — 60-second intro covering: who I am, 14 years in cleantech (SolarCity/Tesla ecosystem), what ZenSolar does, why now (tax credit phase-out), and what we're building.
+
+---
+
+## Progress Section
+
+### Q1: How far along are you? (200-300 words)
 
 Live beta with 11 users on Base Sepolia testnet. Fully functional integrations with Tesla Fleet API, Enphase Monitoring API, SolarEdge Monitoring API, and Wallbox API for real-time energy data. Smart contracts deployed: $ZSOLAR (ERC-20) and ZenSolarNFT (ERC-1155 with 42 milestone achievement tiers).
 
@@ -267,6 +337,56 @@ Users already redeem $ZSOLAR for Tesla gift cards, Anker/EcoFlow power stations,
 
 ---
 
+## Financials Section
+
+### How long have founders been working on this? (~150 words)
+
+I've been working on ZenSolar for **9 months** (since April 2024) in its current form as a crypto-rewards platform. However, ZenSolar as a company started in 2018 as a solar sales business. After the residential solar market contracted in 2022-2023, I pivoted to building this product—combining my cleantech domain expertise with the emerging crypto-rewards opportunity.
+
+The past 9 months have been intensive: learning blockchain development from scratch, building the entire product with AI tools (Lovable, Grok, Claude), deploying smart contracts, and onboarding 11 beta users. I've worked on this full-time, funding development through savings.
+
+### Monthly spend / Runway
+
+**Current burn:** $0/month — fully bootstrapped. No external capital raised.
+
+**Spend breakdown:**
+- Hosting/infrastructure: $0 (Lovable Cloud free tier, Base Sepolia testnet)
+- Development: $0 (AI tools, no contractors)
+- Marketing: $0 (organic beta signups only)
+
+**Runway:** Indefinite at current burn. Seeking $1-2M seed for 18-24 month runway to reach 25K subscriber "Tipping Point."
+
+### Other investors involved?
+
+**No.** ZenSolar is 100% bootstrapped. No angel investors, no pre-seed, no SAFEs issued.
+
+The old LLC (ZenSolar LLC, formed 2018) had ~15-20% allocated to advisors for the original solar sales business. That entity will be dissolved or restructured upon any institutional funding. The crypto-rewards product is clean—no prior obligations.
+
+### Which founder can commit full-time through Demo Day?
+
+**I can.** I'm the sole founder and have been working full-time on ZenSolar since pivoting to the crypto-rewards product in April 2024. No other employment or commitments.
+
+### Do you have revenue?
+
+**No revenue yet.** Currently in free beta phase on testnet. Monetization begins at mainnet launch with subscription tiers ($9.99-$19.99/month consumer, $99-$499/month commercial).
+
+### Gross margin per transaction?
+
+**Projected 85-90% gross margin** on subscriptions (SaaS-like economics—minimal marginal cost per user after infrastructure is built).
+
+For the in-app store (token redemptions):
+- Tesla gift cards: ~5-10% margin (wholesale discount)
+- Branded merch: ~40-60% margin (dropshipping)
+- Hardware (power banks, chargers): ~15-25% margin
+
+### Rejected before? What's changed?
+
+**First-time applicant.** This is our first YC application.
+
+---
+
+## Idea Section
+
 ### Why did you pick this idea? (Refined)
 
 I chose this idea because the clean energy transition is stalling: the "One Big Beautiful Bill" (signed 2025) phases out the 30% solar ITC and $7,500 EV credits by end of 2026. At the same time, millions of households already own solar panels, EVs, and batteries but lack ongoing motivation to maximize their use.
@@ -277,9 +397,41 @@ ZenSolar fills that gap. But even if tax credits stayed forever—they're one-ti
 
 I also own a home solar + battery system and Tesla EV, so I personally experience the API silos and engagement drop-off this platform solves.
 
+### How do you know people need this? (Validation)
+
+1. **Personal pain point:** I own solar + battery + Tesla EV. After installation, engagement drops to zero—no ongoing reason to check production or optimize usage. The dopamine hit disappears.
+
+2. **Beta user feedback (11 users):** Users report checking ZenSolar daily to see their "pending rewards"—something they never did with their manufacturer apps. The gamification layer (NFT milestones, token accumulation) creates stickiness.
+
+3. **Market signal:** EVearn on VeChain has attracted users despite being EV-only and requiring external wallets. We're solving for the full stack with embedded wallets.
+
+4. **Macro trend:** 4M+ US households have solar. 8M+ EVs on US roads. These owners already spent $20-100K on clean energy infrastructure—they're motivated to maximize ROI.
+
+### What's new about what you're making? (Innovation)
+
+1. **Mint-on-Proof™ (patent-pending):** First system that mints tokens on-demand from verified API data rather than distributing from pre-minted pools. This prevents inflation gaming and ensures 1:1 mapping between real-world activity and token issuance.
+
+2. **Multi-vertical integration:** Competitors focus on single verticals (EVearn = EV only). We capture solar + battery + EV + charging in one dashboard, creating compound engagement.
+
+3. **Embedded wallet (coming):** Email signup → auto-wallet → gasless minting → in-app cash-out. Users never need MetaMask, seed phrases, or gas tokens.
+
+4. **Flywheel tokenomics:** 50% of subscription revenue auto-injected into liquidity pool. This creates a self-reinforcing price floor that makes rewards more valuable over time.
+
+### What substitutes do people use today?
+
+1. **Manufacturer apps (Tesla, Enphase, SolarEdge):** Monitor-only—no rewards, no gamification, no cross-device integration.
+
+2. **Utility rebates / net metering:** One-time credits, not ongoing rewards. Many utilities are reducing net metering rates.
+
+3. **Federal tax credits (ITC, EV credits):** One-time acquisition incentives—being phased out by 2026.
+
+4. **Carbon offset programs:** Complex, opaque, and typically B2B-focused.
+
+5. **Nothing:** Most solar/EV owners simply don't have an ongoing engagement mechanism after purchase.
+
 ---
 
-### Competitors (Refined)
+## Competitors (Refined)
 
 **Direct competitor:** EVearn by VeBetterDAO on VeChain—rewards EV drivers with $B3TR tokens for charging sessions.
 
@@ -297,7 +449,35 @@ I also own a home solar + battery system and Tesla EV, so I personally experienc
 
 ---
 
-### Moonshot Scenarios
+## Equity Section
+
+### How many shares outstanding?
+
+**Structure pending.** Currently operating as ZenSolar LLC (formed 2018 for solar sales business). Will restructure to C-Corp (Delaware) upon institutional funding, with standard 10,000,000 authorized shares.
+
+The existing LLC will be dissolved—the crypto-rewards product is a clean-slate pivot with no prior equity obligations from the software product.
+
+### How much equity has been given to non-founders?
+
+**For the crypto-rewards product:** 0% — I own 100% of the product/IP.
+
+**For the old LLC:** ~15-20% was allocated to advisors for the original solar sales business. Those advisors understand the LLC is dormant and will be dissolved. No equity from the current product has been issued.
+
+---
+
+## Curious Section
+
+### Something surprising you've learned?
+
+**The biggest surprise:** Users engage MORE with testnet tokens than I expected.
+
+I assumed beta users would treat testnet $ZSOLAR as "fake money" with no engagement. Instead, they check the app daily, compete for NFT milestones, and ask when they can "actually sell" their tokens. The gamification layer (pending rewards counter, achievement NFTs, leaderboard potential) drives engagement even without real monetary value.
+
+**The insight:** The token VALUE matters less than the TOKEN ACCUMULATION EXPERIENCE. People want to see numbers go up. This suggests mainnet launch will amplify engagement, not create it—the behavioral loop is already working.
+
+---
+
+## Moonshot Scenarios
 
 **Multi-Year Customer Wealth Creation:**
 
