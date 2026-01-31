@@ -96,6 +96,7 @@ const adminMenuGroups = {
     { title: "Tokenomics Framework", url: "/admin/tokenomics-framework", icon: Coins },
   ],
   investor: [
+    { title: "YC Application", url: "/admin/yc-application", icon: Rocket, highlight: true },
     { title: "Investment Thesis", url: "/admin/investment-thesis", icon: Briefcase },
     { title: "Investor One-Pager", url: "/admin/investor-one-pager", icon: FileText },
     { title: "Fundraising", url: "/admin/fundraising", icon: DollarSign },
@@ -310,7 +311,7 @@ export function AppSidebar() {
                 </Collapsible>
 
                 {/* Investor Submenu */}
-                <Collapsible defaultOpen={location.pathname.includes('investor') || location.pathname.includes('fundraising') || location.pathname.includes('investment') || location.pathname.includes('growth')}>
+                <Collapsible defaultOpen={location.pathname.includes('investor') || location.pathname.includes('fundraising') || location.pathname.includes('investment') || location.pathname.includes('growth') || location.pathname.includes('yc-application')}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
                       <Briefcase className="h-4 w-4" />
@@ -328,10 +329,10 @@ export function AppSidebar() {
                             className={({ isActive }) => 
                               isActive 
                                 ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : "hover:bg-sidebar-accent/50"
+                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
                             }
                           >
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
