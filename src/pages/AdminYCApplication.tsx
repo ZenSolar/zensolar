@@ -136,9 +136,15 @@ export default function AdminYCApplication() {
               <Badge variant="outline" className="ml-auto border-amber-500 text-amber-600"><Clock className="h-3 w-3 mr-1" />Draft</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm">
-            <p className="font-medium">Earn crypto for your clean energy use.</p>
-            <p className="text-muted-foreground mt-1">(38 characters)</p>
+          <CardContent className="text-sm space-y-3">
+            <div className="space-y-1">
+              <p className="font-medium text-primary">Option A: "Get paid for your solar and EV usage." (40 chars)</p>
+              <p className="font-medium">Option B: "Turn your solar & EV into income." (37 chars)</p>
+              <p className="font-medium">Option C: "Your clean energy earns crypto rewards." (41 chars)</p>
+              <p className="font-medium">Option D: "Solar owners and EV drivers get paid." (39 chars)</p>
+              <p className="font-medium">Option E: "Proof-of-energy rewards for solar & EVs." (42 chars)</p>
+            </div>
+            <p className="text-muted-foreground text-xs">Current: "Earn crypto for your clean energy use." (38 chars)</p>
           </CardContent>
         </Card>
 
@@ -272,6 +278,7 @@ export default function AdminYCApplication() {
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <p>The United States is falling behind in the global clean energy race. China dominates solar manufacturing, Europe leads in per-capita EV adoption, and American clean energy growth has stalled at the moment we need it most. We must offset as much carbon as possible—every kilowatt-hour of clean energy produced, every EV mile driven, every battery cycle stored matters. ZenSolar is the answer to accelerate adoption by transforming passive clean energy owners into actively engaged participants.</p>
+            <p>But ZenSolar isn't just about retention—it's a viral acquisition engine. When a solar owner posts "I generated 1,200 kWh and drove 800 miles in my Tesla this month—and earned $800 with ZenSolar," their friends without solar start asking questions. The platform turns every user into a walking billboard for clean energy adoption. New buyers don't just want solar for savings—they want solar to join the earning community.</p>
             <p>This vision is only possible now due to blockchain technology, smart contracts, and a founding mission rooted in integrity. We can cryptographically verify real-world energy production, mint rewards transparently, and create an economic flywheel that makes clean energy use financially rewarding—all without intermediaries or trust assumptions.</p>
             <p>The timing is critical: the "One Big Beautiful Bill" (signed 2025) phases out the 30% solar ITC and $7,500 EV credits by end of 2026. Millions of households already own solar panels, EVs, and batteries but lack ongoing motivation to maximize their use—tax credits are one-time acquisition incentives, not retention incentives. ZenSolar is the retention layer.</p>
             <p>I have 14 years in cleantech—starting at SolarCity pre-IPO (Elon Musk, Chairman) where I worked closely with founders Lyndon and Peter Rive and CRO Toby Corey. I started ZenSolar in 2018 as a solar sales company but pivoted to this product after seeing the crypto-rewards opportunity. I also own a home solar + battery system and Tesla EV, so I personally experience the API silos and engagement drop-off this platform solves.</p>
