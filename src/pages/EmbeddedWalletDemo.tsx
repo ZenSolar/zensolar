@@ -92,19 +92,35 @@ export default function EmbeddedWalletDemo() {
         {/* Progress Indicator */}
         <div className="flex justify-center">
           <div className="flex items-center gap-2 text-xs">
-            {['Signup', 'Wallet', 'Connect', 'Earn', 'NFTs', 'Cash Out'].map((step, i) => (
-              <div key={step} className="flex items-center gap-2">
-                <div className={cn(
-                  "h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium border-2 transition-all",
-                  i <= ['welcome', 'signup', 'creating-wallet', 'wallet-created', 'connect-solar', 'earning', 'claim-nft', 'cash-out'].indexOf(currentStep) / 1.5
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-muted-foreground/30 text-muted-foreground"
-                )}>
-                  {i + 1}
+            {['Signup', 'Wallet', 'Connect', 'Earn', 'NFTs', 'Cash Out'].map((step, i) => {
+              // Map demo steps to progress step index (0-5)
+              const stepToProgress: Record<DemoStep, number> = {
+                'welcome': 0,
+                'signup': 0,
+                'creating-wallet': 1,
+                'wallet-created': 1,
+                'connect-solar': 2,
+                'earning': 3,
+                'claim-nft': 4,
+                'cash-out': 5
+              };
+              const currentProgressStep = stepToProgress[currentStep];
+              const isCompleted = i <= currentProgressStep;
+              
+              return (
+                <div key={step} className="flex items-center gap-2">
+                  <div className={cn(
+                    "h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium border-2 transition-all",
+                    isCompleted
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-muted-foreground/30 text-muted-foreground"
+                  )}>
+                    {i + 1}
+                  </div>
+                  {i < 5 && <div className="w-4 h-0.5 bg-muted-foreground/30" />}
                 </div>
-                {i < 5 && <div className="w-4 h-0.5 bg-muted-foreground/30" />}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
