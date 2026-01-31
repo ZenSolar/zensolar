@@ -106,6 +106,24 @@ import { MoonPayProvider } from '@moonpay/moonpay-react';
 
 ---
 
+---
+
+## Tech Stack Summary (YC Application Reference)
+
+**Frontend:** React 18, TypeScript, Vite, shadcn/ui, Tailwind CSS, Framer Motion, Recharts, TanStack Query, react-router-dom v7.
+
+**Mobile:** Capacitor (iOS/Android native builds), VitePWA (installable web app with push notifications).
+
+**Backend:** Supabase (PostgreSQL, auth, edge functions, realtime subscriptions).
+
+**Blockchain:** Solidity smart contracts on Base L2 (Sepolia testnet), wagmi + viem for frontend interactions, Reown AppKit (WalletConnect) for wallet connectivity, Coinbase OnchainKit for embedded wallets.
+
+**Energy APIs:** Tesla Fleet API, Enphase Monitoring API, SolarEdge Monitoring API, Wallbox API.
+
+**AI Development Tools:** Lovable (primary AI coding platform with Claude), Grok (xAI) for strategy/tokenomics/debugging, Claude 3.5 Sonnet for code reviews.
+
+---
+
 ## Previous Plan: Dashboard Visual Enhancements
 
 ### Completed Items
