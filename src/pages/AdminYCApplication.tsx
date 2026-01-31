@@ -8,13 +8,10 @@ import { CheckCircle2, Clock, FileText, Rocket, Users, Lightbulb, PieChart, Help
 const getYCData = () => [
   { section: "Company", question: "Company Name", answer: "ZenSolar" },
   { section: "Company", question: "50 chars or less", answer: "Earn crypto for your clean energy use." },
-  { section: "Company", question: "Company URL", answer: "https://zensolar.lovable.app" },
-  { section: "Company", question: "Demo Link", answer: "https://zensolar.lovable.app/demo" },
-  { section: "Company", question: "Location", answer: "San Francisco Bay Area, California" },
+  { section: "Company", question: "Company URL", answer: "https://beta.zen.solar" },
+  { section: "Company", question: "Location", answer: "Austin, USA / Austin, USA" },
   { section: "Progress", question: "Monthly Burn", answer: "$0/month — fully bootstrapped" },
   { section: "Progress", question: "Revenue", answer: "No revenue yet — free beta phase" },
-  { section: "Equity", question: "Shares Outstanding", answer: "Will restructure to C-Corp upon funding (10M authorized)" },
-  { section: "Equity", question: "Equity to Non-Founders", answer: "0% on crypto product; old LLC has ~15-20% to advisors (will dissolve)" },
 ];
 
 export default function AdminYCApplication() {
@@ -24,7 +21,7 @@ export default function AdminYCApplication() {
       <div className="flex items-center justify-between print:hidden">
         <div>
           <h1 className="text-3xl font-bold">YC Application</h1>
-          <p className="text-muted-foreground">Summer 2025 — Complete Q&A Reference</p>
+          <p className="text-muted-foreground">Spring 2026 — Complete Q&A Reference</p>
         </div>
         <ExportButtons 
           pageTitle="ZenSolar YC Application" 
@@ -35,8 +32,8 @@ export default function AdminYCApplication() {
 
       {/* Print Header */}
       <div className="hidden print:block text-center mb-8">
-        <h1 className="text-2xl font-bold">ZenSolar — YC Application (Summer 2025)</h1>
-        <p className="text-sm text-muted-foreground">https://zensolar.lovable.app</p>
+        <h1 className="text-2xl font-bold">ZenSolar — YC Application (Spring 2026)</h1>
+        <p className="text-sm text-muted-foreground">https://beta.zen.solar</p>
       </div>
 
       {/* Quick Reference Card */}
@@ -49,10 +46,11 @@ export default function AdminYCApplication() {
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-2 text-sm">
           <div><span className="font-medium">Company:</span> ZenSolar</div>
-          <div><span className="font-medium">URL:</span> zensolar.lovable.app</div>
+          <div><span className="font-medium">URL:</span> beta.zen.solar</div>
           <div><span className="font-medium">Tagline:</span> Earn crypto for your clean energy use.</div>
-          <div><span className="font-medium">Location:</span> SF Bay Area, CA</div>
-          <div className="md:col-span-2"><span className="font-medium">Demo:</span> zensolar.lovable.app/demo</div>
+          <div><span className="font-medium">Location:</span> Austin, USA</div>
+          <div><span className="font-medium">Batch:</span> Spring 2026</div>
+          <div><span className="font-medium">Category:</span> Crypto / Blockchain</div>
         </CardContent>
       </Card>
 
@@ -68,13 +66,24 @@ export default function AdminYCApplication() {
         <Card className="print:shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              Who writes code? Who has been building?
+              Who writes code, or does other technical work on your product? Was any of it done by a non-founder? Please explain.
               <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <p>I'm a solo technical founder building with AI-assisted development. I write all code using Lovable (AI coding platform powered by Claude), with Grok (xAI) for strategy/tokenomics and Claude 3.5 Sonnet for code reviews.</p>
-            <p>No non-founder has written code. The codebase includes 50+ React components, 20+ Supabase edge functions, and 3 Solidity smart contracts—all built in 9 months while learning blockchain development from scratch. This is my first software product, built entirely with AI tools.</p>
+            <p>I'm a solo technical founder building with AI-assisted development. I write all code using Lovable (AI coding platform powered by Claude), with Grok (xAI) for strategy/tokenomics and Claude 3.5 Sonnet for code reviews. No non-founder has written code. The codebase includes 50+ React components, 20+ Supabase edge functions, and 3 Solidity smart contracts—all built in ~6 months while learning blockchain development from scratch.</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              Are you looking for a cofounder?
+              <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>Yes—specifically a technical cofounder with blockchain/Web3 experience. Ideally someone who can own smart contract security, embedded wallet integration, and mainnet deployment while I focus on product, growth, and partnerships.</p>
           </CardContent>
         </Card>
 
@@ -86,7 +95,72 @@ export default function AdminYCApplication() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <p>60-second intro covering: who I am, 14 years in cleantech (SolarCity/Tesla ecosystem), what ZenSolar does, why now (tax credit phase-out), and what we're building.</p>
+            <p>60-second intro covering: who I am, cleantech background (SolarCity/Tesla ecosystem), what ZenSolar does, why now (tax credit phase-out), and what we're building.</p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator />
+
+      {/* Company Section */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold flex items-center gap-2">
+          <FileText className="h-5 w-5 text-primary" />
+          Company
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card className="print:shadow-none">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Company name</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <p className="font-medium">ZenSolar</p>
+            </CardContent>
+          </Card>
+
+          <Card className="print:shadow-none">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Company URL</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <p className="font-medium">https://beta.zen.solar</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="print:shadow-none border-amber-200 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              Describe what your company does in 50 characters or less.
+              <Badge variant="outline" className="ml-auto border-amber-500 text-amber-600"><Clock className="h-3 w-3 mr-1" />Draft</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p className="font-medium">Earn crypto for your clean energy use.</p>
+            <p className="text-muted-foreground mt-1">(38 characters)</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              What is your company going to make? Please describe your product and what it does or will do.
+              <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm space-y-2">
+            <p>ZenSolar is a mobile/web app that rewards solar owners and EV drivers with $ZSOLAR tokens and collectible NFTs for their verified clean energy use. Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via OAuth. Our patent-pending Mint-on-Proof™ technology pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap—no external wallets or crypto knowledge required.</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Where do you live now, and where would the company be based after YC?</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p className="font-medium">Austin, USA / Austin, USA</p>
+            <p className="text-muted-foreground mt-1">It's where I live and where there is a thriving start-up scene.</p>
           </CardContent>
         </Card>
       </section>
@@ -107,141 +181,75 @@ export default function AdminYCApplication() {
               <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p>Live beta with 11 users on Base Sepolia testnet. Fully functional integrations with Tesla Fleet API, Enphase Monitoring API, SolarEdge Monitoring API, and Wallbox API for real-time energy data. Smart contracts deployed: $ZSOLAR (ERC-20) and ZenSolarNFT (ERC-1155 with 42 milestone achievement tiers).</p>
-            <p>Our patent-pending Mint-on-Proof™ architecture (provisional filed March 2025) enables one-tap minting directly from the app. Users connect their devices in 60 seconds via OAuth, see their real-time energy metrics on a dashboard, and mint tokens/NFTs without needing external wallets or blockchain knowledge.</p>
-            <p className="font-medium">Key milestones:</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Functional 4-layer gateway architecture (API Aggregation → Data Normalization → Verification Engine → Smart Contract Bridge)</li>
-              <li>Multi-manufacturer OAuth flows working (Tesla, Enphase, SolarEdge, Wallbox)</li>
-              <li>42-tier NFT achievement system with category-specific milestones</li>
-              <li>In-app dropshipping store where users can redeem tokens for Tesla gift cards, power stations, and merch</li>
-            </ul>
-            <p><strong>Next:</strong> Coinbase Smart Wallet integration (embedded wallets for frictionless onboarding), auto-minting subscriptions ($9.99-$19.99/month), and mainnet launch.</p>
+          <CardContent className="text-sm">
+            <p>Live beta with 19 users on Base Sepolia testnet. Fully functional integrations with Tesla Fleet API, Enphase Monitoring API, SolarEdge Monitoring API, and Wallbox API for real-time energy data. Smart contracts deployed: $ZSOLAR (ERC-20) and ZenSolarNFT (ERC-1155 with 42 milestone achievement tiers). One-tap minting directly from the app—users connect devices in 60 seconds via OAuth, see real-time metrics on a dashboard, and mint tokens/NFTs without needing external wallets.</p>
           </CardContent>
         </Card>
 
         <Card className="print:shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              How long have founders been working on this?
+              How long have each of you been working on this? How much of that has been full-time? Please explain.
               <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p><strong>9 months</strong> (since April 2024) in its current form as a crypto-rewards platform. However, ZenSolar as a company started in 2018 as a solar sales business. After the residential solar market contracted in 2022-2023, I pivoted to building this product—combining my cleantech domain expertise with the emerging crypto-rewards opportunity.</p>
-            <p>The past 9 months have been intensive: learning blockchain development from scratch, building the entire product with AI tools (Lovable, Grok, Claude), deploying smart contracts, and onboarding 11 beta users. I've worked on this full-time, funding development through savings.</p>
-          </CardContent>
-        </Card>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <Card className="print:shadow-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Monthly Spend / Runway</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-2">
-              <p><strong>Current burn:</strong> $0/month — fully bootstrapped.</p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Hosting: $0 (Lovable Cloud free tier)</li>
-                <li>Development: $0 (AI tools, no contractors)</li>
-                <li>Marketing: $0 (organic beta signups)</li>
-              </ul>
-              <p><strong>Runway:</strong> Indefinite at current burn. Seeking $1-2M seed for 18-24 month runway.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="print:shadow-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Other Investors?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              <p><strong>No.</strong> ZenSolar is 100% bootstrapped. No angel investors, no pre-seed, no SAFEs issued.</p>
-              <p className="mt-2">The old LLC (2018) had ~15-20% to advisors for the original solar sales business. That entity will be dissolved upon institutional funding.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="print:shadow-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Full-time Commitment?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              <p><strong>Yes.</strong> I'm the sole founder and have been working full-time on ZenSolar since April 2024. No other employment or commitments.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="print:shadow-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Revenue?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              <p><strong>No revenue yet.</strong> Currently in free beta phase on testnet. Monetization begins at mainnet launch with subscription tiers ($9.99-$19.99/month consumer, $99-$499/month commercial).</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card className="print:shadow-none">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Gross Margin Per Transaction</CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <p><strong>Projected 85-90% gross margin</strong> on subscriptions (SaaS-like economics).</p>
-            <p className="mt-2">In-app store margins: Tesla gift cards (~5-10%), Branded merch (~40-60%), Hardware (~15-25%).</p>
+            <p>I (the founder) have been working on ZenSolar since March 2025 (~6 months full-time). So far, this is a solo-founder application at this stage.</p>
           </CardContent>
         </Card>
-      </section>
-
-      <Separator />
-
-      {/* Company / Product Section */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-primary" />
-          Product
-        </h2>
 
         <Card className="print:shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              What is your company going to make?
+              What tech stack are you using, or planning to use, to build this product? Include AI models and AI coding tools you use.
               <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm space-y-3">
-            <p>ZenSolar is a mobile/web app that rewards solar owners and EV drivers with $ZSOLAR tokens and collectible NFTs for their verified clean energy use.</p>
-            
-            <p><strong>How it works:</strong> Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via secure OAuth. Our patent-pending Mint-on-Proof™ technology pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap—no external wallets or crypto knowledge required.</p>
-            
-            <p><strong>Key features:</strong></p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li><strong>Embedded wallet</strong> (coming soon): Sign up with email/Google, wallet auto-created. No seed phrases.</li>
-              <li><strong>One-tap minting:</strong> $ZSOLAR tokens and milestone NFTs minted directly to your wallet, gasless.</li>
-              <li><strong>In-app store:</strong> Redeem tokens for Tesla gift cards, solar equipment, and branded merch.</li>
-              <li><strong>In-app cash-out</strong> (roadmap): Convert $ZSOLAR → USD → bank account.</li>
-            </ul>
-
-            <p><strong>Business model:</strong></p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>$9.99/month (weekly auto-minting) — casual users</li>
-              <li>$19.99/month (daily auto-minting) — power users</li>
-              <li>$99-$499/month (commercial tier) — solar installers and EV fleet managers</li>
-              <li>3.5% transaction fee on all token activity (1.5% burn, 2% treasury)</li>
-            </ul>
-
-            <p><strong>The Flywheel Effect:</strong> 50% of subscription revenue is automatically injected into our liquidity pool, creating a self-reinforcing cycle: more subscribers → larger LP → higher token floor price → more valuable rewards → more subscribers. At 25,000 subscribers (our "Tipping Point"), monthly LP injections match our initial seed capital—the protocol becomes self-sustaining.</p>
-          </CardContent>
-        </Card>
-
-        <Card className="print:shadow-none">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Tech Stack</CardTitle>
-          </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <p><strong>Frontend:</strong> React 18, TypeScript, Vite, shadcn/ui, Tailwind CSS, Framer Motion, Recharts, TanStack Query, react-router-dom v7, react-hook-form + Zod.</p>
+            <p><strong>Frontend:</strong> React 18, TypeScript, Vite, shadcn/ui, Tailwind CSS, Framer Motion, Recharts, TanStack Query, react-router-dom, react-hook-form + Zod.</p>
             <p><strong>Mobile:</strong> Capacitor (iOS/Android), VitePWA with Web Push notifications.</p>
             <p><strong>Backend:</strong> Supabase (PostgreSQL, Auth, Edge Functions, Realtime).</p>
             <p><strong>Blockchain:</strong> Solidity on Base L2, wagmi + viem, Reown AppKit, Coinbase OnchainKit.</p>
-            <p><strong>Security:</strong> Cloudflare Turnstile (bot protection), Google Analytics.</p>
             <p><strong>AI Stack:</strong> Lovable (primary development), Grok (strategy), Claude 3.5 Sonnet (reviews).</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              How many active users or customers do you have? How many are paying? Who is paying you the most, and how much do they pay you?
+              <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>19 active users providing feedback. None are paying yet, but all said they would on mainnet launch.</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Do you have revenue?</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p><strong>No.</strong> Currently in free beta phase on testnet. Monetization begins at mainnet launch with subscription tiers ($9.99-$19.99/month consumer, $99-$499/month commercial).</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">If you are applying with the same idea as a previous batch, did anything change? If you applied with a different idea, why did you pivot and what did you learn from the last idea?</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>N/A</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">If you have already participated or committed to participate in an incubator, "accelerator" or "pre-accelerator" program, please tell us about it.</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>I have not applied to YC before, nor participated in any incubator, accelerator, or pre-accelerator program.</p>
           </CardContent>
         </Card>
       </section>
@@ -251,64 +259,71 @@ export default function AdminYCApplication() {
       {/* Idea Section */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">
-          <HelpCircle className="h-5 w-5 text-primary" />
+          <Lightbulb className="h-5 w-5 text-primary" />
           Idea
         </h2>
 
         <Card className="print:shadow-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Why did you pick this idea?</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              Why did you pick this idea to work on? Do you have domain expertise in this area? How do you know people need what you're making?
+              <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <p>I chose this idea because the clean energy transition is stalling: the "One Big Beautiful Bill" (signed 2025) phases out the 30% solar ITC and $7,500 EV credits by end of 2026. At the same time, millions of households already own solar panels, EVs, and batteries but lack ongoing motivation to maximize their use.</p>
-            <p>ZenSolar fills that gap. But even if tax credits stayed forever—they're one-time acquisition incentives, not retention incentives. They don't reward daily use. <strong>We're the retention layer</strong>—providing the ongoing, compounding rewards that keep users engaged with their clean energy systems for years after installation.</p>
-            <p><strong>Domain expertise:</strong> I have 14 years in cleantech—starting at SolarCity pre-IPO (Elon Musk, Chairman) where I worked closely with founders Lyndon and Peter Rive and CRO Toby Corey. That experience ignited my entrepreneurial spirit. I started ZenSolar in 2018 as a solar sales company but pivoted to this product after seeing the crypto-rewards opportunity.</p>
-            <p>I also own a home solar + battery system and Tesla EV, so I personally experience the API silos and engagement drop-off this platform solves.</p>
+            <p>I chose this idea because the clean energy transition is stalling: the "One Big Beautiful Bill" (signed 2025) phases out the 30% solar ITC and $7,500 EV credits by end of 2026. Millions of households already own solar panels, EVs, and batteries but lack ongoing motivation to maximize their use—tax credits are one-time acquisition incentives, not retention incentives. ZenSolar is the retention layer.</p>
+            <p>I have 14 years in cleantech—starting at SolarCity pre-IPO (Elon Musk, Chairman) where I worked closely with founders Lyndon and Peter Rive and CRO Toby Corey. I started ZenSolar in 2018 as a solar sales company but pivoted to this product after seeing the crypto-rewards opportunity. I also own a home solar + battery system and Tesla EV, so I personally experience the API silos and engagement drop-off this platform solves.</p>
+            <p>I know people need this because: (1) our 19 beta users check the app daily to see "pending rewards"—something they never did with manufacturer apps, and (2) EVearn on VeChain has attracted users despite being EV-only and requiring external wallets.</p>
           </CardContent>
         </Card>
 
         <Card className="print:shadow-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">How do you know people need this?</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              Who are your competitors? What do you understand about your business that they don't?
+              <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <ol className="list-decimal list-inside space-y-2">
-              <li><strong>Personal pain point:</strong> I own solar + battery + Tesla EV. After installation, engagement drops to zero—no ongoing reason to check production or optimize usage.</li>
-              <li><strong>Beta user feedback (11 users):</strong> Users report checking ZenSolar daily to see their "pending rewards"—something they never did with their manufacturer apps.</li>
-              <li><strong>Market signal:</strong> EVearn on VeChain has attracted users despite being EV-only and requiring external wallets.</li>
-              <li><strong>Macro trend:</strong> 4M+ US households have solar. 8M+ EVs on US roads. These owners already spent $20-100K on clean energy infrastructure.</li>
-            </ol>
+            <p>Blockchain "X-to-Earn" sustainability dApps; the closest direct competitor is EVearn by VeBetterDAO on VeChain, which rewards EV drivers (starting with Tesla) with $B3TR tokens for charging sessions.</p>
+            <p>What we understand that they don't: (1) <strong>Multi-vertical:</strong> EVearn rewards only EV charging—we capture the full clean energy stack (solar + battery + EV + charging). (2) <strong>Mint-on-Proof™:</strong> Our system mints on-demand from verified API data—no pre-minted pools. (3) <strong>Embedded wallet:</strong> Competitors require external wallets; we're building frictionless email-signup onboarding. (4) <strong>Timing:</strong> Federal incentives phase out 2025-2026—we become the replacement motivation layer. (5) <strong>Commercial tier:</strong> $99-$499/month B2B for solar installers and fleet managers—a revenue stream competitors haven't addressed.</p>
           </CardContent>
         </Card>
 
         <Card className="print:shadow-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">What's new about what you're making?</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              How do or will you make money? How much could you make?
+              <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm space-y-2">
+            <p><strong>Business model:</strong></p>
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              <li>$9.99/month (weekly auto-minting) — casual users</li>
+              <li>$19.99/month (daily auto-minting) — power users</li>
+              <li>$99-$499/month (commercial tier) — solar installers and EV fleet managers</li>
+              <li>3.5% transaction fee on all token activity (1.5% burn, 2% treasury)</li>
+            </ul>
+            <p className="mt-2">Projected 85-90% gross margin on subscriptions (SaaS-like economics). In-app store margins: Tesla gift cards (~5-10%), branded merch (~40-60%), hardware (~15-25%).</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Which category best applies to your company?</CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <ol className="list-decimal list-inside space-y-2">
-              <li><strong>Mint-on-Proof™ (patent-pending):</strong> First system that mints tokens on-demand from verified API data rather than distributing from pre-minted pools.</li>
-              <li><strong>Multi-vertical integration:</strong> Competitors focus on single verticals. We capture solar + battery + EV + charging in one dashboard.</li>
-              <li><strong>Embedded wallet (coming):</strong> Email signup → auto-wallet → gasless minting → in-app cash-out.</li>
-              <li><strong>Flywheel tokenomics:</strong> 50% of subscription revenue auto-injected into liquidity pool.</li>
-            </ol>
+            <p className="font-medium">Crypto / Blockchain</p>
           </CardContent>
         </Card>
 
         <Card className="print:shadow-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Competitors</CardTitle>
+            <CardTitle className="text-base">If you had any other ideas you considered applying with, please list them.</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p><strong>Direct competitor:</strong> EVearn by VeBetterDAO on VeChain—rewards EV drivers with $B3TR tokens for charging sessions.</p>
-            <p><strong>What we understand that they don't:</strong></p>
-            <ol className="list-decimal list-inside space-y-1 ml-2">
-              <li><strong>Multi-vertical:</strong> EVearn rewards only EV charging. We capture the full clean energy stack.</li>
-              <li><strong>Mint-on-Proof™:</strong> Our system mints on-demand—no pre-minted pools.</li>
-              <li><strong>Embedded wallet:</strong> Competitors require external wallets. We're building frictionless onboarding.</li>
-              <li><strong>Timing:</strong> Federal incentives phase out 2025-2026. We become the replacement.</li>
-              <li><strong>Commercial tier:</strong> $99-$499/month for B2B—a revenue stream competitors haven't addressed.</li>
-            </ol>
+          <CardContent className="text-sm">
+            <p>N/A</p>
           </CardContent>
         </Card>
       </section>
@@ -322,47 +337,89 @@ export default function AdminYCApplication() {
           Equity
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <Card className="print:shadow-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Shares Outstanding</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              <p><strong>Structure pending.</strong> Currently operating as ZenSolar LLC (formed 2018). Will restructure to C-Corp (Delaware) upon institutional funding, with standard 10,000,000 authorized shares.</p>
-              <p className="mt-2">The existing LLC will be dissolved—the crypto-rewards product is a clean-slate pivot.</p>
-            </CardContent>
-          </Card>
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Have you formed ANY legal entity yet?</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p><strong>No.</strong> (The old ZenSolar LLC from 2018 will be dissolved—the crypto-rewards product is a clean-slate pivot.)</p>
+          </CardContent>
+        </Card>
 
-          <Card className="print:shadow-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Equity to Non-Founders</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              <p><strong>For the crypto-rewards product:</strong> 0% — I own 100% of the product/IP.</p>
-              <p className="mt-2"><strong>For the old LLC:</strong> ~15-20% was allocated to advisors for the original solar sales business. Those advisors understand the LLC is dormant and will be dissolved.</p>
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">If you have not formed the company yet, describe the planned equity ownership breakdown among the founders, employees and any other proposed stockholders.</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>Solo founder (CEO): 100% equity at founding. Will allocate 10-15% employee option pool upon funding. Seeking technical cofounder who would receive meaningful equity stake (10-25% depending on experience and timing).</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Have you taken any investment yet?</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p><strong>No.</strong> ZenSolar is 100% bootstrapped. No angel investors, no pre-seed, no SAFEs issued.</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Are you currently fundraising?</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p><strong>No.</strong> Not actively fundraising—focusing on product and beta users until YC decision.</p>
+          </CardContent>
+        </Card>
       </section>
 
       <Separator />
 
       {/* Curious Section */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Something Surprising You've Learned?</h2>
+        <h2 className="text-xl font-semibold flex items-center gap-2">
+          <HelpCircle className="h-5 w-5 text-primary" />
+          Curious
+        </h2>
 
-        <Card className="print:shadow-none bg-primary/5">
-          <CardContent className="pt-6 text-sm space-y-2">
-            <p><strong>The biggest surprise:</strong> Users engage MORE with testnet tokens than I expected.</p>
-            <p>I assumed beta users would treat testnet $ZSOLAR as "fake money" with no engagement. Instead, they check the app daily, compete for NFT milestones, and ask when they can "actually sell" their tokens. The gamification layer (pending rewards counter, achievement NFTs, leaderboard potential) drives engagement even without real monetary value.</p>
-            <p><strong>The insight:</strong> The token VALUE matters less than the TOKEN ACCUMULATION EXPERIENCE. People want to see numbers go up. This suggests mainnet launch will amplify engagement, not create it—the behavioral loop is already working.</p>
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              What convinced you to apply to Y Combinator? Did someone encourage you to apply? Have you been to any YC events?
+              <Badge variant="outline" className="ml-auto border-amber-500 text-amber-600"><Clock className="h-3 w-3 mr-1" />Draft</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>YC's track record with crypto companies (Coinbase, OpenSea) and the network effects of the alumni community convinced me to apply. I've followed YC content for years but haven't attended events. No one specifically encouraged me—this is a cold application based on believing ZenSolar fits YC's thesis of backing ambitious technical founders.</p>
+          </CardContent>
+        </Card>
+
+        <Card className="print:shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">How did you hear about Y Combinator?</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>Tech news coverage of YC-backed companies over the past decade, plus following YC partners on Twitter/X.</p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator />
+
+      {/* Batch Preference */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">Batch Preference</h2>
+        <Card className="print:shadow-none">
+          <CardContent className="pt-6 text-sm">
+            <p><strong>Spring 2026</strong></p>
           </CardContent>
         </Card>
       </section>
 
       {/* Print Footer */}
       <div className="hidden print:block text-center text-xs text-muted-foreground mt-8 pt-4 border-t">
-        ZenSolar — YC Application (Summer 2025) — Generated {new Date().toLocaleDateString()}
+        ZenSolar — YC Application (Spring 2026) — Generated {new Date().toLocaleDateString()}
       </div>
     </div>
   );
