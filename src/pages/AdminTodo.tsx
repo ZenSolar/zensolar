@@ -23,7 +23,8 @@ import {
   Key,
   CreditCard,
   Gift,
-  CheckCircle2
+  CheckCircle2,
+  Wallet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SEO } from "@/components/SEO";
@@ -80,6 +81,15 @@ const initialTodos: TodoItem[] = [
   },
 
   // Authentication & Security
+  {
+    id: "embedded-wallet",
+    title: "Embedded Wallet (Privy/Thirdweb/Coinbase)",
+    description: "Create wallets for users automatically on signup (email/social). No seed phrases, no MetaMask needed. Users sign in → wallet is created. Research Privy ($99/mo), Thirdweb, or Coinbase Smart Wallet.",
+    category: "auth",
+    priority: "critical",
+    status: "not-started",
+    icon: Wallet
+  },
   {
     id: "social-login",
     title: "Social Login (Google, Apple)",
