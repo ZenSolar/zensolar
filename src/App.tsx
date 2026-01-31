@@ -66,6 +66,7 @@ const AdminCompetitiveIntel = lazy(() => import("./pages/AdminCompetitiveIntel")
 const AdminSecurityArchitecture = lazy(() => import("./pages/AdminSecurityArchitecture"));
 const AdminBootstrapCalculator = lazy(() => import("./pages/AdminBootstrapCalculator"));
 const AdminBetaDeployment = lazy(() => import("./pages/AdminBetaDeployment"));
+const AdminTodo = lazy(() => import("./pages/AdminTodo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 
@@ -509,6 +510,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminBetaDeployment />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/todo" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminTodo />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
