@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
         console.log("Enphase token expired or expiring soon, refreshing...");
         const newToken = await refreshEnphaseToken(
           supabaseClient,
-          user.id,
+          targetUserId,
           tokenData.refresh_token
         );
         if (newToken) {
@@ -189,20 +189,203 @@ Deno.serve(async (req) => {
       }
     }
 
-    // First, get list of systems
-    const systemsResponse = await fetch(`${ENPHASE_API_BASE}/systems?key=${apiKey}`, {
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    // Prefer using already-known system IDs from connected_devices to reduce API calls.
+    // This avoids the expensive /systems call (which is the most likely to hit rate limits).
+    const { data: enphaseDevices, error: enphaseDevicesError } = await supabaseClient
+      .from("connected_devices")
+      .select("id, device_id, device_name, baseline_data, lifetime_totals")
+      .eq("user_id", targetUserId)
+      .eq("provider", "enphase");
 
-    if (!systemsResponse.ok) {
-      const errorText = await systemsResponse.text();
-      console.error("Failed to fetch Enphase systems:", errorText);
-      
-      // If rate limited, return cached data if available
-      if (systemsResponse.status === 429 && cachedData) {
-        console.log("Rate limited, returning stale cached data");
+    if (enphaseDevicesError) {
+      console.error("Failed to fetch connected Enphase devices:", enphaseDevicesError);
+    }
+
+    const deviceBySystemId = new Map<string, any>();
+    for (const d of enphaseDevices ?? []) {
+      deviceBySystemId.set(String(d.device_id), d);
+    }
+
+    // Build systems list to fetch
+    let systemsToFetch: Array<{ system_id: string; name: string }> = [];
+    if (enphaseDevices && enphaseDevices.length > 0) {
+      systemsToFetch = enphaseDevices.map((d: any) => ({
+        system_id: String(d.device_id),
+        name: d.device_name || "Enphase System",
+      }));
+    } else {
+      // Fallback: if connected_devices isn't populated for some reason, fall back to /systems.
+      const systemsResponse = await fetch(`${ENPHASE_API_BASE}/systems?key=${apiKey}`, {
+        headers: { "Authorization": `Bearer ${accessToken}` },
+      });
+
+      if (!systemsResponse.ok) {
+        const errorText = await systemsResponse.text();
+        console.error("Failed to fetch Enphase systems:", errorText);
+
+        // If rate limited, return cached data if available
+        if (systemsResponse.status === 429 && cachedData) {
+          console.log("Rate limited, returning stale cached data");
+          return new Response(JSON.stringify({
+            ...cachedData,
+            cached: true,
+            stale: true,
+            rate_limited: true,
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // If rate limited and no cache, try to get data from connected_devices table
+        if (systemsResponse.status === 429) {
+          console.log("Rate limited, no cache - checking connected_devices for fallback data");
+          const { data: devices } = await supabaseClient
+            .from("connected_devices")
+            .select("lifetime_totals, baseline_data, device_name")
+            .eq("user_id", targetUserId)
+            .eq("provider", "enphase");
+
+          if (devices && devices.length > 0) {
+            let totalLifetimeSolarWh = 0;
+            let totalPendingSolarWh = 0;
+            let systemName = "Enphase System";
+
+            for (const device of devices) {
+              const lifetime = (device.lifetime_totals as Record<string, number>) || {};
+              const baseline = (device.baseline_data as Record<string, number>) || {};
+              const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+              const baselineWh = baseline.solar_wh || baseline.solar_production_wh || 0;
+              totalLifetimeSolarWh += solarWh;
+              totalPendingSolarWh += Math.max(0, solarWh - baselineWh);
+              if (device.device_name) systemName = device.device_name;
+            }
+
+            console.log("Returning fallback data from connected_devices:", { totalLifetimeSolarWh, totalPendingSolarWh });
+            return new Response(JSON.stringify({
+              systems: [{ system_id: "fallback", name: systemName }],
+              totals: {
+                lifetime_solar_wh: totalLifetimeSolarWh,
+                pending_solar_wh: totalPendingSolarWh,
+              },
+              cached: true,
+              stale: true,
+              rate_limited: true,
+              fallback: true,
+            }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        }
+
+        return new Response(JSON.stringify({ error: "Failed to fetch systems. Please try again." }), {
+          status: systemsResponse.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const systemsData = await systemsResponse.json();
+      console.log("Enphase systems:", JSON.stringify(systemsData));
+
+      if (!systemsData.systems || systemsData.systems.length === 0) {
+        return new Response(JSON.stringify({
+          systems: [],
+          message: "No Enphase systems found",
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Keep it simple: fetch the first system if we had to fall back to /systems
+      systemsToFetch = [{
+        system_id: String(systemsData.systems[0].system_id),
+        name: String(systemsData.systems[0].name || "Enphase System"),
+      }];
+    }
+
+    let totalLifetimeWh = 0;
+    let totalPendingWh = 0;
+    let totalEnergyTodayWh = 0;
+    let rateLimited = false;
+    const perSystem: Array<{ system_id: string; name: string; lifetime_wh: number; pending_wh: number; energy_today_wh: number }> = [];
+
+    for (const system of systemsToFetch) {
+      const systemId = system.system_id;
+
+      const summaryResponse = await fetch(
+        `${ENPHASE_API_BASE}/systems/${systemId}/summary?key=${apiKey}`,
+        { headers: { "Authorization": `Bearer ${accessToken}` } }
+      );
+
+      if (summaryResponse.status === 429) {
+        rateLimited = true;
+        console.warn(`Enphase rate limited fetching summary for system ${systemId}`);
+        continue;
+      }
+
+      if (!summaryResponse.ok) {
+        console.error(`Failed to fetch Enphase summary for system ${systemId}:`, await summaryResponse.text());
+        continue;
+      }
+
+      const summaryData = await summaryResponse.json();
+      const lifetimeEnergyWh = Number(summaryData?.energy_lifetime || 0);
+      const energyTodayWh = Number(summaryData?.energy_today || 0);
+
+      // Baseline is stored in connected_devices
+      const deviceRow = deviceBySystemId.get(String(systemId));
+      const baseline = (deviceRow?.baseline_data as Record<string, any> | null) ?? {};
+      const baselineSolarWh = Number(
+        baseline.solar_wh || baseline.solar_production_wh || baseline.total_solar_produced_wh || baseline.lifetime_solar_wh || 0
+      );
+      const pendingSolarWh = Math.max(0, lifetimeEnergyWh - baselineSolarWh);
+
+      totalLifetimeWh += lifetimeEnergyWh;
+      totalPendingWh += pendingSolarWh;
+      totalEnergyTodayWh += energyTodayWh;
+      perSystem.push({
+        system_id: systemId,
+        name: system.name,
+        lifetime_wh: lifetimeEnergyWh,
+        pending_wh: pendingSolarWh,
+        energy_today_wh: energyTodayWh,
+      });
+
+      // Store production data for rewards calculation
+      if (energyTodayWh > 0) {
+        const now = new Date();
+        const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
+        await supabaseClient
+          .from("energy_production")
+          .upsert({
+            user_id: targetUserId,
+            device_id: String(systemId),
+            provider: "enphase",
+            production_wh: energyTodayWh,
+            recorded_at: recordedAt,
+          }, { onConflict: "device_id,provider,recorded_at" });
+      }
+
+      // Persist lifetime totals so the dashboard can still show values when rate limited later.
+      if (lifetimeEnergyWh > 0) {
+        await supabaseClient
+          .from("connected_devices")
+          .update({
+            lifetime_totals: {
+              solar_wh: lifetimeEnergyWh,
+              lifetime_solar_wh: lifetimeEnergyWh,
+              updated_at: new Date().toISOString(),
+            },
+          })
+          .eq("user_id", targetUserId)
+          .eq("device_id", String(systemId))
+          .eq("provider", "enphase");
+      }
+    }
+
+    // If we couldn't fetch anything and we're rate-limited, fall back to cached/DB values.
+    if (perSystem.length === 0) {
+      if (cachedData) {
+        console.log("Enphase rate limited, returning cached data");
         return new Response(JSON.stringify({
           ...cachedData,
           cached: true,
@@ -212,170 +395,55 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      
-      // If rate limited and no cache, try to get data from connected_devices table
-      if (systemsResponse.status === 429) {
-        console.log("Rate limited, no cache - checking connected_devices for fallback data");
-        const { data: devices } = await supabaseClient
-          .from("connected_devices")
-          .select("lifetime_totals, baseline_data, device_name")
-          .eq("user_id", targetUserId)
-          .eq("provider", "enphase");
-        
-        if (devices && devices.length > 0) {
-          let totalLifetimeSolarWh = 0;
-          let totalPendingSolarWh = 0;
-          let systemName = "Enphase System";
-          
-          for (const device of devices) {
-            const lifetime = device.lifetime_totals as Record<string, number> || {};
-            const baseline = device.baseline_data as Record<string, number> || {};
-            const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-            const baselineWh = baseline.solar_wh || baseline.solar_production_wh || 0;
-            totalLifetimeSolarWh += solarWh;
-            totalPendingSolarWh += Math.max(0, solarWh - baselineWh);
-            if (device.device_name) systemName = device.device_name;
-          }
-          
-          console.log("Returning fallback data from connected_devices:", { totalLifetimeSolarWh, totalPendingSolarWh });
-          return new Response(JSON.stringify({
-            systems: [{ system_id: "fallback", name: systemName }],
-            totals: {
-              lifetime_solar_wh: totalLifetimeSolarWh,
-              pending_solar_wh: totalPendingSolarWh,
-            },
-            cached: true,
-            stale: true,
-            rate_limited: true,
-            fallback: true,
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      }
-      
-      return new Response(JSON.stringify({ error: "Failed to fetch systems. Please try again." }), {
-        status: systemsResponse.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
-    const systemsData = await systemsResponse.json();
-    console.log("Enphase systems:", JSON.stringify(systemsData));
-
-    if (!systemsData.systems || systemsData.systems.length === 0) {
-      return new Response(JSON.stringify({ 
-        systems: [],
-        message: "No Enphase systems found"
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const systemId = systemsData.systems[0].system_id;
-
-    // Get summary data for the system
-    const summaryResponse = await fetch(
-      `${ENPHASE_API_BASE}/systems/${systemId}/summary?key=${apiKey}`,
-      {
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    let summaryData = null;
-    if (summaryResponse.ok) {
-      summaryData = await summaryResponse.json();
-      console.log("Enphase summary:", JSON.stringify(summaryData));
-    } else {
-      console.error("Failed to fetch summary:", await summaryResponse.text());
-    }
-
-    // Get energy production for today
-    const today = new Date().toISOString().split('T')[0];
-    const energyResponse = await fetch(
-      `${ENPHASE_API_BASE}/systems/${systemId}/energy_lifetime?key=${apiKey}&start_date=${today}`,
-      {
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    let energyData = null;
-    if (energyResponse.ok) {
-      energyData = await energyResponse.json();
-      console.log("Enphase energy data:", JSON.stringify(energyData));
-    } else {
-      console.error("Failed to fetch energy:", await energyResponse.text());
-    }
-
-    // Store production data for rewards calculation
-    const productionWh = summaryData?.energy_today || 0;
-    if (productionWh > 0) {
-      const now = new Date();
-      const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
-      
-      await supabaseClient
-        .from("energy_production")
-        .upsert({
-          user_id: targetUserId,
-          device_id: String(systemId),
-          provider: "enphase",
-          production_wh: productionWh,
-          recorded_at: recordedAt,
-        }, { onConflict: "device_id,provider,recorded_at" });
-    }
-
-    // Return lifetime energy from summary (in Wh)
-    const lifetimeEnergyWh = summaryData?.energy_lifetime || 0;
-    
-    // Get baseline from connected_devices to calculate pending
-    let pendingSolarWh = lifetimeEnergyWh; // Default to lifetime if no baseline
-    const { data: deviceData } = await supabaseClient
-      .from("connected_devices")
-      .select("baseline_data")
-      .eq("user_id", targetUserId)
-      .eq("device_id", String(systemId))
-      .eq("provider", "enphase")
-      .single();
-    
-    if (deviceData?.baseline_data) {
-      const baseline = deviceData.baseline_data as Record<string, number>;
-      // Check all possible baseline keys used across the app
-      const baselineSolarWh = baseline.solar_wh || baseline.solar_production_wh || baseline.total_solar_produced_wh || baseline.lifetime_solar_wh || 0;
-      pendingSolarWh = Math.max(0, lifetimeEnergyWh - baselineSolarWh);
-      console.log(`Enphase pending calculation: lifetime=${lifetimeEnergyWh}, baseline=${baselineSolarWh}, pending=${pendingSolarWh}`);
-    }
-    
-    // Store lifetime totals in connected_devices for admin reporting
-    if (lifetimeEnergyWh > 0) {
-      await supabaseClient
+      // No cache; attempt DB fallback
+      const { data: devices } = await supabaseClient
         .from("connected_devices")
-        .update({
-          lifetime_totals: {
-            solar_wh: lifetimeEnergyWh,
-            lifetime_solar_wh: lifetimeEnergyWh,
-            updated_at: new Date().toISOString(),
-          }
-        })
+        .select("lifetime_totals, baseline_data, device_name")
         .eq("user_id", targetUserId)
-        .eq("device_id", String(systemId))
         .eq("provider", "enphase");
-      
-      console.log(`Stored Enphase lifetime total: ${lifetimeEnergyWh} Wh`);
+
+      if (devices && devices.length > 0) {
+        let totalLifetimeSolarWh = 0;
+        let totalPendingSolarWh = 0;
+        let systemName = "Enphase System";
+
+        for (const device of devices) {
+          const lifetime = (device.lifetime_totals as Record<string, number>) || {};
+          const baseline = (device.baseline_data as Record<string, number>) || {};
+          const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
+          const baselineWh = baseline.solar_wh || baseline.solar_production_wh || 0;
+          totalLifetimeSolarWh += solarWh;
+          totalPendingSolarWh += Math.max(0, solarWh - baselineWh);
+          if (device.device_name) systemName = device.device_name;
+        }
+
+        console.log("Returning fallback data from connected_devices:", { totalLifetimeSolarWh, totalPendingSolarWh });
+        return new Response(JSON.stringify({
+          systems: [{ system_id: "fallback", name: systemName }],
+          totals: {
+            lifetime_solar_wh: totalLifetimeSolarWh,
+            pending_solar_wh: totalPendingSolarWh,
+          },
+          cached: true,
+          stale: true,
+          rate_limited: true,
+          fallback: true,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
-    
+
     const responseData = {
-      system: systemsData.systems[0],
-      summary: summaryData,
-      energy: energyData,
+      systems: systemsToFetch,
+      per_system: perSystem,
       totals: {
-        lifetime_solar_wh: lifetimeEnergyWh,
-        pending_solar_wh: pendingSolarWh,
-        energy_today_wh: summaryData?.energy_today || 0,
+        lifetime_solar_wh: totalLifetimeWh,
+        pending_solar_wh: totalPendingWh,
+        energy_today_wh: totalEnergyTodayWh,
       },
+      rate_limited: rateLimited,
     };
     
     // Cache the response for future requests

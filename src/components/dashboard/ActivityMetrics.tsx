@@ -397,7 +397,7 @@ export function ActivityMetrics({
           {/* Charging - show separate fields if we have granular data or multiple chargers */}
           {hasSeparateCharging ? (
             <>
-              {superchargerKwh > 0 && !isHidden('supercharger') && (
+              {!isHidden('supercharger') && (
                 <SwipeableActivityField 
                   onHide={() => onHideField?.('supercharger')} 
                   disabled={!onHideField}
@@ -410,7 +410,7 @@ export function ActivityMetrics({
                     unit="kWh"
                     color="purple"
                     active={superchargerKwh > 0}
-                    onTap={onMintRequest ? () => onMintRequest({ category: 'supercharger' }) : undefined}
+                    onTap={superchargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'supercharger' }) : undefined}
                   />
                 </SwipeableActivityField>
               )}
@@ -445,7 +445,7 @@ export function ActivityMetrics({
                       </SwipeableActivityField>
                     ) : field;
                   })
-                ) : hasHomeChargerConnected || homeChargerKwh > 0 ? (
+                ) : (
                   <SwipeableActivityField 
                     onHide={() => onHideField?.('home_charger')} 
                     disabled={!onHideField}
@@ -461,7 +461,7 @@ export function ActivityMetrics({
                       onTap={homeChargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'home_charger' }) : undefined}
                     />
                   </SwipeableActivityField>
-                ) : null
+                )
               )}
             </>
           ) : current.chargingKwh > 0 && !isHidden('charging') ? (
