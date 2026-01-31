@@ -28,7 +28,8 @@ import {
   FileCode,
   Briefcase,
   Rocket,
-  Wallet
+  Wallet,
+  ClipboardList
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -81,6 +82,7 @@ const secondaryNavItems = [
 const adminMenuGroups = {
   core: [
     { title: "Admin Panel", url: "/admin", icon: Shield },
+    { title: "To-Do List", url: "/admin/todo", icon: ClipboardList, highlight: true },
     { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
     { title: "Users", url: "/admin/users", icon: Users },
   ],
