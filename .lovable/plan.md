@@ -184,7 +184,28 @@ No non-founder has written code. The codebase includes 50+ React components, 20+
 
 ---
 
-### Question 5: Are you looking for a cofounder?
+### Question 5: What tech stack are you using?
+
+**Frontend:** React 18, TypeScript, Vite, shadcn/ui, Tailwind CSS, Framer Motion, Recharts, TanStack Query, react-router-dom v7, react-hook-form + Zod.
+
+**Mobile:** Capacitor (iOS/Android), VitePWA with Web Push notifications.
+
+**Backend:** Supabase (PostgreSQL, Auth, Edge Functions, Realtime).
+
+**Blockchain:** Solidity on Base L2, wagmi + viem, Reown AppKit, Coinbase OnchainKit (embedded wallets coming).
+
+**Security:** Cloudflare Turnstile (bot protection), Google Analytics.
+
+**Payments (roadmap):** Stripe, MoonPay/Transak for fiat on/off-ramps.
+
+**AI Stack:**
+- **Lovable** — Primary development (AI coding platform powered by Claude)
+- **Grok (xAI)** — Strategy, tokenomics modeling, debugging
+- **Claude 3.5 Sonnet** — Code reviews, documentation
+
+---
+
+### Question 6: Are you looking for a cofounder?
 
 Yes—specifically a technical cofounder with blockchain/Web3 experience. Ideally someone who can own smart contract security, embedded wallet integration, and mainnet deployment while I focus on product, growth, and energy partnerships.
 
@@ -192,7 +213,7 @@ Also open to a GTM/growth cofounder with cleantech or B2C subscription experienc
 
 ---
 
-### Question 6: Coding session you're proud of
+### Question 7: Coding session you're proud of
 
 I'm particularly proud of building our patent-pending Mint-on-Proof™ verification architecture—the system that converts real-time energy data from Tesla, Enphase, SolarEdge, and Wallbox APIs into cryptographically verified blockchain rewards.
 
@@ -210,7 +231,7 @@ I'm not attaching the actual session because this architecture is our core IP (p
 
 ---
 
-### Question 7: How do/will you make money?
+### Question 8: How do/will you make money?
 
 **Consumer Subscriptions (Primary):**
 - $9.99/month (weekly auto-minting) — casual residential users
