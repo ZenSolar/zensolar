@@ -160,7 +160,24 @@ export default function Auth() {
         toast.error(error.message);
       }
     } else {
-      toast.success('Welcome back!');
+      // Fetch profile to get display name for personalized greeting
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', userData.user.id)
+          .maybeSingle();
+        
+        const firstName = profile?.display_name?.trim().split(/\s+/)[0];
+        if (firstName) {
+          toast.success(`Welcome back, ${firstName}!`);
+        } else {
+          toast.success('Welcome back!');
+        }
+      } else {
+        toast.success('Welcome back!');
+      }
       navigate('/');
     }
   };
