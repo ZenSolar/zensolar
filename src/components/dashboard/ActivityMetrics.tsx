@@ -168,18 +168,24 @@ export function ActivityMetrics({
   const filteredProviders = connectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
   // Device-specific labels (used when single device)
+  // Format: (Name of system/device) + Activity Type
   const solarLabel = deviceLabels?.solar 
-    ? `${deviceLabels.solar} Energy Produced` 
+    ? `${deviceLabels.solar} Solar Energy Produced` 
     : 'Solar Energy Produced';
-  const evLabel = deviceLabels?.vehicle 
-    ? `${deviceLabels.vehicle} Miles Driven` 
-    : 'EV Miles Driven';
   const batteryLabel = deviceLabels?.powerwall 
-    ? `${deviceLabels.powerwall} Energy Discharged` 
-    : 'Battery Discharged';
+    ? `${deviceLabels.powerwall} Battery Storage Discharged` 
+    : 'Battery Storage Discharged';
+  const evLabel = deviceLabels?.vehicle 
+    ? `${deviceLabels.vehicle} EV Miles` 
+    : 'EV Miles';
+  const superchargerLabel = deviceLabels?.vehicle
+    ? `${deviceLabels.vehicle} Tesla Supercharger`
+    : 'Tesla Supercharger';
   const homeChargerLabel = deviceLabels?.wallConnector 
-    ? `${deviceLabels.wallConnector} Home Charging` 
-    : 'Home Charging';
+    ? `${deviceLabels.wallConnector} Home Charger` 
+    : deviceLabels?.homeCharger
+    ? `${deviceLabels.homeCharger} Home Charger`
+    : 'Home Charger';
 
   // Separate charging values
   const superchargerKwh = current.superchargerKwh ?? 0;
@@ -240,8 +246,9 @@ export function ActivityMetrics({
         )}
 
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
+        {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
         <div className="space-y-2">
-          {/* Solar Fields - Show individual devices if multiple, otherwise single field */}
+          {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
             hasMultipleSolarDevices ? (
               // Multiple solar devices - show each independently with per-device minting
@@ -251,7 +258,7 @@ export function ActivityMetrics({
                   <ActivityField
                     key={device.deviceId}
                     icon={Sun}
-                    label={`${device.deviceName} Energy Produced`}
+                    label={`${device.deviceName} Solar Energy Produced`}
                     value={pendingKwh}
                     unit="kWh"
                     color="amber"
@@ -294,57 +301,7 @@ export function ActivityMetrics({
             )
           )}
           
-          {/* EV Miles - Show individual vehicles if multiple */}
-          {!isHidden('ev_miles') && (
-            hasMultipleEvDevices ? (
-              evDevices.map((device, index) => {
-                const pendingMiles = Math.floor(device.pendingMiles);
-                const field = (
-                  <ActivityField
-                    key={device.deviceId}
-                    icon={Car}
-                    label={`${device.deviceName} Miles Driven`}
-                    value={pendingMiles}
-                    unit="mi"
-                    color="blue"
-                    active={pendingMiles > 0}
-                    onTap={pendingMiles > 0 && onMintRequest ? () => onMintRequest({ 
-                      category: 'ev_miles', 
-                      deviceId: device.deviceId,
-                      deviceName: device.deviceName 
-                    }) : undefined}
-                  />
-                );
-                return index === 0 && onHideField ? (
-                  <SwipeableActivityField 
-                    key={device.deviceId} 
-                    onHide={() => onHideField('ev_miles')}
-                    locked={hasEvConnected}
-                  >
-                    {field}
-                  </SwipeableActivityField>
-                ) : field;
-              })
-            ) : (
-              <SwipeableActivityField 
-                onHide={() => onHideField?.('ev_miles')} 
-                disabled={!onHideField}
-                locked={hasEvConnected}
-              >
-                <ActivityField
-                  icon={Car}
-                  label={evLabel}
-                  value={current.evMiles}
-                  unit="mi"
-                  color="blue"
-                  active={current.evMiles > 0}
-                  onTap={current.evMiles > 0 && onMintRequest ? () => onMintRequest({ category: 'ev_miles' }) : undefined}
-                />
-              </SwipeableActivityField>
-            )
-          )}
-          
-          {/* Battery - Show individual Powerwalls if multiple */}
+          {/* 2. Battery - Show individual Powerwalls if multiple */}
           {!isHidden('battery') && (
             hasMultipleBatteryDevices ? (
               batteryDevices.map((device, index) => {
@@ -353,7 +310,7 @@ export function ActivityMetrics({
                   <ActivityField
                     key={device.deviceId}
                     icon={Battery}
-                    label={`${device.deviceName} Discharged`}
+                    label={`${device.deviceName} Battery Storage Discharged`}
                     value={pendingKwh}
                     unit="kWh"
                     color="emerald"
@@ -394,9 +351,60 @@ export function ActivityMetrics({
             )
           )}
           
-          {/* Charging - show separate fields if we have granular data or multiple chargers */}
+          {/* 3. EV Miles - Show individual vehicles if multiple */}
+          {!isHidden('ev_miles') && (
+            hasMultipleEvDevices ? (
+              evDevices.map((device, index) => {
+                const pendingMiles = Math.floor(device.pendingMiles);
+                const field = (
+                  <ActivityField
+                    key={device.deviceId}
+                    icon={Car}
+                    label={`${device.deviceName} EV Miles`}
+                    value={pendingMiles}
+                    unit="mi"
+                    color="blue"
+                    active={pendingMiles > 0}
+                    onTap={pendingMiles > 0 && onMintRequest ? () => onMintRequest({ 
+                      category: 'ev_miles', 
+                      deviceId: device.deviceId,
+                      deviceName: device.deviceName 
+                    }) : undefined}
+                  />
+                );
+                return index === 0 && onHideField ? (
+                  <SwipeableActivityField 
+                    key={device.deviceId} 
+                    onHide={() => onHideField('ev_miles')}
+                    locked={hasEvConnected}
+                  >
+                    {field}
+                  </SwipeableActivityField>
+                ) : field;
+              })
+            ) : (
+              <SwipeableActivityField 
+                onHide={() => onHideField?.('ev_miles')} 
+                disabled={!onHideField}
+                locked={hasEvConnected}
+              >
+                <ActivityField
+                  icon={Car}
+                  label={evLabel}
+                  value={current.evMiles}
+                  unit="mi"
+                  color="blue"
+                  active={current.evMiles > 0}
+                  onTap={current.evMiles > 0 && onMintRequest ? () => onMintRequest({ category: 'ev_miles' }) : undefined}
+                />
+              </SwipeableActivityField>
+            )
+          )}
+          
+          {/* 4. Tesla Supercharger + 5. Home Charger - show separate fields */}
           {hasSeparateCharging ? (
             <>
+              {/* 4. Tesla Supercharger */}
               {!isHidden('supercharger') && (
                 <SwipeableActivityField 
                   onHide={() => onHideField?.('supercharger')} 
@@ -405,7 +413,7 @@ export function ActivityMetrics({
                 >
                   <ActivityField
                     icon={Zap}
-                    label="Tesla Supercharger"
+                    label={superchargerLabel}
                     value={superchargerKwh}
                     unit="kWh"
                     color="purple"
@@ -414,7 +422,7 @@ export function ActivityMetrics({
                   />
                 </SwipeableActivityField>
               )}
-              {/* Show individual home chargers if multiple */}
+              {/* 5. Home Charger - Show individual home chargers if multiple */}
               {!isHidden('home_charger') && (
                 hasMultipleChargerDevices ? (
                   chargerDevices.map((device, index) => {
@@ -423,7 +431,7 @@ export function ActivityMetrics({
                       <ActivityField
                         key={device.deviceId}
                         icon={Zap}
-                        label={`${device.deviceName} Charging`}
+                        label={`${device.deviceName} Home Charger`}
                         value={pendingKwh}
                         unit="kWh"
                         color="purple"
