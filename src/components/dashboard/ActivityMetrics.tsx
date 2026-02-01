@@ -64,6 +64,7 @@ interface ActivityMetricsProps {
   onHideField?: (field: HideableField) => void;
   onShowField?: (field: HideableField) => void;
   onShowAllFields?: () => void;
+  isNewUserView?: boolean;
 }
 
 export function ActivityMetrics({ 
@@ -79,12 +80,49 @@ export function ActivityMetrics({
   onHideField,
   onShowField,
   onShowAllFields,
+  isNewUserView = false,
 }: ActivityMetricsProps) {
-  const deviceLabels = data.deviceLabels;
-  const solarDevices = data.solarDevices || [];
-  const batteryDevices = data.batteryDevices || [];
-  const evDevices = data.evDevices || [];
-  const chargerDevices = data.chargerDevices || [];
+  // In new user view mode, show empty state
+  const effectiveData = isNewUserView ? {
+    ...data,
+    solarEnergyProduced: 0,
+    batteryStorageDischarged: 0,
+    evMilesDriven: 0,
+    teslaSuperchargerKwh: 0,
+    homeChargerKwh: 0,
+    pendingSolarKwh: 0,
+    pendingEvMiles: 0,
+    pendingBatteryKwh: 0,
+    pendingChargingKwh: 0,
+    pendingSuperchargerKwh: 0,
+    pendingHomeChargerKwh: 0,
+    tokensEarned: 0,
+    nftsEarned: 0,
+    lifetimeMinted: 0,
+    solarDevices: [],
+    batteryDevices: [],
+    evDevices: [],
+    chargerDevices: [],
+    deviceLabels: undefined,
+  } : data;
+  
+  const effectiveCurrentActivity = isNewUserView ? {
+    solarKwh: 0,
+    evMiles: 0,
+    batteryKwh: 0,
+    chargingKwh: 0,
+    superchargerKwh: 0,
+    homeChargerKwh: 0,
+  } : currentActivity;
+  
+  const effectiveLifetimeMinted = isNewUserView ? 0 : lifetimeMinted;
+  const effectiveConnectedProviders = isNewUserView ? [] : connectedProviders;
+  
+  const deviceLabels = effectiveData.deviceLabels;
+  const solarDevices = effectiveData.solarDevices || [];
+  const batteryDevices = effectiveData.batteryDevices || [];
+  const evDevices = effectiveData.evDevices || [];
+  const chargerDevices = effectiveData.chargerDevices || [];
   
   const hasMultipleSolarDevices = solarDevices.length > 1;
   const hasMultipleBatteryDevices = batteryDevices.length > 1;
@@ -95,19 +133,20 @@ export function ActivityMetrics({
   const { shouldShowHint, markHintSeen } = useSwipeHintShown();
 
   // Check if provider is connected for each category (locked = cannot hide)
-  const hasSolarConnected = connectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
-  const hasBatteryConnected = connectedProviders.includes('tesla') && batteryDevices.length > 0;
-  const hasEvConnected = connectedProviders.includes('tesla') && evDevices.length > 0;
+  const hasSolarConnected = effectiveConnectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
+  const hasBatteryConnected = effectiveConnectedProviders.includes('tesla') && batteryDevices.length > 0;
+  const hasEvConnected = effectiveConnectedProviders.includes('tesla') && evDevices.length > 0;
   // Supercharger: locked if Tesla EV is connected (vehicle API provides supercharger data)
-  const hasSuperchargerConnected = connectedProviders.includes('tesla') && evDevices.length > 0;
+  const hasSuperchargerConnected = effectiveConnectedProviders.includes('tesla') && evDevices.length > 0;
   
   // Home Charger: locked only if Tesla Wall Connector OR Wallbox charger is connected
-  const hasTeslaWallConnector = connectedProviders.includes('tesla') && chargerDevices.length > 0;
-  const hasWallboxConnected = connectedProviders.includes('wallbox') && chargerDevices.length > 0;
+  const hasTeslaWallConnector = effectiveConnectedProviders.includes('tesla') && chargerDevices.length > 0;
+  const hasWallboxConnected = effectiveConnectedProviders.includes('wallbox') && chargerDevices.length > 0;
   const hasHomeChargerConnected = hasTeslaWallConnector || hasWallboxConnected;
   
   // Any charging source connected (for visibility logic)
   const hasAnyChargingConnected = hasSuperchargerConnected || hasHomeChargerConnected;
+
   
 
   // A field can only be hidden if it's NOT backed by a connected provider.

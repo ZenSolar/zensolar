@@ -215,6 +215,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onHideField={hideField}
             onShowField={showField}
             onShowAllFields={showAllFields}
+            isNewUserView={isNewUserView}
           />
         </AnimatedItem>
 
@@ -223,8 +224,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             ref={rewardActionsRef}
             onRefresh={refreshDashboard} 
             isLoading={dataLoading}
-            walletAddress={profile?.wallet_address}
-            pendingRewards={{
+            walletAddress={isNewUserView ? undefined : profile?.wallet_address}
+            pendingRewards={isNewUserView ? {
+              solar: 0,
+              evMiles: 0,
+              battery: 0,
+              charging: 0,
+            } : {
               solar: currentActivity.solarKwh,
               evMiles: currentActivity.evMiles,
               battery: currentActivity.batteryKwh,
@@ -250,13 +256,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* NFT Milestones - Beta */}
         <AnimatedItem>
           <RewardProgress
-            tokensEarned={activityData.tokensEarned}
-            solarKwh={activityData.solarEnergyProduced}
-            evMilesDriven={activityData.evMilesDriven}
-            evChargingKwh={activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
-            batteryDischargedKwh={activityData.batteryStorageDischarged}
-            nftsEarned={activityData.nftsEarned}
-            lifetimeMinted={activityData.lifetimeMinted}
+            tokensEarned={isNewUserView ? 0 : activityData.tokensEarned}
+            solarKwh={isNewUserView ? 0 : activityData.solarEnergyProduced}
+            evMilesDriven={isNewUserView ? 0 : activityData.evMilesDriven}
+            evChargingKwh={isNewUserView ? 0 : activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
+            batteryDischargedKwh={isNewUserView ? 0 : activityData.batteryStorageDischarged}
+            nftsEarned={isNewUserView ? [] : activityData.nftsEarned}
+            lifetimeMinted={isNewUserView ? 0 : activityData.lifetimeMinted}
             isNewUser={true}
           />
         </AnimatedItem>
@@ -300,15 +306,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           onMintSuccess={refreshDashboard}
         />
         
-        {/* Admin-only Baseline Reset Tool */}
-        {isAdminView && (
+        {/* Admin-only Baseline Reset Tool - Hidden in New User View */}
+        {isAdminView && !isNewUserView && (
           <AnimatedItem>
             <AdminBaselineReset onResetComplete={refreshDashboard} />
           </AnimatedItem>
         )}
 
-        {/* Admin-only NFT Reset Tool */}
-        {isAdminView && (
+        {/* Admin-only NFT Reset Tool - Hidden in New User View */}
+        {isAdminView && !isNewUserView && (
           <AnimatedItem>
             <NFTResetPanel />
           </AnimatedItem>
