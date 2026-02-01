@@ -493,54 +493,12 @@ export function ActivityMetrics({
         )}
 
         {/* Total Available Tokens - Premium Hero Card */}
-        <motion.div 
-          onClick={activityUnits > 0 && onMintRequest ? () => onMintRequest({ category: 'all' }) : undefined}
-          onTouchEnd={activityUnits > 0 && onMintRequest ? (e) => { e.preventDefault(); onMintRequest({ category: 'all' }); } : undefined}
-          whileTap={activityUnits > 0 && onMintRequest ? { scale: 0.98 } : undefined}
-          whileHover={activityUnits > 0 && onMintRequest ? { scale: 1.01 } : undefined}
-          className={cn(
-            "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden touch-manipulation",
-            activityUnits > 0 && onMintRequest
-              ? "cursor-pointer border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
-              : "border-border/50 bg-muted/30"
-          )}
-        >
-          {/* Animated background glow for active state */}
-          {activityUnits > 0 && (
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-emerald-500/5 animate-pulse-glow" />
-          )}
-          
-          <div className={cn(
-            "relative p-3 rounded-xl transition-all",
-            activityUnits > 0 
-              ? "bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/30" 
-              : "bg-muted"
-          )}>
-            <Coins className={cn(
-              "h-6 w-6",
-              activityUnits > 0 ? "text-white" : "text-muted-foreground"
-            )} />
-          </div>
-          <div className="flex-1 min-w-0 relative">
-            <p className="text-sm text-muted-foreground font-medium">Total Available Tokens</p>
-            <p className="text-2xl font-bold text-foreground tracking-tight">
-              {tokensToReceive.toLocaleString()}
-              <span className="text-lg font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
-            </p>
-            <p className={cn(
-              "text-sm font-medium",
-              activityUnits > 0 ? "text-primary" : "text-muted-foreground"
-            )}>
-              ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} @ ${tokenPrice.toFixed(2)}
-            </p>
-          </div>
-          {activityUnits > 0 && onMintRequest && (
-            <div className="relative flex items-center gap-1 text-primary">
-              <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
-              <ChevronRight className="h-5 w-5" />
-            </div>
-          )}
-        </motion.div>
+        <TotalTokensCard 
+          tokensToReceive={tokensToReceive}
+          activityUnits={activityUnits}
+          tokenPrice={tokenPrice}
+          onMintRequest={onMintRequest}
+        />
 
         {/* Lifetime Minted Tokens - moved from NFT card */}
         <Link 
@@ -639,9 +597,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
     const deltaTime = Date.now() - touchStartRef.current.time;
     
     // Only trigger tap if:
-    // - Movement is less than 10px in any direction
-    // - Touch duration is less than 300ms (not a long press)
-    const isQuickTap = deltaX < 10 && deltaY < 10 && deltaTime < 300;
+    // - Movement is less than threshold in any direction
+    // - Touch duration is less than threshold (not a long press or scroll)
+    const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
     
     if (isQuickTap) {
       e.preventDefault();
@@ -705,6 +663,113 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
       {isTappable && (
         <div className={cn("flex items-center gap-1", styles.text)}>
           <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">Mint</span>
+          <ChevronRight className="h-5 w-5" />
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+// Touch threshold constants - shared across all tappable elements
+const TOUCH_DELTA_THRESHOLD = 15; // pixels - increased for better scroll detection
+const TOUCH_TIME_THRESHOLD = 400; // ms - increased to allow more deliberate taps
+
+interface TotalTokensCardProps {
+  tokensToReceive: number;
+  activityUnits: number;
+  tokenPrice: number;
+  onMintRequest?: (request: MintRequest) => void;
+}
+
+function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
+  const isTappable = activityUnits > 0 && onMintRequest;
+  
+  // Track touch start position to distinguish taps from scrolls
+  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+
+  const handleTap = () => {
+    if (isTappable && onMintRequest) {
+      onMintRequest({ category: 'all' });
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isTappable) return;
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isTappable || !touchStartRef.current) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+    
+    // Only trigger tap if:
+    // - Movement is less than threshold in any direction
+    // - Touch duration is less than threshold (not a long press or scroll)
+    const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
+    
+    if (isQuickTap) {
+      e.preventDefault();
+      handleTap();
+    }
+    
+    touchStartRef.current = null;
+  };
+
+  return (
+    <motion.div
+      onClick={handleTap}
+      onTouchStart={isTappable ? handleTouchStart : undefined}
+      onTouchEnd={isTappable ? handleTouchEnd : undefined}
+      whileTap={isTappable ? { scale: 0.98 } : undefined}
+      whileHover={isTappable ? { scale: 1.01 } : undefined}
+      className={cn(
+        "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden touch-manipulation",
+        isTappable
+          ? "cursor-pointer border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
+          : "border-border/50 bg-muted/30"
+      )}
+    >
+      {/* Animated background glow for active state */}
+      {activityUnits > 0 && (
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-emerald-500/5 animate-pulse-glow" />
+      )}
+      
+      <div className={cn(
+        "relative p-3 rounded-xl transition-all",
+        activityUnits > 0 
+          ? "bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/30" 
+          : "bg-muted"
+      )}>
+        <Coins className={cn(
+          "h-6 w-6",
+          activityUnits > 0 ? "text-white" : "text-muted-foreground"
+        )} />
+      </div>
+      <div className="flex-1 min-w-0 relative">
+        <p className="text-sm text-muted-foreground font-medium">Total Available Tokens</p>
+        <p className="text-2xl font-bold text-foreground tracking-tight">
+          {tokensToReceive.toLocaleString()}
+          <span className="text-lg font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
+        </p>
+        <p className={cn(
+          "text-sm font-medium",
+          activityUnits > 0 ? "text-primary" : "text-muted-foreground"
+        )}>
+          ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} @ ${tokenPrice.toFixed(2)}
+        </p>
+      </div>
+      {isTappable && (
+        <div className="relative flex items-center gap-1 text-primary">
+          <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
           <ChevronRight className="h-5 w-5" />
         </div>
       )}

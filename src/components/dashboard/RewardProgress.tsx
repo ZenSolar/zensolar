@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Award, ChevronRight, Sun, Car, Battery, Zap, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -82,13 +82,46 @@ interface CategoryDotProps {
 function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick }: CategoryDotProps) {
   const styles = categoryStyles[color];
   
+  // Touch tracking for scroll vs tap detection
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+  };
+  
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || !onClick) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+    
+    // Consistent thresholds
+    const isQuickTap = deltaX < 15 && deltaY < 15 && deltaTime < 400;
+    
+    if (isQuickTap) {
+      e.preventDefault();
+      onClick();
+    }
+    
+    touchStartRef.current = null;
+  };
+  
   return (
     <motion.button 
       onClick={onClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       className={cn(
-        "flex flex-col items-center gap-1 p-2 rounded-xl transition-all w-full",
+        "flex flex-col items-center gap-1 p-2 rounded-xl transition-all w-full touch-manipulation",
         isActive 
           ? cn("bg-gradient-to-br", styles.gradient, "shadow-lg", styles.glow)
           : "bg-muted/50 hover:bg-muted"
@@ -188,6 +221,40 @@ export function RewardProgress({
     return getMilestoneForCategory('solar', categoryValues);
   }, [selectedCategory, categoryValues]);
   
+  // Touch threshold constants - consistent with other dashboard elements
+  const TOUCH_DELTA_THRESHOLD = 15; // pixels
+  const TOUCH_TIME_THRESHOLD = 400; // ms
+  
+  // Track touch start for scroll vs tap detection
+  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+  };
+  
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+    
+    const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
+    
+    if (isQuickTap) {
+      e.preventDefault();
+      handleCycleCategory();
+    }
+    
+    touchStartRef.current = null;
+  };
+  
   // Cycle through categories on tap
   const handleCycleCategory = () => {
     lightTap(); // Haptic feedback
@@ -254,9 +321,11 @@ export function RewardProgress({
           </motion.div>
         ) : (
           <motion.div 
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
             onClick={handleCycleCategory}
             whileTap={{ scale: 0.98 }}
-            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted group cursor-pointer"
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted group cursor-pointer touch-manipulation"
           >
             <AnimatePresence mode="wait">
               {artwork && (

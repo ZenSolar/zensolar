@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Touch threshold constants - consistent with other dashboard elements
+const TOUCH_DELTA_THRESHOLD = 15; // pixels
+const TOUCH_TIME_THRESHOLD = 400; // ms
 
 interface TokenPriceCardProps {
   tokensHeld: number;
@@ -57,6 +61,36 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange 
     }
   };
 
+  // Touch tracking for scroll vs tap detection
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+  };
+  
+  const createTouchEndHandler = (action: () => void) => (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+    
+    const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
+    
+    if (isQuickTap) {
+      e.preventDefault();
+      action();
+    }
+    
+    touchStartRef.current = null;
+  };
+
   // Collapsed view - compact single row
   if (isCollapsed) {
     return (
@@ -69,7 +103,8 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange 
           <CardContent className="relative p-3">
             <button
               onClick={() => setIsCollapsed(false)}
-              onTouchEnd={(e) => { e.preventDefault(); setIsCollapsed(false); }}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={createTouchEndHandler(() => setIsCollapsed(false))}
               className="w-full flex items-center justify-between gap-3 group touch-manipulation"
             >
               <div className="flex items-center gap-2.5 min-w-0">
@@ -136,7 +171,8 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange 
               </motion.div>
               <button
                 onClick={() => setIsCollapsed(true)}
-                onTouchEnd={(e) => { e.preventDefault(); setIsCollapsed(true); }}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={createTouchEndHandler(() => setIsCollapsed(true))}
                 className="p-1.5 rounded-md hover:bg-muted/50 transition-colors touch-manipulation"
               >
                 <ChevronUp className="h-4 w-4 text-muted-foreground" />
