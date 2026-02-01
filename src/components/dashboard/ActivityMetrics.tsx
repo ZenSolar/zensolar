@@ -247,7 +247,7 @@ export function ActivityMetrics({
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Gauge className="h-4 w-4 text-primary" />
-            Clean Energy Command Center
+            Energy Command Center
           </h2>
           
           {/* Connected Provider Logos */}
