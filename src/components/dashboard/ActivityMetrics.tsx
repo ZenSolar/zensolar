@@ -175,13 +175,13 @@ export function ActivityMetrics({
   const effectiveHiddenFields = hiddenFields.filter(canHideField);
 
   // "Current Activity" is what is mintable
-  const current: CurrentActivity = currentActivity ?? {
-    solarKwh: Math.max(0, Math.floor(data.pendingSolarKwh || 0)),
-    evMiles: Math.max(0, Math.floor(data.pendingEvMiles || 0)),
-    batteryKwh: Math.max(0, Math.floor(data.pendingBatteryKwh || 0)),
-    chargingKwh: Math.max(0, Math.floor(data.pendingChargingKwh || 0)),
-    superchargerKwh: Math.max(0, Math.floor(data.pendingSuperchargerKwh || 0)),
-    homeChargerKwh: Math.max(0, Math.floor(data.pendingHomeChargerKwh || 0)),
+  const current: CurrentActivity = effectiveCurrentActivity ?? {
+    solarKwh: Math.max(0, Math.floor(effectiveData.pendingSolarKwh || 0)),
+    evMiles: Math.max(0, Math.floor(effectiveData.pendingEvMiles || 0)),
+    batteryKwh: Math.max(0, Math.floor(effectiveData.pendingBatteryKwh || 0)),
+    chargingKwh: Math.max(0, Math.floor(effectiveData.pendingChargingKwh || 0)),
+    superchargerKwh: Math.max(0, Math.floor(effectiveData.pendingSuperchargerKwh || 0)),
+    homeChargerKwh: Math.max(0, Math.floor(effectiveData.pendingHomeChargerKwh || 0)),
   };
 
   // Calculate total pending solar from individual devices when we have multiple
@@ -204,7 +204,7 @@ export function ActivityMetrics({
   const tokensToReceive = Math.floor(rawTokens * 0.75);
 
   // Filter to only Tesla/Enphase
-  const filteredProviders = connectedProviders.filter(p => p === 'tesla' || p === 'enphase');
+  const filteredProviders = effectiveConnectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
   // Device-specific labels (used when single device)
   // Format: (Name of system/device) + Activity Type
@@ -247,7 +247,7 @@ export function ActivityMetrics({
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Gauge className="h-4 w-4 text-primary" />
-            Energy Command Center
+            Clean Energy Command Center
           </h2>
           
           {/* Connected Provider Logos */}
@@ -558,7 +558,7 @@ export function ActivityMetrics({
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-muted-foreground">Lifetime Minted Tokens</p>
             <p className="text-xl font-bold text-foreground">
-              {lifetimeMinted?.toLocaleString() || '0'}
+              {effectiveLifetimeMinted?.toLocaleString() || '0'}
               <span className="text-sm font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
             </p>
           </div>
