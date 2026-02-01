@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserViewMode } from '@/lib/userViewMode';
+import { getNewUserViewMode } from '@/lib/userViewMode';
 
 export function useAdminCheck() {
   const { user, isLoading: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const [userViewMode, setUserViewMode] = useState(getUserViewMode());
+  const [userViewMode, setUserViewMode] = useState(getNewUserViewMode());
 
-  // Listen for user view mode changes
+  // Listen for new user view mode changes
   useEffect(() => {
     const handleModeChange = (event: CustomEvent<boolean>) => {
       setUserViewMode(event.detail);
     };
 
-    window.addEventListener('userViewModeChange', handleModeChange as EventListener);
+    window.addEventListener('newUserViewModeChange', handleModeChange as EventListener);
     return () => {
-      window.removeEventListener('userViewModeChange', handleModeChange as EventListener);
+      window.removeEventListener('newUserViewModeChange', handleModeChange as EventListener);
     };
   }, []);
 
