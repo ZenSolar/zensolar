@@ -155,8 +155,18 @@ export default function AdminYCApplication() {
               <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p>ZenSolar is a mobile/web app that rewards solar owners and EV drivers with $ZSOLAR tokens and collectible NFTs for their verified clean energy use. Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via OAuth. Our patent-pending Mint-on-Proof™ technology pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap—no external wallets or crypto knowledge required.</p>
+          <CardContent className="text-sm space-y-3">
+            <p>ZenSolar is a mobile/web app that rewards solar owners and EV drivers with $ZSOLAR tokens and collectible NFTs for their verified clean energy use.</p>
+            <p><strong>How it works:</strong> Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via secure OAuth. Our patent-pending Mint-on-Proof™ technology pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap—no external wallets or crypto knowledge required.</p>
+            <div>
+              <p className="font-medium mb-1">Key features:</p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li><strong>One-tap minting:</strong> $ZSOLAR tokens and milestone NFTs minted directly to your wallet, gasless.</li>
+                <li><strong>Embedded wallet (coming soon):</strong> Sign up with email/Google, wallet auto-created. No seed phrases, no MetaMask.</li>
+                <li><strong>In-app store:</strong> Redeem tokens for Tesla gift cards, solar equipment, and branded merch.</li>
+                <li><strong>In-app cash-out:</strong> Convert $ZSOLAR → USD → bank account without leaving the app.</li>
+              </ul>
+            </div>
           </CardContent>
         </Card>
 
@@ -187,8 +197,21 @@ export default function AdminYCApplication() {
               <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm">
-            <p>Live beta with 19 users on Base Sepolia testnet. Fully functional integrations with Tesla Fleet API, Enphase Monitoring API, SolarEdge Monitoring API, and Wallbox API for real-time energy data. Smart contracts deployed: $ZSOLAR (ERC-20) and ZenSolarNFT (ERC-1155 with 42 milestone achievement tiers). One-tap minting directly from the app—users connect devices in 60 seconds via OAuth, see real-time metrics on a dashboard, and mint tokens/NFTs without needing external wallets.</p>
+          <CardContent className="text-sm space-y-3">
+            <p>Live beta with 19 users on Base Sepolia testnet. Fully functional integrations with Tesla Fleet API, Enphase Monitoring API, SolarEdge Monitoring API, and Wallbox API for real-time energy data. Smart contracts deployed: $ZSOLAR (ERC-20) and ZenSolarNFT (ERC-1155 with 42 milestone achievement tiers).</p>
+            <p>Our patent-pending Mint-on-Proof™ architecture (provisional filed March 2025) enables one-tap minting directly from the app. Users connect their devices in 60 seconds via OAuth, see their real-time energy metrics on a dashboard, and mint tokens/NFTs without needing external wallets or blockchain knowledge.</p>
+            <div>
+              <p className="font-medium mb-1">Key milestones:</p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li>Functional 4-layer gateway architecture (API Aggregation → Data Normalization → Verification Engine → Smart Contract Bridge)</li>
+                <li>Multi-manufacturer OAuth flows working (Tesla, Enphase, SolarEdge, Wallbox)</li>
+                <li>42-tier NFT achievement system with category-specific milestones</li>
+                <li>In-app dropshipping store where users can redeem tokens for Tesla gift cards, power stations, and merch</li>
+                <li>Coinbase Smart Wallet integration (embedded wallets for frictionless onboarding)</li>
+                <li>Auto-minting subscriptions ($9.99-$19.99/month)</li>
+              </ul>
+            </div>
+            <p><strong>Next:</strong> Mainnet launch.</p>
           </CardContent>
         </Card>
 
@@ -277,6 +300,7 @@ export default function AdminYCApplication() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
+            <p>People should earn ongoing rewards for making sustainable choices.</p>
             <p>The United States is falling behind in the global clean energy race. China dominates solar manufacturing, Europe leads in per-capita EV adoption, and American clean energy growth has stalled at the moment we need it most. We must offset as much carbon as possible—every kilowatt-hour of clean energy produced, every EV mile driven, every battery cycle stored matters. ZenSolar is the answer to accelerate adoption by transforming passive clean energy owners into actively engaged participants.</p>
             <p>But ZenSolar isn't just about retention—it's a viral acquisition engine. When a solar owner posts "I generated 1,200 kWh and drove 800 miles in my Tesla this month—and earned $800 with ZenSolar," their friends without solar start asking questions. The platform turns every user into a walking billboard for clean energy adoption. New buyers don't just want solar for savings—they want solar to join the earning community.</p>
             <p>This vision is only possible now due to blockchain technology, smart contracts, and a founding mission rooted in integrity. We can cryptographically verify real-world energy production, mint rewards transparently, and create an economic flywheel that makes clean energy use financially rewarding—all without intermediaries or trust assumptions.</p>
