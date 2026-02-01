@@ -463,12 +463,18 @@ export default function AdminYCApplication() {
           </CardContent>
         </Card>
 
-        <Card className="print:shadow-none">
+        <Card className="print:shadow-none border-amber-200 bg-amber-50/50 dark:bg-amber-950/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">If you have not formed the company yet, describe the planned equity ownership breakdown among the founders, employees and any other proposed stockholders.</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              If you have not formed the company yet, describe the planned equity ownership breakdown among the founders, employees and any other proposed stockholders.
+              <Badge variant="outline" className="ml-auto border-amber-500 text-amber-600"><Clock className="h-3 w-3 mr-1" />Draft</Badge>
+            </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm">
-            <p>Solo founder (CEO): 100% equity at founding. Will allocate 10-15% employee option pool upon funding. Seeking technical cofounder who would receive meaningful equity stake (10-25% depending on experience and timing).</p>
+          <CardContent className="text-sm space-y-2">
+            <p>The numbers below are not finalized—I could use a mentor or advisor to help structure this properly.</p>
+            <p><strong>Planned structure:</strong> Solo founder (CEO): ~70-80% equity at founding. Will allocate 10-15% employee option pool upon funding. Seeking technical cofounder who would receive a meaningful equity stake (10-25% depending on experience and timing of joining).</p>
+            <p><strong>Token compensation:</strong> Considering offering employees $ZSOLAR token allocations in addition to (or partially in lieu of) traditional equity—this aligns incentives with protocol growth and gives employees direct stake in the token economy they're building.</p>
+            <p><strong>Note:</strong> I started ZenSolar as an LLC in 2018 (as a solar sales company), which will need to be dissolved. The crypto/blockchain product is a clean-slate pivot with new IP, so I plan to form a new C-Corp to house the current technology and cap table.</p>
           </CardContent>
         </Card>
 
@@ -504,11 +510,11 @@ export default function AdminYCApplication() {
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               What convinced you to apply to Y Combinator? Did someone encourage you to apply? Have you been to any YC events?
-              <Badge variant="outline" className="ml-auto border-amber-500 text-amber-600"><Clock className="h-3 w-3 mr-1" />Draft</Badge>
+              <Badge variant="secondary" className="ml-auto"><CheckCircle2 className="h-3 w-3 mr-1" />Ready</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <p>YC's track record with crypto companies (Coinbase, OpenSea) and the network effects of the alumni community convinced me to apply. I've followed YC content for years but haven't attended events. No one specifically encouraged me—this is a cold application based on believing ZenSolar fits YC's thesis of backing ambitious technical founders.</p>
+            <p>YC's track record with crypto companies (Coinbase, OpenSea) and the network effects of the alumni community convinced me to apply. I've followed YC content for years, but haven't attended events. No one specifically encouraged me. This is an application based on believing that ZenSolar fits YC's thesis of backing ambitious founders and that ZenSolar can turn into a unicorn, merging web2 users onto a web3 platform seamlessly.</p>
           </CardContent>
         </Card>
 
@@ -517,7 +523,7 @@ export default function AdminYCApplication() {
             <CardTitle className="text-base">How did you hear about Y Combinator?</CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <p>Tech news coverage of YC-backed companies over the past decade, plus following YC partners on Twitter/X.</p>
+            <p>Toby Corey and tech news coverage of YC-backed companies over the past decade, plus following YC partners on X.</p>
           </CardContent>
         </Card>
       </section>
