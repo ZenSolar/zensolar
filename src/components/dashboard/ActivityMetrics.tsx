@@ -173,19 +173,19 @@ export function ActivityMetrics({
     ? `${deviceLabels.solar} Solar Energy Produced` 
     : 'Solar Energy Produced';
   const batteryLabel = deviceLabels?.powerwall 
-    ? `${deviceLabels.powerwall} Battery Storage Discharged` 
-    : 'Battery Storage Discharged';
+    ? `${deviceLabels.powerwall} Battery Discharged` 
+    : 'Battery Discharged';
   const evLabel = deviceLabels?.vehicle 
-    ? `${deviceLabels.vehicle} EV Miles` 
-    : 'EV Miles';
+    ? `${deviceLabels.vehicle} EV Miles Driven` 
+    : 'EV Miles Driven';
   const superchargerLabel = deviceLabels?.vehicle
-    ? `${deviceLabels.vehicle} Tesla Supercharger`
-    : 'Tesla Supercharger';
+    ? `${deviceLabels.vehicle} Tesla Supercharging`
+    : 'Tesla Supercharging';
   const homeChargerLabel = deviceLabels?.wallConnector 
-    ? `${deviceLabels.wallConnector} Home Charger` 
+    ? `${deviceLabels.wallConnector} Home Charging` 
     : deviceLabels?.homeCharger
-    ? `${deviceLabels.homeCharger} Home Charger`
-    : 'Home Charger';
+    ? `${deviceLabels.homeCharger} Home Charging`
+    : 'Home Charging';
 
   // Separate charging values
   const superchargerKwh = current.superchargerKwh ?? 0;
