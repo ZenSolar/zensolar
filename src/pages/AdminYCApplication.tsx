@@ -157,7 +157,7 @@ export default function AdminYCApplication() {
           </CardHeader>
           <CardContent className="text-sm space-y-3">
             <p>ZenSolar is a mobile/web app that rewards solar owners and EV drivers with $ZSOLAR tokens and collectible NFTs for their verified clean energy use.</p>
-            <p><strong>How it works:</strong> Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via secure OAuth. Our patent-pending Mint-on-Proof™ technology pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap—no external wallets or crypto knowledge required.</p>
+            <p><strong>How it works:</strong> Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via secure OAuth. Our <strong>Mint-on-Proof™</strong> (trademark pending) technology—powered by our <strong>SEGI</strong> (Software-Enabled Gateway Interface, trademark pending) architecture—pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap—no external wallets or crypto knowledge required. Patent provisional filed March 2025.</p>
             <div>
               <p className="font-medium mb-1">Key features:</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
@@ -200,7 +200,7 @@ export default function AdminYCApplication() {
           </CardHeader>
           <CardContent className="text-sm space-y-3">
             <p>Live beta with 19 users on Base Sepolia testnet. Fully functional integrations with Tesla Fleet API, Enphase Monitoring API, SolarEdge Monitoring API, and Wallbox API for real-time energy data. Smart contracts deployed: $ZSOLAR (ERC-20) and ZenSolarNFT (ERC-1155 with 42 milestone achievement tiers).</p>
-            <p>Our patent-pending Mint-on-Proof™ architecture (provisional filed March 2025) enables one-tap minting directly from the app. Users connect their devices in 60 seconds via OAuth, see their real-time energy metrics on a dashboard, and mint tokens/NFTs without needing external wallets or blockchain knowledge.</p>
+            <p>Our <strong>Mint-on-Proof™</strong> (trademark pending) architecture—built on our <strong>SEGI</strong> (Software-Enabled Gateway Interface, trademark pending)—enables one-tap minting directly from the app. Patent provisional filed March 2025. Users connect their devices in 60 seconds via OAuth, see their real-time energy metrics on a dashboard, and mint tokens/NFTs without needing external wallets or blockchain knowledge.</p>
             <div>
               <p className="font-medium mb-1">Key milestones:</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
@@ -321,7 +321,7 @@ export default function AdminYCApplication() {
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <p>Blockchain "X-to-Earn" sustainability dApps; the closest direct competitor is EVearn by VeBetterDAO on VeChain, which rewards EV drivers (starting with Tesla) with $B3TR tokens for charging sessions.</p>
-            <p>What we understand that they don't: (1) <strong>Multi-vertical:</strong> EVearn rewards only EV charging—we capture the full clean energy stack (solar + battery + EV + charging). (2) <strong>Mint-on-Proof™:</strong> Our system mints on-demand from verified API data—no pre-minted pools. (3) <strong>True Web2 UX:</strong> Competitors require external wallets and crypto knowledge; ZenSolar users sign up with email, earn rewards, and cash out to their bank—never leaving the app, never seeing a seed phrase. (4) <strong>Timing:</strong> Federal incentives phase out 2025-2026—we become the replacement motivation layer. (5) <strong>Commercial tier:</strong> $99-$499/month B2B for solar installers and fleet managers—a revenue stream competitors haven't addressed.</p>
+            <p>What we understand that they don't: (1) <strong>Multi-vertical:</strong> EVearn rewards only EV charging—we capture the full clean energy stack (solar + battery + EV + charging). (2) <strong>Mint-on-Proof™ (trademark pending):</strong> Our SEGI (Software-Enabled Gateway Interface, trademark pending) architecture mints on-demand from verified API data—no pre-minted pools. Patent provisional filed. (3) <strong>True Web2 UX:</strong> Competitors require external wallets and crypto knowledge; ZenSolar users sign up with email, earn rewards, and cash out to their bank—never leaving the app, never seeing a seed phrase. (4) <strong>Timing:</strong> Federal incentives phase out 2025-2026—we become the replacement motivation layer. (5) <strong>Commercial tier:</strong> $99-$499/month B2B for solar installers and fleet managers—a revenue stream competitors haven't addressed.</p>
           </CardContent>
         </Card>
 
