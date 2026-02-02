@@ -225,7 +225,7 @@ export default function Landing() {
                 </li>
               </ul>
               {/* Monetize tagline - styled like Beta badge */}
-              <div className="mt-4 inline-flex items-center px-5 py-2.5 rounded-full border-primary/50 bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 animate-breathing-glow">
+              <div className="mt-6 inline-flex items-center px-5 py-2.5 rounded-full border-primary/50 bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 animate-breathing-glow">
                 <span className="text-sm tracking-tight">Start monetizing your sustainable lifestyle →</span>
               </div>
             </div>
