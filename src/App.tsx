@@ -69,6 +69,7 @@ const AdminBetaDeployment = lazy(() => import("./pages/AdminBetaDeployment"));
 const AdminTodo = lazy(() => import("./pages/AdminTodo"));
 const AdminWalletProviders = lazy(() => import("./pages/AdminWalletProviders"));
 const AdminYCApplication = lazy(() => import("./pages/AdminYCApplication"));
+const AdminFutureRoadmap = lazy(() => import("./pages/AdminFutureRoadmap"));
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
@@ -553,6 +554,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <EmbeddedWalletDemo />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/future-roadmap" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminFutureRoadmap />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
