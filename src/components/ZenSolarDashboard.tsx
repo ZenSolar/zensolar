@@ -172,8 +172,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
                 to="/technology" 
                 className="text-primary hover:text-primary/80 font-semibold underline underline-offset-2 transition-all duration-300 hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
               >
-                Mint-on-Proof™ technology
-              </Link>.
+                Mint-on-Proof™
+              </Link>{' '}
+              technology.
             </p>
           </div>
         </AnimatedItem>
