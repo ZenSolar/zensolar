@@ -161,10 +161,11 @@ export default function AdminYCApplication() {
             <div>
               <p className="font-medium mb-1">Key features:</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
+                <li><strong>Zero external apps:</strong> Users never leave ZenSolar—wallet creation, minting, redemption, and cash-out all happen in-app.</li>
                 <li><strong>One-tap minting:</strong> $ZSOLAR tokens and milestone NFTs minted directly to your wallet, gasless.</li>
-                <li><strong>Embedded wallet (coming soon):</strong> Sign up with email/Google, wallet auto-created. No seed phrases, no MetaMask.</li>
+                <li><strong>Embedded wallet:</strong> Sign up with email/Google, wallet auto-created. No seed phrases, no MetaMask, no browser extensions.</li>
                 <li><strong>In-app store:</strong> Redeem tokens for Tesla gift cards, solar equipment, and branded merch.</li>
-                <li><strong>In-app cash-out:</strong> Convert $ZSOLAR → USD → bank account without leaving the app.</li>
+                <li><strong>In-app cash-out:</strong> Convert $ZSOLAR → USD → bank account without leaving the app—KYC and bank linking handled via embedded widget.</li>
               </ul>
             </div>
           </CardContent>
@@ -207,7 +208,8 @@ export default function AdminYCApplication() {
                 <li>Multi-manufacturer OAuth flows working (Tesla, Enphase, SolarEdge, Wallbox)</li>
                 <li>42-tier NFT achievement system with category-specific milestones</li>
                 <li>In-app dropshipping store where users can redeem tokens for Tesla gift cards, power stations, and merch</li>
-                <li>Coinbase Smart Wallet integration (embedded wallets for frictionless onboarding)</li>
+                <li>Coinbase Smart Wallet integration—users sign up with email, wallet auto-created, no seed phrases or extensions</li>
+                <li>In-app cash-out flow—convert $ZSOLAR to USD via embedded fiat off-ramp, directly to bank account</li>
                 <li>Auto-minting subscriptions ($9.99-$19.99/month)</li>
               </ul>
             </div>
@@ -319,7 +321,7 @@ export default function AdminYCApplication() {
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <p>Blockchain "X-to-Earn" sustainability dApps; the closest direct competitor is EVearn by VeBetterDAO on VeChain, which rewards EV drivers (starting with Tesla) with $B3TR tokens for charging sessions.</p>
-            <p>What we understand that they don't: (1) <strong>Multi-vertical:</strong> EVearn rewards only EV charging—we capture the full clean energy stack (solar + battery + EV + charging). (2) <strong>Mint-on-Proof™:</strong> Our system mints on-demand from verified API data—no pre-minted pools. (3) <strong>Embedded wallet:</strong> Competitors require external wallets; we're building frictionless email-signup onboarding. (4) <strong>Timing:</strong> Federal incentives phase out 2025-2026—we become the replacement motivation layer. (5) <strong>Commercial tier:</strong> $99-$499/month B2B for solar installers and fleet managers—a revenue stream competitors haven't addressed.</p>
+            <p>What we understand that they don't: (1) <strong>Multi-vertical:</strong> EVearn rewards only EV charging—we capture the full clean energy stack (solar + battery + EV + charging). (2) <strong>Mint-on-Proof™:</strong> Our system mints on-demand from verified API data—no pre-minted pools. (3) <strong>True Web2 UX:</strong> Competitors require external wallets and crypto knowledge; ZenSolar users sign up with email, earn rewards, and cash out to their bank—never leaving the app, never seeing a seed phrase. (4) <strong>Timing:</strong> Federal incentives phase out 2025-2026—we become the replacement motivation layer. (5) <strong>Commercial tier:</strong> $99-$499/month B2B for solar installers and fleet managers—a revenue stream competitors haven't addressed.</p>
           </CardContent>
         </Card>
 
@@ -514,7 +516,7 @@ export default function AdminYCApplication() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <p>YC's track record with crypto companies (Coinbase, OpenSea) and the network effects of the alumni community convinced me to apply. I've followed YC content for years, but haven't attended events. No one specifically encouraged me. This is an application based on believing that ZenSolar fits YC's thesis of backing ambitious founders and that ZenSolar can turn into a unicorn, merging web2 users onto a web3 platform seamlessly.</p>
+            <p>YC's track record with crypto companies (Coinbase, OpenSea) and the network effects of the alumni community convinced me to apply. I've followed YC content for years, but haven't attended events. No one specifically encouraged me. This is an application based on believing that ZenSolar fits YC's thesis of backing ambitious founders—and that ZenSolar can become a unicorn by doing what crypto has failed to do: onboard mainstream users without friction. Our users don't know they're using blockchain. They sign up, connect devices, earn rewards, and cash out—all without ever leaving the app or learning crypto terminology.</p>
           </CardContent>
         </Card>
 
