@@ -73,10 +73,6 @@ export default function AdminYCApplication() {
               <span><strong>Mint-on-Proof™</strong> — Application pending</span>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-amber-500 text-amber-600">Trademark</Badge>
-              <span><strong>SEGI™</strong> (Software-Enabled Gateway Interface) — Application pending</span>
-            </div>
-            <div className="flex items-center gap-2">
               <Badge variant="outline" className="border-blue-500 text-blue-600">Trade Secret</Badge>
               <span>Proprietary verification algorithms &amp; scoring logic</span>
             </div>
@@ -184,7 +180,7 @@ export default function AdminYCApplication() {
           <CardContent className="text-sm space-y-3">
             <p>ZenSolar is a mobile/web app that rewards solar owners and EV drivers with $ZSOLAR tokens and collectible NFTs for their verified clean energy use. We're building the financial incentive layer that the clean energy transition desperately needs.</p>
             
-            <p><strong>How it works:</strong> Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via secure OAuth. Our patent-pending <strong>Mint-on-Proof™</strong> technology—powered by our <strong>SEGI™</strong> (Software-Enabled Gateway Interface) architecture—pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap.</p>
+            <p><strong>How it works:</strong> Users connect their Tesla, Enphase, SolarEdge, or Wallbox devices via secure OAuth. Our patent-pending <strong>Mint-on-Proof™</strong> technology—powered by our <strong>SEGI</strong> (Software-Enabled Gateway Interface) architecture—pulls real-time production data from manufacturer APIs, verifies it cryptographically, and lets users mint blockchain rewards with a single tap.</p>
             
             <div>
               <p className="font-medium mb-1">What makes us different:</p>
@@ -201,7 +197,7 @@ export default function AdminYCApplication() {
               <p className="font-medium mb-1">IP Protection:</p>
               <ul className="list-disc list-inside space-y-1 ml-2 text-xs">
                 <li><strong>Patent:</strong> Provisional filed March 2025 — Energy-to-blockchain verification system</li>
-                <li><strong>Trademarks (pending):</strong> Mint-on-Proof™, SEGI™ (Software-Enabled Gateway Interface)</li>
+                <li><strong>Trademark (pending):</strong> Mint-on-Proof™</li>
               </ul>
             </div>
           </CardContent>
@@ -245,7 +241,7 @@ export default function AdminYCApplication() {
               </ul>
             </div>
 
-            <p>Our <strong>Mint-on-Proof™</strong> (trademark pending) architecture—built on our <strong>SEGI™</strong> (Software-Enabled Gateway Interface, trademark pending)—enables one-tap minting directly from the app. Patent provisional filed March 2025. Users connect their devices in 60 seconds via OAuth, see their real-time energy metrics on a dashboard, and mint tokens/NFTs without needing external wallets or blockchain knowledge.</p>
+            <p>Our <strong>Mint-on-Proof™</strong> (trademark pending) architecture—built on our <strong>SEGI</strong> (Software-Enabled Gateway Interface)—enables one-tap minting directly from the app. Patent provisional filed March 2025. Users connect their devices in 60 seconds via OAuth, see their real-time energy metrics on a dashboard, and mint tokens/NFTs without needing external wallets or blockchain knowledge.</p>
             
             <div>
               <p className="font-medium mb-1">Key milestones completed:</p>
@@ -390,7 +386,7 @@ export default function AdminYCApplication() {
               <p className="font-medium mb-2">What we understand that they don't:</p>
               <ul className="list-disc list-inside space-y-2 ml-2">
                 <li><strong>Multi-vertical advantage:</strong> EVearn rewards only EV charging—we capture the full clean energy stack (solar + battery + EV + charging). More touchpoints = more engagement = higher LTV.</li>
-                <li><strong>Mint-on-Proof™ (trademark pending):</strong> Our SEGI™ (Software-Enabled Gateway Interface, trademark pending) architecture mints on-demand from verified API data—no pre-minted pools or inflation risk. Patent provisional filed March 2025.</li>
+                <li><strong>Mint-on-Proof™ (trademark pending):</strong> Our SEGI (Software-Enabled Gateway Interface) architecture mints on-demand from verified API data—no pre-minted pools or inflation risk. Patent provisional filed March 2025.</li>
                 <li><strong>True Web2 UX:</strong> Competitors require external wallets, seed phrases, and crypto knowledge. ZenSolar users sign up with email, earn rewards, and cash out to their bank—never leaving the app, never seeing a seed phrase. They don't even know they're using blockchain.</li>
                 <li><strong>Timing:</strong> Federal incentives phase out 2025-2026—we become the replacement motivation layer as government support disappears.</li>
                 <li><strong>Commercial tier:</strong> $99-$499/month B2B for solar installers and fleet managers—a revenue stream competitors haven't addressed.</li>
