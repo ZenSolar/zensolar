@@ -335,7 +335,7 @@ export default function AdminYCApplication() {
               <li>$9.99/month (monthly auto-minting) — casual users</li>
               <li>$19.99/month (daily auto-minting) — power users</li>
               <li>$99-$499/month (commercial tier) — commercial solar users and EV fleet managers</li>
-              <li>3.5% transaction fee on all token activity (1.5% burn, 2% treasury)</li>
+              <li>7% transfer tax on all token trades (3% burn, 2% LP, 2% treasury) — deflationary by design</li>
             </ul>
             
             <div>
