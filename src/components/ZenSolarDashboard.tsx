@@ -111,7 +111,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     .map(acc => acc.service);
 
   const firstName = profile?.display_name?.trim().split(/\s+/)[0];
-  const dashboardTitle = firstName ? `Welcome Back, ${firstName}!` : 'Dashboard';
+  const dashboardTitle = firstName ? `Welcome, ${firstName}!` : 'Dashboard';
 
   // Calculate total NFTs available for minting (1 welcome + milestones + combos)
   const solarEarned = calculateEarnedMilestones(activityData.solarEnergyProduced, SOLAR_MILESTONES);
