@@ -110,8 +110,8 @@ export default function AdminYCApplication() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <p>Yes—specifically a technical cofounder with blockchain/Web3 experience. Ideally someone who shares my obsession with user experience and can own smart contract security, embedded wallet integration, and mainnet deployment while I focus on product, growth, and partnerships.</p>
-            <p>I've learned that building alone can be lonely, and I'm genuinely excited about finding someone who complements my strengths and challenges my assumptions. The best products come from healthy tension between perspectives.</p>
+            <p>I'm open to the right co-founder but not actively searching. My ideal partner combines deep Web3/blockchain engineering with startup growth experience—someone who's scaled a user base from zero. That profile is rare, and I'd rather build traction solo (leveraging AI as a force multiplier) than rush into a mismatch.</p>
+            <p>Honestly, I believe raising initial capital would help attract that caliber of partner. My professional network is strong in sales, operations, and clean energy—but light on crypto-native engineers with startup experience. Until I find the right fit, I'm proving I can ship at team velocity alone—which I hope demonstrates the kind of founder who'd make a strong co-founder magnet when the time is right.</p>
           </CardContent>
         </Card>
 
