@@ -164,16 +164,17 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             alt="ZenSolar" 
             className="h-10 w-auto object-contain dark:animate-logo-glow" 
           />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{dashboardTitle}</h1>
-            <p className="text-sm text-muted-foreground">
-              Mint $ZSOLAR tokens and NFTs directly to your wallet — powered by{' '}
+          <div className="space-y-1.5">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
+              Earn $ZSOLAR for every kWh you generate — powered by{' '}
               <Link 
                 to="/technology" 
                 className="text-primary hover:text-primary/80 font-semibold underline underline-offset-2 transition-all duration-300 hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
               >
-                patent-pending Mint-on-Proof™ technology
-              </Link>.
+                Mint-on-Proof™ technology
+              </Link>
+              <span className="text-muted-foreground/70">, patent-pending</span>.
             </p>
           </div>
         </AnimatedItem>
