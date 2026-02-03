@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
-import { DollarSign, Users, ShoppingBag, PiggyBank, ArrowRight } from 'lucide-react';
+import { DollarSign, Users, ShoppingBag, PiggyBank, ArrowRight, Coins, TrendingUp } from 'lucide-react';
 
 const valueFlows = [
   {
@@ -117,7 +117,7 @@ export function ValueSourceSection() {
             </div>
           </div>
 
-          {/* Key Message */}
+          {/* Credit Card Analogy */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -128,6 +128,68 @@ export function ValueSourceSection() {
               💡 Think of it like credit card rewards—you earn when you use our platform, funded by the business, not by other users.
             </p>
           </motion.div>
+        </CardContent>
+      </Card>
+
+      {/* Token Value Explainer */}
+      <Card className="overflow-hidden border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg flex-shrink-0">
+              <Coins className="h-6 w-6 text-white" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-foreground text-lg">
+                Why Does $ZSOLAR Have a Dollar Value?
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                When we launch $ZSOLAR, we pair it with real US dollars in a trading pool. 
+                This instantly creates a market price—similar to how a gift card has value 
+                because actual money backs it.
+              </p>
+            </div>
+          </div>
+
+          {/* Simple Visual */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex items-center justify-center gap-3 p-4 rounded-xl bg-background/50 border border-border/50"
+          >
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-1">
+                <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <p className="text-xs font-medium text-foreground">Real Dollars</p>
+            </div>
+            <div className="text-2xl text-muted-foreground/50">+</div>
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-1">
+                <Coins className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <p className="text-xs font-medium text-foreground">$ZSOLAR</p>
+            </div>
+            <div className="text-2xl text-muted-foreground/50">=</div>
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-1">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-xs font-medium text-foreground">Market Price</p>
+            </div>
+          </motion.div>
+
+          {/* Key Point */}
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            As more subscription revenue flows into the pool, the backing grows—which can increase the token's value over time. 
+            This isn't speculation or hype; it's straightforward economics.
+          </p>
+
+          {/* Subtle Reassurance */}
+          <div className="flex items-center gap-2 pt-2 text-xs text-muted-foreground/80">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>Your rewards are backed by real business revenue, not promises.</span>
+          </div>
         </CardContent>
       </Card>
     </motion.div>
