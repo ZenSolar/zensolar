@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { 
   ActivityData, 
   ConnectedAccount, 
@@ -11,6 +11,7 @@ import {
 } from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { PROFILE_UPDATED_EVENT } from '@/hooks/useProfile';
 import { 
   isSolarDevice, 
   isBatteryDevice, 
@@ -65,6 +66,7 @@ export function useDashboardData() {
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(null);
+  const hasAutoRefreshedOnce = useRef(false);
 
   type ProviderKey = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
   type ProviderRefreshState = {
@@ -83,48 +85,72 @@ export function useDashboardData() {
     solaredge: { status: 'idle' },
     wallbox: { status: 'idle' },
   });
-  // Fetch profile connections separately
-  useEffect(() => {
-    const fetchConnections = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
+  const fetchConnections = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setProfileConnections(null);
+      setConnectedAccounts([
+        { service: 'tesla', connected: false, label: 'Tesla' },
+        { service: 'enphase', connected: false, label: 'Enphase' },
+        { service: 'solaredge', connected: false, label: 'SolarEdge' },
+        { service: 'wallbox', connected: false, label: 'Wallbox' },
+      ]);
+      setIsLoading(false);
+      return;
+    }
 
-      // Use maybeSingle() to gracefully handle missing profiles (race condition for new users)
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
-        .eq('user_id', user.id)
-        .maybeSingle();
+    // Use maybeSingle() to gracefully handle missing profiles (race condition for new users)
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching profile connections:', error);
-      }
+    if (error) {
+      console.error('Error fetching profile connections:', error);
+    }
 
-      if (profile) {
-        setProfileConnections(profile);
-        setConnectedAccounts([
-          { service: 'tesla', connected: profile.tesla_connected || false, label: 'Tesla' },
-          { service: 'enphase', connected: profile.enphase_connected || false, label: 'Enphase' },
-          { service: 'solaredge', connected: profile.solaredge_connected || false, label: 'SolarEdge' },
-          { service: 'wallbox', connected: profile.wallbox_connected || false, label: 'Wallbox' },
-        ]);
-      } else {
-        // Profile not ready yet - use defaults (all disconnected)
-        setProfileConnections({
+    const connections: ProfileConnections = profile
+      ? {
+          tesla_connected: profile.tesla_connected || false,
+          enphase_connected: profile.enphase_connected || false,
+          solaredge_connected: profile.solaredge_connected || false,
+          wallbox_connected: profile.wallbox_connected || false,
+        }
+      : {
           tesla_connected: false,
           enphase_connected: false,
           solaredge_connected: false,
           wallbox_connected: false,
-        });
-      }
-      setIsLoading(false);
+        };
+
+    setProfileConnections(connections);
+    setConnectedAccounts([
+      { service: 'tesla', connected: connections.tesla_connected, label: 'Tesla' },
+      { service: 'enphase', connected: connections.enphase_connected, label: 'Enphase' },
+      { service: 'solaredge', connected: connections.solaredge_connected, label: 'SolarEdge' },
+      { service: 'wallbox', connected: connections.wallbox_connected, label: 'Wallbox' },
+    ]);
+
+    setIsLoading(false);
+  }, []);
+
+  // Initial load
+  useEffect(() => {
+    fetchConnections();
+  }, [fetchConnections]);
+
+  // Keep connection state in sync (Onboarding, Profile, Device selection, etc.)
+  useEffect(() => {
+    const handleProfileUpdated = () => {
+      // Allow one more automatic refresh after a connection is completed.
+      hasAutoRefreshedOnce.current = false;
+      fetchConnections();
     };
 
-    fetchConnections();
-  }, []);
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+  }, [fetchConnections]);
 
   const fetchEnphaseData = useCallback(async () => {
     try {
@@ -847,6 +873,25 @@ export function useDashboardData() {
       setIsLoading(false);
     }
   }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels, fetchMintedTokens, fetchDevicesSnapshot]);
+
+  // Auto-refresh once when the user has at least one connected provider.
+  // This ensures that after connecting Tesla during onboarding, the FIRST dashboard view
+  // pulls and displays KPIs without requiring a manual refresh.
+  useEffect(() => {
+    if (!profileConnections) return;
+    if (hasAutoRefreshedOnce.current) return;
+
+    const anyConnected =
+      profileConnections.tesla_connected ||
+      profileConnections.enphase_connected ||
+      profileConnections.solaredge_connected ||
+      profileConnections.wallbox_connected;
+
+    if (!anyConnected) return;
+
+    hasAutoRefreshedOnce.current = true;
+    refreshDashboard();
+  }, [profileConnections, refreshDashboard]);
 
   // Auto-refresh when connections change
   useEffect(() => {
