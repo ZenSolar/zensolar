@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { WalletChoiceScreen, WalletChoice } from "@/components/onboarding/WalletChoiceScreen";
 import { WalletSetupScreen } from "@/components/onboarding/WalletSetupScreen";
@@ -97,6 +97,29 @@ export default function Onboarding() {
   useEffect(() => {
     trackWalletChoiceViewed();
   }, []);
+
+  // Handle window focus to detect if user returned from OAuth popup without completing
+  // This prevents the "frozen" state when user closes the OAuth popup
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      // If we were in the middle of an OAuth flow but came back, clear the connecting state after a delay
+      // The delay allows successful OAuth redirects to complete first
+      if (connectingProvider === 'tesla' || connectingProvider === 'enphase') {
+        const timeoutId = setTimeout(() => {
+          // Check if we're still on energy-connect step (not redirected to success)
+          // and no dialog is open (meaning OAuth failed/was cancelled)
+          if (!showEnphaseDialog && !showDeviceSelection) {
+            setConnectingProvider(null);
+          }
+        }, 2000); // Give OAuth redirect time to complete
+        
+        return () => clearTimeout(timeoutId);
+      }
+    };
+
+    window.addEventListener('focus', handleWindowFocus);
+    return () => window.removeEventListener('focus', handleWindowFocus);
+  }, [connectingProvider, showEnphaseDialog, showDeviceSelection]);
 
   // Check if we should skip to a specific step or handle OAuth callback
   useEffect(() => {
@@ -286,12 +309,23 @@ export default function Onboarding() {
   };
 
   const handleGoToDashboard = () => {
-    navigate('/');
+    // Dispatch profile update one more time before navigating to ensure dashboard picks up changes
+    dispatchProfileUpdated();
+    // Small delay to allow the event to propagate before navigation
+    setTimeout(() => navigate('/'), 100);
   };
 
   const handleBack = () => {
     setStep('wallet-choice');
   };
+
+  // Cancel the current OAuth connecting state
+  const handleCancelConnecting = useCallback(() => {
+    setConnectingProvider(null);
+    localStorage.removeItem('tesla_oauth_state');
+    localStorage.removeItem('tesla_oauth_pending');
+    localStorage.removeItem('onboarding_energy_flow');
+  }, []);
 
   // Determine if we should show progress indicator (not on wallet-choice)
   const showProgress = step !== 'wallet-choice';
@@ -348,6 +382,7 @@ export default function Onboarding() {
           <EnergyConnectionScreen
             onConnect={handleEnergyConnect}
             onSkip={handleEnergySkip}
+            onCancelConnecting={handleCancelConnecting}
             isConnecting={connectingProvider}
             connectedProviders={connectedProviders}
           />

@@ -13,8 +13,8 @@ export function OnboardingProgress({
   stepLabels = ['Wallet', 'Energy', 'Done']
 }: OnboardingProgressProps) {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-      <div className="max-w-md mx-auto px-4 py-3">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border pt-safe">
+      <div className="max-w-md mx-auto px-4 py-3 pt-2">
         {/* Progress bar */}
         <div className="flex items-center gap-2 mb-2">
           {Array.from({ length: totalSteps }).map((_, index) => {

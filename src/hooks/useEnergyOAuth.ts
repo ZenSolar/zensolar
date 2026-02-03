@@ -71,7 +71,14 @@ export function useEnergyOAuth() {
       const { authUrl, useManualCode } = response.data;
       
       // Open Enphase auth in new window - user will copy code manually
-      window.open(authUrl, '_blank', 'width=600,height=700');
+      // Use noopener,noreferrer for security but still allow window to open
+      const popup = window.open(authUrl, 'enphase_auth', 'width=600,height=700,noopener');
+      
+      // If popup was blocked, try opening in a new tab
+      if (!popup) {
+        window.open(authUrl, '_blank');
+        toast.info('Enphase authorization opened in a new tab');
+      }
       
       return { useManualCode: true };
     } catch (error) {
