@@ -97,22 +97,25 @@
     </div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Remove splash screen once React app is ready
-      window.addEventListener('DOMContentLoaded', function() {
-        // Give React a moment to render, then fade out splash
-        setTimeout(function() {
-          var splash = document.getElementById('splash-screen');
-          if (splash) {
-            splash.style.transition = 'opacity 0.3s ease-out';
-            splash.style.opacity = '0';
-            setTimeout(function() {
-              if (splash && splash.parentNode) {
-                splash.parentNode.removeChild(splash);
-              }
-            }, 300);
-          }
-        }, 100);
-      });
+      // Remove splash screen once React app signals it's ready
+      // React will call window.hideSplashScreen() when mounted
+      window.hideSplashScreen = function() {
+        var splash = document.getElementById('splash-screen');
+        if (splash) {
+          splash.style.transition = 'opacity 0.3s ease-out';
+          splash.style.opacity = '0';
+          setTimeout(function() {
+            if (splash && splash.parentNode) {
+              splash.parentNode.removeChild(splash);
+            }
+          }, 300);
+        }
+      };
+      
+      // Fallback: remove splash after 5 seconds if React hasn't loaded
+      setTimeout(function() {
+        window.hideSplashScreen();
+      }, 5000);
     </script>
   </body>
 </html>
