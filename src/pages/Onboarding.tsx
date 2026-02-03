@@ -267,6 +267,7 @@ export default function Onboarding() {
           onConnect={handleEnergyConnect}
           onSkip={handleEnergySkip}
           isConnecting={connectingProvider}
+          connectedProviders={connectedProviders}
         />
       )}
 
