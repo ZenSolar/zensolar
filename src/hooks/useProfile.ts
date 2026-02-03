@@ -3,6 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
+// Custom event for profile updates - allows cross-component communication
+export const PROFILE_UPDATED_EVENT = 'zensolar:profile-updated';
+
+// Helper to dispatch profile update event
+export function dispatchProfileUpdated() {
+  window.dispatchEvent(new CustomEvent(PROFILE_UPDATED_EVENT));
+}
+
 interface Profile {
   id: string;
   user_id: string;
@@ -82,6 +90,19 @@ export function useProfile() {
     fetchProfile();
   }, [fetchProfile]);
 
+  // Listen for profile update events from other components
+  useEffect(() => {
+    const handleProfileUpdated = () => {
+      console.log('Profile update event received, refetching...');
+      fetchProfile();
+    };
+
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+    return () => {
+      window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+    };
+  }, [fetchProfile]);
+
   const updateProfile = useCallback(async (updates: Partial<Profile>) => {
     if (!user) return { error: new Error('Not authenticated') };
 
@@ -96,6 +117,8 @@ export function useProfile() {
     }
 
     await fetchProfile();
+    // Dispatch event so other components can react
+    dispatchProfileUpdated();
     return { error: null };
   }, [user, fetchProfile]);
 
