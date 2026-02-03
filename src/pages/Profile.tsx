@@ -12,6 +12,16 @@ import { motion } from "framer-motion";
 import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectDialog";
 import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Mail, 
   Wallet, 
@@ -94,6 +104,7 @@ export default function Profile() {
   const [wallboxDialogOpen, setWallboxDialogOpen] = useState(false);
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
+  const [disconnectConfirm, setDisconnectConfirm] = useState<'tesla' | 'enphase' | 'solaredge' | 'wallbox' | null>(null);
 
   const handleRefresh = useCallback(async () => {
     await refetch();
@@ -166,8 +177,25 @@ export default function Profile() {
     return success;
   };
 
-  const handleDisconnectEnergy = (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => {
-    disconnectAccount(service);
+  const handleDisconnectEnergyRequest = (service: 'tesla' | 'enphase' | 'solaredge' | 'wallbox') => {
+    setDisconnectConfirm(service);
+  };
+
+  const handleDisconnectEnergyConfirm = () => {
+    if (disconnectConfirm) {
+      disconnectAccount(disconnectConfirm);
+      setDisconnectConfirm(null);
+    }
+  };
+
+  const getProviderDisplayName = (service: string) => {
+    const names: Record<string, string> = {
+      tesla: 'Tesla',
+      enphase: 'Enphase',
+      solaredge: 'SolarEdge',
+      wallbox: 'Wallbox',
+    };
+    return names[service] || service;
   };
 
   const handleConnectSocial = async (id: string, handle: string) => {
@@ -501,7 +529,7 @@ export default function Profile() {
                   iconBg="bg-red-500/10"
                   iconColor="text-red-500"
                   onConnect={handleConnectEnergy}
-                  onDisconnect={handleDisconnectEnergy}
+                  onDisconnect={handleDisconnectEnergyRequest}
                 />
                 <EnergyProviderCard 
                   name="Enphase" 
@@ -515,7 +543,7 @@ export default function Profile() {
                   iconBg="bg-orange-500/10"
                   iconColor="text-orange-500"
                   onConnect={handleConnectEnergy}
-                  onDisconnect={handleDisconnectEnergy}
+                  onDisconnect={handleDisconnectEnergyRequest}
                 />
                 <EnergyProviderCard 
                   name="SolarEdge" 
@@ -529,7 +557,7 @@ export default function Profile() {
                   iconBg="bg-amber-500/10"
                   iconColor="text-amber-500"
                   onConnect={handleConnectEnergy}
-                  onDisconnect={handleDisconnectEnergy}
+                  onDisconnect={handleDisconnectEnergyRequest}
                 />
                 <EnergyProviderCard 
                   name="Wallbox" 
@@ -543,12 +571,34 @@ export default function Profile() {
                   iconBg="bg-green-500/10"
                   iconColor="text-green-500"
                   onConnect={handleConnectEnergy}
-                  onDisconnect={handleDisconnectEnergy}
+                  onDisconnect={handleDisconnectEnergyRequest}
                 />
               </div>
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Disconnect Confirmation Dialog */}
+        <AlertDialog open={!!disconnectConfirm} onOpenChange={(open) => !open && setDisconnectConfirm(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Disconnect {disconnectConfirm && getProviderDisplayName(disconnectConfirm)}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will remove your {disconnectConfirm && getProviderDisplayName(disconnectConfirm)} connection and delete all associated energy data from ZenSolar. 
+                You can reconnect anytime, but you'll need to re-authorize access.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDisconnectEnergyConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Disconnect
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Social Accounts - Collapsible with Management */}
         <motion.div
