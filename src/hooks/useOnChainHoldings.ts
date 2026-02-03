@@ -54,10 +54,14 @@ export function useOnChainHoldings(walletAddress?: string): OnChainHoldings {
   const { address: connectedAddress } = useAccount();
   const address = walletAddress || connectedAddress;
 
-  // Log for debugging
-  if (address) {
-    console.log('[useOnChainHoldings] Reading on-chain data for:', address);
-  }
+  // Enhanced debugging
+  console.log('[useOnChainHoldings] Init:', { 
+    walletAddress, 
+    connectedAddress, 
+    resolvedAddress: address,
+    tokenContract: ZSOLAR_TOKEN_ADDRESS,
+    nftContract: ZSOLAR_NFT_ADDRESS
+  });
 
   // Read $ZSOLAR token balance
   const {
