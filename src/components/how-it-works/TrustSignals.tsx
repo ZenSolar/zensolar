@@ -6,12 +6,12 @@ const signals = [
   {
     icon: Eye,
     title: 'Real Verification',
-    description: 'Every reward is tied to actual energy data from your device APIs—no fake numbers or inflated stats.',
+    description: 'Every reward ties to actual energy data from your device APIs—no fake numbers.',
   },
   {
     icon: Building,
     title: 'Real Business Model',
-    description: 'Rewards come from subscription and marketplace revenue, not from recruiting new users.',
+    description: 'Rewards come from subscription and marketplace revenue, not recruiting users.',
   },
   {
     icon: Lock,
@@ -21,7 +21,7 @@ const signals = [
   {
     icon: Scale,
     title: 'No Guaranteed Returns',
-    description: 'Rewards are proportional to your energy activity—we never promise fixed payouts.',
+    description: 'Rewards match your energy activity—we never promise fixed payouts.',
   },
   {
     icon: Cpu,
@@ -31,22 +31,36 @@ const signals = [
   {
     icon: Shield,
     title: 'Your Data, Your Control',
-    description: 'We only access energy production data—never personal info or device controls.',
+    description: 'We only access energy data—never personal info or device controls.',
   },
 ];
 
 export function TrustSignals() {
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      transition={{ duration: 0.5 }}
+      className="space-y-8"
     >
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">Built on Trust</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          We know there are a lot of shady reward programs out there. Here's why ZenSolar is different.
-        </p>
+      {/* Section Header */}
+      <div className="text-center space-y-3">
+        <motion.h2 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-2xl md:text-3xl font-bold text-foreground"
+        >
+          Built on Trust
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base"
+        >
+          We know there are shady reward programs out there. Here's why ZenSolar is different.
+        </motion.p>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -55,14 +69,18 @@ export function TrustSignals() {
             key={signal.title}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + index * 0.05 }}
+            transition={{ delay: 0.2 + index * 0.08 }}
           >
-            <Card className="h-full hover:border-emerald-500/30 transition-colors group">
+            <Card className="h-full hover:border-secondary/40 hover:shadow-lg hover:shadow-secondary/5 transition-all duration-300 group">
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
-                    <signal.icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  </div>
+                  <motion.div 
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    className="p-2.5 rounded-xl bg-secondary/10 group-hover:bg-secondary/15 transition-colors"
+                  >
+                    <signal.icon className="h-5 w-5 text-secondary" />
+                  </motion.div>
                   <h3 className="font-semibold text-foreground">{signal.title}</h3>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -73,6 +91,6 @@ export function TrustSignals() {
           </motion.div>
         ))}
       </div>
-    </motion.div>
+    </motion.section>
   );
 }
