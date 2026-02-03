@@ -7,3 +7,4 @@ export { EnergyConnectionScreen } from './EnergyConnectionScreen';
 export type { EnergyProvider } from './EnergyConnectionScreen';
 export { EnergySuccessScreen } from './EnergySuccessScreen';
 export { OnboardingProgress } from './OnboardingProgress';
+export { OnboardingTransition } from './OnboardingTransition';
