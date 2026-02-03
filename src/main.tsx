@@ -40,10 +40,29 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+
+root.render(
   <React.StrictMode>
     <HelmetProvider>
       <App />
     </HelmetProvider>
   </React.StrictMode>
 );
+
+// Signal to splash screen that React has mounted
+// Use requestIdleCallback for smooth transition after render
+if (typeof window !== 'undefined') {
+  const hideSplash = () => {
+    if (typeof (window as any).hideSplashScreen === 'function') {
+      (window as any).hideSplashScreen();
+    }
+  };
+  
+  if ('requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(hideSplash);
+  } else {
+    // Fallback for Safari - use short timeout after render
+    setTimeout(hideSplash, 100);
+  }
+}

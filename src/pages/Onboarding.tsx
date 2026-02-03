@@ -188,43 +188,76 @@ export default function Onboarding() {
     });
     
     // Save wallet address to profile BEFORE showing success screen
-    // Use getUser() directly to ensure we have a fresh session
+    // First refresh the session to ensure we have a valid token
     try {
+      // Refresh session first to get a fresh token
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (refreshError) {
+        console.error('[Onboarding] Session refresh error:', refreshError);
+        // Try to proceed anyway with getUser
+      }
+      
       const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
       
       if (userError) {
         console.error('[Onboarding] Error getting current user:', userError);
-        toast.error('Session error. Please log in again.');
+        toast.error('Failed to save wallet. You can add it later from Settings.');
+        // Still show success screen - wallet is created on chain
+        setStep('wallet-success');
         return;
       }
       
       if (!currentUser) {
         console.error('[Onboarding] No authenticated user found when saving wallet');
-        toast.error('Session expired. Please log in again.');
+        toast.error('Failed to save wallet. You can add it later from Settings.');
+        setStep('wallet-success');
         return;
       }
       
       console.log('[Onboarding] Saving wallet address:', address, 'for user:', currentUser.id);
       
-      const { data: updateData, error: updateError } = await supabase
+      // First check if profile exists
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
-        .update({ wallet_address: address })
+        .select('id')
         .eq('user_id', currentUser.id)
-        .select()
-        .single();
+        .maybeSingle();
+      
+      if (fetchError) {
+        console.error('[Onboarding] Error checking profile:', fetchError);
+      }
+      
+      let updateError;
+      
+      if (!existingProfile) {
+        // Profile doesn't exist - create it with wallet
+        console.log('[Onboarding] Creating new profile with wallet');
+        const { error } = await supabase
+          .from('profiles')
+          .insert({ user_id: currentUser.id, wallet_address: address });
+        updateError = error;
+      } else {
+        // Update existing profile
+        const { error } = await supabase
+          .from('profiles')
+          .update({ wallet_address: address })
+          .eq('user_id', currentUser.id);
+        updateError = error;
+      }
 
       if (updateError) {
         console.error('[Onboarding] Failed to save wallet:', updateError);
         toast.error('Failed to save wallet. You can add it later from Settings.');
       } else {
-        console.log('[Onboarding] Wallet saved successfully:', updateData?.wallet_address);
+        console.log('[Onboarding] Wallet saved successfully');
         // Dispatch event IMMEDIATELY so Dashboard/Wallet pages refetch profile data
         dispatchProfileUpdated();
         toast.success('Wallet connected!');
       }
     } catch (err) {
       console.error('[Onboarding] Error saving wallet:', err);
-      toast.error('Failed to save wallet. Please try again.');
+      toast.error('Failed to save wallet. You can add it later from Settings.');
     }
     
     // Show wallet success screen with confetti, then proceed to energy connection
