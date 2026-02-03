@@ -864,14 +864,63 @@ export function useDashboardData() {
     setProfileConnections(prev => prev ? { ...prev, [`${service}_connected`]: true } : null);
   }, []);
 
-  const disconnectAccount = useCallback((service: ConnectedAccount['service']) => {
-    setConnectedAccounts(prev => 
-      prev.map(acc => 
-        acc.service === service ? { ...acc, connected: false } : acc
-      )
-    );
-    setProfileConnections(prev => prev ? { ...prev, [`${service}_connected`]: false } : null);
-    setActivityData(defaultActivityData);
+  const disconnectAccount = useCallback(async (service: ConnectedAccount['service']) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Not authenticated');
+        return;
+      }
+
+      // 1. Delete energy tokens for this provider
+      const { error: tokenError } = await supabase
+        .from('energy_tokens')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('provider', service);
+
+      if (tokenError) {
+        console.error('Failed to delete energy tokens:', tokenError);
+      }
+
+      // 2. Delete connected devices for this provider
+      const { error: deviceError } = await supabase
+        .from('connected_devices')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('provider', service);
+
+      if (deviceError) {
+        console.error('Failed to delete connected devices:', deviceError);
+      }
+
+      // 3. Update profile to mark provider as disconnected
+      const updateField = `${service}_connected`;
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ [updateField]: false })
+        .eq('user_id', user.id);
+
+      if (profileError) {
+        console.error('Failed to update profile:', profileError);
+        toast.error('Failed to disconnect account');
+        return;
+      }
+
+      // 4. Update local state
+      setConnectedAccounts(prev => 
+        prev.map(acc => 
+          acc.service === service ? { ...acc, connected: false } : acc
+        )
+      );
+      setProfileConnections(prev => prev ? { ...prev, [`${service}_connected`]: false } : null);
+      setActivityData(defaultActivityData);
+      
+      toast.success(`${service.charAt(0).toUpperCase() + service.slice(1)} disconnected`);
+    } catch (error) {
+      console.error('Disconnect error:', error);
+      toast.error('Failed to disconnect account');
+    }
   }, []);
 
   return {
