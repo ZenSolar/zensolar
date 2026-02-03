@@ -37,9 +37,14 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
 
       // Create Coinbase Wallet SDK with Smart Wallet preference
       // This enables passkey-based authentication without requiring an extension
+      // Use the published app URL for the logo so Coinbase can fetch it
+      const appUrl = window.location.hostname.includes('lovable.app') 
+        ? 'https://zensolar.lovable.app' 
+        : window.location.origin;
+      
       const sdk = createCoinbaseWalletSDK({
         appName: 'ZenSolar',
-        appLogoUrl: 'https://zensolar.lovable.app/zs-icon-192.png',
+        appLogoUrl: `${appUrl}/logos/zen-icon.png`,
         appChainIds: [baseSepolia.id],
         preference: {
           options: 'smartWalletOnly', // Forces Smart Wallet with passkey auth

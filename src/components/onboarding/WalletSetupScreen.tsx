@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Fingerprint, Check, Sparkles, Shield, ArrowRight, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCoinbaseSmartWallet } from '@/hooks/useCoinbaseSmartWallet';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import zenIcon from '@/assets/zen-icon-transparent.png';
 
 interface WalletSetupScreenProps {
   onComplete: (walletAddress: string) => void;
@@ -133,19 +133,18 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
       className="text-center"
     >
       {/* Logo/icon */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 p-4"
-      >
-        <img 
-          src={zenLogo} 
-          alt="ZenSolar" 
-          className="w-full h-full object-contain"
-          style={{ filter: 'brightness(0) invert(1)' }}
-        />
-      </motion.div>
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+          className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden"
+        >
+          <img 
+            src={zenIcon} 
+            alt="ZenSolar" 
+            className="w-20 h-20 object-contain"
+          />
+        </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -218,11 +217,11 @@ function CreatingStep() {
             <div className="w-16 h-16 rounded-full border-2 border-primary/30 border-t-primary" />
           </motion.div>
         </div>
-        <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="absolute inset-0 flex items-center justify-center">
           <img 
-            src={zenLogo} 
+            src={zenIcon} 
             alt="" 
-            className="w-full h-full object-contain"
+            className="w-16 h-16 object-contain"
           />
         </div>
       </div>
