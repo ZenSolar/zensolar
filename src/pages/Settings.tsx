@@ -19,6 +19,7 @@ import {
   Palette
 } from "lucide-react";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { WalletSetupCard } from "@/components/settings/WalletSetupCard";
 import { useTheme } from "next-themes";
 
 export default function Settings() {
@@ -71,6 +72,15 @@ export default function Settings() {
           <h1 className="text-2xl font-bold text-foreground">Settings</h1>
           <p className="text-muted-foreground">Customize your ZenSolar experience</p>
         </div>
+      </motion.div>
+
+      {/* Wallet Setup */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <WalletSetupCard />
       </motion.div>
 
       {/* Appearance */}
