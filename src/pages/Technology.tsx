@@ -23,6 +23,7 @@ import {
   Trophy
 } from 'lucide-react';
 import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofComparison';
+import { SEGIProofOfDeltaDiagram } from '@/components/technology/SEGIProofOfDeltaDiagram';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
@@ -255,6 +256,15 @@ export default function Technology() {
             </motion.div>
           ))}
         </div>
+      </motion.div>
+
+      {/* SEGI + Proof-of-Delta Architecture */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.22 }}
+      >
+        <SEGIProofOfDeltaDiagram />
       </motion.div>
 
       {/* Mint-on-Proof vs Pre-Minted Pools Visual Comparison */}
