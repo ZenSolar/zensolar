@@ -13,6 +13,7 @@ import { TrustSignals } from '@/components/how-it-works/TrustSignals';
 import { CashOutExplainer } from '@/components/how-it-works/CashOutExplainer';
 import { HowItWorksFAQ } from '@/components/how-it-works/HowItWorksFAQ';
 import { AppDemoSection } from '@/components/how-it-works/AppDemoSection';
+import { SignupExplainer } from '@/components/how-it-works/SignupExplainer';
 
 export default function HowItWorks() {
   return (
@@ -120,22 +121,25 @@ export default function HowItWorks() {
           {/* Section 1: Three Steps */}
           <SimpleThreeSteps />
 
-          {/* Section 2: App Demo */}
+          {/* Section 2: What Happens When You Sign Up */}
+          <SignupExplainer />
+
+          {/* Section 3: App Demo */}
           <AppDemoSection />
 
-          {/* Section 3: Value Source */}
+          {/* Section 4: Value Source */}
           <ValueSourceSection />
 
-          {/* Section 4: Connectivity */}
+          {/* Section 5: Connectivity */}
           <ConnectivityGrid />
 
-          {/* Section 5: Cash Out Path */}
+          {/* Section 6: Cash Out Path */}
           <CashOutExplainer />
 
-          {/* Section 6: Trust Signals */}
+          {/* Section 7: Trust Signals */}
           <TrustSignals />
 
-          {/* Section 7: FAQ */}
+          {/* Section 8: FAQ */}
           <HowItWorksFAQ />
 
           {/* Tech Link */}
