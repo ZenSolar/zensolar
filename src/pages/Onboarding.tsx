@@ -38,18 +38,22 @@ type OnboardingStep =
 
 type WalletType = 'zensolar' | 'external' | 'skipped';
 
-// Helper to get current step number for progress indicator
+// Helper to get current step number for progress indicator (1-4 sequential)
 function getStepNumber(step: OnboardingStep): number {
   switch (step) {
     case 'wallet-choice':
+      return 1;
     case 'zensolar-setup':
     case 'external-wallet':
-    case 'wallet-success':
-      return 1;
-    case 'energy-connect':
-    case 'energy-success':
-    case 'device-selection':
       return 2;
+    case 'wallet-success':
+      return 2; // Still step 2 (completing wallet)
+    case 'energy-connect':
+      return 3;
+    case 'device-selection':
+      return 3;
+    case 'energy-success':
+      return 4;
     default:
       return 1;
   }
@@ -184,9 +188,15 @@ export default function Onboarding() {
     });
     
     // Save wallet address to profile BEFORE showing success screen
-    // Use getUser() directly to ensure we have a fresh session (in case popup affected it)
+    // Use getUser() directly to ensure we have a fresh session
     try {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error('[Onboarding] Error getting current user:', userError);
+        toast.error('Session error. Please log in again.');
+        return;
+      }
       
       if (!currentUser) {
         console.error('[Onboarding] No authenticated user found when saving wallet');
@@ -194,19 +204,23 @@ export default function Onboarding() {
         return;
       }
       
-      console.log('[Onboarding] Saving wallet address to profile:', address, 'for user:', currentUser.id);
-      const { error } = await supabase
+      console.log('[Onboarding] Saving wallet address:', address, 'for user:', currentUser.id);
+      
+      const { data: updateData, error: updateError } = await supabase
         .from('profiles')
         .update({ wallet_address: address })
-        .eq('user_id', currentUser.id);
+        .eq('user_id', currentUser.id)
+        .select()
+        .single();
 
-      if (error) {
-        console.error('[Onboarding] Failed to save wallet:', error);
+      if (updateError) {
+        console.error('[Onboarding] Failed to save wallet:', updateError);
         toast.error('Failed to save wallet. You can add it later from Settings.');
       } else {
-        console.log('[Onboarding] Wallet saved successfully');
-        // Dispatch event so Dashboard/Wallet pages refetch profile data
+        console.log('[Onboarding] Wallet saved successfully:', updateData?.wallet_address);
+        // Dispatch event IMMEDIATELY so Dashboard/Wallet pages refetch profile data
         dispatchProfileUpdated();
+        toast.success('Wallet connected!');
       }
     } catch (err) {
       console.error('[Onboarding] Error saving wallet:', err);
@@ -355,8 +369,8 @@ export default function Onboarding() {
       {showProgress && !isTransitioning && (
         <OnboardingProgress 
           currentStep={currentStepNumber} 
-          totalSteps={2}
-          stepLabels={['Wallet Setup', 'Connect Energy']}
+          totalSteps={4}
+          stepLabels={['Choose Wallet', 'Create Wallet', 'Connect Energy', 'Done']}
         />
       )}
 

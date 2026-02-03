@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Fingerprint, Sparkles, Shield, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCoinbaseSmartWallet } from '@/hooks/useCoinbaseSmartWallet';
-import zenLogo from '@/assets/zen-logo.png';
+
+// Use the PWA icon - clean globe logo with transparent background
+const pwaIconUrl = '/zs-icon-192.png';
 
 interface WalletSetupScreenProps {
   onComplete: (walletAddress: string) => void;
@@ -127,17 +129,17 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
       exit={{ opacity: 0, scale: 0.95 }}
       className="text-center"
     >
-      {/* Logo/icon - using zen-logo.png which has transparent background */}
+      {/* Logo/icon - using PWA icon for clean transparent globe look */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden"
+        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden border border-primary/20"
       >
         <img 
-          src={zenLogo} 
+          src={pwaIconUrl} 
           alt="ZenSolar" 
-          className="w-14 h-14 object-contain"
+          className="w-16 h-16 object-contain"
         />
       </motion.div>
 
@@ -242,9 +244,9 @@ function CreatingStep() {
         </div>
         <div className="absolute inset-0 flex items-center justify-center">
           <img 
-            src={zenLogo} 
+            src={pwaIconUrl} 
             alt="" 
-            className="w-10 h-10 object-contain"
+            className="w-12 h-12 object-contain"
           />
         </div>
       </div>
