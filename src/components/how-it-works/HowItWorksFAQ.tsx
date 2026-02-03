@@ -40,40 +40,63 @@ const faqs = [
 
 export function HowItWorksFAQ() {
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      transition={{ duration: 0.5 }}
+      className="space-y-8"
     >
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
-        <p className="text-muted-foreground">
+      {/* Section Header */}
+      <div className="text-center space-y-3">
+        <motion.h2 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-2xl md:text-3xl font-bold text-foreground"
+        >
+          Frequently Asked Questions
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-muted-foreground text-sm md:text-base"
+        >
           Still have questions? Here are answers to the most common ones.
-        </p>
+        </motion.p>
       </div>
 
-      <Card className="overflow-hidden">
-        <CardHeader className="pb-0">
+      <Card className="overflow-hidden border-border/50">
+        <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <HelpCircle className="h-5 w-5 text-primary" />
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <HelpCircle className="h-4 w-4 text-primary" />
+            </div>
             Common Questions
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
+        <CardContent className="pt-2">
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left text-sm font-medium hover:no-underline">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
+              >
+                <AccordionItem value={`item-${index}`} className="border-border/50">
+                  <AccordionTrigger className="text-left text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-4">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              </motion.div>
             ))}
           </Accordion>
         </CardContent>
       </Card>
-    </motion.div>
+    </motion.section>
   );
 }
