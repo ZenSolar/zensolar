@@ -183,27 +183,37 @@ export default function Onboarding() {
       walletAddress: address 
     });
     
-    // Save wallet address to profile
-    if (user) {
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ wallet_address: address })
-          .eq('user_id', user.id);
-
-        if (error) {
-          console.error('Failed to save wallet:', error);
-          toast.error('Failed to save wallet. You can add it later from Settings.');
-        } else {
-          // Dispatch event so Dashboard/Wallet pages refetch profile data
-          dispatchProfileUpdated();
-        }
-      } catch (err) {
-        console.error('Error saving wallet:', err);
+    // Save wallet address to profile BEFORE showing success screen
+    // Use getUser() directly to ensure we have a fresh session (in case popup affected it)
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
+      if (!currentUser) {
+        console.error('[Onboarding] No authenticated user found when saving wallet');
+        toast.error('Session expired. Please log in again.');
+        return;
       }
+      
+      console.log('[Onboarding] Saving wallet address to profile:', address, 'for user:', currentUser.id);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ wallet_address: address })
+        .eq('user_id', currentUser.id);
+
+      if (error) {
+        console.error('[Onboarding] Failed to save wallet:', error);
+        toast.error('Failed to save wallet. You can add it later from Settings.');
+      } else {
+        console.log('[Onboarding] Wallet saved successfully');
+        // Dispatch event so Dashboard/Wallet pages refetch profile data
+        dispatchProfileUpdated();
+      }
+    } catch (err) {
+      console.error('[Onboarding] Error saving wallet:', err);
+      toast.error('Failed to save wallet. Please try again.');
     }
     
-    // Show wallet success screen briefly, then move to energy connection
+    // Show wallet success screen with confetti, then proceed to energy connection
     setStep('wallet-success');
   };
 
