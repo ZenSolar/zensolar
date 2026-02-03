@@ -11,6 +11,10 @@ import { Button } from '@/components/ui/button';
 import { Fingerprint, Wallet, ArrowRight, Zap, Clock } from 'lucide-react';
 import baseWalletLogo from '@/assets/wallets/base-wallet.png';
 
+const FIRST_LOGIN_KEY = 'zensolar_first_login_completed';
+const MODAL_DISMISSED_KEY = 'wallet_modal_dismissed_at';
+const COOLDOWN_HOURS = 24;
+
 interface WalletSetupModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,19 +22,39 @@ interface WalletSetupModalProps {
 
 export function WalletSetupModal({ isOpen, onClose }: WalletSetupModalProps) {
   const navigate = useNavigate();
-  const [dismissed, setDismissed] = useState(false);
+  const [shouldShow, setShouldShow] = useState(false);
 
-  // Check if user has dismissed this session
   useEffect(() => {
-    const wasDismissed = sessionStorage.getItem('wallet_modal_dismissed');
-    if (wasDismissed) {
-      setDismissed(true);
+    // Check if this is the user's first login ever
+    const isFirstLogin = !localStorage.getItem(FIRST_LOGIN_KEY);
+    
+    if (isFirstLogin) {
+      // Mark first login as completed - modal won't show until next login
+      localStorage.setItem(FIRST_LOGIN_KEY, 'true');
+      setShouldShow(false);
+      return;
     }
+
+    // Check if modal was dismissed within the last 24 hours
+    const dismissedAt = localStorage.getItem(MODAL_DISMISSED_KEY);
+    if (dismissedAt) {
+      const dismissedTime = parseInt(dismissedAt, 10);
+      const hoursSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60);
+      
+      if (hoursSinceDismissed < COOLDOWN_HOURS) {
+        setShouldShow(false);
+        return;
+      }
+    }
+
+    // User is on second+ login and cooldown has passed
+    setShouldShow(true);
   }, []);
 
   const handleDismiss = () => {
-    sessionStorage.setItem('wallet_modal_dismissed', 'true');
-    setDismissed(true);
+    // Store the timestamp when user dismissed the modal
+    localStorage.setItem(MODAL_DISMISSED_KEY, Date.now().toString());
+    setShouldShow(false);
     onClose();
   };
 
@@ -40,13 +64,14 @@ export function WalletSetupModal({ isOpen, onClose }: WalletSetupModalProps) {
     onClose();
   };
 
-  if (dismissed) return null;
+  // Don't render if we shouldn't show (first login or within cooldown)
+  if (!shouldShow) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleDismiss()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300">
         <DialogHeader className="text-center space-y-3">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 animate-in zoom-in-50 duration-500 delay-100">
             <Wallet className="h-7 w-7 text-primary" />
           </div>
           <DialogTitle className="text-xl">Set Up Your Wallet</DialogTitle>
@@ -60,7 +85,7 @@ export function WalletSetupModal({ isOpen, onClose }: WalletSetupModalProps) {
           <Button
             size="lg"
             onClick={() => goToWalletSetup('zensolar')}
-            className="w-full justify-between h-14 group"
+            className="w-full justify-between h-14 group animate-in slide-in-from-left-2 duration-300 delay-150"
           >
             <span className="inline-flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
@@ -81,7 +106,7 @@ export function WalletSetupModal({ isOpen, onClose }: WalletSetupModalProps) {
           </Button>
 
           {/* External Wallet Options */}
-          <div className="relative">
+          <div className="relative animate-in fade-in duration-300 delay-200">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -90,7 +115,7 @@ export function WalletSetupModal({ isOpen, onClose }: WalletSetupModalProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 animate-in slide-in-from-right-2 duration-300 delay-250">
             <Button
               variant="outline"
               size="sm"
@@ -121,7 +146,7 @@ export function WalletSetupModal({ isOpen, onClose }: WalletSetupModalProps) {
             variant="ghost"
             size="sm"
             onClick={handleDismiss}
-            className="w-full text-muted-foreground hover:text-foreground gap-2"
+            className="w-full text-muted-foreground hover:text-foreground gap-2 animate-in fade-in duration-300 delay-300"
           >
             <Clock className="h-4 w-4" />
             I'll do this later

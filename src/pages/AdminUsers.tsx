@@ -7,7 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Users, RefreshCw, Zap, Bell, Award, Coins, ChevronDown, ChevronUp, Sun, Battery, Car, Plug } from 'lucide-react';
+import { Loader2, Users, RefreshCw, Zap, Bell, Award, Coins, ChevronDown, ChevronUp, Sun, Battery, Car, Plug, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenIconOnly from '@/assets/zen-icon-only.png';
@@ -237,10 +248,12 @@ interface UserRowProps {
   profile: ProfileWithEmail;
   kpi: UserKPIs | undefined;
   hasPush: boolean;
+  onDelete: (userId: string, displayName: string | null) => void;
+  isDeleting: boolean;
 }
 
 // Mobile-friendly card for each user
-function UserCard({ profile, kpi, hasPush }: UserRowProps) {
+function UserCard({ profile, kpi, hasPush, onDelete, isDeleting }: UserRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
   const connectedProviders = [
@@ -410,6 +423,42 @@ function UserCard({ profile, kpi, hasPush }: UserRowProps) {
             {(!kpi || (kpi.devices.length === 0 && kpi.nfts_earned.length === 0)) && (
               <p className="text-sm text-muted-foreground">No activity data available.</p>
             )}
+            
+            {/* Delete User Button */}
+            <div className="pt-3 mt-3 border-t">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="w-full gap-2"
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete User
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete User</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete <strong>{profile.display_name || profile.email || 'this user'}</strong>? 
+                      This will permanently remove their account, all connected devices, energy data, tokens, and NFT records. 
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => onDelete(profile.user_id, profile.display_name || profile.email)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -418,7 +467,7 @@ function UserCard({ profile, kpi, hasPush }: UserRowProps) {
 }
 
 // Desktop table row
-function UserRow({ profile, kpi, hasPush }: UserRowProps) {
+function UserRow({ profile, kpi, hasPush, onDelete, isDeleting }: UserRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
   return (
@@ -656,6 +705,42 @@ function UserRow({ profile, kpi, hasPush }: UserRowProps) {
               {(!kpi || (kpi.devices.length === 0 && kpi.nfts_earned.length === 0 && kpi.mint_records.length === 0)) && (
                 <p className="text-sm text-muted-foreground">No activity data available for this user.</p>
               )}
+              
+              {/* Delete User Button */}
+              <div className="pt-3 mt-3 border-t flex justify-end">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      className="gap-2"
+                      disabled={isDeleting}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete User
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete User</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete <strong>{profile.display_name || profile.email || 'this user'}</strong>? 
+                        This will permanently remove their account, all connected devices, energy data, tokens, and NFT records. 
+                        This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => onDelete(profile.user_id, profile.display_name || profile.email)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </TableCell>
         </TableRow>
@@ -681,6 +766,50 @@ export default function AdminUsers() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
+
+  const handleDeleteUser = async (userId: string, displayName: string | null) => {
+    setIsDeletingUser(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { user_id: userId },
+      });
+      
+      if (error) {
+        console.error('Error deleting user:', error);
+        toast.error('Failed to delete user');
+        return;
+      }
+      
+      if (data?.success) {
+        toast.success(`Successfully deleted ${displayName || 'user'}`);
+        // Remove user from local state
+        setProfiles(prev => prev.filter(p => p.user_id !== userId));
+        setUserKPIs(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(userId);
+          return newMap;
+        });
+        setPushStatuses(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(userId);
+          return newMap;
+        });
+        // Update aggregate counts
+        setAggregateKPIs(prev => ({
+          ...prev,
+          totalUsers: prev.totalUsers - 1,
+        }));
+      } else {
+        toast.error(data?.error || 'Failed to delete user');
+      }
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      toast.error('An error occurred while deleting the user');
+    } finally {
+      setIsDeletingUser(false);
+    }
+  };
 
   const fetchProfiles = async () => {
     // Fetch profiles and auth user emails in parallel
@@ -1041,6 +1170,8 @@ export default function AdminUsers() {
                     profile={profile}
                     kpi={userKPIs.get(profile.user_id)}
                     hasPush={pushStatuses.get(profile.user_id) || false}
+                    onDelete={handleDeleteUser}
+                    isDeleting={isDeletingUser}
                   />
                 ))
               )}
@@ -1077,6 +1208,8 @@ export default function AdminUsers() {
                         profile={profile}
                         kpi={userKPIs.get(profile.user_id)}
                         hasPush={pushStatuses.get(profile.user_id) || false}
+                        onDelete={handleDeleteUser}
+                        isDeleting={isDeletingUser}
                       />
                     ))
                   )}
