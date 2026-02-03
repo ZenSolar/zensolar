@@ -151,8 +151,13 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
-                  <img src={zenLogo} alt="" className="w-8 h-8 object-contain brightness-0 invert" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20 p-2">
+                  <img 
+                    src={zenLogo} 
+                    alt="ZenSolar" 
+                    className="w-full h-full object-contain"
+                    style={{ filter: 'brightness(0) invert(1)' }}
+                  />
                 </div>
                 
                 <div className="flex-1 min-w-0 pr-8">
