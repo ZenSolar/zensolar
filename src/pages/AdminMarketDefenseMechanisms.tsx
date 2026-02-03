@@ -26,6 +26,10 @@ import {
   Target,
   Activity,
   DollarSign,
+  Rocket,
+  Code,
+  GitBranch,
+  Package,
 } from 'lucide-react';
 import {
   MINT_DISTRIBUTION,
@@ -229,6 +233,82 @@ const futureMechanisms: DefenseMechanism[] = [
       '>$50K sell: +10% additional tax',
       'Only active during high volatility periods',
     ],
+  },
+];
+
+interface ContractFeature {
+  name: string;
+  description: string;
+  status: 'deployed' | 'v2' | 'separate';
+  contractMethod?: string;
+}
+
+const v1Features: ContractFeature[] = [
+  {
+    name: '7% Transfer Tax',
+    description: 'Adjustable via admin function',
+    status: 'deployed',
+    contractMethod: 'setTaxRates(burn, lp, treasury)',
+  },
+  {
+    name: '20% Mint Burn',
+    description: 'Built into minting controller',
+    status: 'deployed',
+    contractMethod: 'mint() → burns 20% automatically',
+  },
+  {
+    name: 'Tax Exemptions',
+    description: 'Whitelist addresses from transfer tax',
+    status: 'deployed',
+    contractMethod: 'setTaxExempt(address, bool)',
+  },
+  {
+    name: 'Rate Adjustments',
+    description: 'Modify burn/LP/treasury splits',
+    status: 'deployed',
+    contractMethod: 'setTaxRates(300, 200, 200)',
+  },
+];
+
+const v2Features: ContractFeature[] = [
+  {
+    name: 'Anti-Whale Circuit Breaker',
+    description: 'Max single sell = 1% of LP, 4hr cooldown',
+    status: 'v2',
+    contractMethod: 'Requires transfer() modification',
+  },
+  {
+    name: 'Progressive Sell Tax',
+    description: 'Higher tax on larger sells during volatility',
+    status: 'v2',
+    contractMethod: 'Requires per-wallet tracking',
+  },
+  {
+    name: 'On-Chain Staking',
+    description: 'Native lock mechanism with multipliers',
+    status: 'v2',
+    contractMethod: 'Optional: integrate into V2 token',
+  },
+];
+
+const separateContracts: ContractFeature[] = [
+  {
+    name: 'Treasury Buyback Contract',
+    description: 'Monitors price, executes buy-and-burn',
+    status: 'separate',
+    contractMethod: 'executeBuyback(amount)',
+  },
+  {
+    name: 'Staking Contract',
+    description: 'Separate contract for token lockups',
+    status: 'separate',
+    contractMethod: 'stake(amount, duration)',
+  },
+  {
+    name: 'LP Manager Contract',
+    description: 'Automates subscription → LP injection',
+    status: 'separate',
+    contractMethod: 'injectLiquidity(usdcAmount)',
   },
 ];
 
@@ -452,6 +532,117 @@ export default function AdminMarketDefenseMechanisms() {
                 <span className="font-semibold text-foreground">Result:</span> While speculative tokens crash with BTC, 
                 $ZSOLAR's price floor is maintained by continuous fiat revenue injection—creating a 
                 <span className="text-primary font-semibold"> "crypto hedge" narrative</span>.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Smart Contract Upgrade Path */}
+      <motion.div variants={fadeIn} initial="hidden" animate="visible">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <GitBranch className="h-5 w-5 text-primary" />
+              Smart Contract Upgrade Path
+            </CardTitle>
+            <CardDescription>
+              What's deployed at launch vs. what requires V2 upgrade or separate contracts
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* V1 - Deployed */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Badge className="bg-green-500/10 text-green-500 border-green-500/30">
+                  <Rocket className="h-3 w-3 mr-1" />
+                  V1 Deployed
+                </Badge>
+                <span className="text-sm text-muted-foreground">Live in ZSOLAR.sol</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {v1Features.map((feature) => (
+                  <div key={feature.name} className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-medium text-sm">{feature.name}</p>
+                        <p className="text-xs text-muted-foreground">{feature.description}</p>
+                      </div>
+                      <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    </div>
+                    {feature.contractMethod && (
+                      <code className="mt-2 block text-[10px] text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-1 rounded">
+                        {feature.contractMethod}
+                      </code>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Separate Contracts - Post-Launch */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/30">
+                  <Package className="h-3 w-3 mr-1" />
+                  Separate Contracts
+                </Badge>
+                <span className="text-sm text-muted-foreground">Deploy independently post-launch</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {separateContracts.map((feature) => (
+                  <div key={feature.name} className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-medium text-sm">{feature.name}</p>
+                        <p className="text-xs text-muted-foreground">{feature.description}</p>
+                      </div>
+                      <Code className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    </div>
+                    {feature.contractMethod && (
+                      <code className="mt-2 block text-[10px] text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
+                        {feature.contractMethod}
+                      </code>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* V2 - Future Upgrade */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/30">
+                  <GitBranch className="h-3 w-3 mr-1" />
+                  V2 Upgrade
+                </Badge>
+                <span className="text-sm text-muted-foreground">Requires token contract upgrade</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {v2Features.map((feature) => (
+                  <div key={feature.name} className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-medium text-sm">{feature.name}</p>
+                        <p className="text-xs text-muted-foreground">{feature.description}</p>
+                      </div>
+                      <Clock className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                    </div>
+                    {feature.contractMethod && (
+                      <code className="mt-2 block text-[10px] text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-1 rounded">
+                        {feature.contractMethod}
+                      </code>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Note: V2 features require a token migration or proxy upgrade pattern. 
+                These should only be considered if market conditions demand stronger protections.
               </p>
             </div>
           </CardContent>
