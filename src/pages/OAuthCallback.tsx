@@ -105,8 +105,18 @@ export default function OAuthCallback() {
             
             if (tokens) {
               console.log('[OAuthCallback] Tesla tokens verified in database');
-              setDeviceProvider('tesla');
-              setStatus('device-selection');
+              
+              // Check if we're in onboarding flow
+              const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+              localStorage.removeItem('onboarding_energy_flow');
+              
+              if (isOnboardingFlow) {
+                // Redirect back to onboarding with success state
+                navigate('/onboarding?oauth_success=true&provider=tesla');
+              } else {
+                setDeviceProvider('tesla');
+                setStatus('device-selection');
+              }
             } else {
               console.error('[OAuthCallback] Tesla tokens not found after exchange');
               setErrorMessage('Token storage failed. Please try again.');
@@ -139,8 +149,16 @@ export default function OAuthCallback() {
           console.log('[OAuthCallback] Enphase exchange result:', success);
           
           if (success) {
-            setDeviceProvider('enphase');
-            setStatus('device-selection');
+            // Check if we're in onboarding flow
+            const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+            localStorage.removeItem('onboarding_energy_flow');
+            
+            if (isOnboardingFlow) {
+              navigate('/onboarding?oauth_success=true&provider=enphase');
+            } else {
+              setDeviceProvider('enphase');
+              setStatus('device-selection');
+            }
           } else {
             setErrorMessage('Failed to connect Enphase account');
             setStatus('error');
