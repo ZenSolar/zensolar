@@ -133,18 +133,18 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
       className="text-center"
     >
       {/* Logo/icon */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-          className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden"
-        >
-          <img 
-            src={zenIcon} 
-            alt="ZenSolar" 
-            className="w-20 h-20 object-contain"
-          />
-        </motion.div>
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden"
+      >
+        <img 
+          src={zenIcon} 
+          alt="ZenSolar" 
+          className="w-20 h-20 object-contain"
+        />
+      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -152,30 +152,58 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
         transition={{ delay: 0.2 }}
       >
         <h2 className="text-2xl font-bold text-foreground mb-2">
-          Create Your ZenSolar Wallet
+          Set Up Your ZenSolar Wallet
         </h2>
         <p className="text-muted-foreground text-sm mb-8 max-w-xs mx-auto">
-          Your self-custody wallet secured with Face ID or Touch ID. No seed phrases, no apps to download.
+          Secured with Face ID or Touch ID. No seed phrases, no apps to download.
         </p>
 
         {/* Features */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
           <FeatureBadge icon={Fingerprint} label="Passkey Secured" />
           <FeatureBadge icon={Shield} label="Self-Custody" />
           <FeatureBadge icon={Zap} label="Gasless" />
         </div>
 
-        <Button
-          size="lg"
-          onClick={onStart}
-          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 gap-2"
-        >
-          <Fingerprint className="w-5 h-5" />
-          Set Up with Passkey
-        </Button>
+        {/* Two options */}
+        <div className="space-y-3 mb-6">
+          <Button
+            size="lg"
+            onClick={onStart}
+            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 gap-2"
+          >
+            <Sparkles className="w-5 h-5" />
+            Create New Wallet
+          </Button>
 
-        <p className="text-xs text-muted-foreground mt-4">
-          Powered by Coinbase Smart Wallet on Base
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-background px-2 text-muted-foreground">
+                or if you have an existing passkey
+              </span>
+            </div>
+          </div>
+
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={onStart}
+            className="w-full gap-2"
+          >
+            <Fingerprint className="w-5 h-5" />
+            Connect Existing Wallet
+          </Button>
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          Both options use Coinbase Smart Wallet on Base.
+          <br />
+          <span className="text-muted-foreground/70">
+            If you have an existing wallet, it will be detected automatically.
+          </span>
         </p>
       </motion.div>
     </motion.div>
