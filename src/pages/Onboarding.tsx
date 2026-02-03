@@ -6,9 +6,11 @@ import { ExternalWalletScreen } from "@/components/onboarding/ExternalWalletScre
 import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSuccessScreen";
 import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/EnergyConnectionScreen";
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
+import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
 import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectDialog";
 import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
+import { DeviceSelectionDialog } from "@/components/dashboard/DeviceSelectionDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { dispatchProfileUpdated } from "@/hooks/useProfile";
@@ -30,9 +32,27 @@ type OnboardingStep =
   | 'external-wallet' 
   | 'wallet-success'
   | 'energy-connect'
-  | 'energy-success';
+  | 'energy-success'
+  | 'device-selection';
 
 type WalletType = 'zensolar' | 'external' | 'skipped';
+
+// Helper to get current step number for progress indicator
+function getStepNumber(step: OnboardingStep): number {
+  switch (step) {
+    case 'wallet-choice':
+    case 'zensolar-setup':
+    case 'external-wallet':
+    case 'wallet-success':
+      return 1;
+    case 'energy-connect':
+    case 'energy-success':
+    case 'device-selection':
+      return 2;
+    default:
+      return 1;
+  }
+}
 
 export default function Onboarding() {
   const [step, setStep] = useState<OnboardingStep>('wallet-choice');
@@ -41,6 +61,8 @@ export default function Onboarding() {
   const [connectedProviders, setConnectedProviders] = useState<string[]>([]);
   const [lastConnectedProvider, setLastConnectedProvider] = useState<string>('');
   const [connectingProvider, setConnectingProvider] = useState<EnergyProvider | null>(null);
+  const [showDeviceSelection, setShowDeviceSelection] = useState(false);
+  const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
@@ -57,10 +79,13 @@ export default function Onboarding() {
     trackWalletChoiceViewed();
   }, []);
 
-  // Check if we should skip to a specific step
+  // Check if we should skip to a specific step or handle OAuth callback
   useEffect(() => {
     const skipTo = searchParams.get('step');
     const choice = searchParams.get('choice');
+    const oauthSuccess = searchParams.get('oauth_success');
+    const provider = searchParams.get('provider');
+    
     if (skipTo === 'wallet') {
       setStep('wallet-choice');
     }
@@ -71,6 +96,15 @@ export default function Onboarding() {
     }
     if (choice === 'external') {
       setStep('external-wallet');
+    }
+    
+    // Handle return from OAuth callback - show device selection then success
+    if (oauthSuccess === 'true' && provider) {
+      if (provider === 'tesla' || provider === 'enphase') {
+        setDeviceSelectionProvider(provider);
+        setShowDeviceSelection(true);
+        setStep('device-selection');
+      }
     }
   }, [searchParams]);
 
@@ -147,13 +181,14 @@ export default function Onboarding() {
     try {
       switch (provider) {
         case 'tesla':
+          // Mark that we're in onboarding flow so OAuth callback knows where to redirect
+          localStorage.setItem('onboarding_energy_flow', 'true');
           await startTeslaOAuth();
           // Tesla uses redirect, so we'll handle success via OAuth callback
-          // For mobile, the page redirects; for desktop, a popup opens
-          // We'll detect success when user returns
           break;
           
         case 'enphase':
+          localStorage.setItem('onboarding_energy_flow', 'true');
           const result = await startEnphaseOAuth();
           if (result?.useManualCode) {
             setShowEnphaseDialog(true);
@@ -173,10 +208,15 @@ export default function Onboarding() {
       toast.error('Failed to connect. Please try again.');
     } finally {
       // Don't clear connecting state for OAuth flows - they handle it differently
-      if (provider !== 'tesla') {
+      if (provider !== 'tesla' && provider !== 'enphase') {
         setConnectingProvider(null);
       }
     }
+  };
+
+  const handleDeviceSelectionComplete = (provider: string) => {
+    setShowDeviceSelection(false);
+    handleEnergyConnectionSuccess(provider);
   };
 
   const handleEnergyConnectionSuccess = (provider: string) => {
@@ -234,51 +274,88 @@ export default function Onboarding() {
     setStep('wallet-choice');
   };
 
+  // Determine if we should show progress indicator (not on wallet-choice)
+  const showProgress = step !== 'wallet-choice';
+  const currentStepNumber = getStepNumber(step);
+
   return (
     <>
+      {/* Progress indicator */}
+      {showProgress && (
+        <OnboardingProgress 
+          currentStep={currentStepNumber} 
+          totalSteps={2}
+          stepLabels={['Wallet Setup', 'Connect Energy']}
+        />
+      )}
+
       {step === 'wallet-choice' && (
         <WalletChoiceScreen onChoice={handleWalletChoice} />
       )}
       
       {step === 'zensolar-setup' && (
-        <WalletSetupScreen 
-          onComplete={handleWalletComplete}
-          onBack={handleBack}
-        />
+        <div className="pt-16">
+          <WalletSetupScreen 
+            onComplete={handleWalletComplete}
+            onBack={handleBack}
+          />
+        </div>
       )}
       
       {step === 'external-wallet' && (
-        <ExternalWalletScreen
-          onComplete={handleWalletComplete}
-          onBack={handleBack}
-        />
+        <div className="pt-16">
+          <ExternalWalletScreen
+            onComplete={handleWalletComplete}
+            onBack={handleBack}
+          />
+        </div>
       )}
       
       {step === 'wallet-success' && (
-        <OnboardingSuccessScreen 
-          walletAddress={walletAddress}
-          walletType={walletType}
-          onContinue={handleWalletSuccessContinue}
-        />
+        <div className="pt-16">
+          <OnboardingSuccessScreen 
+            walletAddress={walletAddress}
+            walletType={walletType}
+            onContinue={handleWalletSuccessContinue}
+          />
+        </div>
       )}
 
-      {step === 'energy-connect' && (
-        <EnergyConnectionScreen
-          onConnect={handleEnergyConnect}
-          onSkip={handleEnergySkip}
-          isConnecting={connectingProvider}
-          connectedProviders={connectedProviders}
-        />
+      {(step === 'energy-connect' || step === 'device-selection') && (
+        <div className="pt-16">
+          <EnergyConnectionScreen
+            onConnect={handleEnergyConnect}
+            onSkip={handleEnergySkip}
+            isConnecting={connectingProvider}
+            connectedProviders={connectedProviders}
+          />
+        </div>
       )}
 
       {step === 'energy-success' && (
-        <EnergySuccessScreen
-          provider={lastConnectedProvider}
-          connectedProviders={connectedProviders}
-          onAddAnother={handleAddAnotherEnergy}
-          onContinue={handleGoToDashboard}
-        />
+        <div className="pt-16">
+          <EnergySuccessScreen
+            provider={lastConnectedProvider}
+            connectedProviders={connectedProviders}
+            onAddAnother={handleAddAnotherEnergy}
+            onContinue={handleGoToDashboard}
+          />
+        </div>
       )}
+
+      {/* Device selection dialog for Tesla/Enphase OAuth */}
+      <DeviceSelectionDialog
+        open={showDeviceSelection}
+        onOpenChange={(open) => {
+          if (!open && showDeviceSelection) {
+            // User closed without completing - still mark as success
+            handleDeviceSelectionComplete(deviceSelectionProvider);
+          }
+          setShowDeviceSelection(open);
+        }}
+        provider={deviceSelectionProvider}
+        onComplete={() => handleDeviceSelectionComplete(deviceSelectionProvider)}
+      />
 
       {/* Enphase code dialog */}
       <EnphaseCodeDialog
