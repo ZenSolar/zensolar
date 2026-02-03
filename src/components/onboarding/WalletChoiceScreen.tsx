@@ -4,7 +4,9 @@ import { Wallet, Shield, Smartphone, Zap, ArrowRight, Check, Fingerprint, Chevro
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerLightTap, triggerMediumTap } from '@/hooks/useHaptics';
-import zenIcon from '@/assets/zen-icon-transparent.png';
+
+// Use the PWA icon - same as home screen icon
+const zenSolarLogoUrl = '/pwa-192x192.png';
 
 export type WalletChoice = 'zensolar' | 'external' | 'skip';
 
@@ -142,20 +144,20 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
                   : "border-border/50 bg-card/50 hover:border-primary/50 hover:bg-card"
               )}
             >
-              {/* Recommended badge */}
+              {/* Recommended badge - using amber/yellow for contrast in both light/dark modes */}
               <div className="absolute top-3 right-3">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                  <Zap className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 dark:bg-amber-400/20 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-500/30 dark:border-amber-400/30">
+                  <Zap className="w-3 h-3 fill-current" />
                   Recommended
                 </span>
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
+                <div className="flex-shrink-0 w-14 h-14 rounded-xl shadow-lg shadow-primary/20 overflow-hidden">
                   <img 
-                    src={zenIcon} 
+                    src={zenSolarLogoUrl} 
                     alt="ZenSolar" 
-                    className="w-10 h-10 object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 
