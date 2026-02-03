@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Fingerprint, Check, Sparkles, Shield, ArrowRight, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
+import { Fingerprint, Sparkles, Shield, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCoinbaseSmartWallet } from '@/hooks/useCoinbaseSmartWallet';
-import zenIcon from '@/assets/zen-icon-transparent.png';
+import zenLogo from '@/assets/zen-logo.png';
 
 interface WalletSetupScreenProps {
   onComplete: (walletAddress: string) => void;
@@ -19,19 +19,13 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
     await createWallet();
   }, [createWallet]);
 
-  const handleContinue = useCallback(() => {
-    if (walletAddress) {
-      onComplete(walletAddress);
-    }
-  }, [walletAddress, onComplete]);
-
   const handleRetry = useCallback(async () => {
     reset();
     await createWallet();
   }, [reset, createWallet]);
 
   // Map SDK step to UI display
-  const getDisplayStep = (): 'ready' | 'creating' | 'passkey' | 'success' | 'error' => {
+  const getDisplayStep = (): 'ready' | 'creating' | 'passkey' | 'error' => {
     if (!hasStarted) return 'ready';
     switch (step) {
       case 'idle':
@@ -40,7 +34,8 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
       case 'authenticating':
         return 'passkey';
       case 'success':
-        return 'success';
+        // When success, useEffect handles completion - show creating briefly
+        return 'creating';
       case 'error':
         return 'error';
       default:
@@ -48,12 +43,20 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
     }
   };
 
+  // When wallet is successfully created, immediately call onComplete
+  // This skips the internal success step and goes directly to OnboardingSuccessScreen (with confetti)
+  useEffect(() => {
+    if (step === 'success' && walletAddress) {
+      onComplete(walletAddress);
+    }
+  }, [step, walletAddress, onComplete]);
+
   const displayStep = getDisplayStep();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Back button - only show when not in the middle of connecting */}
-      {!isConnecting && displayStep !== 'success' && (
+      {!isConnecting && (
         <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -101,14 +104,6 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
           {displayStep === 'passkey' && (
             <PasskeyStep key="passkey" />
           )}
-          
-          {displayStep === 'success' && walletAddress && (
-            <SuccessStep 
-              key="success" 
-              walletAddress={walletAddress} 
-              onContinue={handleContinue}
-            />
-          )}
 
           {displayStep === 'error' && (
             <ErrorStep 
@@ -132,7 +127,7 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
       exit={{ opacity: 0, scale: 0.95 }}
       className="text-center"
     >
-      {/* Logo/icon */}
+      {/* Logo/icon - using zen-logo.png which has transparent background */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
@@ -140,9 +135,9 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
         className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden"
       >
         <img 
-          src={zenIcon} 
+          src={zenLogo} 
           alt="ZenSolar" 
-          className="w-20 h-20 object-contain"
+          className="w-14 h-14 object-contain"
         />
       </motion.div>
 
@@ -247,9 +242,9 @@ function CreatingStep() {
         </div>
         <div className="absolute inset-0 flex items-center justify-center">
           <img 
-            src={zenIcon} 
+            src={zenLogo} 
             alt="" 
-            className="w-16 h-16 object-contain"
+            className="w-10 h-10 object-contain"
           />
         </div>
       </div>
@@ -337,104 +332,6 @@ function PasskeyStep() {
       <p className="text-xs text-muted-foreground mt-4">
         A popup window will appear. Please complete the passkey setup there.
       </p>
-    </motion.div>
-  );
-}
-
-function SuccessStep({ 
-  walletAddress, 
-  onContinue 
-}: { 
-  walletAddress: string; 
-  onContinue: () => void;
-}) {
-  const shortAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="text-center"
-    >
-      {/* Success animation */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30"
-      >
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-        >
-          <Check className="w-12 h-12 text-primary-foreground" />
-        </motion.div>
-      </motion.div>
-
-      {/* Confetti particles */}
-      {[...Array(12)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 rounded-full"
-          style={{
-            background: i % 3 === 0 ? 'hsl(var(--primary))' : i % 3 === 1 ? 'hsl(var(--accent))' : 'hsl(var(--secondary))',
-            left: '50%',
-            top: '35%',
-          }}
-          initial={{ scale: 0, x: 0, y: 0 }}
-          animate={{
-            scale: [0, 1, 0],
-            x: Math.cos((i * 30 * Math.PI) / 180) * (80 + Math.random() * 40),
-            y: Math.sin((i * 30 * Math.PI) / 180) * (80 + Math.random() * 40),
-          }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        />
-      ))}
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <h2 className="text-xl font-semibold text-foreground">
-            Your Wallet is Ready!
-          </h2>
-        </div>
-        
-        <p className="text-muted-foreground text-sm mb-6">
-          Start earning $ZSOLAR tokens and NFTs
-        </p>
-
-        {/* Wallet address card */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="p-4 rounded-xl bg-muted/50 border border-border mb-8"
-        >
-          <p className="text-xs text-muted-foreground mb-1">Your Wallet Address</p>
-          <p className="font-mono text-sm text-foreground">{shortAddress}</p>
-          <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
-              <span className="text-[8px] text-white font-bold">B</span>
-            </div>
-            <span className="text-xs text-muted-foreground">Base Network • Coinbase Smart Wallet</span>
-          </div>
-        </motion.div>
-
-        <Button
-          size="lg"
-          onClick={onContinue}
-          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 gap-2"
-        >
-          Continue to Dashboard
-          <ArrowRight className="w-4 h-4" />
-        </Button>
-      </motion.div>
     </motion.div>
   );
 }
