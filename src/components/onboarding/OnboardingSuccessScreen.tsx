@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Zap, ArrowRight, Wallet, Sparkles, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { trackEvent } from '@/hooks/useGoogleAnalytics';
+import { useConfetti } from '@/hooks/useConfetti';
 
 interface OnboardingSuccessScreenProps {
   walletAddress?: string | null;
@@ -11,6 +13,18 @@ interface OnboardingSuccessScreenProps {
 
 export function OnboardingSuccessScreen({ walletAddress, walletType }: OnboardingSuccessScreenProps) {
   const navigate = useNavigate();
+  const { triggerCelebration } = useConfetti();
+
+  // Trigger confetti when wallet is connected
+  useEffect(() => {
+    if (walletType !== 'skipped' && walletAddress) {
+      // Small delay to let the screen render first
+      const timer = setTimeout(() => {
+        triggerCelebration();
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [walletType, walletAddress, triggerCelebration]);
 
   const handleConnectEnergy = () => {
     trackEvent('onboarding_success_connect_energy_clicked', { walletType });

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenIconOnly from '@/assets/zen-icon-only.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { OnboardingFunnelCard } from '@/components/admin/OnboardingFunnelCard';
 
 interface ProfileWithEmail {
   id: string;
@@ -1003,6 +1004,9 @@ export default function AdminUsers() {
             </div>
           </Card>
         </div>
+
+        {/* Onboarding Funnel */}
+        <OnboardingFunnelCard profiles={profiles} />
 
         {/* Users - Responsive: Cards on mobile, Table on desktop */}
         <Card>
