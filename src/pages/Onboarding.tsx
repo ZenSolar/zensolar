@@ -3,17 +3,33 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { WalletChoiceScreen, WalletChoice } from "@/components/onboarding/WalletChoiceScreen";
 import { WalletSetupScreen } from "@/components/onboarding/WalletSetupScreen";
 import { ExternalWalletScreen } from "@/components/onboarding/ExternalWalletScreen";
+import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSuccessScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { 
+  trackWalletChoiceViewed,
+  trackWalletChoiceSelected, 
+  trackWalletConnected, 
+  trackWalletSkipped,
+  trackOnboardingComplete 
+} from "@/lib/onboardingAnalytics";
 
-type OnboardingStep = 'wallet-choice' | 'zensolar-setup' | 'external-wallet';
+type OnboardingStep = 'wallet-choice' | 'zensolar-setup' | 'external-wallet' | 'success';
+type WalletType = 'zensolar' | 'external' | 'skipped';
 
 export default function Onboarding() {
   const [step, setStep] = useState<OnboardingStep>('wallet-choice');
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletType, setWalletType] = useState<WalletType>('skipped');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
+
+  // Track initial view
+  useEffect(() => {
+    trackWalletChoiceViewed();
+  }, []);
 
   // Check if we should skip to a specific step
   useEffect(() => {
@@ -33,26 +49,42 @@ export default function Onboarding() {
   }, [searchParams]);
 
   const handleWalletChoice = async (choice: WalletChoice) => {
+    // Track the choice
+    trackWalletChoiceSelected(choice);
+    
     switch (choice) {
       case 'zensolar':
+        setWalletType('zensolar');
         setStep('zensolar-setup');
         break;
       case 'external':
+        setWalletType('external');
         setStep('external-wallet');
         break;
       case 'skip':
-        navigate('/');
+        setWalletType('skipped');
+        trackWalletSkipped();
+        trackOnboardingComplete({ walletType: 'skip', hasWallet: false });
+        setStep('success');
         break;
     }
   };
 
-  const handleWalletComplete = async (walletAddress: string) => {
+  const handleWalletComplete = async (address: string) => {
+    setWalletAddress(address);
+    
+    // Track successful connection
+    trackWalletConnected({ 
+      walletType: walletType as 'zensolar' | 'external', 
+      walletAddress: address 
+    });
+    
     // Save wallet address to profile
     if (user) {
       try {
         const { error } = await supabase
           .from('profiles')
-          .update({ wallet_address: walletAddress })
+          .update({ wallet_address: address })
           .eq('user_id', user.id);
 
         if (error) {
@@ -66,8 +98,12 @@ export default function Onboarding() {
       }
     }
     
-    // Navigate to dashboard
-    navigate('/');
+    // Track completion and go to success screen
+    trackOnboardingComplete({ 
+      walletType: walletType as 'zensolar' | 'external', 
+      hasWallet: true 
+    });
+    setStep('success');
   };
 
   const handleBack = () => {
@@ -91,6 +127,13 @@ export default function Onboarding() {
         <ExternalWalletScreen
           onComplete={handleWalletComplete}
           onBack={handleBack}
+        />
+      )}
+      
+      {step === 'success' && (
+        <OnboardingSuccessScreen 
+          walletAddress={walletAddress}
+          walletType={walletType}
         />
       )}
     </>
