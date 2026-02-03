@@ -44,58 +44,20 @@
     <meta name="twitter:site" content="@ZenSolar" />
     <meta name="twitter:title" content="Earn $ZSOLAR For Your Clean Energy Use" />
     <meta name="twitter:image" content="https://zensolar.lovable.app/og-image.png" />
+
+    <!-- Prevent any initial white flash before CSS/React are ready -->
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: linear-gradient(135deg, #0a1628 0%, #0f2847 50%, #0a1628 100%);
+      }
+    </style>
   </head>
 
   <body>
-    <div id="root">
-      <!-- Inline splash screen - shows instantly before React loads -->
-      <div id="splash-screen" style="
-        position: fixed;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #0a1628 0%, #0f2847 50%, #0a1628 100%);
-        z-index: 9999;
-      ">
-        <!-- Logo -->
-        <img 
-          src="/pwa-192x192.png" 
-          alt="ZenSolar" 
-          width="96" 
-          height="96" 
-          style="border-radius: 20px; margin-bottom: 24px; animation: pulse 2s ease-in-out infinite;"
-        />
-        <!-- Loading spinner -->
-        <div style="
-          width: 32px;
-          height: 32px;
-          border: 3px solid rgba(34, 197, 94, 0.2);
-          border-top-color: #22c55e;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        "></div>
-        <!-- Loading text -->
-        <p style="
-          margin-top: 16px;
-          color: rgba(255, 255, 255, 0.6);
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          font-size: 14px;
-          letter-spacing: 0.5px;
-        ">Loading...</p>
-      </div>
-      <style>
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(0.95); }
-        }
-      </style>
-    </div>
-    <script type="module" src="/src/main.tsx"></script>
     <script>
       // Remove splash screen once React app signals it's ready
       // React will call window.hideSplashScreen() when mounted
@@ -112,10 +74,61 @@
         }
       };
       
-      // Fallback: remove splash after 5 seconds if React hasn't loaded
+      // Fallback: remove splash after 12 seconds if React hasn't loaded
       setTimeout(function() {
         window.hideSplashScreen();
-      }, 5000);
+      }, 12000);
     </script>
+
+    <!-- Inline splash screen - shows instantly before React loads -->
+    <!-- IMPORTANT: Keep OUTSIDE #root so React can't clear it during startup -->
+    <div id="splash-screen" style="
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a1628 0%, #0f2847 50%, #0a1628 100%);
+      z-index: 9999;
+    ">
+      <!-- Logo -->
+      <img 
+        src="/pwa-192x192.png" 
+        alt="ZenSolar" 
+        width="96" 
+        height="96" 
+        style="border-radius: 20px; margin-bottom: 24px; animation: pulse 2s ease-in-out infinite;"
+      />
+      <!-- Loading spinner -->
+      <div style="
+        width: 32px;
+        height: 32px;
+        border: 3px solid rgba(34, 197, 94, 0.2);
+        border-top-color: #22c55e;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <!-- Loading text -->
+      <p style="
+        margin-top: 16px;
+        color: rgba(255, 255, 255, 0.6);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+      ">Loading...</p>
+    </div>
+    <style>
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(0.95); }
+      }
+    </style>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
