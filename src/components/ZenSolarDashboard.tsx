@@ -13,6 +13,7 @@ import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory } f
 import { RewardProgress } from './dashboard/RewardProgress';
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
+import { WalletSetupModal } from './dashboard/WalletSetupModal';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
@@ -104,6 +105,17 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   // In New User View mode, always show onboarding cards
   const showWalletPrompt = isNewUserView || !hasWalletConnected;
   const showEnergyPrompt = isNewUserView || !hasEnergyConnected;
+  
+  // Show wallet setup modal for users without wallet (not in demo/new user view mode)
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  
+  useEffect(() => {
+    // Show modal after a brief delay if user has no wallet and isn't in demo/new user view
+    if (!isDemo && !isNewUserView && !hasWalletConnected && !profileLoading) {
+      const timer = setTimeout(() => setShowWalletModal(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isDemo, isNewUserView, hasWalletConnected, profileLoading]);
   
   // Get connected provider names for display
   const connectedProviders = energyAccounts
@@ -321,6 +333,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
       </AnimatedContainer>
+      
+      {/* Wallet Setup Modal - appears for users without wallet */}
+      <WalletSetupModal 
+        isOpen={showWalletModal} 
+        onClose={() => setShowWalletModal(false)} 
+      />
       
       {/* Dashboard Footer */}
       <DashboardFooter />
