@@ -7,6 +7,7 @@ import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSucce
 import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/EnergyConnectionScreen";
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
+import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
 import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectDialog";
 import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
@@ -63,6 +64,7 @@ export default function Onboarding() {
   const [connectingProvider, setConnectingProvider] = useState<EnergyProvider | null>(null);
   const [showDeviceSelection, setShowDeviceSelection] = useState(false);
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
@@ -73,6 +75,23 @@ export default function Onboarding() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { startTeslaOAuth, startEnphaseOAuth, connectSolarEdge, connectWallbox, exchangeEnphaseCode } = useEnergyOAuth();
+
+  // Animated step transition helper
+  const transitionToStep = (newStep: OnboardingStep) => {
+    // Only show transition for major step changes
+    const currentMajorStep = getStepNumber(step);
+    const newMajorStep = getStepNumber(newStep);
+    
+    if (currentMajorStep !== newMajorStep) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setStep(newStep);
+        setTimeout(() => setIsTransitioning(false), 300);
+      }, 400);
+    } else {
+      setStep(newStep);
+    }
+  };
 
   // Track initial view
   useEffect(() => {
@@ -166,12 +185,12 @@ export default function Onboarding() {
   };
 
   const handleWalletSuccessContinue = () => {
-    // Track completion and proceed to energy connection
+    // Track completion and proceed to energy connection with animation
     trackOnboardingComplete({ 
       walletType: walletType as 'zensolar' | 'external', 
       hasWallet: true 
     });
-    setStep('energy-connect');
+    transitionToStep('energy-connect');
   };
 
   const handleEnergyConnect = async (provider: EnergyProvider) => {
@@ -280,8 +299,11 @@ export default function Onboarding() {
 
   return (
     <>
+      {/* Step transition animation */}
+      <OnboardingTransition isTransitioning={isTransitioning} />
+
       {/* Progress indicator */}
-      {showProgress && (
+      {showProgress && !isTransitioning && (
         <OnboardingProgress 
           currentStep={currentStepNumber} 
           totalSteps={2}
