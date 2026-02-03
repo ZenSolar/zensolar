@@ -4,7 +4,7 @@ import { Wallet, Shield, Smartphone, Zap, ArrowRight, Check, Fingerprint, Chevro
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerLightTap, triggerMediumTap } from '@/hooks/useHaptics';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import zenIcon from '@/assets/zen-icon-transparent.png';
 
 export type WalletChoice = 'zensolar' | 'external' | 'skip';
 
@@ -151,12 +151,11 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20 p-2">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
                   <img 
-                    src={zenLogo} 
+                    src={zenIcon} 
                     alt="ZenSolar" 
-                    className="w-full h-full object-contain"
-                    style={{ filter: 'brightness(0) invert(1)' }}
+                    className="w-10 h-10 object-contain"
                   />
                 </div>
                 
