@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link2, ShieldCheck, Hexagon, ArrowRight, Sparkles } from 'lucide-react';
+import { Link2, ShieldCheck, Hexagon, ArrowRight, Sparkles, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
@@ -36,6 +36,16 @@ const steps = [
     glow: 'shadow-amber-500/30',
     bgGlow: 'bg-amber-500/10',
   },
+  {
+    number: '04',
+    icon: Lock,
+    title: 'Record',
+    subtitle: 'On-Chain',
+    description: 'Proof-of-Delta™ writes your device watermark to the blockchain—immutable verification.',
+    gradient: 'from-purple-500 to-indigo-500',
+    glow: 'shadow-purple-500/30',
+    bgGlow: 'bg-purple-500/10',
+  },
 ];
 
 interface MintOnProofInfographicProps {
@@ -69,16 +79,16 @@ export function MintOnProofInfographic({ showCTA = true, compact = false }: Mint
       {/* Steps Flow */}
       <div className="relative">
         {/* Connection Lines - Desktop */}
-        <div className="hidden md:block absolute top-1/2 left-[20%] right-[20%] h-1 -translate-y-1/2 z-0">
+        <div className="hidden lg:block absolute top-1/2 left-[12%] right-[12%] h-1 -translate-y-1/2 z-0">
           <motion.div
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="h-full bg-gradient-to-r from-blue-500 via-emerald-500 to-amber-500 rounded-full origin-left"
+            className="h-full bg-gradient-to-r from-blue-500 via-emerald-500 via-amber-500 to-purple-500 rounded-full origin-left"
           />
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 relative z-10">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
           {steps.map((step, index) => (
             <motion.div
               key={step.title}

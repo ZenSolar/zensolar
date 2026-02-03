@@ -112,9 +112,14 @@ const adminMenuGroups = {
     { title: "Smart Contracts", url: "/admin/contracts", icon: FileCode },
     { title: "EV API Reference", url: "/admin/ev-api-reference", icon: Car },
     { title: "Competitive Intel", url: "/admin/competitive-intel", icon: Shield },
-    { title: "Patent Mapping", url: "/admin/patent-mapping", icon: FileText },
     { title: "AI Feedback Loop", url: "/admin/ai-feedback-loop", icon: Cpu },
     { title: "Glossary", url: "/admin/glossary", icon: BookOpen },
+  ],
+  patent: [
+    { title: "Mint-on-Proof", url: "/admin/patent/mint-on-proof", icon: FileText, highlight: true },
+    { title: "Proof-of-Delta", url: "/admin/patent/proof-of-delta", icon: Shield, highlight: true },
+    { title: "Patent Application", url: "/admin/patent/application", icon: FileText, highlight: true },
+    { title: "Patent Mapping", url: "/admin/patent-mapping", icon: FileText },
   ],
 };
 
@@ -344,7 +349,7 @@ export function AppSidebar() {
                 </Collapsible>
 
                 {/* Technical Submenu */}
-                <Collapsible defaultOpen={location.pathname.includes('security') || location.pathname.includes('contracts') || location.pathname.includes('ev-api') || location.pathname.includes('patent') || location.pathname.includes('ai-feedback') || location.pathname.includes('glossary') || location.pathname.includes('beta-deployment')}>
+                <Collapsible defaultOpen={location.pathname.includes('security') || location.pathname.includes('contracts') || location.pathname.includes('ev-api') || location.pathname.includes('ai-feedback') || location.pathname.includes('glossary') || location.pathname.includes('beta-deployment')}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
                       <FileCode className="h-4 w-4" />
@@ -354,6 +359,37 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                   <CollapsibleContent>
                     {adminMenuGroups.technical.map((item) => (
+                      <SidebarMenuItem key={item.title} className="pl-4">
+                        <SidebarMenuButton asChild tooltip={item.title}>
+                          <NavLink 
+                            to={item.url}
+                            onClick={handleNavClick}
+                            className={({ isActive }) => 
+                              isActive 
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
+                            }
+                          >
+                            <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Patent Submenu */}
+                <Collapsible defaultOpen={location.pathname.includes('/admin/patent')}>
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
+                      <FileText className="h-4 w-4" />
+                      {!collapsed && <span>Patent</span>}
+                      {!collapsed && <ChevronDown className="h-3 w-3 ml-auto transition-transform group-data-[state=open]:rotate-180" />}
+                    </CollapsibleTrigger>
+                  </SidebarMenuItem>
+                  <CollapsibleContent>
+                    {adminMenuGroups.patent.map((item) => (
                       <SidebarMenuItem key={item.title} className="pl-4">
                         <SidebarMenuButton asChild tooltip={item.title}>
                           <NavLink 

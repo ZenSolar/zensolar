@@ -71,6 +71,9 @@ const AdminWalletProviders = lazy(() => import("./pages/AdminWalletProviders"));
 const AdminYCApplication = lazy(() => import("./pages/AdminYCApplication"));
 const AdminFutureRoadmap = lazy(() => import("./pages/AdminFutureRoadmap"));
 const AdminMarketDefenseMechanisms = lazy(() => import("./pages/AdminMarketDefenseMechanisms"));
+const AdminPatentMintOnProof = lazy(() => import("./pages/AdminPatentMintOnProof"));
+const AdminPatentProofOfDelta = lazy(() => import("./pages/AdminPatentProofOfDelta"));
+const AdminPatentApplication = lazy(() => import("./pages/AdminPatentApplication"));
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
@@ -575,6 +578,36 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminMarketDefenseMechanisms />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/patent/mint-on-proof" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminPatentMintOnProof />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/patent/proof-of-delta" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminPatentProofOfDelta />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/patent/application" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminPatentApplication />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
