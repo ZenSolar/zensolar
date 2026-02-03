@@ -6,6 +6,7 @@ import { ExternalWalletScreen } from "@/components/onboarding/ExternalWalletScre
 import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSuccessScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { dispatchProfileUpdated } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { 
   trackWalletChoiceViewed,
@@ -92,6 +93,8 @@ export default function Onboarding() {
           toast.error('Failed to save wallet. You can add it later from the Dashboard.');
         } else {
           toast.success('Wallet connected successfully!');
+          // Dispatch event so Dashboard/Wallet pages refetch profile data
+          dispatchProfileUpdated();
         }
       } catch (err) {
         console.error('Error saving wallet:', err);
