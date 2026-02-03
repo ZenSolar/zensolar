@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Zap, ArrowRight, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, ArrowRight, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 
@@ -15,6 +15,7 @@ export type EnergyProvider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 interface EnergyConnectionScreenProps {
   onConnect: (provider: EnergyProvider) => void;
   onSkip: () => void;
+  onCancelConnecting?: () => void;
   isConnecting?: EnergyProvider | null;
   connectedProviders?: string[];
 }
@@ -48,7 +49,8 @@ const providers = [
 
 export function EnergyConnectionScreen({ 
   onConnect, 
-  onSkip, 
+  onSkip,
+  onCancelConnecting,
   isConnecting,
   connectedProviders = []
 }: EnergyConnectionScreenProps) {
@@ -149,22 +151,51 @@ export function EnergyConnectionScreen({
           ))}
         </motion.div>
 
-        {/* Skip option */}
+        {/* Cancel connecting / Skip option */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="text-center"
+          className="text-center space-y-2"
         >
-          <Button
-            variant="ghost"
-            onClick={handleSkip}
-            disabled={!!isConnecting}
-            className="text-muted-foreground hover:text-foreground gap-2"
-          >
-            I'll do this later
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <AnimatePresence mode="wait">
+            {isConnecting ? (
+              <motion.div
+                key="cancel"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <Button
+                  variant="ghost"
+                  onClick={() => onCancelConnecting?.()}
+                  className="text-muted-foreground hover:text-foreground gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel
+                </Button>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Waiting for authorization...
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="skip"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <Button
+                  variant="ghost"
+                  onClick={handleSkip}
+                  className="text-muted-foreground hover:text-foreground gap-2"
+                >
+                  I'll do this later
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
     </div>
