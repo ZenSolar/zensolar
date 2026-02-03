@@ -16,6 +16,7 @@ interface EnergyConnectionScreenProps {
   onConnect: (provider: EnergyProvider) => void;
   onSkip: () => void;
   isConnecting?: EnergyProvider | null;
+  connectedProviders?: string[];
 }
 
 const providers = [
@@ -48,8 +49,14 @@ const providers = [
 export function EnergyConnectionScreen({ 
   onConnect, 
   onSkip, 
-  isConnecting 
+  isConnecting,
+  connectedProviders = []
 }: EnergyConnectionScreenProps) {
+  // Filter out already connected providers
+  const availableProviders = providers.filter(
+    p => !connectedProviders.includes(p.id)
+  );
+
   const handleProviderClick = async (provider: EnergyProvider) => {
     await triggerLightTap();
     onConnect(provider);
@@ -112,7 +119,7 @@ export function EnergyConnectionScreen({
           transition={{ delay: 0.3 }}
           className="space-y-3 mb-6"
         >
-          {providers.map((provider, index) => (
+          {availableProviders.map((provider, index) => (
             <motion.button
               key={provider.id}
               initial={{ opacity: 0, x: -20 }}
