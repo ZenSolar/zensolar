@@ -44,6 +44,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     refreshDashboard,
     connectedAccounts,
     lastUpdatedAt,
+    providerRefresh,
+    isAutoSyncing,
+    setIsAutoSyncing,
   } = useDashboardData();
   const { profile, isLoading: profileLoading } = useProfile();
   const { isAdmin, isAdminView } = useAdminCheck();
@@ -229,6 +232,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onShowField={showField}
             onShowAllFields={showAllFields}
             isNewUserView={isNewUserView}
+            teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
           />
         </AnimatedItem>
 
@@ -297,17 +301,22 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           
           <Button
             onClick={refreshDashboard}
-            disabled={dataLoading}
+            disabled={dataLoading || isAutoSyncing}
             variant="outline"
             className="w-full"
             size="lg"
           >
-            {dataLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {dataLoading || isAutoSyncing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isAutoSyncing ? 'SYNCING DATA...' : 'REFRESHING...'}
+              </>
             ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                REFRESH DASHBOARD
+              </>
             )}
-            REFRESH DASHBOARD
           </Button>
         </AnimatedItem>
 
