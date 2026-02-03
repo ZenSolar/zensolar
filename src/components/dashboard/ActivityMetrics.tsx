@@ -10,6 +10,7 @@ import {
   Coins,
   ChevronRight,
   Gauge,
+  AlertCircle,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
@@ -65,6 +66,7 @@ interface ActivityMetricsProps {
   onShowField?: (field: HideableField) => void;
   onShowAllFields?: () => void;
   isNewUserView?: boolean;
+  teslaNeedsReauth?: boolean;
 }
 
 export function ActivityMetrics({ 
@@ -81,6 +83,7 @@ export function ActivityMetrics({
   onShowField,
   onShowAllFields,
   isNewUserView = false,
+  teslaNeedsReauth = false,
 }: ActivityMetricsProps) {
   // In new user view mode, show empty state
   const effectiveData = isNewUserView ? {
@@ -276,11 +279,32 @@ export function ActivityMetrics({
         {/* Single last updated time */}
         <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
 
+        {/* Tesla Reconnect CTA - shown when token expired */}
+        {teslaNeedsReauth && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 border border-destructive/30"
+          >
+            <div className="flex items-center gap-2 text-sm">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <span className="text-foreground font-medium">Tesla connection expired</span>
+            </div>
+            <Link 
+              to="/profile" 
+              className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1"
+            >
+              Reconnect
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
+        )}
+
         {/* Swipe Hint Tooltip - only show for first-time users with hideable fields */}
         {hasHideableFields && (
           <SwipeHintTooltip 
             show={shouldShowHint} 
-            onDismiss={markHintSeen} 
+            onDismiss={markHintSeen}
           />
         )}
 

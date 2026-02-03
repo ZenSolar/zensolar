@@ -75,10 +75,12 @@ export function useDashboardData() {
     cached?: boolean;
     stale?: boolean;
     rateLimited?: boolean;
+    needsReauth?: boolean;
     error?: string;
   };
 
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+  const [isAutoSyncing, setIsAutoSyncing] = useState(false);
   const [providerRefresh, setProviderRefresh] = useState<Record<ProviderKey, ProviderRefreshState>>({
     tesla: { status: 'idle' },
     enphase: { status: 'idle' },
@@ -218,16 +220,18 @@ export function useDashboardData() {
         const errorMessage = response.error.message || '';
         if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
           toast.error('Tesla API rate limit reached. Please try again later.');
+          return { error: 'rate_limited' };
         } else if (errorMessage.includes('needsReauth') || errorMessage.includes('Token expired')) {
-          toast.error('Tesla connection expired. Please reconnect your account.');
+          // Don't show toast - let the UI show the reconnect CTA
+          return { error: 'needs_reauth', needsReauth: true };
         }
-        return null;
+        return { error: 'unknown' };
       }
 
       return response.data;
     } catch (error) {
       console.error('Failed to fetch Tesla data:', error);
-      return null;
+      return { error: 'fetch_failed' };
     }
   }, []);
 
@@ -443,6 +447,13 @@ export function useDashboardData() {
         const toState = (d: any, connected?: boolean): ProviderRefreshState => {
           if (!connected) return { status: 'idle' };
           if (!d) return { status: 'error', updatedAt: nowIso, error: 'no_data' };
+          // Check for needsReauth error state
+          if (d?.error === 'needs_reauth' || d?.needsReauth) {
+            return { status: 'error', updatedAt: nowIso, error: 'needs_reauth', needsReauth: true };
+          }
+          if (d?.error) {
+            return { status: 'error', updatedAt: nowIso, error: d.error };
+          }
           return {
             status: 'success',
             updatedAt: nowIso,
@@ -890,7 +901,8 @@ export function useDashboardData() {
     if (!anyConnected) return;
 
     hasAutoRefreshedOnce.current = true;
-    refreshDashboard();
+    setIsAutoSyncing(true);
+    refreshDashboard().finally(() => setIsAutoSyncing(false));
   }, [profileConnections, refreshDashboard]);
 
   // Auto-refresh when connections change
@@ -977,5 +989,7 @@ export function useDashboardData() {
     refreshDashboard,
     lastUpdatedAt,
     providerRefresh,
+    isAutoSyncing,
+    setIsAutoSyncing,
   };
 }
