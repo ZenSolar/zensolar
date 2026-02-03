@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, ArrowRight, Loader2, X } from 'lucide-react';
+import { Zap, ArrowRight, Loader2, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 
@@ -15,6 +15,7 @@ export type EnergyProvider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 interface EnergyConnectionScreenProps {
   onConnect: (provider: EnergyProvider) => void;
   onSkip: () => void;
+  onBack?: () => void;
   onCancelConnecting?: () => void;
   isConnecting?: EnergyProvider | null;
   connectedProviders?: string[];
@@ -50,6 +51,7 @@ const providers = [
 export function EnergyConnectionScreen({ 
   onConnect, 
   onSkip,
+  onBack,
   onCancelConnecting,
   isConnecting,
   connectedProviders = []
@@ -69,8 +71,32 @@ export function EnergyConnectionScreen({
     onSkip();
   };
 
+  const handleBack = async () => {
+    await triggerLightTap();
+    onBack?.();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Back button */}
+      {onBack && !isConnecting && (
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="absolute top-6 left-4 z-20"
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className="gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Wallet
+          </Button>
+        </motion.div>
+      )}
+
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 

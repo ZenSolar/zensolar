@@ -304,6 +304,11 @@ export default function Onboarding() {
     navigate('/');
   };
 
+  const handleEnergyBack = () => {
+    // Go back to wallet choice screen
+    setStep('wallet-choice');
+  };
+
   const handleAddAnotherEnergy = () => {
     setStep('energy-connect');
   };
@@ -382,6 +387,7 @@ export default function Onboarding() {
           <EnergyConnectionScreen
             onConnect={handleEnergyConnect}
             onSkip={handleEnergySkip}
+            onBack={handleEnergyBack}
             onCancelConnecting={handleCancelConnecting}
             isConnecting={connectingProvider}
             connectedProviders={connectedProviders}

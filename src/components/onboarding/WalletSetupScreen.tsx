@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Fingerprint, Check, Sparkles, Shield, ArrowRight } from 'lucide-react';
+import { Fingerprint, Check, Sparkles, Shield, ArrowRight, ArrowLeft, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCoinbaseSmartWallet, SmartWalletStep } from '@/hooks/useCoinbaseSmartWallet';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-
-type SetupStep = 'creating' | 'passkey' | 'success';
 
 interface WalletSetupScreenProps {
   onComplete: (walletAddress: string) => void;
@@ -12,41 +11,68 @@ interface WalletSetupScreenProps {
 }
 
 export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps) {
-  const [step, setStep] = useState<SetupStep>('creating');
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const { step, walletAddress, error, isConnecting, createWallet, reset } = useCoinbaseSmartWallet();
+  const [hasStarted, setHasStarted] = useState(false);
 
+  // Auto-start wallet creation on mount
   useEffect(() => {
-    // Simulate wallet creation process
-    const createWallet = async () => {
-      // Step 1: Creating (1.5s)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Step 2: Passkey prompt
-      setStep('passkey');
-      
-      // Simulate passkey authentication (2s)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generate a demo wallet address
-      const address = '0x' + Array.from({ length: 40 }, () => 
-        Math.floor(Math.random() * 16).toString(16)
-      ).join('');
-      
-      setWalletAddress(address);
-      setStep('success');
-    };
+    if (!hasStarted) {
+      setHasStarted(true);
+      createWallet();
+    }
+  }, [hasStarted, createWallet]);
 
-    createWallet();
-  }, []);
-
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     if (walletAddress) {
       onComplete(walletAddress);
     }
+  }, [walletAddress, onComplete]);
+
+  const handleRetry = useCallback(() => {
+    reset();
+    createWallet();
+  }, [reset, createWallet]);
+
+  // Map SDK step to UI display
+  const getDisplayStep = (): 'creating' | 'passkey' | 'success' | 'error' => {
+    switch (step) {
+      case 'idle':
+      case 'connecting':
+        return 'creating';
+      case 'authenticating':
+        return 'passkey';
+      case 'success':
+        return 'success';
+      case 'error':
+        return 'error';
+      default:
+        return 'creating';
+    }
   };
+
+  const displayStep = getDisplayStep();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Back button - only show when not in the middle of connecting */}
+      {!isConnecting && displayStep !== 'success' && (
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="absolute top-6 left-4 z-20"
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+        </motion.div>
+      )}
+
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
@@ -66,19 +92,28 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
         transition={{ duration: 0.5 }}
       >
         <AnimatePresence mode="wait">
-          {step === 'creating' && (
+          {displayStep === 'creating' && (
             <CreatingStep key="creating" />
           )}
           
-          {step === 'passkey' && (
+          {displayStep === 'passkey' && (
             <PasskeyStep key="passkey" />
           )}
           
-          {step === 'success' && walletAddress && (
+          {displayStep === 'success' && walletAddress && (
             <SuccessStep 
               key="success" 
               walletAddress={walletAddress} 
               onContinue={handleContinue}
+            />
+          )}
+
+          {displayStep === 'error' && (
+            <ErrorStep 
+              key="error"
+              error={error}
+              onRetry={handleRetry}
+              onBack={onBack}
             />
           )}
         </AnimatePresence>
@@ -122,7 +157,7 @@ function CreatingStep() {
         Creating Your ZenSolar Wallet
       </h2>
       <p className="text-muted-foreground text-sm">
-        Setting up secure, self-custody storage for your rewards...
+        Setting up your Coinbase Smart Wallet on Base...
       </p>
 
       {/* Progress dots */}
@@ -175,13 +210,13 @@ function PasskeyStep() {
       </motion.div>
 
       <h2 className="text-xl font-semibold text-foreground mb-2">
-        Secure Your Wallet
+        Authenticate with Passkey
       </h2>
       <p className="text-muted-foreground text-sm mb-4">
-        Use Face ID or Touch ID to protect your rewards
+        Use Face ID, Touch ID, or your device passkey to secure your wallet
       </p>
 
-      {/* Simulated Face ID prompt */}
+      {/* Passkey prompt indicator */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -192,11 +227,15 @@ function PasskeyStep() {
             <Shield className="w-5 h-5 text-primary" />
           </div>
           <div className="text-left">
-            <p className="text-sm font-medium">Passkey Setup</p>
-            <p className="text-xs text-muted-foreground">Authenticating...</p>
+            <p className="text-sm font-medium">Coinbase Smart Wallet</p>
+            <p className="text-xs text-muted-foreground">Complete authentication in popup...</p>
           </div>
         </div>
       </motion.div>
+
+      <p className="text-xs text-muted-foreground mt-4">
+        A popup window will appear. Please complete the passkey setup there.
+      </p>
     </motion.div>
   );
 }
@@ -282,7 +321,7 @@ function SuccessStep({
             <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
               <span className="text-[8px] text-white font-bold">B</span>
             </div>
-            <span className="text-xs text-muted-foreground">Base Network</span>
+            <span className="text-xs text-muted-foreground">Base Network • Coinbase Smart Wallet</span>
           </div>
         </motion.div>
 
@@ -295,6 +334,66 @@ function SuccessStep({
           <ArrowRight className="w-4 h-4" />
         </Button>
       </motion.div>
+    </motion.div>
+  );
+}
+
+function ErrorStep({
+  error,
+  onRetry,
+  onBack,
+}: {
+  error: string | null;
+  onRetry: () => void;
+  onBack: () => void;
+}) {
+  const isCancelled = error?.toLowerCase().includes('cancel');
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="text-center"
+    >
+      {/* Error icon */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-destructive/20 to-destructive/5 border border-destructive/20 flex items-center justify-center"
+      >
+        <AlertCircle className="w-12 h-12 text-destructive" />
+      </motion.div>
+
+      <h2 className="text-xl font-semibold text-foreground mb-2">
+        {isCancelled ? 'Setup Cancelled' : 'Something Went Wrong'}
+      </h2>
+      <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
+        {isCancelled 
+          ? 'You cancelled the wallet setup. You can try again or choose a different option.'
+          : error || 'Failed to create your wallet. Please try again.'}
+      </p>
+
+      <div className="flex flex-col gap-3">
+        <Button
+          size="lg"
+          onClick={onRetry}
+          className="w-full gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          onClick={onBack}
+          className="w-full gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Choose Different Option
+        </Button>
+      </div>
     </motion.div>
   );
 }
