@@ -18,8 +18,17 @@ export default function Onboarding() {
   // Check if we should skip to a specific step
   useEffect(() => {
     const skipTo = searchParams.get('step');
+    const choice = searchParams.get('choice');
     if (skipTo === 'wallet') {
       setStep('wallet-choice');
+    }
+
+    // Optional deep-links into a specific wallet path (used by Dashboard/Profile CTAs)
+    if (choice === 'zensolar') {
+      setStep('zensolar-setup');
+    }
+    if (choice === 'external') {
+      setStep('external-wallet');
     }
   }, [searchParams]);
 
