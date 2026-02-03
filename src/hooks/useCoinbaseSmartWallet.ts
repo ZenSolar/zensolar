@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useConnect, useAccount, useDisconnect } from 'wagmi';
+import { useState, useCallback, useRef } from 'react';
+import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk';
 import { baseSepolia } from 'viem/chains';
 
 export type SmartWalletStep = 'idle' | 'connecting' | 'authenticating' | 'success' | 'error';
@@ -15,16 +15,14 @@ interface UseCoinbaseSmartWalletResult {
 
 /**
  * Hook to create/connect a Coinbase Smart Wallet with passkey authentication.
- * Uses wagmi's coinbaseWallet connector configured for Smart Wallet.
+ * Uses the Coinbase Wallet SDK directly with smartWalletOnly preference.
+ * This works without requiring the browser extension - uses passkeys via popup.
  */
 export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
   const [step, setStep] = useState<SmartWalletStep>('idle');
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
-  const { connectAsync, connectors } = useConnect();
-  const { address, isConnected } = useAccount();
-  const { disconnectAsync } = useDisconnect();
+  const providerRef = useRef<ReturnType<ReturnType<typeof createCoinbaseWalletSDK>['getProvider']> | null>(null);
 
   const reset = useCallback(() => {
     setStep('idle');
@@ -37,52 +35,36 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
       setError(null);
       setStep('connecting');
 
-      // If already connected, use the existing address
-      if (isConnected && address) {
-        setWalletAddress(address);
-        setStep('success');
-        return address;
-      }
+      // Create Coinbase Wallet SDK with Smart Wallet preference
+      // This enables passkey-based authentication without requiring an extension
+      const sdk = createCoinbaseWalletSDK({
+        appName: 'ZenSolar',
+        appLogoUrl: 'https://zensolar.lovable.app/zs-icon-192.png',
+        appChainIds: [baseSepolia.id],
+        preference: {
+          options: 'smartWalletOnly', // Forces Smart Wallet with passkey auth
+        },
+      });
 
-      // Disconnect any existing connection first
-      try {
-        await disconnectAsync();
-      } catch {
-        // Ignore disconnect errors
-      }
+      const provider = sdk.getProvider();
+      providerRef.current = provider;
 
       setStep('authenticating');
 
-      // Find Coinbase Wallet connector from existing connectors
-      // The Web3Provider configures AppKit with coinbasePreference: 'all'
-      // which enables Smart Wallet functionality
-      const cbConnector = connectors.find(
-        c => c.id === 'coinbaseWalletSDK' || 
-             c.id === 'coinbaseWallet' || 
-             c.id === 'com.coinbase.wallet' ||
-             c.name.toLowerCase().includes('coinbase')
-      );
+      // Request accounts - this triggers the Smart Wallet popup for passkey auth
+      const accounts = await provider.request({
+        method: 'eth_requestAccounts',
+      }) as string[];
 
-      if (!cbConnector) {
-        // If no Coinbase connector found, try the first available connector
-        // In AppKit, this might be configured differently
-        console.warn('[useCoinbaseSmartWallet] Coinbase connector not found, available:', 
-          connectors.map(c => ({ id: c.id, name: c.name }))
-        );
-        
-        throw new Error('Coinbase Wallet connector not available. Please ensure wallet extension is installed or use WalletConnect.');
-      }
-
-      // Connect using the Coinbase Wallet connector
-      const result = await connectAsync({
-        connector: cbConnector,
-        chainId: baseSepolia.id,
-      });
-
-      if (result.accounts && result.accounts.length > 0) {
-        const connectedAddress = result.accounts[0];
+      if (accounts && accounts.length > 0) {
+        const connectedAddress = accounts[0];
         setWalletAddress(connectedAddress);
         setStep('success');
+        
+        // Store that we're using Coinbase Smart Wallet
+        localStorage.setItem('zensolar_wallet_type', 'coinbase_smart');
+        localStorage.setItem('zensolar_wallet_address', connectedAddress);
+        
         return connectedAddress;
       }
 
@@ -92,10 +74,15 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create wallet';
       
       // Handle user rejection gracefully
-      if (errorMessage.includes('User rejected') || errorMessage.includes('user rejected')) {
-        setError('Wallet creation was cancelled');
-      } else if (errorMessage.includes('Connector not found') || errorMessage.includes('not available')) {
-        setError('Coinbase Wallet not available. Try installing the Coinbase Wallet extension or app.');
+      if (
+        errorMessage.includes('User rejected') || 
+        errorMessage.includes('user rejected') ||
+        errorMessage.includes('User denied') ||
+        errorMessage.includes('cancelled')
+      ) {
+        setError('Wallet creation was cancelled. You can try again when ready.');
+      } else if (errorMessage.includes('popup')) {
+        setError('Popup was blocked. Please allow popups and try again.');
       } else {
         setError(errorMessage);
       }
@@ -103,7 +90,7 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
       setStep('error');
       return null;
     }
-  }, [connectAsync, connectors, isConnected, address, disconnectAsync]);
+  }, []);
 
   return {
     step,

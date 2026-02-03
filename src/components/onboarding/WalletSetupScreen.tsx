@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Fingerprint, Check, Sparkles, Shield, ArrowRight, ArrowLeft, AlertCircle, RefreshCw } from 'lucide-react';
+import { Fingerprint, Check, Sparkles, Shield, ArrowRight, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCoinbaseSmartWallet, SmartWalletStep } from '@/hooks/useCoinbaseSmartWallet';
+import { useCoinbaseSmartWallet } from '@/hooks/useCoinbaseSmartWallet';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface WalletSetupScreenProps {
@@ -14,13 +14,10 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
   const { step, walletAddress, error, isConnecting, createWallet, reset } = useCoinbaseSmartWallet();
   const [hasStarted, setHasStarted] = useState(false);
 
-  // Auto-start wallet creation on mount
-  useEffect(() => {
-    if (!hasStarted) {
-      setHasStarted(true);
-      createWallet();
-    }
-  }, [hasStarted, createWallet]);
+  const handleStart = useCallback(async () => {
+    setHasStarted(true);
+    await createWallet();
+  }, [createWallet]);
 
   const handleContinue = useCallback(() => {
     if (walletAddress) {
@@ -28,13 +25,14 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
     }
   }, [walletAddress, onComplete]);
 
-  const handleRetry = useCallback(() => {
+  const handleRetry = useCallback(async () => {
     reset();
-    createWallet();
+    await createWallet();
   }, [reset, createWallet]);
 
   // Map SDK step to UI display
-  const getDisplayStep = (): 'creating' | 'passkey' | 'success' | 'error' => {
+  const getDisplayStep = (): 'ready' | 'creating' | 'passkey' | 'success' | 'error' => {
+    if (!hasStarted) return 'ready';
     switch (step) {
       case 'idle':
       case 'connecting':
@@ -92,6 +90,10 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
         transition={{ duration: 0.5 }}
       >
         <AnimatePresence mode="wait">
+          {displayStep === 'ready' && (
+            <ReadyStep key="ready" onStart={handleStart} />
+          )}
+
           {displayStep === 'creating' && (
             <CreatingStep key="creating" />
           )}
@@ -122,6 +124,74 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
   );
 }
 
+function ReadyStep({ onStart }: { onStart: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="text-center"
+    >
+      {/* Logo/icon */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 p-4"
+      >
+        <img 
+          src={zenLogo} 
+          alt="ZenSolar" 
+          className="w-full h-full object-contain"
+          style={{ filter: 'brightness(0) invert(1)' }}
+        />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          Create Your ZenSolar Wallet
+        </h2>
+        <p className="text-muted-foreground text-sm mb-8 max-w-xs mx-auto">
+          Your self-custody wallet secured with Face ID or Touch ID. No seed phrases, no apps to download.
+        </p>
+
+        {/* Features */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          <FeatureBadge icon={Fingerprint} label="Passkey Secured" />
+          <FeatureBadge icon={Shield} label="Self-Custody" />
+          <FeatureBadge icon={Zap} label="Gasless" />
+        </div>
+
+        <Button
+          size="lg"
+          onClick={onStart}
+          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 gap-2"
+        >
+          <Fingerprint className="w-5 h-5" />
+          Set Up with Passkey
+        </Button>
+
+        <p className="text-xs text-muted-foreground mt-4">
+          Powered by Coinbase Smart Wallet on Base
+        </p>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function FeatureBadge({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
+  return (
+    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 text-xs text-muted-foreground">
+      <Icon className="w-3.5 h-3.5" />
+      <span>{label}</span>
+    </div>
+  );
+}
+
 function CreatingStep() {
   return (
     <motion.div
@@ -148,16 +218,20 @@ function CreatingStep() {
             <div className="w-16 h-16 rounded-full border-2 border-primary/30 border-t-primary" />
           </motion.div>
         </div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <img src={zenLogo} alt="" className="w-10 h-10 object-contain" />
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          <img 
+            src={zenLogo} 
+            alt="" 
+            className="w-full h-full object-contain"
+          />
         </div>
       </div>
 
       <h2 className="text-xl font-semibold text-foreground mb-2">
-        Creating Your ZenSolar Wallet
+        Creating Your Wallet
       </h2>
       <p className="text-muted-foreground text-sm">
-        Setting up your Coinbase Smart Wallet on Base...
+        Connecting to Coinbase Smart Wallet...
       </p>
 
       {/* Progress dots */}
