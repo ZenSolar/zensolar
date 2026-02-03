@@ -1,39 +1,33 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Zap, ArrowRight, Wallet, Sparkles, Sun } from 'lucide-react';
+import { CheckCircle2, Zap, ArrowRight, Wallet, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { trackEvent } from '@/hooks/useGoogleAnalytics';
 import { useConfetti } from '@/hooks/useConfetti';
+import { triggerSuccess, triggerLightTap } from '@/hooks/useHaptics';
 
 interface OnboardingSuccessScreenProps {
   walletAddress?: string | null;
   walletType: 'zensolar' | 'external' | 'skipped';
+  onContinue: () => void;
 }
 
-export function OnboardingSuccessScreen({ walletAddress, walletType }: OnboardingSuccessScreenProps) {
-  const navigate = useNavigate();
+export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue }: OnboardingSuccessScreenProps) {
   const { triggerCelebration } = useConfetti();
 
-  // Trigger confetti when wallet is connected
+  // Trigger confetti and haptic when wallet is connected
   useEffect(() => {
     if (walletType !== 'skipped' && walletAddress) {
-      // Small delay to let the screen render first
       const timer = setTimeout(() => {
         triggerCelebration();
+        triggerSuccess();
       }, 400);
       return () => clearTimeout(timer);
     }
   }, [walletType, walletAddress, triggerCelebration]);
 
-  const handleConnectEnergy = () => {
-    trackEvent('onboarding_success_connect_energy_clicked', { walletType });
-    navigate('/?showConnect=true');
-  };
-
-  const handleGoToDashboard = () => {
-    trackEvent('onboarding_success_dashboard_clicked', { walletType });
-    navigate('/');
+  const handleContinue = async () => {
+    await triggerLightTap();
+    onContinue();
   };
 
   const shortAddress = walletAddress 
@@ -158,51 +152,20 @@ export function OnboardingSuccessScreen({ walletAddress, walletType }: Onboardin
           </motion.div>
         )}
 
-        {/* Next Step Card */}
+        {/* Continue to energy connection */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="mb-6"
         >
-          <div className="p-5 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                <Sun className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-1">Next: Connect Your Energy</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Link your Tesla, Enphase, or other energy systems to start earning rewards.
-                </p>
-                <Button 
-                  size="sm"
-                  onClick={handleConnectEnergy}
-                  className="gap-2 bg-primary hover:bg-primary/90"
-                >
-                  <Zap className="w-4 h-4" />
-                  Connect Energy Account
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Skip to dashboard */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-center"
-        >
-          <Button
-            variant="ghost"
-            onClick={handleGoToDashboard}
-            className="text-muted-foreground hover:text-foreground gap-2"
+          <Button 
+            size="lg"
+            onClick={handleContinue}
+            className="w-full gap-2 bg-primary hover:bg-primary/90 h-14 text-base"
           >
-            Skip to Dashboard
-            <ArrowRight className="w-4 h-4" />
+            <Zap className="w-5 h-5" />
+            Connect Your Energy
+            <ArrowRight className="w-5 h-5" />
           </Button>
         </motion.div>
       </motion.div>

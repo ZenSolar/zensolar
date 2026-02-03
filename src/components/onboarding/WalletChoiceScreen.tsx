@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, Shield, Smartphone, Zap, ArrowRight, Check, Fingerprint, ChevronRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { triggerLightTap, triggerMediumTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 export type WalletChoice = 'zensolar' | 'external' | 'skip';
@@ -48,6 +49,9 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
 
   const handleSelect = async (choice: WalletChoice) => {
     if (isLoading || isProcessing) return;
+    
+    // Haptic feedback on selection
+    await triggerMediumTap();
     
     setSelectedChoice(choice);
     setIsProcessing(true);
