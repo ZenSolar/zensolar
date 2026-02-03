@@ -54,11 +54,17 @@ export function useOnChainHoldings(walletAddress?: string): OnChainHoldings {
   const { address: connectedAddress } = useAccount();
   const address = walletAddress || connectedAddress;
 
+  // Log for debugging
+  if (address) {
+    console.log('[useOnChainHoldings] Reading on-chain data for:', address);
+  }
+
   // Read $ZSOLAR token balance
   const {
     data: tokenBalanceData,
     isLoading: tokenLoading,
     isError: tokenError,
+    error: tokenReadError,
     refetch: refetchToken,
   } = useReadContract({
     address: ZSOLAR_TOKEN_ADDRESS,
@@ -70,6 +76,14 @@ export function useOnChainHoldings(walletAddress?: string): OnChainHoldings {
       refetchInterval: 30000, // Refresh every 30 seconds
     },
   });
+
+  // Log token balance for debugging
+  if (tokenBalanceData !== undefined) {
+    console.log('[useOnChainHoldings] Token balance raw:', tokenBalanceData?.toString());
+  }
+  if (tokenReadError) {
+    console.error('[useOnChainHoldings] Token read error:', tokenReadError);
+  }
 
   // Read NFT balances for all token IDs using balanceOfBatch
   const {

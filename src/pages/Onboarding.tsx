@@ -370,11 +370,49 @@ export default function Onboarding() {
     setStep('energy-connect');
   };
 
-  const handleGoToDashboard = () => {
+  const handleGoToDashboard = async () => {
     // Dispatch profile update one more time before navigating to ensure dashboard picks up changes
     dispatchProfileUpdated();
-    // Small delay to allow the event to propagate before navigation
-    setTimeout(() => navigate('/'), 100);
+    
+    // Trigger immediate data sync for connected providers to populate Clean Energy Center
+    // This prevents lag when landing on dashboard after onboarding
+    if (connectedProviders.length > 0) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          // Fire off data sync requests in parallel for all connected providers
+          const syncPromises = connectedProviders.map(async (provider) => {
+            if (provider === 'tesla') {
+              return supabase.functions.invoke('tesla-data', {
+                headers: { Authorization: `Bearer ${session.access_token}` }
+              });
+            } else if (provider === 'enphase') {
+              return supabase.functions.invoke('enphase-data', {
+                headers: { Authorization: `Bearer ${session.access_token}` }
+              });
+            } else if (provider === 'solaredge') {
+              return supabase.functions.invoke('solaredge-data', {
+                headers: { Authorization: `Bearer ${session.access_token}` }
+              });
+            } else if (provider === 'wallbox') {
+              return supabase.functions.invoke('wallbox-data', {
+                headers: { Authorization: `Bearer ${session.access_token}` }
+              });
+            }
+          });
+          
+          // Don't await - let syncs run in background while navigating
+          Promise.all(syncPromises).catch(err => {
+            console.error('[Onboarding] Background sync error:', err);
+          });
+        }
+      } catch (err) {
+        console.error('[Onboarding] Failed to trigger sync:', err);
+      }
+    }
+    
+    // Navigate immediately (sync runs in background)
+    navigate('/');
   };
 
   const handleBack = () => {
