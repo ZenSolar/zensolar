@@ -16,8 +16,43 @@ import {
   Leaf,
   Award,
   DollarSign,
-  Map
+  Map,
+  Lock,
+  Fingerprint,
+  AlertTriangle
 } from "lucide-react";
+
+// Token Integrity & Anti-Gaming section - PHASE 1 PRIORITY
+const tokenIntegrityFeatures = [
+  {
+    icon: Fingerprint,
+    title: "Device Watermark Registry",
+    description: "Permanent, user-independent tracking of the highest tokenized values for each physical device. Survives account deletion.",
+    priority: "Critical",
+    status: "Planned"
+  },
+  {
+    icon: Lock,
+    title: "Immutable Audit Trail",
+    description: "Full history of device ownership, claims, and token issuance. Every token traceable to specific API data.",
+    priority: "Critical",
+    status: "Planned"
+  },
+  {
+    icon: AlertTriangle,
+    title: "Anti-Gaming Protection",
+    description: "Watermarks only increase, never decrease. Prevents delete-and-recreate attacks for double-issuance.",
+    priority: "Critical",
+    status: "Planned"
+  },
+  {
+    icon: Shield,
+    title: "Backend-Only Registry",
+    description: "Tokenization registry inaccessible to users. Only Edge Functions can read/write to prevent manipulation.",
+    priority: "High",
+    status: "Planned"
+  },
+];
 
 const roadmapPhases = [
   {
@@ -29,6 +64,7 @@ const roadmapPhases = [
       { title: "Embedded Wallet Launch", description: "Zero-friction onboarding with Coinbase Smart Wallet—users never see a seed phrase", completed: true },
       { title: "In-App Cash Out", description: "Direct $ZSOLAR → USD conversion to bank accounts via embedded widget", completed: true },
       { title: "Multi-OEM Integration", description: "Tesla, Enphase, SolarEdge, Wallbox APIs fully integrated", completed: true },
+      { title: "Token Integrity Architecture", description: "Device watermark registry preventing double-issuance across account lifecycles", completed: false },
       { title: "25K Subscriber Tipping Point", description: "Self-sustaining liquidity pool from 50% subscription injection", completed: false },
       { title: "App Store Launch", description: "iOS and Android native apps with push notifications", completed: false },
     ]
@@ -157,6 +193,48 @@ export default function AdminFutureRoadmap() {
                 ownership the obvious financial choice.
               </p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Token Integrity & Anti-Gaming - PHASE 1 PRIORITY */}
+      <Card className="border-red-500/30 bg-red-500/5">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <Lock className="h-5 w-5" />
+              Token Integrity & Anti-Gaming
+            </CardTitle>
+            <Badge variant="destructive">Phase 1 Priority</Badge>
+          </div>
+          <CardDescription>
+            Ensuring 1:1 token-to-energy integrity—every $ZSOLAR tied to specific API data, preventing double-issuance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            {tokenIntegrityFeatures.map((feature, index) => (
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-red-500/20">
+                <div className="p-2 bg-red-500/10 rounded-lg flex-shrink-0">
+                  <feature.icon className="h-4 w-4 text-red-500" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-medium text-sm">{feature.title}</p>
+                    <Badge variant={feature.priority === 'Critical' ? 'destructive' : 'secondary'} className="text-xs">
+                      {feature.priority}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{feature.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-red-600 dark:text-red-400">Architecture Doc:</strong>{" "}
+              Full technical specification available in <code className="bg-muted px-1 rounded">docs/TOKEN_INTEGRITY_ARCHITECTURE.md</code>
+            </p>
           </div>
         </CardContent>
       </Card>
