@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -83,6 +84,7 @@ const LinkedInIcon = () => (
 
 export default function Profile() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { profile, isLoading, refetch, connectSocialAccount, disconnectSocialAccount, updateProfile, disconnectWallet } = useProfile();
   const { connectedAccounts, connectAccount, disconnectAccount, refreshDashboard } = useDashboardData();
   const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge, connectWallbox } = useEnergyOAuth();
@@ -99,8 +101,7 @@ export default function Profile() {
   }, [refetch]);
 
   const handleConnectWallet = async () => {
-    // Redirect to dashboard to use wallet connect
-    toast.info('Please connect your wallet from the Dashboard');
+    navigate('/onboarding?step=wallet');
   };
 
   const handleDisconnectWallet = async () => {

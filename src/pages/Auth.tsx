@@ -101,9 +101,9 @@ export default function Auth() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (isAuthenticated && mode !== 'reset') {
-      navigate('/');
-    }
+    // IMPORTANT: Don't auto-redirect during signup.
+    // Signup has its own post-success navigation to /onboarding.
+    if (isAuthenticated && (mode === 'login' || mode === 'forgot')) navigate('/');
   }, [isAuthenticated, navigate, mode]);
 
   const handleGoogleSignIn = async () => {
