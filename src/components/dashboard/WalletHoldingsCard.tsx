@@ -2,8 +2,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useOnChainHoldings } from '@/hooks/useOnChainHoldings';
-import { Wallet, Coins, Images, ExternalLink, RefreshCw, ShieldCheck } from 'lucide-react';
+import { useTokenPrice, calculateUsdValue } from '@/hooks/useTokenPrice';
+import { Wallet, Coins, Images, ExternalLink, RefreshCw, ShieldCheck, TrendingUp, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface WalletHoldingsCardProps {
   walletAddress?: string;
@@ -11,6 +13,7 @@ interface WalletHoldingsCardProps {
 
 export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
   const { tokenBalance, nftCount, isLoading, refetch } = useOnChainHoldings(walletAddress);
+  const { price, priceFormatted, isPlaceholder } = useTokenPrice();
 
   if (!walletAddress) {
     return (
@@ -29,6 +32,8 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+
+  const usdValue = calculateUsdValue(tokenBalance, price);
 
   return (
     <Card className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-primary/20">
@@ -58,7 +63,7 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          {/* Token Balance */}
+          {/* Token Balance with USD Value */}
           <div className="space-y-1">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Coins className="h-3.5 w-3.5" />
@@ -67,7 +72,30 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
             {isLoading ? (
               <Skeleton className="h-6 w-20" />
             ) : (
-              <p className="text-lg font-bold text-foreground">{formattedBalance}</p>
+              <>
+                <p className="text-lg font-bold text-foreground">{formattedBalance}</p>
+                <div className="flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3 text-primary/70" />
+                  <span className="text-xs text-muted-foreground">
+                    ≈ {usdValue}
+                  </span>
+                  {isPlaceholder && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-3 w-3 text-muted-foreground/50" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[200px]">
+                          <p className="text-xs">
+                            Estimated at {priceFormatted}/token (beta pricing). 
+                            Live market price coming at mainnet launch.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
+              </>
             )}
           </div>
 
