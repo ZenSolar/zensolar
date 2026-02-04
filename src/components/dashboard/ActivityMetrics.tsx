@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Gauge,
   AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
@@ -67,6 +68,7 @@ interface ActivityMetricsProps {
   onShowAllFields?: () => void;
   isNewUserView?: boolean;
   teslaNeedsReauth?: boolean;
+  isLoading?: boolean;
 }
 
 export function ActivityMetrics({ 
@@ -84,6 +86,7 @@ export function ActivityMetrics({
   onShowAllFields,
   isNewUserView = false,
   teslaNeedsReauth = false,
+  isLoading = false,
 }: ActivityMetricsProps) {
   // In new user view mode, show empty state
   const effectiveData = isNewUserView ? {
@@ -326,6 +329,7 @@ export function ActivityMetrics({
                     unit="kWh"
                     color="amber"
                     active={pendingKwh > 0}
+                    isLoading={isLoading}
                     onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
                       category: 'solar', 
                       deviceId: device.deviceId,
@@ -358,6 +362,7 @@ export function ActivityMetrics({
                   unit="kWh"
                   color="amber"
                   active={current.solarKwh > 0}
+                  isLoading={isLoading}
                   onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
                 />
               </SwipeableActivityField>
@@ -378,6 +383,7 @@ export function ActivityMetrics({
                     unit="kWh"
                     color="emerald"
                     active={pendingKwh > 0}
+                    isLoading={isLoading}
                     onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
                       category: 'battery', 
                       deviceId: device.deviceId,
@@ -408,6 +414,7 @@ export function ActivityMetrics({
                   unit="kWh"
                   color="emerald"
                   active={current.batteryKwh > 0}
+                  isLoading={isLoading}
                   onTap={current.batteryKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'battery' }) : undefined}
                 />
               </SwipeableActivityField>
@@ -428,6 +435,7 @@ export function ActivityMetrics({
                     unit="mi"
                     color="blue"
                     active={pendingMiles > 0}
+                    isLoading={isLoading}
                     onTap={pendingMiles > 0 && onMintRequest ? () => onMintRequest({ 
                       category: 'ev_miles', 
                       deviceId: device.deviceId,
@@ -458,6 +466,7 @@ export function ActivityMetrics({
                   unit="mi"
                   color="blue"
                   active={current.evMiles > 0}
+                  isLoading={isLoading}
                   onTap={current.evMiles > 0 && onMintRequest ? () => onMintRequest({ category: 'ev_miles' }) : undefined}
                 />
               </SwipeableActivityField>
@@ -481,6 +490,7 @@ export function ActivityMetrics({
                     unit="kWh"
                     color="purple"
                     active={superchargerKwh > 0}
+                    isLoading={isLoading}
                     onTap={superchargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'supercharger' }) : undefined}
                   />
                 </SwipeableActivityField>
@@ -499,6 +509,7 @@ export function ActivityMetrics({
                         unit="kWh"
                         color="purple"
                         active={pendingKwh > 0}
+                        isLoading={isLoading}
                         onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
                           category: 'home_charger', 
                           deviceId: device.deviceId,
@@ -529,6 +540,7 @@ export function ActivityMetrics({
                       unit="kWh"
                       color="purple"
                       active={homeChargerKwh > 0}
+                      isLoading={isLoading}
                       onTap={homeChargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'home_charger' }) : undefined}
                     />
                   </SwipeableActivityField>
@@ -548,6 +560,7 @@ export function ActivityMetrics({
                 unit="kWh"
                 color="purple"
                 active={current.chargingKwh > 0}
+                isLoading={isLoading}
                 onTap={onMintRequest ? () => onMintRequest({ category: 'charging' }) : undefined}
               />
             </SwipeableActivityField>
@@ -634,11 +647,12 @@ interface ActivityFieldProps {
   color: keyof typeof colorStyles;
   active: boolean;
   onTap?: () => void;
+  isLoading?: boolean;
 }
 
-function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }: ActivityFieldProps) {
+function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false }: ActivityFieldProps) {
   const styles = colorStyles[color];
-  const isTappable = active && onTap;
+  const isTappable = active && onTap && !isLoading;
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
@@ -721,17 +735,26 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap }:
           "text-sm font-medium truncate transition-colors",
           active ? "text-foreground" : "text-muted-foreground"
         )}>{label}</p>
-        <p className={cn(
-          "text-xl font-bold tracking-tight",
-          active ? "text-foreground" : "text-muted-foreground"
-        )}>
-          {value.toLocaleString()}
-          <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
-        </p>
+        <div className="flex items-center gap-2">
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className={cn("h-5 w-5 animate-spin", styles.text)} />
+              <span className="text-sm text-muted-foreground">Syncing...</span>
+            </div>
+          ) : (
+            <p className={cn(
+              "text-xl font-bold tracking-tight",
+              active ? "text-foreground" : "text-muted-foreground"
+            )}>
+              {value.toLocaleString()}
+              <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
+            </p>
+          )}
+        </div>
       </div>
       
-      {/* Tap indicator */}
-      {isTappable && (
+      {/* Tap indicator - hidden during loading */}
+      {isTappable && !isLoading && (
         <div className={cn("flex items-center gap-1", styles.text)}>
           <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">Mint</span>
           <ChevronRight className="h-5 w-5" />

@@ -378,12 +378,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return true;
   };
 
-  // Get readable label for category
+  // Get readable label for category - CRYSTAL CLEAR activity names for mint confirmation
   const getCategoryLabel = (category: MintCategory): string => {
-    if (category === 'all') return 'All Categories';
-    if (category === 'solar') return 'Solar Production';
+    if (category === 'all') return 'All Clean Energy Activity';
+    if (category === 'solar') return 'Solar Energy Produced';
     if (category === 'ev_miles') return 'EV Miles Driven';
-    if (category === 'battery') return 'Battery Storage';
+    if (category === 'battery') return 'Battery Storage Discharged';
     if (category === 'charging') return 'EV Charging';
     return category;
   };
@@ -1061,22 +1061,37 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </span>
                 );
               })()}
-              <span className="text-xl">Confirm Minting</span>
+              <span className="text-xl">Mint {getCategoryLabel(pendingMintRequest?.category || 'all')}</span>
             </DialogTitle>
             <DialogDescription className="pt-4">
               <div className="space-y-4">
                 <p className="text-base text-foreground">
-                  You are about to mint tokens for:
+                  You are about to mint <span className="font-bold text-primary">{getCategoryLabel(pendingMintRequest?.category || 'all')}</span> tokens:
                 </p>
                 
                 {pendingMintRequest && (
                   <div className="relative p-5 rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
-                    <div className="relative flex flex-col gap-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold">
-                          {pendingMintRequest.deviceName || getCategoryLabel(pendingMintRequest.category)}
-                        </span>
+                    <div className="relative flex flex-col gap-2">
+                      {/* Activity Type - ALWAYS show prominently */}
+                      <div className="flex items-center gap-2 text-lg font-bold text-foreground">
+                        {(() => {
+                          const IconComponent = getCategoryIcon(pendingMintRequest.category);
+                          const colorClasses = getCategoryColor(pendingMintRequest.category);
+                          return <IconComponent className={`h-5 w-5 ${colorClasses.split(' ').slice(2).join(' ')}`} />;
+                        })()}
+                        {getCategoryLabel(pendingMintRequest.category)}
+                      </div>
+                      
+                      {/* Device name if specific device selected */}
+                      {pendingMintRequest.deviceName && (
+                        <p className="text-sm text-muted-foreground">
+                          Device: <span className="font-medium text-foreground">{pendingMintRequest.deviceName}</span>
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center justify-between pt-2 border-t border-primary/20">
+                        <span className="text-sm text-muted-foreground">Tokens to receive:</span>
                         <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                           {getCategoryTokens(pendingMintRequest.category).toLocaleString()} $ZSOLAR
                         </span>
@@ -1084,11 +1099,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       <p className="text-xs text-muted-foreground">
                         You receive 75% of {getCategoryActivityUnits(pendingMintRequest.category).toLocaleString()} activity units (20% burn)
                       </p>
-                      {pendingMintRequest.deviceId && (
-                        <p className="text-xs text-primary/70 mt-1">
-                          Minting from specific device
-                        </p>
-                      )}
                     </div>
                   </div>
                 )}

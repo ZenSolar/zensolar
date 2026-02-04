@@ -43,7 +43,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
   return (
     <header 
       className={cn(
-        "fixed inset-x-0 top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "fixed inset-x-0 top-0 z-50 bg-background border-b border-border",
         className
       )}
     >
@@ -92,8 +92,6 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         
         <ThemeToggle />
       </div>
-      {/* Border below everything */}
-      <div className="border-b border-border" />
     </header>
   );
 }
