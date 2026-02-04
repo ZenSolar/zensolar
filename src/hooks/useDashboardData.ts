@@ -12,6 +12,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PROFILE_UPDATED_EVENT } from '@/hooks/useProfile';
+import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { 
   isSolarDevice, 
   isBatteryDevice, 
@@ -57,6 +58,16 @@ interface ProfileConnections {
 }
 
 export function useDashboardData() {
+  // Check if we're in "view as user" mode (admin viewing another user's data)
+  const viewAsUserId = useViewAsUserId();
+  const isViewingAsOther = viewAsUserId !== null;
+
+  // Helper to get the effective user ID for data fetching
+  const getEffectiveUserId = async (): Promise<string | null> => {
+    if (viewAsUserId) return viewAsUserId;
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id ?? null;
+  };
   const [activityData, setActivityData] = useState<ActivityData>(defaultActivityData);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([
     { service: 'tesla', connected: false, label: 'Tesla' },
@@ -88,19 +99,33 @@ export function useDashboardData() {
     wallbox: { status: 'idle' },
   });
   const fetchConnections = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setProfileConnections(null);
-      setConnectedAccounts([
-        { service: 'tesla', connected: false, label: 'Tesla' },
-        { service: 'enphase', connected: false, label: 'Enphase' },
-        { service: 'solaredge', connected: false, label: 'SolarEdge' },
-        { service: 'wallbox', connected: false, label: 'Wallbox' },
-      ]);
-      setIsLoading(false);
-      return;
+    // When viewing as another user, use their ID; otherwise use current user
+    const targetUserId = viewAsUserId ?? null;
+    
+    if (!targetUserId) {
+      // Normal mode - get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setProfileConnections(null);
+        setConnectedAccounts([
+          { service: 'tesla', connected: false, label: 'Tesla' },
+          { service: 'enphase', connected: false, label: 'Enphase' },
+          { service: 'solaredge', connected: false, label: 'SolarEdge' },
+          { service: 'wallbox', connected: false, label: 'Wallbox' },
+        ]);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Use current user's ID
+      await fetchConnectionsForUser(user.id, true);
+    } else {
+      // View as user mode - fetch that user's connections (read-only)
+      await fetchConnectionsForUser(targetUserId, false);
     }
-
+  }, [viewAsUserId]);
+  
+  const fetchConnectionsForUser = async (userId: string, canReconcile: boolean) => {
     // Fetch connection state from BOTH profile flags and tokens.
     // Why: new-user profiles can be created after an energy connection completes, and profile updates can be a silent no-op
     // if the row didn't exist yet. Tokens/devices are the source of truth for whether an account is connected.
@@ -108,12 +133,12 @@ export function useDashboardData() {
       supabase
         .from('profiles')
         .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .maybeSingle(),
       supabase
         .from('energy_tokens')
         .select('provider')
-        .eq('user_id', user.id),
+        .eq('user_id', userId),
     ]);
 
     if (error) {
@@ -140,42 +165,44 @@ export function useDashboardData() {
     };
 
     // Best-effort: if tokens say connected but profile flags are stale, reconcile silently.
-    // This avoids future gating issues elsewhere (Profile UI, onboarding cards, etc.).
-    try {
-      const needsReconcile =
-        (fromTokens.tesla_connected && !profile?.tesla_connected) ||
-        (fromTokens.enphase_connected && !profile?.enphase_connected) ||
-        (fromTokens.solaredge_connected && !profile?.solaredge_connected) ||
-        (fromTokens.wallbox_connected && !profile?.wallbox_connected);
+    // Only do this when viewing own data, not when admin is viewing another user.
+    if (canReconcile) {
+      try {
+        const needsReconcile =
+          (fromTokens.tesla_connected && !profile?.tesla_connected) ||
+          (fromTokens.enphase_connected && !profile?.enphase_connected) ||
+          (fromTokens.solaredge_connected && !profile?.solaredge_connected) ||
+          (fromTokens.wallbox_connected && !profile?.wallbox_connected);
 
-      if (needsReconcile) {
-        const nowIso = new Date().toISOString();
-        const patch: Partial<ProfileConnections> & { updated_at: string } = {
-          updated_at: nowIso,
-          tesla_connected: connections.tesla_connected,
-          enphase_connected: connections.enphase_connected,
-          solaredge_connected: connections.solaredge_connected,
-          wallbox_connected: connections.wallbox_connected,
-        };
+        if (needsReconcile) {
+          const nowIso = new Date().toISOString();
+          const patch: Partial<ProfileConnections> & { updated_at: string } = {
+            updated_at: nowIso,
+            tesla_connected: connections.tesla_connected,
+            enphase_connected: connections.enphase_connected,
+            solaredge_connected: connections.solaredge_connected,
+            wallbox_connected: connections.wallbox_connected,
+          };
 
-        const { data: updatedRows, error: updateErr } = await supabase
-          .from('profiles')
-          .update(patch)
-          .eq('user_id', user.id)
-          .select('user_id');
+          const { data: updatedRows, error: updateErr } = await supabase
+            .from('profiles')
+            .update(patch)
+            .eq('user_id', userId)
+            .select('user_id');
 
-        if (updateErr) {
-          console.warn('Failed to reconcile profile connection flags:', updateErr);
+          if (updateErr) {
+            console.warn('Failed to reconcile profile connection flags:', updateErr);
+          }
+
+          if (!updatedRows || updatedRows.length === 0) {
+            // Profile missing; create then update.
+            await supabase.from('profiles').insert({ user_id: userId });
+            await supabase.from('profiles').update(patch).eq('user_id', userId);
+          }
         }
-
-        if (!updatedRows || updatedRows.length === 0) {
-          // Profile missing; create then update.
-          await supabase.from('profiles').insert({ user_id: user.id });
-          await supabase.from('profiles').update(patch).eq('user_id', user.id);
-        }
+      } catch (reconcileErr) {
+        console.warn('Connection reconcile error:', reconcileErr);
       }
-    } catch (reconcileErr) {
-      console.warn('Connection reconcile error:', reconcileErr);
     }
 
     setProfileConnections(connections);
@@ -187,7 +214,7 @@ export function useDashboardData() {
     ]);
 
     setIsLoading(false);
-  }, []);
+  };
 
   // Initial load
   useEffect(() => {
@@ -335,13 +362,13 @@ export function useDashboardData() {
 
   const fetchReferralTokens = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return 0;
+      const userId = await getEffectiveUserId();
+      if (!userId) return 0;
 
       const { data, error } = await supabase
         .from('referrals')
         .select('tokens_rewarded')
-        .eq('referrer_id', user.id);
+        .eq('referrer_id', userId);
 
       if (error) {
         console.error('Referrals fetch error:', error);
@@ -355,16 +382,15 @@ export function useDashboardData() {
     }
   }, []);
 
-  // Fetch total tokens actually minted from mint_transactions
   const fetchMintedTokens = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return 0;
+      const userId = await getEffectiveUserId();
+      if (!userId) return 0;
 
       const { data, error } = await supabase
         .from('mint_transactions')
         .select('tokens_minted')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('status', 'confirmed');
 
       if (error) {
@@ -381,13 +407,13 @@ export function useDashboardData() {
 
   const fetchDeviceLabels = useCallback(async (): Promise<DeviceLabels> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return {};
+      const userId = await getEffectiveUserId();
+      if (!userId) return {};
 
       const { data: devices, error } = await supabase
         .from('connected_devices')
         .select('device_type, device_name, provider')
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (error) {
         console.error('Device labels fetch error:', error);
@@ -432,13 +458,13 @@ export function useDashboardData() {
 
   const fetchDevicesSnapshot = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      const userId = await getEffectiveUserId();
+      if (!userId) return [];
 
       const { data, error } = await supabase
         .from('connected_devices')
         .select('device_id, device_name, device_type, provider, baseline_data, lifetime_totals, last_minted_at')
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (error) {
         console.error('Device snapshot fetch error:', error);

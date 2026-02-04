@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 
 // Custom event for profile updates - allows cross-component communication
 export const PROFILE_UPDATED_EVENT = 'zensolar:profile-updated';
@@ -36,24 +37,34 @@ interface Profile {
   linkedin_handle: string | null;
 }
 
-export function useProfile() {
+/**
+ * Hook to access a user's profile. 
+ * - By default, fetches the authenticated user's profile
+ * - If an overrideUserId is provided, fetches that user's profile instead (for admin "view as" mode)
+ * - Also respects the ViewAsUserIdContext for global "view as" mode
+ */
+export function useProfile(overrideUserId?: string | null) {
   const { user } = useAuth();
+  // Check if we're in a "view as user" context
+  const contextUserId = useViewAsUserId();
+  // Priority: explicit override > context > authenticated user
+  const targetUserId = overrideUserId ?? contextUserId ?? user?.id;
+  
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = useCallback(async () => {
-    if (!user) {
+    if (!targetUserId) {
       setProfile(null);
       setIsLoading(false);
       return;
     }
 
     // Use maybeSingle() instead of single() to gracefully handle missing profiles
-    // (race condition between signup and profile trigger, or Safari timing issues)
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', targetUserId)
       .maybeSingle();
 
     if (error) {
@@ -61,12 +72,12 @@ export function useProfile() {
       setProfile(null);
     } else if (data) {
       setProfile(data as Profile);
-    } else {
-      // Profile doesn't exist yet - create a minimal profile for the user
+    } else if (targetUserId === user?.id) {
+      // Profile doesn't exist yet - only create if fetching our OWN profile
       console.log('Profile not found for user, creating one...');
       const { data: newProfile, error: insertError } = await supabase
         .from('profiles')
-        .insert({ user_id: user.id })
+        .insert({ user_id: targetUserId })
         .select()
         .single();
       
@@ -76,15 +87,18 @@ export function useProfile() {
         const { data: retryData } = await supabase
           .from('profiles')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', targetUserId)
           .maybeSingle();
         setProfile(retryData as Profile | null);
       } else {
         setProfile(newProfile as Profile);
       }
+    } else {
+      // Viewing someone else's profile that doesn't exist
+      setProfile(null);
     }
     setIsLoading(false);
-  }, [user]);
+  }, [targetUserId, user?.id]);
 
   useEffect(() => {
     fetchProfile();
