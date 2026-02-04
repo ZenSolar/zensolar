@@ -83,11 +83,11 @@ const initialTodos: TodoItem[] = [
   // Authentication & Security
   {
     id: "embedded-wallet",
-    title: "Embedded Wallet (Privy/Thirdweb/Coinbase)",
-    description: "Create wallets for users automatically on signup (email/social). No seed phrases, no MetaMask needed. Users sign in → wallet is created. Research Privy ($99/mo), Thirdweb, or Coinbase Smart Wallet.",
+    title: "Embedded Wallet (Coinbase Smart Wallet)",
+    description: "Coinbase Smart Wallet integrated — users sign up with email/Google, wallet auto-created with passkey authentication. No seed phrases, no MetaMask, no browser extensions needed.",
     category: "auth",
     priority: "critical",
-    status: "not-started",
+    status: "done",
     icon: Wallet
   },
   {
