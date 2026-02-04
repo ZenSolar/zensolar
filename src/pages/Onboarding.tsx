@@ -176,6 +176,8 @@ export default function Onboarding() {
   };
 
   const handleWalletComplete = async (address: string) => {
+    // CRITICAL: Store the exact wallet address being saved
+    console.log('[Onboarding] handleWalletComplete called with address:', address);
     setWalletAddress(address);
     
     // Trigger haptic feedback
@@ -187,29 +189,22 @@ export default function Onboarding() {
       walletAddress: address 
     });
     
-    // Save wallet address to profile BEFORE showing success screen
-    // First refresh the session to ensure we have a valid token
+    // Save wallet address to profile IMMEDIATELY
+    // This ensures the NEWEST wallet created is always saved
+    let walletSaved = false;
+    
     try {
       // Refresh session first to get a fresh token
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      const { error: refreshError } = await supabase.auth.refreshSession();
       
       if (refreshError) {
         console.error('[Onboarding] Session refresh error:', refreshError);
-        // Try to proceed anyway with getUser
       }
       
       const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
       
-      if (userError) {
+      if (userError || !currentUser) {
         console.error('[Onboarding] Error getting current user:', userError);
-        toast.error('Failed to save wallet. You can add it later from Settings.');
-        // Still show success screen - wallet is created on chain
-        setStep('wallet-success');
-        return;
-      }
-      
-      if (!currentUser) {
-        console.error('[Onboarding] No authenticated user found when saving wallet');
         toast.error('Failed to save wallet. You can add it later from Settings.');
         setStep('wallet-success');
         return;
@@ -217,40 +212,47 @@ export default function Onboarding() {
       
       console.log('[Onboarding] Saving wallet address:', address, 'for user:', currentUser.id);
       
-      // First check if profile exists
-      const { data: existingProfile, error: fetchError } = await supabase
+      // ALWAYS upsert the wallet - overwrite any existing value
+      // Use upsert pattern: try update first, if no rows affected, insert
+      const { error: updateError, count } = await supabase
         .from('profiles')
-        .select('id')
+        .update({ wallet_address: address, updated_at: new Date().toISOString() })
         .eq('user_id', currentUser.id)
-        .maybeSingle();
+        .select('id');
       
-      if (fetchError) {
-        console.error('[Onboarding] Error checking profile:', fetchError);
-      }
-      
-      let updateError;
-      
-      if (!existingProfile) {
-        // Profile doesn't exist - create it with wallet
-        console.log('[Onboarding] Creating new profile with wallet');
-        const { error } = await supabase
+      if (updateError) {
+        console.error('[Onboarding] Update failed, trying insert:', updateError);
+        // Profile might not exist - create it
+        const { error: insertError } = await supabase
           .from('profiles')
           .insert({ user_id: currentUser.id, wallet_address: address });
-        updateError = error;
+        
+        if (insertError) {
+          console.error('[Onboarding] Insert also failed:', insertError);
+          toast.error('Failed to save wallet. You can add it later from Settings.');
+        } else {
+          walletSaved = true;
+        }
       } else {
-        // Update existing profile
-        const { error } = await supabase
-          .from('profiles')
-          .update({ wallet_address: address })
-          .eq('user_id', currentUser.id);
-        updateError = error;
+        walletSaved = true;
       }
-
-      if (updateError) {
-        console.error('[Onboarding] Failed to save wallet:', updateError);
-        toast.error('Failed to save wallet. You can add it later from Settings.');
-      } else {
-        console.log('[Onboarding] Wallet saved successfully');
+      
+      if (walletSaved) {
+        console.log('[Onboarding] ✅ Wallet saved successfully to profile:', address);
+        
+        // Verify the save by reading back
+        const { data: verifyProfile } = await supabase
+          .from('profiles')
+          .select('wallet_address')
+          .eq('user_id', currentUser.id)
+          .single();
+        
+        if (verifyProfile?.wallet_address === address) {
+          console.log('[Onboarding] ✅ Verified: wallet_address in DB matches:', verifyProfile.wallet_address);
+        } else {
+          console.warn('[Onboarding] ⚠️ Verification mismatch! Expected:', address, 'Got:', verifyProfile?.wallet_address);
+        }
+        
         // Dispatch event IMMEDIATELY so Dashboard/Wallet pages refetch profile data
         dispatchProfileUpdated();
         toast.success('Wallet connected!');
