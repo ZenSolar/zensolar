@@ -126,8 +126,21 @@
     height: 100%;
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height for iOS */
-    /* Extend background into safe area insets */
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* CRITICAL: Do NOT use padding-bottom for safe area - it creates white bar */
+    /* Instead, content should handle its own safe area insets */
+  }
+
+  /* iOS PWA safe area background fill - extends bg color into home indicator area */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-bottom, 0px);
+    background: inherit;
+    z-index: 9998;
+    pointer-events: none;
   }
 
   /* Ensure the app root fills the viewport on mobile PWAs */
