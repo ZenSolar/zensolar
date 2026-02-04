@@ -70,6 +70,8 @@ export function useOnChainHoldings(walletAddress?: string): OnChainHoldings {
     isError: tokenError,
     error: tokenReadError,
     refetch: refetchToken,
+    status: tokenStatus,
+    fetchStatus: tokenFetchStatus,
   } = useReadContract({
     address: ZSOLAR_TOKEN_ADDRESS,
     abi: ERC20_ABI,
@@ -78,13 +80,21 @@ export function useOnChainHoldings(walletAddress?: string): OnChainHoldings {
     query: {
       enabled: !!address,
       refetchInterval: 30000, // Refresh every 30 seconds
+      staleTime: 5000, // Consider data stale after 5 seconds
     },
   });
 
   // Log token balance for debugging
-  if (tokenBalanceData !== undefined) {
-    console.log('[useOnChainHoldings] Token balance raw:', tokenBalanceData?.toString());
-  }
+  console.log('[useOnChainHoldings] Token query state:', {
+    status: tokenStatus,
+    fetchStatus: tokenFetchStatus,
+    data: tokenBalanceData?.toString(),
+    isLoading: tokenLoading,
+    isError: tokenError,
+    address,
+    contractAddress: ZSOLAR_TOKEN_ADDRESS,
+  });
+  
   if (tokenReadError) {
     console.error('[useOnChainHoldings] Token read error:', tokenReadError);
   }

@@ -1,6 +1,7 @@
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { baseSepolia } from '@reown/appkit/networks';
 import type { AppKitNetwork } from '@reown/appkit/networks';
+import { http } from 'viem';
 
 // WalletConnect Project ID - Get yours free at https://cloud.walletconnect.com
 // Note: this is a public identifier (safe to ship to the client).
@@ -21,6 +22,10 @@ export const WALLETCONNECT_PROJECT_ID = projectId;
 // Consider it configured if it's not the demo placeholder
 export const HAS_WALLETCONNECT_PROJECT_ID = projectId !== 'demo-project-id' && projectId.length > 10;
 
+// Base Sepolia public RPC endpoints (for read-only operations)
+const BASE_SEPOLIA_RPC = 'https://sepolia.base.org';
+const BASE_SEPOLIA_RPC_FALLBACK = 'https://base-sepolia-rpc.publicnode.com';
+
 // Networks configuration - Base Sepolia as the only chain
 export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [baseSepolia];
 
@@ -35,11 +40,19 @@ export const metadata = {
   icons: ['/zs-icon-192.png'],
 };
 
-// Create the Wagmi adapter for AppKit
+// Create the Wagmi adapter for AppKit with custom transports for read operations
 export const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId,
   ssr: false,
+  transports: {
+    // Ensure Base Sepolia has a public RPC for read-only operations
+    [baseSepolia.id]: http(BASE_SEPOLIA_RPC, {
+      batch: true,
+      retryCount: 3,
+      retryDelay: 1000,
+    }),
+  },
 });
 
 // Export wagmi config for use with WagmiProvider
