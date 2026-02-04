@@ -22,35 +22,136 @@ import {
   AlertTriangle
 } from "lucide-react";
 
-// Token Integrity & Anti-Gaming section - PHASE 1 PRIORITY
+// Token Integrity & Proof-of-Delta Implementation Roadmap
+const proofOfDeltaImplementation = {
+  phase1: {
+    title: "Database Foundation",
+    status: "Deferred until post-beta",
+    tasks: [
+      {
+        title: "Create device_tokenization_registry table",
+        description: "Global registry keyed by (provider, device_id) storing watermarks that persist across account deletions",
+        schema: `device_id, provider, device_type, watermark_odometer_miles, watermark_solar_kwh, watermark_battery_kwh, watermark_charging_kwh, first_tokenized_at, last_tokenized_at, total_tokens_issued`,
+        priority: "Critical"
+      },
+      {
+        title: "Create device_claim_history table",
+        description: "Audit trail of all device claims: who claimed, when, tokens issued during claim period, release reason",
+        schema: `device_registry_id, user_id, wallet_address, claimed_at, released_at, release_reason, baseline_at_claim, tokens_issued_in_period`,
+        priority: "Critical"
+      },
+      {
+        title: "Revoke user access to registry",
+        description: "REVOKE ALL on device_tokenization_registry from anon/authenticated. Only service_role (Edge Functions) can access",
+        priority: "Critical"
+      }
+    ]
+  },
+  phase2: {
+    title: "Claim Flow Integration",
+    status: "Deferred until post-beta",
+    tasks: [
+      {
+        title: "Modify device claim flow",
+        description: "On new device connection: check if watermark exists → if yes, set baseline = MAX(current_api_value, watermark) → if no, create watermark record",
+        priority: "Critical"
+      },
+      {
+        title: "Handle ownership transfers",
+        description: "When device is sold (new VIN owner), watermark persists. New owner can only earn tokens for activity AFTER the watermark",
+        priority: "High"
+      },
+      {
+        title: "Add claim history logging",
+        description: "Every claim/release event logged with snapshot of baseline values at that moment",
+        priority: "Medium"
+      }
+    ]
+  },
+  phase3: {
+    title: "Minting Integration",
+    status: "Deferred until post-beta",
+    tasks: [
+      {
+        title: "Atomic watermark updates",
+        description: "After successful on-chain mint, update watermark using GREATEST(current_watermark, new_value). Watermarks can only increase.",
+        priority: "Critical"
+      },
+      {
+        title: "Mint audit logging",
+        description: "Log every mint to device_claim_history with tx_hash, tokens issued, delta values",
+        priority: "High"
+      },
+      {
+        title: "Failed mint rollback",
+        description: "If on-chain mint fails, watermark must NOT be updated. Atomic transaction handling.",
+        priority: "Critical"
+      }
+    ]
+  },
+  phase4: {
+    title: "Account Deletion Hardening",
+    status: "Deferred until post-beta",
+    tasks: [
+      {
+        title: "Preserve watermarks on account deletion",
+        description: "When user deletes account: release device claims, log release_reason='account_deleted', but NEVER delete watermark records",
+        priority: "Critical"
+      },
+      {
+        title: "Re-claim detection",
+        description: "If same device_id is claimed again (same or different user), baseline is forced to MAX of API value and watermark",
+        priority: "Critical"
+      }
+    ]
+  },
+  phase5: {
+    title: "On-Chain Auditability",
+    status: "Future Enhancement",
+    tasks: [
+      {
+        title: "Merkle root checkpoints",
+        description: "Periodically commit Merkle root of all watermarks to Base L2 smart contract for public verifiability",
+        priority: "Medium"
+      },
+      {
+        title: "Proof generation",
+        description: "Users can generate Merkle proofs showing their device's tokenization history is consistent with on-chain root",
+        priority: "Low"
+      }
+    ]
+  }
+};
+
+// Summary features for the card display
 const tokenIntegrityFeatures = [
   {
     icon: Fingerprint,
     title: "Device Watermark Registry",
     description: "Permanent, user-independent tracking of the highest tokenized values for each physical device. Survives account deletion.",
     priority: "Critical",
-    status: "Planned"
+    status: "Deferred"
   },
   {
     icon: Lock,
     title: "Immutable Audit Trail",
     description: "Full history of device ownership, claims, and token issuance. Every token traceable to specific API data.",
     priority: "Critical",
-    status: "Planned"
+    status: "Deferred"
   },
   {
     icon: AlertTriangle,
     title: "Anti-Gaming Protection",
     description: "Watermarks only increase, never decrease. Prevents delete-and-recreate attacks for double-issuance.",
     priority: "Critical",
-    status: "Planned"
+    status: "Deferred"
   },
   {
     icon: Shield,
     title: "Backend-Only Registry",
     description: "Tokenization registry inaccessible to users. Only Edge Functions can read/write to prevent manipulation.",
     priority: "High",
-    status: "Planned"
+    status: "Deferred"
   },
 ];
 
@@ -197,26 +298,27 @@ export default function AdminFutureRoadmap() {
         </CardContent>
       </Card>
 
-      {/* Token Integrity & Anti-Gaming - PHASE 1 PRIORITY */}
-      <Card className="border-red-500/30 bg-red-500/5">
+      {/* Token Integrity & Proof-of-Delta - Detailed Implementation */}
+      <Card className="border-amber-500/30 bg-amber-500/5">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+            <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
               <Lock className="h-5 w-5" />
-              Token Integrity & Anti-Gaming
+              Token Integrity & Proof-of-Delta Implementation
             </CardTitle>
-            <Badge variant="destructive">Phase 1 Priority</Badge>
+            <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30">Deferred Until Post-Beta</Badge>
           </div>
           <CardDescription>
             Ensuring 1:1 token-to-energy integrity—every $ZSOLAR tied to specific API data, preventing double-issuance
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          {/* Summary Features */}
           <div className="grid md:grid-cols-2 gap-4">
             {tokenIntegrityFeatures.map((feature, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-red-500/20">
-                <div className="p-2 bg-red-500/10 rounded-lg flex-shrink-0">
-                  <feature.icon className="h-4 w-4 text-red-500" />
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-amber-500/20">
+                <div className="p-2 bg-amber-500/10 rounded-lg flex-shrink-0">
+                  <feature.icon className="h-4 w-4 text-amber-500" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -230,10 +332,53 @@ export default function AdminFutureRoadmap() {
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+
+          <Separator />
+
+          {/* Detailed Implementation Phases */}
+          <div className="space-y-4">
+            <h4 className="font-semibold text-lg">Implementation Phases (When Ready)</h4>
+            
+            {Object.entries(proofOfDeltaImplementation).map(([key, phase]) => (
+              <div key={key} className="border border-border rounded-lg p-4 bg-muted/30">
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="font-medium">{phase.title}</h5>
+                  <Badge variant="outline" className="text-xs">{phase.status}</Badge>
+                </div>
+                <div className="space-y-2">
+                  {phase.tasks.map((task, idx) => (
+                    <div key={idx} className="pl-4 border-l-2 border-amber-500/30 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{task.title}</span>
+                        <Badge variant={task.priority === 'Critical' ? 'destructive' : task.priority === 'High' ? 'default' : 'secondary'} className="text-xs">
+                          {task.priority}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
+                      {task.schema && (
+                        <code className="text-xs bg-muted px-2 py-1 rounded mt-2 block overflow-x-auto">
+                          {task.schema}
+                        </code>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
             <p className="text-sm text-muted-foreground">
-              <strong className="text-red-600 dark:text-red-400">Architecture Doc:</strong>{" "}
+              <strong className="text-amber-600 dark:text-amber-400">Architecture Doc:</strong>{" "}
               Full technical specification available in <code className="bg-muted px-1 rounded">docs/TOKEN_INTEGRITY_ARCHITECTURE.md</code>
+            </p>
+          </div>
+
+          <div className="p-3 bg-muted rounded-lg border">
+            <p className="text-sm text-muted-foreground">
+              <strong>Beta Mode:</strong> During beta, baselines are stored per-user in <code className="bg-background px-1 rounded">connected_devices.baseline_data</code>. 
+              This allows flexible testing but doesn't prevent re-minting after account deletion. 
+              The Device Watermark Registry will replace this with permanent, device-level tracking.
             </p>
           </div>
         </CardContent>
