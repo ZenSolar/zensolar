@@ -47,7 +47,7 @@ function LoadingSkeleton() {
   );
 }
 
-// Render Quick Reference section
+// Render Quick Reference section with inline editing
 function QuickReferenceSection({ section, isAdmin, isSaving, onUpdate }: { 
   section: YCSection; 
   isAdmin: boolean;
@@ -56,19 +56,37 @@ function QuickReferenceSection({ section, isAdmin, isSaving, onUpdate }: {
 }) {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [localContent, setLocalContent] = useState<Record<string, YCQuestion>>(section.content);
   const content = section.content;
 
+  // Sync local content when section updates from database
+  useState(() => {
+    setLocalContent(section.content);
+  });
+
   const handleStartEdit = (key: string, currentValue: string) => {
-    if (!isAdmin) return;
+    if (!isAdmin || isSaving) return;
     setEditingKey(key);
     setEditValue(currentValue);
   };
 
-  const handleSave = (key: string) => {
-    if (editValue !== content[key]?.answer) {
-      onUpdate(key, editValue);
+  const handleSave = async (key: string) => {
+    const trimmedValue = editValue.trim();
+    if (trimmedValue && trimmedValue !== content[key]?.answer) {
+      // Optimistically update local state immediately
+      setLocalContent(prev => ({
+        ...prev,
+        [key]: { ...prev[key], answer: trimmedValue }
+      }));
+      // Then persist to database
+      onUpdate(key, trimmedValue);
     }
     setEditingKey(null);
+  };
+
+  const handleCancel = () => {
+    setEditingKey(null);
+    setEditValue("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, key: string) => {
@@ -76,9 +94,12 @@ function QuickReferenceSection({ section, isAdmin, isSaving, onUpdate }: {
       e.preventDefault();
       handleSave(key);
     } else if (e.key === "Escape") {
-      setEditingKey(null);
+      handleCancel();
     }
   };
+
+  // Use database content, falling back to local for optimistic updates
+  const displayContent = { ...content, ...localContent };
   
   return (
     <Card className="print:shadow-none print:border-0">
@@ -86,12 +107,13 @@ function QuickReferenceSection({ section, isAdmin, isSaving, onUpdate }: {
         <CardTitle className="flex items-center gap-2 text-lg">
           <FileText className="h-5 w-5 text-primary" />
           Quick Reference
+          {isSaving && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-3 md:grid-cols-2 text-sm">
-        {Object.entries(content).map(([key, q]) => (
-          <div key={key} className="group relative">
-            <span className="font-medium">{q.question}:</span>{" "}
+        {Object.entries(displayContent).map(([key, q]) => (
+          <div key={key} className="group relative flex items-start gap-1">
+            <span className="font-medium shrink-0">{q.question}:</span>{" "}
             {isAdmin && editingKey === key ? (
               <input
                 type="text"
@@ -100,12 +122,14 @@ function QuickReferenceSection({ section, isAdmin, isSaving, onUpdate }: {
                 onBlur={() => handleSave(key)}
                 onKeyDown={(e) => handleKeyDown(e, key)}
                 autoFocus
-                className="inline-block bg-background border border-primary/50 rounded px-1 text-sm min-w-[150px]"
+                disabled={isSaving}
+                className="inline-block bg-background border-2 border-primary rounded px-2 py-0.5 text-sm min-w-[200px] focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             ) : isAdmin ? (
               <span 
-                className="cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1"
+                className="cursor-pointer hover:bg-primary/10 rounded px-1 -mx-1 transition-colors border border-transparent hover:border-primary/30"
                 onClick={() => handleStartEdit(key, q.answer)}
+                title="Click to edit"
               >
                 {q.answer}
               </span>
