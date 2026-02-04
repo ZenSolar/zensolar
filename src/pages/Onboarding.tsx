@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { WalletChoiceScreen, WalletChoice } from "@/components/onboarding/WalletChoiceScreen";
 import { WalletSetupScreen } from "@/components/onboarding/WalletSetupScreen";
@@ -79,6 +79,48 @@ export default function Onboarding() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { startTeslaOAuth, startEnphaseOAuth, connectSolarEdge, connectWallbox, exchangeEnphaseCode } = useEnergyOAuth();
+
+  // Ensure we don't spam wallet saves/toasts if the wallet SDK calls onComplete multiple times.
+  const walletSaveInFlightRef = useRef(false);
+  const latestWalletAddressRef = useRef<string | null>(null);
+  const profileEnsuredRef = useRef(false);
+
+  // New-user race fix: ensure a profiles row exists ASAP (before wallet or energy updates).
+  useEffect(() => {
+    const ensureProfileExists = async () => {
+      if (!user?.id || profileEnsuredRef.current) return;
+      profileEnsuredRef.current = true;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.warn('[Onboarding] ensureProfileExists: select error', error);
+        }
+
+        if (!data) {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({ user_id: user.id });
+
+          if (insertError) {
+            // If another flow created it concurrently, ignore.
+            console.warn('[Onboarding] ensureProfileExists: insert error', insertError);
+          } else {
+            console.log('[Onboarding] ✅ Created minimal profile row');
+          }
+        }
+      } catch (err) {
+        console.warn('[Onboarding] ensureProfileExists: unexpected error', err);
+      }
+    };
+
+    ensureProfileExists();
+  }, [user?.id]);
 
   // Animated step transition helper
   const transitionToStep = (newStep: OnboardingStep) => {
@@ -187,40 +229,62 @@ export default function Onboarding() {
     console.log(`[Onboarding] saveWalletToProfile attempt ${attempt}/${MAX_ATTEMPTS} for address:`, walletAddress);
     
     try {
-      // Try update first
-      const { error: updateError } = await supabase
+      const nowIso = new Date().toISOString();
+
+      // Try update first (NOTE: update can succeed with 0 rows when the profile row doesn't exist)
+      const { data: updatedRows, error: updateError } = await supabase
         .from('profiles')
-        .update({ wallet_address: walletAddress, updated_at: new Date().toISOString() })
-        .eq('user_id', userId);
-      
+        .update({ wallet_address: walletAddress, updated_at: nowIso })
+        .eq('user_id', userId)
+        .select('user_id');
+
       if (updateError) {
         console.error(`[Onboarding] Update failed on attempt ${attempt}:`, updateError);
-        // Profile might not exist - try insert
+        throw new Error(`Update failed: ${updateError.message}`);
+      }
+
+      // If no profile row existed yet, insert it (or recover from concurrent insert).
+      if (!updatedRows || updatedRows.length === 0) {
+        console.warn(`[Onboarding] No profile row updated on attempt ${attempt}; inserting profile row...`);
+
         const { error: insertError } = await supabase
           .from('profiles')
-          .insert({ user_id: userId, wallet_address: walletAddress });
-        
+          .insert({ user_id: userId, wallet_address: walletAddress, updated_at: nowIso });
+
         if (insertError) {
-          throw new Error(`Insert failed: ${insertError.message}`);
+          console.warn(`[Onboarding] Insert attempt ${attempt} failed (possible concurrent create). Retrying update...`, insertError);
+
+          const { data: retryUpdatedRows, error: retryUpdateError } = await supabase
+            .from('profiles')
+            .update({ wallet_address: walletAddress, updated_at: nowIso })
+            .eq('user_id', userId)
+            .select('user_id');
+
+          if (retryUpdateError || !retryUpdatedRows || retryUpdatedRows.length === 0) {
+            throw new Error(`Insert failed and retry update failed: ${retryUpdateError?.message || insertError.message}`);
+          }
         }
       }
       
       // Verify the save
-      const { data: verifyProfile, error: verifyError } = await supabase
+      const { data: verifyRows, error: verifyError } = await supabase
         .from('profiles')
-        .select('wallet_address')
+        .select('wallet_address, updated_at')
         .eq('user_id', userId)
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1);
       
       if (verifyError) {
         throw new Error(`Verification query failed: ${verifyError.message}`);
       }
+
+      const verifiedAddress = verifyRows?.[0]?.wallet_address ?? null;
       
-      if (verifyProfile?.wallet_address === walletAddress) {
+      if (verifiedAddress === walletAddress) {
         console.log(`[Onboarding] ✅ Verified on attempt ${attempt}: wallet_address matches`);
         return true;
       } else {
-        console.warn(`[Onboarding] ⚠️ Verification mismatch on attempt ${attempt}! Expected:`, walletAddress, 'Got:', verifyProfile?.wallet_address);
+        console.warn(`[Onboarding] ⚠️ Verification mismatch on attempt ${attempt}! Expected:`, walletAddress, 'Got:', verifiedAddress);
         
         // Retry if we have attempts left
         if (attempt < MAX_ATTEMPTS) {
@@ -231,20 +295,22 @@ export default function Onboarding() {
         
         // Final attempt: force overwrite
         console.log('[Onboarding] Final attempt: forcing wallet overwrite...');
-        const { error: forceError } = await supabase
+        const { data: forcedRows, error: forceError } = await supabase
           .from('profiles')
-          .update({ wallet_address: walletAddress, updated_at: new Date().toISOString() })
-          .eq('user_id', userId);
+          .update({ wallet_address: walletAddress, updated_at: nowIso })
+          .eq('user_id', userId)
+          .select('user_id');
         
-        if (!forceError) {
+        if (!forceError && forcedRows && forcedRows.length > 0) {
           // One more verification
-          const { data: finalCheck } = await supabase
+          const { data: finalRows } = await supabase
             .from('profiles')
-            .select('wallet_address')
+            .select('wallet_address, updated_at')
             .eq('user_id', userId)
-            .single();
+            .order('updated_at', { ascending: false })
+            .limit(1);
           
-          if (finalCheck?.wallet_address === walletAddress) {
+          if (finalRows?.[0]?.wallet_address === walletAddress) {
             console.log('[Onboarding] ✅ Force overwrite succeeded');
             return true;
           }
@@ -265,6 +331,9 @@ export default function Onboarding() {
   };
 
   const handleWalletComplete = async (address: string) => {
+    // Always keep the latest address requested to be persisted.
+    latestWalletAddressRef.current = address;
+
     // CRITICAL: Store the exact wallet address being saved
     console.log('[Onboarding] handleWalletComplete called with address:', address);
     setWalletAddress(address);
@@ -278,38 +347,48 @@ export default function Onboarding() {
       walletAddress: address 
     });
     
-    // Save wallet address to profile with retry mechanism
-    try {
-      // Refresh session first to get a fresh token
-      const { error: refreshError } = await supabase.auth.refreshSession();
-      
-      if (refreshError) {
-        console.error('[Onboarding] Session refresh error:', refreshError);
+    // Save wallet address to profile with retry mechanism.
+    // Important: guard against duplicate onComplete callbacks, and always persist the newest address.
+    if (!walletSaveInFlightRef.current) {
+      walletSaveInFlightRef.current = true;
+      try {
+        while (latestWalletAddressRef.current) {
+          const nextAddress = latestWalletAddressRef.current;
+          latestWalletAddressRef.current = null;
+
+          try {
+            // Refresh session first to get a fresh token
+            const { error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError) {
+              console.error('[Onboarding] Session refresh error:', refreshError);
+            }
+
+            const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+
+            if (userError || !currentUser) {
+              console.error('[Onboarding] Error getting current user:', userError);
+              toast.error('Failed to save wallet. You can add it later from Settings.', { id: 'wallet-save-failed' });
+              break;
+            }
+
+            const walletSaved = await saveWalletToProfile(currentUser.id, nextAddress);
+
+            if (walletSaved) {
+              console.log('[Onboarding] ✅ Wallet saved and verified:', nextAddress);
+              dispatchProfileUpdated();
+              toast.success('Wallet connected!', { id: 'wallet-save-success' });
+            } else {
+              console.error('[Onboarding] ❌ Failed to save wallet after all retries');
+              toast.error('Failed to save wallet. You can add it later from Settings.', { id: 'wallet-save-failed' });
+            }
+          } catch (err) {
+            console.error('[Onboarding] Error saving wallet:', err);
+            toast.error('Failed to save wallet. You can add it later from Settings.', { id: 'wallet-save-failed' });
+          }
+        }
+      } finally {
+        walletSaveInFlightRef.current = false;
       }
-      
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !currentUser) {
-        console.error('[Onboarding] Error getting current user:', userError);
-        toast.error('Failed to save wallet. You can add it later from Settings.');
-        setStep('wallet-success');
-        return;
-      }
-      
-      // Save with retry logic
-      const walletSaved = await saveWalletToProfile(currentUser.id, address);
-      
-      if (walletSaved) {
-        console.log('[Onboarding] ✅ Wallet saved and verified:', address);
-        dispatchProfileUpdated();
-        toast.success('Wallet connected!');
-      } else {
-        console.error('[Onboarding] ❌ Failed to save wallet after all retries');
-        toast.error('Failed to save wallet. You can add it later from Settings.');
-      }
-    } catch (err) {
-      console.error('[Onboarding] Error saving wallet:', err);
-      toast.error('Failed to save wallet. You can add it later from Settings.');
     }
     
     // Show wallet success screen with confetti, then proceed to energy connection
@@ -382,6 +461,42 @@ export default function Onboarding() {
     
     // Dispatch profile update
     dispatchProfileUpdated();
+
+    // Persist provider connection to the profile so the dashboard will load immediately,
+    // even if the user skipped wallet setup.
+    (async () => {
+      try {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (!currentUser) return;
+
+        const nowIso = new Date().toISOString();
+        const patch: Record<string, any> = { updated_at: nowIso };
+        if (provider === 'tesla') patch.tesla_connected = true;
+        if (provider === 'enphase') patch.enphase_connected = true;
+        if (provider === 'solaredge') patch.solaredge_connected = true;
+        if (provider === 'wallbox') patch.wallbox_connected = true;
+
+        const { data: updated, error: updateError } = await supabase
+          .from('profiles')
+          .update(patch)
+          .eq('user_id', currentUser.id)
+          .select('user_id');
+
+        if (updateError) {
+          console.warn('[Onboarding] Failed to update provider connection flag:', updateError);
+        }
+
+        if (!updated || updated.length === 0) {
+          // Profile row missing; create then update.
+          await supabase.from('profiles').insert({ user_id: currentUser.id });
+          await supabase.from('profiles').update(patch).eq('user_id', currentUser.id);
+        }
+
+        dispatchProfileUpdated();
+      } catch (err) {
+        console.warn('[Onboarding] Failed to persist provider connection flag:', err);
+      }
+    })();
     
     // Move to energy success screen
     setStep('energy-success');
