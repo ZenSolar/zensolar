@@ -74,7 +74,7 @@ export default function AdminYCApplication() {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="border-blue-500 text-blue-600">Trade Secret</Badge>
-              <span>Proprietary verification algorithms &amp; scoring logic</span>
+              <span>Proprietary verification algorithms, scoring logic &amp; Device Watermark Registry</span>
             </div>
           </div>
         </CardContent>
@@ -250,6 +250,7 @@ export default function AdminYCApplication() {
                 <li>Multi-manufacturer OAuth flows (Tesla, Enphase, SolarEdge, Wallbox)</li>
                 <li>42-tier NFT achievement system with category-specific milestones</li>
                 <li>Coinbase Smart Wallet integration—users sign up with email, wallet auto-created, zero crypto friction</li>
+                <li><strong>Device Watermark Registry</strong>—persistent tracking of unique hardware IDs (VIN, Site ID, System ID) prevents double-minting across account deletions and ownership transfers</li>
                 <li>In-app cash-out flow—convert $ZSOLAR to USD via embedded fiat off-ramp, directly to bank account</li>
                 <li>In-app dropshipping store for token redemption</li>
                 <li>Auto-minting subscription infrastructure ($9.99-$19.99/month)</li>
@@ -387,6 +388,7 @@ export default function AdminYCApplication() {
               <ul className="list-disc list-inside space-y-2 ml-2">
                 <li><strong>Multi-vertical advantage:</strong> EVearn rewards only EV charging—we capture the full clean energy stack (solar + battery + EV + charging). More touchpoints = more engagement = higher LTV.</li>
                 <li><strong>Mint-on-Proof™ (trademark pending):</strong> Our SEGI (Software-Enabled Gateway Interface) architecture mints on-demand from verified API data—no pre-minted pools or inflation risk. Patent provisional filed March 2025.</li>
+                <li><strong>Device Watermark Registry:</strong> Persistent tracking of unique hardware IDs (VIN, Site ID, System ID) prevents double-minting across account deletions and ownership transfers—if you sell your Tesla, the new owner starts fresh from their acquisition point, not from odometer zero.</li>
                 <li><strong>True Web2 UX:</strong> Competitors require external wallets, seed phrases, and crypto knowledge. ZenSolar users sign up with email, earn rewards, and cash out to their bank—never leaving the app, never seeing a seed phrase. They don't even know they're using blockchain.</li>
                 <li><strong>Timing:</strong> Federal incentives phase out 2025-2026—we become the replacement motivation layer as government support disappears.</li>
                 <li><strong>Commercial tier:</strong> $99-$499/month B2B for solar installers and fleet managers—a revenue stream competitors haven't addressed.</li>
