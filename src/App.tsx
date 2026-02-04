@@ -89,6 +89,18 @@ function PageLoader() {
 }
 
 const App = () => {
+  // iOS standalone PWAs can briefly (or persistently) show the underlying page background
+  // when the system theme is light while the UI is styled dark. Force dark theme tokens
+  // in standalone display mode to prevent white safe-area/overscroll artifacts.
+  const isStandalone =
+    typeof window !== "undefined" &&
+    (
+      window.matchMedia?.("(display-mode: standalone)")?.matches ||
+      // iOS Safari legacy standalone flag
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (navigator as any)?.standalone === true
+    );
+
   // Foreground fallback: if a push arrives while the app is open, show an in-app toast.
   useEffect(() => {
     // Early return if service workers aren't supported
@@ -113,7 +125,12 @@ const App = () => {
   }, []);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      forcedTheme={isStandalone ? "dark" : undefined}
+    >
       <AuthProvider>
         <LazyWeb3Provider>
           <TooltipProvider>
