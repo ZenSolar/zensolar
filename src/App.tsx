@@ -147,6 +147,7 @@ const App = () => {
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/yc-application" element={<AdminYCApplication />} />
                     <Route path="/oauth/callback" element={<OAuthCallback />} />
                     <Route 
                       path="/admin" 
