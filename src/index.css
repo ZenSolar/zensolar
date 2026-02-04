@@ -108,6 +108,10 @@
     overscroll-behavior-y: none;
     /* Prevent subtle horizontal drift on iOS/PWA */
     overflow-x: hidden;
+    /* Full viewport height - critical for PWA to avoid white bar at bottom */
+    height: 100%;
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for iOS */
   }
 
   body {
@@ -118,9 +122,15 @@
     -webkit-touch-callout: none;
     /* Prevent subtle horizontal drift on iOS/PWA */
     overflow-x: hidden;
+    /* Full viewport height - critical for PWA to avoid white bar at bottom */
+    height: 100%;
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for iOS */
+    /* Extend background into safe area insets */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  /* Ensure the app root never constrains/offsets the layout on mobile PWAs */
+  /* Ensure the app root fills the viewport on mobile PWAs */
   #root {
     width: 100%;
     max-width: 100%;
@@ -128,6 +138,9 @@
     margin: 0;
     text-align: left;
     overflow-x: hidden;
+    /* Fill the viewport */
+    min-height: 100%;
+    min-height: 100dvh;
   }
   /* Safe area support for iOS notch and home indicator */
   .pb-safe {
