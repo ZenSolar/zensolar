@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
 
 // Eagerly load critical path pages
 import Auth from "./pages/Auth";
@@ -78,6 +79,7 @@ const AdminPatentUpdatedLanguage = lazy(() => import("./pages/AdminPatentUpdated
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
+const AdminViewAsUser = lazy(() => import("./pages/AdminViewAsUser"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -132,8 +134,9 @@ const App = () => {
       forcedTheme={isStandalone ? "dark" : undefined}
     >
       <AuthProvider>
-        <LazyWeb3Provider>
-          <TooltipProvider>
+        <ViewAsUserProvider>
+          <LazyWeb3Provider>
+            <TooltipProvider>
             <ErrorBoundary>
               <BotProtection blockBots>
                 <Toaster />
@@ -223,6 +226,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminUsers />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/view-as-user" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminViewAsUser />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
@@ -650,7 +663,8 @@ const App = () => {
             </ErrorBoundary>
           </TooltipProvider>
         </LazyWeb3Provider>
-      </AuthProvider>
+      </ViewAsUserProvider>
+    </AuthProvider>
     </ThemeProvider>
   );
 };
