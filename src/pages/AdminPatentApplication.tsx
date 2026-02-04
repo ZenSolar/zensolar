@@ -10,7 +10,9 @@ import {
   AlertCircle,
   ExternalLink,
   Copy,
-  Sparkles
+  Sparkles,
+  Download,
+  FileImage
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -18,15 +20,15 @@ import { toast } from 'sonner';
 const patentTimeline = [
   {
     date: 'Q1 2025',
-    title: 'Provisional Patent Application',
-    description: 'File USPTO provisional patent covering Mint-on-Proof and SEGI architecture.',
-    status: 'pending',
+    title: 'Provisional Patent Application Filed',
+    description: 'USPTO provisional patent filed covering SEGI, Mint-on-Proof, and Token/NFT minting system.',
+    status: 'complete',
   },
   {
     date: 'Q1 2026',
     title: 'Non-Provisional Filing',
-    description: 'Convert to non-provisional within 12-month window with full claims.',
-    status: 'future',
+    description: 'Convert to non-provisional within 12-month window with full claims and updated language.',
+    status: 'pending',
   },
   {
     date: 'Q2 2026',
@@ -39,6 +41,26 @@ const patentTimeline = [
     title: 'Patent Examination',
     description: 'Respond to office actions and negotiate claims with USPTO examiner.',
     status: 'future',
+  },
+];
+
+// Original document links
+const originalDocuments = [
+  {
+    title: 'Provisional Patent Application',
+    filename: 'ZenSolar_Provisional_Patent_Application.doc',
+    path: '/documents/ZenSolar_Provisional_Patent_Application.doc',
+    type: 'Word Document (.doc)',
+    description: 'Original 11-page provisional application covering "System and Method for Tokenizing and Gamifying Sustainable Behaviors Using Blockchain Technology".',
+    pages: 11,
+  },
+  {
+    title: 'Provisional Patent Drawings',
+    filename: 'ZenSolar_Provisional_Patent_Drawings.pdf',
+    path: '/documents/ZenSolar_Provisional_Patent_Drawings.pdf',
+    type: 'PDF (Landscape)',
+    description: 'FIG 1: System Architecture, FIG 2: Process Flowchart, FIG 3: Dashboard UI Mockup.',
+    pages: 3,
   },
 ];
 
@@ -103,6 +125,69 @@ export default function AdminPatentApplication() {
         <p className="text-muted-foreground">
           Draft language, timelines, and reference materials for patent filings.
         </p>
+      </motion.div>
+
+      {/* Original Documents */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+      >
+        <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 to-background">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileImage className="h-5 w-5 text-emerald-500" />
+              Original Provisional Filing
+            </CardTitle>
+            <CardDescription>
+              Filed Q1 2025 — USPTO Provisional Patent Application
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {originalDocuments.map((doc, index) => (
+              <motion.div
+                key={doc.filename}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + index * 0.08 }}
+                className="flex items-start gap-4 p-4 rounded-xl bg-background border border-border/60"
+              >
+                <div className="p-3 rounded-lg bg-emerald-500/10 flex-shrink-0">
+                  {doc.type.includes('PDF') ? (
+                    <FileImage className="h-6 w-6 text-emerald-500" />
+                  ) : (
+                    <FileText className="h-6 w-6 text-blue-500" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-semibold">{doc.title}</h4>
+                      <p className="text-xs text-muted-foreground">{doc.type} • {doc.pages} pages</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                    >
+                      <a href={doc.path} download={doc.filename}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </a>
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{doc.description}</p>
+                </div>
+              </motion.div>
+            ))}
+            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-sm">
+              <p className="text-amber-600 dark:text-amber-400 flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <span><strong>Note:</strong> The drawings PDF is formatted as portrait pages with landscape content. Rotate 90° clockwise when viewing.</span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Filing Timeline */}
