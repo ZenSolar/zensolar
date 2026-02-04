@@ -4,6 +4,7 @@ import { CheckCircle2, Zap, ArrowRight, Wallet, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConfetti } from '@/hooks/useConfetti';
 import { triggerSuccess, triggerLightTap } from '@/hooks/useHaptics';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface OnboardingSuccessScreenProps {
   walletAddress?: string | null;
@@ -14,7 +15,6 @@ interface OnboardingSuccessScreenProps {
 export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue }: OnboardingSuccessScreenProps) {
   const { triggerCelebration } = useConfetti();
 
-  // Trigger confetti and haptic when wallet is connected
   useEffect(() => {
     if (walletType !== 'skipped' && walletAddress) {
       const timer = setTimeout(() => {
@@ -60,14 +60,14 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
   const status = getStatusMessage();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background */}
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Premium gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl"
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-gradient-radial from-primary/15 via-primary/5 to-transparent rounded-full blur-3xl"
           animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.15, 1],
+            opacity: [0.4, 0.6, 0.4],
           }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -79,12 +79,21 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
+        {/* ZenSolar Logo */}
+        <motion.img
+          src={zenLogo}
+          alt="ZenSolar"
+          className="h-8 w-auto mx-auto mb-8 dark:drop-shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        />
+
         {/* Success animation */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-          className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30"
+          className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-xl shadow-primary/30"
         >
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
@@ -101,17 +110,17 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
             key={i}
             className="absolute w-2 h-2 rounded-full"
             style={{
-              background: i % 4 === 0 ? 'hsl(var(--primary))' : i % 4 === 1 ? 'hsl(var(--accent))' : i % 4 === 2 ? 'hsl(var(--secondary))' : 'hsl(var(--muted-foreground))',
+              background: i % 4 === 0 ? 'hsl(var(--primary))' : i % 4 === 1 ? 'hsl(var(--accent))' : i % 4 === 2 ? 'hsl(142, 76%, 40%)' : 'hsl(var(--muted-foreground))',
               left: '50%',
-              top: '15%',
+              top: '20%',
             }}
             initial={{ scale: 0, x: 0, y: 0 }}
             animate={{
               scale: [0, 1, 0],
-              x: Math.cos((i * 22.5 * Math.PI) / 180) * (100 + Math.random() * 50),
-              y: Math.sin((i * 22.5 * Math.PI) / 180) * (100 + Math.random() * 50),
+              x: Math.cos((i * 22.5 * Math.PI) / 180) * (80 + Math.random() * 40),
+              y: Math.sin((i * 22.5 * Math.PI) / 180) * (80 + Math.random() * 40),
             }}
-            transition={{ duration: 1, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
           />
         ))}
 
@@ -122,7 +131,7 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
           transition={{ delay: 0.5 }}
           className="text-center mb-8"
         >
-          <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="flex items-center justify-center gap-2 mb-3">
             {status.icon}
             <h2 className="text-xl font-bold text-foreground">
               {status.title}
@@ -139,13 +148,13 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="p-4 rounded-xl bg-muted/50 border border-border mb-6"
+            className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-border/60 mb-6"
           >
-            <p className="text-xs text-muted-foreground mb-1 text-center">Your Wallet Address</p>
+            <p className="text-xs text-muted-foreground mb-1.5 text-center">Your Wallet Address</p>
             <p className="font-mono text-sm text-foreground text-center">{shortAddress}</p>
             <div className="flex items-center justify-center gap-2 mt-2">
-              <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
-                <span className="text-[8px] text-white font-bold">B</span>
+              <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-[8px] text-primary-foreground font-bold">B</span>
               </div>
               <span className="text-xs text-muted-foreground">Base Network</span>
             </div>
@@ -161,7 +170,7 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
           <Button 
             size="lg"
             onClick={handleContinue}
-            className="w-full gap-2 bg-primary hover:bg-primary/90 h-14 text-base"
+            className="w-full gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/95 hover:to-primary/80 shadow-lg shadow-primary/20 h-14 text-base font-semibold"
           >
             <Zap className="w-5 h-5" />
             Connect Your Energy
