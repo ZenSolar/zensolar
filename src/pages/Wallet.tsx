@@ -145,7 +145,7 @@ export default function Wallet() {
 
         {/* Wallet Address Card */}
         <AnimatedItem>
-          <Card className="border-primary/20 bg-gradient-to-r from-primary/5 via-background to-primary/5">
+          <Card className="border-border bg-card shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -178,21 +178,21 @@ export default function Wallet() {
 
         {/* Live Token Price Indicator */}
         <AnimatedItem>
-          <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-background to-emerald-500/5">
+          <Card className="border-border bg-card shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <TrendingUp className="h-5 w-5 text-emerald-500" />
+                  <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-secondary" />
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground font-medium">$ZSOLAR Price</p>
-                    <p className="font-bold text-lg text-emerald-600 dark:text-emerald-400">
+                    <p className="font-bold text-lg text-secondary">
                       ${LIVE_TOKEN_PRICE.toFixed(2)} <span className="text-xs font-normal text-muted-foreground">USD</span>
                     </p>
                   </div>
                 </div>
-                <Badge variant="outline" className="border-emerald-500/50 text-emerald-600 dark:text-emerald-400 text-xs">
+                <Badge variant="outline" className="border-secondary/50 text-secondary text-xs">
                   Base Sepolia
                 </Badge>
               </div>
@@ -202,14 +202,14 @@ export default function Wallet() {
 
         {/* Token Balance Card - Hero */}
         <AnimatedItem>
-          <Card className="overflow-hidden border-primary/20">
-            <div className="bg-gradient-to-br from-primary/15 via-primary/5 to-background p-5">
+          <Card className="border-primary/30 bg-card shadow-sm overflow-hidden">
+            <CardContent className="p-5">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Coins className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">$ZSOLAR Tokens</span>
+                  <span className="font-semibold text-foreground">$ZSOLAR Tokens</span>
                 </div>
-                <Badge className="bg-primary/20 text-primary border-0 text-xs">ERC-20</Badge>
+                <Badge variant="outline" className="border-primary/50 text-primary text-xs">ERC-20</Badge>
               </div>
               
               {holdingsLoading ? (
@@ -219,7 +219,7 @@ export default function Wallet() {
                 </div>
               ) : (
                 <div>
-                  <p className="text-4xl font-bold tracking-tight">{formattedBalance}</p>
+                  <p className="text-4xl font-bold tracking-tight text-foreground">{formattedBalance}</p>
                   <p className="text-lg font-semibold text-primary mt-1">
                     ≈ ${formattedUsdValue} USD
                   </p>
@@ -234,20 +234,20 @@ export default function Wallet() {
                   View Contract <ArrowUpRight className="h-3 w-3 ml-1" />
                 </a>
               </Button>
-            </div>
+            </CardContent>
           </Card>
         </AnimatedItem>
 
         {/* NFT Count Card */}
         <AnimatedItem>
-          <Card className="overflow-hidden border-secondary/20">
-            <div className="bg-gradient-to-br from-secondary/15 via-secondary/5 to-background p-5">
+          <Card className="border-secondary/30 bg-card shadow-sm overflow-hidden">
+            <CardContent className="p-5">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Images className="h-5 w-5 text-secondary" />
-                  <span className="font-semibold">ZenSolar NFTs</span>
+                  <span className="font-semibold text-foreground">ZenSolar NFTs</span>
                 </div>
-                <Badge className="bg-secondary/20 text-secondary border-0 text-xs">ERC-1155</Badge>
+                <Badge variant="outline" className="border-secondary/50 text-secondary text-xs">ERC-1155</Badge>
               </div>
               
               {holdingsLoading ? (
@@ -257,7 +257,7 @@ export default function Wallet() {
                 </div>
               ) : (
                 <div>
-                  <p className="text-4xl font-bold tracking-tight">{nftCount}</p>
+                  <p className="text-4xl font-bold tracking-tight text-foreground">{nftCount}</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     Milestone NFTs owned
                   </p>
@@ -269,7 +269,7 @@ export default function Wallet() {
                   View Contract <ArrowUpRight className="h-3 w-3 ml-1" />
                 </a>
               </Button>
-            </div>
+            </CardContent>
           </Card>
         </AnimatedItem>
 
@@ -323,10 +323,10 @@ export default function Wallet() {
 
         {/* Privacy & Network Info */}
         <AnimatedItem>
-          <Card className="bg-muted/30 border-muted">
+          <Card className="border-border bg-muted/20 dark:bg-muted/30">
             <CardContent className="p-4 space-y-4">
               {/* Privacy Notice */}
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-card border border-border">
                 <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-foreground">Your Privacy is Protected</p>
@@ -339,7 +339,7 @@ export default function Wallet() {
               {/* Network Info */}
               <div className="flex items-center justify-between text-sm px-1">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-secondary animate-pulse" />
                   <span className="text-muted-foreground">Network</span>
                 </div>
                 <Badge variant="outline" className="font-medium">Base Sepolia</Badge>
