@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ExportButtons } from "@/components/admin/ExportButtons";
 import { EditableYCCard } from "@/components/admin/EditableYCCard";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +54,31 @@ function QuickReferenceSection({ section, isAdmin, isSaving, onUpdate }: {
   isSaving: boolean;
   onUpdate: (questionKey: string, newAnswer: string) => void;
 }) {
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
   const content = section.content;
+
+  const handleStartEdit = (key: string, currentValue: string) => {
+    if (!isAdmin) return;
+    setEditingKey(key);
+    setEditValue(currentValue);
+  };
+
+  const handleSave = (key: string) => {
+    if (editValue !== content[key]?.answer) {
+      onUpdate(key, editValue);
+    }
+    setEditingKey(null);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, key: string) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSave(key);
+    } else if (e.key === "Escape") {
+      setEditingKey(null);
+    }
+  };
   
   return (
     <Card className="print:shadow-none print:border-0">
@@ -67,15 +92,20 @@ function QuickReferenceSection({ section, isAdmin, isSaving, onUpdate }: {
         {Object.entries(content).map(([key, q]) => (
           <div key={key} className="group relative">
             <span className="font-medium">{q.question}:</span>{" "}
-            {isAdmin ? (
+            {isAdmin && editingKey === key ? (
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={() => handleSave(key)}
+                onKeyDown={(e) => handleKeyDown(e, key)}
+                autoFocus
+                className="inline-block bg-background border border-primary/50 rounded px-1 text-sm min-w-[150px]"
+              />
+            ) : isAdmin ? (
               <span 
                 className="cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1"
-                onClick={() => {
-                  const newValue = prompt(`Edit ${q.question}:`, q.answer);
-                  if (newValue !== null && newValue !== q.answer) {
-                    onUpdate(key, newValue);
-                  }
-                }}
+                onClick={() => handleStartEdit(key, q.answer)}
               >
                 {q.answer}
               </span>
