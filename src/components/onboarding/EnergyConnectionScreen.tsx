@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, ArrowRight, Loader2, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 // Import brand logos
 import teslaLogo from '@/assets/logos/tesla-logo.png';
@@ -26,7 +26,7 @@ const providers = [
     id: 'tesla' as EnergyProvider, 
     name: 'Tesla', 
     logo: teslaLogo,
-    description: 'Solar, Powerwall, EV charging'
+    description: 'Solar, Powerwall & EV charging'
   },
   { 
     id: 'enphase' as EnergyProvider, 
@@ -56,7 +56,6 @@ export function EnergyConnectionScreen({
   isConnecting,
   connectedProviders = []
 }: EnergyConnectionScreenProps) {
-  // Filter out already connected providers
   const availableProviders = providers.filter(
     p => !connectedProviders.includes(p.id)
   );
@@ -77,7 +76,7 @@ export function EnergyConnectionScreen({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Back button */}
       {onBack && !isConnecting && (
         <motion.div
@@ -92,20 +91,20 @@ export function EnergyConnectionScreen({
             className="gap-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Wallet
+            Back
           </Button>
         </motion.div>
       )}
 
-      {/* Animated background */}
+      {/* Premium gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-gradient-radial from-primary/12 via-primary/5 to-transparent rounded-full blur-3xl"
           animate={{ 
-            scale: [1, 1.15, 1],
-            opacity: [0.15, 0.25, 0.15],
+            scale: [1, 1.1, 1],
+            opacity: [0.5, 0.7, 0.5],
           }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
@@ -115,12 +114,21 @@ export function EnergyConnectionScreen({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
+        {/* ZenSolar Logo */}
+        <motion.img
+          src={zenLogo}
+          alt="ZenSolar"
+          className="h-8 w-auto mx-auto mb-8 dark:drop-shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        />
+
         {/* Header icon */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-          className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30"
+          className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-xl shadow-primary/25"
         >
           <Zap className="w-10 h-10 text-primary-foreground" />
         </motion.div>
@@ -132,11 +140,11 @@ export function EnergyConnectionScreen({
           transition={{ delay: 0.2 }}
           className="text-center mb-8"
         >
-          <h2 className="text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-2xl font-bold text-foreground mb-3 tracking-tight">
             Connect Your Energy
           </h2>
-          <p className="text-muted-foreground text-sm">
-            Link your solar, battery, or EV charging to start earning rewards
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Link your solar, battery, or EV charging to start earning <span className="text-primary font-medium">$ZSOLAR</span> rewards
           </p>
         </motion.div>
 
@@ -145,33 +153,35 @@ export function EnergyConnectionScreen({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="space-y-3 mb-6"
+          className="space-y-3 mb-8"
         >
           {availableProviders.map((provider, index) => (
             <motion.button
               key={provider.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + index * 0.1 }}
+              transition={{ delay: 0.35 + index * 0.08 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => handleProviderClick(provider.id)}
               disabled={!!isConnecting}
-              className="w-full p-4 rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-accent/50 transition-all duration-200 flex items-center gap-4 group disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-border/60 hover:border-primary/50 hover:bg-card hover:shadow-md transition-all duration-200 flex items-center gap-4 group disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+              <div className="w-12 h-12 rounded-xl bg-muted/80 border border-border/50 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img 
                   src={provider.logo} 
                   alt={provider.name}
                   className="w-8 h-8 object-contain"
                 />
               </div>
-              <div className="flex-1 text-left">
+              <div className="flex-1 text-left min-w-0">
                 <p className="font-semibold text-foreground">{provider.name}</p>
-                <p className="text-xs text-muted-foreground">{provider.description}</p>
+                <p className="text-xs text-muted-foreground truncate">{provider.description}</p>
               </div>
               {isConnecting === provider.id ? (
-                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                <Loader2 className="w-5 h-5 text-primary animate-spin flex-shrink-0" />
               ) : (
-                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
               )}
             </motion.button>
           ))}
@@ -181,8 +191,8 @@ export function EnergyConnectionScreen({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-center space-y-2"
+          transition={{ delay: 0.7 }}
+          className="text-center"
         >
           <AnimatePresence mode="wait">
             {isConnecting ? (
@@ -200,7 +210,7 @@ export function EnergyConnectionScreen({
                   <X className="w-4 h-4" />
                   Cancel
                 </Button>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-2">
                   Waiting for authorization...
                 </p>
               </motion.div>
@@ -214,11 +224,14 @@ export function EnergyConnectionScreen({
                 <Button
                   variant="ghost"
                   onClick={handleSkip}
-                  className="text-muted-foreground hover:text-foreground gap-2"
+                  className="text-muted-foreground hover:text-foreground gap-2 h-10"
                 >
                   I'll do this later
                   <ArrowRight className="w-4 h-4" />
                 </Button>
+                <p className="text-xs text-muted-foreground/80 mt-2">
+                  You can connect energy accounts from your Profile
+                </p>
               </motion.div>
             )}
           </AnimatePresence>

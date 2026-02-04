@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { BrandedSpinner } from '@/components/ui/branded-spinner';
 import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
 import { useAppKitInitialized } from '@/components/providers/Web3Provider';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface ExternalWalletScreenProps {
   onComplete: (walletAddress: string) => void;
@@ -17,7 +18,6 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
   const { open } = useAppKit();
   const [hasOpened, setHasOpened] = useState(false);
 
-  // Auto-open wallet modal when component mounts and AppKit is ready
   useEffect(() => {
     if (isInitialized && hasProjectId && !hasOpened && !isConnected) {
       setHasOpened(true);
@@ -25,10 +25,8 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
     }
   }, [isInitialized, hasProjectId, hasOpened, isConnected, open]);
 
-  // Handle successful connection
   useEffect(() => {
     if (isConnected && address) {
-      // Small delay for visual feedback
       const timer = setTimeout(() => {
         onComplete(address);
       }, 1000);
@@ -43,7 +41,7 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
   // Loading state
   if (!isInitialized || !hasProjectId) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -61,17 +59,32 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
     const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
     
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div 
+            className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-gradient-radial from-primary/15 via-primary/5 to-transparent rounded-full blur-3xl"
+            animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.7, 0.5] }}
+            transition={{ duration: 5, repeat: Infinity }}
+          />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center max-w-md"
+          className="text-center max-w-md relative z-10"
         >
+          <motion.img
+            src={zenLogo}
+            alt="ZenSolar"
+            className="h-8 w-auto mx-auto mb-8 dark:drop-shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+          />
+
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 200 }}
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30"
+            className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-xl shadow-primary/30"
           >
             <CheckCircle2 className="w-10 h-10 text-primary-foreground" />
           </motion.div>
@@ -79,11 +92,11 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
           <h2 className="text-xl font-semibold text-foreground mb-2">
             Wallet Connected!
           </h2>
-          <p className="text-muted-foreground text-sm mb-4">
+          <p className="font-mono text-sm text-muted-foreground mb-4">
             {shortAddress}
           </p>
           <p className="text-xs text-muted-foreground">
-            Redirecting to dashboard...
+            Redirecting to next step...
           </p>
         </motion.div>
       </div>
@@ -92,13 +105,13 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
 
   // Waiting for connection
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
           className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-accent/10 rounded-full blur-3xl"
           animate={{ 
-            scale: [1, 1.2, 1],
+            scale: [1, 1.15, 1],
             opacity: [0.3, 0.5, 0.3],
           }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
@@ -122,9 +135,18 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
         </Button>
 
         <div className="pt-12">
+          {/* ZenSolar Logo */}
+          <motion.img
+            src={zenLogo}
+            alt="ZenSolar"
+            className="h-8 w-auto mx-auto mb-8 dark:drop-shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          />
+
           {/* Icon */}
           <motion.div
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-muted/50 border border-border flex items-center justify-center"
+            className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-muted/60 border border-border/60 flex items-center justify-center"
             animate={{ 
               boxShadow: [
                 '0 0 0 0 rgba(255,255,255,0.1)',
@@ -154,7 +176,7 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
           <Button
             size="lg"
             onClick={handleOpenModal}
-            className="w-full gap-2"
+            className="w-full gap-2 h-12"
           >
             <ExternalLink className="w-4 h-4" />
             Open Wallet Selector
@@ -167,7 +189,7 @@ export function ExternalWalletScreen({ onComplete, onBack }: ExternalWalletScree
 
 function WalletPreview({ emoji, name }: { emoji: string; name: string }) {
   return (
-    <div className="p-3 rounded-xl bg-muted/30 border border-border/50 text-center">
+    <div className="p-3 rounded-xl bg-card/80 backdrop-blur-sm border border-border/60 text-center">
       <span className="text-2xl mb-1 block">{emoji}</span>
       <span className="text-xs text-muted-foreground">{name}</span>
     </div>

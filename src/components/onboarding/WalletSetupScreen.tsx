@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Fingerprint, Sparkles, Shield, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCoinbaseSmartWallet } from '@/hooks/useCoinbaseSmartWallet';
-
-// Use the full ZenSolar logo (globe + text on dark blue) - same as PWA home screen icon
-const zenSolarLogoUrl = '/pwa-192x192.png';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface WalletSetupScreenProps {
   onComplete: (walletAddress: string) => void;
@@ -26,7 +24,6 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
     await createWallet();
   }, [reset, createWallet]);
 
-  // Map SDK step to UI display
   const getDisplayStep = (): 'ready' | 'creating' | 'passkey' | 'error' => {
     if (!hasStarted) return 'ready';
     switch (step) {
@@ -36,7 +33,6 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
       case 'authenticating':
         return 'passkey';
       case 'success':
-        // When success, useEffect handles completion - show creating briefly
         return 'creating';
       case 'error':
         return 'error';
@@ -45,8 +41,6 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
     }
   };
 
-  // When wallet is successfully created, immediately call onComplete
-  // This skips the internal success step and goes directly to OnboardingSuccessScreen (with confetti)
   useEffect(() => {
     if (step === 'success' && walletAddress) {
       onComplete(walletAddress);
@@ -56,8 +50,8 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
   const displayStep = getDisplayStep();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Back button - only show when not in the middle of connecting */}
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Back button */}
       {!isConnecting && (
         <motion.div
           initial={{ opacity: 0, x: -10 }}
@@ -76,15 +70,15 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
         </motion.div>
       )}
 
-      {/* Animated background */}
+      {/* Premium gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-gradient-radial from-primary/15 via-primary/5 to-transparent rounded-full blur-3xl"
           animate={{ 
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 0.7, 0.5],
           }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
@@ -98,15 +92,12 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
           {displayStep === 'ready' && (
             <ReadyStep key="ready" onStart={handleStart} />
           )}
-
           {displayStep === 'creating' && (
             <CreatingStep key="creating" />
           )}
-          
           {displayStep === 'passkey' && (
             <PasskeyStep key="passkey" />
           )}
-
           {displayStep === 'error' && (
             <ErrorStep 
               key="error"
@@ -129,18 +120,23 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
       exit={{ opacity: 0, scale: 0.95 }}
       className="text-center"
     >
-      {/* Logo - ZenSolar branded icon (same as PWA home screen) */}
+      {/* ZenSolar Logo */}
+      <motion.img
+        src={zenLogo}
+        alt="ZenSolar"
+        className="h-8 w-auto mx-auto mb-8 dark:drop-shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+      />
+
+      {/* Icon */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-28 h-28 mx-auto mb-8 rounded-2xl shadow-lg shadow-primary/20 overflow-hidden"
+        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border border-primary/20 shadow-xl shadow-primary/10 flex items-center justify-center"
       >
-        <img 
-          src={zenSolarLogoUrl} 
-          alt="ZenSolar" 
-          className="w-full h-full object-cover"
-        />
+        <Sparkles className="w-12 h-12 text-primary" />
       </motion.div>
 
       <motion.div
@@ -148,15 +144,15 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          Set Up Your ZenSolar Wallet
+        <h2 className="text-2xl font-bold text-foreground mb-3 tracking-tight">
+          Create Your ZenSolar Wallet
         </h2>
-        <p className="text-muted-foreground text-sm mb-8 max-w-xs mx-auto">
+        <p className="text-muted-foreground text-sm mb-8 max-w-xs mx-auto leading-relaxed">
           Secured with Face ID or Touch ID. No seed phrases, no apps to download.
         </p>
 
         {/* Features */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
           <FeatureBadge icon={Fingerprint} label="Passkey Secured" />
           <FeatureBadge icon={Shield} label="Self-Custody" />
           <FeatureBadge icon={Zap} label="Gasless" />
@@ -167,18 +163,18 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
           <Button
             size="lg"
             onClick={onStart}
-            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 gap-2"
+            className="w-full bg-gradient-to-r from-primary to-primary/85 hover:from-primary/95 hover:to-primary/80 shadow-lg shadow-primary/20 gap-2 h-14 text-base font-semibold"
           >
             <Sparkles className="w-5 h-5" />
             Create New Wallet
           </Button>
 
-          <div className="relative">
+          <div className="relative py-3">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
+              <div className="w-full border-t border-border/60" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-background px-3 text-muted-foreground">
                 or if you have an existing passkey
               </span>
             </div>
@@ -188,18 +184,18 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
             size="lg"
             variant="outline"
             onClick={onStart}
-            className="w-full gap-2"
+            className="w-full gap-2 h-12 border-border/60"
           >
             <Fingerprint className="w-5 h-5" />
             Connect Existing Wallet
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground/80">
           Both options use Coinbase Smart Wallet on Base.
           <br />
-          <span className="text-muted-foreground/70">
-            If you have an existing wallet, it will be detected automatically.
+          <span className="text-muted-foreground/60">
+            Existing wallets will be detected automatically.
           </span>
         </p>
       </motion.div>
@@ -209,7 +205,7 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
 
 function FeatureBadge({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 text-xs text-muted-foreground">
+    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border/50 text-xs text-muted-foreground">
       <Icon className="w-3.5 h-3.5" />
       <span>{label}</span>
     </div>
@@ -227,27 +223,23 @@ function CreatingStep() {
       {/* Animated wallet icon */}
       <div className="relative w-24 h-24 mx-auto mb-8">
         <motion.div
-          className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20"
+          className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border border-primary/20"
           animate={{ 
-            rotate: [0, 5, -5, 0],
-            scale: [1, 1.05, 1],
+            rotate: [0, 3, -3, 0],
+            scale: [1, 1.02, 1],
           }}
           transition={{ duration: 2, repeat: Infinity }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
           >
-            <div className="w-16 h-16 rounded-full border-2 border-primary/30 border-t-primary" />
+            <div className="w-14 h-14 rounded-full border-2 border-primary/30 border-t-primary" />
           </motion.div>
         </div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <img 
-            src={zenSolarLogoUrl} 
-            alt="" 
-            className="w-10 h-10 object-cover rounded-lg"
-          />
+          <Sparkles className="w-8 h-8 text-primary" />
         </div>
       </div>
 
@@ -265,13 +257,13 @@ function CreatingStep() {
             key={i}
             className="w-2 h-2 rounded-full bg-primary"
             animate={{ 
-              scale: [1, 1.5, 1],
+              scale: [1, 1.4, 1],
               opacity: [0.5, 1, 0.5],
             }}
             transition={{ 
-              duration: 1, 
+              duration: 0.8, 
               repeat: Infinity, 
-              delay: i * 0.2,
+              delay: i * 0.15,
             }}
           />
         ))}
@@ -290,11 +282,11 @@ function PasskeyStep() {
     >
       {/* Fingerprint animation */}
       <motion.div 
-        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center"
+        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center"
         animate={{ 
           boxShadow: [
-            '0 0 0 0 rgba(34, 197, 94, 0.4)',
-            '0 0 0 20px rgba(34, 197, 94, 0)',
+            '0 0 0 0 rgba(34, 197, 94, 0.3)',
+            '0 0 0 16px rgba(34, 197, 94, 0)',
           ],
         }}
         transition={{ duration: 1.5, repeat: Infinity }}
@@ -310,8 +302,8 @@ function PasskeyStep() {
       <h2 className="text-xl font-semibold text-foreground mb-2">
         Authenticate with Passkey
       </h2>
-      <p className="text-muted-foreground text-sm mb-4">
-        Use Face ID, Touch ID, or your device passkey to secure your wallet
+      <p className="text-muted-foreground text-sm mb-6">
+        Use Face ID, Touch ID, or your device passkey
       </p>
 
       {/* Passkey prompt indicator */}
@@ -361,7 +353,7 @@ function ErrorStep({
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-destructive/20 to-destructive/5 border border-destructive/20 flex items-center justify-center"
+        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 border border-destructive/20 flex items-center justify-center"
       >
         <AlertCircle className="w-12 h-12 text-destructive" />
       </motion.div>
@@ -379,7 +371,7 @@ function ErrorStep({
         <Button
           size="lg"
           onClick={onRetry}
-          className="w-full gap-2"
+          className="w-full gap-2 h-12"
         >
           <RefreshCw className="w-4 h-4" />
           Try Again
@@ -388,7 +380,7 @@ function ErrorStep({
           size="lg"
           variant="outline"
           onClick={onBack}
-          className="w-full gap-2"
+          className="w-full gap-2 h-12 border-border/60"
         >
           <ArrowLeft className="w-4 h-4" />
           Choose Different Option

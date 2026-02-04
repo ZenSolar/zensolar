@@ -13,10 +13,10 @@ export function OnboardingProgress({
   stepLabels = ['Wallet', 'Energy', 'Done']
 }: OnboardingProgressProps) {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border pt-safe">
-      <div className="max-w-md mx-auto px-4 py-3 pt-2">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50 pt-safe">
+      <div className="max-w-md mx-auto px-4 py-3">
         {/* Progress bar */}
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2">
           {Array.from({ length: totalSteps }).map((_, index) => {
             const stepNumber = index + 1;
             const isCompleted = currentStep > stepNumber;
@@ -28,15 +28,15 @@ export function OnboardingProgress({
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.08 }}
                   className={`
-                    w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold
-                    transition-colors duration-300
+                    w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold
+                    transition-all duration-300 flex-shrink-0
                     ${isCompleted 
-                      ? 'bg-primary text-primary-foreground' 
+                      ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20' 
                       : isCurrent 
-                        ? 'bg-primary text-primary-foreground ring-2 ring-primary/30 ring-offset-2 ring-offset-background' 
-                        : 'bg-muted text-muted-foreground'
+                        ? 'bg-primary text-primary-foreground ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-md shadow-primary/20' 
+                        : 'bg-muted text-muted-foreground border border-border'
                     }
                   `}
                 >
@@ -49,11 +49,11 @@ export function OnboardingProgress({
                 
                 {/* Connector line */}
                 {index < totalSteps - 1 && (
-                  <div className="flex-1 h-0.5 mx-2 bg-muted overflow-hidden">
+                  <div className="flex-1 h-0.5 mx-2 bg-muted/60 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: '0%' }}
                       animate={{ width: isCompleted ? '100%' : '0%' }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.4, ease: 'easeOut' }}
                       className="h-full bg-primary"
                     />
                   </div>
@@ -64,9 +64,11 @@ export function OnboardingProgress({
         </div>
         
         {/* Step label */}
-        <div className="text-center">
+        <div className="text-center mt-2">
           <p className="text-xs text-muted-foreground">
-            Step {currentStep} of {totalSteps}: <span className="font-medium text-foreground">{stepLabels[currentStep - 1]}</span>
+            Step {currentStep} of {totalSteps}
+            <span className="mx-1.5 text-border">•</span>
+            <span className="font-medium text-foreground">{stepLabels[currentStep - 1]}</span>
           </p>
         </div>
       </div>
