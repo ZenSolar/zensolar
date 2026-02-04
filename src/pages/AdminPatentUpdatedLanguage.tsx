@@ -6,12 +6,15 @@ import {
   Sparkles, 
   ArrowRight,
   CheckCircle2,
-  AlertTriangle,
   RefreshCw,
   Lightbulb,
   Scale,
   Tag
 } from 'lucide-react';
+import { PatentClaimsComparison } from '@/components/admin/patent/PatentClaimsComparison';
+import { SEGIArchitectureDiagram } from '@/components/admin/patent/SEGIArchitectureDiagram';
+import { NonProvisionalRecommendations } from '@/components/admin/patent/NonProvisionalRecommendations';
+import { PatentPageNavigation } from '@/components/admin/patent/PatentPageNavigation';
 
 // Terms that have evolved since the original provisional filing
 const updatedTerminology = [
@@ -138,6 +141,9 @@ const ipRecommendations = [
 export default function AdminPatentUpdatedLanguage() {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+      {/* Navigation */}
+      <PatentPageNavigation />
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -160,11 +166,38 @@ export default function AdminPatentUpdatedLanguage() {
         </p>
       </motion.div>
 
+      {/* SEGI Architecture Diagram (Downloadable) */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <SEGIArchitectureDiagram />
+      </motion.div>
+
+      {/* Claims Comparison Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <PatentClaimsComparison />
+      </motion.div>
+
+      {/* Non-Provisional Recommendations */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+      >
+        <NonProvisionalRecommendations />
+      </motion.div>
+
       {/* Trademark vs Patent Explanation */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.08 }}
+        transition={{ delay: 0.2 }}
       >
         <Card className="bg-gradient-to-br from-blue-500/5 to-violet-500/5 border-blue-500/30">
           <CardHeader>
@@ -183,7 +216,7 @@ export default function AdminPatentUpdatedLanguage() {
                   key={item.type}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.1 }}
+                  transition={{ delay: 0.25 + index * 0.1 }}
                   className="p-4 rounded-xl bg-background border border-border/60 space-y-3"
                 >
                   <div className="flex items-center gap-2">
@@ -217,7 +250,7 @@ export default function AdminPatentUpdatedLanguage() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
+        transition={{ delay: 0.3 }}
       >
         <Card>
           <CardHeader>
@@ -235,7 +268,7 @@ export default function AdminPatentUpdatedLanguage() {
                 key={item.updated}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 + index * 0.05 }}
+                transition={{ delay: 0.35 + index * 0.05 }}
                 className="p-4 rounded-lg bg-muted/30 border border-border/60"
               >
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -266,7 +299,7 @@ export default function AdminPatentUpdatedLanguage() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.4 }}
       >
         <Card>
           <CardHeader>
@@ -284,7 +317,7 @@ export default function AdminPatentUpdatedLanguage() {
                 key={item.term}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.35 + index * 0.05 }}
+                transition={{ delay: 0.45 + index * 0.05 }}
                 className="p-4 rounded-lg bg-muted/30 border border-border/60"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
@@ -314,7 +347,7 @@ export default function AdminPatentUpdatedLanguage() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.45 }}
+        transition={{ delay: 0.5 }}
       >
         <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-background">
           <CardHeader>
@@ -329,7 +362,7 @@ export default function AdminPatentUpdatedLanguage() {
                 key={rec.action}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + index * 0.08 }}
+                transition={{ delay: 0.55 + index * 0.08 }}
                 className="p-4 rounded-xl bg-background border border-border/60"
               >
                 <div className="flex items-start justify-between gap-2 mb-3">
@@ -379,6 +412,9 @@ export default function AdminPatentUpdatedLanguage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Bottom Navigation */}
+      <PatentPageNavigation />
     </div>
   );
 }

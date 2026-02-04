@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { PatentPageNavigation } from '@/components/admin/patent/PatentPageNavigation';
 
 const patentTimeline = [
   {
@@ -105,6 +106,9 @@ export default function AdminPatentApplication() {
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+      {/* Navigation */}
+      <PatentPageNavigation />
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -373,6 +377,9 @@ export default function AdminPatentApplication() {
           </div>
         </div>
       </motion.div>
+
+      {/* Bottom Navigation */}
+      <PatentPageNavigation />
     </div>
   );
 }
