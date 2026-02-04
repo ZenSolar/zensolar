@@ -195,13 +195,15 @@ function IPProtectionSection({ section, isAdmin, isSaving, onUpdate }: {
                     }
                   }}
                 >
-                  {key === "trademark" ? <strong>Mint-on-Proof™</strong> : null}
-                  {key === "trademark" ? " — " : ""}{q.answer.replace("Mint-on-Proof™ — ", "")}
+                  {key === "trademark" ? (
+                    <><strong>Mint-on-Proof™</strong> & <strong>Mint-on-Delta™</strong> — Applications pending</>
+                  ) : q.answer}
                 </span>
               ) : (
                 <span>
-                  {key === "trademark" ? <strong>Mint-on-Proof™</strong> : null}
-                  {key === "trademark" ? " — " : ""}{q.answer.replace("Mint-on-Proof™ — ", "")}
+                  {key === "trademark" ? (
+                    <><strong>Mint-on-Proof™</strong> & <strong>Mint-on-Delta™</strong> — Applications pending</>
+                  ) : q.answer}
                 </span>
               )}
             </div>
