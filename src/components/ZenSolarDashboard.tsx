@@ -233,6 +233,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onShowAllFields={showAllFields}
             isNewUserView={isNewUserView}
             teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
+            isLoading={dataLoading || isAutoSyncing}
           />
         </AnimatedItem>
 
