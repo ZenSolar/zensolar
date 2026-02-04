@@ -101,30 +101,82 @@ export function useDashboardData() {
       return;
     }
 
-    // Use maybeSingle() to gracefully handle missing profiles (race condition for new users)
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    // Fetch connection state from BOTH profile flags and tokens.
+    // Why: new-user profiles can be created after an energy connection completes, and profile updates can be a silent no-op
+    // if the row didn't exist yet. Tokens/devices are the source of truth for whether an account is connected.
+    const [{ data: profile, error }, { data: tokens, error: tokenError }] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('energy_tokens')
+        .select('provider')
+        .eq('user_id', user.id),
+    ]);
 
     if (error) {
       console.error('Error fetching profile connections:', error);
     }
 
-    const connections: ProfileConnections = profile
-      ? {
-          tesla_connected: profile.tesla_connected || false,
-          enphase_connected: profile.enphase_connected || false,
-          solaredge_connected: profile.solaredge_connected || false,
-          wallbox_connected: profile.wallbox_connected || false,
-        }
-      : {
-          tesla_connected: false,
-          enphase_connected: false,
-          solaredge_connected: false,
-          wallbox_connected: false,
+    if (tokenError) {
+      console.error('Error fetching token connections:', tokenError);
+    }
+
+    const tokenProviders = new Set((tokens || []).map((t: any) => String(t.provider)));
+    const fromTokens: ProfileConnections = {
+      tesla_connected: tokenProviders.has('tesla'),
+      enphase_connected: tokenProviders.has('enphase'),
+      solaredge_connected: tokenProviders.has('solaredge'),
+      wallbox_connected: tokenProviders.has('wallbox'),
+    };
+
+    const connections: ProfileConnections = {
+      tesla_connected: Boolean(profile?.tesla_connected) || fromTokens.tesla_connected,
+      enphase_connected: Boolean(profile?.enphase_connected) || fromTokens.enphase_connected,
+      solaredge_connected: Boolean(profile?.solaredge_connected) || fromTokens.solaredge_connected,
+      wallbox_connected: Boolean(profile?.wallbox_connected) || fromTokens.wallbox_connected,
+    };
+
+    // Best-effort: if tokens say connected but profile flags are stale, reconcile silently.
+    // This avoids future gating issues elsewhere (Profile UI, onboarding cards, etc.).
+    try {
+      const needsReconcile =
+        (fromTokens.tesla_connected && !profile?.tesla_connected) ||
+        (fromTokens.enphase_connected && !profile?.enphase_connected) ||
+        (fromTokens.solaredge_connected && !profile?.solaredge_connected) ||
+        (fromTokens.wallbox_connected && !profile?.wallbox_connected);
+
+      if (needsReconcile) {
+        const nowIso = new Date().toISOString();
+        const patch: Partial<ProfileConnections> & { updated_at: string } = {
+          updated_at: nowIso,
+          tesla_connected: connections.tesla_connected,
+          enphase_connected: connections.enphase_connected,
+          solaredge_connected: connections.solaredge_connected,
+          wallbox_connected: connections.wallbox_connected,
         };
+
+        const { data: updatedRows, error: updateErr } = await supabase
+          .from('profiles')
+          .update(patch)
+          .eq('user_id', user.id)
+          .select('user_id');
+
+        if (updateErr) {
+          console.warn('Failed to reconcile profile connection flags:', updateErr);
+        }
+
+        if (!updatedRows || updatedRows.length === 0) {
+          // Profile missing; create then update.
+          await supabase.from('profiles').insert({ user_id: user.id });
+          await supabase.from('profiles').update(patch).eq('user_id', user.id);
+        }
+      }
+    } catch (reconcileErr) {
+      console.warn('Connection reconcile error:', reconcileErr);
+    }
 
     setProfileConnections(connections);
     setConnectedAccounts([
