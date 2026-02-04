@@ -1,8 +1,11 @@
 <!doctype html>
-<html lang="en" style="background:#0a1628">
+<html lang="en">
   <head>
-    <!-- Immediate dark background for html/body only - prevents white flash without breaking component styles -->
-    <style>html,body{background:#0a1628}</style>
+    <!-- Immediate dark fallback background for html/body - prevents white flash.
+         Once CSS variables are available, we switch to the themed background. -->
+    <style>
+      html,body{background:#0a1628;background:hsl(var(--background))}
+    </style>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H0G72NVJHY"></script>
     <script>
@@ -60,23 +63,13 @@
         padding: 0;
         /* Solid background color that extends into safe areas */
         background: #0a1628;
+        background: hsl(var(--background));
       }
       #root {
         min-height: 100%;
         min-height: 100dvh;
         background: #0a1628;
-      }
-      /* Fill the safe area at bottom with background color - 0px fallback prevents fake bar */
-      body::after {
-        content: '';
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: env(safe-area-inset-bottom, 0px);
-        background: #0a1628;
-        z-index: 9998;
-        pointer-events: none;
+        background: hsl(var(--background));
       }
     </style>
   </head>
