@@ -58,13 +58,25 @@
         min-height: 100dvh;
         margin: 0;
         padding: 0;
-        background: linear-gradient(135deg, #0a1628 0%, #0f2847 50%, #0a1628 100%);
-        /* Extend background into iOS safe areas */
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        /* Solid background color that extends into safe areas */
+        background: #0a1628;
       }
       #root {
         min-height: 100%;
         min-height: 100dvh;
+        background: #0a1628;
+      }
+      /* Fill the safe area at bottom with background color */
+      body::after {
+        content: '';
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: env(safe-area-inset-bottom, 34px);
+        background: #0a1628;
+        z-index: 9998;
+        pointer-events: none;
       }
     </style>
   </head>

@@ -292,14 +292,14 @@ export default function Auth() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a1628]">
+      <div className="min-h-screen min-h-[100dvh] flex items-center justify-center" style={{ background: '#0a1628' }}>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row bg-[#0a1628] relative overflow-x-hidden overflow-y-auto pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row relative overflow-x-hidden overflow-y-auto pt-[env(safe-area-inset-top)] before:fixed before:inset-0 before:bg-[#0a1628] before:-z-10 before:pointer-events-none" style={{ background: '#0a1628' }}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Gradient orbs */}
