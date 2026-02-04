@@ -66,14 +66,14 @@
         min-height: 100dvh;
         background: #0a1628;
       }
-      /* Fill the safe area at bottom with background color */
+      /* Fill the safe area at bottom with background color - 0px fallback prevents fake bar */
       body::after {
         content: '';
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        height: env(safe-area-inset-bottom, 34px);
+        height: env(safe-area-inset-bottom, 0px);
         background: #0a1628;
         z-index: 9998;
         pointer-events: none;

@@ -292,14 +292,14 @@ export default function Auth() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen min-h-[100dvh] flex items-center justify-center" style={{ background: '#0a1628' }}>
+      <div className="h-screen h-[100dvh] flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row relative overflow-x-hidden overflow-y-auto pt-[env(safe-area-inset-top)] before:fixed before:inset-0 before:bg-[#0a1628] before:-z-10 before:pointer-events-none" style={{ background: '#0a1628' }}>
+    <div className="h-screen h-[100dvh] flex flex-col lg:flex-row relative overflow-hidden pt-safe bg-background">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Gradient orbs */}
@@ -375,44 +375,44 @@ export default function Auth() {
       </div>
 
       {/* Right side - Auth form */}
-      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center p-4 sm:p-8 relative z-10">
+      <div className="w-full lg:w-1/2 flex-1 flex items-center justify-center p-3 sm:p-6 relative z-10 overflow-y-auto pb-safe">
         <Card className="w-full max-w-md bg-white/[0.03] backdrop-blur-xl border-white/10 shadow-2xl">
-          <CardHeader className="text-center pb-6 pt-8">
+          <CardHeader className="text-center pb-3 pt-5">
             {/* Mobile logo */}
             <div className="flex justify-center lg:hidden">
               <img 
                 src={zenLogo} 
                 alt="ZenSolar" 
                 fetchPriority="high" 
-                className="h-10 w-auto object-contain animate-logo-glow" 
+                className="h-8 w-auto object-contain animate-logo-glow" 
               />
             </div>
             
-            {/* Mobile tagline - 3 lines */}
-            <div className="mt-6 mb-5 lg:hidden">
+            {/* Mobile tagline - compact */}
+            <div className="mt-3 mb-3 lg:hidden">
               <p 
-                className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold leading-relaxed"
+                className="text-[9px] uppercase tracking-[0.15em] text-primary font-semibold leading-snug"
                 style={{ 
                   textShadow: TAGLINE_TEXT_SHADOW,
                 }}
               >
                 <span className="block">The World's First</span>
-                <span className="block mt-1">One-Tap, Mint-on-Proof</span>
-                <span className="block mt-1">Web3 Clean Energy Platform</span>
+                <span className="block">One-Tap, Mint-on-Proof</span>
+                <span className="block">Web3 Clean Energy Platform</span>
               </p>
             </div>
             
             {/* Decorative divider */}
-            <div className="flex items-center justify-center gap-2 mb-5 lg:hidden">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary/40" />
-              <Zap className="h-3 w-3 text-primary/60" />
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary/40" />
+            <div className="flex items-center justify-center gap-2 mb-3 lg:hidden">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary/40" />
+              <Zap className="h-2.5 w-2.5 text-primary/60" />
+              <div className="h-px w-12 bg-gradient-to-l from-transparent to-primary/40" />
             </div>
             
-            <CardTitle className="text-2xl font-bold text-white">
+            <CardTitle className="text-xl font-bold text-foreground">
               {mode === 'forgot' ? 'Reset Password' : mode === 'reset' ? 'New Password' : 'Welcome'}
             </CardTitle>
-            <CardDescription className="text-slate-400 mt-2">
+            <CardDescription className="text-muted-foreground mt-1 text-sm">
               {mode === 'forgot' 
                 ? "Enter your email to receive a reset link"
                 : mode === 'reset'
@@ -525,8 +525,8 @@ export default function Auth() {
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="login" className="mt-6">
-                    <form onSubmit={handleLogin} className="space-y-4">
+                  <TabsContent value="login" className="mt-4">
+                    <form onSubmit={handleLogin} className="space-y-3">
                       <div className="space-y-2">
                         <Label htmlFor="login-email" className="text-slate-300">Email</Label>
                         <Input
@@ -591,12 +591,12 @@ export default function Auth() {
                       </Button>
                       
                       {/* Social Login Divider */}
-                      <div className="relative my-4">
+                      <div className="relative my-3">
                         <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-white/10" />
+                          <span className="w-full border-t border-border" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-white/[0.03] px-2 text-slate-500">or continue with</span>
+                          <span className="bg-card px-2 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
@@ -645,8 +645,8 @@ export default function Auth() {
                     </form>
                   </TabsContent>
                   
-                  <TabsContent value="signup" className="mt-6">
-                    <form onSubmit={handleSignup} className="space-y-4">
+                  <TabsContent value="signup" className="mt-4">
+                    <form onSubmit={handleSignup} className="space-y-3">
                       <div className="space-y-2">
                         <Label htmlFor="signup-name" className="text-slate-300">Display Name (optional)</Label>
                         <Input
@@ -724,12 +724,12 @@ export default function Auth() {
                       </Button>
                       
                       {/* Social Login Divider */}
-                      <div className="relative my-4">
+                      <div className="relative my-3">
                         <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-white/10" />
+                          <span className="w-full border-t border-border" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-white/[0.03] px-2 text-slate-500">or continue with</span>
+                          <span className="bg-card px-2 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
@@ -779,10 +779,10 @@ export default function Auth() {
                   </TabsContent>
                 </Tabs>
                 
-                <div className="mt-6 pt-4 border-t border-white/10">
+                <div className="mt-4 pt-3 border-t border-border">
                   <Button 
                     variant="outline" 
-                    className="w-full bg-transparent border-white/20 text-slate-300 hover:bg-white/5 hover:text-white hover:border-white/30" 
+                    className="w-full" 
                     onClick={() => navigate('/demo')}
                   >
                     Try Demo Mode
