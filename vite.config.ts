@@ -35,8 +35,8 @@ export default defineConfig(({ mode }) => ({
         short_name: "$ZSOLAR",
         description:
           "Earn blockchain rewards for sustainable energy actions. Track solar production, EV miles, and CO2 offsets.",
-        theme_color: "#1e88e5",
-        background_color: "#0f172a",
+        theme_color: "#0a1628",
+        background_color: "#0a1628",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
