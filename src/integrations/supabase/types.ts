@@ -577,6 +577,36 @@ export type Database = {
         }
         Relationships: []
       }
+      yc_application_content: {
+        Row: {
+          content: Json
+          created_at: string
+          display_order: number
+          id: string
+          section_key: string
+          section_title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          display_order?: number
+          id?: string
+          section_key: string
+          section_title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          display_order?: number
+          id?: string
+          section_key?: string
+          section_title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
