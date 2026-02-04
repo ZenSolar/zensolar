@@ -132,20 +132,6 @@
     /* Instead, content should handle its own safe area insets */
   }
 
-  /* iOS PWA safe area background fill - extends bg color into home indicator area */
-  /* Only apply when there's an actual safe-area-inset-bottom (0px fallback prevents false bar) */
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: env(safe-area-inset-bottom, 0px);
-    background: hsl(var(--background));
-    z-index: 9998;
-    pointer-events: none;
-  }
-
   /* Ensure the app root fills the viewport on mobile PWAs */
   #root {
     width: 100%;

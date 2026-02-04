@@ -18,7 +18,7 @@ const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 const TAGLINE_TEXT_SHADOW =
-  '0 0 4px rgba(255, 255, 255, 0.65), 0 0 10px rgba(255, 255, 255, 0.4), 0 0 18px rgba(255, 255, 255, 0.25), 0 0 24px rgba(16, 185, 129, 0.22)';
+  '0 0 4px hsl(0 0% 100% / 0.65), 0 0 10px hsl(0 0% 100% / 0.40), 0 0 18px hsl(0 0% 100% / 0.25), 0 0 24px hsl(var(--secondary) / 0.22)';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -99,6 +99,35 @@ export default function Auth() {
       setMode('signup');
     }
   }, [searchParams]);
+
+  // Auth should feel like a single-screen "native" surface on mobile.
+  // Lock document scrolling while this page is mounted.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const onTouchMove = (e: TouchEvent) => {
+      // Prevent iOS rubber-band scroll on the Auth screen.
+      // Allow normal interaction inside form controls.
+      const target = e.target;
+      if (target instanceof Element) {
+        const allow = target.closest(
+          'input, textarea, select, [contenteditable="true"], [data-allow-scroll="true"]',
+        );
+        if (allow) return;
+      }
+      e.preventDefault();
+    };
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => {
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.removeEventListener('touchmove', onTouchMove as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     // IMPORTANT: Don't auto-redirect during signup.
@@ -299,7 +328,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="h-screen h-[100dvh] flex flex-col lg:flex-row relative overflow-hidden pt-safe bg-background">
+    <main className="relative min-h-[100dvh] w-full overflow-hidden bg-background">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Gradient orbs */}
@@ -308,18 +337,20 @@ export default function Auth() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl" />
         
         {/* Grid pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
+        <div
+          className="absolute inset-0 opacity-[0.04]"
           style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
+            backgroundImage:
+              `linear-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground) / 0.06) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px',
           }}
         />
       </div>
 
-      {/* Left side - Branding (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative z-10">
-        <div className="max-w-md text-center">
+      <div className="relative z-10 flex min-h-[100dvh] w-full flex-col lg:flex-row pt-safe pb-safe px-safe">
+        {/* Left side - Branding (hidden on mobile) */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12">
+          <div className="max-w-md text-center">
           <div className="mb-8 relative">
             <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl scale-150" />
             <img 
@@ -346,37 +377,37 @@ export default function Auth() {
               Web3 Clean Energy Platform
             </h2>
           </div>
-          <p className="text-base text-slate-400 mb-12 leading-relaxed">
+          <p className="text-base text-muted-foreground mb-12 leading-relaxed">
             Track your solar production, earn $ZSOLAR tokens, and make a positive impact on the planet.
           </p>
           
           {/* Feature highlights */}
           <div className="grid grid-cols-3 gap-6">
             <div className="flex flex-col items-center group">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-500/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 border border-amber-400/20">
-                <Sun className="w-7 h-7 text-amber-400" />
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-solar/20 to-solar/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 border border-solar/20">
+                <Sun className="w-7 h-7 text-solar" />
               </div>
-              <span className="text-sm text-slate-400 font-medium">Solar Tracking</span>
+              <span className="text-sm text-muted-foreground font-medium">Solar Tracking</span>
             </div>
             <div className="flex flex-col items-center group">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 border border-primary/20">
-                <Zap className="w-7 h-7 text-primary" />
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-energy/20 to-energy/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 border border-energy/20">
+                <Zap className="w-7 h-7 text-energy" />
               </div>
-              <span className="text-sm text-slate-400 font-medium">Token Rewards</span>
+              <span className="text-sm text-muted-foreground font-medium">Token Rewards</span>
             </div>
             <div className="flex flex-col items-center group">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 border border-secondary/20">
-                <Leaf className="w-7 h-7 text-secondary" />
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-eco/20 to-eco/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 border border-eco/20">
+                <Leaf className="w-7 h-7 text-eco" />
               </div>
-              <span className="text-sm text-slate-400 font-medium">Eco Impact</span>
+              <span className="text-sm text-muted-foreground font-medium">Eco Impact</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right side - Auth form */}
-      <div className="w-full lg:w-1/2 flex-1 flex items-center justify-center p-3 sm:p-6 relative z-10 overflow-y-auto pb-safe">
-        <Card className="w-full max-w-md bg-white/[0.03] backdrop-blur-xl border-white/10 shadow-2xl">
+        {/* Right side - Auth form */}
+        <div className="flex w-full flex-1 items-center justify-center lg:w-1/2 px-3 sm:px-6">
+          <Card className="w-full max-w-md bg-card/40 backdrop-blur-xl border-border/50 shadow-2xl">
           <CardHeader className="text-center pb-3 pt-5">
             {/* Mobile logo */}
             <div className="flex justify-center lg:hidden">
@@ -423,9 +454,9 @@ export default function Auth() {
           <CardContent>
             {/* Forgot Password Form */}
             {mode === 'forgot' && (
-              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="forgot-email" className="text-slate-300">Email</Label>
+                    <Label htmlFor="forgot-email" className="text-muted-foreground">Email</Label>
                   <Input
                     id="forgot-email"
                     type="email"
@@ -433,12 +464,12 @@ export default function Auth() {
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     required
-                    className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+                      className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -447,7 +478,7 @@ export default function Auth() {
                 <Button 
                   type="button"
                   variant="ghost" 
-                  className="w-full text-slate-400 hover:text-white"
+                    className="w-full text-muted-foreground hover:text-foreground"
                   onClick={() => setMode('login')}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -460,7 +491,7 @@ export default function Auth() {
             {mode === 'reset' && (
               <form onSubmit={handleResetPassword} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="new-password" className="text-slate-300">New Password</Label>
+                  <Label htmlFor="new-password" className="text-muted-foreground">New Password</Label>
                   <div className="relative">
                     <Input
                       id="new-password"
@@ -469,13 +500,13 @@ export default function Auth() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
-                      className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary pr-12"
+                      className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
@@ -484,7 +515,7 @@ export default function Auth() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password" className="text-slate-300">Confirm Password</Label>
+                  <Label htmlFor="confirm-password" className="text-muted-foreground">Confirm Password</Label>
                   <Input
                     id="confirm-password"
                     type={showPassword ? 'text' : 'password'}
@@ -492,12 +523,12 @@ export default function Auth() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+                    className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -510,16 +541,16 @@ export default function Auth() {
             {(mode === 'login' || mode === 'signup') && (
               <>
                 <Tabs value={mode} onValueChange={(v) => setMode(v as AuthMode)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 bg-white/5 border border-white/10">
+                  <TabsList className="grid w-full grid-cols-2 bg-muted/30 border border-border/50">
                     <TabsTrigger 
                       value="login" 
-                      className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400"
+                      className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground"
                     >
                       Log In
                     </TabsTrigger>
                     <TabsTrigger 
                       value="signup"
-                      className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400"
+                      className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground"
                     >
                       Sign Up
                     </TabsTrigger>
@@ -528,7 +559,7 @@ export default function Auth() {
                   <TabsContent value="login" className="mt-4">
                     <form onSubmit={handleLogin} className="space-y-3">
                       <div className="space-y-2">
-                        <Label htmlFor="login-email" className="text-slate-300">Email</Label>
+                        <Label htmlFor="login-email" className="text-muted-foreground">Email</Label>
                         <Input
                           id="login-email"
                           type="email"
@@ -536,12 +567,12 @@ export default function Auth() {
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
                           required
-                          className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
                         />
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="login-password" className="text-slate-300">Password</Label>
+                          <Label htmlFor="login-password" className="text-muted-foreground">Password</Label>
                           <Button
                             type="button"
                             variant="link"
@@ -559,13 +590,13 @@ export default function Auth() {
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
                             required
-                            className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary pr-12"
+                            className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
                           />
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white hover:bg-transparent"
+                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground hover:bg-transparent"
                             onClick={() => setShowPassword(!showPassword)}
                             aria-label={showPassword ? 'Hide password' : 'Show password'}
                           >
@@ -583,7 +614,7 @@ export default function Auth() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -605,7 +636,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-white/5 border-white/20 text-white hover:bg-white/10"
+                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -632,7 +663,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-white/5 border-white/20 text-white hover:bg-white/10"
+                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
@@ -648,18 +679,18 @@ export default function Auth() {
                   <TabsContent value="signup" className="mt-4">
                     <form onSubmit={handleSignup} className="space-y-3">
                       <div className="space-y-2">
-                        <Label htmlFor="signup-name" className="text-slate-300">Display Name (optional)</Label>
+                        <Label htmlFor="signup-name" className="text-muted-foreground">Display Name (optional)</Label>
                         <Input
                           id="signup-name"
                           type="text"
                           placeholder="Your name"
                           value={signupDisplayName}
                           onChange={(e) => setSignupDisplayName(e.target.value)}
-                          className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="signup-email" className="text-slate-300">Email</Label>
+                        <Label htmlFor="signup-email" className="text-muted-foreground">Email</Label>
                         <Input
                           id="signup-email"
                           type="email"
@@ -667,11 +698,11 @@ export default function Auth() {
                           value={signupEmail}
                           onChange={(e) => setSignupEmail(e.target.value)}
                           required
-                          className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="signup-password" className="text-slate-300">Password</Label>
+                        <Label htmlFor="signup-password" className="text-muted-foreground">Password</Label>
                         <div className="relative">
                           <Input
                             id="signup-password"
@@ -680,13 +711,13 @@ export default function Auth() {
                             value={signupPassword}
                             onChange={(e) => setSignupPassword(e.target.value)}
                             required
-                            className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary pr-12"
+                            className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
                           />
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white hover:bg-transparent"
+                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground hover:bg-transparent"
                             onClick={() => setShowPassword(!showPassword)}
                             aria-label={showPassword ? 'Hide password' : 'Show password'}
                           >
@@ -695,7 +726,7 @@ export default function Auth() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="referral-code" className="text-slate-300">Referral Code (optional)</Label>
+                        <Label htmlFor="referral-code" className="text-muted-foreground">Referral Code (optional)</Label>
                         <Input
                           id="referral-code"
                           type="text"
@@ -703,7 +734,7 @@ export default function Auth() {
                           value={referralCode}
                           onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                           maxLength={8}
-                          className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary uppercase"
+                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground uppercase"
                         />
                       </div>
                       
@@ -716,7 +747,7 @@ export default function Auth() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -738,7 +769,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-white/5 border-white/20 text-white hover:bg-white/10"
+                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -765,7 +796,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-white/5 border-white/20 text-white hover:bg-white/10"
+                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
@@ -787,14 +818,14 @@ export default function Auth() {
                   >
                     Try Demo Mode
                   </Button>
-                  <p className="text-xs text-slate-500 text-center mt-2">
+                  <p className="text-xs text-muted-foreground text-center mt-2">
                     Explore the app without creating an account
                   </p>
                 </div>
                 
                 {/* Legal links footer */}
-                <div className="mt-6 pt-4 border-t border-white/10 text-center">
-                  <p className="text-xs text-slate-500">
+                <div className="mt-6 pt-4 border-t border-border/50 text-center">
+                  <p className="text-xs text-muted-foreground">
                     By signing up, you agree to our{' '}
                     <Link to="/terms" className="text-primary hover:text-primary/80 underline underline-offset-2">
                       Terms of Service
@@ -809,7 +840,8 @@ export default function Auth() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
