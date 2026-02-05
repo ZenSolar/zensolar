@@ -107,6 +107,7 @@ const adminMenuGroups = {
     { title: "Growth Projections", url: "/admin/growth-projections", icon: TrendingUp },
   ],
   technical: [
+    { title: "AI Agent Opportunities", url: "/admin/ai-agents", icon: Cpu, highlight: true },
     { title: "Beta Deployment", url: "/admin/beta-deployment", icon: Rocket, highlight: true },
     { title: "Wallet Providers", url: "/admin/wallet-providers", icon: Wallet, highlight: true },
     { title: "Embedded Wallet Demo", url: "/admin/embedded-wallet-demo", icon: Wallet, highlight: true },

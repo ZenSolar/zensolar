@@ -58,6 +58,7 @@ const AdminTokenomics10B = lazy(() => import("./pages/AdminTokenomics10B"));
 const AdminInvestorOnePager = lazy(() => import("./pages/AdminInvestorOnePager"));
 const AdminTokenomicsFramework = lazy(() => import("./pages/AdminTokenomicsFramework"));
 const AdminAIFeedbackLoop = lazy(() => import("./pages/AdminAIFeedbackLoop"));
+const AdminAIAgentOpportunities = lazy(() => import("./pages/AdminAIAgentOpportunities"));
 const AdminFlywheelTracker = lazy(() => import("./pages/AdminFlywheelTracker"));
 const AdminFinalTokenomics = lazy(() => import("./pages/AdminFinalTokenomics"));
 const AdminGlossary = lazy(() => import("./pages/AdminGlossary"));
@@ -503,6 +504,16 @@ const App = () => {
                           </AppLayout>
                         </ProtectedRoute>
                       } 
+                    />
+                    <Route 
+                      path="/admin/ai-agents" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminAIAgentOpportunities />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
                     />
                     <Route 
                       path="/admin/live-beta-economics" 
