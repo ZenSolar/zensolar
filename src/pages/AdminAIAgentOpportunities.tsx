@@ -9,7 +9,9 @@ import {
   TrendingUp, Shield, CheckCircle2, Sparkles,
   DollarSign, Zap, Award, Rocket, BarChart3,
   MessageSquare, Mic, HelpCircle, UserPlus, Gift,
-  Bot, Megaphone, FileText, AlertTriangle, Lightbulb
+  Bot, Megaphone, FileText, AlertTriangle, Lightbulb,
+  Activity, Sun, Battery, Car, Home, Gauge, PiggyBank,
+  Bell, Smartphone, LineChart
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ExportButtons } from "@/components/admin/ExportButtons";
@@ -214,6 +216,78 @@ const legalConsiderations = [
       "Coordinated buying to pump price",
     ]
   },
+];
+
+// Platform Differentiation Features - Monitoring App Strategy
+const platformFeatures = [
+  {
+    category: "Unified Dashboard",
+    icon: Activity,
+    color: "text-primary",
+    features: [
+      { name: "Single Pane of Glass", desc: "All devices (Tesla, Enphase, SolarEdge, Wallbox) in one view" },
+      { name: "Cross-Device Correlation", desc: "See how solar powers your EV, battery, and home" },
+      { name: "Real-Time Energy Flow", desc: "Sankey diagram showing Solar → Battery → EV → Home → Grid" },
+    ]
+  },
+  {
+    category: "Cross-Device Intelligence",
+    icon: Brain,
+    color: "text-purple-500",
+    features: [
+      { name: "Solar-Powered Miles", desc: "\"Your EV charged using 82% solar power today\"" },
+      { name: "Self-Consumption Rate", desc: "\"You used 67% of your solar production directly\"" },
+      { name: "Grid Independence Score", desc: "\"You were 89% grid-independent this week\"" },
+    ]
+  },
+  {
+    category: "Financial Command Center",
+    icon: PiggyBank,
+    color: "text-green-500",
+    features: [
+      { name: "Real-Time Savings", desc: "\"You've saved $4.23 today\" based on local utility rates" },
+      { name: "ROI Tracker", desc: "\"Your system has paid for itself: 34% complete\"" },
+      { name: "TOU Optimization", desc: "\"You shifted $127 of usage to off-peak this month\"" },
+    ]
+  },
+  {
+    category: "AI Forecasting",
+    icon: Sun,
+    color: "text-solar",
+    features: [
+      { name: "Production Forecast", desc: "\"Tomorrow: ☀️ Expect 38 kWh production\"" },
+      { name: "Optimal Charging Windows", desc: "\"Charge EV 10am-2pm for 100% solar\"" },
+      { name: "Battery Strategy", desc: "\"Hold battery for 6pm peak pricing\"" },
+    ]
+  },
+  {
+    category: "System Health & Alerts",
+    icon: Bell,
+    color: "text-red-500",
+    features: [
+      { name: "Production Anomaly Detection", desc: "\"Panels produced 23% less than expected — check for shading\"" },
+      { name: "Connection Monitoring", desc: "\"SolarEdge API disconnected 2 hours ago\"" },
+      { name: "Maintenance Reminders", desc: "Proactive system health alerts" },
+    ]
+  },
+  {
+    category: "Widgets & Glanceables",
+    icon: Smartphone,
+    color: "text-blue-500",
+    features: [
+      { name: "Home Screen Widgets", desc: "Real-time production, savings, EV status at a glance" },
+      { name: "Watch Complications", desc: "Apple Watch / Wear OS support" },
+      { name: "Notification Summaries", desc: "Daily/weekly energy digests" },
+    ]
+  },
+];
+
+// Native app comparison
+const nativeAppLimitations = [
+  { app: "Tesla", limitation: "Only shows Tesla devices. No third-party solar/chargers." },
+  { app: "Enphase", limitation: "Solar-only. No EV, no battery (unless Enphase battery)." },
+  { app: "SolarEdge", limitation: "Solar-only. Clunky UI, limited mobile experience." },
+  { app: "Wallbox", limitation: "Charger-only. No production data." },
 ];
 
 export default function AdminAIAgentOpportunities() {
@@ -524,6 +598,145 @@ export default function AdminAIAgentOpportunities() {
                     </tr>
                   </tbody>
                 </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Separator className="my-8" />
+
+          {/* Platform Differentiation Section */}
+          <Card className="border-primary/50 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gauge className="h-5 w-5 text-primary" />
+                Platform Differentiation: The Ultimate Energy Monitoring App
+              </CardTitle>
+              <CardDescription>
+                Compete with Tesla, Enphase, SolarEdge, and Wallbox apps by becoming the unified clean energy command center
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Why Native Apps Fall Short */}
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  Why Native Apps Fall Short
+                </h4>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {nativeAppLimitations.map((item) => (
+                    <div key={item.app} className="p-3 rounded-lg bg-background border">
+                      <span className="font-medium">{item.app}:</span>
+                      <span className="text-sm text-muted-foreground ml-2">{item.limitation}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground italic">
+                  <strong>The Core Problem:</strong> Users with mixed ecosystems need 3-4 apps to see their full energy picture.
+                </p>
+              </div>
+
+              <Separator />
+
+              {/* ZenSolar Differentiators */}
+              <div>
+                <h4 className="font-semibold mb-4 flex items-center gap-2">
+                  <Rocket className="h-4 w-4 text-primary" />
+                  ZenSolar's Monitoring Differentiators
+                </h4>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {platformFeatures.map((category) => (
+                    <motion.div
+                      key={category.category}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-lg border bg-card"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <category.icon className={`h-5 w-5 ${category.color}`} />
+                        <h5 className="font-semibold text-sm">{category.category}</h5>
+                      </div>
+                      <ul className="space-y-2">
+                        {category.features.map((feature) => (
+                          <li key={feature.name} className="text-xs">
+                            <span className="font-medium">{feature.name}</span>
+                            <p className="text-muted-foreground">{feature.desc}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* The Ultimate Positioning */}
+              <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-solar/10 border border-primary/20">
+                <div className="flex items-start gap-3">
+                  <Lightbulb className="h-5 w-5 text-solar mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold mb-1">The Ultimate Positioning</h4>
+                    <p className="text-lg font-medium text-foreground">
+                      "Why use 4 apps when ZenSolar shows you everything — and <span className="text-solar">pays you for it</span>?"
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Native apps are <strong>monitoring tools</strong>. ZenSolar is a <strong>reward system</strong> that happens to be the best monitoring app.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Implementation Priority */}
+              <div>
+                <h4 className="font-semibold mb-3">Monitoring Feature Priority</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-3">Phase</th>
+                        <th className="text-left py-2 px-3">Features</th>
+                        <th className="text-left py-2 px-3">Impact</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-medium">Phase 1</td>
+                        <td className="py-2 px-3">Financial Command Center (savings, ROI)</td>
+                        <td className="py-2 px-3">
+                          <Badge className="bg-green-500/10 text-green-600 dark:text-green-400">High — Immediate differentiation</Badge>
+                        </td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-medium">Phase 2</td>
+                        <td className="py-2 px-3">Cross-Device Intelligence (solar-powered miles)</td>
+                        <td className="py-2 px-3">
+                          <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400">High — Impossible for native apps</Badge>
+                        </td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-medium">Phase 3</td>
+                        <td className="py-2 px-3">Energy Flow Sankey Diagram</td>
+                        <td className="py-2 px-3">
+                          <Badge className="bg-purple-500/10 text-purple-600 dark:text-purple-400">Medium — Visual wow factor</Badge>
+                        </td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 px-3 font-medium">Phase 4</td>
+                        <td className="py-2 px-3">Widgets (iOS/Android home screen)</td>
+                        <td className="py-2 px-3">
+                          <Badge className="bg-solar/10 text-solar">High — Daily visibility</Badge>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-medium">Phase 5</td>
+                        <td className="py-2 px-3">AI Forecasting + Anomaly Detection</td>
+                        <td className="py-2 px-3">
+                          <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400">Medium — Retention driver</Badge>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </CardContent>
           </Card>
