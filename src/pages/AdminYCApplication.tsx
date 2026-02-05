@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, Clock, FileText, Rocket, Users, Lightbulb, PieChart, HelpCircle, Shield, Heart, Loader2 } from "lucide-react";
 import { useYCContent, type YCSection, type YCQuestion } from "@/hooks/useYCContent";
+import { useLocation } from "react-router-dom";
 
 // Helper to get section icon
 const getSectionIcon = (sectionKey: string) => {
@@ -250,10 +251,15 @@ export default function AdminYCApplication() {
     sections, 
     isLoading, 
     isSaving, 
-    isAdmin, 
+    isAdmin: isAdminUser, 
     updateQuestion, 
     updateQuestionStatus 
   } = useYCContent();
+
+  const location = useLocation();
+  
+  // Only allow editing on admin routes, not on public /yc-application
+  const isAdmin = isAdminUser && location.pathname.includes('/admin/');
 
   if (isLoading) {
     return <LoadingSkeleton />;
