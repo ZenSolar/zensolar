@@ -705,6 +705,167 @@ export default function AdminMarketDefenseMechanisms() {
         </div>
       </motion.div>
 
+      {/* Crypto Winter Resilience Section */}
+      <motion.div variants={fadeIn} initial="hidden" animate="visible">
+        <Card className="bg-gradient-to-br from-cyan-500/5 via-transparent to-primary/5 border-cyan-500/20">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-cyan-500/10">
+                <TrendingDown className="h-6 w-6 text-cyan-500" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">Crypto Winter Resilience</CardTitle>
+                <CardDescription>
+                  How $ZSOLAR's counter-cyclical design performs during market crashes
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Market Comparison Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-2 font-semibold">Scenario</th>
+                    <th className="text-center py-3 px-2 font-semibold text-orange-500">Bitcoin</th>
+                    <th className="text-center py-3 px-2 font-semibold text-blue-500">Ethereum</th>
+                    <th className="text-center py-3 px-2 font-semibold text-purple-500">Typical Alt</th>
+                    <th className="text-center py-3 px-2 font-semibold text-solar">$ZSOLAR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-border/50">
+                    <td className="py-3 px-2 text-muted-foreground">30% BTC crash</td>
+                    <td className="py-3 px-2 text-center text-destructive font-mono">-30%</td>
+                    <td className="py-3 px-2 text-center text-destructive font-mono">-35-45%</td>
+                    <td className="py-3 px-2 text-center text-destructive font-mono">-50-70%</td>
+                    <td className="py-3 px-2 text-center text-green-500 font-mono font-semibold">Floor Held ✓</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-3 px-2 text-muted-foreground">LP depth during crash</td>
+                    <td className="py-3 px-2 text-center text-destructive">Drained</td>
+                    <td className="py-3 px-2 text-center text-destructive">Drained</td>
+                    <td className="py-3 px-2 text-center text-destructive">Rugged</td>
+                    <td className="py-3 px-2 text-center text-green-500 font-semibold">+Growing</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-3 px-2 text-muted-foreground">Revenue during downturn</td>
+                    <td className="py-3 px-2 text-center text-yellow-500">Mining fees only</td>
+                    <td className="py-3 px-2 text-center text-yellow-500">Gas fees drop</td>
+                    <td className="py-3 px-2 text-center text-destructive">Zero</td>
+                    <td className="py-3 px-2 text-center text-green-500 font-semibold">Subs continue</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-3 px-2 text-muted-foreground">User activity</td>
+                    <td className="py-3 px-2 text-center text-destructive">Drops 60%+</td>
+                    <td className="py-3 px-2 text-center text-destructive">Drops 60%+</td>
+                    <td className="py-3 px-2 text-center text-destructive">Ghost town</td>
+                    <td className="py-3 px-2 text-center text-green-500 font-semibold">Unchanged*</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-2 text-muted-foreground">Supply during crash</td>
+                    <td className="py-3 px-2 text-center text-yellow-500">Fixed issuance</td>
+                    <td className="py-3 px-2 text-center text-yellow-500">Slight burn</td>
+                    <td className="py-3 px-2 text-center text-destructive">Unlock dumps</td>
+                    <td className="py-3 px-2 text-center text-green-500 font-semibold">Accelerated burn</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p className="text-[10px] text-muted-foreground mt-2">
+                *Solar panels produce regardless of crypto prices. EVs are driven regardless of Bitcoin.
+              </p>
+            </div>
+
+            <Separator />
+
+            {/* The Secret Weapon: Fiat-Backed LP */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-green-500" />
+                  The Secret Weapon: Fiat-Backed LP
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Most token liquidity pools are funded with crypto (ETH, USDC from crypto sources). 
+                  When markets crash, LPs get drained as holders panic sell.
+                </p>
+                <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                  <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                    $ZSOLAR's LP is fed by subscription revenue—real fiat money from credit cards and bank accounts.
+                  </p>
+                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    <li>• Users pay $9.99-$19.99/month regardless of BTC price</li>
+                    <li>• 50% of every payment goes directly to LP</li>
+                    <li>• This creates constant buy pressure during crashes</li>
+                    <li>• At 25K subs: ~$75K/month entering LP automatically</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Flame className="h-4 w-4 text-destructive" />
+                  Panic Selling Actually Helps
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Our 7% transfer tax means every panic sell strengthens the floor:
+                </p>
+                <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+                  <p className="text-sm font-medium text-destructive">
+                    When someone sells $10,000 of $ZSOLAR during a crash:
+                  </p>
+                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    <li>• <span className="text-destructive font-semibold">$300</span> worth burned permanently (3%)</li>
+                    <li>• <span className="text-green-500 font-semibold">$200</span> worth added to LP depth (2%)</li>
+                    <li>• <span className="text-primary font-semibold">$200</span> to treasury for buybacks (2%)</li>
+                    <li className="pt-2 font-medium text-foreground">
+                      = Seller gets $9,300, ecosystem gets stronger
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Historical Comparison - What Would Have Happened */}
+            <div>
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Activity className="h-4 w-4 text-primary" />
+                Simulated Performance: 2022 Crypto Winter
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                If $ZSOLAR had existed during the 2022 bear market (BTC: -77%, ETH: -82%):
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-2xl font-bold text-green-500">~$0.10</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Projected floor maintained via subscription injection
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-2xl font-bold text-solar">+40%</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Projected supply reduction from panic-sell burns
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-2xl font-bold text-primary">Stable</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    User activity (energy production) unaffected by crypto
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4 italic">
+                Note: This is a simulation based on our tokenomics model. Actual results depend on subscriber count and market conditions.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Investor Narrative */}
       <motion.div variants={fadeIn} initial="hidden" animate="visible">
         <Card className="border-2 border-dashed border-primary/30">
