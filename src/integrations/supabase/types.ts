@@ -66,6 +66,7 @@ export type Database = {
         Row: {
           consumption_wh: number | null
           created_at: string
+          data_type: string
           device_id: string
           id: string
           production_wh: number
@@ -76,6 +77,7 @@ export type Database = {
         Insert: {
           consumption_wh?: number | null
           created_at?: string
+          data_type?: string
           device_id: string
           id?: string
           production_wh?: number
@@ -86,6 +88,7 @@ export type Database = {
         Update: {
           consumption_wh?: number | null
           created_at?: string
+          data_type?: string
           device_id?: string
           id?: string
           production_wh?: number

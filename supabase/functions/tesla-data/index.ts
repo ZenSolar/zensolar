@@ -640,23 +640,54 @@ Deno.serve(async (req) => {
     
     console.log(`EV Charging: Supercharger (DC)=${superchargerKwh.toFixed(1)} kWh (pending: ${pendingSuperchargerKwh.toFixed(1)}), Wall Connector (AC)=${wallConnectorKwh.toFixed(1)} kWh (pending: ${pendingWallConnectorKwh.toFixed(1)}), Total=${totalEvChargingKwh.toFixed(1)} kWh`);
 
-    // Store production data for rewards calculation (using pending amounts)
-    if (pendingSolarProduction > 0 || pendingBatteryDischarge > 0) {
+    // Store production data for rewards calculation and Energy Log
+    {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
       
       for (const site of energySitesData) {
+        // Solar production (existing behavior - cumulative pending)
         if (site.pending_solar_wh > 0 || site.pending_battery_discharge_wh > 0) {
           await supabaseClient
             .from("energy_production")
             .upsert({
-              user_id: user.id,
+              user_id: targetUserId,
               device_id: site.site_id,
               provider: "tesla",
               production_wh: site.pending_solar_wh || 0,
+              data_type: "solar",
               recorded_at: recordedAt,
-            }, { onConflict: "device_id,provider,recorded_at" });
+            }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
+
+        // Battery discharge (cumulative lifetime - useEnergyLog computes day-over-day deltas)
+        if (site.lifetime_battery_discharge_wh > 0) {
+          await supabaseClient
+            .from("energy_production")
+            .upsert({
+              user_id: targetUserId,
+              device_id: site.site_id,
+              provider: "tesla",
+              production_wh: site.lifetime_battery_discharge_wh,
+              data_type: "battery_discharge",
+              recorded_at: recordedAt,
+            }, { onConflict: "device_id,provider,recorded_at,data_type" });
+        }
+      }
+
+      // EV charging (cumulative lifetime kWh → Wh for consistency)
+      if (totalEvChargingKwh > 0 && vehicleDevices.length > 0) {
+        const primaryVin = vehicleDevices[0].id;
+        await supabaseClient
+          .from("energy_production")
+          .upsert({
+            user_id: targetUserId,
+            device_id: primaryVin,
+            provider: "tesla",
+            production_wh: totalEvChargingKwh * 1000,
+            data_type: "ev_charging",
+            recorded_at: recordedAt,
+          }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
     }
 
