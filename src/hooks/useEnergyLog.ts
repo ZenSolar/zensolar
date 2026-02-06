@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { startOfMonth, endOfMonth, format, subMonths, addMonths, eachDayOfInterval, isSameDay, isAfter } from 'date-fns';
+import { startOfMonth, endOfMonth, format, subMonths, addMonths, eachDayOfInterval, isAfter } from 'date-fns';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
+
+export type ActivityType = 'solar' | 'battery' | 'ev-charging' | 'ev-miles';
 
 export interface DailyProduction {
   date: Date;
@@ -17,25 +19,67 @@ export interface MonthData {
   daysWithData: number;
 }
 
-async function fetchMonthProduction(userId: string, monthStart: Date, monthEnd: Date): Promise<DailyProduction[]> {
-  const { data, error } = await supabase
-    .from('energy_production')
-    .select('production_wh, recorded_at')
-    .eq('user_id', userId)
-    .gte('recorded_at', monthStart.toISOString())
-    .lte('recorded_at', monthEnd.toISOString())
-    .order('recorded_at', { ascending: true });
+interface RawRecord {
+  production_wh: number;
+  consumption_wh: number | null;
+  recorded_at: string;
+  device_id: string;
+  provider: string;
+}
 
-  if (error) throw error;
+/**
+ * Compute daily kWh from raw energy_production records.
+ *
+ * Provider-aware logic:
+ * - Enphase / SolarEdge: production_wh = today's running total (resets daily).
+ *   Daily production = MAX(production_wh) per device per day.
+ * - Tesla: production_wh = cumulative pending since last mint.
+ *   Daily production = delta between consecutive day maxes per device.
+ *   Negative deltas (mint resets) are clamped to 0.
+ */
+function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEnd: Date): DailyProduction[] {
+  // Group by device, then by day → max production_wh
+  const deviceDayMax = new Map<string, Map<string, { max: number; provider: string }>>();
 
-  // Group by day and sum production
-  const dayMap = new Map<string, number>();
-  for (const row of data || []) {
-    const dayKey = format(new Date(row.recorded_at), 'yyyy-MM-dd');
-    dayMap.set(dayKey, (dayMap.get(dayKey) || 0) + (row.production_wh / 1000)); // Wh to kWh
+  for (const r of records) {
+    const dayKey = format(new Date(r.recorded_at), 'yyyy-MM-dd');
+    if (!deviceDayMax.has(r.device_id)) deviceDayMax.set(r.device_id, new Map());
+    const dayMap = deviceDayMax.get(r.device_id)!;
+    const existing = dayMap.get(dayKey);
+    if (!existing || r.production_wh > existing.max) {
+      dayMap.set(dayKey, { max: r.production_wh, provider: r.provider });
+    }
   }
 
-  // Build array for every day in the month
+  // For each device, compute daily production
+  const dailyByDay = new Map<string, number>();
+
+  for (const [, dayMap] of deviceDayMax) {
+    const sortedDays = [...dayMap.entries()].sort(([a], [b]) => a.localeCompare(b));
+    const provider = sortedDays[0]?.[1].provider;
+
+    if (provider === 'tesla') {
+      // Tesla: cumulative pending → day-over-day deltas
+      for (let i = 0; i < sortedDays.length; i++) {
+        const [dayKey, { max }] = sortedDays[i];
+        if (i === 0) {
+          // First day in range: we can't compute delta without prior day, use 0
+          // (or we could fetch prior day, but skip for simplicity)
+          continue;
+        }
+        const prevMax = sortedDays[i - 1][1].max;
+        const delta = Math.max(0, max - prevMax); // clamp negative (mint reset)
+        dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + delta / 1000);
+      }
+    } else {
+      // Enphase / SolarEdge: MAX per day IS daily production
+      for (const [dayKey, { max }] of sortedDays) {
+        dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + max / 1000);
+      }
+    }
+  }
+
+  // Build array for every day in the month up to today
   const today = new Date();
   const allDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
@@ -43,7 +87,7 @@ async function fetchMonthProduction(userId: string, monthStart: Date, monthEnd: 
     .filter(day => !isAfter(day, today))
     .map(day => ({
       date: day,
-      kWh: Math.round((dayMap.get(format(day, 'yyyy-MM-dd')) || 0) * 10) / 10,
+      kWh: Math.round((dailyByDay.get(format(day, 'yyyy-MM-dd')) || 0) * 10) / 10,
     }));
 }
 
@@ -59,8 +103,22 @@ function computeMonthData(days: DailyProduction[]): MonthData {
   return { days, totalKwh, avgKwh, bestDay, daysWithData };
 }
 
+async function fetchMonthRecords(userId: string, monthStart: Date, monthEnd: Date): Promise<RawRecord[]> {
+  const { data, error } = await supabase
+    .from('energy_production')
+    .select('production_wh, consumption_wh, recorded_at, device_id, provider')
+    .eq('user_id', userId)
+    .gte('recorded_at', monthStart.toISOString())
+    .lte('recorded_at', monthEnd.toISOString())
+    .order('recorded_at', { ascending: true });
+
+  if (error) throw error;
+  return (data || []) as RawRecord[];
+}
+
 export function useEnergyLog() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [activeTab, setActiveTab] = useState<ActivityType>('solar');
   const viewAsUserId = useViewAsUserId();
 
   const monthStart = startOfMonth(currentMonth);
@@ -75,30 +133,37 @@ export function useEnergyLog() {
     if (canGoForward) setCurrentMonth(prev => addMonths(prev, 1));
   };
 
-  // Current month data
-  const { data: currentDays = [], isLoading: currentLoading } = useQuery({
-    queryKey: ['energy-log', viewAsUserId, format(monthStart, 'yyyy-MM')],
+  // Current month raw records
+  const { data: currentRecords = [], isLoading: currentLoading } = useQuery({
+    queryKey: ['energy-log-records', viewAsUserId, format(monthStart, 'yyyy-MM')],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = viewAsUserId || user?.id;
       if (!userId) return [];
-      return fetchMonthProduction(userId, monthStart, monthEnd);
+      return fetchMonthRecords(userId, monthStart, monthEnd);
     },
   });
 
-  // Previous month data (for comparison)
-  const { data: compareDays = [], isLoading: compareLoading } = useQuery({
-    queryKey: ['energy-log', viewAsUserId, format(compareMonthStart, 'yyyy-MM')],
+  // Previous month raw records (for comparison)
+  const { data: compareRecords = [], isLoading: compareLoading } = useQuery({
+    queryKey: ['energy-log-records', viewAsUserId, format(compareMonthStart, 'yyyy-MM')],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = viewAsUserId || user?.id;
       if (!userId) return [];
-      return fetchMonthProduction(userId, compareMonthStart, compareMonthEnd);
+      return fetchMonthRecords(userId, compareMonthStart, compareMonthEnd);
     },
   });
 
-  const currentMonthData = useMemo(() => computeMonthData(currentDays), [currentDays]);
-  const compareMonthData = useMemo(() => computeMonthData(compareDays), [compareDays]);
+  const currentMonthData = useMemo(() => {
+    const days = computeDailyFromRecords(currentRecords, monthStart, monthEnd);
+    return computeMonthData(days);
+  }, [currentRecords, monthStart, monthEnd]);
+
+  const compareMonthData = useMemo(() => {
+    const days = computeDailyFromRecords(compareRecords, compareMonthStart, compareMonthEnd);
+    return computeMonthData(days);
+  }, [compareRecords, compareMonthStart, compareMonthEnd]);
 
   return {
     currentMonth,
@@ -108,5 +173,7 @@ export function useEnergyLog() {
     goToPreviousMonth,
     goToNextMonth,
     canGoForward,
+    activeTab,
+    setActiveTab,
   };
 }

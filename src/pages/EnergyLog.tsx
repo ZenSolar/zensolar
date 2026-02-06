@@ -1,131 +1,14 @@
-import { useEnergyLog, DailyProduction, MonthData } from '@/hooks/useEnergyLog';
+import { useEnergyLog } from '@/hooks/useEnergyLog';
 import { format, isSameDay } from 'date-fns';
-import { ChevronLeft, ChevronRight, Sun, TrendingUp, Calendar, Loader2, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
-
-function MonthSummaryCard({ data, label }: { data: MonthData; label: string }) {
-  return (
-    <Card className="bg-card border-border/50">
-      <CardContent className="p-4 space-y-3">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{label}</p>
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <p className="text-2xl font-bold text-foreground">{data.totalKwh.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">Total kWh</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground">{data.avgKwh}</p>
-            <p className="text-xs text-muted-foreground">Daily Avg</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground">{data.bestDay ? data.bestDay.kWh : '—'}</p>
-            <p className="text-xs text-muted-foreground">Best Day</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function MonthComparison({ current, previous, currentLabel, previousLabel }: { 
-  current: MonthData; 
-  previous: MonthData; 
-  currentLabel: string;
-  previousLabel: string;
-}) {
-  const diff = current.totalKwh - previous.totalKwh;
-  const pctChange = previous.totalKwh > 0 ? Math.round((diff / previous.totalKwh) * 100) : 0;
-  const isUp = diff > 0;
-  const isFlat = diff === 0;
-
-  return (
-    <Card className="bg-card border-border/50">
-      <CardContent className="p-4 space-y-3">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-          Month-over-Month
-        </p>
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{previousLabel}</span>
-              <span className="text-lg font-bold text-foreground">{previous.totalKwh.toLocaleString()} kWh</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{currentLabel}</span>
-              <span className="text-lg font-bold text-foreground">{current.totalKwh.toLocaleString()} kWh</span>
-            </div>
-          </div>
-          <div className={cn(
-            "flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold",
-            isFlat ? "bg-muted text-muted-foreground" :
-            isUp ? "bg-emerald-500/15 text-emerald-500" : "bg-destructive/15 text-destructive"
-          )}>
-            {isFlat ? <Minus className="h-4 w-4" /> : isUp ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-            {isFlat ? '0%' : `${isUp ? '+' : ''}${pctChange}%`}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function DayRow({ day, maxKwh, isBestDay }: { day: DailyProduction; maxKwh: number; isBestDay: boolean }) {
-  const barWidth = maxKwh > 0 ? Math.max(2, (day.kWh / maxKwh) * 100) : 0;
-  const isToday = isSameDay(day.date, new Date());
-
-  return (
-    <div className={cn(
-      "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors",
-      isToday && "bg-primary/5 border border-primary/20",
-      isBestDay && !isToday && "bg-amber-500/5",
-    )}>
-      {/* Date */}
-      <div className="w-20 shrink-0">
-        <p className={cn(
-          "text-sm font-medium",
-          isToday ? "text-primary" : "text-foreground"
-        )}>
-          {format(day.date, 'EEE, MMM d')}
-        </p>
-        {isToday && <p className="text-[10px] text-primary font-semibold uppercase">Today</p>}
-      </div>
-
-      {/* Bar */}
-      <div className="flex-1 h-6 bg-muted/30 rounded-full overflow-hidden relative">
-        <div
-          className={cn(
-            "h-full rounded-full transition-all duration-500",
-            isBestDay 
-              ? "bg-gradient-to-r from-amber-500 to-yellow-400" 
-              : day.kWh > 0 
-                ? "bg-gradient-to-r from-primary to-primary/70"
-                : "bg-muted/50"
-          )}
-          style={{ width: `${day.kWh > 0 ? barWidth : 0}%` }}
-        />
-        {isBestDay && day.kWh > 0 && (
-          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-amber-500">
-            ⭐ BEST
-          </span>
-        )}
-      </div>
-
-      {/* Value */}
-      <div className="w-16 text-right shrink-0">
-        <span className={cn(
-          "text-sm font-bold tabular-nums",
-          day.kWh > 0 ? "text-foreground" : "text-muted-foreground/50"
-        )}>
-          {day.kWh > 0 ? day.kWh.toLocaleString() : '—'}
-        </span>
-        <span className="text-xs text-muted-foreground ml-0.5">kWh</span>
-      </div>
-    </div>
-  );
-}
+import { MonthSummaryCard } from '@/components/energy-log/MonthSummaryCard';
+import { MonthComparison } from '@/components/energy-log/MonthComparison';
+import { DayRow } from '@/components/energy-log/DayRow';
+import { ActivityTabs } from '@/components/energy-log/ActivityTabs';
+import { ComingSoon } from '@/components/energy-log/ComingSoon';
 
 export default function EnergyLog() {
   const {
@@ -136,6 +19,8 @@ export default function EnergyLog() {
     goToPreviousMonth,
     goToNextMonth,
     canGoForward,
+    activeTab,
+    setActiveTab,
   } = useEnergyLog();
 
   const maxKwh = Math.max(...currentMonthData.days.map(d => d.kWh), 1);
@@ -149,8 +34,13 @@ export default function EnergyLog() {
           <h1 className="text-xl font-bold text-foreground">Energy Log</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Daily solar production — your clean energy statement.
+          Daily production — your clean energy statement.
         </p>
+      </AnimatedItem>
+
+      {/* Activity Tabs */}
+      <AnimatedItem>
+        <ActivityTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </AnimatedItem>
 
       {/* Month Navigation */}
@@ -171,7 +61,12 @@ export default function EnergyLog() {
         </div>
       </AnimatedItem>
 
-      {isLoading ? (
+      {/* Tab Content */}
+      {activeTab !== 'solar' ? (
+        <AnimatedItem>
+          <ComingSoon activityType={activeTab} />
+        </AnimatedItem>
+      ) : isLoading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
