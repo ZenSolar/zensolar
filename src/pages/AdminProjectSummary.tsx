@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { 
-  FileText, Layers, Database, Zap, Route, Code, Key, 
-  Shield, Users, Coins, Globe, Cpu, Smartphone, BarChart3,
-  Rocket, Award, Wallet, Activity
+  Layers, Database, Zap, Route, Code, Key, 
+  Shield, Coins, Globe, Cpu, Copy, Check,
+  Rocket, Activity
 } from "lucide-react";
+import { toast } from "sonner";
 
 const SECTIONS = [
   {
@@ -182,71 +182,105 @@ The entire flow happens WITHIN the app. No MetaMask popups. No seed phrases. No 
   },
 ];
 
+function sectionToText(section: typeof SECTIONS[number]): string {
+  let text = `## ${section.title}\n\n`;
+  if (section.content) text += section.content + "\n\n";
+  if (section.items) {
+    section.items.forEach((item) => {
+      text += `- **${item.label}**: ${item.value}\n`;
+    });
+    text += "\n";
+  }
+  if (section.groups) {
+    section.groups.forEach((group) => {
+      text += `### ${group.label}\n`;
+      text += group.items.join(", ") + "\n\n";
+    });
+  }
+  return text;
+}
+
 export default function AdminProjectSummary() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyAll = useCallback(() => {
+    const fullText = `# ZenSolar — Project Summary\nLast updated: ${new Date().toLocaleDateString()}\n\n` +
+      SECTIONS.map(sectionToText).join("---\n\n");
+    navigator.clipboard.writeText(fullText).then(() => {
+      setCopied(true);
+      toast.success("Copied entire project summary to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, []);
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Project Summary</h1>
-          <p className="text-muted-foreground mt-1">Living technical document — ZenSolar architecture & status</p>
+    <div className="space-y-4 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Project Summary</h1>
+          <p className="text-sm text-muted-foreground mt-1">Living technical document — copy & paste into Grok</p>
         </div>
-        <Badge variant="outline" className="text-xs">
-          Last updated: {new Date().toLocaleDateString()}
-        </Badge>
+        <div className="flex items-center gap-2 shrink-0">
+          <Badge variant="outline" className="text-xs whitespace-nowrap">
+            {new Date().toLocaleDateString()}
+          </Badge>
+          <Button size="sm" variant="outline" onClick={handleCopyAll} className="gap-1.5">
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? "Copied!" : "Copy All"}
+          </Button>
+        </div>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-12rem)]">
-        <div className="space-y-4 pr-4">
-          {SECTIONS.map((section) => (
-            <Card key={section.id} className="border-border/50">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <section.icon className="h-5 w-5 text-primary" />
-                  {section.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {section.content && (
-                  <div className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-                    {section.content.split(/(\*\*[^*]+\*\*)/).map((part, i) => {
-                      if (part.startsWith("**") && part.endsWith("**")) {
-                        return <strong key={i} className="text-foreground">{part.slice(2, -2)}</strong>;
-                      }
-                      return <span key={i}>{part}</span>;
-                    })}
-                  </div>
-                )}
-                {section.items && (
-                  <div className="space-y-2">
-                    {section.items.map((item, i) => (
-                      <div key={i} className="flex gap-3 text-sm">
-                        <span className="font-mono text-primary shrink-0 min-w-[140px]">{item.label}</span>
-                        <span className="text-muted-foreground">{item.value}</span>
+      <div className="space-y-3">
+        {SECTIONS.map((section) => (
+          <Card key={section.id} className="border-border/50">
+            <CardHeader className="pb-2 px-4 sm:px-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <section.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+                {section.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 sm:px-6">
+              {section.content && (
+                <div className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed break-words">
+                  {section.content.split(/(\*\*[^*]+\*\*)/).map((part, i) => {
+                    if (part.startsWith("**") && part.endsWith("**")) {
+                      return <strong key={i} className="text-foreground">{part.slice(2, -2)}</strong>;
+                    }
+                    return <span key={i}>{part}</span>;
+                  })}
+                </div>
+              )}
+              {section.items && (
+                <div className="space-y-2">
+                  {section.items.map((item, i) => (
+                    <div key={i} className="flex flex-col sm:flex-row sm:gap-3 text-sm">
+                      <span className="font-mono text-primary shrink-0 sm:min-w-[140px]">{item.label}</span>
+                      <span className="text-muted-foreground break-words">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {section.groups && (
+                <div className="space-y-3">
+                  {section.groups.map((group, i) => (
+                    <div key={i}>
+                      <p className="text-sm font-medium text-foreground mb-1">{group.label}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.items.map((item, j) => (
+                          <Badge key={j} variant="secondary" className="text-xs font-mono">
+                            {item}
+                          </Badge>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-                {section.groups && (
-                  <div className="space-y-3">
-                    {section.groups.map((group, i) => (
-                      <div key={i}>
-                        <p className="text-sm font-medium text-foreground mb-1">{group.label}</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {group.items.map((item, j) => (
-                            <Badge key={j} variant="secondary" className="text-xs font-mono">
-                              {item}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </ScrollArea>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
