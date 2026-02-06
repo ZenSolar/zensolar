@@ -56,18 +56,18 @@ const providers: ProviderSection[] = [
       ],
       battery: [
         { label: 'Lifetime total (battery_energy_exported)', status: 'available', notes: 'From /energy_sites/{id}/calendar_history?kind=energy. Stored in connected_devices.lifetime_totals.battery_discharge_wh.' },
-        { label: 'Daily granular rows in energy_production', status: 'missing', notes: 'tesla-data does NOT write battery discharge to energy_production. Only lifetime totals are persisted on the device row. BLOCKER for Energy Log battery tab.' },
+        { label: 'Daily granular rows in energy_production', status: 'available', notes: 'tesla-data writes cumulative battery_energy_exported to energy_production with data_type=battery_discharge. useEnergyLog computes day-over-day deltas.' },
         { label: 'Pending since last mint', status: 'available', notes: 'Computed in tesla-data response as pending_battery_discharge_wh.' },
       ],
       evCharging: [
         { label: 'Supercharger kWh (DC charging)', status: 'available', notes: 'From /dx/charging/history (paginated). Sums chargeEnergyAdded or fee-based kWh. Stored in connected_devices.lifetime_totals.charging_kwh.' },
         { label: 'Wall Connector kWh (AC charging)', status: 'partial', notes: 'From /energy_sites/{id}/telemetry_history?kind=charge. Only available if user has a Tesla energy site with Wall Connector. Stored as wall_connector_wh in lifetime_totals.' },
-        { label: 'Daily granular rows in energy_production', status: 'missing', notes: 'Neither Supercharger nor Wall Connector charging data is written as daily rows to energy_production. consumption_wh column exists but is always 0. BLOCKER for Energy Log EV charging tab.' },
+        { label: 'Daily granular rows in energy_production', status: 'available', notes: 'tesla-data writes cumulative EV charging Wh to energy_production with data_type=ev_charging. useEnergyLog computes day-over-day deltas. Includes Supercharger + Wall Connector.' },
         { label: 'Per-session detail', status: 'available', notes: 'Charging history includes per-session data (location, kWh, fees). Not currently exposed to frontend.' },
       ],
       evMiles: [
         { label: 'Lifetime odometer', status: 'available', notes: 'From /vehicles/{vin}/vehicle_data (vehicle_state.odometer). Handles asleep vehicles with wake + fallback.' },
-        { label: 'Daily granular rows in energy_production', status: 'missing', notes: 'No daily miles data is written anywhere. Only lifetime snapshot on each sync. BLOCKER for Energy Log EV miles tab.' },
+        { label: 'Daily granular rows in energy_production', status: 'planned', notes: 'No daily miles data written yet. Only lifetime odometer snapshot on each sync. Requires storing daily odometer snapshots with data_type=ev_miles.' },
         { label: 'Pending since last mint', status: 'available', notes: 'odometer - baseline_odometer. Stored per vehicle.' },
       ],
     },
@@ -167,11 +167,17 @@ Currently only handles solar:
 - **Tesla**: Day-over-day delta of MAX(production_wh) per device = daily production (cumulative counter)
 - Provider priority: If Enphase/SolarEdge exists, Tesla solar data is skipped (avoids double-counting Powerwall solar)
 
-## Immediate Next Steps (Tesla-First)
-1. Modify tesla-data to write daily battery_energy_exported to energy_production (new approach TBD)
-2. Modify tesla-data to write daily EV charging kWh to energy_production
-3. Extend useEnergyLog to query and compute battery + EV charging tabs
-4. Consider schema migration: add battery_discharge_wh column or repurpose consumption_wh with clear semantics
+## Recent Changes
+- **data_type column** added to energy_production (solar, battery_discharge, ev_charging). Unique constraint updated.
+- **tesla-data** now writes battery_discharge + ev_charging rows on each sync.
+- **tesla-historical** backfill edge function: fetches calendar_history (solar+battery) + charging sessions, seeds energy_production on first Energy Log visit.
+- **useEnergyLog** filters by data_type per active tab, computing day-over-day deltas for Tesla cumulative data.
+- **enphase-data, solaredge-data, wallbox-data** updated for data_type column compatibility.
+
+## Remaining Next Steps
+1. Write daily EV miles (odometer snapshots) to energy_production with data_type=ev_miles
+2. Build SolarEdge/Enphase battery support when users request it
+3. Expose per-session EV charging detail to frontend
 `;
 
 export default function EnergyDataArchitecture() {
@@ -223,7 +229,7 @@ export default function EnergyDataArchitecture() {
 
       <AnimatedItem>
         <p className="text-sm text-muted-foreground">
-          Living document tracking data availability across providers for the Energy Log. Updated as APIs are integrated.
+          Living document tracking data availability across providers for the Energy Log. Auto-maintained by Lovable — updated with every data pipeline change.
         </p>
       </AnimatedItem>
 
