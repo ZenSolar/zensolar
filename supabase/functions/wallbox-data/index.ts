@@ -419,21 +419,92 @@ Deno.serve(async (req) => {
       console.log(`Created Wallbox device ${primaryChargerId} with ${totalEnergyKwh} kWh lifetime charging`);
     }
 
-    // Store energy production data for daily tracking
-    const { error: insertError } = await supabaseClient
-      .from("energy_production")
-      .upsert({
-        user_id: targetUserId,
-        provider: "wallbox",
-        device_id: primaryChargerId,
-        production_wh: 0,
-        consumption_wh: totalEnergyKwh * 1000,
-        data_type: "ev_charging",
-        recorded_at: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
-      }, { onConflict: "device_id,provider,recorded_at,data_type" });
+    // Store energy production data: write per-session daily granular rows
+    // Instead of one cumulative row, write daily aggregates from sessions
+    {
+      const primaryId = primaryChargerId;
+      const dailyChargingMap = new Map<string, number>(); // date → Wh
+      const sessionRecords: any[] = [];
 
-    if (insertError) {
-      console.error("Failed to store energy data:", insertError);
+      // Re-fetch sessions to get per-session data with dates
+      const now2 = Math.floor(Date.now() / 1000);
+      const tenYearsAgo2 = now2 - (10 * 365 * 24 * 60 * 60);
+      const sessUrl = `${WALLBOX_API_BASE}/v4/sessions/stats?charger=${primaryId}&start_date=${tenYearsAgo2}&end_date=${now2}&limit=10000`;
+      
+      const sessResp = await fetch(sessUrl, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/json",
+        },
+      });
+
+      if (sessResp.ok) {
+        const sessData = await sessResp.json();
+        const sessions = Array.isArray(sessData?.data) ? sessData.data : [];
+        
+        for (const session of sessions) {
+          const attrs = session?.attributes || {};
+          const sessionKwh = attrs.energy || 0;
+          if (sessionKwh <= 0) continue;
+
+          // Get session date from start time
+          const startTime = attrs.start || attrs.startedAt || attrs.start_time;
+          if (!startTime) continue;
+          const dateStr = String(startTime).split("T")[0];
+          if (!dateStr || dateStr.length !== 10) continue;
+
+          // Aggregate for daily row
+          dailyChargingMap.set(dateStr, (dailyChargingMap.get(dateStr) || 0) + sessionKwh * 1000);
+
+          // Per-session record for charging_sessions table
+          sessionRecords.push({
+            user_id: targetUserId,
+            provider: "wallbox",
+            device_id: primaryId,
+            session_date: dateStr,
+            energy_kwh: sessionKwh,
+            location: attrs.location || null,
+            fee_amount: attrs.cost || null,
+            fee_currency: attrs.cost ? "USD" : null,
+            session_metadata: {
+              duration_seconds: attrs.time || attrs.duration || null,
+              charger_id: primaryId,
+            },
+          });
+        }
+      }
+
+      // Write daily granular rows (same pattern as Tesla)
+      for (const [dateStr, totalWh] of dailyChargingMap) {
+        if (totalWh <= 0) continue;
+        const { error: dayError } = await supabaseClient
+          .from("energy_production")
+          .upsert({
+            user_id: targetUserId,
+            provider: "wallbox",
+            device_id: primaryId,
+            production_wh: totalWh,
+            data_type: "ev_charging",
+            recorded_at: dateStr + "T12:00:00Z",
+          }, { onConflict: "device_id,provider,recorded_at,data_type" });
+        if (dayError) console.error(`Wallbox daily upsert error for ${dateStr}:`, dayError);
+      }
+
+      console.log(`Wallbox: wrote ${dailyChargingMap.size} daily charging rows`);
+
+      // Write per-session details
+      if (sessionRecords.length > 0) {
+        const batchSize = 500;
+        for (let i = 0; i < sessionRecords.length; i += batchSize) {
+          const batch = sessionRecords.slice(i, i + batchSize);
+          const { error } = await supabaseClient
+            .from("charging_sessions")
+            .insert(batch)
+            .select();
+          if (error && error.code !== '23505') console.error(`Wallbox sessions insert error batch ${i}:`, error);
+        }
+        console.log(`Wallbox: wrote ${sessionRecords.length} charging session records`);
+      }
     }
 
     return new Response(JSON.stringify({

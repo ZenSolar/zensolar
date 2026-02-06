@@ -301,7 +301,8 @@ Deno.serve(async (req) => {
       console.log(`[Tesla Historical] Fetching charging history for ${vehicles.length} vehicle(s)...`);
 
       // Paginate through all charging sessions
-      const dailyChargingMap = new Map<string, number>(); // "YYYY-MM-DD" → total Wh
+      const dailyChargingMap = new Map<string, number>();
+      const sessionDetailRecords: any[] = [];
       let offset = 0;
       const pageSize = 50;
       let hasMore = true;
@@ -330,7 +331,6 @@ Deno.serve(async (req) => {
           const totalResults = chData.totalResults || 0;
 
           for (const session of Array.isArray(sessions) ? sessions : []) {
-            // Get kWh from session
             const directKwh =
               session.chargeEnergyAdded ||
               session.charge_energy_added ||
@@ -338,6 +338,8 @@ Deno.serve(async (req) => {
               session.energyAdded;
 
             let kwhFromFees = 0;
+            let totalFee = 0;
+            let feeCurrency = "USD";
             if (Array.isArray(session.fees)) {
               for (const fee of session.fees) {
                 const isChargingFee = String(fee.feeType || "").toUpperCase() === "CHARGING";
@@ -349,13 +351,14 @@ Deno.serve(async (req) => {
                   kwhFromFees += Number(fee.usageTier3 || 0);
                   kwhFromFees += Number(fee.usageTier4 || 0);
                 }
+                totalFee += Number(fee.totalDue || fee.amount || 0);
+                if (fee.currencyCode) feeCurrency = fee.currencyCode;
               }
             }
 
             const sessionKwh = Number(directKwh || kwhFromFees || 0);
             if (sessionKwh <= 0) continue;
 
-            // Get date from session
             const sessionDate =
               session.chargeStartDateTime ||
               session.charge_start_date_time ||
@@ -369,8 +372,23 @@ Deno.serve(async (req) => {
 
             dailyChargingMap.set(
               dateStr,
-              (dailyChargingMap.get(dateStr) || 0) + sessionKwh * 1000 // store as Wh
+              (dailyChargingMap.get(dateStr) || 0) + sessionKwh * 1000
             );
+
+            // Collect per-session detail
+            const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
+            sessionDetailRecords.push({
+              user_id: targetUserId,
+              provider: "tesla",
+              device_id: vehicles[0].device_id,
+              session_date: dateStr,
+              energy_kwh: sessionKwh,
+              location,
+              fee_amount: totalFee > 0 ? totalFee : null,
+              fee_currency: totalFee > 0 ? feeCurrency : null,
+              session_metadata: { vin: session.vin || null, charger_type: session.sessionType || null },
+            });
+
             totalSessions++;
           }
 
@@ -410,6 +428,19 @@ Deno.serve(async (req) => {
           .from("energy_production")
           .upsert(batch, { onConflict: "device_id,provider,recorded_at,data_type" });
         if (error) console.error(`Charging upsert error batch ${i}:`, error);
+      }
+
+      // Write per-session charging details
+      if (sessionDetailRecords.length > 0) {
+        console.log(`[Tesla Historical] Writing ${sessionDetailRecords.length} charging session records`);
+        for (let i = 0; i < sessionDetailRecords.length; i += batchSize) {
+          const batch = sessionDetailRecords.slice(i, i + batchSize);
+          const { error } = await supabaseClient
+            .from("charging_sessions")
+            .insert(batch)
+            .select();
+          if (error && error.code !== '23505') console.error(`Session insert error batch ${i}:`, error);
+        }
       }
 
       totalChargingSessionsImported = totalSessions;
