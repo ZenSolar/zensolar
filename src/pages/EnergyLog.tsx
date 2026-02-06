@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEnergyLog } from '@/hooks/useEnergyLog';
+import { useChargingSessions } from '@/hooks/useChargingSessions';
 import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2, ChevronDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import { ActivityTabs } from '@/components/energy-log/ActivityTabs';
 import { ComingSoon } from '@/components/energy-log/ComingSoon';
 import { TodayHero } from '@/components/energy-log/TodayHero';
 import { DailyList } from '@/components/energy-log/DailyList';
+import { ChargingSessionList } from '@/components/energy-log/ChargingSessionList';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -29,9 +31,11 @@ export default function EnergyLog() {
     setActiveTab,
   } = useEnergyLog();
 
+  const { data: chargingSessions = [] } = useChargingSessions(currentMonth);
   const queryClient = useQueryClient();
   const backfillTriggered = useRef(false);
   const [showMonthStats, setShowMonthStats] = useState(true);
+  const [showSessions, setShowSessions] = useState(false);
 
   // One-time historical backfill for existing Enphase users
   useEffect(() => {
@@ -158,7 +162,23 @@ export default function EnergyLog() {
             </Card>
           </AnimatedItem>
 
-          {/* Month Stats — expandable */}
+          {/* Charging Sessions Detail — only on EV Charging tab */}
+          {activeTab === 'ev-charging' && chargingSessions.length > 0 && (
+            <AnimatedItem>
+              <button
+                onClick={() => setShowSessions(prev => !prev)}
+                className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <span>{showSessions ? 'Hide' : 'View'} session details</span>
+                <ChevronDown className={cn(
+                  "h-3.5 w-3.5 transition-transform duration-200",
+                  showSessions && "rotate-180"
+                )} />
+              </button>
+              {showSessions && <ChargingSessionList sessions={chargingSessions} />}
+            </AnimatedItem>
+          )}
+
           <AnimatedItem>
             <button
               onClick={() => setShowMonthStats(prev => !prev)}

@@ -375,6 +375,7 @@ Deno.serve(async (req) => {
     let baselineSuperchargerKwh = 0;
     let baselineWallConnectorKwh = 0;
     let totalSessions = 0;
+    let chargingSessionDetails: any[] | null = null;
     
     if (vehicleDevices.length > 0) {
       try {
@@ -430,8 +431,42 @@ Deno.serve(async (req) => {
               }
             }
 
-            totalChargingKwh += Number(directKwh || kwhFromFees || 0);
+             const sessionKwh = Number(directKwh || kwhFromFees || 0);
+            totalChargingKwh += sessionKwh;
             totalSessions++;
+
+            // Collect per-session detail for charging_sessions table
+            if (sessionKwh > 0) {
+              const sessionDate = session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || session.sessionStartTime;
+              const dateStr = sessionDate ? String(sessionDate).split("T")[0] : null;
+              if (dateStr && dateStr.length === 10) {
+                const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
+                let totalFee = 0;
+                let feeCurrency = "USD";
+                if (Array.isArray(session.fees)) {
+                  for (const fee of session.fees) {
+                    totalFee += Number(fee.totalDue || fee.amount || 0);
+                    if (fee.currencyCode) feeCurrency = fee.currencyCode;
+                  }
+                }
+                // We'll batch-upsert these after the loop
+                if (!chargingSessionDetails) chargingSessionDetails = [];
+                chargingSessionDetails.push({
+                  user_id: targetUserId,
+                  provider: "tesla",
+                  device_id: vehicleDevices[0]?.id || "unknown",
+                  session_date: dateStr,
+                  energy_kwh: sessionKwh,
+                  location: location,
+                  fee_amount: totalFee > 0 ? totalFee : null,
+                  fee_currency: totalFee > 0 ? feeCurrency : null,
+                  session_metadata: {
+                    vin: session.vin || null,
+                    charger_type: session.sessionType || session.chargerType || null,
+                  },
+                });
+              }
+            }
           }
           
           // Check if we have more pages
@@ -455,6 +490,21 @@ Deno.serve(async (req) => {
         baselineWallConnectorKwh = vehicleBaseline.wall_connector_kwh || 0;
       } catch (error) {
         console.error("Error fetching charging history:", error);
+      }
+    }
+
+    // Write per-session charging details to charging_sessions
+    if (chargingSessionDetails && chargingSessionDetails.length > 0) {
+      console.log(`Writing ${chargingSessionDetails.length} charging sessions to charging_sessions table`);
+      const batchSize = 500;
+      for (let i = 0; i < chargingSessionDetails.length; i += batchSize) {
+        const batch = chargingSessionDetails.slice(i, i + batchSize);
+        const { error } = await supabaseClient
+          .from("charging_sessions")
+          .insert(batch)
+          .select();
+        // Ignore unique constraint violations (duplicates)
+        if (error && error.code !== '23505') console.error(`Charging sessions insert error batch ${i}:`, error);
       }
     }
 

@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      charging_sessions: {
+        Row: {
+          created_at: string
+          device_id: string
+          energy_kwh: number
+          fee_amount: number | null
+          fee_currency: string | null
+          id: string
+          location: string | null
+          provider: string
+          session_date: string
+          session_metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          energy_kwh?: number
+          fee_amount?: number | null
+          fee_currency?: string | null
+          id?: string
+          location?: string | null
+          provider: string
+          session_date: string
+          session_metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          energy_kwh?: number
+          fee_amount?: number | null
+          fee_currency?: string | null
+          id?: string
+          location?: string | null
+          provider?: string
+          session_date?: string
+          session_metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       connected_devices: {
         Row: {
           baseline_data: Json | null
