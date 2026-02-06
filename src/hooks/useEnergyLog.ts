@@ -38,10 +38,17 @@ interface RawRecord {
  *   Negative deltas (mint resets) are clamped to 0.
  */
 function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEnd: Date): DailyProduction[] {
+  // Solar priority: if a dedicated solar provider exists, skip Tesla solar data
+  const providers = new Set(records.map(r => r.provider));
+  const hasDedicatedSolar = providers.has('enphase') || providers.has('solaredge');
+  const filteredRecords = hasDedicatedSolar
+    ? records.filter(r => r.provider !== 'tesla')
+    : records;
+
   // Group by device, then by day → max production_wh
   const deviceDayMax = new Map<string, Map<string, { max: number; provider: string }>>();
 
-  for (const r of records) {
+  for (const r of filteredRecords) {
     const dayKey = format(new Date(r.recorded_at), 'yyyy-MM-dd');
     if (!deviceDayMax.has(r.device_id)) deviceDayMax.set(r.device_id, new Map());
     const dayMap = deviceDayMax.get(r.device_id)!;
