@@ -81,6 +81,7 @@ const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 const AdminViewAsUser = lazy(() => import("./pages/AdminViewAsUser"));
+const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -561,6 +562,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminBetaDeployment />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/live-energy-flow" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminLiveEnergyFlow />
                           </AppLayout>
                         </ProtectedRoute>
                       } 

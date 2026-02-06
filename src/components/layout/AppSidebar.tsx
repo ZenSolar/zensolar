@@ -30,7 +30,8 @@ import {
   Rocket,
   Wallet,
   ClipboardList,
-  Eye
+  Eye,
+  Activity
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -116,6 +117,7 @@ const adminMenuGroups = {
     { title: "EV API Reference", url: "/admin/ev-api-reference", icon: Car },
     { title: "Competitive Intel", url: "/admin/competitive-intel", icon: Shield },
     { title: "AI Feedback Loop", url: "/admin/ai-feedback-loop", icon: Cpu },
+    { title: "Live Energy Flow", url: "/admin/live-energy-flow", icon: Activity, highlight: true },
     { title: "Glossary", url: "/admin/glossary", icon: BookOpen },
   ],
   patent: [
