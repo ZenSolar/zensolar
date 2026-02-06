@@ -4,7 +4,7 @@ import type { MonthData } from '@/hooks/useEnergyLog';
 interface MonthSummaryCardProps {
   data: MonthData;
   label: string;
-  unit?: string;
+  unit?: string; // pass 'mi' for EV miles
 }
 
 export function MonthSummaryCard({ data, label, unit = 'kWh' }: MonthSummaryCardProps) {

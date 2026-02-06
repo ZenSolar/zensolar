@@ -67,7 +67,7 @@ const providers: ProviderSection[] = [
       ],
       evMiles: [
         { label: 'Lifetime odometer', status: 'available', notes: 'From /vehicles/{vin}/vehicle_data (vehicle_state.odometer). Handles asleep vehicles with wake + fallback.' },
-        { label: 'Daily granular rows in energy_production', status: 'planned', notes: 'No daily miles data written yet. Only lifetime odometer snapshot on each sync. Requires storing daily odometer snapshots with data_type=ev_miles.' },
+        { label: 'Daily granular rows in energy_production', status: 'available', notes: 'tesla-data writes cumulative odometer to energy_production with data_type=ev_miles on each sync. useEnergyLog computes day-over-day deltas for daily miles.' },
         { label: 'Pending since last mint', status: 'available', notes: 'odometer - baseline_odometer. Stored per vehicle.' },
       ],
     },
@@ -172,12 +172,12 @@ Currently only handles solar:
 - **tesla-data** now writes battery_discharge + ev_charging rows on each sync.
 - **tesla-historical** backfill edge function: fetches calendar_history (solar+battery) + charging sessions, seeds energy_production on first Energy Log visit.
 - **useEnergyLog** filters by data_type per active tab, computing day-over-day deltas for Tesla cumulative data.
+- **tesla-data** now writes ev_miles (odometer) rows on each sync. useEnergyLog computes daily miles via day-over-day deltas.
 - **enphase-data, solaredge-data, wallbox-data** updated for data_type column compatibility.
 
 ## Remaining Next Steps
-1. Write daily EV miles (odometer snapshots) to energy_production with data_type=ev_miles
-2. Build SolarEdge/Enphase battery support when users request it
-3. Expose per-session EV charging detail to frontend
+1. Build SolarEdge/Enphase battery support when users request it
+2. Expose per-session EV charging detail to frontend
 `;
 
 export default function EnergyDataArchitecture() {

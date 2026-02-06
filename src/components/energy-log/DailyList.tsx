@@ -1,12 +1,13 @@
 import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
-import type { DailyProduction } from '@/hooks/useEnergyLog';
+import type { ActivityType, DailyProduction } from '@/hooks/useEnergyLog';
 
 interface DailyListProps {
   days: DailyProduction[];
+  unit?: string;
 }
 
-export function DailyList({ days }: DailyListProps) {
+export function DailyList({ days, unit = 'kWh' }: DailyListProps) {
   const today = new Date();
 
   // Show days in reverse chronological order (most recent first), skip today (shown in hero)
@@ -37,7 +38,7 @@ export function DailyList({ days }: DailyListProps) {
             day.kWh > 0 ? "text-foreground" : "text-muted-foreground/40"
           )}>
             {day.kWh > 0 ? (
-              <>{day.kWh.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">kWh</span></>
+              <>{day.kWh.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{unit}</span></>
             ) : '—'}
           </span>
         </div>

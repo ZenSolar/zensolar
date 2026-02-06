@@ -689,6 +689,22 @@ Deno.serve(async (req) => {
             recorded_at: recordedAt,
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
+
+      // EV miles (odometer snapshot - cumulative, useEnergyLog computes day-over-day deltas)
+      for (const vehicle of vehiclesData) {
+        if (vehicle.odometer > 0) {
+          await supabaseClient
+            .from("energy_production")
+            .upsert({
+              user_id: targetUserId,
+              device_id: vehicle.vin,
+              provider: "tesla",
+              production_wh: vehicle.odometer, // storing miles in production_wh (cumulative)
+              data_type: "ev_miles",
+              recorded_at: recordedAt,
+            }, { onConflict: "device_id,provider,recorded_at,data_type" });
+        }
+      }
     }
 
     // Store lifetime totals in connected_devices for admin reporting
