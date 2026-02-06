@@ -71,7 +71,7 @@ export function MintOnProofInfographic({ showCTA = true, compact = false }: Mint
             How In-App Minting Works
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Three simple steps from clean energy to blockchain rewards
+            Four simple steps from clean energy to blockchain rewards
           </p>
         </motion.div>
       )}
