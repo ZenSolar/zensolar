@@ -200,6 +200,18 @@ export function DeviceSelectionDialog({
         toast.warning(`${results.already_claimed.length} device(s) already claimed by other users`);
       }
 
+      // Auto-import historical data for Enphase after device claiming
+      if (provider === 'enphase' && results.claimed.length > 0) {
+        // Fire and forget — don't block the UI
+        supabase.functions.invoke('enphase-historical', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }).then(res => {
+          if (res.data?.success) {
+            console.log(`[DeviceSelection] Imported ${res.data.total_days_imported} days of Enphase history`);
+          }
+        }).catch(err => console.error('[DeviceSelection] Historical import error:', err));
+      }
+
       onComplete();
       onOpenChange(false);
       
