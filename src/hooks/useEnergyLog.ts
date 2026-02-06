@@ -60,6 +60,9 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
     }
   }
 
+  // EV miles stores raw odometer (miles), not Wh — no /1000 conversion
+  const isEvMiles = activeTab === 'ev-miles';
+
   // Group by device, then by day → max production_wh
   const deviceDayMax = new Map<string, Map<string, { max: number; provider: string }>>();
 
@@ -80,8 +83,9 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
     const sortedDays = [...dayMap.entries()].sort(([a], [b]) => a.localeCompare(b));
     const provider = sortedDays[0]?.[1].provider;
 
-    // Cap daily production at 500 kWh to filter out anomalous cumulative counter jumps
+    // Cap daily values to filter out anomalous jumps
     const MAX_DAILY_WH = 500_000;
+    const MAX_DAILY_MILES = 1_000; // no one drives 1000 miles in a day
 
     // Tesla always uses cumulative → delta logic for all data types
     // Enphase/SolarEdge use daily running totals (max = daily value)
@@ -92,14 +96,25 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
         if (i === 0) continue;
         const prevMax = sortedDays[i - 1][1].max;
         const delta = Math.max(0, max - prevMax); // clamp negative (mint reset)
-        if (delta > MAX_DAILY_WH) continue; // skip anomalous jumps
-        dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + delta / 1000);
+        if (isEvMiles) {
+          if (delta > MAX_DAILY_MILES) continue;
+          // Miles stored directly — no conversion
+          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + Math.round(delta * 10) / 10);
+        } else {
+          if (delta > MAX_DAILY_WH) continue;
+          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + delta / 1000);
+        }
       }
     } else {
       // Enphase / SolarEdge: MAX per day IS daily production
       for (const [dayKey, { max }] of sortedDays) {
-        if (max > MAX_DAILY_WH) continue; // skip anomalous values
-        dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + max / 1000);
+        if (isEvMiles) {
+          if (max > MAX_DAILY_MILES) continue;
+          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + Math.round(max * 10) / 10);
+        } else {
+          if (max > MAX_DAILY_WH) continue;
+          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + max / 1000);
+        }
       }
     }
   }

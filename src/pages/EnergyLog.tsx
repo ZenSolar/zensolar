@@ -112,7 +112,7 @@ export default function EnergyLog() {
       </AnimatedItem>
 
       {/* Tab Content */}
-      {activeTab === 'ev-miles' ? (
+      {false ? (
         <AnimatedItem>
           <ComingSoon activityType={activeTab} />
         </AnimatedItem>
@@ -140,7 +140,7 @@ export default function EnergyLog() {
                 </span>
                 <span className="text-muted-foreground">·</span>
                 <span className="font-semibold text-foreground">
-                  {currentMonthData.totalKwh.toLocaleString()} kWh
+                  {currentMonthData.totalKwh.toLocaleString()} {activeTab === 'ev-miles' ? 'mi' : 'kWh'}
                 </span>
               </div>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToNextMonth} disabled={!canGoForward}>
@@ -153,7 +153,7 @@ export default function EnergyLog() {
           <AnimatedItem>
             <Card className="bg-card border-border/50">
               <CardContent className="px-3 py-1">
-                <DailyList days={currentMonthData.days} />
+                <DailyList days={currentMonthData.days} unit={activeTab === 'ev-miles' ? 'mi' : 'kWh'} />
               </CardContent>
             </Card>
           </AnimatedItem>
@@ -172,12 +172,13 @@ export default function EnergyLog() {
             </button>
             {showMonthStats && (
               <div className="space-y-3">
-                <MonthSummaryCard data={currentMonthData} label={format(currentMonth, 'MMMM yyyy')} />
+                <MonthSummaryCard data={currentMonthData} label={format(currentMonth, 'MMMM yyyy')} unit={activeTab === 'ev-miles' ? 'mi' : 'kWh'} />
                 <MonthComparison
                   current={currentMonthData}
                   previous={compareMonthData}
                   currentLabel={format(currentMonth, 'MMM')}
                   previousLabel={format(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1), 'MMM')}
+                  unit={activeTab === 'ev-miles' ? 'mi' : 'kWh'}
                 />
               </div>
             )}

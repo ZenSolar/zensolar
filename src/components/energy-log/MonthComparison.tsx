@@ -8,9 +8,10 @@ interface MonthComparisonProps {
   previous: MonthData;
   currentLabel: string;
   previousLabel: string;
+  unit?: string;
 }
 
-export function MonthComparison({ current, previous, currentLabel, previousLabel }: MonthComparisonProps) {
+export function MonthComparison({ current, previous, currentLabel, previousLabel, unit = 'kWh' }: MonthComparisonProps) {
   const diff = current.totalKwh - previous.totalKwh;
   const pctChange = previous.totalKwh > 0 ? Math.round((diff / previous.totalKwh) * 100) : 0;
   const isUp = diff > 0;
@@ -26,11 +27,11 @@ export function MonthComparison({ current, previous, currentLabel, previousLabel
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">{previousLabel}</span>
-              <span className="text-lg font-bold text-foreground">{previous.totalKwh.toLocaleString()} kWh</span>
+              <span className="text-lg font-bold text-foreground">{previous.totalKwh.toLocaleString()} {unit}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">{currentLabel}</span>
-              <span className="text-lg font-bold text-foreground">{current.totalKwh.toLocaleString()} kWh</span>
+              <span className="text-lg font-bold text-foreground">{current.totalKwh.toLocaleString()} {unit}</span>
             </div>
           </div>
           <div className={cn(
