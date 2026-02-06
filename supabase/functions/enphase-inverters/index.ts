@@ -135,27 +135,40 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch inverter summary for each system
+    // Fetch inverter summary and system details for each system
     const allInverters: any[] = [];
+    let systemSizeW = 0;
 
     for (const device of devices) {
       const systemId = String(device.device_id);
-      const url = `${ENPHASE_API_BASE}/systems/inverters_summary_by_envoy_or_site?key=${apiKey}&site_id=${systemId}`;
 
-      console.log(`Fetching inverter summary for system ${systemId}...`);
+      // Fetch system details and inverter summary in parallel
+      const [sysResp, invResp] = await Promise.all([
+        fetch(`${ENPHASE_API_BASE}/systems/${systemId}?key=${apiKey}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }),
+        fetch(`${ENPHASE_API_BASE}/systems/inverters_summary_by_envoy_or_site?key=${apiKey}&site_id=${systemId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }),
+      ]);
 
-      const resp = await fetch(url, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      // Parse system size
+      if (sysResp.ok) {
+        const sysData = await sysResp.json();
+        console.log(`System data keys: ${JSON.stringify(Object.keys(sysData))}, size: ${sysData.system_size}, size_w: ${sysData.size_w}`);
+        systemSizeW += sysData.system_size || sysData.size_w || 0;
+      } else {
+        await sysResp.text();
+      }
 
-      if (!resp.ok) {
-        const errText = await resp.text();
-        console.error(`Failed for system ${systemId}: ${resp.status} ${errText}`);
+      // Parse inverters
+      if (!invResp.ok) {
+        const errText = await invResp.text();
+        console.error(`Failed inverters for system ${systemId}: ${invResp.status} ${errText}`);
         continue;
       }
 
-      const data = await resp.json();
-      // Response is an array of envoys, each with micro_inverters array
+      const data = await invResp.json();
       const envoys = Array.isArray(data) ? data : [data];
       for (const envoy of envoys) {
         const inverters = envoy.micro_inverters || [];
@@ -186,6 +199,15 @@ Deno.serve(async (req) => {
     const worstInverter = allInverters.reduce((worst, inv) => 
       (worst === null || inv.energy_wh < worst.energy_wh) ? inv : worst, null as any);
 
+    // Find latest report date
+    const reportDates = allInverters
+      .map(inv => inv.last_report_date)
+      .filter(Boolean)
+      .map(d => new Date(d).getTime());
+    const lastReportDate = reportDates.length > 0
+      ? new Date(Math.max(...reportDates)).toISOString()
+      : null;
+
     return new Response(JSON.stringify({
       inverters: allInverters,
       summary: {
@@ -194,6 +216,8 @@ Deno.serve(async (req) => {
         avg_energy_wh: Math.round(avgEnergyWh),
         best_serial: bestInverter?.serial_number,
         worst_serial: worstInverter?.serial_number,
+        system_size_w: systemSizeW,
+        last_report_date: lastReportDate,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

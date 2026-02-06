@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Zap, AlertTriangle } from 'lucide-react';
+import { Loader2, Zap, AlertTriangle, Clock, Battery } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnphaseInverters, type InverterData } from '@/hooks/useEnphaseInverters';
 
@@ -10,15 +10,14 @@ interface PanelGridProps {
 
 function PanelCard({ inverter, intensity, isBest, isWorst }: {
   inverter: InverterData;
-  intensity: number; // 0-1
+  intensity: number;
   isBest: boolean;
   isWorst: boolean;
 }) {
   const kWh = (inverter.energy_wh / 1000).toFixed(0);
   const isReporting = inverter.status === 'normal';
 
-  // Heat-map: interpolate from cool blue to warm amber based on intensity
-  const hue = 207 + (45 - 207) * intensity; // primary (207) → solar/accent (45)
+  const hue = 207 + (45 - 207) * intensity;
   const sat = 70 + intensity * 23;
   const light = 54 - intensity * 10;
   const bgOpacity = 0.12 + intensity * 0.2;
@@ -36,18 +35,13 @@ function PanelCard({ inverter, intensity, isBest, isWorst }: {
         background: `linear-gradient(135deg, hsl(${hue} ${sat}% ${light}% / ${bgOpacity}), hsl(${hue} ${sat}% ${light + 15}% / ${bgOpacity * 0.5}))`,
       }}
     >
-      {/* kWh value - prominent */}
       <p className="text-sm font-bold tabular-nums text-foreground leading-tight">
         {kWh}
         <span className="text-[10px] font-medium text-muted-foreground ml-0.5">kWh</span>
       </p>
-
-      {/* Model */}
       <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
         {inverter.model}
       </p>
-
-      {/* Status indicator */}
       {!isReporting && (
         <AlertTriangle className="absolute top-1.5 right-1.5 h-3 w-3 text-destructive" />
       )}
@@ -56,6 +50,16 @@ function PanelCard({ inverter, intensity, isBest, isWorst }: {
       )}
     </div>
   );
+}
+
+function formatRelativeTime(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 export function PanelGrid({ enabled }: PanelGridProps) {
@@ -97,11 +101,14 @@ export function PanelGrid({ enabled }: PanelGridProps) {
   }
 
   if (error || !data?.inverters?.length) {
-    return null; // Silently hide if no inverter data available
+    return null;
   }
 
-  const totalKwh = (data.summary.total_energy_wh / 1000).toFixed(1);
-  const avgKwh = (data.summary.avg_energy_wh / 1000).toFixed(1);
+  const totalMwh = (data.summary.total_energy_wh / 1_000_000).toFixed(1);
+  const avgKwh = (data.summary.avg_energy_wh / 1000).toFixed(0);
+  const systemSizeKw = data.summary.system_size_w > 0
+    ? (data.summary.system_size_w / 1000).toFixed(1)
+    : null;
 
   return (
     <Card className="bg-card border-border/50 overflow-hidden">
@@ -111,21 +118,38 @@ export function PanelGrid({ enabled }: PanelGridProps) {
             <Zap className="h-4 w-4 text-primary" />
             Panel Performance
           </CardTitle>
-          <div className="text-xs text-muted-foreground">
-            {data.summary.total_panels} panels
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {systemSizeKw && (
+              <span className="flex items-center gap-1">
+                <Battery className="h-3 w-3" />
+                {systemSizeKw} kW
+              </span>
+            )}
+            <span>{data.summary.total_panels} panels</span>
           </div>
         </div>
+
         {/* Summary stats */}
-        <div className="flex gap-4 mt-2 text-xs">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs">
           <div>
-            <span className="text-muted-foreground">Total </span>
-            <span className="font-semibold text-foreground">{Number(totalKwh).toLocaleString()} kWh</span>
+            <span className="text-muted-foreground">Lifetime </span>
+            <span className="font-semibold text-foreground">{totalMwh} MWh</span>
           </div>
           <div>
-            <span className="text-muted-foreground">Avg </span>
-            <span className="font-semibold text-foreground">{avgKwh} kWh</span>
+            <span className="text-muted-foreground">Avg/panel </span>
+            <span className="font-semibold text-foreground">{Number(avgKwh).toLocaleString()} kWh</span>
           </div>
+          {data.summary.last_report_date && (
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3 text-muted-foreground" />
+              <span className="text-muted-foreground">Last report </span>
+              <span className="font-semibold text-foreground">
+                {formatRelativeTime(data.summary.last_report_date)}
+              </span>
+            </div>
+          )}
         </div>
+
         {/* Legend */}
         <div className="flex items-center gap-3 mt-2">
           <div className="flex items-center gap-1">

@@ -19,6 +19,8 @@ export interface InverterSummary {
   avg_energy_wh: number;
   best_serial: string | null;
   worst_serial: string | null;
+  system_size_w: number;
+  last_report_date: string | null;
 }
 
 interface InverterResponse {
