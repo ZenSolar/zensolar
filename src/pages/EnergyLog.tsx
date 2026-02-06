@@ -1,6 +1,7 @@
 import { useEnergyLog } from '@/hooks/useEnergyLog';
+import { useEnphaseBackfill } from '@/hooks/useEnphaseBackfill';
 import { format, isSameDay } from 'date-fns';
-import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2, Download } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
@@ -9,6 +10,7 @@ import { MonthComparison } from '@/components/energy-log/MonthComparison';
 import { DayRow } from '@/components/energy-log/DayRow';
 import { ActivityTabs } from '@/components/energy-log/ActivityTabs';
 import { ComingSoon } from '@/components/energy-log/ComingSoon';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function EnergyLog() {
   const {
@@ -23,15 +25,41 @@ export default function EnergyLog() {
     setActiveTab,
   } = useEnergyLog();
 
+  const { runBackfill, isBackfilling } = useEnphaseBackfill();
+  const queryClient = useQueryClient();
+
+  const handleBackfill = async () => {
+    const success = await runBackfill();
+    if (success) {
+      queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+    }
+  };
+
   const maxKwh = Math.max(...currentMonthData.days.map(d => d.kWh), 1);
 
   return (
     <AnimatedContainer className="w-full max-w-lg mx-auto px-3 sm:px-4 py-6 space-y-5">
       {/* Header */}
       <AnimatedItem className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Sun className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">Energy Log</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sun className="h-5 w-5 text-primary" />
+            <h1 className="text-xl font-bold text-foreground">Energy Log</h1>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleBackfill}
+            disabled={isBackfilling}
+            className="gap-1.5 text-xs"
+          >
+            {isBackfilling ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
+            )}
+            {isBackfilling ? 'Importing…' : 'Import History'}
+          </Button>
         </div>
         <p className="text-sm text-muted-foreground">
           Daily production — your clean energy statement.
