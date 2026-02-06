@@ -258,10 +258,25 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Deduplicate records by key before upserting
+      const dedup = (records: any[]) => {
+        const seen = new Map<string, any>();
+        for (const r of records) {
+          const key = `${r.device_id}|${r.provider}|${r.recorded_at}|${r.data_type}`;
+          const existing = seen.get(key);
+          if (!existing || r.production_wh > existing.production_wh) {
+            seen.set(key, r);
+          }
+        }
+        return [...seen.values()];
+      };
+
+      const BATCH_SIZE = 500;
+
       // Batch upsert solar records
-      const batchSize = 500;
-      for (let i = 0; i < solarRecords.length; i += batchSize) {
-        const batch = solarRecords.slice(i, i + batchSize);
+      const dedupedSolar = dedup(solarRecords);
+      for (let i = 0; i < dedupedSolar.length; i += BATCH_SIZE) {
+        const batch = dedupedSolar.slice(i, i + BATCH_SIZE);
         const { error } = await supabaseClient
           .from("energy_production")
           .upsert(batch, { onConflict: "device_id,provider,recorded_at,data_type" });
@@ -269,16 +284,17 @@ Deno.serve(async (req) => {
       }
 
       // Batch upsert battery records
-      for (let i = 0; i < batteryRecords.length; i += batchSize) {
-        const batch = batteryRecords.slice(i, i + batchSize);
+      const dedupedBattery = dedup(batteryRecords);
+      for (let i = 0; i < dedupedBattery.length; i += BATCH_SIZE) {
+        const batch = dedupedBattery.slice(i, i + BATCH_SIZE);
         const { error } = await supabaseClient
           .from("energy_production")
           .upsert(batch, { onConflict: "device_id,provider,recorded_at,data_type" });
         if (error) console.error(`Battery upsert error batch ${i}:`, error);
       }
 
-      totalSolarDaysImported += solarRecords.length;
-      totalBatteryDaysImported += batteryRecords.length;
+      totalSolarDaysImported += dedupedSolar.length;
+      totalBatteryDaysImported += dedupedBattery.length;
 
       results.push({
         type: "energy_site",
@@ -422,8 +438,9 @@ Deno.serve(async (req) => {
       }
 
       // Batch upsert
-      for (let i = 0; i < chargingRecords.length; i += batchSize) {
-        const batch = chargingRecords.slice(i, i + batchSize);
+      const EV_BATCH = 500;
+      for (let i = 0; i < chargingRecords.length; i += EV_BATCH) {
+        const batch = chargingRecords.slice(i, i + EV_BATCH);
         const { error } = await supabaseClient
           .from("energy_production")
           .upsert(batch, { onConflict: "device_id,provider,recorded_at,data_type" });
@@ -433,8 +450,8 @@ Deno.serve(async (req) => {
       // Write per-session charging details
       if (sessionDetailRecords.length > 0) {
         console.log(`[Tesla Historical] Writing ${sessionDetailRecords.length} charging session records`);
-        for (let i = 0; i < sessionDetailRecords.length; i += batchSize) {
-          const batch = sessionDetailRecords.slice(i, i + batchSize);
+        for (let i = 0; i < sessionDetailRecords.length; i += EV_BATCH) {
+          const batch = sessionDetailRecords.slice(i, i + EV_BATCH);
           const { error } = await supabaseClient
             .from("charging_sessions")
             .insert(batch)
