@@ -52,6 +52,43 @@ async function refreshEnphaseToken(
   }
 }
 
+async function getAuthenticatedUser(supabaseClient: any, req: Request) {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return null;
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data: { user }, error } = await supabaseClient.auth.getUser(token);
+  if (error || !user) return null;
+  return user;
+}
+
+async function getAccessToken(supabaseClient: any, userId: string) {
+  const { data: tokenData, error } = await supabaseClient
+    .from("energy_tokens")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("provider", "enphase")
+    .single();
+
+  if (error || !tokenData) return { accessToken: null, error: "Enphase not connected" };
+
+  let accessToken = tokenData.access_token;
+
+  if (tokenData.expires_at) {
+    const expiresAt = new Date(tokenData.expires_at);
+    if (expiresAt.getTime() - Date.now() < 5 * 60 * 1000) {
+      const newToken = await refreshEnphaseToken(supabaseClient, userId, tokenData.refresh_token);
+      if (newToken) {
+        accessToken = newToken;
+      } else {
+        return { accessToken: null, error: "Token expired", needsReauth: true };
+      }
+    }
+  }
+
+  return { accessToken, error: null };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -63,17 +100,8 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
-    if (authError || !user) {
+    const user = await getAuthenticatedUser(supabaseClient, req);
+    if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -88,37 +116,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get Enphase tokens
-    const { data: tokenData, error: tokenError } = await supabaseClient
-      .from("energy_tokens")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("provider", "enphase")
-      .single();
-
-    if (tokenError || !tokenData) {
-      return new Response(JSON.stringify({ error: "Enphase not connected" }), {
-        status: 400,
+    const { accessToken, error: tokenError, ...tokenExtra } = await getAccessToken(supabaseClient, user.id);
+    if (!accessToken) {
+      return new Response(JSON.stringify({ error: tokenError, ...tokenExtra }), {
+        status: tokenError === "Token expired" ? 401 : 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-    }
-
-    let accessToken = tokenData.access_token;
-
-    // Refresh if needed
-    if (tokenData.expires_at) {
-      const expiresAt = new Date(tokenData.expires_at);
-      if (expiresAt.getTime() - Date.now() < 5 * 60 * 1000) {
-        const newToken = await refreshEnphaseToken(supabaseClient, user.id, tokenData.refresh_token);
-        if (newToken) {
-          accessToken = newToken;
-        } else {
-          return new Response(JSON.stringify({ error: "Token expired", needsReauth: true }), {
-            status: 401,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      }
     }
 
     // Get connected Enphase devices (system IDs)
@@ -135,14 +138,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch inverter summary and system details for each system
+    // Fetch data for each system
+    const arrays: any[] = [];
     const allInverters: any[] = [];
     let systemSizeW = 0;
 
     for (const device of devices) {
       const systemId = String(device.device_id);
 
-      // Fetch system details and inverter summary in parallel
       const [sysResp, invResp] = await Promise.all([
         fetch(`${ENPHASE_API_BASE}/systems/${systemId}?key=${apiKey}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -155,13 +158,13 @@ Deno.serve(async (req) => {
       // Parse system size
       if (sysResp.ok) {
         const sysData = await sysResp.json();
-        console.log(`System data keys: ${JSON.stringify(Object.keys(sysData))}, size: ${sysData.system_size}, size_w: ${sysData.size_w}`);
-        systemSizeW += sysData.system_size || sysData.size_w || 0;
+        const size = sysData.system_size;
+        if (size && size > 0) systemSizeW += size;
       } else {
         await sysResp.text();
       }
 
-      // Parse inverters
+      // Parse inverters grouped by envoy (array)
       if (!invResp.ok) {
         const errText = await invResp.text();
         console.error(`Failed inverters for system ${systemId}: ${invResp.status} ${errText}`);
@@ -170,55 +173,74 @@ Deno.serve(async (req) => {
 
       const data = await invResp.json();
       const envoys = Array.isArray(data) ? data : [data];
+
       for (const envoy of envoys) {
+        const envoySerial = envoy.envoy_serial_number || envoy.serial_number || "unknown";
         const inverters = envoy.micro_inverters || [];
+        const arrayInverters: any[] = [];
+
         for (const inv of inverters) {
-          allInverters.push({
+          const inverterData = {
             serial_number: inv.serial_number || "unknown",
             model: inv.model || "Unknown",
             status: inv.status || "unknown",
             last_report_date: inv.last_report_date || null,
             last_report_watts: inv.power_produced?.value ?? 0,
             energy_wh: inv.energy?.value ?? 0,
-            energy_units: inv.energy?.units || "Wh",
-            system_id: systemId,
-            system_name: device.device_name || "Enphase System",
-          });
+          };
+          arrayInverters.push(inverterData);
+          allInverters.push(inverterData);
         }
+
+        // Sort inverters within array
+        arrayInverters.sort((a, b) => a.serial_number.localeCompare(b.serial_number));
+
+        // Compute array-level stats
+        const totalEnergy = arrayInverters.reduce((s, i) => s + i.energy_wh, 0);
+        const avgEnergy = arrayInverters.length > 0 ? totalEnergy / arrayInverters.length : 0;
+        const best = arrayInverters.reduce((b, i) => i.energy_wh > (b?.energy_wh || 0) ? i : b, null as any);
+        const worst = arrayInverters.reduce((w, i) => (w === null || i.energy_wh < w.energy_wh) ? i : w, null as any);
+
+        const reportDates = arrayInverters
+          .map(i => i.last_report_date)
+          .filter(Boolean)
+          .map(d => new Date(d).getTime());
+
+        arrays.push({
+          envoy_serial: envoySerial,
+          system_id: systemId,
+          system_name: device.device_name || "Enphase System",
+          panel_count: arrayInverters.length,
+          total_energy_wh: totalEnergy,
+          avg_energy_wh: Math.round(avgEnergy),
+          best_serial: best?.serial_number || null,
+          worst_serial: worst?.serial_number || null,
+          last_report_date: reportDates.length > 0
+            ? new Date(Math.max(...reportDates)).toISOString()
+            : null,
+          inverters: arrayInverters,
+        });
       }
     }
 
-    // Sort by serial number for consistent ordering
-    allInverters.sort((a, b) => a.serial_number.localeCompare(b.serial_number));
-
-    // Compute summary stats
-    const totalEnergyWh = allInverters.reduce((sum, inv) => sum + inv.energy_wh, 0);
-    const avgEnergyWh = allInverters.length > 0 ? totalEnergyWh / allInverters.length : 0;
-    const bestInverter = allInverters.reduce((best, inv) => 
-      inv.energy_wh > (best?.energy_wh || 0) ? inv : best, null as any);
-    const worstInverter = allInverters.reduce((worst, inv) => 
-      (worst === null || inv.energy_wh < worst.energy_wh) ? inv : worst, null as any);
-
-    // Find latest report date
+    // System-level summary
+    const totalEnergyWh = allInverters.reduce((s, i) => s + i.energy_wh, 0);
     const reportDates = allInverters
-      .map(inv => inv.last_report_date)
+      .map(i => i.last_report_date)
       .filter(Boolean)
       .map(d => new Date(d).getTime());
-    const lastReportDate = reportDates.length > 0
-      ? new Date(Math.max(...reportDates)).toISOString()
-      : null;
 
     return new Response(JSON.stringify({
-      inverters: allInverters,
-      summary: {
+      system: {
         total_panels: allInverters.length,
         total_energy_wh: totalEnergyWh,
-        avg_energy_wh: Math.round(avgEnergyWh),
-        best_serial: bestInverter?.serial_number,
-        worst_serial: worstInverter?.serial_number,
         system_size_w: systemSizeW,
-        last_report_date: lastReportDate,
+        array_count: arrays.length,
+        last_report_date: reportDates.length > 0
+          ? new Date(Math.max(...reportDates)).toISOString()
+          : null,
       },
+      arrays,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
