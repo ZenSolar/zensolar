@@ -82,6 +82,7 @@ const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 const AdminViewAsUser = lazy(() => import("./pages/AdminViewAsUser"));
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
+const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -218,6 +219,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminContracts />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/project-summary" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminProjectSummary />
                           </AppLayout>
                         </ProtectedRoute>
                       } 

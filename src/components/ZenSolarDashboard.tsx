@@ -17,7 +17,7 @@ import { WalletSetupModal } from './dashboard/WalletSetupModal';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
-import { EnergyFlowDiagram } from './dashboard/EnergyFlowDiagram';
+
 import { NFTQuickMintDialog, NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
@@ -237,25 +237,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             isLoading={dataLoading || isAutoSyncing}
           />
         </AnimatedItem>
-
-        {/* Energy Flow Visualization - Only show when energy accounts connected */}
-        {hasEnergyConnected && (
-          <AnimatedItem>
-            <EnergyFlowDiagram
-              data={{
-                solarProduction: activityData.solarEnergyProduced > 0 ? Math.min(activityData.solarEnergyProduced, 100) : 0,
-                batteryCharge: activityData.batteryStorageDischarged > 0 ? Math.min(activityData.batteryStorageDischarged * 0.4, 30) : 0,
-                batteryDischarge: activityData.batteryStorageDischarged > 0 ? Math.min(activityData.batteryStorageDischarged * 0.6, 20) : 0,
-                evCharging: activityData.evMilesDriven > 0 ? Math.min(activityData.evMilesDriven * 0.3, 40) : 0,
-                homeConsumption: activityData.solarEnergyProduced > 0 ? Math.min(activityData.solarEnergyProduced * 0.5, 50) : 0,
-                gridExport: activityData.solarEnergyProduced > 0 ? Math.min(activityData.solarEnergyProduced * 0.15, 15) : 0,
-                gridImport: 5,
-              }}
-              isLoading={dataLoading || isAutoSyncing}
-              onRefresh={refreshDashboard}
-            />
-          </AnimatedItem>
-        )}
 
         <AnimatedItem>
           <RewardActions 
