@@ -132,7 +132,7 @@ const App = () => {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="dark"
       enableSystem
       forcedTheme={isStandalone ? "dark" : undefined}
     >
