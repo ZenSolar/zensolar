@@ -77,7 +77,7 @@ export default function EnergyLog() {
           .limit(1);
 
         if (teslaTokens && teslaTokens.length > 0) {
-          const backfillKey = `tesla_backfill_done_${session.user.id}`;
+          const backfillKey = `tesla_backfill_v2_${session.user.id}`;
           if (!localStorage.getItem(backfillKey)) {
             console.log('[EnergyLog] Running one-time Tesla historical backfill...');
             const res = await supabase.functions.invoke('tesla-historical', {
