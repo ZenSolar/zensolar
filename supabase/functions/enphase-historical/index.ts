@@ -252,6 +252,7 @@ Deno.serve(async (req) => {
           device_id: systemId,
           provider: "enphase",
           production_wh: whValue,
+          data_type: "solar",
           recorded_at: dayDate.toISOString(),
         });
       }
@@ -261,7 +262,7 @@ Deno.serve(async (req) => {
         const batch = records.slice(i, i + batchSize);
         const { error: upsertError } = await supabaseClient
           .from("energy_production")
-          .upsert(batch, { onConflict: "device_id,provider,recorded_at" });
+          .upsert(batch, { onConflict: "device_id,provider,recorded_at,data_type" });
 
         if (upsertError) {
           console.error(`Upsert error for batch starting at ${i}:`, upsertError);

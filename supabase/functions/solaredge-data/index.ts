@@ -207,8 +207,9 @@ Deno.serve(async (req) => {
           device_id: siteId,
           provider: "solaredge",
           production_wh: todayEnergyWh,
+          data_type: "solar",
           recorded_at: recordedAt,
-        }, { onConflict: "device_id,provider,recorded_at" });
+        }, { onConflict: "device_id,provider,recorded_at,data_type" });
     }
 
     // Store lifetime totals in connected_devices

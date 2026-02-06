@@ -72,5 +72,8 @@ verify_jwt = false
 [functions.wallbox-debug]
 verify_jwt = false
 
+[functions.tesla-historical]
+verify_jwt = false
+
 [functions.admin-users]
 verify_jwt = false

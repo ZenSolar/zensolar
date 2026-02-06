@@ -361,8 +361,9 @@ Deno.serve(async (req) => {
             device_id: String(systemId),
             provider: "enphase",
             production_wh: energyTodayWh,
+            data_type: "solar",
             recorded_at: recordedAt,
-          }, { onConflict: "device_id,provider,recorded_at" });
+          }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
 
       // Persist lifetime totals so the dashboard can still show values when rate limited later.

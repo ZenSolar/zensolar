@@ -428,8 +428,9 @@ Deno.serve(async (req) => {
         device_id: primaryChargerId,
         production_wh: 0,
         consumption_wh: totalEnergyKwh * 1000,
+        data_type: "ev_charging",
         recorded_at: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
-      }, { onConflict: "device_id,provider,recorded_at" });
+      }, { onConflict: "device_id,provider,recorded_at,data_type" });
 
     if (insertError) {
       console.error("Failed to store energy data:", insertError);
