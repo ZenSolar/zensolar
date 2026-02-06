@@ -8,7 +8,7 @@ import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-sectio
 import { MonthSummaryCard } from '@/components/energy-log/MonthSummaryCard';
 import { MonthComparison } from '@/components/energy-log/MonthComparison';
 import { DayRow } from '@/components/energy-log/DayRow';
-import { PanelGrid } from '@/components/energy-log/PanelGrid';
+import { SystemPerformanceCard } from '@/components/energy-log/SystemPerformanceCard';
 import { ActivityTabs } from '@/components/energy-log/ActivityTabs';
 import { ComingSoon } from '@/components/energy-log/ComingSoon';
 import { supabase } from '@/integrations/supabase/client';
@@ -133,9 +133,9 @@ export default function EnergyLog() {
            />
           </AnimatedItem>
 
-          {/* Panel Performance Grid */}
+          {/* System Performance */}
           <AnimatedItem>
-            <PanelGrid enabled={activeTab === 'solar'} />
+            <SystemPerformanceCard enabled={activeTab === 'solar'} />
           </AnimatedItem>
 
           {/* Daily List */}

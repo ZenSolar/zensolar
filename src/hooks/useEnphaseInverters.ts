@@ -8,24 +8,32 @@ export interface InverterData {
   last_report_date: string | null;
   last_report_watts: number;
   energy_wh: number;
-  energy_units: string;
-  system_id: string;
-  system_name: string;
 }
 
-export interface InverterSummary {
-  total_panels: number;
+export interface ArrayData {
+  envoy_serial: string;
+  system_id: string;
+  system_name: string;
+  panel_count: number;
   total_energy_wh: number;
   avg_energy_wh: number;
   best_serial: string | null;
   worst_serial: string | null;
+  last_report_date: string | null;
+  inverters: InverterData[];
+}
+
+export interface SystemSummary {
+  total_panels: number;
+  total_energy_wh: number;
   system_size_w: number;
+  array_count: number;
   last_report_date: string | null;
 }
 
 interface InverterResponse {
-  inverters: InverterData[];
-  summary: InverterSummary;
+  system: SystemSummary;
+  arrays: ArrayData[];
 }
 
 export function useEnphaseInverters(enabled: boolean) {
@@ -43,7 +51,7 @@ export function useEnphaseInverters(enabled: boolean) {
       return data as InverterResponse;
     },
     enabled,
-    staleTime: 5 * 60 * 1000, // 5 min cache
+    staleTime: 5 * 60 * 1000,
     retry: 1,
   });
 }
