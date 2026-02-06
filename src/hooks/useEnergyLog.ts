@@ -58,22 +58,23 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
     const sortedDays = [...dayMap.entries()].sort(([a], [b]) => a.localeCompare(b));
     const provider = sortedDays[0]?.[1].provider;
 
+    // Cap daily production at 500 kWh to filter out anomalous cumulative counter jumps
+    const MAX_DAILY_WH = 500_000;
+
     if (provider === 'tesla') {
       // Tesla: cumulative pending → day-over-day deltas
       for (let i = 0; i < sortedDays.length; i++) {
         const [dayKey, { max }] = sortedDays[i];
-        if (i === 0) {
-          // First day in range: we can't compute delta without prior day, use 0
-          // (or we could fetch prior day, but skip for simplicity)
-          continue;
-        }
+        if (i === 0) continue;
         const prevMax = sortedDays[i - 1][1].max;
         const delta = Math.max(0, max - prevMax); // clamp negative (mint reset)
+        if (delta > MAX_DAILY_WH) continue; // skip anomalous jumps
         dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + delta / 1000);
       }
     } else {
       // Enphase / SolarEdge: MAX per day IS daily production
       for (const [dayKey, { max }] of sortedDays) {
+        if (max > MAX_DAILY_WH) continue; // skip anomalous values
         dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + max / 1000);
       }
     }
