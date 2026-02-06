@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useEnergyLog } from '@/hooks/useEnergyLog';
 import { format, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2 } from 'lucide-react';
@@ -9,6 +10,8 @@ import { MonthComparison } from '@/components/energy-log/MonthComparison';
 import { DayRow } from '@/components/energy-log/DayRow';
 import { ActivityTabs } from '@/components/energy-log/ActivityTabs';
 import { ComingSoon } from '@/components/energy-log/ComingSoon';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function EnergyLog() {
   const {
@@ -22,6 +25,48 @@ export default function EnergyLog() {
     activeTab,
     setActiveTab,
   } = useEnergyLog();
+
+  const queryClient = useQueryClient();
+  const backfillTriggered = useRef(false);
+
+  // One-time historical backfill for existing Enphase users
+  useEffect(() => {
+    if (backfillTriggered.current) return;
+    backfillTriggered.current = true;
+
+    const triggerBackfill = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { data: tokens } = await supabase
+          .from('energy_tokens')
+          .select('provider')
+          .eq('provider', 'enphase')
+          .limit(1);
+
+        if (!tokens || tokens.length === 0) return;
+
+        const backfillKey = `enphase_backfill_done_${session.user.id}`;
+        if (localStorage.getItem(backfillKey)) return;
+
+        console.log('[EnergyLog] Running one-time Enphase historical backfill...');
+        const res = await supabase.functions.invoke('enphase-historical', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+
+        if (res.data?.success) {
+          console.log(`[EnergyLog] Backfill complete: ${res.data.total_days_imported} days imported`);
+          localStorage.setItem(backfillKey, 'true');
+          queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+        }
+      } catch (err) {
+        console.error('[EnergyLog] Backfill error:', err);
+      }
+    };
+
+    triggerBackfill();
+  }, [queryClient]);
 
   const maxKwh = Math.max(...currentMonthData.days.map(d => d.kWh), 1);
 

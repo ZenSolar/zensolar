@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-target-user-id",
 };
 
 const ENPHASE_API_BASE = "https://api.enphaseenergy.com/api/v4";
@@ -76,16 +76,54 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
+    const token = authHeader.replace("Bearer ", "");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    
+    let targetUserId: string;
 
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Check if called with service role key (internal/admin trigger)
+    if (token === serviceRoleKey) {
+      // Service role call — must provide target user ID in body or header
+      const targetHeader = req.headers.get("X-Target-User-Id");
+      let bodyUserId: string | undefined;
+      try {
+        const body = await req.json();
+        bodyUserId = body.user_id;
+      } catch { /* no body */ }
+      
+      targetUserId = targetHeader || bodyUserId || "";
+      if (!targetUserId) {
+        return new Response(JSON.stringify({ error: "user_id required for service role calls" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      console.log(`Service role backfill for user ${targetUserId}`);
+    } else {
+      // Normal user auth
+      const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+      if (authError || !user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      targetUserId = user.id;
+      const targetUserIdHeader = req.headers.get("X-Target-User-Id");
+      if (targetUserIdHeader && targetUserIdHeader !== user.id) {
+        const { data: isAdmin } = await supabaseClient.rpc('is_admin', { _user_id: user.id });
+        if (!isAdmin) {
+          return new Response(JSON.stringify({ error: "Admin access required" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        targetUserId = targetUserIdHeader;
+        console.log(`Admin ${user.id} running historical backfill for user ${targetUserId}`);
+      }
     }
+
 
     const apiKey = Deno.env.get("ENPHASE_API_KEY");
     if (!apiKey) {
@@ -99,7 +137,7 @@ Deno.serve(async (req) => {
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from("energy_tokens")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "enphase")
       .single();
 
@@ -116,7 +154,7 @@ Deno.serve(async (req) => {
     if (tokenData.expires_at) {
       const expiresAt = new Date(tokenData.expires_at);
       if (expiresAt.getTime() - Date.now() < 5 * 60 * 1000) {
-        const newToken = await refreshEnphaseToken(supabaseClient, user.id, tokenData.refresh_token);
+        const newToken = await refreshEnphaseToken(supabaseClient, targetUserId, tokenData.refresh_token);
         if (newToken) {
           accessToken = newToken;
         } else {
@@ -132,7 +170,7 @@ Deno.serve(async (req) => {
     const { data: devices } = await supabaseClient
       .from("connected_devices")
       .select("device_id, device_name")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "enphase");
 
     if (!devices || devices.length === 0) {
@@ -210,7 +248,7 @@ Deno.serve(async (req) => {
         if (whValue <= 0) continue;
 
         records.push({
-          user_id: user.id,
+          user_id: targetUserId,
           device_id: systemId,
           provider: "enphase",
           production_wh: whValue,
