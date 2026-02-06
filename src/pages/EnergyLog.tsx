@@ -88,7 +88,7 @@ export default function EnergyLog() {
       </AnimatedItem>
 
       {/* Tab Content */}
-      {activeTab !== 'solar' ? (
+      {activeTab === 'ev-miles' ? (
         <AnimatedItem>
           <ComingSoon activityType={activeTab} />
         </AnimatedItem>
@@ -100,7 +100,7 @@ export default function EnergyLog() {
         <>
           {/* Today Hero */}
           <AnimatedItem>
-            <TodayHero days={currentMonthData.days} />
+            <TodayHero days={currentMonthData.days} activityType={activeTab} />
           </AnimatedItem>
 
           {/* Month Navigation — compact */}
