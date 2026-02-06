@@ -8,6 +8,7 @@ import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-sectio
 import { MonthSummaryCard } from '@/components/energy-log/MonthSummaryCard';
 import { MonthComparison } from '@/components/energy-log/MonthComparison';
 import { DayRow } from '@/components/energy-log/DayRow';
+import { PanelGrid } from '@/components/energy-log/PanelGrid';
 import { ActivityTabs } from '@/components/energy-log/ActivityTabs';
 import { ComingSoon } from '@/components/energy-log/ComingSoon';
 import { supabase } from '@/integrations/supabase/client';
@@ -129,7 +130,12 @@ export default function EnergyLog() {
               previous={compareMonthData}
               currentLabel={format(currentMonth, 'MMM')}
               previousLabel={format(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1), 'MMM')}
-            />
+           />
+          </AnimatedItem>
+
+          {/* Panel Performance Grid */}
+          <AnimatedItem>
+            <PanelGrid enabled={activeTab === 'solar'} />
           </AnimatedItem>
 
           {/* Daily List */}
