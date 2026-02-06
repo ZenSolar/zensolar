@@ -60,6 +60,7 @@ import {
 
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Energy Log", url: "/energy-log", icon: BarChart3 },
   { title: "NFT Collection", url: "/nft-collection", icon: Award },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag },
   { title: "How It Works", url: "/how-it-works", icon: BookOpen },

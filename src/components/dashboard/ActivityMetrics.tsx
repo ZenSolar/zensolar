@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Sun,
   Car,
@@ -12,6 +12,7 @@ import {
   Gauge,
   AlertCircle,
   Loader2,
+  BarChart3,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
@@ -330,6 +331,7 @@ export function ActivityMetrics({
                     color="amber"
                     active={pendingKwh > 0}
                     isLoading={isLoading}
+                    historyLink="/energy-log"
                     onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
                       category: 'solar', 
                       deviceId: device.deviceId,
@@ -363,6 +365,7 @@ export function ActivityMetrics({
                   color="amber"
                   active={current.solarKwh > 0}
                   isLoading={isLoading}
+                  historyLink="/energy-log"
                   onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
                 />
               </SwipeableActivityField>
@@ -648,9 +651,11 @@ interface ActivityFieldProps {
   active: boolean;
   onTap?: () => void;
   isLoading?: boolean;
+  historyLink?: string;
 }
 
-function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false }: ActivityFieldProps) {
+function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink }: ActivityFieldProps) {
+  const navigate = useNavigate();
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
   
@@ -752,6 +757,21 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           )}
         </div>
       </div>
+      
+      {/* History link icon */}
+      {historyLink && !isLoading && (
+        <button
+          onClick={(e) => { e.stopPropagation(); navigate(historyLink); }}
+          onTouchEnd={(e) => { e.stopPropagation(); }}
+          className={cn(
+            "p-1.5 rounded-lg hover:bg-muted/50 transition-colors",
+            styles.text
+          )}
+          aria-label="View energy history"
+        >
+          <BarChart3 className="h-4 w-4" />
+        </button>
+      )}
       
       {/* Tap indicator - hidden during loading */}
       {isTappable && !isLoading && (
