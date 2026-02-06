@@ -83,6 +83,7 @@ const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 const AdminViewAsUser = lazy(() => import("./pages/AdminViewAsUser"));
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
+const EnergyLog = lazy(() => import("./pages/EnergyLog"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -357,6 +358,16 @@ const App = () => {
                     />
                     {/* White Paper - conditionally wrapped in AppLayout based on auth */}
                     <Route path="/white-paper" element={<WhitePaperWrapper />} />
+                    <Route 
+                      path="/energy-log" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <EnergyLog />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
                     <Route 
                       path="/feedback" 
                       element={
