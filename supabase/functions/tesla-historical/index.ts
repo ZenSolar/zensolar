@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
                 solarRecords.push({
                   user_id: targetUserId,
                   device_id: siteId,
-                  provider: "tesla",
+                  provider: "tesla_historical",
                   production_wh: solarWh,
                   data_type: "solar",
                   recorded_at: recordedAt,
@@ -245,7 +245,7 @@ Deno.serve(async (req) => {
                 batteryRecords.push({
                   user_id: targetUserId,
                   device_id: siteId,
-                  provider: "tesla",
+                  provider: "tesla_historical",
                   production_wh: batteryWh,
                   data_type: "battery_discharge",
                   recorded_at: recordedAt,
@@ -430,7 +430,7 @@ Deno.serve(async (req) => {
         chargingRecords.push({
           user_id: targetUserId,
           device_id: primaryVin,
-          provider: "tesla",
+          provider: "tesla_historical",
           production_wh: totalWh,
           data_type: "ev_charging",
           recorded_at: dateStr + "T12:00:00Z",

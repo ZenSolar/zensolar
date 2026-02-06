@@ -56,7 +56,7 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
     const providers = new Set(records.map(r => r.provider));
     const hasDedicatedSolar = providers.has('enphase') || providers.has('solaredge');
     if (hasDedicatedSolar) {
-      filteredRecords = records.filter(r => r.provider !== 'tesla');
+      filteredRecords = records.filter(r => r.provider !== 'tesla' && r.provider !== 'tesla_historical');
     }
   }
 
@@ -87,8 +87,8 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
     const MAX_DAILY_WH = 500_000;
     const MAX_DAILY_MILES = 1_000; // no one drives 1000 miles in a day
 
-    // Tesla always uses cumulative → delta logic for all data types
-    // Enphase/SolarEdge use daily running totals (max = daily value)
+    // Tesla (cumulative) always uses day-over-day deltas
+    // tesla_historical uses daily values (like Enphase) — MAX per day IS daily production
     if (provider === 'tesla') {
       // Tesla: cumulative → day-over-day deltas
       for (let i = 0; i < sortedDays.length; i++) {
