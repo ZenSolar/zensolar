@@ -1,73 +1,65 @@
-# Welcome to your Lovable project
+# ☀️ ZenSolar — Web3 Clean Energy Rewards Platform
 
-## Project info
+> **Convert verified solar, EV, and battery activity into blockchain tokens — all within one app.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+[![Live App](https://img.shields.io/badge/Live-beta.zen.solar-brightgreen)](https://beta.zen.solar)
+[![Status](https://img.shields.io/badge/Status-Private%20Beta-orange)]()
+[![Network](https://img.shields.io/badge/Network-Base%20Sepolia-blue)]()
 
-## How can I edit this code?
+ZenSolar connects to Tesla, Enphase, SolarEdge, and Wallbox via direct API integrations, verifies real-world energy activity, and rewards users with **$ZSOLAR tokens** and **milestone NFTs** on Base L2. No external wallets. No seed phrases. No crypto knowledge required.
 
-There are several ways of editing your application.
+**🔒 Patent-pending IP**: *"Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology"*
+**™ Pending Trademarks**: Mint-on-Proof™ · Mint-on-Delta™ · Proof-of-Delta™ · SEGI™
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🏗️ SEGI Architecture (Patent-Pending)
 
-Changes made via Lovable will be committed automatically to this repo.
+| Layer | Function |
+|-------|----------|
+| **1. API Aggregation** | Direct OAuth2 connections to Tesla, Enphase, SolarEdge, Wallbox |
+| **2. Data Normalization** | Heterogeneous device data → unified schema (Wh, miles, sessions) |
+| **3. Verification Engine** | Proof-of-Delta™ — cryptographic proof each token maps to verified energy |
+| **4. Smart Contract Bridge** | One-tap in-app minting of $ZSOLAR + milestone NFTs on Base L2 |
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## ⚡ Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Framer Motion
+- **Backend**: Supabase (PostgreSQL, Auth, 31 Edge Functions)
+- **Blockchain**: Base L2 (Sepolia testnet), Solidity, wagmi v3, viem
+- **Wallet**: Coinbase Smart Wallet (OnchainKit) — zero seed phrases
+- **Mobile**: Capacitor (iOS/Android), VitePWA, Web Push Notifications
+- **Security**: Cloudflare Turnstile, Hexagate smart contract monitoring
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🚀 User Experience (Patent IP)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+SIGN UP → CONNECT → DISCOVER → EARN → MINT → VIEW → REDEEM
 ```
 
-**Edit a file directly in GitHub**
+The entire flow happens **within the app**. No MetaMask popups. No switching between Tesla app → solar app → crypto wallet → exchange. **ONE APP.**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 📊 Current Status
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Metric | Value |
+|--------|-------|
+| Beta users | 19 active |
+| Providers | Tesla, Enphase, SolarEdge, Wallbox |
+| Reward rate | 1 $ZSOLAR per kWh |
+| LP seed | TBD |
+| Price floor | $0.10 |
+| Routes | 60+ |
+| Edge Functions | 31 |
+| Database Tables | 15 |
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 📄 License
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Proprietary — All rights reserved.
