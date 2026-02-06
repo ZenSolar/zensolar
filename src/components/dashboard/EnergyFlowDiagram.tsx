@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -131,7 +131,20 @@ export function EnergyFlowDiagram({
   period = 'today' 
 }: EnergyFlowDiagramProps) {
   const [selectedPeriod, setSelectedPeriod] = useState(period);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(350);
   
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   // Demo data when no real data is provided
   const demoData: EnergyFlowData = {
     solarProduction: 45.2,
@@ -278,22 +291,22 @@ export function EnergyFlowDiagram({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-center"
+            className="p-3 rounded-lg bg-accent/10 border border-accent/20 text-center"
           >
-            <p className="text-2xl font-bold text-blue-500">{metrics.solarPoweredEV}%</p>
+            <p className="text-2xl font-bold text-accent">{metrics.solarPoweredEV}%</p>
             <p className="text-xs text-muted-foreground">Solar-Powered EV</p>
           </motion.div>
         </div>
         
         {/* Sankey Diagram */}
-        <div className="relative h-[250px] w-full">
+        <div ref={containerRef} className="relative h-[250px] w-full overflow-hidden">
           {isLoading ? (
             <div className="absolute inset-0 flex items-center justify-center">
               <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : sankeyData.links.length > 0 ? (
             <Sankey
-              width={500}
+              width={containerWidth}
               height={250}
               data={sankeyData}
               node={<CustomNode />}
