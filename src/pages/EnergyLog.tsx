@@ -38,38 +38,62 @@ export default function EnergyLog() {
     if (backfillTriggered.current) return;
     backfillTriggered.current = true;
 
-    const triggerBackfill = async () => {
+    const triggerBackfills = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
 
-        const { data: tokens } = await supabase
+        // Enphase backfill
+        const { data: enphaseTokens } = await supabase
           .from('energy_tokens')
           .select('provider')
           .eq('provider', 'enphase')
           .limit(1);
 
-        if (!tokens || tokens.length === 0) return;
+        if (enphaseTokens && enphaseTokens.length > 0) {
+          const backfillKey = `enphase_backfill_done_${session.user.id}`;
+          if (!localStorage.getItem(backfillKey)) {
+            console.log('[EnergyLog] Running one-time Enphase historical backfill...');
+            const res = await supabase.functions.invoke('enphase-historical', {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            });
+            if (res.data?.success) {
+              console.log(`[EnergyLog] Enphase backfill complete: ${res.data.total_days_imported} days imported`);
+              localStorage.setItem(backfillKey, 'true');
+              queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+            }
+          }
+        }
 
-        const backfillKey = `enphase_backfill_done_${session.user.id}`;
-        if (localStorage.getItem(backfillKey)) return;
+        // Tesla backfill (solar + battery + EV charging)
+        const { data: teslaTokens } = await supabase
+          .from('energy_tokens')
+          .select('provider')
+          .eq('provider', 'tesla')
+          .limit(1);
 
-        console.log('[EnergyLog] Running one-time Enphase historical backfill...');
-        const res = await supabase.functions.invoke('enphase-historical', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-
-        if (res.data?.success) {
-          console.log(`[EnergyLog] Backfill complete: ${res.data.total_days_imported} days imported`);
-          localStorage.setItem(backfillKey, 'true');
-          queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+        if (teslaTokens && teslaTokens.length > 0) {
+          const backfillKey = `tesla_backfill_done_${session.user.id}`;
+          if (!localStorage.getItem(backfillKey)) {
+            console.log('[EnergyLog] Running one-time Tesla historical backfill...');
+            const res = await supabase.functions.invoke('tesla-historical', {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            });
+            if (res.data?.success) {
+              console.log(`[EnergyLog] Tesla backfill complete:`, res.data);
+              localStorage.setItem(backfillKey, 'true');
+              queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+            } else if (res.error) {
+              console.error('[EnergyLog] Tesla backfill error:', res.error);
+            }
+          }
         }
       } catch (err) {
         console.error('[EnergyLog] Backfill error:', err);
       }
     };
 
-    triggerBackfill();
+    triggerBackfills();
   }, [queryClient]);
 
   return (
