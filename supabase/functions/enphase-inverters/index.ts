@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
 
     for (const device of devices) {
       const systemId = String(device.device_id);
-      const url = `${ENPHASE_API_BASE}/systems/${systemId}/inverters_summary_by_envoy_or_site?key=${apiKey}`;
+      const url = `${ENPHASE_API_BASE}/systems/inverters_summary_by_envoy_or_site?key=${apiKey}&site_id=${systemId}`;
 
       console.log(`Fetching inverter summary for system ${systemId}...`);
 
@@ -155,21 +155,23 @@ Deno.serve(async (req) => {
       }
 
       const data = await resp.json();
-      // Response shape: { micro_inverters: [...] } or array directly
-      const inverters = data.micro_inverters || data || [];
-
-      for (const inv of inverters) {
-        allInverters.push({
-          serial_number: inv.serial_number || inv.id?.toString() || "unknown",
-          model: inv.model_name || inv.model || "Unknown",
-          status: inv.status || "unknown",
-          last_report_date: inv.last_report_date || null,
-          last_report_watts: inv.last_report_watts ?? 0,
-          energy_wh: inv.energy?.value ?? 0,
-          energy_units: inv.energy?.units || "Wh",
-          system_id: systemId,
-          system_name: device.device_name || "Enphase System",
-        });
+      // Response is an array of envoys, each with micro_inverters array
+      const envoys = Array.isArray(data) ? data : [data];
+      for (const envoy of envoys) {
+        const inverters = envoy.micro_inverters || [];
+        for (const inv of inverters) {
+          allInverters.push({
+            serial_number: inv.serial_number || "unknown",
+            model: inv.model || "Unknown",
+            status: inv.status || "unknown",
+            last_report_date: inv.last_report_date || null,
+            last_report_watts: inv.power_produced?.value ?? 0,
+            energy_wh: inv.energy?.value ?? 0,
+            energy_units: inv.energy?.units || "Wh",
+            system_id: systemId,
+            system_name: device.device_name || "Enphase System",
+          });
+        }
       }
     }
 

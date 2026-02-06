@@ -14,7 +14,7 @@ function PanelCard({ inverter, intensity, isBest, isWorst }: {
   isBest: boolean;
   isWorst: boolean;
 }) {
-  const kWh = (inverter.energy_wh / 1000).toFixed(1);
+  const kWh = (inverter.energy_wh / 1000).toFixed(0);
   const isReporting = inverter.status === 'normal';
 
   // Heat-map: interpolate from cool blue to warm amber based on intensity
