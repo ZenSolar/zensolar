@@ -63,7 +63,7 @@ const providers: ProviderSection[] = [
         { label: 'Supercharger kWh (DC charging)', status: 'available', notes: 'From /dx/charging/history (paginated). Sums chargeEnergyAdded or fee-based kWh. Stored in connected_devices.lifetime_totals.charging_kwh.' },
         { label: 'Wall Connector kWh (AC charging)', status: 'partial', notes: 'From /energy_sites/{id}/telemetry_history?kind=charge. Only available if user has a Tesla energy site with Wall Connector. Stored as wall_connector_wh in lifetime_totals.' },
         { label: 'Daily granular rows in energy_production', status: 'available', notes: 'tesla-data writes cumulative EV charging Wh to energy_production with data_type=ev_charging. useEnergyLog computes day-over-day deltas. Includes Supercharger + Wall Connector.' },
-        { label: 'Per-session detail', status: 'available', notes: 'Charging history includes per-session data (location, kWh, fees). Not currently exposed to frontend.' },
+        { label: 'Per-session detail', status: 'available', notes: 'Per-session data (location, kWh, fees) stored in charging_sessions table. Exposed on EV Charging tab via expandable "View session details" section.' },
       ],
       evMiles: [
         { label: 'Lifetime odometer', status: 'available', notes: 'From /vehicles/{vin}/vehicle_data (vehicle_state.odometer). Handles asleep vehicles with wake + fallback.' },
@@ -128,7 +128,8 @@ const providers: ProviderSection[] = [
       ],
       evCharging: [
         { label: 'Lifetime total (session sum)', status: 'available', notes: 'From /v4/sessions/stats summing all session energies. Stored in connected_devices.lifetime_totals.charging_kwh.' },
-        { label: 'Daily granular rows in energy_production', status: 'partial', notes: 'Writes a single daily row with production_wh=0, consumption_wh=lifetime*1000. This is cumulative, not daily delta. useEnergyLog would need adaptation.' },
+        { label: 'Daily granular rows in energy_production', status: 'available', notes: 'wallbox-data writes daily actual Wh from session aggregates to energy_production with data_type=ev_charging. useEnergyLog uses MAX per day (non-cumulative, like Enphase).' },
+        { label: 'Per-session detail', status: 'available', notes: 'Per-session data (kWh, location, cost, duration) stored in charging_sessions table. Exposed on EV Charging tab.' },
       ],
       evMiles: [
         { label: 'N/A', status: 'missing', notes: 'Wallbox does not track miles. Added range is reported but unreliable.' },
@@ -174,10 +175,12 @@ Currently only handles solar:
 - **useEnergyLog** filters by data_type per active tab, computing day-over-day deltas for Tesla cumulative data.
 - **tesla-data** now writes ev_miles (odometer) rows on each sync. useEnergyLog computes daily miles via day-over-day deltas.
 - **enphase-data, solaredge-data, wallbox-data** updated for data_type column compatibility.
+- **charging_sessions table** added for per-session EV charging detail (location, kWh, fees). Written by tesla-data, tesla-historical, and wallbox-data.
+- **wallbox-data** now writes proper daily granular rows (one per day with actual daily Wh) instead of a single cumulative row. Also writes per-session records.
+- **ChargingSessionList component** added to EV Charging tab with expandable session detail view.
 
 ## Remaining Next Steps
 1. Build SolarEdge/Enphase battery support when users request it
-2. Expose per-session EV charging detail to frontend
 `;
 
 export default function EnergyDataArchitecture() {
