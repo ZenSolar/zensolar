@@ -571,30 +571,49 @@ Deno.serve(async (req) => {
         const primaryVin = vehicleDevices[0]?.device_id || vehicleDevices[0]?.id;
         if (primaryVin) {
           try {
+            // Try POST with various body formats
+            const startTs = Math.floor(new Date('2020-01-01').getTime() / 1000);
+            const endTs = Math.floor(Date.now() / 1000);
+            
+            // Attempt 1: POST with JSON body
             const vehicleChargeHistResp = await fetch(
               `${TESLA_API_BASE}/api/1/vehicles/${primaryVin}/charge_history`,
-              { headers: { "Authorization": `Bearer ${accessToken}` } }
+              {
+                method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${accessToken}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  start_timestamp: startTs,
+                  end_timestamp: endTs,
+                }),
+              }
             );
-            console.log(`Vehicle charge_history status: ${vehicleChargeHistResp.status}`);
+            console.log(`Vehicle charge_history POST status: ${vehicleChargeHistResp.status}`);
             if (vehicleChargeHistResp.ok) {
               const vchData = await vehicleChargeHistResp.json();
               console.log(`Vehicle charge_history response keys:`, JSON.stringify(Object.keys(vchData)));
-              const records = vchData.response?.charging_history_graph?.data_points || vchData.response?.data_points || vchData.response || [];
+              if (vchData.response) {
+                console.log(`Vehicle charge_history response inner keys:`, JSON.stringify(Object.keys(vchData.response)));
+              }
+              const records = vchData.response?.charging_history_graph?.data_points 
+                || vchData.response?.data_points 
+                || vchData.response?.data 
+                || vchData.response?.results
+                || (Array.isArray(vchData.response) ? vchData.response : []);
               console.log(`Vehicle charge_history records count: ${Array.isArray(records) ? records.length : 'not array'}`);
               if (Array.isArray(records) && records.length > 0) {
                 console.log(`Vehicle charge_history sample[0]:`, JSON.stringify(records[0]));
-                console.log(`Vehicle charge_history sample keys:`, JSON.stringify(Object.keys(records[0])));
-                // Log a few more samples to see variety
                 if (records.length > 5) console.log(`Vehicle charge_history sample[5]:`, JSON.stringify(records[5]));
                 if (records.length > 10) console.log(`Vehicle charge_history sample[10]:`, JSON.stringify(records[10]));
               } else {
-                // Log full response structure
-                const respStr = JSON.stringify(vchData).substring(0, 2000);
+                const respStr = JSON.stringify(vchData).substring(0, 3000);
                 console.log(`Vehicle charge_history full response:`, respStr);
               }
             } else {
               const errBody = await vehicleChargeHistResp.text();
-              console.log(`Vehicle charge_history error: ${errBody.substring(0, 500)}`);
+              console.log(`Vehicle charge_history POST error: ${errBody.substring(0, 1000)}`);
             }
           } catch (vchErr) {
             console.error(`Vehicle charge_history fetch error:`, vchErr);
