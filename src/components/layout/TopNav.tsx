@@ -8,6 +8,7 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { getLiveBetaMode } from "@/lib/tokenomics";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 
 interface TopNavProps {
   isDemo?: boolean;
@@ -90,7 +91,10 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           </span>
         </Link>
         
-        <ThemeToggle />
+        <div className="flex flex-col items-end gap-0.5">
+          <ThemeToggle />
+          <WeatherWidget />
+        </div>
       </div>
     </header>
   );
