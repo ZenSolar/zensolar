@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, CheckCircle2, XCircle, Zap } from 'lucide-react';
+import { Loader2, RefreshCw, CheckCircle2, XCircle, Zap, History } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Profile {
@@ -37,6 +37,8 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
     solaredge: { provider: 'solaredge', status: 'idle' },
     wallbox: { provider: 'wallbox', status: 'idle' },
   });
+  const [backfillStatus, setBackfillStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [backfillMessage, setBackfillMessage] = useState<string>('');
 
   const selectedProfile = profiles.find(p => p.user_id === selectedUserId);
 
@@ -81,13 +83,11 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
     }));
 
     try {
-      // Get admin session to call the function on behalf of the user
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Not authenticated');
       }
 
-      // Call the backend function with the target user's context (admin override)
       const response = await supabase.functions.invoke(config.function, {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -99,7 +99,6 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
         throw new Error(response.error.message || `Failed to sync ${config.name}`);
       }
 
-      // Fetch updated device data (avoid .single() because duplicates can exist)
       const { data: deviceRows, error: deviceError } = await supabase
         .from('connected_devices')
         .select('lifetime_totals, device_name, updated_at')
@@ -139,6 +138,52 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
         },
       }));
       toast.error(`Failed to sync ${config.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleBackfillHistorical = async () => {
+    if (!selectedUserId) {
+      toast.error('Please select a user first');
+      return;
+    }
+
+    if (!selectedProfile?.enphase_connected) {
+      toast.error('Enphase is not connected for this user');
+      return;
+    }
+
+    setBackfillStatus('loading');
+    setBackfillMessage('Running historical backfill...');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await supabase.functions.invoke('enphase-historical', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'X-Target-User-Id': selectedUserId,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Backfill failed');
+      }
+
+      const result = response.data;
+      const msg = `Imported ${result.total_days_imported} days (${result.total_records_inserted} records)` +
+        (result.systems?.length > 0 
+          ? ` from ${result.systems.map((s: any) => `${s.name}: ${s.start_date} → ${s.end_date}`).join(', ')}`
+          : '');
+      
+      setBackfillStatus('success');
+      setBackfillMessage(msg);
+      toast.success(`Historical backfill complete: ${result.total_days_imported} days imported`);
+    } catch (error) {
+      console.error('Historical backfill error:', error);
+      setBackfillStatus('error');
+      setBackfillMessage(error instanceof Error ? error.message : 'Backfill failed');
+      toast.error(`Historical backfill failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -233,53 +278,93 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
         </div>
 
         {selectedProfile && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {(Object.keys(providerConfig) as Provider[]).map(provider => {
-              const config = providerConfig[provider];
-              const result = resyncResults[provider];
-              
-              return (
-                <div 
-                  key={provider}
-                  className={`p-4 border rounded-lg ${config.connected ? 'bg-card' : 'bg-muted/50 opacity-60'}`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{config.name}</span>
-                      <Badge variant={config.connected ? 'default' : 'secondary'}>
-                        {config.connected ? 'Connected' : 'Not Connected'}
-                      </Badge>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {(Object.keys(providerConfig) as Provider[]).map(provider => {
+                const config = providerConfig[provider];
+                const result = resyncResults[provider];
+                
+                return (
+                  <div 
+                    key={provider}
+                    className={`p-4 border rounded-lg ${config.connected ? 'bg-card' : 'bg-muted/50 opacity-60'}`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{config.name}</span>
+                        <Badge variant={config.connected ? 'default' : 'secondary'}>
+                          {config.connected ? 'Connected' : 'Not Connected'}
+                        </Badge>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleResync(provider)}
+                        disabled={!config.connected || result.status === 'loading'}
+                      >
+                        {getStatusIcon(result.status)}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleResync(provider)}
-                      disabled={!config.connected || result.status === 'loading'}
-                    >
-                      {getStatusIcon(result.status)}
-                    </Button>
+                    
+                    {result.message && (
+                      <p className={`text-sm ${result.status === 'error' ? 'text-red-500' : 'text-muted-foreground'}`}>
+                        {result.message}
+                      </p>
+                    )}
+                    
+                    {result.status === 'success' && result.data && (
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {formatLifetimeTotals(result.data) && (
+                          <p>{formatLifetimeTotals(result.data)}</p>
+                        )}
+                        {result.data.device?.updated_at && (
+                          <p>Updated: {new Date(result.data.device.updated_at).toLocaleString()}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  
-                  {result.message && (
-                    <p className={`text-sm ${result.status === 'error' ? 'text-red-500' : 'text-muted-foreground'}`}>
-                      {result.message}
-                    </p>
-                  )}
-                  
-                  {result.status === 'success' && result.data && (
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      {formatLifetimeTotals(result.data) && (
-                        <p>{formatLifetimeTotals(result.data)}</p>
-                      )}
-                      {result.data.device?.updated_at && (
-                        <p>Updated: {new Date(result.data.device.updated_at).toLocaleString()}</p>
-                      )}
-                    </div>
-                  )}
+                );
+              })}
+            </div>
+
+            {/* Historical Backfill Section */}
+            {selectedProfile.enphase_connected && (
+              <div className="p-4 border rounded-lg bg-card mt-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <History className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Enphase Historical Backfill</span>
+                    <Badge variant="outline">Lifetime Data</Badge>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleBackfillHistorical}
+                    disabled={backfillStatus === 'loading'}
+                  >
+                    {backfillStatus === 'loading' ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                    ) : backfillStatus === 'success' ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-500 mr-1" />
+                    ) : backfillStatus === 'error' ? (
+                      <XCircle className="h-4 w-4 text-red-500 mr-1" />
+                    ) : (
+                      <History className="h-4 w-4 mr-1" />
+                    )}
+                    Backfill
+                  </Button>
                 </div>
-              );
-            })}
-          </div>
+                <p className="text-xs text-muted-foreground">
+                  Fetches the user's entire Enphase lifetime solar production and imports daily records into the Energy Log.
+                  {backfillStatus !== 'idle' && backfillMessage && (
+                    <span className={`block mt-1 ${backfillStatus === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+                      {backfillMessage}
+                    </span>
+                  )}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
