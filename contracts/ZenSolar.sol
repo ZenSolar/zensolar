@@ -5,6 +5,16 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
+ * @title IDeviceWatermarkRegistry
+ * @notice Interface for the public device watermark registry
+ */
+interface IDeviceWatermarkRegistry {
+    enum DataType { SolarProduction, BatteryDischarge, EVCharging, EVMilesDriven }
+    function updateWatermark(bytes32 deviceIdHash, DataType dataType, uint256 newTotal) external;
+    function updateWatermarkBatch(bytes32[] calldata deviceIdHashes, DataType[] calldata dataTypes, uint256[] calldata newTotals) external;
+}
+
+/**
  * @title IZenSolarNFT
  * @notice Interface for the ZenSolarNFT ERC-1155 contract
  */
@@ -48,6 +58,7 @@ interface IMintableERC20 is IERC20 {
 contract ZenSolar is Ownable {
     IMintableERC20 public zSolarToken;
     IZenSolarNFT public zenSolarNFT;
+    IDeviceWatermarkRegistry public watermarkRegistry;
 
     // Cumulative lifetime values per user (used for NFT milestone checks)
     mapping(address => uint256) public cumulativeSolarKwh;
@@ -118,17 +129,20 @@ contract ZenSolar is Ownable {
         address _zSolarToken,
         address _zenSolarNFT,
         address _treasury,
-        address _lpRewards
+        address _lpRewards,
+        address _watermarkRegistry
     ) Ownable(msg.sender) {
         require(_zSolarToken != address(0), "Invalid token address");
         require(_zenSolarNFT != address(0), "Invalid NFT address");
         require(_treasury != address(0), "Invalid treasury address");
         require(_lpRewards != address(0), "Invalid LP address");
+        require(_watermarkRegistry != address(0), "Invalid registry address");
 
         zSolarToken = IMintableERC20(_zSolarToken);
         zenSolarNFT = IZenSolarNFT(_zenSolarNFT);
         treasury = _treasury;
         lpRewards = _lpRewards;
+        watermarkRegistry = IDeviceWatermarkRegistry(_watermarkRegistry);
         
         // Initialize milestone values for redemption
         _initializeMilestoneValues();
@@ -209,6 +223,45 @@ contract ZenSolar is Ownable {
         uint256 batteryDeltaKwh,
         uint256 chargingDeltaKwh
     ) external onlyOwner {
+        _mintRewardsInternal(user, solarDeltaKwh, evMilesDelta, batteryDeltaKwh, chargingDeltaKwh, new bytes32[](0));
+    }
+
+    /**
+     * @notice Mint ZSOLAR tokens AND update the public Device Watermark Registry.
+     * @dev    Extends mintRewards with device-bound on-chain attestation.
+     *         Each deviceIdHash is keccak256(manufacturer, deviceId) — e.g. keccak256("tesla", VIN).
+     *         The registry records cumulative totals per device, making double-minting
+     *         provably fraudulent across any platform.
+     *
+     * @param user The user address to receive rewards
+     * @param solarDeltaKwh NEW solar kWh produced since last mint
+     * @param evMilesDelta NEW EV miles driven since last mint
+     * @param batteryDeltaKwh NEW battery kWh discharged since last mint
+     * @param chargingDeltaKwh NEW charging kWh since last mint
+     * @param deviceIdHashes Array of device identifier hashes involved in this mint
+     */
+    function mintRewardsWithWatermark(
+        address user,
+        uint256 solarDeltaKwh,
+        uint256 evMilesDelta,
+        uint256 batteryDeltaKwh,
+        uint256 chargingDeltaKwh,
+        bytes32[] calldata deviceIdHashes
+    ) external onlyOwner {
+        _mintRewardsInternal(user, solarDeltaKwh, evMilesDelta, batteryDeltaKwh, chargingDeltaKwh, deviceIdHashes);
+    }
+
+    /**
+     * @dev Internal mint logic shared by both mintRewards and mintRewardsWithWatermark
+     */
+    function _mintRewardsInternal(
+        address user,
+        uint256 solarDeltaKwh,
+        uint256 evMilesDelta,
+        uint256 batteryDeltaKwh,
+        uint256 chargingDeltaKwh,
+        bytes32[] memory deviceIdHashes
+    ) internal {
         require(user != address(0), "Invalid user address");
 
         uint256 totalUnits = solarDeltaKwh + evMilesDelta + batteryDeltaKwh + chargingDeltaKwh;
@@ -245,6 +298,44 @@ contract ZenSolar is Ownable {
         _checkMilestones(user, cumulativeBatteryKwh[user], batteryMilestones, batteryTokenIds, "Battery");
         _checkMilestones(user, cumulativeChargingKwh[user], chargingMilestones, chargingTokenIds, "Charging");
         _checkMilestones(user, cumulativeEvMiles[user], evMilesMilestones, evMilesTokenIds, "EV Miles");
+
+        // Update Device Watermark Registry (if device hashes provided)
+        if (deviceIdHashes.length > 0 && address(watermarkRegistry) != address(0)) {
+            _updateDeviceWatermarks(user, deviceIdHashes, solarDeltaKwh, evMilesDelta, batteryDeltaKwh, chargingDeltaKwh);
+        }
+    }
+
+    /**
+     * @dev Push updated cumulative totals to the public Device Watermark Registry.
+     *      For simplicity, all devices in a single mint share the same delta distribution.
+     *      The backend should call with one device hash per physical device involved.
+     */
+    function _updateDeviceWatermarks(
+        address user,
+        bytes32[] memory deviceIdHashes,
+        uint256 solarDelta,
+        uint256 evMilesDelta,
+        uint256 batteryDelta,
+        uint256 chargingDelta
+    ) internal {
+        // For single-device mints (most common), update directly
+        if (deviceIdHashes.length == 1) {
+            bytes32 dh = deviceIdHashes[0];
+            if (solarDelta > 0) {
+                watermarkRegistry.updateWatermark(dh, IDeviceWatermarkRegistry.DataType.SolarProduction, cumulativeSolarKwh[user]);
+            }
+            if (batteryDelta > 0) {
+                watermarkRegistry.updateWatermark(dh, IDeviceWatermarkRegistry.DataType.BatteryDischarge, cumulativeBatteryKwh[user]);
+            }
+            if (chargingDelta > 0) {
+                watermarkRegistry.updateWatermark(dh, IDeviceWatermarkRegistry.DataType.EVCharging, cumulativeChargingKwh[user]);
+            }
+            if (evMilesDelta > 0) {
+                watermarkRegistry.updateWatermark(dh, IDeviceWatermarkRegistry.DataType.EVMilesDriven, cumulativeEvMiles[user]);
+            }
+        }
+        // For multi-device mints, the backend must provide per-device totals
+        // via separate mintRewardsWithWatermark calls (one per device)
     }
 
     /**
@@ -465,12 +556,15 @@ contract ZenSolar is Ownable {
     /**
      * @notice Update contract references (in case of upgrades)
      */
-    function setContracts(address _zSolarToken, address _zenSolarNFT) external onlyOwner {
+    function setContracts(address _zSolarToken, address _zenSolarNFT, address _watermarkRegistry) external onlyOwner {
         if (_zSolarToken != address(0)) {
             zSolarToken = IMintableERC20(_zSolarToken);
         }
         if (_zenSolarNFT != address(0)) {
             zenSolarNFT = IZenSolarNFT(_zenSolarNFT);
+        }
+        if (_watermarkRegistry != address(0)) {
+            watermarkRegistry = IDeviceWatermarkRegistry(_watermarkRegistry);
         }
     }
 }
