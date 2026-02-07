@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.admin-users]
 verify_jwt = false
+
+[functions.wallbox-refresh-tokens]
+verify_jwt = false
