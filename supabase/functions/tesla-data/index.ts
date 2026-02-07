@@ -10,28 +10,85 @@ async function sha256Hex(input: string): Promise<string> {
     .join("");
 }
 
-/** Build an odometer snapshot hash: SHA-256(VIN | timestamp | odometer | prevHash) */
-async function buildOdometerHash(
-  vin: string,
+/** Build a generic energy snapshot hash: SHA-256(device_id | timestamp | value | prevHash) */
+async function buildEnergyHash(
+  deviceId: string,
   timestamp: string,
-  odometer: number,
+  value: number,
   prevHash: string,
 ): Promise<string> {
-  const preimage = `${vin}|${timestamp}|${odometer}|${prevHash}`;
+  const preimage = `${deviceId}|${timestamp}|${value}|${prevHash}`;
   return sha256Hex(preimage);
 }
 
-/** Build a delta proof for EV miles: SHA-256(VIN | baselineOdometer | currentOdometer | deltaMiles | firstHash | lastHash) */
-async function buildOdometerDeltaProof(
-  vin: string,
-  baselineOdometer: number,
-  currentOdometer: number,
-  deltaMiles: number,
+/** Alias for backward compatibility */
+const buildOdometerHash = buildEnergyHash;
+
+/** Build a delta proof: SHA-256(device_id | baselineValue | currentValue | delta | firstHash | lastHash) */
+async function buildDeltaProof(
+  deviceId: string,
+  baselineValue: number,
+  currentValue: number,
+  delta: number,
   firstHash: string,
   lastHash: string,
 ): Promise<string> {
-  const preimage = `${vin}|${baselineOdometer}|${currentOdometer}|${deltaMiles}|${firstHash}|${lastHash}`;
+  const preimage = `${deviceId}|${baselineValue}|${currentValue}|${delta}|${firstHash}|${lastHash}`;
   return sha256Hex(preimage);
+}
+
+/** Alias for backward compatibility */
+const buildOdometerDeltaProof = buildDeltaProof;
+
+/** Fetch previous proof hash for a given device + data_type from energy_production */
+async function getPreviousProof(
+  supabaseClient: any,
+  deviceId: string,
+  dataType: string,
+  userId: string,
+  provider: string = "tesla",
+): Promise<{ prevHash: string; prevValue: number }> {
+  const { data: prevRecord } = await supabaseClient
+    .from("energy_production")
+    .select("proof_metadata, production_wh")
+    .eq("device_id", deviceId)
+    .eq("provider", provider)
+    .eq("data_type", dataType)
+    .eq("user_id", userId)
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return {
+    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
+    prevValue: Number(prevRecord?.production_wh || 0),
+  };
+}
+
+/** Build proof_metadata object for any energy data type */
+function buildProofMetadata(
+  hash: string,
+  prevHash: string,
+  deviceId: string,
+  value: number,
+  prevValue: number,
+  dataType: string,
+  timestamp: string,
+  unit: string = "wh",
+): Record<string, unknown> {
+  return {
+    hash,
+    prev_hash: prevHash,
+    device_id: deviceId,
+    value,
+    prev_value: prevValue,
+    delta: Math.max(0, value - prevValue),
+    data_type: dataType,
+    unit,
+    timestamp,
+    algorithm: "SHA-256",
+    preimage_format: "device_id|timestamp|value|prevHash",
+  };
 }
 
 const corsHeaders = {
@@ -858,89 +915,84 @@ Deno.serve(async (req) => {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
       
+      // ── Proof-of-Delta™ for ALL Tesla energy data types ──────────────────
       for (const site of energySitesData) {
-        // Solar production (existing behavior - cumulative pending)
+        const tsNow = new Date().toISOString();
+
+        // Solar production
         if (site.pending_solar_wh > 0 || site.pending_battery_discharge_wh > 0) {
+          const { prevHash: solarPrevHash, prevValue: solarPrevVal } =
+            await getPreviousProof(supabaseClient, site.site_id, "solar", targetUserId);
+          const solarVal = site.pending_solar_wh || 0;
+          const solarHash = await buildEnergyHash(site.site_id, tsNow, solarVal, solarPrevHash);
+          console.log(`[Proof-of-Delta] Solar for ${site.site_id}: ${solarHash.slice(0, 16)}... (val: ${solarVal} Wh)`);
+
           await supabaseClient
             .from("energy_production")
             .upsert({
               user_id: targetUserId,
               device_id: site.site_id,
               provider: "tesla",
-              production_wh: site.pending_solar_wh || 0,
+              production_wh: solarVal,
               data_type: "solar",
               recorded_at: recordedAt,
+              proof_metadata: buildProofMetadata(solarHash, solarPrevHash, site.site_id, solarVal, solarPrevVal, "solar", tsNow),
             }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
 
-        // Battery discharge (cumulative lifetime - useEnergyLog computes day-over-day deltas)
+        // Battery discharge
         if (site.lifetime_battery_discharge_wh > 0) {
+          const { prevHash: battPrevHash, prevValue: battPrevVal } =
+            await getPreviousProof(supabaseClient, site.site_id, "battery_discharge", targetUserId);
+          const battVal = site.lifetime_battery_discharge_wh;
+          const battHash = await buildEnergyHash(site.site_id, tsNow, battVal, battPrevHash);
+          console.log(`[Proof-of-Delta] Battery for ${site.site_id}: ${battHash.slice(0, 16)}... (val: ${battVal} Wh)`);
+
           await supabaseClient
             .from("energy_production")
             .upsert({
               user_id: targetUserId,
               device_id: site.site_id,
               provider: "tesla",
-              production_wh: site.lifetime_battery_discharge_wh,
+              production_wh: battVal,
               data_type: "battery_discharge",
               recorded_at: recordedAt,
+              proof_metadata: buildProofMetadata(battHash, battPrevHash, site.site_id, battVal, battPrevVal, "battery_discharge", tsNow),
             }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
       }
 
-      // EV charging (cumulative lifetime kWh → Wh for consistency)
+      // EV charging (cumulative lifetime kWh → Wh)
       if (totalEvChargingKwh > 0 && vehicleDevices.length > 0) {
         const primaryVin = vehicleDevices[0].id;
+        const chargingWh = totalEvChargingKwh * 1000;
+        const tsNow = new Date().toISOString();
+        const { prevHash: chgPrevHash, prevValue: chgPrevVal } =
+          await getPreviousProof(supabaseClient, primaryVin, "ev_charging", targetUserId);
+        const chgHash = await buildEnergyHash(primaryVin, tsNow, chargingWh, chgPrevHash);
+        console.log(`[Proof-of-Delta] EV charging for ${primaryVin}: ${chgHash.slice(0, 16)}... (val: ${chargingWh} Wh)`);
+
         await supabaseClient
           .from("energy_production")
           .upsert({
             user_id: targetUserId,
             device_id: primaryVin,
             provider: "tesla",
-            production_wh: totalEvChargingKwh * 1000,
+            production_wh: chargingWh,
             data_type: "ev_charging",
             recorded_at: recordedAt,
+            proof_metadata: buildProofMetadata(chgHash, chgPrevHash, primaryVin, chargingWh, chgPrevVal, "ev_charging", tsNow, "wh"),
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
 
-      // EV miles (odometer snapshot - cumulative, with Proof-of-Delta™ cryptographic verification)
+      // EV miles (odometer — Proof-of-Delta™ cryptographic verification)
       for (const vehicle of vehiclesData) {
         if (vehicle.odometer > 0) {
-          // Fetch previous proof hash from the most recent ev_miles record for this VIN
-          const { data: prevRecord } = await supabaseClient
-            .from("energy_production")
-            .select("proof_metadata, production_wh")
-            .eq("device_id", vehicle.vin)
-            .eq("provider", "tesla")
-            .eq("data_type", "ev_miles")
-            .eq("user_id", targetUserId)
-            .order("recorded_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          const prevHash = (prevRecord?.proof_metadata as any)?.hash || "genesis";
-          const prevOdometer = prevRecord?.production_wh || 0;
-          const now = new Date().toISOString();
-
-          // Generate SHA-256 snapshot hash: SHA-256(VIN | timestamp | odometer | prevHash)
-          const snapshotHash = await buildOdometerHash(vehicle.vin, now, vehicle.odometer, prevHash);
-          
-          // Calculate delta for this snapshot
-          const snapshotDelta = Math.max(0, vehicle.odometer - Number(prevOdometer));
-
-          const proofMetadata = {
-            hash: snapshotHash,
-            prev_hash: prevHash,
-            vin: vehicle.vin,
-            odometer: vehicle.odometer,
-            prev_odometer: Number(prevOdometer),
-            delta_miles: snapshotDelta,
-            timestamp: now,
-            algorithm: "SHA-256",
-            preimage_format: "VIN|timestamp|odometer|prevHash",
-          };
-
-          console.log(`[Proof-of-Delta] EV miles hash for ${vehicle.vin}: ${snapshotHash.slice(0, 16)}... (delta: ${snapshotDelta} mi)`);
+          const tsNow = new Date().toISOString();
+          const { prevHash, prevValue: prevOdometer } =
+            await getPreviousProof(supabaseClient, vehicle.vin, "ev_miles", targetUserId);
+          const snapshotHash = await buildEnergyHash(vehicle.vin, tsNow, vehicle.odometer, prevHash);
+          console.log(`[Proof-of-Delta] EV miles for ${vehicle.vin}: ${snapshotHash.slice(0, 16)}... (delta: ${Math.max(0, vehicle.odometer - prevOdometer)} mi)`);
 
           await supabaseClient
             .from("energy_production")
@@ -948,10 +1000,10 @@ Deno.serve(async (req) => {
               user_id: targetUserId,
               device_id: vehicle.vin,
               provider: "tesla",
-              production_wh: vehicle.odometer, // storing miles in production_wh (cumulative)
+              production_wh: vehicle.odometer,
               data_type: "ev_miles",
               recorded_at: recordedAt,
-              proof_metadata: proofMetadata,
+              proof_metadata: buildProofMetadata(snapshotHash, prevHash, vehicle.vin, vehicle.odometer, prevOdometer, "ev_miles", tsNow, "miles"),
             }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
       }
