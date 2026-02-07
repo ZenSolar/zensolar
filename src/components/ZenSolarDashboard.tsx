@@ -34,7 +34,7 @@ import {
 } from '@/lib/nftMilestones';
 import { Link } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { WeatherWidget } from './dashboard/WeatherWidget';
+
 interface ZenSolarDashboardProps {
   isDemo?: boolean;
 }
@@ -194,7 +194,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               technology.
             </p>
           </div>
-          <WeatherWidget />
+          
         </AnimatedItem>
 
         {/* Token Price Card - Prominent at top */}
