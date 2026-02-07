@@ -39,11 +39,6 @@ export function DailyList({ days, unit = 'kWh', activityType }: DailyListProps) 
             <span className="text-sm font-semibold tabular-nums text-foreground">
               {day.kWh.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{unit}</span>
             </span>
-          ) : activityType === 'battery' ? (
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
-              <WifiOff className="h-3 w-3" />
-              Gateway offline
-            </span>
           ) : (
             <span className="text-sm font-semibold tabular-nums text-muted-foreground/40">—</span>
           )}
