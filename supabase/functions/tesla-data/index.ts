@@ -461,8 +461,25 @@ Deno.serve(async (req) => {
             console.log(`Charging history: totalResults=${totalResults}, pageSize=${pageSize}`);
             if (Array.isArray(sessions) && sessions.length > 0) {
               console.log("Sample charging session:", JSON.stringify(sessions[0]));
+              // Log all unique session keys to understand available fields
+              const allKeys = new Set<string>();
+              for (const s of sessions) { Object.keys(s).forEach(k => allKeys.add(k)); }
+              console.log("All session fields across page:", [...allKeys].join(", "));
             }
             loggedSample = true;
+          }
+          
+          // Log any sessions that might be AC/home charging
+          if (Array.isArray(sessions)) {
+            for (const s of sessions) {
+              const loc = s.siteLocationName || s.chargeLocationName || s.superchargerName || "unknown";
+              const sType = s.sessionType || s.chargerType || s.chargingType || "N/A";
+              const hasFees = Array.isArray(s.fees) && s.fees.length > 0;
+              const directKwh = s.chargeEnergyAdded || s.charge_energy_added || s.energy_added || s.energyAdded || 0;
+              if (!hasFees || Number(directKwh) === 0) {
+                console.log(`Potential home/AC session: location=${loc}, type=${sType}, directKwh=${directKwh}, hasFees=${hasFees}, keys=${Object.keys(s).join(",")}`);
+              }
+            }
           }
           
           // Sum up all charging energy from this page (kWh)
