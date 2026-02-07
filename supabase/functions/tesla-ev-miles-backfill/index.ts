@@ -57,17 +57,38 @@ Deno.serve(async (req) => {
     const userId = user.id;
 
     // Optional: accept a start_odometer from the request body
+    // Parse body once
     let startOdometer: number | null = null;
+    let forceRun = false;
     try {
       const body = await req.json();
       if (body?.start_odometer && typeof body.start_odometer === "number") {
         startOdometer = body.start_odometer;
       }
+      if (body?.force === true) forceRun = true;
     } catch {
       // No body or invalid JSON — that's fine
     }
 
-    console.log(`[EV Miles Backfill] Starting for user ${userId}, start_odometer=${startOdometer}`);
+    // Check if historical ev_miles data already exists — skip if so (unless force=true)
+    if (!forceRun) {
+      const { count } = await supabaseClient
+        .from("energy_production")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("provider", "tesla_historical")
+        .eq("data_type", "ev_miles");
+
+      if (count && count > 0) {
+        console.log(`[EV Miles Backfill] Already has ${count} historical records, skipping (use force=true to override)`);
+        return new Response(
+          JSON.stringify({ success: true, skipped: true, existing_records: count }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    console.log(`[EV Miles Backfill] Starting for user ${userId}, start_odometer=${startOdometer}, force=${forceRun}`);
 
     // 1. Get vehicle from connected_devices
     const { data: vehicles } = await supabaseClient
