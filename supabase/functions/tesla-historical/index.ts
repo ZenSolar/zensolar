@@ -8,6 +8,48 @@ const corsHeaders = {
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 const TESLA_TOKEN_URL = "https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token";
 
+/**
+ * Extract the street name from an address string, ignoring house numbers.
+ */
+function extractStreetName(address: string): string {
+  const normalized = address.toLowerCase().trim();
+  const cleaned = normalized.replace(/[,#].*/g, "").replace(/\b(apt|suite|ste|unit|bldg)\b.*/gi, "").trim();
+  const withoutNumber = cleaned.replace(/^\d+[\s-]*/, "").trim();
+  return withoutNumber;
+}
+
+/**
+ * Classify a charging session as "home" or "supercharger" based on street-name matching.
+ */
+function classifyChargingType(
+  location: string | null,
+  homeAddress: string,
+  totalFee: number,
+  sessionType: string,
+): string {
+  if (homeAddress && location) {
+    const homeStreet = extractStreetName(homeAddress);
+    const locStreet = extractStreetName(location);
+    if (homeStreet.length > 3 && locStreet.length > 3) {
+      if (locStreet.includes(homeStreet) || homeStreet.includes(locStreet)) {
+        return "home";
+      }
+      const homeCore = homeStreet.replace(/\b(dr|drive|st|street|ave|avenue|blvd|boulevard|ln|lane|ct|court|cir|circle|way|pl|place|rd|road)\b/g, "").trim();
+      const locCore = locStreet.replace(/\b(dr|drive|st|street|ave|avenue|blvd|boulevard|ln|lane|ct|court|cir|circle|way|pl|place|rd|road)\b/g, "").trim();
+      if (homeCore.length > 3 && locCore.length > 3 && (locCore.includes(homeCore) || homeCore.includes(locCore))) {
+        return "home";
+      }
+    }
+  }
+  if (totalFee === 0) {
+    const st = String(sessionType).toLowerCase();
+    if (!st.includes("supercharger") && !st.includes("dc_fast")) {
+      return "home";
+    }
+  }
+  return "supercharger";
+}
+
 async function refreshTeslaToken(
   supabaseClient: any,
   userId: string,
@@ -402,23 +444,8 @@ Deno.serve(async (req) => {
             // Collect per-session detail with home address classification
             const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
             
-            // Classify charging type based on location vs home address
-            let chargingType = "supercharger";
-            if (homeAddress && location) {
-              const locLower = location.toLowerCase();
-              const homeWords = homeAddress.split(/[\s,]+/).filter((w: string) => w.length > 2);
-              const matchCount = homeWords.filter((w: string) => locLower.includes(w)).length;
-              if (matchCount >= 2 || locLower.includes(homeAddress) || homeAddress.includes(locLower)) {
-                chargingType = "home";
-              }
-            }
-            // If no fees and not explicitly a supercharger session, classify as home
-            if (chargingType === "supercharger" && totalFee === 0) {
-              const sessionType = String(session.sessionType || "").toLowerCase();
-              if (!sessionType.includes("supercharger") && !sessionType.includes("dc_fast")) {
-                chargingType = "home";
-              }
-            }
+            // Classify charging type via street-name matching
+            const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || "");
 
             sessionDetailRecords.push({
               user_id: targetUserId,
