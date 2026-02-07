@@ -575,7 +575,7 @@ Deno.serve(async (req) => {
             const startTs = Math.floor(new Date('2020-01-01').getTime() / 1000);
             const endTs = Math.floor(Date.now() / 1000);
             
-            // Attempt 1: POST with JSON body
+            // POST with TeslaApp user-agent header (required per community findings)
             const vehicleChargeHistResp = await fetch(
               `${TESLA_API_BASE}/api/1/vehicles/${primaryVin}/charge_history`,
               {
@@ -583,6 +583,7 @@ Deno.serve(async (req) => {
                 headers: {
                   "Authorization": `Bearer ${accessToken}`,
                   "Content-Type": "application/json",
+                  "X-Tesla-User-Agent": "TeslaApp/4.19.5-2167",
                 },
                 body: JSON.stringify({
                   start_timestamp: startTs,
