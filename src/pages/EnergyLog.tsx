@@ -162,7 +162,7 @@ export default function EnergyLog() {
           <AnimatedItem>
             <Card className="bg-card border-border/50">
               <CardContent className="px-3 py-1">
-                <DailyList days={currentMonthData.days} unit={activeTab === 'ev-miles' ? 'mi' : 'kWh'} />
+                <DailyList days={currentMonthData.days} unit={activeTab === 'ev-miles' ? 'mi' : 'kWh'} activityType={activeTab} />
               </CardContent>
             </Card>
           </AnimatedItem>
