@@ -567,6 +567,40 @@ Deno.serve(async (req) => {
         
         console.log(`Charging history complete: ${totalSessions} sessions, total kWh: ${totalChargingKwh}`);
         
+        // TEST: Try the vehicle-level charge_history endpoint (includes home AC charging)
+        const primaryVin = vehicleDevices[0]?.device_id || vehicleDevices[0]?.id;
+        if (primaryVin) {
+          try {
+            const vehicleChargeHistResp = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles/${primaryVin}/charge_history`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+            console.log(`Vehicle charge_history status: ${vehicleChargeHistResp.status}`);
+            if (vehicleChargeHistResp.ok) {
+              const vchData = await vehicleChargeHistResp.json();
+              console.log(`Vehicle charge_history response keys:`, JSON.stringify(Object.keys(vchData)));
+              const records = vchData.response?.charging_history_graph?.data_points || vchData.response?.data_points || vchData.response || [];
+              console.log(`Vehicle charge_history records count: ${Array.isArray(records) ? records.length : 'not array'}`);
+              if (Array.isArray(records) && records.length > 0) {
+                console.log(`Vehicle charge_history sample[0]:`, JSON.stringify(records[0]));
+                console.log(`Vehicle charge_history sample keys:`, JSON.stringify(Object.keys(records[0])));
+                // Log a few more samples to see variety
+                if (records.length > 5) console.log(`Vehicle charge_history sample[5]:`, JSON.stringify(records[5]));
+                if (records.length > 10) console.log(`Vehicle charge_history sample[10]:`, JSON.stringify(records[10]));
+              } else {
+                // Log full response structure
+                const respStr = JSON.stringify(vchData).substring(0, 2000);
+                console.log(`Vehicle charge_history full response:`, respStr);
+              }
+            } else {
+              const errBody = await vehicleChargeHistResp.text();
+              console.log(`Vehicle charge_history error: ${errBody.substring(0, 500)}`);
+            }
+          } catch (vchErr) {
+            console.error(`Vehicle charge_history fetch error:`, vchErr);
+          }
+        }
+        
         // Get baseline from first vehicle's baseline data
         // Check all possible baseline keys used across the app
         const vehicleBaseline = vehicleDevices[0]?.baseline || {};
