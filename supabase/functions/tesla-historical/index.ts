@@ -130,12 +130,20 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get connected Tesla devices
-    const { data: devices } = await supabaseClient
-      .from("connected_devices")
-      .select("device_id, device_type, device_name")
-      .eq("user_id", targetUserId)
-      .eq("provider", "tesla");
+    // Get connected Tesla devices and home address for charging classification
+    const [{ data: devices }, { data: profileData }] = await Promise.all([
+      supabaseClient
+        .from("connected_devices")
+        .select("device_id, device_type, device_name")
+        .eq("user_id", targetUserId)
+        .eq("provider", "tesla"),
+      supabaseClient
+        .from("profiles")
+        .select("home_address")
+        .eq("user_id", targetUserId)
+        .single(),
+    ]);
+    const homeAddress = (profileData?.home_address || "").toLowerCase().trim();
 
     if (!devices || devices.length === 0) {
       return new Response(JSON.stringify({ error: "No Tesla devices found" }), {
@@ -391,8 +399,27 @@ Deno.serve(async (req) => {
               (dailyChargingMap.get(dateStr) || 0) + sessionKwh * 1000
             );
 
-            // Collect per-session detail
+            // Collect per-session detail with home address classification
             const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
+            
+            // Classify charging type based on location vs home address
+            let chargingType = "supercharger";
+            if (homeAddress && location) {
+              const locLower = location.toLowerCase();
+              const homeWords = homeAddress.split(/[\s,]+/).filter((w: string) => w.length > 2);
+              const matchCount = homeWords.filter((w: string) => locLower.includes(w)).length;
+              if (matchCount >= 2 || locLower.includes(homeAddress) || homeAddress.includes(locLower)) {
+                chargingType = "home";
+              }
+            }
+            // If no fees and not explicitly a supercharger session, classify as home
+            if (chargingType === "supercharger" && totalFee === 0) {
+              const sessionType = String(session.sessionType || "").toLowerCase();
+              if (!sessionType.includes("supercharger") && !sessionType.includes("dc_fast")) {
+                chargingType = "home";
+              }
+            }
+
             sessionDetailRecords.push({
               user_id: targetUserId,
               provider: "tesla",
@@ -402,7 +429,7 @@ Deno.serve(async (req) => {
               location,
               fee_amount: totalFee > 0 ? totalFee : null,
               fee_currency: totalFee > 0 ? feeCurrency : null,
-              charging_type: "supercharger",
+              charging_type: chargingType,
               session_metadata: { vin: session.vin || null, charger_type: session.sessionType || null },
             });
 
