@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEnergyLog } from '@/hooks/useEnergyLog';
 import { useChargingSessions } from '@/hooks/useChargingSessions';
+import { useDeviceLabels, getEnergyLogTitle } from '@/hooks/useDeviceLabels';
 import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2, ChevronDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,6 +37,7 @@ export default function EnergyLog() {
   const backfillTriggered = useRef(false);
   const [showMonthStats, setShowMonthStats] = useState(true);
   const [showSessions, setShowSessions] = useState(true);
+  const deviceLabels = useDeviceLabels();
 
   // One-time historical backfill for existing Enphase users
   useEffect(() => {
@@ -107,10 +109,7 @@ export default function EnergyLog() {
         <div className="flex items-center gap-2">
           <Sun className="h-5 w-5 text-primary" />
           <h1 className="text-xl font-bold text-foreground">
-            {activeTab === 'solar' && 'Solar Energy Log'}
-            {activeTab === 'battery' && 'Battery Storage Log'}
-            {activeTab === 'ev-charging' && 'EV Charging Log'}
-            {activeTab === 'ev-miles' && 'EV Miles Log'}
+            {getEnergyLogTitle(activeTab, deviceLabels)}
           </h1>
         </div>
       </AnimatedItem>
