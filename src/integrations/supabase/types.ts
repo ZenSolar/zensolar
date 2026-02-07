@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       charging_sessions: {
         Row: {
+          charging_type: string
           created_at: string
           device_id: string
           energy_kwh: number
@@ -29,6 +30,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          charging_type?: string
           created_at?: string
           device_id: string
           energy_kwh?: number
@@ -42,6 +44,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          charging_type?: string
           created_at?: string
           device_id?: string
           energy_kwh?: number
@@ -338,6 +341,7 @@ export type Database = {
           facebook_connected: boolean | null
           facebook_handle: string | null
           hidden_activity_fields: string[] | null
+          home_address: string | null
           id: string
           instagram_connected: boolean | null
           instagram_handle: string | null
@@ -365,6 +369,7 @@ export type Database = {
           facebook_connected?: boolean | null
           facebook_handle?: string | null
           hidden_activity_fields?: string[] | null
+          home_address?: string | null
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null
@@ -392,6 +397,7 @@ export type Database = {
           facebook_connected?: boolean | null
           facebook_handle?: string | null
           hidden_activity_fields?: string[] | null
+          home_address?: string | null
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null

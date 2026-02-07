@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,7 +42,8 @@ import {
   Unlink,
   Share2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Home
 } from "lucide-react";
 import { toast } from "sonner";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
@@ -105,6 +106,26 @@ export default function Profile() {
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const [disconnectConfirm, setDisconnectConfirm] = useState<'tesla' | 'enphase' | 'solaredge' | 'wallbox' | null>(null);
+  const [homeAddress, setHomeAddress] = useState('');
+  const [homeAddressSaving, setHomeAddressSaving] = useState(false);
+  const [homeAddressInitialized, setHomeAddressInitialized] = useState(false);
+
+  // Initialize home address from profile once loaded
+  useEffect(() => {
+    if (profile && !homeAddressInitialized) {
+      setHomeAddress(profile.home_address || '');
+      setHomeAddressInitialized(true);
+    }
+  }, [profile, homeAddressInitialized]);
+
+  const homeAddressDirty = homeAddressInitialized && homeAddress !== (profile?.home_address || '');
+
+  const handleSaveHomeAddress = async () => {
+    setHomeAddressSaving(true);
+    const { error } = await updateProfile({ home_address: homeAddress.trim() || null } as any);
+    setHomeAddressSaving(false);
+    if (!error) toast.success('Home address saved — charging sessions will be classified on next sync');
+  };
 
   const handleRefresh = useCallback(async () => {
     await refetch();
@@ -578,7 +599,48 @@ export default function Profile() {
           </Card>
         </motion.div>
 
-        {/* Disconnect Confirmation Dialog */}
+        {/* Home Address — for charging classification */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 py-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Home className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Home Address</CardTitle>
+                  <CardDescription>Used to classify EV charging as home vs. away</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 pb-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={homeAddress}
+                  onChange={(e) => setHomeAddress(e.target.value)}
+                  placeholder="e.g. 3015 Sea Jay Drive, Austin, TX"
+                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                <Button 
+                  size="sm" 
+                  onClick={handleSaveHomeAddress} 
+                  disabled={!homeAddressDirty || homeAddressSaving}
+                >
+                  {homeAddressSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Charging sessions at or near this address will be classified as "Home Charging"
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         <AlertDialog open={!!disconnectConfirm} onOpenChange={(open) => !open && setDisconnectConfirm(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
