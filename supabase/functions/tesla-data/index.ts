@@ -567,16 +567,12 @@ Deno.serve(async (req) => {
         
         console.log(`Charging history complete: ${totalSessions} sessions, total kWh: ${totalChargingKwh}`);
         
-        // TEST: Try the vehicle-level charge_history endpoint (includes home AC charging)
+        // TEST: Vehicle charge history endpoints
         const primaryVin = vehicleDevices[0]?.device_id || vehicleDevices[0]?.id;
         if (primaryVin) {
+          // Attempt 1: POST with empty body (how TeslaPy v1 does it)
           try {
-            // Try POST with various body formats
-            const startTs = Math.floor(new Date('2020-01-01').getTime() / 1000);
-            const endTs = Math.floor(Date.now() / 1000);
-            
-            // POST with TeslaApp user-agent header (required per community findings)
-            const vehicleChargeHistResp = await fetch(
+            const resp1 = await fetch(
               `${TESLA_API_BASE}/api/1/vehicles/${primaryVin}/charge_history`,
               {
                 method: "POST",
@@ -585,39 +581,33 @@ Deno.serve(async (req) => {
                   "Content-Type": "application/json",
                   "X-Tesla-User-Agent": "TeslaApp/4.19.5-2167",
                 },
-                body: JSON.stringify({
-                  start_timestamp: startTs,
-                  end_timestamp: endTs,
-                }),
+                body: "{}",
               }
             );
-            console.log(`Vehicle charge_history POST status: ${vehicleChargeHistResp.status}`);
-            if (vehicleChargeHistResp.ok) {
-              const vchData = await vehicleChargeHistResp.json();
-              console.log(`Vehicle charge_history response keys:`, JSON.stringify(Object.keys(vchData)));
-              if (vchData.response) {
-                console.log(`Vehicle charge_history response inner keys:`, JSON.stringify(Object.keys(vchData.response)));
+            console.log(`charge_history v1 (empty body) status: ${resp1.status}`);
+            const body1 = await resp1.text();
+            console.log(`charge_history v1 response: ${body1.substring(0, 2000)}`);
+          } catch (e) {
+            console.error(`charge_history v1 error:`, e);
+          }
+
+          // Attempt 2: ownership.tesla.com v2 endpoint (what Tesla app uses)
+          try {
+            const vin = vehicleDevices[0]?.device_id;
+            const resp2 = await fetch(
+              `https://ownership.tesla.com/mobile-app/charging/history?vin=${vin}&deviceLanguage=en&deviceCountry=US&operationName=getChargingHistoryV2`,
+              {
+                headers: {
+                  "Authorization": `Bearer ${accessToken}`,
+                  "X-Tesla-User-Agent": "TeslaApp/4.19.5-2167",
+                },
               }
-              const records = vchData.response?.charging_history_graph?.data_points 
-                || vchData.response?.data_points 
-                || vchData.response?.data 
-                || vchData.response?.results
-                || (Array.isArray(vchData.response) ? vchData.response : []);
-              console.log(`Vehicle charge_history records count: ${Array.isArray(records) ? records.length : 'not array'}`);
-              if (Array.isArray(records) && records.length > 0) {
-                console.log(`Vehicle charge_history sample[0]:`, JSON.stringify(records[0]));
-                if (records.length > 5) console.log(`Vehicle charge_history sample[5]:`, JSON.stringify(records[5]));
-                if (records.length > 10) console.log(`Vehicle charge_history sample[10]:`, JSON.stringify(records[10]));
-              } else {
-                const respStr = JSON.stringify(vchData).substring(0, 3000);
-                console.log(`Vehicle charge_history full response:`, respStr);
-              }
-            } else {
-              const errBody = await vehicleChargeHistResp.text();
-              console.log(`Vehicle charge_history POST error: ${errBody.substring(0, 1000)}`);
-            }
-          } catch (vchErr) {
-            console.error(`Vehicle charge_history fetch error:`, vchErr);
+            );
+            console.log(`charge_history v2 (ownership) status: ${resp2.status}`);
+            const body2 = await resp2.text();
+            console.log(`charge_history v2 response: ${body2.substring(0, 3000)}`);
+          } catch (e) {
+            console.error(`charge_history v2 error:`, e);
           }
         }
         
