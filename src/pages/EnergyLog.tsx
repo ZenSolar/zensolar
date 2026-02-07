@@ -106,7 +106,12 @@ export default function EnergyLog() {
       <AnimatedItem className="space-y-1">
         <div className="flex items-center gap-2">
           <Sun className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">Energy Log</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            {activeTab === 'solar' && 'Solar Energy Log'}
+            {activeTab === 'battery' && 'Battery Storage Log'}
+            {activeTab === 'ev-charging' && 'EV Charging Log'}
+            {activeTab === 'ev-miles' && 'EV Miles Log'}
+          </h1>
         </div>
       </AnimatedItem>
 
