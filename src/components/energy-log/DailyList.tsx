@@ -17,6 +17,10 @@ export function DailyList({ days, unit = 'kWh', activityType }: DailyListProps) 
     .filter(d => !isSameDay(d.date, today))
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
+  // Detect if the entire month has no data (gateway offline)
+  const allZero = sortedDays.length > 0 && sortedDays.every(d => d.kWh === 0);
+  const isBattery = activityType === 'battery';
+
   if (sortedDays.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -26,24 +30,34 @@ export function DailyList({ days, unit = 'kWh', activityType }: DailyListProps) 
   }
 
   return (
-    <div className="divide-y divide-border/40">
-      {sortedDays.map(day => (
-        <div
-          key={day.date.toISOString()}
-          className="flex items-center justify-between py-3 px-1"
-        >
-          <span className="text-sm text-muted-foreground">
-            {format(day.date, 'EEE, MMM d')}
-          </span>
-          {day.kWh > 0 ? (
-            <span className="text-sm font-semibold tabular-nums text-foreground">
-              {day.kWh.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{unit}</span>
-            </span>
-          ) : (
-            <span className="text-sm font-semibold tabular-nums text-muted-foreground/40">—</span>
-          )}
+    <div>
+      {allZero && isBattery && (
+        <div className="flex items-center gap-2 px-3 py-2.5 mb-1 rounded-lg bg-muted/50 border border-border/30">
+          <WifiOff className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            Tesla Gateway was offline this month — no battery data available.
+          </p>
         </div>
-      ))}
+      )}
+      <div className="divide-y divide-border/40">
+        {sortedDays.map(day => (
+          <div
+            key={day.date.toISOString()}
+            className="flex items-center justify-between py-3 px-1"
+          >
+            <span className="text-sm text-muted-foreground">
+              {format(day.date, 'EEE, MMM d')}
+            </span>
+            {day.kWh > 0 ? (
+              <span className="text-sm font-semibold tabular-nums text-foreground">
+                {day.kWh.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{unit}</span>
+              </span>
+            ) : (
+              <span className="text-sm font-semibold tabular-nums text-muted-foreground/40">—</span>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
