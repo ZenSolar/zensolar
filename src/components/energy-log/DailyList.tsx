@@ -1,13 +1,15 @@
 import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { WifiOff } from 'lucide-react';
 import type { ActivityType, DailyProduction } from '@/hooks/useEnergyLog';
 
 interface DailyListProps {
   days: DailyProduction[];
   unit?: string;
+  activityType?: ActivityType;
 }
 
-export function DailyList({ days, unit = 'kWh' }: DailyListProps) {
+export function DailyList({ days, unit = 'kWh', activityType }: DailyListProps) {
   const today = new Date();
 
   // Show days in reverse chronological order (most recent first), skip today (shown in hero)
@@ -33,14 +35,18 @@ export function DailyList({ days, unit = 'kWh' }: DailyListProps) {
           <span className="text-sm text-muted-foreground">
             {format(day.date, 'EEE, MMM d')}
           </span>
-          <span className={cn(
-            "text-sm font-semibold tabular-nums",
-            day.kWh > 0 ? "text-foreground" : "text-muted-foreground/40"
-          )}>
-            {day.kWh > 0 ? (
-              <>{day.kWh.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{unit}</span></>
-            ) : '—'}
-          </span>
+          {day.kWh > 0 ? (
+            <span className="text-sm font-semibold tabular-nums text-foreground">
+              {day.kWh.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{unit}</span>
+            </span>
+          ) : activityType === 'battery' ? (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+              <WifiOff className="h-3 w-3" />
+              Gateway offline
+            </span>
+          ) : (
+            <span className="text-sm font-semibold tabular-nums text-muted-foreground/40">—</span>
+          )}
         </div>
       ))}
     </div>
