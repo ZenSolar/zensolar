@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encode as hexEncode } from "https://deno.land/std@0.208.0/encoding/hex.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +10,41 @@ const corsHeaders = {
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 const TESLA_TOKEN_URL =
   "https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token";
+
+// ── Cryptographic Helpers ────────────────────────────────────────────────────
+
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Build a snapshot hash: SHA-256(vin | timestamp | kWh | battery% | prevHash) */
+async function buildSnapshotHash(
+  vin: string,
+  timestamp: string,
+  chargeEnergyAdded: number,
+  batteryLevel: number,
+  prevHash: string,
+): Promise<string> {
+  const preimage = `${vin}|${timestamp}|${chargeEnergyAdded}|${batteryLevel}|${prevHash}`;
+  return sha256Hex(preimage);
+}
+
+/** Build a delta proof: SHA-256(sessionId | startKwh | endKwh | totalKwh | firstHash | lastHash) */
+async function buildDeltaProof(
+  sessionId: string,
+  startKwh: number,
+  endKwh: number,
+  totalKwh: number,
+  firstHash: string,
+  lastHash: string,
+): Promise<string> {
+  const preimage = `${sessionId}|${startKwh}|${endKwh}|${totalKwh}|${firstHash}|${lastHash}`;
+  return sha256Hex(preimage);
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -305,10 +341,14 @@ async function processVehicle(
 
     if (!activeSession) {
       // ── START new session ──
+      const now = new Date().toISOString();
+      const genesisHash = await buildSnapshotHash(vin, now, chargeEnergyAdded, batteryLevel, "genesis");
+      const proofChain = [{ ts: now, kwh: chargeEnergyAdded, bat: batteryLevel, hash: genesisHash }];
+
       const { error } = await supabase.from("home_charging_sessions").insert({
         user_id: userId,
         device_id: vin,
-        start_time: new Date().toISOString(),
+        start_time: now,
         start_kwh_added: chargeEnergyAdded,
         end_kwh_added: chargeEnergyAdded,
         total_session_kwh: 0,
@@ -317,6 +357,8 @@ async function processVehicle(
         latitude: vehicleLat,
         longitude: vehicleLng,
         charger_power_kw: chargerPower,
+        proof_chain: proofChain,
+        verified: false,
         session_metadata: {
           battery_level_start: batteryLevel,
           distance_from_home_mi: distFromHome,
@@ -326,21 +368,28 @@ async function processVehicle(
       if (error) {
         console.error(`[ChargeMonitor] Insert error:`, error);
       } else {
-        console.log(`[ChargeMonitor] ▶ STARTED session for ${vin}: ${chargeEnergyAdded} kWh`);
+        console.log(`[ChargeMonitor] ▶ STARTED session for ${vin}: ${chargeEnergyAdded} kWh (hash: ${genesisHash.slice(0, 12)}…)`);
       }
       results.push({ vin, action: "started", energy: chargeEnergyAdded });
     } else {
-      // ── UPDATE existing session ──
+      // ── UPDATE existing session with new hash chain link ──
+      const now = new Date().toISOString();
+      const existingChain = activeSession.proof_chain || [];
+      const prevHash = existingChain.length > 0 ? existingChain[existingChain.length - 1].hash : "genesis";
+      const newHash = await buildSnapshotHash(vin, now, chargeEnergyAdded, batteryLevel, prevHash);
+      const updatedChain = [...existingChain, { ts: now, kwh: chargeEnergyAdded, bat: batteryLevel, hash: newHash }];
+
       const { error } = await supabase
         .from("home_charging_sessions")
         .update({
           end_kwh_added: chargeEnergyAdded,
           total_session_kwh: Math.max(0, chargeEnergyAdded - activeSession.start_kwh_added),
           charger_power_kw: chargerPower,
+          proof_chain: updatedChain,
           session_metadata: {
             ...activeSession.session_metadata,
             battery_level_latest: batteryLevel,
-            last_poll: new Date().toISOString(),
+            last_poll: now,
           },
         })
         .eq("id", activeSession.id);
@@ -364,13 +413,25 @@ async function processVehicle(
         : activeSession.end_kwh_added;
       const totalKwh = Math.max(0, finalEnergy - activeSession.start_kwh_added);
 
+      // Build final hash chain link + delta proof
+      const now = new Date().toISOString();
+      const existingChain = activeSession.proof_chain || [];
+      const prevHash = existingChain.length > 0 ? existingChain[existingChain.length - 1].hash : "genesis";
+      const finalHash = await buildSnapshotHash(vin, now, finalEnergy, batteryLevel, prevHash);
+      const finalChain = [...existingChain, { ts: now, kwh: finalEnergy, bat: batteryLevel, hash: finalHash }];
+      const firstHash = finalChain[0].hash;
+      const deltaProof = await buildDeltaProof(activeSession.id, activeSession.start_kwh_added, finalEnergy, totalKwh, firstHash, finalHash);
+
       const { error } = await supabase
         .from("home_charging_sessions")
         .update({
-          end_time: new Date().toISOString(),
+          end_time: now,
           end_kwh_added: finalEnergy,
           total_session_kwh: totalKwh,
           status: "completed",
+          proof_chain: finalChain,
+          delta_proof: deltaProof,
+          verified: totalKwh > 0 && finalChain.length >= 2,
           session_metadata: {
             ...activeSession.session_metadata,
             battery_level_end: batteryLevel,
@@ -381,7 +442,7 @@ async function processVehicle(
 
       if (error) console.error(`[ChargeMonitor] Complete error:`, error);
 
-      console.log(`[ChargeMonitor] ✓ COMPLETED session ${activeSession.id.slice(0, 8)}: ${totalKwh.toFixed(1)} kWh`);
+      console.log(`[ChargeMonitor] ✓ COMPLETED session ${activeSession.id.slice(0, 8)}: ${totalKwh.toFixed(1)} kWh | proof: ${deltaProof.slice(0, 12)}… | chain: ${finalChain.length} links`);
 
       // Also write to energy_production for Energy Log daily view
       if (totalKwh > 0) {
@@ -390,7 +451,7 @@ async function processVehicle(
         await writeToChargingSessions(supabase, userId, vin, activeSession, totalKwh, homeAddress);
       }
 
-      results.push({ vin, action: "completed", total_kwh: totalKwh });
+      results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
     } else {
       results.push({ vin, action: "no_active_session", state: chargingState });
     }
@@ -414,13 +475,25 @@ async function finalizeStaleSession(supabase: any, userId: string, vin: string, 
   if (active && active.length > 0) {
     const session = active[0];
     const totalKwh = Math.max(0, session.end_kwh_added - session.start_kwh_added);
+    const now = new Date().toISOString();
+
+    // Build final proof from existing chain
+    const existingChain = session.proof_chain || [];
+    const prevHash = existingChain.length > 0 ? existingChain[existingChain.length - 1].hash : "genesis";
+    const finalHash = await buildSnapshotHash(vin, now, session.end_kwh_added, 0, prevHash);
+    const finalChain = [...existingChain, { ts: now, kwh: session.end_kwh_added, bat: 0, hash: finalHash, stale: true }];
+    const firstHash = finalChain[0].hash;
+    const deltaProof = await buildDeltaProof(session.id, session.start_kwh_added, session.end_kwh_added, totalKwh, firstHash, finalHash);
 
     await supabase
       .from("home_charging_sessions")
       .update({
-        end_time: new Date().toISOString(),
+        end_time: now,
         total_session_kwh: totalKwh,
         status: "completed",
+        proof_chain: finalChain,
+        delta_proof: deltaProof,
+        verified: totalKwh > 0 && finalChain.length >= 2,
         session_metadata: {
           ...session.session_metadata,
           end_reason: reason,
@@ -428,7 +501,7 @@ async function finalizeStaleSession(supabase: any, userId: string, vin: string, 
       })
       .eq("id", session.id);
 
-    console.log(`[ChargeMonitor] ✓ Finalized stale session ${session.id.slice(0, 8)}: ${totalKwh.toFixed(1)} kWh (${reason})`);
+    console.log(`[ChargeMonitor] ✓ Finalized stale session ${session.id.slice(0, 8)}: ${totalKwh.toFixed(1)} kWh | proof: ${deltaProof.slice(0, 12)}… (${reason})`);
 
     if (totalKwh > 0) {
       await writeToEnergyProduction(supabase, userId, vin, session.start_time, totalKwh);
