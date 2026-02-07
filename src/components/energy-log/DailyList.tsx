@@ -33,10 +33,9 @@ export function DailyList({ days, unit = 'kWh', activityType }: DailyListProps) 
     <div>
       {allZero && isBattery && (
         <div className="flex items-center gap-2 px-3 py-2.5 mb-1 rounded-lg bg-muted/50 border border-border/30">
-          <WifiOff className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            Tesla Gateway was offline this month — no battery data available.
-          </p>
+          <span className="text-xs text-muted-foreground">
+            No battery discharge recorded this month — the battery may have been set to 100% backup reserve.
+          </span>
         </div>
       )}
       <div className="divide-y divide-border/40">
