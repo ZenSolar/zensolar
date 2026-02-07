@@ -7,6 +7,37 @@ const corsHeaders = {
 
 const SOLAREDGE_API_BASE = "https://monitoringapi.solaredge.com";
 
+// ── Cryptographic Helpers (Proof-of-Delta™) ──────────────────────────────────
+
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function buildEnergyHash(deviceId: string, timestamp: string, value: number, prevHash: string): Promise<string> {
+  return sha256Hex(`${deviceId}|${timestamp}|${value}|${prevHash}`);
+}
+
+async function getPreviousProof(supabaseClient: any, deviceId: string, dataType: string, userId: string) {
+  const { data: prevRecord } = await supabaseClient
+    .from("energy_production")
+    .select("proof_metadata, production_wh")
+    .eq("device_id", deviceId)
+    .eq("provider", "solaredge")
+    .eq("data_type", dataType)
+    .eq("user_id", userId)
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return {
+    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
+    prevValue: Number(prevRecord?.production_wh || 0),
+  };
+}
+
 // Cache duration in minutes - SolarEdge has daily request limits
 const CACHE_DURATION_MINUTES = 15;
 
@@ -195,11 +226,15 @@ Deno.serve(async (req) => {
       console.log(`SolarEdge pending calculation: lifetime=${lifetimeEnergyWh}, baseline=${baselineSolarWh}, pending=${pendingSolarWh}`);
     }
 
-    // Store production data for rewards calculation
+    // Store production data with Proof-of-Delta™ cryptographic verification
     if (todayEnergyWh > 0) {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
-      
+      const tsNow = now.toISOString();
+      const { prevHash, prevValue } = await getPreviousProof(supabaseClient, siteId, "solar", targetUserId);
+      const hash = await buildEnergyHash(siteId, tsNow, todayEnergyWh, prevHash);
+      console.log(`[Proof-of-Delta] SolarEdge solar for ${siteId}: ${hash.slice(0, 16)}... (val: ${todayEnergyWh} Wh)`);
+
       await supabaseClient
         .from("energy_production")
         .upsert({
@@ -209,6 +244,19 @@ Deno.serve(async (req) => {
           production_wh: todayEnergyWh,
           data_type: "solar",
           recorded_at: recordedAt,
+          proof_metadata: {
+            hash,
+            prev_hash: prevHash,
+            device_id: siteId,
+            value: todayEnergyWh,
+            prev_value: prevValue,
+            delta: Math.max(0, todayEnergyWh - prevValue),
+            data_type: "solar",
+            unit: "wh",
+            timestamp: tsNow,
+            algorithm: "SHA-256",
+            preimage_format: "device_id|timestamp|value|prevHash",
+          },
         }, { onConflict: "device_id,provider,recorded_at,data_type" });
     }
 

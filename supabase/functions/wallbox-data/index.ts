@@ -8,6 +8,37 @@ const corsHeaders = {
 // Wallbox API endpoints
 const WALLBOX_API_BASE = "https://api.wall-box.com";
 
+// ── Cryptographic Helpers (Proof-of-Delta™) ──────────────────────────────────
+
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function buildEnergyHash(deviceId: string, timestamp: string, value: number, prevHash: string): Promise<string> {
+  return sha256Hex(`${deviceId}|${timestamp}|${value}|${prevHash}`);
+}
+
+async function getPreviousProof(supabaseClient: any, deviceId: string, dataType: string, userId: string) {
+  const { data: prevRecord } = await supabaseClient
+    .from("energy_production")
+    .select("proof_metadata, production_wh")
+    .eq("device_id", deviceId)
+    .eq("provider", "wallbox")
+    .eq("data_type", dataType)
+    .eq("user_id", userId)
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return {
+    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
+    prevValue: Number(prevRecord?.production_wh || 0),
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -544,9 +575,14 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Write daily granular rows (same pattern as Tesla)
+      // Write daily granular rows with Proof-of-Delta™ cryptographic verification
       for (const [dateStr, totalWh] of dailyChargingMap) {
         if (totalWh <= 0) continue;
+        const tsNow = new Date().toISOString();
+        const { prevHash, prevValue } = await getPreviousProof(supabaseClient, primaryId, "ev_charging", targetUserId);
+        const hash = await buildEnergyHash(primaryId, tsNow, totalWh, prevHash);
+        console.log(`[Proof-of-Delta] Wallbox charging for ${primaryId} on ${dateStr}: ${hash.slice(0, 16)}... (val: ${totalWh} Wh)`);
+
         const { error: dayError } = await supabaseClient
           .from("energy_production")
           .upsert({
@@ -556,6 +592,19 @@ Deno.serve(async (req) => {
             production_wh: totalWh,
             data_type: "ev_charging",
             recorded_at: dateStr + "T12:00:00Z",
+            proof_metadata: {
+              hash,
+              prev_hash: prevHash,
+              device_id: primaryId,
+              value: totalWh,
+              prev_value: prevValue,
+              delta: Math.max(0, totalWh - prevValue),
+              data_type: "ev_charging",
+              unit: "wh",
+              timestamp: tsNow,
+              algorithm: "SHA-256",
+              preimage_format: "device_id|timestamp|value|prevHash",
+            },
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
         if (dayError) console.error(`Wallbox daily upsert error for ${dateStr}:`, dayError);
       }

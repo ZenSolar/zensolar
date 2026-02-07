@@ -6,6 +6,37 @@ const corsHeaders = {
 };
 
 const ENPHASE_API_BASE = "https://api.enphaseenergy.com/api/v4";
+
+// ── Cryptographic Helpers (Proof-of-Delta™) ──────────────────────────────────
+
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function buildEnergyHash(deviceId: string, timestamp: string, value: number, prevHash: string): Promise<string> {
+  return sha256Hex(`${deviceId}|${timestamp}|${value}|${prevHash}`);
+}
+
+async function getPreviousProof(supabaseClient: any, deviceId: string, dataType: string, userId: string, provider: string = "enphase") {
+  const { data: prevRecord } = await supabaseClient
+    .from("energy_production")
+    .select("proof_metadata, production_wh")
+    .eq("device_id", deviceId)
+    .eq("provider", provider)
+    .eq("data_type", dataType)
+    .eq("user_id", userId)
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return {
+    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
+    prevValue: Number(prevRecord?.production_wh || 0),
+  };
+}
 const ENPHASE_TOKEN_URL = "https://api.enphaseenergy.com/oauth/token";
 
 // Helper to refresh Enphase token
@@ -350,19 +381,38 @@ Deno.serve(async (req) => {
         energy_today_wh: energyTodayWh,
       });
 
-      // Store production data for rewards calculation
+      // Store production data with Proof-of-Delta™ cryptographic verification
       if (energyTodayWh > 0) {
         const now = new Date();
         const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
+        const tsNow = now.toISOString();
+        const devId = String(systemId);
+        const { prevHash, prevValue } = await getPreviousProof(supabaseClient, devId, "solar", targetUserId);
+        const hash = await buildEnergyHash(devId, tsNow, energyTodayWh, prevHash);
+        console.log(`[Proof-of-Delta] Enphase solar for ${devId}: ${hash.slice(0, 16)}... (val: ${energyTodayWh} Wh)`);
+
         await supabaseClient
           .from("energy_production")
           .upsert({
             user_id: targetUserId,
-            device_id: String(systemId),
+            device_id: devId,
             provider: "enphase",
             production_wh: energyTodayWh,
             data_type: "solar",
             recorded_at: recordedAt,
+            proof_metadata: {
+              hash,
+              prev_hash: prevHash,
+              device_id: devId,
+              value: energyTodayWh,
+              prev_value: prevValue,
+              delta: Math.max(0, energyTodayWh - prevValue),
+              data_type: "solar",
+              unit: "wh",
+              timestamp: tsNow,
+              algorithm: "SHA-256",
+              preimage_format: "device_id|timestamp|value|prevHash",
+            },
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
 
