@@ -366,10 +366,17 @@ Deno.serve(async (req) => {
               
               if (wallConnectorResponse.ok) {
                 const wallConnectorData = await wallConnectorResponse.json();
+                console.log(`Site ${site.id} wall connector RAW response keys:`, JSON.stringify(Object.keys(wallConnectorData)));
+                console.log(`Site ${site.id} wall connector response.keys:`, wallConnectorData.response ? JSON.stringify(Object.keys(wallConnectorData.response)) : 'no response key');
                 const chargeSeries = wallConnectorData.response?.time_series || wallConnectorData.response?.data || [];
                 
                 if (chargeSeries.length > 0) {
                   console.log(`Sample wall connector charge for site ${site.id}:`, JSON.stringify(chargeSeries[0]));
+                  console.log(`Wall connector charge record keys:`, JSON.stringify(Object.keys(chargeSeries[0])));
+                } else {
+                  // Log the full response to understand structure
+                  const respStr = JSON.stringify(wallConnectorData).substring(0, 1000);
+                  console.log(`Site ${site.id} wall connector empty series, full response:`, respStr);
                 }
                 
                 // Sum up all wall connector charging (values are in Wh)
@@ -378,7 +385,8 @@ Deno.serve(async (req) => {
                 }
                 console.log(`Site ${site.id} wall connector charging: ${wallConnectorChargingWh} Wh (${chargeSeries.length} records)`);
               } else {
-                console.log(`Wall connector history not available for site ${site.id}:`, wallConnectorResponse.status);
+                const errorBody = await wallConnectorResponse.text();
+                console.log(`Wall connector history not available for site ${site.id}: status=${wallConnectorResponse.status}, body=${errorBody.substring(0, 500)}`);
               }
             } catch (wcError) {
               console.log(`Wall connector history error for site ${site.id}:`, wcError);
