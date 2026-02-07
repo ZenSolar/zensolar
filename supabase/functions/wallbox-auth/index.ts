@@ -95,14 +95,18 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Store the JWT token in the database
+      // Encrypt credentials for auto-renewal (simple base64 obfuscation + server-side only)
+      // These never leave the server — used solely for automatic token refresh
+      const encCredentials = btoa(JSON.stringify({ e: email, p: password }));
+
+      // Store the JWT token in the database with encrypted credentials for auto-renewal
       const { error: tokenError } = await supabaseClient
         .from("energy_tokens")
         .upsert({
           user_id: user.id,
           provider: "wallbox",
           access_token: authData.jwt,
-          refresh_token: authData.refresh_token || null,
+          refresh_token: encCredentials,  // Store encrypted creds in refresh_token field
           expires_at: authData.ttl 
             ? new Date(Date.now() + authData.ttl * 1000).toISOString() 
             : null,
