@@ -36,14 +36,17 @@ interface InverterResponse {
   arrays: ArrayData[];
 }
 
-export function useEnphaseInverters(enabled: boolean) {
+export function useEnphaseInverters(enabled: boolean, viewAsUserId?: string | null) {
   return useQuery<InverterResponse>({
-    queryKey: ['enphase-inverters'],
+    queryKey: ['enphase-inverters', viewAsUserId || 'self'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase.functions.invoke('enphase-inverters', {
+      // Build URL with optional target_user_id for admin view-as
+      const params = viewAsUserId ? `?target_user_id=${viewAsUserId}` : '';
+      
+      const { data, error } = await supabase.functions.invoke(`enphase-inverters${params}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 

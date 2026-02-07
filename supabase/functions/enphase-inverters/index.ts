@@ -116,7 +116,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { accessToken, error: tokenError, ...tokenExtra } = await getAccessToken(supabaseClient, user.id);
+    // Support admin "view as user" — accept target_user_id query param
+    let targetUserId = user.id;
+    const url = new URL(req.url);
+    const viewAsParam = url.searchParams.get("target_user_id");
+    if (viewAsParam) {
+      // Verify caller is admin
+      const { data: isAdmin } = await supabaseClient.rpc("is_admin", { _user_id: user.id });
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      targetUserId = viewAsParam;
+    }
+
+    const { accessToken, error: tokenError, ...tokenExtra } = await getAccessToken(supabaseClient, targetUserId);
     if (!accessToken) {
       return new Response(JSON.stringify({ error: tokenError, ...tokenExtra }), {
         status: tokenError === "Token expired" ? 401 : 400,
@@ -128,7 +144,7 @@ Deno.serve(async (req) => {
     const { data: devices } = await supabaseClient
       .from("connected_devices")
       .select("device_id, device_name")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("provider", "enphase");
 
     if (!devices || devices.length === 0) {
