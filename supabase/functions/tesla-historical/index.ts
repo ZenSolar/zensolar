@@ -402,6 +402,7 @@ Deno.serve(async (req) => {
               location,
               fee_amount: totalFee > 0 ? totalFee : null,
               fee_currency: totalFee > 0 ? feeCurrency : null,
+              charging_type: "supercharger",
               session_metadata: { vin: session.vin || null, charger_type: session.sessionType || null },
             });
 

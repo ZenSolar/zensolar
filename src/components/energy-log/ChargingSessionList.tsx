@@ -56,7 +56,9 @@ export function ChargingSessionList({ sessions }: ChargingSessionListProps) {
                           {session.fee_currency === 'USD' ? '$' : ''}{session.fee_amount.toFixed(2)}
                         </span>
                       )}
-                      <span className="capitalize text-muted-foreground/60">{session.provider}</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground">
+                        {session.charging_type === 'home' ? '🏠 Home' : '⚡ Supercharger'}
+                      </span>
                     </div>
                   </div>
                   <span className="text-sm font-semibold tabular-nums text-foreground ml-3">

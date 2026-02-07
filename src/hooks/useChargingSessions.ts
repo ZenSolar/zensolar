@@ -12,6 +12,7 @@ export interface ChargingSession {
   location: string | null;
   fee_amount: number | null;
   fee_currency: string | null;
+  charging_type: string;
   session_metadata: Record<string, unknown> | null;
 }
 

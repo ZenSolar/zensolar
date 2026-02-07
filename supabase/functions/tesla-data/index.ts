@@ -449,7 +449,6 @@ Deno.serve(async (req) => {
                     if (fee.currencyCode) feeCurrency = fee.currencyCode;
                   }
                 }
-                // We'll batch-upsert these after the loop
                 if (!chargingSessionDetails) chargingSessionDetails = [];
                 chargingSessionDetails.push({
                   user_id: targetUserId,
@@ -460,6 +459,7 @@ Deno.serve(async (req) => {
                   location: location,
                   fee_amount: totalFee > 0 ? totalFee : null,
                   fee_currency: totalFee > 0 ? feeCurrency : null,
+                  charging_type: "supercharger",
                   session_metadata: {
                     vin: session.vin || null,
                     charger_type: session.sessionType || session.chargerType || null,
