@@ -56,8 +56,14 @@ export function ChargingSessionList({ sessions }: ChargingSessionListProps) {
                           {session.fee_currency === 'USD' ? '$' : ''}{session.fee_amount.toFixed(2)}
                         </span>
                       )}
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground">
-                        {session.charging_type === 'home' ? '🏠 Home' : '⚡ Supercharger'}
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                        session.charging_type === 'home'
+                          ? 'bg-green-500/15 text-green-700 dark:text-green-400'
+                          : session.charging_type === 'other_ac'
+                          ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {session.charging_type === 'home' ? '🏠 Home' : session.charging_type === 'other_ac' ? '🔌 Destination' : '⚡ Supercharger'}
                       </span>
                     </div>
                   </div>
