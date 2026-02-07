@@ -93,6 +93,22 @@ export default function EnergyLog() {
               console.error('[EnergyLog] Tesla backfill error:', res.error);
             }
           }
+
+          // EV Miles historical backfill (energy-weighted distribution from charging history)
+          const evMilesKey = `tesla_ev_miles_backfill_${session.user.id}`;
+          if (!localStorage.getItem(evMilesKey)) {
+            console.log('[EnergyLog] Running one-time EV Miles historical backfill...');
+            const evRes = await supabase.functions.invoke('tesla-ev-miles-backfill', {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            });
+            if (evRes.data?.success) {
+              console.log(`[EnergyLog] EV Miles backfill complete:`, evRes.data);
+              localStorage.setItem(evMilesKey, 'true');
+              queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+            } else if (evRes.error) {
+              console.error('[EnergyLog] EV Miles backfill error:', evRes.error);
+            }
+          }
         }
       } catch (err) {
         console.error('[EnergyLog] Backfill error:', err);

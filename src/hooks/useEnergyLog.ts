@@ -63,13 +63,16 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
   // EV miles stores raw odometer (miles), not Wh — no /1000 conversion
   const isEvMiles = activeTab === 'ev-miles';
 
-  // Group by device, then by day → max production_wh
+  // Group by device+provider, then by day → max production_wh
+  // Grouping by provider is critical: tesla (cumulative) and tesla_historical (daily)
+  // use different calculation methods and must not be mixed.
   const deviceDayMax = new Map<string, Map<string, { max: number; provider: string }>>();
 
   for (const r of filteredRecords) {
     const dayKey = format(new Date(r.recorded_at), 'yyyy-MM-dd');
-    if (!deviceDayMax.has(r.device_id)) deviceDayMax.set(r.device_id, new Map());
-    const dayMap = deviceDayMax.get(r.device_id)!;
+    const groupKey = `${r.device_id}|${r.provider}`;
+    if (!deviceDayMax.has(groupKey)) deviceDayMax.set(groupKey, new Map());
+    const dayMap = deviceDayMax.get(groupKey)!;
     const existing = dayMap.get(dayKey);
     if (!existing || r.production_wh > existing.max) {
       dayMap.set(dayKey, { max: r.production_wh, provider: r.provider });
