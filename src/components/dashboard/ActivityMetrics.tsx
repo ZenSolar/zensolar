@@ -22,6 +22,7 @@ import { SwipeHintTooltip } from './SwipeHintTooltip';
 import { useSwipeHintShown } from '@/hooks/useSwipeHintShown';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { WeatherWidget } from './WeatherWidget';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
 
 // Import brand logos for connected providers display
@@ -251,11 +252,13 @@ export function ActivityMetrics({
     )}>
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
-        <div className="flex items-center justify-between">
+         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Gauge className="h-4 w-4 text-primary" />
             Clean Energy Center
           </h2>
+          <div className="flex items-center gap-2">
+            <WeatherWidget />
           
           {/* Connected Provider Logos */}
           {filteredProviders.length > 0 && (
@@ -277,8 +280,9 @@ export function ActivityMetrics({
                   </div>
                 ))}
             </div>
-          )}
-        </div>
+           )}
+          </div>
+         </div>
 
         {/* Single last updated time */}
         <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
