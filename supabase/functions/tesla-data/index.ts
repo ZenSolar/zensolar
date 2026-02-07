@@ -1,5 +1,39 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// ── Cryptographic Helpers (Proof-of-Delta™ for EV Miles) ─────────────────────
+
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Build an odometer snapshot hash: SHA-256(VIN | timestamp | odometer | prevHash) */
+async function buildOdometerHash(
+  vin: string,
+  timestamp: string,
+  odometer: number,
+  prevHash: string,
+): Promise<string> {
+  const preimage = `${vin}|${timestamp}|${odometer}|${prevHash}`;
+  return sha256Hex(preimage);
+}
+
+/** Build a delta proof for EV miles: SHA-256(VIN | baselineOdometer | currentOdometer | deltaMiles | firstHash | lastHash) */
+async function buildOdometerDeltaProof(
+  vin: string,
+  baselineOdometer: number,
+  currentOdometer: number,
+  deltaMiles: number,
+  firstHash: string,
+  lastHash: string,
+): Promise<string> {
+  const preimage = `${vin}|${baselineOdometer}|${currentOdometer}|${deltaMiles}|${firstHash}|${lastHash}`;
+  return sha256Hex(preimage);
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-target-user-id",
@@ -869,9 +903,45 @@ Deno.serve(async (req) => {
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
 
-      // EV miles (odometer snapshot - cumulative, useEnergyLog computes day-over-day deltas)
+      // EV miles (odometer snapshot - cumulative, with Proof-of-Delta™ cryptographic verification)
       for (const vehicle of vehiclesData) {
         if (vehicle.odometer > 0) {
+          // Fetch previous proof hash from the most recent ev_miles record for this VIN
+          const { data: prevRecord } = await supabaseClient
+            .from("energy_production")
+            .select("proof_metadata, production_wh")
+            .eq("device_id", vehicle.vin)
+            .eq("provider", "tesla")
+            .eq("data_type", "ev_miles")
+            .eq("user_id", targetUserId)
+            .order("recorded_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          const prevHash = (prevRecord?.proof_metadata as any)?.hash || "genesis";
+          const prevOdometer = prevRecord?.production_wh || 0;
+          const now = new Date().toISOString();
+
+          // Generate SHA-256 snapshot hash: SHA-256(VIN | timestamp | odometer | prevHash)
+          const snapshotHash = await buildOdometerHash(vehicle.vin, now, vehicle.odometer, prevHash);
+          
+          // Calculate delta for this snapshot
+          const snapshotDelta = Math.max(0, vehicle.odometer - Number(prevOdometer));
+
+          const proofMetadata = {
+            hash: snapshotHash,
+            prev_hash: prevHash,
+            vin: vehicle.vin,
+            odometer: vehicle.odometer,
+            prev_odometer: Number(prevOdometer),
+            delta_miles: snapshotDelta,
+            timestamp: now,
+            algorithm: "SHA-256",
+            preimage_format: "VIN|timestamp|odometer|prevHash",
+          };
+
+          console.log(`[Proof-of-Delta] EV miles hash for ${vehicle.vin}: ${snapshotHash.slice(0, 16)}... (delta: ${snapshotDelta} mi)`);
+
           await supabaseClient
             .from("energy_production")
             .upsert({
@@ -881,6 +951,7 @@ Deno.serve(async (req) => {
               production_wh: vehicle.odometer, // storing miles in production_wh (cumulative)
               data_type: "ev_miles",
               recorded_at: recordedAt,
+              proof_metadata: proofMetadata,
             }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
       }
