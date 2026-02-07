@@ -74,25 +74,95 @@ Deno.serve(async (req) => {
       });
     }
 
-    const accessToken = tokenData.access_token;
+    let accessToken = tokenData.access_token;
 
-    // Check if token is expired
+    // Helper: attempt to re-authenticate using stored credentials
+    async function tryAutoRefresh(): Promise<string | null> {
+      const encCreds = tokenData.refresh_token;
+      if (!encCreds) {
+        console.log("No stored credentials for auto-refresh");
+        return null;
+      }
+      try {
+        const { e: email, p: password } = JSON.parse(atob(encCreds));
+        const credentials = btoa(`${email}:${password}`);
+        console.log(`Auto-refreshing Wallbox token for ${email}`);
+        
+        const authResponse = await fetch(`${WALLBOX_API_BASE}/auth/token/user`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Basic ${credentials}`,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+        });
+        
+        if (!authResponse.ok) {
+          console.error("Wallbox auto-refresh failed:", authResponse.status);
+          return null;
+        }
+        
+        const authData = await authResponse.json();
+        if (!authData.jwt) return null;
+        
+        // Update stored token
+        await supabaseClient
+          .from("energy_tokens")
+          .update({
+            access_token: authData.jwt,
+            expires_at: authData.ttl
+              ? new Date(Date.now() + authData.ttl * 1000).toISOString()
+              : null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", targetUserId)
+          .eq("provider", "wallbox");
+        
+        console.log("Wallbox token auto-refreshed successfully");
+        return authData.jwt;
+      } catch (err) {
+        console.error("Auto-refresh parse/fetch error:", err);
+        return null;
+      }
+    }
+
+    // Check if token is expired locally — try auto-refresh first
     if (tokenData.expires_at && new Date(tokenData.expires_at) < new Date()) {
-      console.log("Wallbox token expired, needs reauth");
-      return new Response(JSON.stringify({ error: "Token expired", needsReauth: true }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.log("Wallbox token expired locally, attempting auto-refresh");
+      const newToken = await tryAutoRefresh();
+      if (newToken) {
+        accessToken = newToken;
+      } else {
+        return new Response(JSON.stringify({ error: "Token expired", needsReauth: true }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // Fetch user's chargers via groups endpoint
     console.log("Fetching Wallbox chargers via groups endpoint");
-    const groupsResponse = await fetch(`${WALLBOX_API_BASE}/v3/chargers/groups`, {
+    let groupsResponse = await fetch(`${WALLBOX_API_BASE}/v3/chargers/groups`, {
       headers: {
         "Authorization": `Bearer ${accessToken}`,
         "Accept": "application/json",
       },
     });
+
+    // If 401 from API, try auto-refresh and retry once
+    if (groupsResponse.status === 401) {
+      console.log("Wallbox API returned 401, attempting auto-refresh");
+      const newToken = await tryAutoRefresh();
+      if (newToken) {
+        accessToken = newToken;
+        groupsResponse = await fetch(`${WALLBOX_API_BASE}/v3/chargers/groups`, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Accept": "application/json",
+          },
+        });
+      }
+    }
 
     if (!groupsResponse.ok) {
       const errorText = await groupsResponse.text();
