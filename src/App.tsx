@@ -156,8 +156,10 @@ const App = () => {
                     {/* Demo routes with full sidebar */}
                     <Route path="/demo" element={<DemoLayout />}>
                       <Route index element={<DemoDashboard />} />
+                      <Route path="energy-log" element={<EnergyLog />} />
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="how-it-works" element={<HowItWorks />} />
+                      <Route path="white-paper" element={<WhitePaper />} />
                       <Route path="technology" element={<Technology />} />
                       <Route path="store" element={<Store />} />
                       <Route path="tokenomics" element={<Tokenomics />} />
@@ -165,6 +167,7 @@ const App = () => {
                       <Route path="referrals" element={<Referrals />} />
                       <Route path="notifications" element={<Notifications />} />
                       <Route path="profile" element={<Profile />} />
+                      <Route path="wallet" element={<Wallet />} />
                       <Route path="settings" element={<Settings />} />
                       <Route path="about" element={<About />} />
                       <Route path="help" element={<Help />} />
