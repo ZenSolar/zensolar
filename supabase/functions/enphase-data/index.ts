@@ -381,6 +381,50 @@ Deno.serve(async (req) => {
           .eq("device_id", String(systemId))
           .eq("provider", "enphase");
       }
+
+      // --- Historical backfill verification ---
+      // Check if this user has sufficient historical data. If not, trigger backfill.
+      // This is a self-healing mechanism: if the initial backfill failed or was incomplete,
+      // the next dashboard sync will automatically retry it.
+      if (lifetimeEnergyWh > 0) {
+        const { count: histRecordCount } = await supabaseClient
+          .from("energy_production")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", targetUserId)
+          .eq("device_id", String(systemId))
+          .eq("provider", "enphase")
+          .eq("data_type", "solar");
+
+        // If the user has lifetime production but fewer than 30 historical records,
+        // their backfill likely failed. Trigger it in the background.
+        const MIN_EXPECTED_RECORDS = 30;
+        if ((histRecordCount ?? 0) < MIN_EXPECTED_RECORDS) {
+          console.log(`[Backfill Check] User ${targetUserId} system ${systemId}: only ${histRecordCount} records, expected ${MIN_EXPECTED_RECORDS}+. Triggering historical backfill...`);
+          
+          // Fire-and-forget: call enphase-historical via internal HTTP
+          const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+          const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+          fetch(`${supabaseUrl}/functions/v1/enphase-historical`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${serviceRoleKey}`,
+              "X-Target-User-Id": targetUserId,
+            },
+            body: JSON.stringify({ user_id: targetUserId }),
+          }).then(async (res) => {
+            if (res.ok) {
+              const result = await res.json();
+              console.log(`[Backfill Check] Historical backfill completed for user ${targetUserId}: ${result.total_days_imported} days imported`);
+            } else {
+              const errText = await res.text();
+              console.error(`[Backfill Check] Historical backfill failed for user ${targetUserId}: ${res.status} ${errText}`);
+            }
+          }).catch((err) => {
+            console.error(`[Backfill Check] Historical backfill error for user ${targetUserId}:`, err);
+          });
+        }
+      }
     }
 
     // If we couldn't fetch anything and we're rate-limited, fall back to cached/DB values.
