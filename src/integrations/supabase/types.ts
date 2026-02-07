@@ -215,6 +215,63 @@ export type Database = {
         }
         Relationships: []
       }
+      home_charging_sessions: {
+        Row: {
+          charger_power_kw: number | null
+          created_at: string
+          device_id: string
+          end_kwh_added: number
+          end_time: string | null
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          session_metadata: Json | null
+          start_kwh_added: number
+          start_time: string
+          status: string
+          total_session_kwh: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          charger_power_kw?: number | null
+          created_at?: string
+          device_id: string
+          end_kwh_added?: number
+          end_time?: string | null
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          session_metadata?: Json | null
+          start_kwh_added?: number
+          start_time?: string
+          status?: string
+          total_session_kwh?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          charger_power_kw?: number | null
+          created_at?: string
+          device_id?: string
+          end_kwh_added?: number
+          end_time?: string | null
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          session_metadata?: Json | null
+          start_kwh_added?: number
+          start_time?: string
+          status?: string
+          total_session_kwh?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mint_transactions: {
         Row: {
           action: string
