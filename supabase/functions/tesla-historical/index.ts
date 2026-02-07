@@ -235,7 +235,12 @@ Deno.serve(async (req) => {
       const solarRecords: any[] = [];
       const batteryRecords: any[] = [];
 
-      // Fetch month-by-month with period=day for daily granularity
+      // Track unique timestamps for diagnostics
+      let loggedSampleBattery = false;
+      let loggedSampleSolar = false;
+
+      // Fetch month-by-month using period=month to get daily aggregates
+      // Note: period=day returns 5-minute intervals for a single day, not daily aggregates
       for (let year = startYear; year <= endYear; year++) {
         const monthStart = year === startYear ? parseInt(startDate.split("-")[1]) : 1;
         const monthEnd = year === endYear ? new Date().getMonth() + 1 : 12;
@@ -248,27 +253,35 @@ Deno.serve(async (req) => {
 
           try {
             const histResp = await fetch(
-              `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/calendar_history?kind=energy&start_date=${encodeURIComponent(mStart)}&end_date=${encodeURIComponent(mEnd)}&period=day&time_zone=${encodeURIComponent(timezone)}`,
+              `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/calendar_history?kind=energy&start_date=${encodeURIComponent(mStart)}&end_date=${encodeURIComponent(mEnd)}&period=month&time_zone=${encodeURIComponent(timezone)}`,
               { headers: { Authorization: `Bearer ${accessToken}` } }
             );
 
             if (!histResp.ok) {
               if (histResp.status === 429) {
                 console.warn(`Rate limited fetching ${year}-${month} for site ${siteId}`);
-                // Wait a bit and continue
                 await new Promise(r => setTimeout(r, 2000));
                 continue;
               }
               console.warn(`Failed ${year}-${month} for site ${siteId}: ${histResp.status}`);
-              await histResp.text(); // consume body
+              await histResp.text();
               continue;
             }
 
             const histData = await histResp.json();
             const timeSeries = histData.response?.time_series || [];
 
+            // Log first month's raw response for diagnostics
+            if (!loggedSampleSolar && timeSeries.length > 0) {
+              loggedSampleSolar = true;
+              console.log(`[Tesla Historical] Sample API response for ${year}-${String(month).padStart(2, "0")} (${timeSeries.length} entries):`);
+              const sample = timeSeries.slice(0, 3);
+              for (const s of sample) {
+                console.log(`  timestamp=${s.timestamp}, solar_exported=${s.solar_energy_exported}, battery_exported=${s.battery_energy_exported}, battery_imported=${s.battery_energy_imported_from_grid}, consumer_energy=${s.consumer_energy_imported_from_grid}`);
+              }
+            }
+
             for (const day of timeSeries) {
-              // day.timestamp = "2024-01-15T00:00:00-06:00"
               const dayTimestamp = day.timestamp;
               if (!dayTimestamp) continue;
 
@@ -276,7 +289,7 @@ Deno.serve(async (req) => {
               const dateStr = dayTimestamp.split("T")[0];
               const recordedAt = dateStr + "T12:00:00Z";
 
-              // Solar production
+              // Solar production (values from Tesla calendar_history are in Wh)
               const solarWh = day.solar_energy_exported || 0;
               if (solarWh > 0 && solarWh < 500000) {
                 solarRecords.push({
@@ -289,9 +302,13 @@ Deno.serve(async (req) => {
                 });
               }
 
-              // Battery discharge
+              // Battery discharge (battery_energy_exported = energy discharged from battery to home)
               const batteryWh = day.battery_energy_exported || 0;
               if (batteryWh > 0 && batteryWh < 500000) {
+                if (!loggedSampleBattery) {
+                  loggedSampleBattery = true;
+                  console.log(`[Tesla Historical] First battery record: date=${dateStr}, battery_energy_exported=${batteryWh} Wh, raw_timestamp=${dayTimestamp}`);
+                }
                 batteryRecords.push({
                   user_id: targetUserId,
                   device_id: siteId,
@@ -308,14 +325,17 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Deduplicate records by key before upserting
-      const dedup = (records: any[]) => {
+      // Deduplicate records by key: SUM sub-daily intervals into daily totals
+      // The Tesla calendar_history API returns 30-minute interval data, not daily aggregates
+      const dedupSum = (records: any[]) => {
         const seen = new Map<string, any>();
         for (const r of records) {
           const key = `${r.device_id}|${r.provider}|${r.recorded_at}|${r.data_type}`;
           const existing = seen.get(key);
-          if (!existing || r.production_wh > existing.production_wh) {
-            seen.set(key, r);
+          if (!existing) {
+            seen.set(key, { ...r });
+          } else {
+            existing.production_wh += r.production_wh;
           }
         }
         return [...seen.values()];
@@ -323,8 +343,8 @@ Deno.serve(async (req) => {
 
       const BATCH_SIZE = 500;
 
-      // Batch upsert solar records
-      const dedupedSolar = dedup(solarRecords);
+      // Batch upsert solar records (SUM dedup — aggregate 30-min intervals into daily totals)
+      const dedupedSolar = dedupSum(solarRecords);
       for (let i = 0; i < dedupedSolar.length; i += BATCH_SIZE) {
         const batch = dedupedSolar.slice(i, i + BATCH_SIZE);
         const { error } = await supabaseClient
@@ -333,8 +353,8 @@ Deno.serve(async (req) => {
         if (error) console.error(`Solar upsert error batch ${i}:`, error);
       }
 
-      // Batch upsert battery records
-      const dedupedBattery = dedup(batteryRecords);
+      // Batch upsert battery records (SUM dedup — aggregate sub-daily intervals)
+      const dedupedBattery = dedupSum(batteryRecords);
       for (let i = 0; i < dedupedBattery.length; i += BATCH_SIZE) {
         const batch = dedupedBattery.slice(i, i + BATCH_SIZE);
         const { error } = await supabaseClient
@@ -350,13 +370,15 @@ Deno.serve(async (req) => {
         type: "energy_site",
         device_id: siteId,
         name: site.device_name || siteId,
-        solar_days: solarRecords.length,
-        battery_days: batteryRecords.length,
+        solar_days_raw: solarRecords.length,
+        solar_days_deduped: dedupedSolar.length,
+        battery_days_raw: batteryRecords.length,
+        battery_days_deduped: dedupedBattery.length,
         date_range: `${startDate} → ${endDate}`,
       });
 
       console.log(
-        `[Tesla Historical] Site ${siteId}: ${solarRecords.length} solar days, ${batteryRecords.length} battery days`
+        `[Tesla Historical] Site ${siteId}: solar=${solarRecords.length} raw → ${dedupedSolar.length} deduped, battery=${batteryRecords.length} raw → ${dedupedBattery.length} deduped`
       );
     }
 
