@@ -34,7 +34,7 @@ import {
 } from '@/lib/nftMilestones';
 import { Link } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-
+import { WeatherWidget } from './dashboard/WeatherWidget';
 interface ZenSolarDashboardProps {
   isDemo?: boolean;
 }
@@ -181,8 +181,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             alt="ZenSolar" 
             className="h-10 w-auto object-contain dark:animate-logo-glow" 
           />
-          <div className="space-y-1.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
+          <div className="space-y-1.5 w-full">
+            <div className="flex items-center justify-between gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
+              <WeatherWidget />
+            </div>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
               Earn $ZSOLAR for every kWh you generate — powered by{' '}
               <Link 

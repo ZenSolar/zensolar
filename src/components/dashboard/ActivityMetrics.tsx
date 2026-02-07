@@ -22,7 +22,6 @@ import { SwipeHintTooltip } from './SwipeHintTooltip';
 import { useSwipeHintShown } from '@/hooks/useSwipeHintShown';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { WeatherWidget } from './WeatherWidget';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
 
 // Import brand logos for connected providers display
@@ -258,7 +257,6 @@ export function ActivityMetrics({
             Clean Energy Center
           </h2>
           <div className="flex items-center gap-2">
-            <WeatherWidget />
           
           {/* Connected Provider Logos */}
           {filteredProviders.length > 0 && (

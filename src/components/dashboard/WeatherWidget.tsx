@@ -35,13 +35,13 @@ export function WeatherWidget() {
           initial={{ opacity: 0, x: 4 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0"
         >
           <WeatherIcon code={weather.weatherCode} isDay={weather.isDay} className="h-3.5 w-3.5 text-muted-foreground/80" />
           <span className="font-medium text-foreground/80">{weather.temperature}°F</span>
-          <span className="hidden sm:flex items-center gap-0.5">
+          <span className="flex items-center gap-0.5">
             <MapPin className="h-2.5 w-2.5" />
-            <span className="max-w-[60px] truncate">{weather.cityName}</span>
+            <span className="max-w-[80px] truncate">{weather.cityName}</span>
           </span>
         </motion.div>
       ) : null}
