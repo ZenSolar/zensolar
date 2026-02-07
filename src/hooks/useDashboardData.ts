@@ -508,7 +508,21 @@ export function useDashboardData() {
       let pendingHomeCharger = 0;
 
       // Fetch data in parallel (including device labels and minted tokens)
-      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot] = await Promise.all([
+      const fetchHomeChargingTotal = async () => {
+        try {
+          const userId = await getEffectiveUserId();
+          if (!userId) return 0;
+          const { data, error } = await supabase
+            .from('home_charging_sessions')
+            .select('total_session_kwh')
+            .eq('user_id', userId)
+            .eq('status', 'completed');
+          if (error) { console.error('Home charging fetch error:', error); return 0; }
+          return (data || []).reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
+        } catch { return 0; }
+      };
+
+      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot, homeChargingMonitorKwh] = await Promise.all([
         profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         profileConnections?.tesla_connected ? fetchTeslaData() : null,
@@ -518,6 +532,7 @@ export function useDashboardData() {
         fetchDeviceLabels(),
         fetchMintedTokens(),
         fetchDevicesSnapshot(),
+        fetchHomeChargingTotal(),
       ]);
 
       // Update provider refresh state
@@ -693,8 +708,8 @@ export function useDashboardData() {
         superchargerKwh = teslaData.totals.supercharger_kwh || 0;
         // Tesla Wall Connector kWh
         const teslaWallConnectorKwh = teslaData.totals.wall_connector_kwh || 0;
-        // Combine Tesla Wall Connector + Wallbox for total home charging
-        homeChargerKwh = teslaWallConnectorKwh + wallboxChargerKwh;
+        // Combine Tesla Wall Connector + Wallbox + Charge Monitor for total home charging
+        homeChargerKwh = teslaWallConnectorKwh + wallboxChargerKwh + homeChargingMonitorKwh;
 
         // Pending values (since last mint baseline)
         // If pending not returned, use lifetime (no baseline set yet means all is pending)
