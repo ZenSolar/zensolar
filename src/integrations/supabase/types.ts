@@ -219,6 +219,7 @@ export type Database = {
         Row: {
           charger_power_kw: number | null
           created_at: string
+          delta_proof: string | null
           device_id: string
           end_kwh_added: number
           end_time: string | null
@@ -226,6 +227,7 @@ export type Database = {
           latitude: number | null
           location: string | null
           longitude: number | null
+          proof_chain: Json | null
           session_metadata: Json | null
           start_kwh_added: number
           start_time: string
@@ -233,10 +235,12 @@ export type Database = {
           total_session_kwh: number
           updated_at: string
           user_id: string
+          verified: boolean
         }
         Insert: {
           charger_power_kw?: number | null
           created_at?: string
+          delta_proof?: string | null
           device_id: string
           end_kwh_added?: number
           end_time?: string | null
@@ -244,6 +248,7 @@ export type Database = {
           latitude?: number | null
           location?: string | null
           longitude?: number | null
+          proof_chain?: Json | null
           session_metadata?: Json | null
           start_kwh_added?: number
           start_time?: string
@@ -251,10 +256,12 @@ export type Database = {
           total_session_kwh?: number
           updated_at?: string
           user_id: string
+          verified?: boolean
         }
         Update: {
           charger_power_kw?: number | null
           created_at?: string
+          delta_proof?: string | null
           device_id?: string
           end_kwh_added?: number
           end_time?: string | null
@@ -262,6 +269,7 @@ export type Database = {
           latitude?: number | null
           location?: string | null
           longitude?: number | null
+          proof_chain?: Json | null
           session_metadata?: Json | null
           start_kwh_added?: number
           start_time?: string
@@ -269,6 +277,7 @@ export type Database = {
           total_session_kwh?: number
           updated_at?: string
           user_id?: string
+          verified?: boolean
         }
         Relationships: []
       }
