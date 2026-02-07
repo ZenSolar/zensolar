@@ -35,7 +35,7 @@ export default function EnergyLog() {
   const queryClient = useQueryClient();
   const backfillTriggered = useRef(false);
   const [showMonthStats, setShowMonthStats] = useState(true);
-  const [showSessions, setShowSessions] = useState(false);
+  const [showSessions, setShowSessions] = useState(true);
 
   // One-time historical backfill for existing Enphase users
   useEffect(() => {
