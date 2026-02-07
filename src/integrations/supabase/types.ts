@@ -115,6 +115,7 @@ export type Database = {
           device_id: string
           id: string
           production_wh: number
+          proof_metadata: Json | null
           provider: string
           recorded_at: string
           user_id: string
@@ -126,6 +127,7 @@ export type Database = {
           device_id: string
           id?: string
           production_wh?: number
+          proof_metadata?: Json | null
           provider: string
           recorded_at: string
           user_id: string
@@ -137,6 +139,7 @@ export type Database = {
           device_id?: string
           id?: string
           production_wh?: number
+          proof_metadata?: Json | null
           provider?: string
           recorded_at?: string
           user_id?: string
