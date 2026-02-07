@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Zap, ChevronRight, Clock, AlertTriangle, Battery } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnphaseInverters, type InverterData, type ArrayData } from '@/hooks/useEnphaseInverters';
+import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 
 const HARDCODED_SYSTEM_SIZE_W = 7030; // 19 × 370W Silfab panels
 
@@ -152,7 +153,8 @@ function ArraySection({ array, isExpanded, onToggle }: {
 }
 
 export function SystemPerformanceCard({ enabled }: SystemPerformanceCardProps) {
-  const { data, isLoading, error } = useEnphaseInverters(enabled);
+  const viewAsUserId = useViewAsUserId();
+  const { data, isLoading, error } = useEnphaseInverters(enabled, viewAsUserId);
   const [isSystemExpanded, setIsSystemExpanded] = useState(false);
   const [expandedArrays, setExpandedArrays] = useState<Set<string>>(new Set());
 
