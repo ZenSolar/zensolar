@@ -5,7 +5,6 @@ import {
   Settings, 
   User, 
   HelpCircle,
-  Shield,
   MessageSquarePlus,
   Bell,
   Users,
@@ -13,7 +12,10 @@ import {
   BookOpen,
   Cpu,
   Award,
-  Play
+  Play,
+  BarChart3,
+  FileText,
+  Wallet
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -35,10 +37,12 @@ import {
 
 const mainNavItems = [
   { title: "Dashboard", url: "/demo", icon: LayoutDashboard },
+  { title: "Energy Log", url: "/demo/energy-log", icon: BarChart3 },
   { title: "NFT Collection", url: "/demo/nft-collection", icon: Award },
   { title: "$ZSOLAR Store", url: "/demo/store", icon: ShoppingBag },
   { title: "How It Works", url: "/demo/how-it-works", icon: BookOpen },
-  { title: "Technology", url: "/demo/technology", icon: Cpu },
+  { title: "White Paper", url: "/demo/white-paper", icon: FileText },
+  { title: "Patent Technology", url: "/demo/technology", icon: Cpu },
   { title: "Tokenomics", url: "/demo/tokenomics", icon: Coins },
   { title: "Mint History", url: "/demo/mint-history", icon: History },
   { title: "Referrals", url: "/demo/referrals", icon: Users },
@@ -47,6 +51,7 @@ const mainNavItems = [
 
 const secondaryNavItems = [
   { title: "Profile", url: "/demo/profile", icon: User },
+  { title: "Wallet", url: "/demo/wallet", icon: Wallet },
   { title: "Settings", url: "/demo/settings", icon: Settings },
   { title: "About", url: "/demo/about", icon: HelpCircle },
   { title: "Help", url: "/demo/help", icon: MessageSquarePlus },
