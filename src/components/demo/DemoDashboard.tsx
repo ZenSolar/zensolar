@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { WeatherWidget } from '@/components/dashboard/WeatherWidget';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { toast } from 'sonner';
 
@@ -112,6 +113,7 @@ export function DemoDashboard() {
               technology.
             </p>
           </div>
+          <WeatherWidget />
         </AnimatedItem>
 
         {/* Token Price Card */}
