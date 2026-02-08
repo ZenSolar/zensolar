@@ -34,13 +34,14 @@ export function HowToPlayHero() {
           className="space-y-5"
         >
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground">
-            How It{' '}
+            How{' '}
             <span className="bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
-              Works
-            </span>
+              ZenSolar
+            </span>{' '}
+            Works
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Your clean energy is worth real money. Here's how it works.
+            Your clean energy is worth real money. Here's how.
           </p>
         </motion.div>
 

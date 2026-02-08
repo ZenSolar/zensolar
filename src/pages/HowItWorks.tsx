@@ -13,7 +13,7 @@ export default function HowItWorks() {
   return (
     <>
       <SEO 
-        title="How It Works | ZenSolar"
+        title="How ZenSolar Works"
         description="Your clean energy is worth real money. Connect your solar, EV, or battery and start earning $ZSOLAR rewards with one tap."
         url="https://zensolar.lovable.app/how-it-works"
       />

@@ -101,7 +101,7 @@ export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
         icon={Zap}
         title="Do What You Already Do"
         body="Every kilowatt-hour your panels produce, every mile your EV drives, every time your battery powers your home — it all counts. We track it automatically, verified and secure."
-        keyMessage="1 kWh of solar = 1 $ZSOLAR token. 1 EV mile driven = 1 $ZSOLAR token."
+        keyMessage=""
         reversed
       >
         {/* Mini activity icons */}
@@ -117,15 +117,19 @@ export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
             </div>
           ))}
         </div>
-        {/* Earning rate callouts */}
-        <div className="grid grid-cols-2 gap-3 pt-4 max-w-sm mx-auto md:mx-0">
-          <div className="px-3 py-2.5 rounded-xl bg-primary/5 border border-primary/20 text-center">
-            <p className="text-lg font-black text-primary">1 kWh</p>
-            <p className="text-[10px] text-muted-foreground font-medium">= 1 $ZSOLAR</p>
+        {/* Earning rate lines */}
+        <div className="pt-4 max-w-xs mx-auto md:mx-0 space-y-2.5">
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-primary/5 border border-primary/20">
+            <Sun className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm font-semibold text-foreground">1 kWh</span>
+            <span className="text-xs text-muted-foreground">=</span>
+            <span className="text-sm font-bold text-primary">1 $ZSOLAR</span>
           </div>
-          <div className="px-3 py-2.5 rounded-xl bg-accent/5 border border-accent/20 text-center">
-            <p className="text-lg font-black text-accent">1 Mile</p>
-            <p className="text-[10px] text-muted-foreground font-medium">= 1 $ZSOLAR</p>
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-accent/5 border border-accent/20">
+            <Car className="h-4 w-4 text-accent shrink-0" />
+            <span className="text-sm font-semibold text-foreground">1 EV Mile</span>
+            <span className="text-xs text-muted-foreground">=</span>
+            <span className="text-sm font-bold text-accent">1 $ZSOLAR</span>
           </div>
         </div>
         <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
