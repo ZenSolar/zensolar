@@ -1,11 +1,11 @@
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState, useMemo } from 'react';
 import { useDemoData } from '@/hooks/useDemoData';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useConfetti } from '@/hooks/useConfetti';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from '@/components/dashboard/CompactWalletPrompt';
 import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMetrics';
-import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory } from '@/components/dashboard/RewardActions';
+import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory, DemoMintHandler } from '@/components/dashboard/RewardActions';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { TokenPriceCard } from '@/components/dashboard/TokenPriceCard';
 import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
@@ -33,6 +33,11 @@ export function DemoDashboard() {
     connectedAccounts, 
     profile,
     lastUpdatedAt,
+    simulateMintTokens,
+    simulateMintWelcomeNFT,
+    simulateMintMilestoneNFT,
+    simulateBatchMintNFTs,
+    getEligibility,
   } = useDemoData();
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
@@ -56,6 +61,14 @@ export function DemoDashboard() {
   const handleMintSuccess = useCallback(() => {
     triggerConfetti();
   }, [triggerConfetti]);
+
+  const demoMintHandler: DemoMintHandler = useMemo(() => ({
+    simulateMintTokens,
+    getEligibility,
+    simulateMintWelcomeNFT,
+    simulateMintMilestoneNFT,
+    simulateBatchMintNFTs,
+  }), [simulateMintTokens, getEligibility, simulateMintWelcomeNFT, simulateMintMilestoneNFT, simulateBatchMintNFTs]);
 
   const energyAccounts = connectedAccounts;
   const hasEnergyConnected = energyAccounts.some(acc => acc.connected);
@@ -170,6 +183,7 @@ export function DemoDashboard() {
               battery: currentActivity.batteryKwh,
               charging: currentActivity.chargingKwh,
             }}
+            demoMintHandler={demoMintHandler}
           />
         </AnimatedItem>
 

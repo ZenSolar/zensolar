@@ -106,11 +106,10 @@ const createDemoEligibility = (hasWelcomeNFT: boolean, mintedNfts: number[]) => 
   ].filter(nft => !mintedNfts.includes(nft.tokenId));
 
   const eligibleComboNFTs = [
-    // With 4 categories and 19 category NFTs, user qualifies for these combos
-    { tokenId: 34, name: 'Duality', description: 'Earned NFTs in 2 categories' },
-    { tokenId: 35, name: 'Trifecta', description: 'Earned NFTs in 3 categories' },
-    { tokenId: 36, name: 'Quadrant', description: 'Earned 5+ category NFTs' },
-    { tokenId: 37, name: 'Constellation', description: 'Earned 10+ category NFTs' },
+    { tokenId: 34, name: 'Duality', comboType: 'category_count', description: 'Earned NFTs in 2 categories' },
+    { tokenId: 35, name: 'Trifecta', comboType: 'category_count', description: 'Earned NFTs in 3 categories' },
+    { tokenId: 36, name: 'Quadrant', comboType: 'nft_count', description: 'Earned 5+ category NFTs' },
+    { tokenId: 37, name: 'Constellation', comboType: 'nft_count', description: 'Earned 10+ category NFTs' },
   ].filter(nft => !mintedNfts.includes(nft.tokenId));
 
   return {

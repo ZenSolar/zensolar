@@ -45,11 +45,20 @@ interface PendingRewards {
   charging: number;
 }
 
+export interface DemoMintHandler {
+  simulateMintTokens: (category: string) => Promise<{ success: boolean; txHash: string; message: string; tokensMinted?: number }>;
+  getEligibility: () => EligibilityData;
+  simulateMintWelcomeNFT: () => Promise<{ success: boolean; txHash: string; message: string; nftsMinted?: number[]; nftNames?: string[] }>;
+  simulateMintMilestoneNFT: (tokenId: number, name: string) => Promise<{ success: boolean; txHash: string; message: string; nftsMinted?: number[]; nftNames?: string[] }>;
+  simulateBatchMintNFTs: (tokenIds: number[], names: string[]) => Promise<{ success: boolean; txHash: string; message: string; nftsMinted?: number[]; nftNames?: string[] }>;
+}
+
 interface RewardActionsProps {
   onRefresh: () => Promise<void>;
   isLoading: boolean;
   walletAddress?: string | null;
   pendingRewards?: PendingRewards;
+  demoMintHandler?: DemoMintHandler;
 }
 
 export interface RewardActionsRef {
@@ -107,7 +116,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   onRefresh, 
   isLoading, 
   walletAddress, 
-  pendingRewards = { solar: 0, evMiles: 0, battery: 0, charging: 0 }
+  pendingRewards = { solar: 0, evMiles: 0, battery: 0, charging: 0 },
+  demoMintHandler,
 }, ref) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -235,6 +245,18 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   const checkEligibility = async () => {
     if (!walletAddress) return;
+    
+    // Demo mode: use local eligibility
+    if (demoMintHandler) {
+      setCheckingEligibility(true);
+      try {
+        const data = demoMintHandler.getEligibility();
+        setEligibility(data as EligibilityData);
+      } finally {
+        setCheckingEligibility(false);
+      }
+      return;
+    }
     
     setCheckingEligibility(true);
     try {
@@ -435,40 +457,58 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     hapticSuccess();
 
     try {
+      const categoryLabel = deviceName 
+        ? deviceName 
+        : (category === 'all' ? 'all categories' : category.replace('_', ' '));
+
+      // Demo mode: use local simulation
+      if (demoMintHandler) {
+        setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
+        const result = await demoMintHandler.simulateMintTokens(category);
+        
+        setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setMintingProgressDialog(false);
+        triggerConfetti();
+        
+        setResultDialog({
+          open: true,
+          success: true,
+          txHash: result.txHash,
+          message: result.message,
+          type: 'token',
+        });
+        
+        hapticSuccess();
+        await onRefresh();
+        await checkEligibility();
+        return;
+      }
+
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         throw new Error("Not authenticated");
       }
 
-      // Create descriptive label for the mint operation
-      const categoryLabel = deviceName 
-        ? deviceName 
-        : (category === 'all' ? 'all categories' : category.replace('_', ' '));
-      
-      // Mint tokens directly - Welcome NFT is NOT required (it's just a free gift)
       setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
 
-      // Call mint-rewards with category and optional deviceId for per-device minting
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-rewards',
           walletAddress,
-          category, // 'solar', 'ev_miles', 'battery', 'charging', or 'all'
-          deviceId, // Optional: specific device to mint from
+          category,
+          deviceId,
           isBetaMint: getLiveBetaMode(),
         },
       });
 
-      // Better error parsing for edge function responses
       if (error) {
-        // Try to extract the actual error from context (Supabase wraps errors)
         const errContext = (error as any)?.context;
         const errJson = errContext?.json || errContext?.body;
         const errMsg = errJson?.message || errJson?.error || data?.message || data?.error || error.message;
         throw new Error(errMsg || 'Minting failed');
       }
 
-      // Also check if data indicates an error (non-2xx responses may still return data)
       if (data?.error || data?.success === false) {
         throw new Error(data?.message || data?.error || 'Minting failed');
       }
@@ -484,7 +524,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         if (result.success) {
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         
-        // Track token claim in GA
         import('@/hooks/useGoogleAnalytics').then(({ trackEvent }) => {
           trackEvent('token_claim', {
             category: category,
@@ -499,24 +538,18 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgressDialog(false);
         triggerConfetti();
         
-        // Attempt to add $ZSOLAR token to wallet (only for MetaMask - skip for Base Wallet)
-        // Base Wallet doesn't support wallet_watchAsset, so we skip it entirely to avoid errors
         if (!hasTokenBeenAdded() && supportsWatchAsset && walletType === 'metamask') {
-          // Run in background without blocking or showing errors to user
           addZsolarToWallet().then(added => {
             if (added) {
               console.log('Token auto-added to wallet');
             } else {
               console.log('Token auto-add declined by user');
             }
-          }).catch(() => {
-            // Silently ignore
-          });
+          }).catch(() => {});
         } else if (walletType !== 'metamask') {
           console.log('Skipping auto-add for non-MetaMask wallet - manual instructions shown');
         }
         
-        // Also auto-add NFTs if any were minted
         if (result.nftsMinted && result.nftsMinted.length > 0) {
           try {
             await addNFTsToWallet(result.nftsMinted);
@@ -546,10 +579,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           type: 'token',
         });
         
-        // Trigger haptic feedback on success
         hapticSuccess();
         
-        // Wait for baseline updates to propagate before refreshing
         console.log('Waiting for baseline updates to propagate...');
         await new Promise(resolve => setTimeout(resolve, 2000));
         
