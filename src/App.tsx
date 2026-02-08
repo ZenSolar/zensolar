@@ -138,7 +138,7 @@ const App = () => {
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
-      enableSystem
+      enableSystem={false}
       forcedTheme={isStandalone ? "dark" : undefined}
     >
       <AuthProvider>
