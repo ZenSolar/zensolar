@@ -4,41 +4,38 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useConfetti } from '@/hooks/useConfetti';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from '@/components/dashboard/CompactWalletPrompt';
-import { ActivityMetrics, MintCategory, MintRequest } from '@/components/dashboard/ActivityMetrics';
+import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMetrics';
+import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory } from '@/components/dashboard/RewardActions';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { TokenPriceCard } from '@/components/dashboard/TokenPriceCard';
 import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
-import { DemoRewardActions, DemoRewardActionsRef, MintCategory as DemoMintCategory } from '@/components/demo/DemoRewardActions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-
 import { toast } from 'sonner';
+import {
+  SOLAR_MILESTONES,
+  EV_MILES_MILESTONES,
+  EV_CHARGING_MILESTONES,
+  BATTERY_MILESTONES,
+  calculateEarnedMilestones,
+  calculateComboAchievements,
+} from '@/lib/nftMilestones';
 
 export function DemoDashboard() {
   const { 
     activityData, 
     isLoading, 
     refreshDashboard, 
-    connectAccount, 
-    disconnectAccount, 
     connectedAccounts, 
     profile,
-    connectWallet,
-    disconnectWallet,
     lastUpdatedAt,
-    hasWelcomeNFT,
-    mintedNFTs,
-    getEligibility,
-    simulateMintWelcomeNFT,
-    simulateMintTokens,
   } = useDemoData();
   
-  const demoRewardActionsRef = useRef<DemoRewardActionsRef>(null);
+  const rewardActionsRef = useRef<RewardActionsRef>(null);
   const { triggerConfetti } = useConfetti();
   const [tokenPrice, setTokenPrice] = useState(0.10);
   
@@ -47,9 +44,13 @@ export function DemoDashboard() {
   });
 
   const handleMintRequest = (request: MintRequest) => {
-    const mappedCategory: DemoMintCategory = 
+    const mappedCategory: RewardMintCategory = 
       request.category === 'supercharger' || request.category === 'home_charger' ? 'charging' : request.category;
-    demoRewardActionsRef.current?.openMintDialogForCategory?.(mappedCategory);
+    rewardActionsRef.current?.openTokenMintDialogForRequest?.({ 
+      category: mappedCategory, 
+      deviceId: request.deviceId,
+      deviceName: request.deviceName 
+    });
   };
 
   const handleMintSuccess = useCallback(() => {
@@ -76,10 +77,16 @@ export function DemoDashboard() {
     homeChargerKwh: Math.max(0, Math.floor(activityData.pendingHomeChargerKwh || 0)),
   };
 
-  const eligibility = getEligibility();
-
-  // Calculate total NFTs available (matches real dashboard)
-  const totalNftsAvailable = 1 + eligibility.eligibleMilestoneNFTs.length + eligibility.eligibleComboNFTs.length;
+  // Calculate total NFTs available (same logic as real dashboard)
+  const solarEarned = calculateEarnedMilestones(activityData.solarEnergyProduced, SOLAR_MILESTONES);
+  const batteryEarned = calculateEarnedMilestones(activityData.batteryStorageDischarged, BATTERY_MILESTONES);
+  const evMilesEarned = calculateEarnedMilestones(activityData.evMilesDriven, EV_MILES_MILESTONES);
+  const evChargingEarned = calculateEarnedMilestones(
+    activityData.teslaSuperchargerKwh + activityData.homeChargerKwh, 
+    EV_CHARGING_MILESTONES
+  );
+  const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
+  const totalNftsAvailable = 1 + solarEarned.length + batteryEarned.length + evMilesEarned.length + evChargingEarned.length + comboEarned.length;
 
   return (
     <div 
@@ -93,9 +100,9 @@ export function DemoDashboard() {
       />
       
       <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border overflow-x-hidden">
-        {/* Dashboard Header with Logo */}
+        {/* Dashboard Header - matches real dashboard exactly */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
-           <div className="space-y-1.5">
+          <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
               Real energy. Real Tokens. All on-chain
@@ -110,7 +117,6 @@ export function DemoDashboard() {
               .
             </p>
           </div>
-          
         </AnimatedItem>
 
         {/* Token Price Card */}
@@ -137,7 +143,7 @@ export function DemoDashboard() {
           </AnimatedItem>
         )}
 
-        {/* Energy Command Center */}
+        {/* ENERGY COMMAND CENTER - matches real dashboard */}
         <AnimatedItem>
           <ActivityMetrics
             data={activityData}
@@ -151,10 +157,10 @@ export function DemoDashboard() {
           />
         </AnimatedItem>
 
-        {/* Demo Reward Actions */}
+        {/* Reward Actions - same component as real dashboard */}
         <AnimatedItem>
-          <DemoRewardActions 
-            ref={demoRewardActionsRef}
+          <RewardActions 
+            ref={rewardActionsRef}
             onRefresh={refreshDashboard} 
             isLoading={isLoading}
             walletAddress={profile.wallet_address}
@@ -164,12 +170,6 @@ export function DemoDashboard() {
               battery: currentActivity.batteryKwh,
               charging: currentActivity.chargingKwh,
             }}
-            hasWelcomeNFT={hasWelcomeNFT}
-            eligibleMilestones={eligibility.eligibleMilestoneNFTs.length}
-            eligibleCombos={eligibility.eligibleComboNFTs.length}
-            ownedNFTCount={mintedNFTs.length}
-            onMintWelcomeNFT={simulateMintWelcomeNFT}
-            onMintTokens={simulateMintTokens}
           />
         </AnimatedItem>
 
@@ -201,12 +201,10 @@ export function DemoDashboard() {
           />
         </AnimatedItem>
 
-        {/* NFT Mint Button + Refresh */}
+        {/* NFT Mint Button + Refresh - matches real dashboard */}
         <AnimatedItem className="space-y-3">
           <Button
-            onClick={() => {
-              demoRewardActionsRef.current?.openMintDialogForCategory?.('all');
-            }}
+            onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
             disabled={isLoading}
             className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
             size="lg"
