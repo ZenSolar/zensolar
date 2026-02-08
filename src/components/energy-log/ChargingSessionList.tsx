@@ -71,9 +71,20 @@ function getSessionDuration(session: ChargingSession): string | null {
   } catch { return null; }
 }
 
+function getSessionStartTime(session: ChargingSession): string | null {
+  const meta = session.session_metadata as Record<string, any> | null;
+  const startTime = meta?.start_time || meta?.chargeStartDateTime;
+  if (!startTime) return null;
+  try {
+    return format(new Date(startTime), 'h:mm a');
+  } catch { return null; }
+}
+
 function SessionRow({ session, category }: { session: ChargingSession; category: SessionCategory }) {
   const isVerified = (session.session_metadata as any)?.source === 'charge_monitor';
   const duration = getSessionDuration(session);
+
+  const startTime = getSessionStartTime(session);
 
   return (
     <div className="flex items-center justify-between py-2.5">
@@ -81,6 +92,9 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
         <div className="flex items-center gap-1.5 text-sm text-foreground">
           <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <span className="truncate">{session.location || (category === 'home' ? 'Home' : 'Unknown')}</span>
+          {startTime && (
+            <span className="text-xs text-muted-foreground shrink-0">· {startTime}</span>
+          )}
           {isVerified && (
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
           )}
