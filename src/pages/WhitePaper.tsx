@@ -18,6 +18,7 @@ import { MintOnProofFlowDiagram } from '@/components/whitepaper/MintOnProofFlowD
 import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofComparison';
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -1293,8 +1294,8 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
-      {/* Footer */}
-      <motion.footer {...fadeIn} transition={{ delay: 0.7 }} className="text-center space-y-4 py-8">
+      {/* Disclaimer */}
+      <motion.div {...fadeIn} transition={{ delay: 0.7 }} className="text-center space-y-4 py-8">
         <Separator className="bg-border/50" />
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
@@ -1305,7 +1306,10 @@ export default function WhitePaper() {
             beta testing on Base Sepolia testnet. Tokenomics and features are subject to change.
           </p>
         </div>
-      </motion.footer>
+      </motion.div>
+
+      {/* Footer with navigation */}
+      <LandingFooter />
       </div>
       </div>
     </>
