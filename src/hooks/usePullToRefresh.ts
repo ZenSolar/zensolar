@@ -8,6 +8,8 @@ interface UsePullToRefreshOptions {
   activationDelay?: number;
   /** Max Y position (in viewport px) where a touch can start to activate pull-to-refresh */
   activationZoneHeight?: number;
+  /** When false, touch listeners are not attached (default: true) */
+  enabled?: boolean;
 }
 
 interface UsePullToRefreshReturn {
@@ -30,6 +32,7 @@ export function usePullToRefresh({
   maxPull = 200,
   activationDelay = 250,
   activationZoneHeight = 160,
+  enabled = true,
 }: UsePullToRefreshOptions): UsePullToRefreshReturn {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -186,7 +189,7 @@ export function usePullToRefresh({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || !enabled) return;
 
     container.addEventListener('touchstart', handleTouchStart, { passive: true });
     container.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -200,7 +203,7 @@ export function usePullToRefresh({
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, enabled]);
 
   return {
     pullDistance,
