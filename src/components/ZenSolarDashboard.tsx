@@ -197,9 +197,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* Token Price Card - Prominent at top */}
         <AnimatedItem>
           <TokenPriceCard 
-            tokensHeld={activityData.lifetimeMinted} 
+            tokensHeld={isNewUserView ? 0 : activityData.lifetimeMinted} 
             defaultPrice={0.10}
             onPriceChange={setTokenPrice}
+            nftCount={isNewUserView ? 0 : (activityData.nftsEarned?.length ?? 0)}
+            walletLink="/wallet"
           />
         </AnimatedItem>
 
