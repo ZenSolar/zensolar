@@ -3,8 +3,17 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
 import { MenuTooltip } from '@/components/layout/MenuTooltip';
+import { useTheme } from 'next-themes';
+import { useEffect } from 'react';
 
 export function DemoLayout() {
+  const { setTheme } = useTheme();
+
+  // Default demo mode to dark theme for consistent brand presentation
+  useEffect(() => {
+    setTheme('dark');
+  }, [setTheme]);
+
   return (
     <SidebarProvider>
       <div className="min-h-screen min-h-[100dvh] flex w-full min-w-0 overflow-x-hidden">

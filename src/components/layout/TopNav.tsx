@@ -1,6 +1,6 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-import { Play, Flame } from "lucide-react";
+import { Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { markSidebarOpened } from "@/components/layout/MenuTooltip";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -54,24 +54,11 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
       <div className="flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" onClick={() => markSidebarOpened()} />
-          {isDemo && (
-            <Badge variant="outline" className="gap-1.5 text-xs bg-primary/10 text-primary border-primary/20">
-              <Play className="h-3 w-3" />
-              Demo Mode
-            </Badge>
-          )}
-          {/* Live Beta indicator for admins */}
-          {!isDemo && isAdmin && isLiveBeta && (
-            <Badge variant="outline" className="gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
-              <Flame className="h-3 w-3 animate-pulse" />
-              Beta 10x
-            </Badge>
-          )}
         </div>
         
-        {/* Centered Logo with Beta Badge underneath - Links to Dashboard */}
+        {/* Centered Logo with Beta/Demo Badge underneath */}
         <Link 
-          to="/" 
+          to={isDemo ? "/demo" : "/"} 
           className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity flex flex-col items-center gap-0"
         >
           <img 
@@ -82,19 +69,33 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
             className="h-7 w-auto object-contain brightness-125 dark:brightness-150 dark:animate-logo-glow drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
           />
           <span 
-            className="relative overflow-hidden text-[6px] font-semibold uppercase tracking-[0.15em] text-primary brightness-150 bg-primary/20 px-1.5 py-px rounded-sm border border-primary/40 shadow-[0_0_8px_hsl(var(--primary)/0.4)] animate-breathing-glow"
+            className={cn(
+              "relative overflow-hidden text-[6px] font-semibold uppercase tracking-[0.15em] px-1.5 py-px rounded-sm border",
+              isDemo 
+                ? "text-primary brightness-150 bg-primary/20 border-primary/40 shadow-[0_0_8px_hsl(var(--primary)/0.4)]"
+                : "text-primary brightness-150 bg-primary/20 border-primary/40 shadow-[0_0_8px_hsl(var(--primary)/0.4)] animate-breathing-glow"
+            )}
           >
             {/* Shimmer overlay */}
             <span 
               className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-shimmer"
               style={{ backgroundSize: '200% 100%' }}
             />
-            <span className="relative">Beta</span>
+            <span className="relative">{isDemo ? "Demo" : "Beta"}</span>
           </span>
         </Link>
         
-        <div className="flex items-center max-w-[120px] sm:max-w-none overflow-hidden">
-          <WeatherWidget />
+        <div className="flex items-center gap-2">
+          {/* Live Beta indicator for admins */}
+          {!isDemo && isAdmin && isLiveBeta && (
+            <Badge variant="outline" className="gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
+              <Flame className="h-3 w-3 animate-pulse" />
+              Beta 10x
+            </Badge>
+          )}
+          <div className="max-w-[120px] sm:max-w-none overflow-hidden">
+            <WeatherWidget />
+          </div>
         </div>
       </div>
     </header>
