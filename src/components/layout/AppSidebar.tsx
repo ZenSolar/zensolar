@@ -35,6 +35,7 @@ import {
   Activity,
   Sun,
   Moon,
+  Coffee,
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -112,6 +113,7 @@ const adminMenuGroups = {
     { title: "Investor One-Pager", url: "/admin/investor-one-pager", icon: FileText },
     { title: "Fundraising", url: "/admin/fundraising", icon: DollarSign },
     { title: "Growth Projections", url: "/admin/growth-projections", icon: TrendingUp },
+    { title: "Coffee Pitch", url: "/admin/coffee-pitch", icon: Coffee },
     { title: "Cost Savings", url: "/admin/cost-savings", icon: TrendingUp },
   ],
   technical: [
