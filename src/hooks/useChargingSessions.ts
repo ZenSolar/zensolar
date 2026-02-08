@@ -54,7 +54,7 @@ export function useChargingSessions(currentMonth: Date) {
       // Convert home_charging_sessions → ChargingSession format
       const homeSessions: ChargingSession[] = (homeRes.data || []).map((h: any) => ({
         id: h.id,
-        provider: 'tesla',
+        provider: (h.session_metadata as any)?.source === 'wallbox_backfill' ? 'wallbox' : 'tesla',
         device_id: h.device_id,
         session_date: format(new Date(h.start_time), 'yyyy-MM-dd'),
         energy_kwh: Number(h.total_session_kwh || 0),
@@ -64,7 +64,7 @@ export function useChargingSessions(currentMonth: Date) {
         charging_type: 'home',
         session_metadata: {
           ...(h.session_metadata || {}),
-          source: 'charge_monitor',
+          source: (h.session_metadata as any)?.source || 'charge_monitor',
           status: h.status,
           charger_power_kw: h.charger_power_kw,
           start_time: h.start_time,

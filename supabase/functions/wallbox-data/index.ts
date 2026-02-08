@@ -611,7 +611,7 @@ Deno.serve(async (req) => {
 
       console.log(`Wallbox: wrote ${dailyChargingMap.size} daily charging rows`);
 
-      // Write per-session details
+      // Write per-session details to charging_sessions
       if (sessionRecords.length > 0) {
         const batchSize = 500;
         for (let i = 0; i < sessionRecords.length; i += batchSize) {
@@ -623,6 +623,105 @@ Deno.serve(async (req) => {
           if (error && error.code !== '23505') console.error(`Wallbox sessions insert error batch ${i}:`, error);
         }
         console.log(`Wallbox: wrote ${sessionRecords.length} charging session records`);
+      }
+
+      // ── Wallbox Home Charging Sessions Backfill ──────────────────────────
+      // All Wallbox sessions are home charging — populate home_charging_sessions
+      // for the detailed session history view
+      {
+        // Re-fetch with full session details for start/end times
+        const sessUrl2 = `${WALLBOX_API_BASE}/v4/sessions/stats?charger=${primaryId}&start_date=${tenYearsAgo2}&end_date=${now2}&limit=10000`;
+        const sessResp2 = await fetch(sessUrl2, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Accept": "application/json",
+          },
+        });
+
+        if (sessResp2.ok) {
+          const sessData2 = await sessResp2.json();
+          const sessions2 = Array.isArray(sessData2?.data) ? sessData2.data : [];
+          const homeRecords: any[] = [];
+
+          for (const session of sessions2) {
+            const attrs = session?.attributes || {};
+            const sessionKwh = attrs.energy || 0;
+            if (sessionKwh <= 0) continue;
+
+            const startTime = attrs.start || attrs.startedAt || attrs.start_time;
+            if (!startTime) continue;
+
+            const endTime = attrs.end || attrs.endedAt || attrs.end_time || null;
+            const durationSecs = attrs.time || attrs.duration || null;
+            const chargerPowerKw = attrs.power ? attrs.power / 1000 : null; // power often in W
+
+            // Build proof chain entry for this session
+            const sessionProofHash = await sha256Hex(
+              `wallbox|${primaryId}|${startTime}|${sessionKwh}`
+            );
+
+            homeRecords.push({
+              user_id: targetUserId,
+              device_id: primaryId,
+              start_time: startTime,
+              end_time: endTime,
+              start_kwh_added: 0,
+              end_kwh_added: sessionKwh,
+              total_session_kwh: sessionKwh,
+              status: "completed",
+              location: "Home",
+              charger_power_kw: chargerPowerKw,
+              session_metadata: {
+                source: "wallbox_backfill",
+                wallbox_session_id: session?.id || null,
+                duration_seconds: durationSecs,
+                charger_id: primaryId,
+              },
+              proof_chain: [{
+                hash: sessionProofHash,
+                timestamp: new Date().toISOString(),
+                source: "wallbox_api",
+              }],
+              verified: true,
+            });
+          }
+
+          if (homeRecords.length > 0) {
+            // Use upsert-like approach: check existing sessions to avoid duplicates
+            // We use device_id + start_time as the natural key
+            const { data: existingHome } = await supabaseClient
+              .from("home_charging_sessions")
+              .select("start_time")
+              .eq("user_id", targetUserId)
+              .eq("device_id", primaryId);
+
+            const existingStartTimes = new Set(
+              (existingHome || []).map((r: any) => r.start_time)
+            );
+
+            const newRecords = homeRecords.filter(
+              (r) => !existingStartTimes.has(r.start_time)
+            );
+
+            if (newRecords.length > 0) {
+              const batchSize = 500;
+              for (let i = 0; i < newRecords.length; i += batchSize) {
+                const batch = newRecords.slice(i, i + batchSize);
+                const { error } = await supabaseClient
+                  .from("home_charging_sessions")
+                  .insert(batch);
+                if (error) {
+                  console.error(`Wallbox home sessions insert error batch ${i}:`, error);
+                }
+              }
+              console.log(`Wallbox: backfilled ${newRecords.length} home charging sessions (${existingStartTimes.size} already existed)`);
+            } else {
+              console.log(`Wallbox: all ${homeRecords.length} home sessions already exist, skipping`);
+            }
+          }
+        } else {
+          console.warn("Failed to fetch Wallbox sessions for home_charging_sessions backfill");
+        }
       }
     }
 
