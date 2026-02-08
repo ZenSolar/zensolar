@@ -453,7 +453,7 @@ async function processVehicle(
 
       // Also write to energy_production for Energy Log daily view
       if (totalKwh > 0) {
-        await writeToEnergyProduction(supabase, userId, vin, activeSession.start_time, totalKwh);
+        await writeToEnergyProduction(supabase, userId, vin, activeSession.start_time, totalKwh, userTimezone);
         // Also write to charging_sessions for unified session list
         await writeToChargingSessions(supabase, userId, vin, activeSession, totalKwh, homeAddress, userTimezone);
       }
@@ -526,8 +526,19 @@ async function writeToEnergyProduction(
   vin: string,
   startTime: string,
   totalKwh: number,
+  userTimezone: string | null,
 ) {
-  const dateStr = new Date(startTime).toISOString().split("T")[0];
+  // Use user's timezone for local date attribution, fallback to UTC
+  let dateStr: string;
+  if (userTimezone) {
+    try {
+      dateStr = new Date(startTime).toLocaleDateString('en-CA', { timeZone: userTimezone });
+    } catch {
+      dateStr = new Date(startTime).toISOString().split("T")[0];
+    }
+  } else {
+    dateStr = new Date(startTime).toISOString().split("T")[0];
+  }
   const recordedAt = `${dateStr}T12:00:00Z`;
 
   // Get existing daily total
