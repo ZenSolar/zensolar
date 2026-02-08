@@ -50,7 +50,7 @@ const layers = [
     icon: Binary,
     title: 'Smart Contract Bridge',
     subtitle: 'Mint + Record',
-    description: 'Proof-of-Delta: On-chain verification & watermark',
+    description: 'Proof-of-Delta + Device Watermark Registry: On-chain verification, anti-double-mint standard',
     gradient: 'from-amber-500 to-orange-500',
     shadow: 'shadow-amber-500/30',
     bg: 'bg-amber-500/10',
@@ -61,18 +61,18 @@ const layers = [
 const proofOfDeltaSteps = [
   {
     icon: Database,
-    label: 'Device Watermark',
-    description: 'Tracks cumulative tokenized value per device',
+    label: 'Device Watermark Registry',
+    description: 'Public on-chain record of cumulative tokenized value per physical device (VIN, Site ID)',
   },
   {
     icon: ShieldCheck,
     label: 'Delta Calculation',
-    description: 'New activity = Current - Last minted',
+    description: 'New activity = Current reading - Last watermark. Cross-platform double-mint prevention.',
   },
   {
     icon: Lock,
-    label: 'On-Chain Record',
-    description: 'Immutable proof stored on Base L2',
+    label: 'On-Chain Record + Merkle Snapshots',
+    description: 'Real-time per-mint updates plus periodic Merkle root snapshots for bulk auditability',
   },
 ];
 
@@ -210,7 +210,7 @@ export function SEGIProofOfDeltaDiagram() {
           </div>
           
           <p className="text-sm text-muted-foreground mb-4">
-            Layer 4 implements <strong className="text-foreground">Proof-of-Delta</strong>—ensuring tokens are only minted for <em>incremental</em> real-world activity. Each mint records the device's cumulative tokenized value on-chain.
+            Layer 4 implements <strong className="text-foreground">Proof-of-Delta</strong> powered by the <strong className="text-foreground">Device Watermark Registry</strong>—a standalone on-chain contract that maps each physical device (via <code className="text-xs bg-muted px-1 py-0.5 rounded">keccak256(manufacturer | deviceId)</code>) to its total tokenized energy. This creates the industry's first <strong className="text-foreground">cross-platform anti-double-mint standard</strong>, making conflicting claims by any platform provably fraudulent.
           </p>
 
           <div className="grid sm:grid-cols-3 gap-3">
