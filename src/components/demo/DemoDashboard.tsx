@@ -38,6 +38,8 @@ export function DemoDashboard() {
     simulateMintMilestoneNFT,
     simulateBatchMintNFTs,
     getEligibility,
+    mintedNFTs,
+    hasWelcomeNFT,
   } = useDemoContext();
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
@@ -100,6 +102,11 @@ export function DemoDashboard() {
   );
   const comboEarned = calculateComboAchievements(solarEarned, evMilesEarned, evChargingEarned, batteryEarned);
   const totalNftsAvailable = 1 + solarEarned.length + batteryEarned.length + evMilesEarned.length + evChargingEarned.length + comboEarned.length;
+  const mintedCount = mintedNFTs.length + (hasWelcomeNFT ? 1 : 0);
+  const eligibleCount = totalNftsAvailable - mintedCount;
+  const nftLabel = mintedCount > 0
+    ? `minted · ${eligibleCount} eligible`
+    : 'eligible to mint';
 
   return (
     <div 
@@ -138,8 +145,8 @@ export function DemoDashboard() {
             tokensHeld={activityData.lifetimeMinted}
             defaultPrice={0.10}
             onPriceChange={setTokenPrice}
-            nftCount={totalNftsAvailable}
-            nftLabel="eligible to mint"
+            nftCount={mintedCount > 0 ? mintedCount : totalNftsAvailable}
+            nftLabel={nftLabel}
             walletLink="/demo/wallet"
           />
         </AnimatedItem>
