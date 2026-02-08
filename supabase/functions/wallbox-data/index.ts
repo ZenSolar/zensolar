@@ -638,26 +638,52 @@ Deno.serve(async (req) => {
           },
         });
 
-        if (sessResp2.ok) {
+      if (sessResp2.ok) {
           const sessData2 = await sessResp2.json();
           const sessions2 = Array.isArray(sessData2?.data) ? sessData2.data : [];
           const homeRecords: any[] = [];
 
-          for (const session of sessions2) {
+          // Get the last proof hash from existing home_charging_sessions for this device
+          // to continue the linked chain from where we left off
+          const { data: lastSession } = await supabaseClient
+            .from("home_charging_sessions")
+            .select("proof_chain")
+            .eq("user_id", targetUserId)
+            .eq("device_id", primaryId)
+            .order("start_time", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          let prevSessionHash = "genesis";
+          if (lastSession?.proof_chain && Array.isArray(lastSession.proof_chain) && lastSession.proof_chain.length > 0) {
+            const lastEntry = lastSession.proof_chain[lastSession.proof_chain.length - 1];
+            prevSessionHash = (lastEntry as any)?.hash || "genesis";
+          }
+
+          // Sort sessions chronologically so the linked chain is ordered correctly
+          const sortedSessions = sessions2
+            .filter((s: any) => {
+              const attrs = s?.attributes || {};
+              return (attrs.energy || 0) > 0 && (attrs.start || attrs.startedAt || attrs.start_time);
+            })
+            .sort((a: any, b: any) => {
+              const aTime = a?.attributes?.start || a?.attributes?.startedAt || a?.attributes?.start_time || "";
+              const bTime = b?.attributes?.start || b?.attributes?.startedAt || b?.attributes?.start_time || "";
+              return String(aTime).localeCompare(String(bTime));
+            });
+
+          for (const session of sortedSessions) {
             const attrs = session?.attributes || {};
             const sessionKwh = attrs.energy || 0;
-            if (sessionKwh <= 0) continue;
 
             const startTime = attrs.start || attrs.startedAt || attrs.start_time;
-            if (!startTime) continue;
-
             const endTime = attrs.end || attrs.endedAt || attrs.end_time || null;
             const durationSecs = attrs.time || attrs.duration || null;
-            const chargerPowerKw = attrs.power ? attrs.power / 1000 : null; // power often in W
+            const chargerPowerKw = attrs.power ? attrs.power / 1000 : null;
 
-            // Build proof chain entry for this session
-            const sessionProofHash = await sha256Hex(
-              `wallbox|${primaryId}|${startTime}|${sessionKwh}`
+            // Linked Proof-of-Delta™: SHA-256(device_id|timestamp|value|prevHash)
+            const sessionProofHash = await buildEnergyHash(
+              primaryId, String(startTime), sessionKwh * 1000, prevSessionHash
             );
 
             homeRecords.push({
@@ -679,11 +705,20 @@ Deno.serve(async (req) => {
               },
               proof_chain: [{
                 hash: sessionProofHash,
-                timestamp: new Date().toISOString(),
+                prev_hash: prevSessionHash,
+                device_id: primaryId,
+                value_wh: sessionKwh * 1000,
+                timestamp: String(startTime),
+                algorithm: "SHA-256",
+                preimage_format: "device_id|timestamp|value|prevHash",
                 source: "wallbox_api",
               }],
+              delta_proof: sessionProofHash,
               verified: true,
             });
+
+            // Advance the chain
+            prevSessionHash = sessionProofHash;
           }
 
           if (homeRecords.length > 0) {
