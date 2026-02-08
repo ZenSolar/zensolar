@@ -112,6 +112,7 @@ const adminMenuGroups = {
     { title: "Investor One-Pager", url: "/admin/investor-one-pager", icon: FileText },
     { title: "Fundraising", url: "/admin/fundraising", icon: DollarSign },
     { title: "Growth Projections", url: "/admin/growth-projections", icon: TrendingUp },
+    { title: "Cost Savings", url: "/admin/cost-savings", icon: TrendingUp },
   ],
   technical: [
     { title: "AI Agent Opportunities", url: "/admin/ai-agents", icon: Cpu, highlight: true },
