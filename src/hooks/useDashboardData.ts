@@ -1016,13 +1016,30 @@ export function useDashboardData() {
     refreshDashboard().finally(() => setIsAutoSyncing(false));
   }, [isOnDashboard, profileConnections, refreshDashboard]);
 
-  // Auto-refresh when connections change (only on dashboard)
+  // Auto-refresh when connections actually change (not on route transitions)
+  const prevConnectionsRef = useRef<string | null>(null);
   useEffect(() => {
     if (!isOnDashboard) return;
-    if (profileConnections?.enphase_connected || profileConnections?.solaredge_connected || profileConnections?.tesla_connected || profileConnections?.wallbox_connected) {
-      refreshDashboard();
+    const connectionKey = [
+      profileConnections?.enphase_connected,
+      profileConnections?.solaredge_connected,
+      profileConnections?.tesla_connected,
+      profileConnections?.wallbox_connected,
+    ].join(',');
+    
+    // Skip if connections haven't actually changed
+    if (prevConnectionsRef.current === connectionKey) return;
+    
+    // On first render, just record the state without triggering a refresh
+    // (the auto-refresh-once effect above handles the initial load)
+    if (prevConnectionsRef.current === null) {
+      prevConnectionsRef.current = connectionKey;
+      return;
     }
-  }, [profileConnections?.enphase_connected, profileConnections?.solaredge_connected, profileConnections?.tesla_connected, profileConnections?.wallbox_connected, refreshDashboard]);
+    
+    prevConnectionsRef.current = connectionKey;
+    refreshDashboard();
+  }, [isOnDashboard, profileConnections?.enphase_connected, profileConnections?.solaredge_connected, profileConnections?.tesla_connected, profileConnections?.wallbox_connected, refreshDashboard]);
 
   const connectAccount = useCallback((service: ConnectedAccount['service']) => {
     setConnectedAccounts(prev => 
