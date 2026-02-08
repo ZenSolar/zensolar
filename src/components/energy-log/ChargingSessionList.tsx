@@ -80,11 +80,27 @@ function getSessionStartTime(session: ChargingSession): string | null {
   } catch { return null; }
 }
 
+function getSessionDateTimeLabel(session: ChargingSession): string {
+  const meta = session.session_metadata as Record<string, any> | null;
+  const startTime = meta?.start_time || meta?.chargeStartDateTime;
+  if (startTime) {
+    try {
+      return format(new Date(startTime), 'MMM d, yyyy · h:mm a');
+    } catch { /* fall through */ }
+  }
+  // Fallback to session_date only
+  try {
+    return format(parseISO(session.session_date), 'MMM d, yyyy');
+  } catch {
+    return session.session_date;
+  }
+}
+
+
 function SessionRow({ session, category }: { session: ChargingSession; category: SessionCategory }) {
   const isVerified = (session.session_metadata as any)?.source === 'charge_monitor';
   const duration = getSessionDuration(session);
-
-  const startTime = getSessionStartTime(session);
+  const dateTimeLabel = getSessionDateTimeLabel(session);
 
   return (
     <div className="flex items-center justify-between py-2.5">
@@ -92,13 +108,11 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
         <div className="flex items-center gap-1.5 text-sm text-foreground">
           <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <span className="truncate">{session.location || (category === 'home' ? 'Home' : 'Unknown')}</span>
-          {startTime && (
-            <span className="text-xs text-muted-foreground shrink-0">· {startTime}</span>
-          )}
           {isVerified && (
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
           )}
         </div>
+        <p className="text-[10px] text-muted-foreground pl-5">{dateTimeLabel}</p>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Zap className="h-3 w-3" />
@@ -143,14 +157,6 @@ function CategorySection({
 
   const category = categorize(sessions[0]);
 
-  // Group by date
-  const grouped = new Map<string, ChargingSession[]>();
-  for (const s of sessions) {
-    const key = s.session_date;
-    if (!grouped.has(key)) grouped.set(key, []);
-    grouped.get(key)!.push(s);
-  }
-
   return (
     <div className="space-y-2">
       <CategorySummary 
@@ -162,18 +168,11 @@ function CategorySection({
       />
       <Card className={`bg-card border ${borderClass}`}>
         <CardContent className="px-3 py-1">
-          {[...grouped.entries()].map(([dateStr, daySessions], i) => (
-            <div key={dateStr}>
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider pt-2 pb-0.5 px-0.5">
-                {format(parseISO(dateStr), 'EEE, MMM d')}
-              </p>
-              <div className="divide-y divide-border/40">
-                {daySessions.map((session) => (
-                  <SessionRow key={session.id} session={session} category={category} />
-                ))}
-              </div>
-            </div>
-          ))}
+          <div className="divide-y divide-border/40">
+            {sessions.map((session) => (
+              <SessionRow key={session.id} session={session} category={category} />
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
