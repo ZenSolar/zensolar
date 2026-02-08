@@ -305,15 +305,20 @@ async function processVehicle(
     `[ChargeMonitor] ${vin}: state=${chargingState}, energy=${chargeEnergyAdded}kWh, fast=${fastChargerPresent}, power=${chargerPower}kW, bat=${batteryLevel}%`,
   );
 
+  const isAcCharging = fastChargerPresent === false;
+
   // Check if at home
   let isNearHome = false;
   let distFromHome: number | null = null;
   if (homeCoords && vehicleLat && vehicleLng) {
     distFromHome = haversineDistanceMiles(homeCoords.lat, homeCoords.lng, vehicleLat, vehicleLng);
     isNearHome = distFromHome < 0.5;
+  } else if (homeCoords && (!vehicleLat || !vehicleLng) && isAcCharging) {
+    // Vehicle coordinates unavailable (partial sleep) but AC charging with home address set
+    // Assume home — AC charging is overwhelmingly at home
+    isNearHome = true;
+    console.log(`[ChargeMonitor] ${vin}: No GPS coords during AC charge — assuming home (address on file)`);
   }
-
-  const isAcCharging = fastChargerPresent === false;
 
   // Get any active (status='charging') session for this vehicle
   const { data: activeSessions } = await supabase
