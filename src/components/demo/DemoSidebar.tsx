@@ -15,8 +15,11 @@ import {
   Play,
   BarChart3,
   FileText,
-  Wallet
+  Wallet,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink } from "react-router-dom";
@@ -61,6 +64,7 @@ const secondaryNavItems = [
 export function DemoSidebar() {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+  const { theme, setTheme } = useTheme();
 
   const handleNavClick = () => {
     setOpenMobile(false);
@@ -147,9 +151,19 @@ export function DemoSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with sign up CTA */}
+      {/* Footer with theme toggle and sign up CTA */}
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              tooltip={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+              className="hover:bg-sidebar-accent/50"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild
