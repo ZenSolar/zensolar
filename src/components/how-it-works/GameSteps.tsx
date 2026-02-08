@@ -1,0 +1,145 @@
+import { motion } from 'framer-motion';
+import { Link2, Zap, Sparkles, Wallet, Sun, Battery, Car } from 'lucide-react';
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solarEdgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+
+interface StepProps {
+  number: string;
+  title: string;
+  body: string;
+  keyMessage: string;
+  icon: React.ElementType;
+  children?: React.ReactNode;
+  reversed?: boolean;
+}
+
+function GameStep({ number, title, body, keyMessage, icon: Icon, children, reversed }: StepProps) {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.6 }}
+      className="py-12 md:py-20"
+    >
+      <div className={`flex flex-col ${reversed ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-10 md:gap-16`}>
+        {/* Visual side */}
+        <div className="flex-1 flex justify-center">
+          <motion.div
+            whileInView={{ scale: [0.9, 1] }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="relative"
+          >
+            {/* Large step number watermark */}
+            <span className="absolute -top-6 -left-4 text-[8rem] md:text-[10rem] font-black text-foreground/[0.03] leading-none select-none pointer-events-none">
+              {number}
+            </span>
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center shadow-xl shadow-primary/5">
+              <Icon className="h-14 w-14 md:h-18 md:w-18 text-primary" />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Text side */}
+        <div className="flex-1 space-y-4 text-center md:text-left">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            Step {number}
+          </p>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+            {title}
+          </h2>
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg">
+            {body}
+          </p>
+          <p className="text-sm text-accent font-medium italic">
+            {keyMessage}
+          </p>
+          {children}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+export function GameSteps() {
+  return (
+    <div className="container max-w-5xl mx-auto px-4 divide-y divide-border/30">
+      {/* Step 1: Connect */}
+      <GameStep
+        number="1"
+        icon={Link2}
+        title="Connect Your Gear"
+        body="Link your solar panels, Powerwall, or EV in under 60 seconds. We support Tesla, Enphase, SolarEdge, Wallbox, and more. No hardware needed — just sign in with your manufacturer account."
+        keyMessage="You already own the equipment. This is effortless."
+      >
+        {/* Provider logos */}
+        <div className="flex items-center gap-5 pt-3 justify-center md:justify-start">
+          {[
+            { src: teslaLogo, alt: 'Tesla' },
+            { src: enphaseLogo, alt: 'Enphase' },
+            { src: solarEdgeLogo, alt: 'SolarEdge' },
+            { src: wallboxLogo, alt: 'Wallbox' },
+          ].map(p => (
+            <img key={p.alt} src={p.src} alt={p.alt} className="h-7 md:h-8 object-contain opacity-60 hover:opacity-100 transition-opacity" />
+          ))}
+        </div>
+      </GameStep>
+
+      {/* Step 2: Generate */}
+      <GameStep
+        number="2"
+        icon={Zap}
+        title="Do What You Already Do"
+        body="Every kilowatt-hour your panels produce, every mile your EV drives, every time your battery powers your home — it all counts. We track it automatically, verified and secure."
+        keyMessage="Your existing lifestyle IS the gameplay."
+        reversed
+      >
+        {/* Mini activity icons */}
+        <div className="flex items-center gap-4 pt-2 justify-center md:justify-start">
+          {[
+            { icon: Sun, label: 'Solar' },
+            { icon: Battery, label: 'Battery' },
+            { icon: Car, label: 'EV Miles' },
+          ].map(d => (
+            <div key={d.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border/40">
+              <d.icon className="h-3.5 w-3.5 text-accent" />
+              <span className="text-xs font-medium text-muted-foreground">{d.label}</span>
+            </div>
+          ))}
+        </div>
+      </GameStep>
+
+      {/* Step 3: Mint */}
+      <GameStep
+        number="3"
+        icon={Sparkles}
+        title="Tap to Mint"
+        body="When you're ready, tap one button. Your verified clean energy activity is converted into $ZSOLAR tokens — real digital assets in your Rewards Account. Each token is backed by actual energy you produced."
+        keyMessage="One tap. That's it. No crypto knowledge required."
+      >
+        {/* Mint animation hint */}
+        <motion.div
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary/10 border border-primary/30 mt-2"
+          animate={{ boxShadow: ['0 0 0px hsl(var(--primary) / 0)', '0 0 20px hsl(var(--primary) / 0.2)', '0 0 0px hsl(var(--primary) / 0)'] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold text-primary">Tap to Mint</span>
+        </motion.div>
+      </GameStep>
+
+      {/* Step 4: Cash Out */}
+      <GameStep
+        number="4"
+        icon={Wallet}
+        title="Enjoy Your Rewards"
+        body="Withdraw to your bank account anytime, or hold your tokens as they grow in value. Your solar panels are now a second income stream."
+        keyMessage="Real money. Your choice when."
+        reversed
+      />
+    </div>
+  );
+}
