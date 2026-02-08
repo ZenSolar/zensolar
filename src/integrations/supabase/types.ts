@@ -765,6 +765,36 @@ export type Database = {
         }
         Relationships: []
       }
+      work_journal: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          date: string
+          description: string
+          id: string
+          title: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by: string
+          date?: string
+          description: string
+          id?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          date?: string
+          description?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       yc_application_content: {
         Row: {
           content: Json

@@ -85,6 +85,7 @@ const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
 const EnergyLog = lazy(() => import("./pages/EnergyLog"));
 const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataArchitecture"));
+const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -568,6 +569,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminEnergyDataArchitecture />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/work-journal" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <WorkJournal />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
