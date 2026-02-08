@@ -967,9 +967,7 @@ export function useDashboardData() {
       setActivityData(newData);
       setLastUpdatedAt(nowIso);
 
-      if (solarEnergy > 0 || tokensEarned > 0) {
-        toast.success('Dashboard updated with real data!');
-      }
+      // Toast removed — was firing on every auto-refresh cycle, spamming the user
     } catch (error) {
       console.error('Dashboard refresh error:', error);
       toast.error('Failed to refresh dashboard data');
