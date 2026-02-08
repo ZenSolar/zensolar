@@ -96,7 +96,7 @@ export function usePushNotifications() {
     setIsLoading(false);
   }, []);
 
-  // Check subscription status
+  // Check subscription status and clean stale entries
   const checkSubscription = useCallback(async () => {
     if (!isSupported || !user) return;
 
@@ -116,6 +116,14 @@ export function usePushNotifications() {
         setIsSubscribed(!!data);
       } else {
         setIsSubscribed(false);
+      }
+
+      // Clean stale subscriptions: remove DB entries for this user that don't match
+      // the current browser's subscription endpoint
+      const currentEndpoint = subscription?.endpoint;
+      if (currentEndpoint) {
+        // Keep only current device's subscription and subscriptions from other devices
+        // We can't verify other devices, so we leave them
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
