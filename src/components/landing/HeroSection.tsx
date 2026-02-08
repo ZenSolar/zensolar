@@ -57,7 +57,7 @@ export function LandingNav() {
       </a>
       <div className="container max-w-6xl mx-auto px-4 flex h-16 items-center justify-between gap-4">
         <Link to="/" className="flex items-center shrink-0">
-          <img src={zenLogo} alt="ZenSolar" className="h-8 w-auto dark:animate-logo-glow" />
+          <img src={zenLogo} alt="ZenSolar" width="108" height="32" className="h-8 w-auto dark:animate-logo-glow" />
         </Link>
         <nav className="hidden md:flex items-center gap-6">
           <Link to="/how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</Link>
@@ -116,6 +116,8 @@ export function HeroSection() {
           <motion.img
             src={zenLogo}
             alt="ZenSolar"
+            width="189"
+            height="56"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}

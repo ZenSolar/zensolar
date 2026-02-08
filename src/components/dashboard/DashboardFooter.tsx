@@ -13,6 +13,9 @@ export function DashboardFooter() {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
+            width="108"
+            height="32"
+            loading="lazy"
             className="h-8 w-auto object-contain mb-2 dark:animate-logo-glow" 
           />
           <p className="text-xs text-muted-foreground">
