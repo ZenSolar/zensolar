@@ -4,30 +4,35 @@ import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { motion, AnimatePresence } from "framer-motion";
 
-const DISMISSED_KEY = "push_optin_dismissed";
+const SESSION_DISMISSED_KEY = "push_optin_dismissed_session";
 
 export function PushOptInBanner() {
   const { isSupported, isSubscribed, isLoading, subscribe, isIOSDevice, isPWAInstalled } = usePushNotifications();
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
-    const wasDismissed = localStorage.getItem(DISMISSED_KEY);
-    // Show banner if not dismissed, supported, and not already subscribed
-    if (!wasDismissed && isSupported && !isSubscribed && !isLoading) {
+    // If already subscribed, never show
+    if (isSubscribed || isLoading) return;
+    // Only show if supported and not dismissed this session
+    const sessionDismissed = sessionStorage.getItem(SESSION_DISMISSED_KEY);
+    if (!sessionDismissed && isSupported) {
       setDismissed(false);
     }
   }, [isSupported, isSubscribed, isLoading]);
 
   const handleDismiss = () => {
     setDismissed(true);
-    localStorage.setItem(DISMISSED_KEY, "true");
+    // Only dismiss for this session — will reappear next session
+    sessionStorage.setItem(SESSION_DISMISSED_KEY, "true");
   };
 
   const handleEnable = async () => {
-    await subscribe();
-    // Always dismiss after attempting — never show again regardless of outcome
+    const success = await subscribe();
     setDismissed(true);
-    localStorage.setItem(DISMISSED_KEY, "true");
+    if (!success) {
+      // If they denied, dismiss for this session only
+      sessionStorage.setItem(SESSION_DISMISSED_KEY, "true");
+    }
   };
 
   // On iOS, if not installed as PWA, don't show banner
