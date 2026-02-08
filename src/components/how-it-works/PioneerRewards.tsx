@@ -69,9 +69,11 @@ export function PioneerRewards() {
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
             42 NFTs. Real Milestones. Your Proof.
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             Every NFT is tied to a real energy milestone — kWh generated, miles driven, batteries discharged. 
-            Hit the threshold, unlock the NFT, and mint it on-chain. We cover all gas fees.
+            Each milestone represents a permanent, irreversible claim on verified clean energy activity. Once you 
+            hit the threshold, that achievement is yours forever — cryptographically proven and minted on-chain. 
+            We cover all gas fees.
           </p>
         </div>
 

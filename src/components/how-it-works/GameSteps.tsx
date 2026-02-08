@@ -140,8 +140,8 @@ export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
         number="3"
         icon={Sparkles}
         title="Tap to Mint"
-        body="When you're ready, tap one button. Your verified clean energy activity is converted into $ZSOLAR tokens — real digital assets in your Rewards Account. Each token is backed by actual energy you produced. Requires a Pro or Elite subscription."
-        keyMessage="One tap. That's it. No crypto knowledge required."
+        body="When you're ready, tap one button. Your verified clean energy activity is converted into $ZSOLAR tokens — real digital assets in your Rewards Account. Each token is a permanent, irreversible claim on a specific unit of energy that can never be tokenized again. The 1st kWh your solar system generates — one token. The 500th EV mile — one token. Once claimed, that energy is cryptographically retired forever. Requires a Pro or Elite subscription."
+        keyMessage="One tap. Permanent proof. No crypto knowledge required."
       >
         {/* Mint animation hint */}
         <motion.div

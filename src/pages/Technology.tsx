@@ -428,6 +428,47 @@ export default function Technology() {
         </Card>
       </motion.div>
 
+      {/* Permanent Energy Scarcity */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.53 }}
+      >
+        <Card className="bg-gradient-to-br from-amber-500/10 via-background to-primary/10 border-amber-500/30">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-primary shadow-lg flex-shrink-0">
+                <Fingerprint className="h-8 w-8 text-white" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold">Permanent Energy Scarcity</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Every $ZSOLAR token is a <strong className="text-foreground">permanent, irreversible claim</strong> on a specific 
+                  unit of clean energy. The 1st kilowatt-hour your solar system generates — one token. The 2nd kWh — one token. 
+                  The 500th EV mile — one token. Once claimed, that energy unit is cryptographically retired forever.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Even if you sell your device, the watermark persists. The new owner starts where you left off — they earn tokens 
+                  only for <em>new</em> energy produced after their ownership begins. Nothing resets. Nothing double-counts. The 
+                  physics and the math are in perfect alignment.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Bitcoin is scarce because of math. <strong className="text-primary">$ZSOLAR is scarce because of physics and math.</strong>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30">
+                    1 kWh = 1 permanent claim
+                  </Badge>
+                  <Badge className="bg-primary/10 text-primary border-primary/30">
+                    Device Watermark Registry
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* The Patent */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -441,7 +482,7 @@ export default function Technology() {
                 <Shield className="h-8 w-8 text-white" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-xl font-bold">Why Is This Patent-Pending? 📜</h3>
+                <h3 className="text-xl font-bold">Why Is This Patent-Pending?</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   <strong className="text-foreground">The innovation is the method.</strong> Prior approaches required 
                   custom IoT hardware or relied on self-reported data. SEGI is the first system to create a 
