@@ -1,22 +1,23 @@
 import { Outlet } from 'react-router-dom';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
+import { MenuTooltip } from '@/components/layout/MenuTooltip';
 
 export function DemoLayout() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full min-w-0 overflow-x-hidden bg-background">
+      <div className="min-h-screen min-h-[100dvh] flex w-full min-w-0 overflow-x-hidden">
         <DemoSidebar />
-        <SidebarInset className="flex flex-col flex-1 min-w-0 w-full max-w-full overflow-x-hidden">
-          {/* Fixed Header - shared component */}
+        <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh] min-w-0">
+          {/* Fixed header - always visible */}
           <TopNav isDemo />
-
-          {/* Main Content - mobile-safe with constrained width */}
-          <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 w-full max-w-full overflow-x-hidden">
+          <MenuTooltip />
+          {/* Main content with padding-top to offset fixed header */}
+          <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 overflow-x-hidden">
             <Outlet />
           </main>
-        </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   );

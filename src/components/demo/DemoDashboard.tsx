@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+
 import { toast } from 'sonner';
 
 export function DemoDashboard() {
@@ -94,23 +94,20 @@ export function DemoDashboard() {
       
       <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border overflow-x-hidden">
         {/* Dashboard Header with Logo */}
-        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[100px]">
-          <img 
-            src={zenLogo} 
-            alt="ZenSolar" 
-            className="h-10 w-auto object-contain dark:animate-logo-glow" 
-          />
-          <div className="space-y-1.5">
+        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
+           <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
-              Earn $ZSOLAR for every kWh you generate — powered by{' '}
+              Real energy. Real Tokens. All on-chain
+              <br />
+              with{' '}
               <Link 
                 to="/demo/technology" 
                 className="text-primary hover:text-primary/80 font-semibold underline underline-offset-2 transition-all duration-300 hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
               >
                 Mint-on-Proof™
-              </Link>{' '}
-              technology.
+              </Link>
+              .
             </p>
           </div>
           
