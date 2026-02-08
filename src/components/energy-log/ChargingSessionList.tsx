@@ -98,7 +98,7 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
           )}
           {session.fee_amount != null && session.fee_amount > 0 && (
             <span className="flex items-center gap-1">
-              {Number(session.fee_amount).toFixed(2)}
+              ${Number(session.fee_amount).toFixed(2)}
             </span>
           )}
         </div>
