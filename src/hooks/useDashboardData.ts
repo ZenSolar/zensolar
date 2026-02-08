@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   ActivityData, 
   ConnectedAccount, 
@@ -61,6 +62,8 @@ export function useDashboardData() {
   // Check if we're in "view as user" mode (admin viewing another user's data)
   const viewAsUserId = useViewAsUserId();
   const isViewingAsOther = viewAsUserId !== null;
+  const location = useLocation();
+  const isOnDashboard = location.pathname === '/' || location.pathname === '/dashboard';
 
   // Helper to get the effective user ID for data fetching
   const getEffectiveUserId = async (): Promise<string | null> => {
@@ -996,6 +999,7 @@ export function useDashboardData() {
   // This ensures that after connecting Tesla during onboarding, the FIRST dashboard view
   // pulls and displays KPIs without requiring a manual refresh.
   useEffect(() => {
+    if (!isOnDashboard) return;
     if (!profileConnections) return;
     if (hasAutoRefreshedOnce.current) return;
 
@@ -1010,10 +1014,11 @@ export function useDashboardData() {
     hasAutoRefreshedOnce.current = true;
     setIsAutoSyncing(true);
     refreshDashboard().finally(() => setIsAutoSyncing(false));
-  }, [profileConnections, refreshDashboard]);
+  }, [isOnDashboard, profileConnections, refreshDashboard]);
 
-  // Auto-refresh when connections change
+  // Auto-refresh when connections change (only on dashboard)
   useEffect(() => {
+    if (!isOnDashboard) return;
     if (profileConnections?.enphase_connected || profileConnections?.solaredge_connected || profileConnections?.tesla_connected || profileConnections?.wallbox_connected) {
       refreshDashboard();
     }
