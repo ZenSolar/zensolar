@@ -51,6 +51,10 @@ const defaultActivityData: ActivityData = {
   chargerDevices: [],
 };
 
+// Module-level flag so initial auto-refresh only fires once per session,
+// surviving component remounts during navigation.
+let hasAutoRefreshedOnceGlobal = false;
+
 interface ProfileConnections {
   tesla_connected: boolean;
   enphase_connected: boolean;
@@ -80,7 +84,7 @@ export function useDashboardData() {
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(null);
-  const hasAutoRefreshedOnce = useRef(false);
+  const hasAutoRefreshedOnce = useRef(hasAutoRefreshedOnceGlobal);
 
   type ProviderKey = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
   type ProviderRefreshState = {
@@ -229,6 +233,7 @@ export function useDashboardData() {
     const handleProfileUpdated = () => {
       // Allow one more automatic refresh after a connection is completed.
       hasAutoRefreshedOnce.current = false;
+      hasAutoRefreshedOnceGlobal = false;
       fetchConnections();
     };
 
@@ -982,7 +987,6 @@ export function useDashboardData() {
       // Always compute CO2 from the live dashboard metrics so it stays consistent with the UI
       newData.co2OffsetPounds = calculateCO2Offset(newData);
 
-      
       setActivityData(newData);
       setLastUpdatedAt(nowIso);
 
@@ -1012,6 +1016,7 @@ export function useDashboardData() {
     if (!anyConnected) return;
 
     hasAutoRefreshedOnce.current = true;
+    hasAutoRefreshedOnceGlobal = true;
     setIsAutoSyncing(true);
     refreshDashboard().finally(() => setIsAutoSyncing(false));
   }, [isOnDashboard, profileConnections, refreshDashboard]);
