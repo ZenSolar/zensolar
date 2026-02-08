@@ -727,10 +727,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       whileTap={isTappable ? { scale: 0.98 } : undefined}
       whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
       className={cn(
-        "p-3.5 rounded-xl border-[1.5px] transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
+        "p-3.5 rounded-xl border-l-[3px] border border-border/50 transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
+        styles.leftBorder,
         isTappable
-          ? cn("cursor-pointer bg-card hover:bg-muted/20", styles.border, `hover:shadow-lg ${styles.glow}`)
-          : cn("bg-muted/30", styles.border)
+          ? cn("cursor-pointer bg-card hover:bg-muted/20", `hover:shadow-lg ${styles.glow}`)
+          : "bg-muted/30"
       )}
     >
       {/* Subtle gradient overlay for active cards */}
