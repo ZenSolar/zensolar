@@ -190,4 +190,17 @@
   .transition-ios {
     transition: transform 0.2s ease-out, opacity 0.2s ease-out;
   }
+
+  /* Glassmorphic wallet card */
+  .wallet-card-glass {
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  }
+
+  .dark .wallet-card-glass {
+    background: hsl(var(--card) / 0.5);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  }
 }
