@@ -737,15 +737,10 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       )}
       
       {/* Icon with gradient background */}
-      <div className={cn(
-        "relative p-3 rounded-xl transition-all opacity-70",
-        active 
-          ? cn("bg-gradient-to-br shadow-lg", styles.gradient, styles.glow)
-          : "bg-muted"
-      )}>
+      <div className="relative p-3 rounded-xl">
         <Icon className={cn(
           "h-5 w-5 transition-all",
-          active ? "text-white" : "text-muted-foreground"
+          active ? styles.text : "text-muted-foreground"
         )} />
       </div>
       
