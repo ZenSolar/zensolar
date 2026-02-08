@@ -121,16 +121,21 @@ function classifyChargingType(
   totalFee: number,
   sessionType: string,
 ): string {
-  // If we have both a home address and session location, compare street names
+  // Paid sessions from billing API are always Supercharger/DC
+  if (totalFee > 0) return "supercharger";
+
+  // Check session type hints
+  const st = String(sessionType).toLowerCase();
+  if (st.includes("supercharger") || st.includes("dc_fast")) return "supercharger";
+
+  // Match against home address for free AC sessions
   if (homeAddress && location) {
     const homeStreet = extractStreetName(homeAddress);
     const locStreet = extractStreetName(location);
     if (homeStreet.length > 3 && locStreet.length > 3) {
-      // Match if either street name contains the other (handles abbreviations like Dr vs Drive)
       if (locStreet.includes(homeStreet) || homeStreet.includes(locStreet)) {
         return "home";
       }
-      // Also try matching core words (handles "Sea Jay Dr" vs "Sea Jay Drive")
       const homeCore = homeStreet.replace(/\b(dr|drive|st|street|ave|avenue|blvd|boulevard|ln|lane|ct|court|cir|circle|way|pl|place|rd|road)\b/g, "").trim();
       const locCore = locStreet.replace(/\b(dr|drive|st|street|ave|avenue|blvd|boulevard|ln|lane|ct|court|cir|circle|way|pl|place|rd|road)\b/g, "").trim();
       if (homeCore.length > 3 && locCore.length > 3 && (locCore.includes(homeCore) || homeCore.includes(locCore))) {
@@ -138,14 +143,8 @@ function classifyChargingType(
       }
     }
   }
-  // Fallback: no fee + not a supercharger session type → likely home
-  if (totalFee === 0) {
-    const st = String(sessionType).toLowerCase();
-    if (!st.includes("supercharger") && !st.includes("dc_fast")) {
-      return "home";
-    }
-  }
-  return "supercharger";
+
+  return "home";
 }
 
 // Helper to refresh Tesla token

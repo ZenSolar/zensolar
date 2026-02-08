@@ -27,6 +27,14 @@ function classifyChargingType(
   totalFee: number,
   sessionType: string,
 ): string {
+  // Paid sessions from billing API are always Supercharger/DC
+  if (totalFee > 0) return "supercharger";
+
+  // Check session type hints
+  const st = String(sessionType).toLowerCase();
+  if (st.includes("supercharger") || st.includes("dc_fast")) return "supercharger";
+
+  // Match against home address for free AC sessions
   if (homeAddress && location) {
     const homeStreet = extractStreetName(homeAddress);
     const locStreet = extractStreetName(location);
@@ -41,13 +49,8 @@ function classifyChargingType(
       }
     }
   }
-  if (totalFee === 0) {
-    const st = String(sessionType).toLowerCase();
-    if (!st.includes("supercharger") && !st.includes("dc_fast")) {
-      return "home";
-    }
-  }
-  return "supercharger";
+
+  return "home";
 }
 
 async function refreshTeslaToken(
