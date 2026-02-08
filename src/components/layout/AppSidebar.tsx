@@ -88,6 +88,7 @@ const secondaryNavItems = [
 const adminMenuGroups = {
   core: [
     { title: "Admin Panel", url: "/admin", icon: Shield },
+    { title: "Work Journal", url: "/admin/work-journal", icon: BookOpen, highlight: true },
     { title: "Project Summary", url: "/admin/project-summary", icon: FileText, highlight: true },
     { title: "View as User", url: "/admin/view-as-user", icon: Eye, highlight: true },
     { title: "To-Do List", url: "/admin/todo", icon: ClipboardList, highlight: true },
