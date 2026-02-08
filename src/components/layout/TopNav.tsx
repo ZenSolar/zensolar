@@ -76,6 +76,8 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
+            width="94"
+            height="28"
             className="h-7 w-auto object-contain brightness-125 dark:brightness-150 dark:animate-logo-glow drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
           />
           <span 

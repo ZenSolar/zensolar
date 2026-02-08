@@ -6,13 +6,19 @@
     <style>
       html,body{background:#0a1628;background:hsl(var(--background))}
     </style>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H0G72NVJHY"></script>
+    <!-- Google tag (gtag.js) - deferred to avoid blocking FCP/LCP -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-H0G72NVJHY');
+      // Defer loading the gtag script until after page load
+      window.addEventListener('load', function() {
+        var s = document.createElement('script');
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-H0G72NVJHY';
+        s.async = true;
+        document.head.appendChild(s);
+      });
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
@@ -23,9 +29,9 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <!-- Preload critical assets for faster paint -->
-    <link rel="preload" as="image" href="/src/assets/zen-logo-stacked.png" fetchpriority="high" />
     <link rel="modulepreload" href="/src/main.tsx" />
-    <!-- DNS prefetch for external resources -->
+    <!-- Preconnect to external resources (stronger than dns-prefetch) -->
+    <link rel="preconnect" href="https://fcptrpgqkjffgeddajwl.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://fcptrpgqkjffgeddajwl.supabase.co" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=14" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=14" />
@@ -111,7 +117,7 @@
     ">
       <!-- Logo -->
       <img 
-        src="/pwa-192x192.png" 
+        src="/logos/zen-icon.png" 
         alt="ZenSolar" 
         width="96" 
         height="96" 
