@@ -83,3 +83,12 @@ verify_jwt = false
 
 [functions.tesla-charge-monitor]
 verify_jwt = false
+
+[functions.get-turnstile-site-key]
+verify_jwt = false
+
+[functions.verify-turnstile]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = false
