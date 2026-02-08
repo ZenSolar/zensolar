@@ -593,7 +593,7 @@ export default function Auth() {
                           <span className="w-full border-t border-border/60" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-background px-3 text-muted-foreground">or continue with</span>
+                          <span className="bg-card px-3 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
@@ -602,7 +602,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -629,7 +629,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
@@ -726,7 +726,7 @@ export default function Auth() {
                           <span className="w-full border-t border-border/60" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-background px-3 text-muted-foreground">or continue with</span>
+                          <span className="bg-card px-3 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
@@ -735,7 +735,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -762,7 +762,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
@@ -779,7 +779,7 @@ export default function Auth() {
                 <div className="mt-4 pt-3 border-t border-border">
                   <Button 
                     variant="outline" 
-                    className="w-full" 
+                    className="w-full border-l-4 border-l-secondary" 
                     onClick={() => navigate('/demo')}
                   >
                     Try Demo Mode
