@@ -621,6 +621,7 @@ export function ActivityMetrics({
 const colorStyles = {
   gold: { 
     gradient: 'from-amber-500 to-yellow-500',
+    textGradient: 'from-amber-500 to-yellow-400',
     text: 'text-amber-500',
     glow: 'shadow-amber-500/30',
     bg: 'bg-amber-500/10',
@@ -629,6 +630,7 @@ const colorStyles = {
   },
   teal: { 
     gradient: 'from-cyan-600 to-teal-500',
+    textGradient: 'from-cyan-500 to-teal-400',
     text: 'text-teal-500',
     glow: 'shadow-teal-500/30',
     bg: 'bg-teal-500/10',
@@ -637,6 +639,7 @@ const colorStyles = {
   },
   green: { 
     gradient: 'from-emerald-500 to-green-500',
+    textGradient: 'from-emerald-500 to-green-400',
     text: 'text-emerald-500',
     glow: 'shadow-emerald-500/30',
     bg: 'bg-emerald-500/10',
@@ -645,6 +648,7 @@ const colorStyles = {
   },
   cyan: { 
     gradient: 'from-sky-400 to-cyan-500',
+    textGradient: 'from-sky-400 to-cyan-400',
     text: 'text-cyan-500',
     glow: 'shadow-cyan-500/30',
     bg: 'bg-cyan-500/10',
@@ -653,6 +657,7 @@ const colorStyles = {
   },
   greenGold: { 
     gradient: 'from-lime-500 to-amber-500',
+    textGradient: 'from-lime-500 to-amber-400',
     text: 'text-lime-500',
     glow: 'shadow-lime-500/30',
     bg: 'bg-lime-500/10',
@@ -771,11 +776,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               <span className="text-sm text-muted-foreground">Syncing...</span>
             </div>
           ) : (
-            <p className={cn(
-              "text-xl font-bold tracking-tight",
-              active ? "text-foreground" : "text-muted-foreground"
-            )}>
-              {value.toLocaleString()}
+            <p className="text-xl font-bold tracking-tight">
+              <span className={cn(
+                active 
+                  ? `bg-gradient-to-r ${styles.textGradient} bg-clip-text text-transparent` 
+                  : "text-muted-foreground"
+              )}>
+                {value.toLocaleString()}
+              </span>
               <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
             </p>
           )}
