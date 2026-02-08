@@ -744,7 +744,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           : "bg-muted"
       )}>
         <Icon className={cn(
-          "h-5 w-5 transition-all",
+          "h-5 w-5 transition-all opacity-60",
           active ? "text-white" : "text-muted-foreground"
         )} />
       </div>
