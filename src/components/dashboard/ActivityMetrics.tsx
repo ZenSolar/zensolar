@@ -1,4 +1,5 @@
 import React from 'react';
+import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
@@ -138,6 +139,9 @@ export function ActivityMetrics({
 
   // Swipe hint for first-time users
   const { shouldShowHint, markHintSeen } = useSwipeHintShown();
+
+  // Active charging session indicator
+  const { data: isCharging = false } = useActiveChargingSession();
 
   // Check if provider is connected for each category (locked = cannot hide)
   const hasSolarConnected = effectiveConnectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
@@ -515,6 +519,7 @@ export function ActivityMetrics({
                         color="purple"
                         active={pendingKwh > 0}
                         isLoading={isLoading}
+                        liveIndicator={isCharging}
                         onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
                           category: 'home_charger', 
                           deviceId: device.deviceId,
@@ -546,6 +551,7 @@ export function ActivityMetrics({
                       color="purple"
                       active={homeChargerKwh > 0}
                       isLoading={isLoading}
+                      liveIndicator={isCharging}
                       onTap={homeChargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'home_charger' }) : undefined}
                     />
                   </SwipeableActivityField>
@@ -654,9 +660,10 @@ interface ActivityFieldProps {
   onTap?: () => void;
   isLoading?: boolean;
   historyLink?: string;
+  liveIndicator?: boolean;
 }
 
-function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink }: ActivityFieldProps) {
+function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator }: ActivityFieldProps) {
   const navigate = useNavigate();
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
@@ -738,10 +745,18 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       
       {/* Label + Value */}
       <div className="flex-1 min-w-0 relative">
-        <p className={cn(
-          "text-sm font-medium truncate transition-colors",
-          active ? "text-foreground" : "text-muted-foreground"
-        )}>{label}</p>
+        <div className="flex items-center gap-1.5">
+          <p className={cn(
+            "text-sm font-medium truncate transition-colors",
+            active ? "text-foreground" : "text-muted-foreground"
+          )}>{label}</p>
+          {liveIndicator && (
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {isLoading ? (
             <div className="flex items-center gap-2">
