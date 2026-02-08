@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { PatentPageNavigation } from '@/components/admin/patent/PatentPageNavigation';
+import { PatentClaimsDependencyDiagram } from '@/components/admin/patent/PatentClaimsDependencyDiagram';
 
 const patentTimeline = [
   {
@@ -192,6 +193,15 @@ export default function AdminPatentApplication() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Claims Dependency Diagram */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.09 }}
+      >
+        <PatentClaimsDependencyDiagram />
       </motion.div>
 
       {/* Filing Timeline */}
