@@ -149,7 +149,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
     batteryPower: -2.5,
     batteryPercent: 73,
     gridPower: 0,
-    evPower: 0.8,
+    evPower: 11,
   };
 
   const flow = data || demoData;
@@ -192,9 +192,9 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
       </div>
 
       <svg
-        viewBox="0 0 400 430"
+        viewBox="0 0 400 450"
         className="relative w-full h-full"
-        style={{ maxHeight: '520px' }}
+        style={{ maxHeight: '550px' }}
       >
         <defs>
           {/* Dot glow */}
@@ -367,22 +367,87 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           )}
         </g>
 
-        {/* EV */}
+        {/* EV — Tesla Model X */}
         <g>
           <circle cx={nodes.ev.x} cy={nodes.ev.y} r={20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
-          <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 10} width={20} height={20}>
+          {/* Tesla Model X silhouette */}
+          <foreignObject x={nodes.ev.x - 14} y={nodes.ev.y - 12} width={28} height={24}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                <path d="M14 16H9m10 0h3v-3.15a1 1 0 00-.84-.99L16 11l-2.7-3.6a1 1 0 00-.8-.4H5.24a2 2 0 00-1.8 1.1l-.8 1.63A6 6 0 002 12.42V16h2" />
-                <circle cx="6.5" cy="16.5" r="2.5" />
-                <circle cx="16.5" cy="16.5" r="2.5" />
+              <svg viewBox="0 0 40 24" fill="none" className="w-7 h-5">
+                {/* Model X body */}
+                <path
+                  d="M4 16 C4 16 5 10 8 8 C11 6 14 5.5 20 5.5 C26 5.5 29 6 32 8 C35 10 36 16 36 16 L36 17 C36 18.1 35.1 19 34 19 L6 19 C4.9 19 4 18.1 4 17 Z"
+                  fill="#1e293b"
+                  stroke={colors.ev}
+                  strokeWidth="0.8"
+                />
+                {/* Windshield */}
+                <path
+                  d="M11 14 C11 14 13 8.5 20 8.5 C27 8.5 29 14 29 14 Z"
+                  fill="#0f172a"
+                  stroke={colors.ev}
+                  strokeWidth="0.4"
+                  opacity="0.7"
+                />
+                {/* Falcon wing doors (signature Model X) */}
+                <path
+                  d="M10 11 C10 11 8 6 7 4 C6.5 3 7 2.5 7.5 3 C9 5 11 8 11 8"
+                  fill="none"
+                  stroke={colors.ev}
+                  strokeWidth="0.7"
+                  opacity="0.5"
+                />
+                <path
+                  d="M30 11 C30 11 32 6 33 4 C33.5 3 33 2.5 32.5 3 C31 5 29 8 29 8"
+                  fill="none"
+                  stroke={colors.ev}
+                  strokeWidth="0.7"
+                  opacity="0.5"
+                />
+                {/* Headlights */}
+                <ellipse cx="7" cy="14" rx="2" ry="1.2" fill={colors.ev} opacity="0.6">
+                  {flow.evPower > 0 && <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />}
+                </ellipse>
+                <ellipse cx="33" cy="14" rx="2" ry="1.2" fill={colors.ev} opacity="0.6">
+                  {flow.evPower > 0 && <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />}
+                </ellipse>
+                {/* Front wheels */}
+                <circle cx="11" cy="18.5" r="2.5" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
+                <circle cx="29" cy="18.5" r="2.5" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
+                {/* Charge port glow (right rear) */}
+                {flow.evPower > 0 && (
+                  <circle cx="33" cy="11" r="1.5" fill={colors.ev}>
+                    <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="1;2;1" dur="1.5s" repeatCount="indefinite" />
+                  </circle>
+                )}
               </svg>
             </div>
           </foreignObject>
-          <text x={nodes.ev.x} y={nodes.ev.y + 35} textAnchor="middle" fill="#9ca3af" fontSize="10" fontWeight="500" letterSpacing="1.5">EV</text>
+          {/* Charging cable animation */}
+          {flow.evPower > 0 && (
+            <g opacity="0.6">
+              <path
+                d={`M${nodes.ev.x + 13},${nodes.ev.y - 1} Q${nodes.ev.x + 22},${nodes.ev.y - 8} ${nodes.ev.x + 18},${nodes.ev.y - 20}`}
+                fill="none"
+                stroke={colors.ev}
+                strokeWidth="1.2"
+                strokeDasharray="3 2"
+              >
+                <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite" />
+              </path>
+            </g>
+          )}
+          <text x={nodes.ev.x} y={nodes.ev.y + 35} textAnchor="middle" fill="#9ca3af" fontSize="10" fontWeight="500" letterSpacing="1.5">MODEL X</text>
           <text x={nodes.ev.x} y={nodes.ev.y + 50} textAnchor="middle" fill="white" fontSize="15" fontWeight="700">
             {flow.evPower.toFixed(1)} kW
           </text>
+          {flow.evPower > 0 && (
+            <text x={nodes.ev.x} y={nodes.ev.y + 63} textAnchor="middle" fill={colors.ev} fontSize="9" fontWeight="500">
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+              ⚡ CHARGING
+            </text>
+          )}
         </g>
 
         {/* Status indicator */}
