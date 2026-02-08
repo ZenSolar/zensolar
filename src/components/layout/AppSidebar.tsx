@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { 
   LayoutDashboard, 
   Coins, 
@@ -31,7 +32,9 @@ import {
   Wallet,
   ClipboardList,
   Eye,
-  Activity
+  Activity,
+  Sun,
+  Moon,
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -137,6 +140,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin } = useAdminCheck();
+  const { theme, setTheme } = useTheme();
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -442,6 +446,16 @@ export function AppSidebar() {
           )}
         </div>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              tooltip={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+              className="hover:bg-sidebar-accent/50"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton 
               onClick={handleLogout}

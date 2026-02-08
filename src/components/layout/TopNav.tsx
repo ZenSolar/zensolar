@@ -1,5 +1,4 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ThemeToggle } from "./ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Play, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -91,9 +90,8 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           </span>
         </Link>
         
-        <div className="flex items-center gap-1">
+        <div className="flex items-center">
           <WeatherWidget />
-          <ThemeToggle />
         </div>
       </div>
     </header>
