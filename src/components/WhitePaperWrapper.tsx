@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
-import WhitePaper from "@/pages/WhitePaper";
+import { Loader2 } from "lucide-react";
+
+const WhitePaper = lazy(() => import("@/pages/WhitePaper"));
 
 /**
  * Wrapper component that conditionally renders WhitePaper 
@@ -21,24 +23,32 @@ export default function WhitePaperWrapper() {
     checkAuth();
   }, []);
 
+  const fallback = (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+
   // Show loading state while checking auth
   if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+    return fallback;
   }
 
   // Authenticated users get the full app layout with sidebar
   if (isAuthenticated) {
     return (
       <AppLayout>
-        <WhitePaper />
+        <Suspense fallback={fallback}>
+          <WhitePaper />
+        </Suspense>
       </AppLayout>
     );
   }
 
   // Unauthenticated users get standalone WhitePaper with its own header
-  return <WhitePaper />;
+  return (
+    <Suspense fallback={fallback}>
+      <WhitePaper />
+    </Suspense>
+  );
 }
