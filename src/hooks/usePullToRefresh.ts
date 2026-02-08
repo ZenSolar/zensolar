@@ -6,6 +6,8 @@ interface UsePullToRefreshOptions {
   threshold?: number;
   maxPull?: number;
   activationDelay?: number;
+  /** Max Y position (in viewport px) where a touch can start to activate pull-to-refresh */
+  activationZoneHeight?: number;
 }
 
 interface UsePullToRefreshReturn {
@@ -27,6 +29,7 @@ export function usePullToRefresh({
   threshold = 140,
   maxPull = 200,
   activationDelay = 250,
+  activationZoneHeight = 160,
 }: UsePullToRefreshOptions): UsePullToRefreshReturn {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -65,15 +68,17 @@ export function usePullToRefresh({
     
     initialScrollTop.current = container.scrollTop;
     
-    // Only enable pull-to-refresh when completely at the top
-    if (container.scrollTop <= 0) {
-      startY.current = e.touches[0].clientY;
+    const touchY = e.touches[0].clientY;
+    
+    // Only enable pull-to-refresh when at the top AND touch started in the header zone
+    if (container.scrollTop <= 0 && touchY <= activationZoneHeight) {
+      startY.current = touchY;
       startTime.current = Date.now();
       setIsPulling(true);
       setIsActive(false);
       hasTriggeredThresholdHaptic.current = false;
     }
-  }, [isRefreshing]);
+  }, [isRefreshing, activationZoneHeight]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     const container = containerRef.current;
