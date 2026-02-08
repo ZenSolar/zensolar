@@ -238,6 +238,18 @@ export function useDashboardData() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return null;
 
+      // Throttle Enphase calls to once every 6 hours to stay within API limits
+      const cacheKey = `enphase_last_fetch_${session.user.id}`;
+      const cachedDataKey = `enphase_cached_data_${session.user.id}`;
+      const lastFetch = localStorage.getItem(cacheKey);
+      const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+
+      if (lastFetch && Date.now() - Number(lastFetch) < SIX_HOURS_MS) {
+        console.log('[Enphase] Skipping API call — last fetch was', Math.round((Date.now() - Number(lastFetch)) / 60000), 'min ago (6h throttle)');
+        const cached = localStorage.getItem(cachedDataKey);
+        return cached ? JSON.parse(cached) : null;
+      }
+
       const response = await supabase.functions.invoke('enphase-data', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -252,6 +264,10 @@ export function useDashboardData() {
         }
         return null;
       }
+
+      // Cache successful response
+      localStorage.setItem(cacheKey, String(Date.now()));
+      try { localStorage.setItem(cachedDataKey, JSON.stringify(response.data)); } catch {}
 
       return response.data;
     } catch (error) {
