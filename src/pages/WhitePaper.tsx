@@ -285,7 +285,7 @@ export default function WhitePaper() {
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Badge variant="outline" className="px-4 py-1.5 border-primary/40 bg-primary/10 text-sm font-medium">
               <FileText className="h-3.5 w-3.5 mr-2 text-primary" />
-              White Paper v1.0
+              White Paper v2.0 · February 2026
             </Badge>
             <Button
               variant="outline"
@@ -794,8 +794,11 @@ export default function WhitePaper() {
               </ol>
               <p className="text-muted-foreground leading-relaxed mt-4">
                 This architecture represents a <strong className="text-foreground">paradigm shift</strong> from the "earn-from-pool" 
-                models prevalent in the market to a "Mint-on-Proof™" model where every token in circulation is backed by verified 
-                clean energy impact.
+                models prevalent in the market to a <strong className="text-primary">Mint-on-Proof™</strong> model where every token 
+                in circulation is backed by verified clean energy impact. Each reading is cryptographically secured via 
+                <strong className="text-primary"> Proof-of-Delta™</strong> hash chains, and every physical device is permanently 
+                tracked on-chain through <strong className="text-primary"> Proof-of-Origin™</strong> (the Device Watermark Registry), 
+                making cross-platform double-minting provably impossible.
               </p>
             </div>
 
@@ -862,21 +865,57 @@ export default function WhitePaper() {
             <Separator />
 
             <div>
-              <h3 className="font-semibold text-lg mb-3">Intellectual Property Strategy</h3>
+              <h3 className="font-semibold text-lg mb-3">Intellectual Property: The Trademark Trilogy</h3>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                ZenSolar's first-mover advantage is reinforced by a deliberate intellectual property strategy. The patent-pending 
-                SEGI architecture covers the novel combination of:
+                ZenSolar's first-mover advantage is reinforced by a deliberate intellectual property strategy anchored by three 
+                patent-pending verification systems, each protected as a trademark:
               </p>
-              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>API-based energy data verification from consumer devices</li>
-                <li>Real-time impact score computation across multiple energy categories</li>
-                <li>On-demand token minting triggered by verified activity thresholds</li>
-                <li>Deflationary burn mechanics applied at the point of minting</li>
-              </ul>
-              <p className="text-muted-foreground leading-relaxed mt-4">
-                Comprehensive patent landscape research has identified no existing claims covering this methodology. The closest 
-                prior art addresses hardware-dependent systems rather than software-only gateway interfaces. This IP position 
-                creates a defensive moat that compounds over time as the patent application progresses.
+              
+              <div className="space-y-4 mb-4">
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-primary/10 text-primary border-primary/30 text-xs">Mint-on-Proof™</Badge>
+                    <span className="text-xs text-muted-foreground">Absolute Reward Engine</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Mints $ZSOLAR tokens based on absolute energy metrics (kWh produced, miles driven, battery cycles stored). 
+                    Every token in circulation is backed by verified, real-world clean energy activity. No pre-minted pools, 
+                    no inflation risk.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30 text-xs">Proof-of-Delta™</Badge>
+                    <span className="text-xs text-muted-foreground">Incremental Verification Logic</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    The cryptographic verification standard powering SEGI Layer 3. Each data reading generates a linked hash chain: 
+                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded mx-1">SHA-256(device_id | timestamp | value | prevHash)</code>. 
+                    This ensures tokens are issued only for verified <em>incremental</em> energy activity, creating an immutable, 
+                    tamper-evident audit trail that prevents gaming and double-counting.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs">Proof-of-Origin™</Badge>
+                    <span className="text-xs text-muted-foreground">Device-Bound Anti-Double-Mint Standard</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    The industry's first on-chain, hardware-bound anti-fraud system. The Device Watermark Registry maps deterministic 
+                    device hashes (<code className="text-xs bg-muted px-1.5 py-0.5 rounded mx-1">keccak256(manufacturer_id | device_id)</code>) 
+                    to total tokenized energy on a public smart contract. If you sell your Tesla, the new owner starts fresh. 
+                    If a competitor tries to tokenize the same energy, the fraud is publicly provable.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">Patent Status:</strong> Non-provisional utility patent application filed 
+                ("Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology") covering the SEGI architecture 
+                with Mint-on-Proof™, Proof-of-Delta™, and Proof-of-Origin™ as dependent claims. Comprehensive patent landscape 
+                research has identified no existing claims covering this methodology.
               </p>
             </div>
 
@@ -1104,7 +1143,7 @@ export default function WhitePaper() {
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
           <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
-            Moonshot Scenarios <Rocket className="h-7 w-7 text-amber-500" />
+            Moonshot Scenarios
           </h2>
         </div>
         
@@ -1189,7 +1228,7 @@ export default function WhitePaper() {
       {/* Competitive Advantage */}
       <motion.section {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 11</Badge>
           <h2 className="text-3xl font-bold">Competitive Moat</h2>
         </div>
         
@@ -1197,10 +1236,11 @@ export default function WhitePaper() {
           <CardContent className="pt-6">
             <div className="space-y-4">
               {[
-                { title: "Patent-Pending IP", description: "Energy-to-blockchain verification system under patent protection", icon: Shield },
-                { title: "First-Mover Advantage", description: "No competitors in verified energy-backed token rewards", icon: Rocket },
+                { title: "Trademark Trilogy IP", description: "Mint-on-Proof™, Proof-of-Delta™, and Proof-of-Origin™ protected by pending patents and trademarks", icon: Shield },
+                { title: "Device Watermark Registry", description: "On-chain, device-bound anti-double-mint standard makes cross-platform fraud publicly provable", icon: Cpu },
+                { title: "First-Mover Advantage", description: "No competitors in verified, on-demand energy-backed token minting", icon: Rocket },
                 { title: "Hardware Neutrality", description: "Works with Tesla, Enphase, SolarEdge, Wallbox—not locked to one provider", icon: Globe },
-                { title: "Network Effects", description: "More users = deeper liquidity = stronger price floor = more users", icon: Users },
+                { title: "Flywheel Network Effects", description: "More subscribers → deeper LP → higher token floor → more valuable rewards → more subscribers", icon: Users },
               ].map((item, i) => (
                 <div key={item.title} className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 border border-border/50">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -1258,11 +1298,11 @@ export default function WhitePaper() {
         <Separator className="bg-border/50" />
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground">ZenSolar</strong> • Patent Pending • Built on Base L2
+            <strong className="text-foreground">ZenSolar</strong> • Patent Pending • Built on Base L2 • Last Updated February 2026
           </p>
           <p className="text-xs text-muted-foreground max-w-xl mx-auto">
             This white paper is for informational purposes only. $ZSOLAR tokens have no monetary value during 
-            beta testing on Sepolia testnet. Tokenomics and features are subject to change.
+            beta testing on Base Sepolia testnet. Tokenomics and features are subject to change.
           </p>
         </div>
       </motion.footer>
