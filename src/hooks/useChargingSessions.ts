@@ -49,7 +49,12 @@ export function useChargingSessions(currentMonth: Date) {
       if (billingRes.error) throw billingRes.error;
       if (homeRes.error) throw homeRes.error;
 
-      const billingSessions = (billingRes.data || []) as ChargingSession[];
+      // Filter out charging_sessions rows that originated from charge_monitor
+      // to avoid duplicates — home_charging_sessions is the source of truth for those
+      const billingSessions = ((billingRes.data || []) as ChargingSession[]).filter((s) => {
+        const meta = s.session_metadata as Record<string, unknown> | null;
+        return meta?.source !== 'charge_monitor';
+      });
 
       // Convert home_charging_sessions → ChargingSession format
       const homeSessions: ChargingSession[] = (homeRes.data || []).map((h: any) => ({
