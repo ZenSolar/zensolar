@@ -334,7 +334,7 @@ export function ActivityMetrics({
                     label={`${device.deviceName} Solar Energy Produced`}
                     value={pendingKwh}
                     unit="kWh"
-                    color="amber"
+                    color="gold"
                     active={pendingKwh > 0}
                     isLoading={isLoading}
                     onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
@@ -367,7 +367,7 @@ export function ActivityMetrics({
                   label={solarLabel}
                   value={current.solarKwh}
                   unit="kWh"
-                  color="amber"
+                  color="gold"
                   active={current.solarKwh > 0}
                   isLoading={isLoading}
                   
@@ -389,7 +389,7 @@ export function ActivityMetrics({
                     label={`${device.deviceName} Battery Storage Discharged`}
                     value={pendingKwh}
                     unit="kWh"
-                    color="emerald"
+                    color="teal"
                     active={pendingKwh > 0}
                     isLoading={isLoading}
                     onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
@@ -420,7 +420,7 @@ export function ActivityMetrics({
                   label={batteryLabel}
                   value={current.batteryKwh}
                   unit="kWh"
-                  color="emerald"
+                  color="teal"
                   active={current.batteryKwh > 0}
                   isLoading={isLoading}
                   onTap={current.batteryKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'battery' }) : undefined}
@@ -441,7 +441,7 @@ export function ActivityMetrics({
                     label={`${device.deviceName} EV Miles`}
                     value={pendingMiles}
                     unit="mi"
-                    color="blue"
+                    color="green"
                     active={pendingMiles > 0}
                     isLoading={isLoading}
                     onTap={pendingMiles > 0 && onMintRequest ? () => onMintRequest({ 
@@ -472,7 +472,7 @@ export function ActivityMetrics({
                   label={evLabel}
                   value={current.evMiles}
                   unit="mi"
-                  color="blue"
+                  color="green"
                   active={current.evMiles > 0}
                   isLoading={isLoading}
                   onTap={current.evMiles > 0 && onMintRequest ? () => onMintRequest({ category: 'ev_miles' }) : undefined}
@@ -496,7 +496,7 @@ export function ActivityMetrics({
                     label={superchargerLabel}
                     value={superchargerKwh}
                     unit="kWh"
-                    color="purple"
+                    color="cyan"
                     active={superchargerKwh > 0}
                     isLoading={isLoading}
                     onTap={superchargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'supercharger' }) : undefined}
@@ -515,7 +515,7 @@ export function ActivityMetrics({
                         label={`${device.deviceName} Home Charger`}
                         value={pendingKwh}
                         unit="kWh"
-                        color="purple"
+                        color="greenGold"
                         active={pendingKwh > 0}
                         isLoading={isLoading}
                         liveIndicator={isCharging}
@@ -547,7 +547,7 @@ export function ActivityMetrics({
                       label={homeChargerLabel}
                       value={homeChargerKwh}
                       unit="kWh"
-                      color="purple"
+                      color="greenGold"
                       active={homeChargerKwh > 0}
                       isLoading={isLoading}
                       liveIndicator={isCharging}
@@ -568,7 +568,7 @@ export function ActivityMetrics({
                 label="EV Charging"
                 value={current.chargingKwh}
                 unit="kWh"
-                color="purple"
+                color="cyan"
                 active={current.chargingKwh > 0}
                 isLoading={isLoading}
                 onTap={onMintRequest ? () => onMintRequest({ category: 'charging' }) : undefined}
@@ -617,35 +617,42 @@ export function ActivityMetrics({
   );
 }
 
-// Color mapping - matching landing page exactly with gradient backgrounds
+// Color mapping - ZenSolar logo-themed palette (gold, teal, green)
 const colorStyles = {
-  amber: { 
-    gradient: 'from-amber-500 to-orange-500',
+  gold: { 
+    gradient: 'from-amber-500 to-yellow-500',
     text: 'text-amber-500',
     glow: 'shadow-amber-500/30',
     bg: 'bg-amber-500/10',
     border: 'border-amber-500/30',
   },
-  blue: { 
-    gradient: 'from-blue-500 to-cyan-500',
-    text: 'text-blue-500',
-    glow: 'shadow-blue-500/30',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/30',
+  teal: { 
+    gradient: 'from-cyan-600 to-teal-500',
+    text: 'text-teal-500',
+    glow: 'shadow-teal-500/30',
+    bg: 'bg-teal-500/10',
+    border: 'border-teal-500/30',
   },
-  emerald: { 
+  green: { 
     gradient: 'from-emerald-500 to-green-500',
     text: 'text-emerald-500',
     glow: 'shadow-emerald-500/30',
     bg: 'bg-emerald-500/10',
     border: 'border-emerald-500/30',
   },
-  purple: { 
-    gradient: 'from-purple-500 to-pink-500',
-    text: 'text-purple-500',
-    glow: 'shadow-purple-500/30',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/30',
+  cyan: { 
+    gradient: 'from-sky-400 to-cyan-500',
+    text: 'text-cyan-500',
+    glow: 'shadow-cyan-500/30',
+    bg: 'bg-cyan-500/10',
+    border: 'border-cyan-500/30',
+  },
+  greenGold: { 
+    gradient: 'from-lime-500 to-amber-500',
+    text: 'text-lime-500',
+    glow: 'shadow-lime-500/30',
+    bg: 'bg-lime-500/10',
+    border: 'border-lime-500/30',
   },
 };
 
