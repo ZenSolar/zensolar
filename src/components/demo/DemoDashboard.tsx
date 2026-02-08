@@ -138,7 +138,8 @@ export function DemoDashboard() {
             tokensHeld={activityData.lifetimeMinted}
             defaultPrice={0.10}
             onPriceChange={setTokenPrice}
-            nftCount={activityData.nftsEarned?.length ?? 0}
+            nftCount={totalNftsAvailable}
+            nftLabel="eligible to mint"
             walletLink="/demo/wallet"
           />
         </AnimatedItem>

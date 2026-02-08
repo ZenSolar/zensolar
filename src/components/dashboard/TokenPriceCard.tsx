@@ -16,11 +16,13 @@ interface TokenPriceCardProps {
   onPriceChange?: (price: number) => void;
   /** Optional NFT count to display in expanded view */
   nftCount?: number;
+  /** Label for NFT count, e.g. "earned" or "eligible to mint" */
+  nftLabel?: string;
   /** Optional link for "View All" wallet button */
   walletLink?: string;
 }
 
-export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange, nftCount, walletLink }: TokenPriceCardProps) {
+export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange, nftCount, nftLabel = 'earned', walletLink }: TokenPriceCardProps) {
   const [tokenPrice, setTokenPrice] = useState<number>(defaultPrice);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(defaultPrice.toString());
@@ -274,7 +276,7 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange,
                   <div className="flex items-center gap-2">
                     <Images className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      <span className="font-semibold text-foreground">{nftCount}</span> NFTs earned
+                      <span className="font-semibold text-foreground">{nftCount}</span> NFTs {nftLabel}
                     </span>
                   </div>
                 )}
