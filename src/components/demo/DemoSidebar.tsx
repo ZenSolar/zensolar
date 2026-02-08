@@ -24,6 +24,7 @@ import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import {
   Sidebar,
@@ -73,26 +74,26 @@ export function DemoSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        {/* Demo Mode Banner */}
-        <div className="px-3 py-2">
-          <Badge variant="secondary" className="w-full justify-center gap-1.5 py-1.5 bg-primary/10 text-primary border-primary/20">
-            <Play className="h-3 w-3" />
-            Demo Mode
-          </Badge>
-        </div>
-
-        {/* Logo/Brand */}
-        <div className="p-4 flex items-center gap-3">
+        {/* Logo/Brand - matches AppSidebar */}
+        <div className="p-3 flex items-center gap-3">
           <img 
             src={collapsed ? zenFavicon : zenLogo} 
             alt="ZenSolar" 
             className={`${collapsed ? 'h-8 w-8' : 'h-8 w-auto'} object-contain flex-shrink-0 dark:animate-logo-glow`}
           />
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-xs text-sidebar-foreground/60">Earn blockchain rewards from clean energy use</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">One-Tap, Mint-on-Proof Clean Energy Platform</span>
             </div>
           )}
+        </div>
+
+        {/* Demo Mode Badge */}
+        <div className="px-3 pb-2">
+          <Badge variant="secondary" className="w-full justify-center gap-1.5 py-1.5 bg-primary/10 text-primary border-primary/20">
+            <Play className="h-3 w-3" />
+            Demo Mode
+          </Badge>
         </div>
 
         {/* Main Navigation */}
@@ -151,8 +152,21 @@ export function DemoSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with theme toggle and sign up CTA */}
-      <SidebarFooter>
+      {/* Footer - mirrors AppSidebar structure with demo user */}
+      <SidebarFooter className="border-t border-sidebar-border">
+        <div className={`flex items-center gap-3 p-2 ${collapsed ? 'justify-center' : ''}`}>
+          <Avatar className="h-8 w-8 flex-shrink-0">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+              D
+            </AvatarFallback>
+          </Avatar>
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-sidebar-foreground truncate">Demo User</p>
+              <p className="text-xs text-sidebar-foreground/60 truncate">demo@zen.solar</p>
+            </div>
+          )}
+        </div>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
