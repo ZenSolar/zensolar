@@ -625,6 +625,7 @@ const colorStyles = {
     glow: 'shadow-amber-500/30',
     bg: 'bg-amber-500/10',
     border: 'border-amber-500/30',
+    leftBorder: 'border-l-amber-500',
   },
   teal: { 
     gradient: 'from-cyan-600 to-teal-500',
@@ -632,6 +633,7 @@ const colorStyles = {
     glow: 'shadow-teal-500/30',
     bg: 'bg-teal-500/10',
     border: 'border-teal-500/30',
+    leftBorder: 'border-l-teal-500',
   },
   green: { 
     gradient: 'from-emerald-500 to-green-500',
@@ -639,6 +641,7 @@ const colorStyles = {
     glow: 'shadow-emerald-500/30',
     bg: 'bg-emerald-500/10',
     border: 'border-emerald-500/30',
+    leftBorder: 'border-l-emerald-500',
   },
   cyan: { 
     gradient: 'from-sky-400 to-cyan-500',
@@ -646,6 +649,7 @@ const colorStyles = {
     glow: 'shadow-cyan-500/30',
     bg: 'bg-cyan-500/10',
     border: 'border-cyan-500/30',
+    leftBorder: 'border-l-cyan-500',
   },
   greenGold: { 
     gradient: 'from-lime-500 to-amber-500',
@@ -653,6 +657,7 @@ const colorStyles = {
     glow: 'shadow-lime-500/30',
     bg: 'bg-lime-500/10',
     border: 'border-lime-500/30',
+    leftBorder: 'border-l-lime-500',
   },
 };
 
@@ -722,10 +727,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       whileTap={isTappable ? { scale: 0.98 } : undefined}
       whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
       className={cn(
-        "p-3.5 rounded-xl border transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
+        "p-3.5 rounded-xl border-l-[3px] border border-border/50 transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
+        styles.leftBorder,
         isTappable
-          ? cn("cursor-pointer bg-card hover:bg-muted/20", styles.border, `hover:shadow-lg ${styles.glow}`)
-          : "border-border/50 bg-muted/30"
+          ? cn("cursor-pointer bg-card hover:bg-muted/20", `hover:shadow-lg ${styles.glow}`)
+          : "bg-muted/30"
       )}
     >
       {/* Subtle gradient overlay for active cards */}
