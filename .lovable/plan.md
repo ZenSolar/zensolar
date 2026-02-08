@@ -196,3 +196,128 @@ If 1% of America's 4M+ solar homes and 4M+ EV owners subscribe, we hit $48M ARR.
 2. Use the existing inline editing UI or apply all changes in a single database update
 3. Verify changes render correctly on both admin and public views
 
+
+---
+
+# How to Play — Page Overhaul Plan
+
+## Vision
+Replace the current technical "How It Works" page with a gamified, visual-first experience that explains ZenSolar as a game anyone can play. Zero jargon. Zero blockchain complexity. Pure "here's how you win."
+
+---
+
+## Page Structure
+
+### Hero Section
+- **Headline:** "How to Play"
+- **Subhead:** "Your clean energy is worth real money. Here's how the game works."
+- **Visual:** Animated loop showing the 4-step cycle (Connect → Generate → Mint → Cash Out) as a continuous circle/orbit
+- **Tone:** Inviting, playful, confident
+
+---
+
+### Section 1: Connect Your Energy
+- **Icon/Visual:** Animated plug connecting to solar panel / EV / battery icons
+- **Headline:** "Step 1 — Connect Your Gear"
+- **Body:** "Link your solar panels, Powerwall, or EV in under 60 seconds. We support Tesla, Enphase, SolarEdge, Wallbox, and more. No hardware needed — just sign in with your manufacturer account."
+- **Key message:** This is effortless. You already own the equipment.
+- **Visual element:** Provider logo strip (Tesla, Enphase, SolarEdge, Wallbox)
+
+### Section 2: Generate Clean Energy
+- **Icon/Visual:** Animated sun rays / battery pulse / car driving — activity flowing into a "score counter"
+- **Headline:** "Step 2 — Do What You Already Do"
+- **Body:** "Every kilowatt-hour your panels produce, every mile your EV drives, every time your battery powers your home — it all counts. We track it automatically, verified and secure."
+- **Key message:** You don't change your behavior. Your existing lifestyle IS the gameplay.
+- **Visual element:** Mini dashboard mockup showing live kWh / miles ticking up
+
+### Section 3: Mint Your Rewards
+- **Icon/Visual:** Animated "Tap to Mint" button ripple → tokens flying out
+- **Headline:** "Step 3 — Tap to Mint"
+- **Body:** "When you're ready, tap one button. Your verified clean energy activity is converted into $ZSOLAR tokens — real digital assets in your Rewards Account. Each token is backed by actual energy you produced."
+- **Key message:** One tap. That's it. No crypto knowledge required.
+- **Visual element:** Before/after showing pending kWh → minted tokens with confetti
+
+### Section 4: Cash Out or Hold
+- **Icon/Visual:** Animated wallet with tokens flowing to bank / growing stack
+- **Headline:** "Step 4 — Enjoy Your Rewards"
+- **Body:** "Withdraw to your bank account anytime, or hold your tokens as they grow in value. Your solar panels are now a second income stream."
+- **Key message:** Real money. Your choice when.
+- **Visual element:** Simple toggle illustration: "Cash Out Now" vs "Hold & Grow"
+
+---
+
+### Section 5: Level Up (Gamification Tiers)
+- **Headline:** "The More You Play, The More You Earn"
+- **Body:** Introduce subscription tiers as "game levels" without calling them subscriptions
+- **Visual:** Progression ladder or tier cards
+
+| Level | What You Get | Mint Frequency |
+|-------|-------------|----------------|
+| Free | Manual minting anytime | On demand |
+| Pro ($9.99/mo) | Auto-mint weekly + priority | Every week |
+| Elite ($19.99/mo) | Auto-mint daily + max rewards | Every day |
+
+- **Key message:** Leveling up = more passive income with zero extra effort
+
+### Section 6: Pioneer Rewards (Early Adopter)
+- **Headline:** "Early Players Get Bonus Rewards"
+- **Body:** "Join during beta and earn Pioneer status — exclusive NFT badges, bonus tokens, and lifetime perks that reward you for being first."
+- **Visual:** Pioneer NFT badge tiers (Bronze → Silver → Gold → Platinum) with glow effects
+- **Key message:** Urgency + exclusivity. Get in now.
+
+---
+
+### Closing CTA
+- **Headline:** "Ready to Play?"
+- **Primary CTA:** "Get Started" → routes to /auth (signup)
+- **Secondary CTA:** "See the Tech" → routes to /patent-technology (for the curious)
+- **Visual:** Subtle animated energy particles flowing toward the CTA button
+
+---
+
+## Design Direction
+
+### Aesthetic
+- Dark mode primary (consistent with app)
+- Neon accent glows on icons/illustrations (emerald for verified, primary blue for actions)
+- Large typography for headlines, generous whitespace between sections
+- Each section occupies ~80-100vh for scroll-driven storytelling
+
+### Animation Strategy
+- Scroll-triggered section reveals using framer-motion
+- Continuous ambient animations on hero loop (subtle, not distracting)
+- "Tap to Mint" section should have the most impactful animation (this is the core action)
+- Consider parallax or sticky scroll for the 4-step flow
+
+### Typography
+- Section numbers large + muted (like "01" watermarks)
+- Headlines bold, 2-3 words max
+- Body text conversational, max 2 sentences per point
+
+### Illustrations vs Screenshots
+- Prefer stylized illustrations/icons over actual app screenshots
+- Screenshots feel like documentation; illustrations feel like a game manual
+- Consider simple Lottie animations or CSS-animated SVGs
+
+---
+
+## What This Page Is NOT
+- ❌ Not a technical architecture diagram (that's /patent-technology)
+- ❌ Not a tokenomics breakdown (that's /white-paper)
+- ❌ Not a pricing page (tiers are framed as "levels," not subscriptions)
+- ❌ Not a feature list (it's a journey/story)
+
+## Content Principles
+1. Every sentence should answer "why should I care?" not "how does it work technically?"
+2. If a word wouldn't appear in a mobile game tutorial, don't use it here
+3. The reader should feel excited, not educated
+4. Social proof > technical proof on this page
+
+---
+
+## Implementation Notes
+- Route: `/how-it-works` (keep existing route, replace content)
+- Mobile-first responsive design
+- Estimated sections: 7 (hero + 4 steps + tiers + CTA)
+- Dependencies: framer-motion (already installed)
+- No backend changes needed — purely presentational
