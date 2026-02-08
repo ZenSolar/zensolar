@@ -18,7 +18,6 @@ import { NotificationTemplatesTab } from '@/components/admin/NotificationTemplat
 import { NFTResetPanel } from '@/components/admin/NFTResetPanel';
 import { ProviderResyncPanel } from '@/components/admin/ProviderResyncPanel';
 import { AdminSkeleton } from '@/components/ui/loading-skeleton';
-import { OnlineUsersPanel } from '@/components/admin/OnlineUsersPanel';
 import zenIconOnly from '@/assets/zen-icon-only.png';
 
 interface ProfileWithEmail {
@@ -744,8 +743,7 @@ export default function Admin() {
           </Button>
         </div>
 
-        {/* Online Users */}
-        <OnlineUsersPanel />
+        {/* Tesla Fleet API Registration */}
 
         {/* Tesla Fleet API Registration */}
         <Card className="border-primary/20">

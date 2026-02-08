@@ -24,6 +24,7 @@ import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenIconOnly from '@/assets/zen-icon-only.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { OnboardingFunnelCard } from '@/components/admin/OnboardingFunnelCard';
+import { OnlineUsersPanel } from '@/components/admin/OnlineUsersPanel';
 
 interface ProfileWithEmail {
   id: string;
@@ -1081,6 +1082,9 @@ export default function AdminUsers() {
             <p className="text-muted-foreground">Complete user data with energy metrics, tokens, and NFT rewards</p>
           </div>
         </div>
+
+        {/* Online Users */}
+        <OnlineUsersPanel />
 
         {/* KPI Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
