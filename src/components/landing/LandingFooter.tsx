@@ -15,7 +15,7 @@ export function LandingFooter() {
         </div>
 
         <div className="flex justify-center">
-          <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto dark:animate-logo-glow" />
+          <img src={zenLogo} alt="ZenSolar" width="81" height="24" className="h-6 w-auto dark:animate-logo-glow" />
         </div>
 
         <div className="flex justify-center items-center gap-6 text-sm text-muted-foreground">
