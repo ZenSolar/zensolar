@@ -55,6 +55,8 @@ const defaultActivityData: ActivityData = {
 let hasAutoRefreshedOnceGlobal = false;
 let cachedProfileConnections: ProfileConnections | null = null;
 let cachedConnectionKey: string | null = null;
+let cachedActivityData: ActivityData | null = null;
+let cachedLastUpdatedAt: string | null = null;
 
 interface ProfileConnections {
   tesla_connected: boolean;
@@ -76,7 +78,11 @@ export function useDashboardData() {
     const { data: { user } } = await supabase.auth.getUser();
     return user?.id ?? null;
   };
-  const [activityData, setActivityData] = useState<ActivityData>(defaultActivityData);
+  const [activityData, setActivityDataRaw] = useState<ActivityData>(cachedActivityData ?? defaultActivityData);
+  const setActivityData = useCallback((data: ActivityData) => {
+    cachedActivityData = data;
+    setActivityDataRaw(data);
+  }, []);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([
     { service: 'tesla', connected: cachedProfileConnections?.tesla_connected ?? false, label: 'Tesla' },
     { service: 'enphase', connected: cachedProfileConnections?.enphase_connected ?? false, label: 'Enphase' },
@@ -98,7 +104,11 @@ export function useDashboardData() {
     error?: string;
   };
 
-  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAtRaw] = useState<string | null>(cachedLastUpdatedAt);
+  const setLastUpdatedAt = useCallback((val: string | null) => {
+    cachedLastUpdatedAt = val;
+    setLastUpdatedAtRaw(val);
+  }, []);
   const [isAutoSyncing, setIsAutoSyncing] = useState(false);
   const [providerRefresh, setProviderRefresh] = useState<Record<ProviderKey, ProviderRefreshState>>({
     tesla: { status: 'idle' },
@@ -247,6 +257,8 @@ export function useDashboardData() {
       hasAutoRefreshedOnceGlobal = false;
       cachedProfileConnections = null;
       cachedConnectionKey = null;
+      cachedActivityData = null;
+      cachedLastUpdatedAt = null;
       fetchConnections();
     };
 
