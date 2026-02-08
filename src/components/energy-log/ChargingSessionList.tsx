@@ -103,16 +103,19 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
   const dateTimeLabel = getSessionDateTimeLabel(session);
 
   return (
-    <div className="flex items-center justify-between py-2.5">
-      <div className="flex-1 min-w-0 space-y-0.5">
-        <div className="flex items-center gap-1.5 text-sm text-foreground">
-          <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <span className="truncate">{session.location || (category === 'home' ? 'Home' : 'Unknown')}</span>
-          {isVerified && (
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-          )}
-        </div>
-        <p className="text-[10px] text-muted-foreground pl-5">{dateTimeLabel}</p>
+    <div className="py-2.5">
+      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider pb-1">
+        {dateTimeLabel}
+      </p>
+      <div className="flex items-center justify-between">
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <div className="flex items-center gap-1.5 text-sm text-foreground">
+            <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <span className="truncate">{session.location || (category === 'home' ? 'Home' : 'Unknown')}</span>
+            {isVerified && (
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+            )}
+          </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Zap className="h-3 w-3" />
@@ -130,10 +133,11 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
             </span>
           )}
         </div>
+        </div>
+        <span className="text-sm font-semibold tabular-nums text-foreground ml-3">
+          {Number(session.energy_kwh).toFixed(1)} <span className="text-xs font-normal text-muted-foreground">kWh</span>
+        </span>
       </div>
-      <span className="text-sm font-semibold tabular-nums text-foreground ml-3">
-        {Number(session.energy_kwh).toFixed(1)} <span className="text-xs font-normal text-muted-foreground">kWh</span>
-      </span>
     </div>
   );
 }
