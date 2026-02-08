@@ -8,6 +8,7 @@ import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMet
 import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory, DemoMintHandler } from '@/components/dashboard/RewardActions';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { TokenPriceCard } from '@/components/dashboard/TokenPriceCard';
+import { DemoWalletHoldingsCard } from '@/components/demo/DemoWalletHoldingsCard';
 import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
@@ -130,6 +131,11 @@ export function DemoDashboard() {
               .
             </p>
           </div>
+        </AnimatedItem>
+
+        {/* Wallet Holdings Card */}
+        <AnimatedItem>
+          <DemoWalletHoldingsCard />
         </AnimatedItem>
 
         {/* Token Price Card */}
