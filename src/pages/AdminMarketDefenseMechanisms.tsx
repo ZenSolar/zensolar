@@ -116,7 +116,7 @@ const implementedMechanisms: DefenseMechanism[] = [
     details: [
       'Solar panels produce energy regardless of crypto markets',
       'EVs are driven regardless of Bitcoin price',
-      'Mint-on-Proof verifies real activity',
+      'Mint-on-Proof™ verifies real activity',
       'Creates non-correlated reward flow',
     ],
   },

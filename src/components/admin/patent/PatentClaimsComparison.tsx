@@ -28,7 +28,7 @@ const claimsComparison: ClaimComparison[] = [
     defensiveScope: 'ANY software-to-blockchain bridge using layered verification',
   },
   {
-    claim: 'Mint-on-Proof Token Issuance',
+    claim: 'Mint-on-Proof™ Token Issuance',
     inProvisional: true,
     provisionalLanguage: 'Token Minting Step where Blockchain Smart Contract mints $ZSOLAR tokens based on activity data',
     nonProvisionalLanguage: 'A method for issuing blockchain tokens comprising: receiving verified activity data from external source; validating authenticity through cryptographic signature verification; calculating token quantity based on activity metrics; minting tokens atomically upon successful verification—wherein no tokens exist prior to verification event',
@@ -36,7 +36,7 @@ const claimsComparison: ClaimComparison[] = [
     defensiveScope: 'ANY token issuance system that mints on-demand vs pre-minted pools',
   },
   {
-    claim: 'Proof-of-Delta Verification',
+    claim: 'Proof-of-Delta™ Verification',
     inProvisional: false,
     provisionalLanguage: 'if new kWh produced > last kWh stored, calculate the difference as new kWh to mint',
     nonProvisionalLanguage: 'A method for preventing double-tokenization comprising: maintaining device-bound watermark representing cumulative tokenized activity; computing delta between current activity reading and stored watermark; issuing tokens exclusively for positive delta value; atomically updating watermark upon successful token issuance',
@@ -209,8 +209,8 @@ export function PatentClaimsComparison() {
         <CardContent>
           <div className="mb-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
             <p className="text-sm text-amber-600 dark:text-amber-400">
-              <strong>Strategic Insight:</strong> By claiming the <em>process</em> of verification-before-minting (Mint-on-Proof) 
-              and delta-calculation (Proof-of-Delta) as domain-agnostic methods, you protect against competitors in 
+              <strong>Strategic Insight:</strong> By claiming the <em>process</em> of verification-before-minting (Mint-on-Proof™) 
+              and delta-calculation (Proof-of-Delta™) as domain-agnostic methods, you protect against competitors in 
               <strong> any industry</strong>—not just clean energy. EVearn, fitness apps, gaming platforms, 
               and future competitors would all fall within scope.
             </p>

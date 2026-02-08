@@ -23,7 +23,7 @@ const patentTimeline = [
   {
     date: 'Q1 2025',
     title: 'Provisional Patent Application Filed',
-    description: 'USPTO provisional patent filed covering SEGI, Mint-on-Proof, and Token/NFT minting system.',
+    description: 'USPTO provisional patent filed covering SEGI, Mint-on-Proof™, and Token/NFT minting system.',
     status: 'complete',
   },
   {
@@ -66,12 +66,12 @@ const originalDocuments = [
   },
 ];
 
-const abstractDraft = `A system and method for converting verified clean energy activity into blockchain-based digital assets through a Software-Enabled Gateway Interface (SEGI). The system comprises: (1) an API aggregation layer connecting to multiple energy device manufacturer clouds via OAuth 2.0 authentication; (2) a data normalization layer converting disparate metrics into a unified impact score; (3) a verification engine generating cryptographic proofs of energy activity with tamper-evident timestamps; and (4) a smart contract bridge implementing "Mint-on-Proof" token issuance where blockchain tokens are minted only upon verification of real-world activity. The system further implements a "Proof-of-Delta" mechanism using device-bound watermarks to track cumulative tokenized values, ensuring tokens represent only incremental, never-before-tokenized energy production. This hardware-agnostic approach eliminates the need for custom IoT devices while maintaining cryptographic verification of energy claims.`;
+const abstractDraft = `A system and method for converting verified clean energy activity into blockchain-based digital assets through a Software-Enabled Gateway Interface (SEGI). The system comprises: (1) an API aggregation layer connecting to multiple energy device manufacturer clouds via OAuth 2.0 authentication; (2) a data normalization layer converting disparate metrics into a unified impact score; (3) a verification engine generating cryptographic proofs of energy activity with tamper-evident timestamps; and (4) a smart contract bridge implementing "Mint-on-Proof™" token issuance where blockchain tokens are minted only upon verification of real-world activity. The system further implements a "Proof-of-Delta™" mechanism using device-bound watermarks to track cumulative tokenized values, ensuring tokens represent only incremental, never-before-tokenized energy production. This hardware-agnostic approach eliminates the need for custom IoT devices while maintaining cryptographic verification of energy claims.`;
 
 const keyTerms = [
   { term: 'Mint-on-Proof™', definition: 'Token issuance system where tokens are minted at the moment of verified activity, not distributed from pre-minted pools.' },
   { term: 'SEGI', definition: 'Software-Enabled Gateway Interface - a hardware-agnostic software layer bridging energy devices to blockchain.' },
-  { term: 'Proof-of-Delta', definition: 'Verification mechanism ensuring tokens are minted only for incremental activity beyond previously tokenized amounts.' },
+  { term: 'Proof-of-Delta™', definition: 'Verification mechanism ensuring tokens are minted only for incremental activity beyond previously tokenized amounts.' },
   { term: 'Device Watermark', definition: 'Cumulative record of tokenized value per physical device, preventing double-counting across ownership changes.' },
   { term: 'Impact Score', definition: 'Normalized metric converting diverse energy measurements (kWh, miles, etc.) to a unified value (e.g., CO₂ offset).' },
 ];

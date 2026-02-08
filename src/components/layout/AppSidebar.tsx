@@ -123,8 +123,8 @@ const adminMenuGroups = {
     { title: "Glossary", url: "/admin/glossary", icon: BookOpen },
   ],
   patent: [
-    { title: "Mint-on-Proof", url: "/admin/patent/mint-on-proof", icon: FileText, highlight: true },
-    { title: "Proof-of-Delta", url: "/admin/patent/proof-of-delta", icon: Shield, highlight: true },
+    { title: "Mint-on-Proof™", url: "/admin/patent/mint-on-proof", icon: FileText, highlight: true },
+    { title: "Proof-of-Delta™", url: "/admin/patent/proof-of-delta", icon: Shield, highlight: true },
     { title: "Patent Application", url: "/admin/patent/application", icon: FileText, highlight: true },
     { title: "Updated Language", url: "/admin/patent/updated-language", icon: FileText, highlight: true },
     { title: "Patent Mapping", url: "/admin/patent-mapping", icon: FileText },
