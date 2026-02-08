@@ -1,5 +1,5 @@
-import { format, parseISO } from 'date-fns';
-import { Home, Zap, MapPin, DollarSign, ShieldCheck, Plug } from 'lucide-react';
+import { format, parseISO, differenceInMinutes } from 'date-fns';
+import { Home, Zap, MapPin, DollarSign, ShieldCheck, Plug, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import type { ChargingSession } from '@/hooks/useChargingSessions';
 
@@ -53,8 +53,27 @@ function CategorySummary({
   );
 }
 
+function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function getSessionDuration(session: ChargingSession): string | null {
+  const meta = session.session_metadata as Record<string, any> | null;
+  const startTime = meta?.start_time || meta?.chargeStartDateTime;
+  const endTime = meta?.end_time || meta?.chargeStopDateTime;
+  if (!startTime || !endTime) return null;
+  try {
+    const mins = differenceInMinutes(new Date(endTime), new Date(startTime));
+    return mins > 0 ? formatDuration(mins) : null;
+  } catch { return null; }
+}
+
 function SessionRow({ session, category }: { session: ChargingSession; category: SessionCategory }) {
   const isVerified = (session.session_metadata as any)?.source === 'charge_monitor';
+  const duration = getSessionDuration(session);
 
   return (
     <div className="flex items-center justify-between py-2.5">
@@ -71,6 +90,12 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
             <Zap className="h-3 w-3" />
             {Number(session.energy_kwh).toFixed(1)} kWh
           </span>
+          {duration && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {duration}
+            </span>
+          )}
           {session.fee_amount != null && session.fee_amount > 0 && (
             <span className="flex items-center gap-1">
               <DollarSign className="h-3 w-3" />
