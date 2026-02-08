@@ -184,14 +184,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
-              Earn $ZSOLAR for every kWh you generate — powered by{' '}
+              Real energy. Real Tokens. All on-chain with{' '}
               <Link 
                 to="/technology" 
                 className="text-primary hover:text-primary/80 font-semibold underline underline-offset-2 transition-all duration-300 hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
               >
                 Mint-on-Proof™
-              </Link>{' '}
-              technology.
+              </Link>
+              .
             </p>
           </div>
           
