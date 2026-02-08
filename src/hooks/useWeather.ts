@@ -51,27 +51,83 @@ export function getWeatherDescription(code: number): string {
   return WMO_DESCRIPTIONS[code] || 'Unknown';
 }
 
+const WEATHER_CACHE_KEY = 'weather_cache';
+const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const LOCATION_CACHE_KEY = 'user_location_cache';
+const LOCATION_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+interface CachedLocation {
+  latitude: number;
+  longitude: number;
+  timestamp: number;
+}
+
+interface CachedWeather {
+  data: WeatherData;
+  timestamp: number;
+}
+
+function getCachedLocation(): CachedLocation | null {
+  try {
+    const raw = localStorage.getItem(LOCATION_CACHE_KEY);
+    if (!raw) return null;
+    const cached: CachedLocation = JSON.parse(raw);
+    if (Date.now() - cached.timestamp < LOCATION_CACHE_TTL) return cached;
+  } catch {}
+  return null;
+}
+
+function getCachedWeather(): WeatherData | null {
+  try {
+    const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+    if (!raw) return null;
+    const cached: CachedWeather = JSON.parse(raw);
+    if (Date.now() - cached.timestamp < WEATHER_CACHE_TTL) return cached.data;
+  } catch {}
+  return null;
+}
+
 export function useWeather() {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [weather, setWeather] = useState<WeatherData | null>(getCachedWeather);
+  const [isLoading, setIsLoading] = useState(!getCachedWeather());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // If we have fresh cached weather, skip entirely
+    const cached = getCachedWeather();
+    if (cached) {
+      setWeather(cached);
+      setIsLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function fetchWeather() {
       try {
-        // Get user's location
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            timeout: 10000,
-            maximumAge: 600000, // cache for 10 min
+        // Try cached location first to avoid re-prompting for permission
+        let latitude: number;
+        let longitude: number;
+        const cachedLoc = getCachedLocation();
+
+        if (cachedLoc) {
+          latitude = cachedLoc.latitude;
+          longitude = cachedLoc.longitude;
+        } else {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 10000,
+              maximumAge: 86400000, // 24 hours
+            });
           });
-        });
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+          // Cache location for 24h so we don't prompt again
+          localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify({
+            latitude, longitude, timestamp: Date.now(),
+          }));
+        }
 
-        const { latitude, longitude } = position.coords;
-
-        // Fetch weather and reverse geocode in parallel
         const [weatherRes, geoRes] = await Promise.all([
           fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,is_day&temperature_unit=fahrenheit`
@@ -93,12 +149,18 @@ export function useWeather() {
           geoData?.address?.county ||
           'Your Area';
 
-        setWeather({
+        const result: WeatherData = {
           temperature: Math.round(weatherData.current.temperature_2m),
           weatherCode: weatherData.current.weather_code,
           isDay: weatherData.current.is_day === 1,
           cityName,
-        });
+        };
+
+        setWeather(result);
+        // Cache weather for 30 minutes
+        localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({
+          data: result, timestamp: Date.now(),
+        }));
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof GeolocationPositionError ? 'Location access denied' : 'Weather unavailable');
