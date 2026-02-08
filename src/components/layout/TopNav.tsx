@@ -76,10 +76,10 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            className="h-7 w-auto object-contain dark:animate-logo-glow"
+            className="h-7 w-auto object-contain brightness-110 dark:brightness-125 dark:animate-logo-glow"
           />
           <span 
-            className="relative overflow-hidden text-[6px] font-semibold uppercase tracking-[0.15em] text-primary bg-primary/10 px-1.5 py-px rounded-sm border border-primary/20"
+            className="relative overflow-hidden text-[6px] font-semibold uppercase tracking-[0.15em] text-primary brightness-125 bg-primary/15 px-1.5 py-px rounded-sm border border-primary/30"
           >
             {/* Shimmer overlay */}
             <span 
