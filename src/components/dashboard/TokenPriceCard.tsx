@@ -243,7 +243,8 @@ export function TokenPriceCard({
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors group"
                 >
                   <span className="tabular-nums">@${tokenPrice.toFixed(2)}/token</span>
-                  <Edit2 className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Edit2 className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  <span className="text-[10px] opacity-50 group-hover:opacity-100 transition-opacity italic">tap to edit</span>
                 </button>
               )}
             </div>
