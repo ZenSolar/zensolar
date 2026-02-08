@@ -310,8 +310,8 @@ export function ActivityMetrics({
           </motion.div>
         )}
 
-        {/* Swipe Hint Tooltip - only show for first-time users with hideable fields */}
-        {hasHideableFields && (
+        {/* Swipe Hint Tooltip - only show for new users with hideable fields */}
+        {isNewUserView && hasHideableFields && (
           <SwipeHintTooltip 
             show={shouldShowHint} 
             onDismiss={markHintSeen}
