@@ -491,6 +491,7 @@ export type Database = {
           tesla_connected: boolean | null
           tiktok_connected: boolean | null
           tiktok_handle: string | null
+          timezone: string | null
           twitter_connected: boolean | null
           twitter_handle: string | null
           updated_at: string
@@ -519,6 +520,7 @@ export type Database = {
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
           tiktok_handle?: string | null
+          timezone?: string | null
           twitter_connected?: boolean | null
           twitter_handle?: string | null
           updated_at?: string
@@ -547,6 +549,7 @@ export type Database = {
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
           tiktok_handle?: string | null
+          timezone?: string | null
           twitter_connected?: boolean | null
           twitter_handle?: string | null
           updated_at?: string
