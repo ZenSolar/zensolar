@@ -25,20 +25,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listener FIRST
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
+      // If token refresh fails, the session is stale — clear it
+      if (event === 'TOKEN_REFRESHED' && !newSession) {
+        setSession(null);
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+      if (event === 'SIGNED_OUT') {
+        setSession(null);
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
       setSession(newSession);
       setUser(newSession?.user ?? null);
       setIsLoading(false);
     });
 
-    // Then check existing session
+    // Then check existing session — validate it's still good
     supabase.auth
       .getSession()
       .then(({ data: { session: existing } }) => {
-        setSession(existing);
-        setUser(existing?.user ?? null);
+        if (existing) {
+          // Validate the session is still valid server-side
+          supabase.auth.getUser(existing.access_token).then(({ error }) => {
+            if (error) {
+              // Session is stale/invalid — sign out cleanly
+              console.warn('[Auth] Stale session detected, clearing');
+              supabase.auth.signOut();
+              setSession(null);
+              setUser(null);
+            } else {
+              setSession(existing);
+              setUser(existing.user ?? null);
+            }
+          }).finally(() => setIsLoading(false));
+        } else {
+          setSession(null);
+          setUser(null);
+          setIsLoading(false);
+        }
       })
-      .finally(() => setIsLoading(false));
+      .catch(() => setIsLoading(false));
 
     return () => subscription.unsubscribe();
   }, []);
