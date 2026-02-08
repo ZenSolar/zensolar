@@ -6,6 +6,7 @@ import { StepProgressTimeline } from '@/components/how-it-works/StepProgressTime
 import { LevelUpSection } from '@/components/how-it-works/LevelUpSection';
 import { PioneerRewards } from '@/components/how-it-works/PioneerRewards';
 import { ReadyToPlayCTA } from '@/components/how-it-works/ReadyToPlayCTA';
+import { DeflationaryFlywheel } from '@/components/how-it-works/DeflationaryFlywheel';
 
 export default function HowItWorks() {
   const stepsRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,7 @@ export default function HowItWorks() {
         <StepProgressTimeline containerRef={stepsRef} />
         <GameSteps ref={stepsRef} />
         <LevelUpSection />
+        <DeflationaryFlywheel />
         <PioneerRewards />
         <ReadyToPlayCTA />
       </div>
