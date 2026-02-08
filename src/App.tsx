@@ -56,6 +56,7 @@ const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
 const AdminTokenEstimator = lazy(() => import("./pages/AdminTokenEstimator"));
 const AdminTokenomics10B = lazy(() => import("./pages/AdminTokenomics10B"));
 const AdminInvestorOnePager = lazy(() => import("./pages/AdminInvestorOnePager"));
+const AdminCostSavings = lazy(() => import("./pages/AdminCostSavings"));
 const AdminTokenomicsFramework = lazy(() => import("./pages/AdminTokenomicsFramework"));
 const AdminAIFeedbackLoop = lazy(() => import("./pages/AdminAIFeedbackLoop"));
 const AdminAIAgentOpportunities = lazy(() => import("./pages/AdminAIAgentOpportunities"));
@@ -471,6 +472,16 @@ const App = () => {
                             <AdminInvestorOnePager />
                       </AppLayout>
                     </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/cost-savings" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminCostSavings />
+                          </AppLayout>
+                        </ProtectedRoute>
                       } 
                     />
                     <Route 
