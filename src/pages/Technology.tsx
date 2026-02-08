@@ -56,8 +56,8 @@ const segiLayers = [
   {
     icon: Binary,
     title: 'Layer 4: Smart Contract Bridge',
-    tagline: 'Mint-on-Proof + Watermark',
-    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. Every mint simultaneously updates the Device Watermark Registry—a public, on-chain record binding each physical device to its total tokenized energy. With one tap, you mint $ZSOLAR tokens AND milestone NFTs directly to your wallet, with cross-platform anti-double-mint protection built in.',
+    tagline: 'Mint-on-Proof + Proof-of-Origin',
+    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. Every mint simultaneously updates the Device Watermark Registry—a public, on-chain record binding each physical device to its total tokenized energy via Proof-of-Origin™. With one tap, you mint $ZSOLAR tokens AND milestone NFTs directly to your wallet, with cross-platform anti-double-mint protection built in.',
     gradient: 'from-amber-500 to-orange-500',
     highlight: 'One-tap minting + on-chain watermark',
   },
@@ -450,7 +450,7 @@ export default function Technology() {
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   The patent application (filed April 2025) protects the specific architecture: API aggregation → 
-                  data normalization → cryptographic verification → automated minting, plus the <strong className="text-foreground">Device Watermark Registry</strong>—a 
+                  data normalization → cryptographic verification → automated minting, plus <strong className="text-foreground">Proof-of-Origin™</strong> (Device Watermark Registry)—a 
                   standalone on-chain contract that prevents cross-platform double-minting of physical devices.
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -458,7 +458,7 @@ export default function Technology() {
                     First-mover advantage with legal protection
                   </Badge>
                   <Badge className="bg-primary/10 text-primary border-primary/30">
-                    Device Watermark Registry™
+                    Proof-of-Origin™
                   </Badge>
                 </div>
               </div>

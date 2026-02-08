@@ -13,8 +13,8 @@ const edges = [
   },
   {
     icon: Fingerprint,
-    title: 'Device Watermark Registry',
-    description: 'The first on-chain, device-bound anti-double-mint standard. Every physical device\'s tokenized history is publicly verifiable—making cross-platform fraud provably impossible.',
+    title: 'Proof-of-Origin™',
+    description: 'The first on-chain, device-bound anti-double-mint standard. Every physical device\'s tokenized history is publicly verifiable via the Device Watermark Registry—making cross-platform fraud provably impossible.',
     iconBg: 'bg-amber-500/10',
     iconColor: 'text-amber-600 dark:text-amber-400',
   },
@@ -35,7 +35,7 @@ const edges = [
   {
     icon: Shield,
     title: 'Patent-Pending IP',
-    description: "SEGI's software-only gateway, Proof-of-Delta™ verification, and Device Watermark Registry are all protected by pending patents.",
+    description: "SEGI's software-only gateway, Proof-of-Delta™ verification, and Proof-of-Origin™ are all protected by pending patents.",
     iconBg: 'bg-energy/10',
     iconColor: 'text-energy',
   },
