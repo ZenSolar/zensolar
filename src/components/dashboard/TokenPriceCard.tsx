@@ -210,8 +210,8 @@ export function TokenPriceCard({
               animate={showPulse ? { scale: [1, 1.03, 1] } : {}}
               transition={{ duration: 0.3 }}
             >
-              <span className="text-4xl font-bold text-foreground tabular-nums tracking-tight">{tokensHeld.toLocaleString()}</span>
-              <span className="text-lg font-medium text-muted-foreground">$ZSOLAR</span>
+              <span className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{tokensHeld.toLocaleString()}</span>
+              <span className="text-sm font-medium text-muted-foreground">$ZSOLAR</span>
             </motion.div>
             <div className="flex items-center gap-2 mt-1.5">
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
