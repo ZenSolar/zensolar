@@ -763,10 +763,13 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {/* Label + Value */}
       <div className="flex-1 min-w-0 relative">
         <div className="flex items-center gap-1.5">
-          <p className={cn(
-            "text-sm font-medium truncate transition-colors",
-            active ? "text-foreground" : "text-muted-foreground"
-          )}>{label}</p>
+          <p 
+            className={cn(
+              "text-sm font-medium truncate transition-all duration-300",
+              active ? "text-foreground" : "text-muted-foreground"
+            )}
+            style={active ? { textShadow: styles.textGlow } : undefined}
+          >{label}</p>
           {liveIndicator && (
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -782,13 +785,10 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             </div>
           ) : (
             <p className="text-xl font-semibold tracking-tight">
-              <span 
-                className={cn(
-                  "transition-all duration-300",
-                  active ? "text-foreground" : "text-muted-foreground"
-                )}
-                style={active ? { textShadow: styles.textGlow } : undefined}
-              >
+              <span className={cn(
+                "transition-all duration-300",
+                active ? "text-foreground" : "text-muted-foreground"
+              )}>
                 {value.toLocaleString()}
               </span>
               <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
