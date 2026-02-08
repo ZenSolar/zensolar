@@ -44,15 +44,7 @@ export function MenuTooltip() {
     }
   }, []);
 
-  // Auto-dismiss after 6 seconds
-  useEffect(() => {
-    if (isVisible) {
-      const autoDismissTimer = setTimeout(() => {
-        handleDismiss();
-      }, 6000);
-      return () => clearTimeout(autoDismissTimer);
-    }
-  }, [isVisible, handleDismiss]);
+  // No auto-dismiss — tooltip stays until user taps the menu icon or X button
 
   // When visible, pin tooltip to the *actual* menu trigger position (works in PWA
   // standalone mode where safe-area + viewport metrics can differ).
