@@ -17,8 +17,7 @@ import { lovable } from '@/integrations/lovable/index';
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
-const TAGLINE_TEXT_SHADOW =
-  '0 0 4px hsl(0 0% 100% / 0.65), 0 0 10px hsl(0 0% 100% / 0.40), 0 0 18px hsl(0 0% 100% / 0.25), 0 0 24px hsl(var(--secondary) / 0.22)';
+// Removed TAGLINE_TEXT_SHADOW — caused blurry text on mobile
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -363,14 +362,11 @@ export default function Auth() {
           
           <div 
             className="mb-6"
-            style={{ 
-              textShadow: TAGLINE_TEXT_SHADOW,
-            }}
           >
-            <p className="text-sm uppercase tracking-[0.2em] text-primary font-semibold mb-2">
+            <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-semibold mb-2">
               The World's First
             </p>
-            <h1 className="text-2xl font-bold text-primary mb-2 tracking-tight">
+            <h1 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
               One-Tap, Mint-on-Proof
             </h1>
             <h2 className="text-xl font-semibold text-primary">
@@ -422,10 +418,7 @@ export default function Auth() {
             {/* Mobile tagline - compact */}
             <div className="mt-3 mb-3 lg:hidden">
               <p 
-                className="text-[9px] uppercase tracking-[0.15em] text-primary font-semibold leading-snug"
-                style={{ 
-                  textShadow: TAGLINE_TEXT_SHADOW,
-                }}
+                className="text-[9px] uppercase tracking-[0.15em] text-primary/80 font-semibold leading-relaxed"
               >
                 <span className="block">The World's First</span>
                 <span className="block">One-Tap, Mint-on-Proof</span>
@@ -622,12 +615,12 @@ export default function Auth() {
                       </Button>
                       
                       {/* Social Login Divider */}
-                      <div className="relative my-3">
+                      <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-border" />
+                          <span className="w-full border-t border-border/60" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card px-2 text-muted-foreground">or continue with</span>
+                          <span className="bg-card/60 backdrop-blur-sm px-3 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
@@ -636,7 +629,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
+                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -663,7 +656,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
+                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
@@ -755,12 +748,12 @@ export default function Auth() {
                       </Button>
                       
                       {/* Social Login Divider */}
-                      <div className="relative my-3">
+                      <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-border" />
+                          <span className="w-full border-t border-border/60" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card px-2 text-muted-foreground">or continue with</span>
+                          <span className="bg-card/60 backdrop-blur-sm px-3 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
@@ -769,7 +762,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
+                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -796,7 +789,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-card/30 border-border/60 text-foreground hover:bg-card/45 hover:text-foreground"
+                          className="bg-background/60 border-border text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
