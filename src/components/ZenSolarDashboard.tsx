@@ -175,13 +175,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       
       <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
-        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center min-h-[100px]">
-          <img 
-            src={zenLogo} 
-            alt="ZenSolar" 
-            className="h-10 w-auto object-contain dark:animate-logo-glow" 
-          />
-          <div className="space-y-1.5">
+        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
+           <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
               Real energy. Real Tokens. All on-chain
