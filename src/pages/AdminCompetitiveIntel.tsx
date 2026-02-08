@@ -205,7 +205,7 @@ export default function AdminCompetitiveIntel() {
             </ol>
             <p>
               This architecture represents a <strong className="text-foreground">paradigm shift</strong> from the "earn-from-pool" 
-              models prevalent in the market to a "mint-on-proof" model where every token in circulation is backed by verified 
+              models prevalent in the market to a "Mint-on-Proof™" model where every token in circulation is backed by verified 
               clean energy impact.
             </p>
 

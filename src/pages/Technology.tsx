@@ -56,7 +56,7 @@ const segiLayers = [
   {
     icon: Binary,
     title: 'Layer 4: Smart Contract Bridge',
-    tagline: 'Mint-on-Proof + Proof-of-Origin',
+    tagline: 'Mint-on-Proof™ + Proof-of-Origin™',
     description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. Every mint simultaneously updates the Device Watermark Registry—a public, on-chain record binding each physical device to its total tokenized energy via Proof-of-Origin™. With one tap, you mint $ZSOLAR tokens AND milestone NFTs directly to your wallet, with cross-platform anti-double-mint protection built in.',
     gradient: 'from-amber-500 to-orange-500',
     highlight: 'One-tap minting + on-chain watermark',
@@ -216,7 +216,7 @@ export default function Technology() {
         className="space-y-6"
       >
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">How Mint-on-Proof Works: The 4 Layers</h2>
+          <h2 className="text-2xl font-bold mb-2">How Mint-on-Proof™ Works: The 4 Layers</h2>
           <p className="text-muted-foreground">Under the hood, SEGI is a layered architecture—each piece doing its job perfectly.</p>
         </div>
         

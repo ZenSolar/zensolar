@@ -141,9 +141,9 @@ export default function AdminPatentProofOfDelta() {
                 <ShieldCheck className="h-8 w-8 text-white" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-xl font-bold">What is Proof-of-Delta?</h2>
+                <h2 className="text-xl font-bold">What is Proof-of-Delta™?</h2>
                 <p className="text-muted-foreground">
-                  Proof-of-Delta is a verification mechanism that ensures tokens are only minted for <strong className="text-foreground">incremental, never-before-tokenized</strong> energy activity. 
+                  Proof-of-Delta™ is a verification mechanism that ensures tokens are only minted for <strong className="text-foreground">incremental, never-before-tokenized</strong> energy activity. 
                   It tracks a "high-water mark" per physical device—the cumulative amount of energy that has already been converted to tokens.
                 </p>
                 <div className="p-3 rounded-lg bg-muted/50 border border-border/60 font-mono text-sm">
@@ -170,7 +170,7 @@ export default function AdminPatentProofOfDelta() {
               Process Flow
             </CardTitle>
             <CardDescription>
-              Step-by-step breakdown of how Proof-of-Delta operates.
+              Step-by-step breakdown of how Proof-of-Delta™ operates.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -217,7 +217,7 @@ export default function AdminPatentProofOfDelta() {
               Attack Vectors Mitigated
             </CardTitle>
             <CardDescription>
-              Security threats addressed by the Proof-of-Delta system.
+              Security threats addressed by the Proof-of-Delta™ system.
             </CardDescription>
           </CardHeader>
           <CardContent>

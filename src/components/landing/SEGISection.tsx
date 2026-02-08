@@ -26,7 +26,7 @@ export function SEGISection() {
             </span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-            Our patent-pending <strong className="text-primary">Mint-on-Proof</strong> technology verifies your energy production and lets you mint $ZSOLAR tokens
+            Our patent-pending <strong className="text-primary">Mint-on-Proof™</strong> technology verifies your energy production and lets you mint $ZSOLAR tokens
             and milestone NFTs with just one tap—backed by <strong className="text-primary">Proof-of-Origin™</strong>, an on-chain standard that makes double-minting provably impossible.
           </p>
 

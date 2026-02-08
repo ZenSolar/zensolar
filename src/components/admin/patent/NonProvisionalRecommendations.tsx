@@ -39,7 +39,7 @@ e) wherein tokens are created atomically upon execution of said minting instruct
   },
   {
     id: 'IC-2',
-    title: 'Proof-of-Delta Verification System',
+    title: 'Proof-of-Delta™ Verification System',
     type: 'system',
     priority: 'critical',
     defensiveValue: 'Blocks ANY delta-calculation system preventing double-tokenization',

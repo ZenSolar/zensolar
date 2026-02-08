@@ -74,8 +74,8 @@ const investorBenefits = [
   },
   {
     icon: Cpu,
-    title: "Patent-Pending Mint-on-Proof",
-    description: "First-mover advantage with patent-pending 'Mint-on-Proof' verification system. Hardware-neutral approach creates defensible moat.",
+    title: "Patent-Pending Mint-on-Proof™",
+    description: "First-mover advantage with patent-pending 'Mint-on-Proof™' verification system. Hardware-neutral approach creates defensible moat.",
   },
 ];
 
@@ -343,7 +343,7 @@ export default function WhitePaper() {
             <p className="text-muted-foreground text-lg leading-relaxed">
               <strong className="text-foreground">ZenSolar</strong> is a blockchain-powered rewards platform that 
               transforms clean energy production into verifiable digital assets. Using our patent-pending 
-              <strong className="text-primary"> Mint-on-Proof</strong> architecture powered by SEGI (Software-Enabled Gateway Interface), 
+              <strong className="text-primary"> Mint-on-Proof™</strong> architecture powered by SEGI (Software-Enabled Gateway Interface), 
               users earn <strong className="text-foreground">$ZSOLAR tokens</strong> and collectible NFTs proportional 
               to their verified environmental impact—with just one tap.
             </p>
@@ -383,10 +383,10 @@ export default function WhitePaper() {
                   <Cpu className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Patent-Pending Mint-on-Proof Technology</h3>
+                  <h3 className="font-semibold text-lg mb-2">Patent-Pending Mint-on-Proof™ Technology</h3>
                   <p className="text-muted-foreground">
                     Our <strong className="text-foreground">Software-Enabled Gateway Interface (SEGI)</strong> powers the world's first 
-                    <strong className="text-primary"> Mint-on-Proof</strong> architecture—a proprietary system for tokenizing sustainable 
+                    <strong className="text-primary"> Mint-on-Proof™</strong> architecture—a proprietary system for tokenizing sustainable 
                     behaviors using blockchain. Unlike hardware-dependent solutions, SEGI works entirely through secure API 
                     connections—making onboarding instant and one-tap minting possible.
                   </p>
@@ -794,7 +794,7 @@ export default function WhitePaper() {
               </ol>
               <p className="text-muted-foreground leading-relaxed mt-4">
                 This architecture represents a <strong className="text-foreground">paradigm shift</strong> from the "earn-from-pool" 
-                models prevalent in the market to a "mint-on-proof" model where every token in circulation is backed by verified 
+                models prevalent in the market to a "Mint-on-Proof™" model where every token in circulation is backed by verified 
                 clean energy impact.
               </p>
             </div>
