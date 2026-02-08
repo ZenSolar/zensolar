@@ -8,7 +8,6 @@ import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMet
 import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory, DemoMintHandler } from '@/components/dashboard/RewardActions';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { TokenPriceCard } from '@/components/dashboard/TokenPriceCard';
-import { DemoWalletHoldingsCard } from '@/components/demo/DemoWalletHoldingsCard';
 import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
@@ -133,17 +132,14 @@ export function DemoDashboard() {
           </div>
         </AnimatedItem>
 
-        {/* Wallet Holdings Card */}
-        <AnimatedItem>
-          <DemoWalletHoldingsCard />
-        </AnimatedItem>
-
-        {/* Token Price Card */}
+        {/* Token Price & Wallet Card */}
         <AnimatedItem>
           <TokenPriceCard 
             tokensHeld={activityData.lifetimeMinted}
             defaultPrice={0.10}
             onPriceChange={setTokenPrice}
+            nftCount={activityData.nftsEarned?.length ?? 0}
+            walletLink="/demo/wallet"
           />
         </AnimatedItem>
 

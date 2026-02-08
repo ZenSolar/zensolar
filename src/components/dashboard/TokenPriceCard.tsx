@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, Sparkles, ChevronDown, ChevronUp, Images, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 // Touch threshold constants - consistent with other dashboard elements
 const TOUCH_DELTA_THRESHOLD = 15; // pixels
@@ -13,9 +14,13 @@ interface TokenPriceCardProps {
   tokensHeld: number;
   defaultPrice?: number;
   onPriceChange?: (price: number) => void;
+  /** Optional NFT count to display in expanded view */
+  nftCount?: number;
+  /** Optional link for "View All" wallet button */
+  walletLink?: string;
 }
 
-export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange }: TokenPriceCardProps) {
+export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange, nftCount, walletLink }: TokenPriceCardProps) {
   const [tokenPrice, setTokenPrice] = useState<number>(defaultPrice);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(defaultPrice.toString());
@@ -259,6 +264,30 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange 
                 </div>
               </div>
             </motion.div>
+          )}
+
+          {/* NFT count + Wallet link (when provided) */}
+          {(nftCount !== undefined || walletLink) && (
+            <div className={`${tokensHeld > 0 ? 'mt-3' : 'mt-4'} pt-3 border-t border-border/50`}>
+              <div className="flex items-center justify-between">
+                {nftCount !== undefined && (
+                  <div className="flex items-center gap-2">
+                    <Images className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">{nftCount}</span> NFTs earned
+                    </span>
+                  </div>
+                )}
+                {walletLink && (
+                  <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-xs">
+                    <Link to={walletLink}>
+                      View Wallet
+                      <ExternalLink className="h-3 w-3 ml-1" />
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
