@@ -98,8 +98,7 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
           )}
           {session.fee_amount != null && session.fee_amount > 0 && (
             <span className="flex items-center gap-1">
-              <DollarSign className="h-3 w-3" />
-              {session.fee_currency === 'USD' ? '$' : ''}{Number(session.fee_amount).toFixed(2)}
+              {Number(session.fee_amount).toFixed(2)}
             </span>
           )}
         </div>
@@ -192,7 +191,7 @@ export function ChargingSessionList({ sessions }: ChargingSessionListProps) {
       />
 
       <CategorySection
-        label="Supercharger"
+        label="Tesla Supercharger"
         icon={<Zap className="h-4 w-4 text-red-500 dark:text-red-400" />}
         sessions={superchargerSessions}
         accentClass="bg-red-500/15"
