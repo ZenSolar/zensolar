@@ -773,6 +773,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             </p>
           )}
         </div>
+        {liveIndicator && !isLoading && (
+          <p className="text-[10px] text-emerald-500 font-medium tracking-wide">Charging in progress…</p>
+        )}
       </div>
       
       {/* History link icon */}
