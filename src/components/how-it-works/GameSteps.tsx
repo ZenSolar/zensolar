@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link2, Zap, Sparkles, Wallet, Sun, Battery, Car } from 'lucide-react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -65,9 +66,9 @@ function GameStep({ number, title, body, keyMessage, icon: Icon, children, rever
   );
 }
 
-export function GameSteps() {
+export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
   return (
-    <div className="container max-w-5xl mx-auto px-4 divide-y divide-border/30">
+    <div ref={ref} className="container max-w-5xl mx-auto px-4 divide-y divide-border/30">
       {/* Step 1: Connect */}
       <GameStep
         number="1"
@@ -117,9 +118,9 @@ export function GameSteps() {
           ))}
         </div>
         <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
-          <AnimatedCounter end={42.5} suffix=" kWh" label="Daily Avg" decimals={1} duration={1800} />
+          <AnimatedCounter end={25} suffix=" kWh" label="Daily Solar" duration={1800} />
           <div className="w-px h-8 bg-border/40" />
-          <AnimatedCounter end={1250} suffix=" mi" label="EV Monthly" duration={2000} />
+          <AnimatedCounter end={750} suffix=" kWh" label="Monthly Total" duration={2000} />
         </div>
       </GameStep>
 
@@ -141,9 +142,9 @@ export function GameSteps() {
           <span className="text-sm font-semibold text-primary">Tap to Mint</span>
         </motion.div>
         <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
-          <AnimatedCounter end={85} prefix="+" suffix="" label="$ZSOLAR Earned" duration={2000} />
+          <AnimatedCounter end={562} prefix="+" suffix="" label="$ZSOLAR / Month" duration={2000} />
           <div className="w-px h-8 bg-border/40" />
-          <AnimatedCounter end={1} suffix=" Tap" label="That's It" duration={800} />
+          <AnimatedCounter end={75} suffix="%" label="To Your Wallet" duration={1200} />
         </div>
       </GameStep>
 
@@ -157,11 +158,11 @@ export function GameSteps() {
         reversed
       >
         <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
-          <AnimatedCounter end={450} prefix="$" label="Monthly Avg" duration={2200} />
+          <AnimatedCounter end={56} prefix="$" label="Monthly @ $0.10" duration={2200} />
           <div className="w-px h-8 bg-border/40" />
-          <AnimatedCounter end={5400} prefix="$" label="Yearly Est." duration={2500} />
+          <AnimatedCounter end={675} prefix="$" label="Yearly Est." duration={2500} />
         </div>
       </GameStep>
     </div>
   );
-}
+});
