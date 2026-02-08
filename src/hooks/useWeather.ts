@@ -113,15 +113,23 @@ export function useWeather() {
           latitude = cachedLoc.latitude;
           longitude = cachedLoc.longitude;
         } else {
-          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              timeout: 10000,
-              maximumAge: 86400000, // 24 hours
+          // Try browser geolocation first, fall back to IP-based
+          try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                timeout: 5000,
+                maximumAge: 86400000,
+              });
             });
-          });
-          latitude = position.coords.latitude;
-          longitude = position.coords.longitude;
-          // Cache location for 24h so we don't prompt again
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+          } catch {
+            // Fallback: IP-based geolocation
+            const ipRes = await fetch('https://ipapi.co/json/');
+            const ipData = await ipRes.json();
+            latitude = ipData.latitude;
+            longitude = ipData.longitude;
+          }
           localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify({
             latitude, longitude, timestamp: Date.now(),
           }));
