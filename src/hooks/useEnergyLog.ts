@@ -49,15 +49,21 @@ function tabToDataType(tab: ActivityType): string {
  *   Negative deltas (mint resets) are clamped to 0.
  */
 function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEnd: Date, activeTab: ActivityType): DailyProduction[] {
-  // Solar priority: if a dedicated solar provider exists, skip Tesla solar data
-  // This only applies to the solar tab
   let filteredRecords = records;
+  const providers = new Set(records.map(r => r.provider));
+
   if (activeTab === 'solar') {
-    const providers = new Set(records.map(r => r.provider));
+    // Solar priority: if a dedicated solar provider exists, skip Tesla solar data
     const hasDedicatedSolar = providers.has('enphase') || providers.has('solaredge');
     if (hasDedicatedSolar) {
       filteredRecords = records.filter(r => r.provider !== 'tesla' && r.provider !== 'tesla_historical');
     }
+  }
+
+  // Prevent double-counting: when both tesla (cumulative) and tesla_historical (daily)
+  // exist for the same data type, prefer tesla_historical and skip cumulative tesla records
+  if (providers.has('tesla') && providers.has('tesla_historical')) {
+    filteredRecords = filteredRecords.filter(r => r.provider !== 'tesla');
   }
 
   // EV miles stores raw odometer (miles), not Wh — no /1000 conversion
