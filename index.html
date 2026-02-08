@@ -28,6 +28,8 @@
     <meta name="apple-mobile-web-app-title" content="$ZSOLAR" />
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Preload LCP hero logo for faster Largest Contentful Paint -->
+    <link rel="preload" as="image" href="/logos/zen-logo-horizontal-new.png" fetchpriority="high" />
     <!-- Preload critical assets for faster paint -->
     <link rel="modulepreload" href="/src/main.tsx" />
     <!-- Preconnect to external resources (stronger than dns-prefetch) -->

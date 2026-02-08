@@ -114,10 +114,11 @@ export function HeroSection() {
 
           {/* Logo */}
           <motion.img
-            src={zenLogo}
+            src="/logos/zen-logo-horizontal-new.png"
             alt="ZenSolar"
             width="189"
             height="56"
+            fetchPriority="high"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
