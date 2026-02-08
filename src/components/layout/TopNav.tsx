@@ -2,6 +2,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Play, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { markSidebarOpened } from "@/components/layout/MenuTooltip";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { getLiveBetaMode } from "@/lib/tokenomics";
@@ -52,7 +53,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
       {/* Content row with icons */}
       <div className="flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" />
+          <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" onClick={() => markSidebarOpened()} />
           {isDemo && (
             <Badge variant="outline" className="gap-1.5 text-xs bg-primary/10 text-primary border-primary/20">
               <Play className="h-3 w-3" />

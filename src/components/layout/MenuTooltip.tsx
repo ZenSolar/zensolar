@@ -1,8 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X, ChevronLeft } from "lucide-react";
 
-const TOOLTIP_STORAGE_KEY = "zen-menu-tooltip-dismissed-v2";
+const TOOLTIP_STORAGE_KEY = "zen-menu-tooltip-dismissed-v3";
+const SIDEBAR_OPENED_KEY = "zen-sidebar-ever-opened";
 const MENU_TRIGGER_ID = "zen-sidebar-trigger";
+
+/**
+ * Mark that the user has opened the sidebar at least once.
+ * Called from SidebarTrigger interactions — keeps tooltip from returning.
+ */
+export function markSidebarOpened() {
+  try {
+    localStorage.setItem(SIDEBAR_OPENED_KEY, "true");
+  } catch {
+    // storage full / unavailable
+  }
+}
 
 export function MenuTooltip() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,34 +27,30 @@ export function MenuTooltip() {
   const handleDismiss = useCallback(() => {
     setIsVisible(false);
     localStorage.setItem(TOOLTIP_STORAGE_KEY, "true");
+    markSidebarOpened();
+  }, []);
+
+  useEffect(() => {
+    // Never show again if user dismissed OR ever opened the sidebar
+    const dismissed = localStorage.getItem(TOOLTIP_STORAGE_KEY);
+    const everOpened = localStorage.getItem(SIDEBAR_OPENED_KEY);
+    if (dismissed || everOpened) return;
+
+    // Small delay to let the page render first
+    const showTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 800);
+    return () => clearTimeout(showTimer);
   }, []);
 
   const updatePosition = useCallback(() => {
     const trigger = document.getElementById(MENU_TRIGGER_ID);
     if (!trigger) return;
-
     const rect = trigger.getBoundingClientRect();
-
-    // NOTE: Our arrow is positioned with -left-2 (~8px), so we offset by 16px
-    // to keep ~8px of breathing room between the arrow tip and the trigger.
     const left = rect.right + 16;
-
     const tooltipHeight = tooltipRef.current?.offsetHeight ?? 0;
     const top = rect.top + rect.height / 2 - tooltipHeight / 2;
-
     setPosition({ top, left });
-  }, []);
-
-  useEffect(() => {
-    // Check if user has already dismissed the tooltip
-    const dismissed = localStorage.getItem(TOOLTIP_STORAGE_KEY);
-    if (!dismissed) {
-      // Small delay to let the page render first
-      const showTimer = setTimeout(() => {
-        setIsVisible(true);
-      }, 800);
-      return () => clearTimeout(showTimer);
-    }
   }, []);
 
   // No auto-dismiss — tooltip stays until user taps the menu icon or X button
