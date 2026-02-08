@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format, parseISO } from 'date-fns';
-import { Plus, Trash2, Calendar, Loader2, BookOpen, FileText } from 'lucide-react';
+import { Plus, Trash2, Calendar, Loader2, BookOpen, FileText, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 
 const CATEGORIES = [
@@ -235,36 +236,46 @@ export default function WorkJournal() {
                   <p className="text-sm text-muted-foreground leading-relaxed italic">{summaryMap[dateKey]}</p>
                 </div>
               )}
-              <div className="space-y-2 ml-2 border-l-2 border-border pl-4">
-                {grouped[dateKey].map(entry => (
-                  <Card key={entry.id} className="group">
-                    <CardContent className="py-3 px-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className={`text-[10px] ${getCategoryStyle(entry.category)}`}>
-                              {getCategoryLabel(entry.category)}
-                            </Badge>
-                            <span className="text-[10px] text-muted-foreground">
-                              {format(new Date(entry.created_at), 'h:mm a')}
-                            </span>
+              <Collapsible defaultOpen={dateKey === sortedDates[0]}>
+                <CollapsibleTrigger asChild>
+                  <button className="flex items-center gap-2 w-full text-left ml-2 pl-4 border-l-2 border-border py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group/collapse">
+                    <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=closed]/collapse:-rotate-90" />
+                    {grouped[dateKey].length} {grouped[dateKey].length === 1 ? 'entry' : 'entries'}
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="space-y-2 ml-2 border-l-2 border-border pl-4">
+                    {grouped[dateKey].map(entry => (
+                      <Card key={entry.id} className="group">
+                        <CardContent className="py-3 px-4">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline" className={`text-[10px] ${getCategoryStyle(entry.category)}`}>
+                                  {getCategoryLabel(entry.category)}
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground">
+                                  {format(new Date(entry.created_at), 'h:mm a')}
+                                </span>
+                              </div>
+                              <h3 className="text-sm font-medium text-foreground">{entry.title}</h3>
+                              <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{entry.description}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+                              onClick={() => deleteEntry.mutate(entry.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
                           </div>
-                          <h3 className="text-sm font-medium text-foreground">{entry.title}</h3>
-                          <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{entry.description}</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-                          onClick={() => deleteEntry.mutate(entry.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           ))}
         </div>
