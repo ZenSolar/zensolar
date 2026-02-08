@@ -36,6 +36,7 @@ interface Profile {
   twitter_handle: string | null;
   linkedin_connected: boolean;
   linkedin_handle: string | null;
+  timezone: string | null;
 }
 
 /**

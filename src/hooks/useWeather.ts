@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WeatherData {
   temperature: number;
   weatherCode: number;
   isDay: boolean;
   cityName: string;
+  timezone: string;
 }
 
 const WMO_DESCRIPTIONS: Record<number, string> = {
@@ -137,7 +139,7 @@ export function useWeather() {
 
         const [weatherRes, geoRes] = await Promise.all([
           fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,is_day&temperature_unit=fahrenheit`
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,is_day&temperature_unit=fahrenheit&timezone=auto`
           ),
           fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&zoom=10`
@@ -156,12 +158,29 @@ export function useWeather() {
           geoData?.address?.county ||
           'Your Area';
 
+        const detectedTimezone = weatherData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
         const result: WeatherData = {
           temperature: Math.round(weatherData.current.temperature_2m),
           weatherCode: weatherData.current.weather_code,
           isDay: weatherData.current.is_day === 1,
           cityName,
+          timezone: detectedTimezone,
         };
+
+        // Save timezone to user profile (fire-and-forget)
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          if (user && detectedTimezone) {
+            supabase
+              .from('profiles')
+              .update({ timezone: detectedTimezone })
+              .eq('user_id', user.id)
+              .then(({ error }) => {
+                if (error) console.error('Failed to save timezone:', error);
+                else console.log('Timezone saved to profile:', detectedTimezone);
+              });
+          }
+        });
 
         setWeather(result);
         // Cache weather for 30 minutes

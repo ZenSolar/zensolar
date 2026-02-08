@@ -237,7 +237,7 @@ async function processUser(supabase: any, userId: string, results: any[]) {
       .eq("device_type", "vehicle"),
     supabase
       .from("profiles")
-      .select("home_address")
+      .select("home_address, timezone")
       .eq("user_id", userId)
       .single(),
   ]);
@@ -245,6 +245,7 @@ async function processUser(supabase: any, userId: string, results: any[]) {
   if (!vehicles || vehicles.length === 0) return;
 
   const homeAddress = (profile?.home_address || "").trim();
+  const userTimezone = (profile?.timezone || "").trim() || null;
   let homeCoords: { lat: number; lng: number } | null = null;
   if (homeAddress) {
     homeCoords = await geocodeAddress(homeAddress);
@@ -255,7 +256,7 @@ async function processUser(supabase: any, userId: string, results: any[]) {
 
   for (const vehicle of vehicles) {
     const vin = vehicle.device_id;
-    await processVehicle(supabase, userId, vin, accessToken, homeAddress, homeCoords, results);
+    await processVehicle(supabase, userId, vin, accessToken, homeAddress, homeCoords, results, userTimezone);
   }
 }
 
@@ -267,6 +268,7 @@ async function processVehicle(
   homeAddress: string,
   homeCoords: { lat: number; lng: number } | null,
   results: any[],
+  userTimezone: string | null,
 ) {
   // Fetch vehicle data
   const vResp = await fetch(
@@ -453,7 +455,7 @@ async function processVehicle(
       if (totalKwh > 0) {
         await writeToEnergyProduction(supabase, userId, vin, activeSession.start_time, totalKwh);
         // Also write to charging_sessions for unified session list
-        await writeToChargingSessions(supabase, userId, vin, activeSession, totalKwh, homeAddress);
+        await writeToChargingSessions(supabase, userId, vin, activeSession, totalKwh, homeAddress, userTimezone);
       }
 
       results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
@@ -566,8 +568,20 @@ async function writeToChargingSessions(
   session: any,
   totalKwh: number,
   homeAddress: string,
+  userTimezone: string | null,
 ) {
-  const dateStr = new Date(session.start_time).toISOString().split("T")[0];
+  // Use user's timezone for local date attribution, fallback to UTC
+  let dateStr: string;
+  if (userTimezone) {
+    try {
+      const localDate = new Date(session.start_time).toLocaleDateString('en-CA', { timeZone: userTimezone });
+      dateStr = localDate; // en-CA gives YYYY-MM-DD format
+    } catch {
+      dateStr = new Date(session.start_time).toISOString().split("T")[0];
+    }
+  } else {
+    dateStr = new Date(session.start_time).toISOString().split("T")[0];
+  }
 
   const { error } = await supabase.from("charging_sessions").insert({
     user_id: userId,
