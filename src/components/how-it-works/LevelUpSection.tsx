@@ -49,7 +49,7 @@ export function LevelUpSection() {
         <div className="text-center space-y-4">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Level Up</p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            The More You Play, The More You Earn
+            The More You Use It, The More You Earn
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
             Level up for more passive income with zero extra effort.

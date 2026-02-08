@@ -36,7 +36,7 @@ export function ReadyToPlayCTA() {
           className="space-y-5 pt-4"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Ready to Play?
+            Ready to Start?
           </h2>
           <p className="text-muted-foreground text-lg max-w-md mx-auto">
             Start turning your clean energy into real rewards today.
