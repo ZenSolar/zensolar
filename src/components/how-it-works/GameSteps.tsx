@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link2, Zap, Sparkles, Wallet, Sun, Battery, Car } from 'lucide-react';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 import teslaLogo from '@/assets/logos/tesla-logo.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import solarEdgeLogo from '@/assets/logos/solaredge-logo.png';
@@ -86,6 +87,11 @@ export function GameSteps() {
             <img key={p.alt} src={p.src} alt={p.alt} className="h-7 md:h-8 object-contain opacity-60 hover:opacity-100 transition-opacity" />
           ))}
         </div>
+        <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
+          <AnimatedCounter end={4} suffix="+" label="Providers" duration={1200} />
+          <div className="w-px h-8 bg-border/40" />
+          <AnimatedCounter end={60} suffix="s" label="Setup Time" duration={1500} />
+        </div>
       </GameStep>
 
       {/* Step 2: Generate */}
@@ -110,6 +116,11 @@ export function GameSteps() {
             </div>
           ))}
         </div>
+        <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
+          <AnimatedCounter end={42.5} suffix=" kWh" label="Daily Avg" decimals={1} duration={1800} />
+          <div className="w-px h-8 bg-border/40" />
+          <AnimatedCounter end={1250} suffix=" mi" label="EV Monthly" duration={2000} />
+        </div>
       </GameStep>
 
       {/* Step 3: Mint */}
@@ -129,6 +140,11 @@ export function GameSteps() {
           <Sparkles className="h-4 w-4 text-primary" />
           <span className="text-sm font-semibold text-primary">Tap to Mint</span>
         </motion.div>
+        <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
+          <AnimatedCounter end={85} prefix="+" suffix="" label="$ZSOLAR Earned" duration={2000} />
+          <div className="w-px h-8 bg-border/40" />
+          <AnimatedCounter end={1} suffix=" Tap" label="That's It" duration={800} />
+        </div>
       </GameStep>
 
       {/* Step 4: Cash Out */}
@@ -139,7 +155,13 @@ export function GameSteps() {
         body="Withdraw to your bank account anytime, or hold your tokens as they grow in value. Your solar panels are now a second income stream."
         keyMessage="Real money. Your choice when."
         reversed
-      />
+      >
+        <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
+          <AnimatedCounter end={450} prefix="$" label="Monthly Avg" duration={2200} />
+          <div className="w-px h-8 bg-border/40" />
+          <AnimatedCounter end={5400} prefix="$" label="Yearly Est." duration={2500} />
+        </div>
+      </GameStep>
     </div>
   );
 }
