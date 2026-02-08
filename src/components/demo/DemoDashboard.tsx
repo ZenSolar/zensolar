@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState, useMemo } from 'react';
-import { useDemoData } from '@/hooks/useDemoData';
+import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useConfetti } from '@/hooks/useConfetti';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
@@ -38,7 +38,7 @@ export function DemoDashboard() {
     simulateMintMilestoneNFT,
     simulateBatchMintNFTs,
     getEligibility,
-  } = useDemoData();
+  } = useDemoContext();
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   const { triggerConfetti } = useConfetti();
