@@ -627,6 +627,7 @@ const colorStyles = {
     bg: 'bg-amber-500/10',
     border: 'border-amber-500/30',
     leftBorder: 'border-l-amber-500',
+    textGlow: '0 0 8px rgba(245, 158, 11, 0.5), 0 0 16px rgba(245, 158, 11, 0.25)',
   },
   teal: { 
     gradient: 'from-cyan-600 to-teal-500',
@@ -636,6 +637,7 @@ const colorStyles = {
     bg: 'bg-teal-500/10',
     border: 'border-teal-500/30',
     leftBorder: 'border-l-teal-500',
+    textGlow: '0 0 8px rgba(20, 184, 166, 0.5), 0 0 16px rgba(20, 184, 166, 0.25)',
   },
   green: { 
     gradient: 'from-emerald-500 to-green-500',
@@ -645,6 +647,7 @@ const colorStyles = {
     bg: 'bg-emerald-500/10',
     border: 'border-emerald-500/30',
     leftBorder: 'border-l-emerald-500',
+    textGlow: '0 0 8px rgba(16, 185, 129, 0.5), 0 0 16px rgba(16, 185, 129, 0.25)',
   },
   cyan: { 
     gradient: 'from-sky-400 to-cyan-500',
@@ -654,6 +657,7 @@ const colorStyles = {
     bg: 'bg-cyan-500/10',
     border: 'border-cyan-500/30',
     leftBorder: 'border-l-cyan-500',
+    textGlow: '0 0 8px rgba(6, 182, 212, 0.5), 0 0 16px rgba(6, 182, 212, 0.25)',
   },
   greenGold: { 
     gradient: 'from-lime-500 to-amber-500',
@@ -663,6 +667,7 @@ const colorStyles = {
     bg: 'bg-lime-500/10',
     border: 'border-lime-500/30',
     leftBorder: 'border-l-lime-500',
+    textGlow: '0 0 8px rgba(132, 204, 22, 0.5), 0 0 16px rgba(132, 204, 22, 0.25)',
   },
 };
 
@@ -777,11 +782,13 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             </div>
           ) : (
             <p className="text-xl font-semibold tracking-tight">
-              <span className={cn(
-                active 
-                  ? "text-foreground" 
-                  : "text-muted-foreground"
-              )}>
+              <span 
+                className={cn(
+                  "transition-all duration-300",
+                  active ? "text-foreground" : "text-muted-foreground"
+                )}
+                style={active ? { textShadow: styles.textGlow } : undefined}
+              >
                 {value.toLocaleString()}
               </span>
               <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
