@@ -93,6 +93,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         </Link>
         
         <div className="flex items-center gap-1">
+          <WeatherWidget />
           <NotificationBell />
           <ThemeToggle />
         </div>
