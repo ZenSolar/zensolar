@@ -28,16 +28,54 @@ export function useChargingSessions(currentMonth: Date) {
       const userId = viewAsUserId || user?.id;
       if (!userId) return [];
 
-      const { data, error } = await supabase
-        .from('charging_sessions')
-        .select('*')
-        .eq('user_id', userId)
-        .gte('session_date', format(monthStart, 'yyyy-MM-dd'))
-        .lte('session_date', format(monthEnd, 'yyyy-MM-dd'))
-        .order('session_date', { ascending: false });
+      // Fetch both charging_sessions and home_charging_sessions in parallel
+      const [billingRes, homeRes] = await Promise.all([
+        supabase
+          .from('charging_sessions')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('session_date', format(monthStart, 'yyyy-MM-dd'))
+          .lte('session_date', format(monthEnd, 'yyyy-MM-dd'))
+          .order('session_date', { ascending: false }),
+        supabase
+          .from('home_charging_sessions')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('start_time', monthStart.toISOString())
+          .lte('start_time', monthEnd.toISOString())
+          .order('start_time', { ascending: false }),
+      ]);
 
-      if (error) throw error;
-      return (data || []) as ChargingSession[];
+      if (billingRes.error) throw billingRes.error;
+      if (homeRes.error) throw homeRes.error;
+
+      const billingSessions = (billingRes.data || []) as ChargingSession[];
+
+      // Convert home_charging_sessions → ChargingSession format
+      const homeSessions: ChargingSession[] = (homeRes.data || []).map((h: any) => ({
+        id: h.id,
+        provider: 'tesla',
+        device_id: h.device_id,
+        session_date: format(new Date(h.start_time), 'yyyy-MM-dd'),
+        energy_kwh: Number(h.total_session_kwh || 0),
+        location: h.location || 'Home',
+        fee_amount: null,
+        fee_currency: null,
+        charging_type: 'home',
+        session_metadata: {
+          ...(h.session_metadata || {}),
+          source: 'charge_monitor',
+          status: h.status,
+          charger_power_kw: h.charger_power_kw,
+          start_time: h.start_time,
+          end_time: h.end_time,
+        },
+      }));
+
+      // Merge and sort by date descending
+      const all = [...billingSessions, ...homeSessions];
+      all.sort((a, b) => b.session_date.localeCompare(a.session_date));
+      return all;
     },
   });
 }
