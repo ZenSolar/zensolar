@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,11 +7,11 @@ import { ThemeProvider } from "next-themes";
 import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
+import { useServiceWorkerMessages } from "@/hooks/useServiceWorkerMessages";
 
 // Lazy load layout and auth components to reduce main bundle size
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
@@ -111,28 +111,8 @@ const App = () => {
       (navigator as any)?.standalone === true
     );
 
-  // Foreground fallback: if a push arrives while the app is open, show an in-app toast.
-  useEffect(() => {
-    // Early return if service workers aren't supported
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
-
-    const onMessage = (event: MessageEvent) => {
-      const msg = event.data;
-      if (!msg || typeof msg !== 'object') return;
-
-      if (msg.type === 'PUSH_RECEIVED' && msg.payload) {
-        const title = msg.payload.title || 'ZenSolar';
-        const description = msg.payload.body || 'You have a new notification';
-        toast(title, { description });
-      }
-    };
-
-    // Ensure controller exists before adding listener
-    if (navigator.serviceWorker.controller || navigator.serviceWorker.ready) {
-      navigator.serviceWorker.addEventListener('message', onMessage);
-      return () => navigator.serviceWorker.removeEventListener('message', onMessage);
-    }
-  }, []);
+  // Foreground fallback: surface push notifications as in-app toasts
+  useServiceWorkerMessages();
 
   return (
     <ThemeProvider
