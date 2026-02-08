@@ -1,12 +1,12 @@
 import { useEffect, lazy, Suspense } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+
+// Lazy load UI chrome that isn't needed for FCP
+const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+const TooltipProvider = lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider })));
 import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
 import { toast } from "sonner";
@@ -15,8 +15,10 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
 
-// Eagerly load critical path pages
-import Auth from "./pages/Auth";
+// Lazy load layout and auth components to reduce main bundle size
+const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
+const AppLayout = lazy(() => import("@/components/layout/AppLayout").then(m => ({ default: m.AppLayout })));
+const Auth = lazy(() => import("./pages/Auth"));
 import { RootRoute } from "./components/RootRoute";
 
 // Lazy load all other pages for code splitting
