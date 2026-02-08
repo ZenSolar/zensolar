@@ -80,3 +80,6 @@ verify_jwt = false
 
 [functions.wallbox-refresh-tokens]
 verify_jwt = false
+
+[functions.tesla-charge-monitor]
+verify_jwt = false
