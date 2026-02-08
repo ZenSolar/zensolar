@@ -56,10 +56,10 @@ const segiLayers = [
   {
     icon: Binary,
     title: 'Layer 4: Smart Contract Bridge',
-    tagline: 'Mint-on-Proof',
-    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. With one tap in the app, you mint $ZSOLAR tokens AND collectible milestone NFTs directly to your wallet—our signature Mint-on-Proof architecture.',
+    tagline: 'Mint-on-Proof + Watermark',
+    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. Every mint simultaneously updates the Device Watermark Registry—a public, on-chain record binding each physical device to its total tokenized energy. With one tap, you mint $ZSOLAR tokens AND milestone NFTs directly to your wallet, with cross-platform anti-double-mint protection built in.',
     gradient: 'from-amber-500 to-orange-500',
-    highlight: 'One-tap minting to your wallet',
+    highlight: 'One-tap minting + on-chain watermark',
   },
 ];
 
@@ -450,12 +450,17 @@ export default function Technology() {
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   The patent application (filed April 2025) protects the specific architecture: API aggregation → 
-                  data normalization → cryptographic verification → automated minting. Anyone can copy the idea, 
-                  but this <strong className="text-foreground">specific method</strong> is protected IP.
+                  data normalization → cryptographic verification → automated minting, plus the <strong className="text-foreground">Device Watermark Registry</strong>—a 
+                  standalone on-chain contract that prevents cross-platform double-minting of physical devices.
                 </p>
-                <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30">
-                  First-mover advantage with legal protection
-                </Badge>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30">
+                    First-mover advantage with legal protection
+                  </Badge>
+                  <Badge className="bg-primary/10 text-primary border-primary/30">
+                    Device Watermark Registry™
+                  </Badge>
+                </div>
               </div>
             </div>
           </CardContent>

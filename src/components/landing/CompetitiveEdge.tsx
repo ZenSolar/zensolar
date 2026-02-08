@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Hexagon, TrendingUp, Globe } from 'lucide-react';
+import { Shield, Hexagon, TrendingUp, Globe, Fingerprint } from 'lucide-react';
 
 const edges = [
   {
@@ -10,6 +10,13 @@ const edges = [
     description: 'Unlike legacy systems that distribute from pre-minted pools, SEGI creates tokens on-demand—each one backed by verified clean energy activity.',
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
+  },
+  {
+    icon: Fingerprint,
+    title: 'Device Watermark Registry',
+    description: 'The first on-chain, device-bound anti-double-mint standard. Every physical device\'s tokenized history is publicly verifiable—making cross-platform fraud provably impossible.',
+    iconBg: 'bg-amber-500/10',
+    iconColor: 'text-amber-600 dark:text-amber-400',
   },
   {
     icon: TrendingUp,
@@ -28,7 +35,7 @@ const edges = [
   {
     icon: Shield,
     title: 'Patent-Pending IP',
-    description: "SEGI's software-only gateway methodology is protected by pending patents—no existing claims cover this approach.",
+    description: "SEGI's software-only gateway, Proof-of-Delta™ verification, and Device Watermark Registry are all protected by pending patents.",
     iconBg: 'bg-energy/10',
     iconColor: 'text-energy',
   },

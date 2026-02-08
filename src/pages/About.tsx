@@ -113,7 +113,7 @@ export default function About() {
                 <div className="text-center">
                   <p className="text-base font-semibold text-foreground">Patent Pending Technology</p>
                   <p className="text-sm text-muted-foreground">
-                    System and Method for Tokenizing Sustainable Behaviors Using Blockchain
+                    Mint-on-Proof™ · Proof-of-Delta™ · Device Watermark Registry™
                   </p>
                 </div>
                 <ArrowRight className="h-5 w-5 text-primary group-hover:translate-x-1 transition-transform" />
