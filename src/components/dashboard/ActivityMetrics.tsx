@@ -594,24 +594,6 @@ export function ActivityMetrics({
           onMintRequest={onMintRequest}
         />
 
-        {/* Lifetime Minted Tokens - moved from NFT card */}
-        <Link 
-          to="/mint-history" 
-          className="flex items-center gap-3 p-3.5 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/50 transition-all group"
-        >
-          <div className="p-2.5 rounded-xl bg-muted">
-            <Coins className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-muted-foreground">Lifetime Minted Tokens</p>
-            <p className="text-xl font-bold text-foreground">
-              {effectiveLifetimeMinted?.toLocaleString() || '0'}
-              <span className="text-sm font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
-            </p>
-          </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-
       </CardContent>
     </Card>
   );
