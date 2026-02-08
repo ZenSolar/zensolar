@@ -51,9 +51,10 @@ const defaultActivityData: ActivityData = {
   chargerDevices: [],
 };
 
-// Module-level flag so initial auto-refresh only fires once per session,
-// surviving component remounts during navigation.
+// Module-level flags so state survives component remounts during navigation.
 let hasAutoRefreshedOnceGlobal = false;
+let cachedProfileConnections: ProfileConnections | null = null;
+let cachedConnectionKey: string | null = null;
 
 interface ProfileConnections {
   tesla_connected: boolean;
@@ -77,13 +78,13 @@ export function useDashboardData() {
   };
   const [activityData, setActivityData] = useState<ActivityData>(defaultActivityData);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([
-    { service: 'tesla', connected: false, label: 'Tesla' },
-    { service: 'enphase', connected: false, label: 'Enphase' },
-    { service: 'solaredge', connected: false, label: 'SolarEdge' },
-    { service: 'wallbox', connected: false, label: 'Wallbox' },
+    { service: 'tesla', connected: cachedProfileConnections?.tesla_connected ?? false, label: 'Tesla' },
+    { service: 'enphase', connected: cachedProfileConnections?.enphase_connected ?? false, label: 'Enphase' },
+    { service: 'solaredge', connected: cachedProfileConnections?.solaredge_connected ?? false, label: 'SolarEdge' },
+    { service: 'wallbox', connected: cachedProfileConnections?.wallbox_connected ?? false, label: 'Wallbox' },
   ]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(null);
+  const [isLoading, setIsLoading] = useState(!cachedProfileConnections);
+  const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(cachedProfileConnections);
   const hasAutoRefreshedOnce = useRef(hasAutoRefreshedOnceGlobal);
 
   type ProviderKey = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
@@ -212,6 +213,15 @@ export function useDashboardData() {
       }
     }
 
+    // Cache at module level so remounts don't re-fetch
+    cachedProfileConnections = connections;
+    cachedConnectionKey = [
+      connections.enphase_connected,
+      connections.solaredge_connected,
+      connections.tesla_connected,
+      connections.wallbox_connected,
+    ].join(',');
+
     setProfileConnections(connections);
     setConnectedAccounts([
       { service: 'tesla', connected: connections.tesla_connected, label: 'Tesla' },
@@ -223,8 +233,9 @@ export function useDashboardData() {
     setIsLoading(false);
   };
 
-  // Initial load
+  // Initial load — skip if we already have cached connections from a previous mount
   useEffect(() => {
+    if (cachedProfileConnections) return;
     fetchConnections();
   }, [fetchConnections]);
 
@@ -234,6 +245,8 @@ export function useDashboardData() {
       // Allow one more automatic refresh after a connection is completed.
       hasAutoRefreshedOnce.current = false;
       hasAutoRefreshedOnceGlobal = false;
+      cachedProfileConnections = null;
+      cachedConnectionKey = null;
       fetchConnections();
     };
 
@@ -1022,7 +1035,7 @@ export function useDashboardData() {
   }, [isOnDashboard, profileConnections, refreshDashboard]);
 
   // Auto-refresh when connections actually change (not on route transitions)
-  const prevConnectionsRef = useRef<string | null>(null);
+  const prevConnectionsRef = useRef<string | null>(cachedConnectionKey);
   useEffect(() => {
     if (!isOnDashboard) return;
     const connectionKey = [
