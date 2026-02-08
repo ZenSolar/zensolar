@@ -1,27 +1,39 @@
+import { lazy, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import Index from '@/pages/Index';
-import Landing from '@/pages/Landing';
+
+const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
+const Index = lazy(() => import('@/pages/Index'));
+const Landing = lazy(() => import('@/pages/Landing'));
+
+function RouteLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
+}
 
 export function RootRoute() {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <RouteLoader />;
   }
 
   if (!isAuthenticated) {
-    return <Landing />;
+    return (
+      <Suspense fallback={<RouteLoader />}>
+        <Landing />
+      </Suspense>
+    );
   }
 
   return (
-    <AppLayout>
-      <Index />
-    </AppLayout>
+    <Suspense fallback={<RouteLoader />}>
+      <AppLayout>
+        <Index />
+      </AppLayout>
+    </Suspense>
   );
 }
