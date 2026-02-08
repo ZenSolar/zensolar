@@ -776,7 +776,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               <span className="text-sm text-muted-foreground">Syncing...</span>
             </div>
           ) : (
-            <p className="text-xl font-semibold tracking-tight">
+            <p className="text-lg font-semibold tracking-tight">
               <span className={cn(
                 active 
                   ? `bg-gradient-to-r ${styles.textGradient} bg-clip-text text-transparent` 
@@ -784,7 +784,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               )}>
                 {value.toLocaleString()}
               </span>
-              <span className="text-base font-medium ml-1 text-muted-foreground">{unit}</span>
+              <span className="text-sm font-medium ml-1 text-muted-foreground">{unit}</span>
             </p>
           )}
         </div>
