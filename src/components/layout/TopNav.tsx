@@ -9,7 +9,6 @@ import { getLiveBetaMode } from "@/lib/tokenomics";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface TopNavProps {
   isDemo?: boolean;
@@ -94,7 +93,6 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         
         <div className="flex items-center gap-1">
           <WeatherWidget />
-          <NotificationBell />
           <ThemeToggle />
         </div>
       </div>

@@ -5,7 +5,7 @@ import { MenuTooltip } from "./MenuTooltip";
 import { ViewAsUserBanner } from "@/components/admin/ViewAsUserBanner";
 import { useViewAsUser } from "@/contexts/ViewAsUserContext";
 import { ViewAsUserIdProvider } from "@/hooks/useViewAsUserId";
-import { PushOptInBanner } from "@/components/notifications/PushOptInBanner";
+
 import { usePresence } from "@/hooks/usePresence";
 
 interface AppLayoutProps {
@@ -27,7 +27,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             <MenuTooltip />
             {/* Main content with padding-top to offset fixed header */}
             <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 overflow-x-hidden">
-              <PushOptInBanner />
               {children}
             </main>
           </div>
