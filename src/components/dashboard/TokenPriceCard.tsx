@@ -118,7 +118,7 @@ export function TokenPriceCard({ tokensHeld, defaultPrice = 0.10, onPriceChange,
                 <div className="p-1.5 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex-shrink-0">
                   <Coins className="h-4 w-4 text-primary" />
                 </div>
-                <span className="font-bold text-foreground">$ZSOLAR</span>
+                <span className="font-bold text-foreground">My Wallet</span>
                 <span className="text-muted-foreground">|</span>
                 <span className="font-bold text-foreground">${tokenPrice.toFixed(2)}</span>
               </div>
