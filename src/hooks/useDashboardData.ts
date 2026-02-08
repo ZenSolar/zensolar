@@ -1038,18 +1038,20 @@ export function useDashboardData() {
   const prevConnectionsRef = useRef<string | null>(cachedConnectionKey);
   useEffect(() => {
     if (!isOnDashboard) return;
+    if (!profileConnections) return; // Wait until we have real data
+    
     const connectionKey = [
-      profileConnections?.enphase_connected,
-      profileConnections?.solaredge_connected,
-      profileConnections?.tesla_connected,
-      profileConnections?.wallbox_connected,
+      profileConnections.enphase_connected,
+      profileConnections.solaredge_connected,
+      profileConnections.tesla_connected,
+      profileConnections.wallbox_connected,
     ].join(',');
     
     // Skip if connections haven't actually changed
     if (prevConnectionsRef.current === connectionKey) return;
     
-    // On first render, just record the state without triggering a refresh
-    // (the auto-refresh-once effect above handles the initial load)
+    // On first render (or first time we have data), just record the state
+    // without triggering a refresh — the auto-refresh-once effect handles initial load
     if (prevConnectionsRef.current === null) {
       prevConnectionsRef.current = connectionKey;
       return;
@@ -1057,7 +1059,7 @@ export function useDashboardData() {
     
     prevConnectionsRef.current = connectionKey;
     refreshDashboard();
-  }, [isOnDashboard, profileConnections?.enphase_connected, profileConnections?.solaredge_connected, profileConnections?.tesla_connected, profileConnections?.wallbox_connected, refreshDashboard]);
+  }, [isOnDashboard, profileConnections, refreshDashboard]);
 
   const connectAccount = useCallback((service: ConnectedAccount['service']) => {
     setConnectedAccounts(prev => 
