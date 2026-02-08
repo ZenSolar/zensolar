@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format, parseISO } from 'date-fns';
-import { Plus, Trash2, Calendar, Tag, Loader2, BookOpen } from 'lucide-react';
+import { Plus, Trash2, Calendar, Loader2, BookOpen, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -61,6 +61,23 @@ export default function WorkJournal() {
       return data as JournalEntry[];
     },
   });
+
+  const { data: summaries = [] } = useQuery({
+    queryKey: ['work-journal-summaries'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('work_journal_summaries')
+        .select('*')
+        .order('date', { ascending: false });
+      if (error) throw error;
+      return data as { id: string; date: string; summary: string }[];
+    },
+  });
+
+  const summaryMap = summaries.reduce<Record<string, string>>((acc, s) => {
+    acc[s.date] = s.summary;
+    return acc;
+  }, {});
 
   const addEntry = useMutation({
     mutationFn: async () => {
@@ -208,6 +225,16 @@ export default function WorkJournal() {
                 </h2>
                 <Badge variant="outline" className="text-xs">{grouped[dateKey].length}</Badge>
               </div>
+              {/* Daily narrative summary */}
+              {summaryMap[dateKey] && (
+                <div className="mb-3 ml-2 border-l-2 border-primary/30 pl-4">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <FileText className="h-3 w-3 text-primary/60" />
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-primary/60">Daily Summary</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed italic">{summaryMap[dateKey]}</p>
+                </div>
+              )}
               <div className="space-y-2 ml-2 border-l-2 border-border pl-4">
                 {grouped[dateKey].map(entry => (
                   <Card key={entry.id} className="group">
