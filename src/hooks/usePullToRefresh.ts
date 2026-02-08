@@ -26,7 +26,7 @@ export function usePullToRefresh({
   onRefresh,
   threshold = 140,
   maxPull = 200,
-  activationDelay = 120,
+  activationDelay = 250,
 }: UsePullToRefreshOptions): UsePullToRefreshReturn {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -94,11 +94,11 @@ export function usePullToRefresh({
     const elapsed = Date.now() - startTime.current;
     
     // Only activate after a small delay and with downward motion
-    if (diff > 5 && elapsed > activationDelay) {
+    if (diff > 30 && elapsed > activationDelay) {
       setIsActive(true);
       
       // Apply smooth rubber-band resistance using easing
-      const normalizedPull = Math.min((diff - 5) / maxPull, 1);
+      const normalizedPull = Math.min((diff - 30) / maxPull, 1);
       const easedPull = easeOutCubic(normalizedPull);
       const distance = easedPull * maxPull;
       
