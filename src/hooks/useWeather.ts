@@ -54,7 +54,7 @@ export function getWeatherDescription(code: number): string {
 const WEATHER_CACHE_KEY = 'weather_cache';
 const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 const LOCATION_CACHE_KEY = 'user_location_cache';
-const LOCATION_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const LOCATION_CACHE_TTL = Infinity; // Never expires — only prompt once ever
 
 interface CachedLocation {
   latitude: number;
@@ -71,8 +71,7 @@ function getCachedLocation(): CachedLocation | null {
   try {
     const raw = localStorage.getItem(LOCATION_CACHE_KEY);
     if (!raw) return null;
-    const cached: CachedLocation = JSON.parse(raw);
-    if (Date.now() - cached.timestamp < LOCATION_CACHE_TTL) return cached;
+    if (raw) return JSON.parse(raw);
   } catch {}
   return null;
 }
