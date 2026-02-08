@@ -24,11 +24,10 @@ export function PushOptInBanner() {
   };
 
   const handleEnable = async () => {
-    const success = await subscribe();
-    if (success) {
-      setDismissed(true);
-      localStorage.setItem(DISMISSED_KEY, "true");
-    }
+    await subscribe();
+    // Always dismiss after attempting — never show again regardless of outcome
+    setDismissed(true);
+    localStorage.setItem(DISMISSED_KEY, "true");
   };
 
   // On iOS, if not installed as PWA, don't show banner

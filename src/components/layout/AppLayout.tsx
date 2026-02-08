@@ -6,6 +6,7 @@ import { ViewAsUserBanner } from "@/components/admin/ViewAsUserBanner";
 import { useViewAsUser } from "@/contexts/ViewAsUserContext";
 import { ViewAsUserIdProvider } from "@/hooks/useViewAsUserId";
 import { PushOptInBanner } from "@/components/notifications/PushOptInBanner";
+import { usePresence } from "@/hooks/usePresence";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { targetUserId } = useViewAsUser();
+  usePresence(); // Track all authenticated users for real-time presence
   
   return (
     <ViewAsUserIdProvider value={targetUserId}>
