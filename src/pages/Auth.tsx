@@ -99,34 +99,7 @@ export default function Auth() {
     }
   }, [searchParams]);
 
-  // Auth should feel like a single-screen "native" surface on mobile.
-  // Lock document scrolling while this page is mounted.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const prevBodyOverflow = document.body.style.overflow;
-    const prevHtmlOverflow = document.documentElement.style.overflow;
-    const onTouchMove = (e: TouchEvent) => {
-      // Prevent iOS rubber-band scroll on the Auth screen.
-      // Allow normal interaction inside form controls.
-      const target = e.target;
-      if (target instanceof Element) {
-        const allow = target.closest(
-          'input, textarea, select, [contenteditable="true"], [data-allow-scroll="true"]',
-        );
-        if (allow) return;
-      }
-      e.preventDefault();
-    };
-
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    document.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      document.body.style.overflow = prevBodyOverflow;
-      document.documentElement.style.overflow = prevHtmlOverflow;
-      document.removeEventListener('touchmove', onTouchMove as EventListener);
-    };
-  }, []);
+  // Allow scrolling on mobile so users can see the full page
 
   useEffect(() => {
     // IMPORTANT: Don't auto-redirect during signup.
@@ -327,7 +300,7 @@ export default function Auth() {
   }
 
   return (
-    <main className="relative min-h-[100dvh] w-full overflow-hidden bg-background">
+    <main className="relative min-h-[100dvh] w-full overflow-y-auto bg-background">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Gradient orbs */}
@@ -346,7 +319,7 @@ export default function Auth() {
         />
       </div>
 
-      <div className="relative z-10 flex min-h-[100dvh] w-full flex-col lg:flex-row pt-safe pb-safe px-safe">
+      <div className="relative z-10 flex min-h-[100dvh] w-full flex-col lg:flex-row pt-safe pb-safe px-safe py-6 lg:py-0">
         {/* Left side - Branding (hidden on mobile) */}
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12">
           <div className="max-w-md text-center">
@@ -402,7 +375,7 @@ export default function Auth() {
       </div>
 
         {/* Right side - Auth form */}
-        <div className="flex w-full flex-1 items-center justify-center lg:w-1/2 px-3 sm:px-6">
+        <div className="flex w-full flex-1 items-start lg:items-center justify-center lg:w-1/2 px-3 sm:px-6">
           <Card className="w-full max-w-md bg-card/40 backdrop-blur-xl border-border/50 shadow-2xl">
           <CardHeader className="text-center pb-3 pt-5">
             {/* Mobile logo */}
@@ -620,7 +593,7 @@ export default function Auth() {
                           <span className="w-full border-t border-border/60" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card/60 backdrop-blur-sm px-3 text-muted-foreground">or continue with</span>
+                          <span className="bg-background px-3 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
@@ -753,7 +726,7 @@ export default function Auth() {
                           <span className="w-full border-t border-border/60" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card/60 backdrop-blur-sm px-3 text-muted-foreground">or continue with</span>
+                          <span className="bg-background px-3 text-muted-foreground">or continue with</span>
                         </div>
                       </div>
                       
