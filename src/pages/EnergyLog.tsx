@@ -80,6 +80,12 @@ export default function EnergyLog() {
 
         if (teslaTokens && teslaTokens.length > 0) {
           const backfillKey = `tesla_backfill_v2_${session.user.id}`;
+          // One-time re-sync to populate charging session duration data (remove after Feb 2026)
+          const resyncKey = `tesla_resync_duration_v1_${session.user.id}`;
+          if (!localStorage.getItem(resyncKey)) {
+            localStorage.removeItem(backfillKey);
+            localStorage.setItem(resyncKey, 'true');
+          }
           if (!localStorage.getItem(backfillKey)) {
             console.log('[EnergyLog] Running one-time Tesla historical backfill...');
             const res = await supabase.functions.invoke('tesla-historical', {
@@ -89,6 +95,7 @@ export default function EnergyLog() {
               console.log(`[EnergyLog] Tesla backfill complete:`, res.data);
               localStorage.setItem(backfillKey, 'true');
               queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+              queryClient.invalidateQueries({ queryKey: ['charging-sessions'] });
             } else if (res.error) {
               console.error('[EnergyLog] Tesla backfill error:', res.error);
             }
