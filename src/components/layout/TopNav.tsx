@@ -92,7 +92,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           </span>
         </Link>
         
-        <div className="flex items-center">
+        <div className="flex items-center max-w-[120px] sm:max-w-none overflow-hidden">
           <WeatherWidget />
         </div>
       </div>
