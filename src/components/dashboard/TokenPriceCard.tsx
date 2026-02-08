@@ -204,18 +204,19 @@ export function TokenPriceCard({
 
           {/* Balance section — large & prominent */}
           <div className="mb-5">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">Total Balance</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">Token Balance</p>
             <motion.div
               className="flex items-baseline gap-1"
               animate={showPulse ? { scale: [1, 1.03, 1] } : {}}
               transition={{ duration: 0.3 }}
             >
-              <span className="text-4xl font-bold text-foreground tabular-nums tracking-tight">${formattedValue}</span>
+              <span className="text-4xl font-bold text-foreground tabular-nums tracking-tight">{tokensHeld.toLocaleString()}</span>
+              <span className="text-lg font-medium text-muted-foreground">$ZSOLAR</span>
             </motion.div>
             <div className="flex items-center gap-2 mt-1.5">
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Coins className="h-3 w-3" />
-                <span className="tabular-nums">{tokensHeld.toLocaleString()} tokens</span>
+                <DollarSign className="h-3 w-3" />
+                <span className="tabular-nums font-medium">${formattedValue} USD</span>
               </div>
               <span className="text-muted-foreground/40">·</span>
               {/* Editable price */}
