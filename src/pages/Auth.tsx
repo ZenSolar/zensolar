@@ -588,13 +588,10 @@ export default function Auth() {
                       </Button>
                       
                       {/* Social Login Divider */}
-                      <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-border/60" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card px-3 text-muted-foreground">or continue with</span>
-                        </div>
+                      <div className="flex items-center gap-3 my-4">
+                        <span className="flex-1 border-t border-border/60" />
+                        <span className="text-xs uppercase text-muted-foreground">or continue with</span>
+                        <span className="flex-1 border-t border-border/60" />
                       </div>
                       
                       {/* Social Sign In Buttons */}
@@ -721,13 +718,10 @@ export default function Auth() {
                       </Button>
                       
                       {/* Social Login Divider */}
-                      <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-border/60" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card px-3 text-muted-foreground">or continue with</span>
-                        </div>
+                      <div className="flex items-center gap-3 my-4">
+                        <span className="flex-1 border-t border-border/60" />
+                        <span className="text-xs uppercase text-muted-foreground">or continue with</span>
+                        <span className="flex-1 border-t border-border/60" />
                       </div>
                       
                       {/* Social Sign In Buttons */}
