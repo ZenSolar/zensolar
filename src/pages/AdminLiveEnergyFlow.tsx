@@ -13,7 +13,7 @@ export default function AdminLiveEnergyFlow() {
   const [batteryPower, setBatteryPower] = useState(-2.5);
   const [batteryPercent, setBatteryPercent] = useState(73);
   const [gridPower, setGridPower] = useState(0);
-  const [evPower, setEvPower] = useState(0.8);
+  const [evPower, setEvPower] = useState(11);
 
   const resetToTeslaDemo = () => {
     setSolarPower(3.2);
@@ -36,9 +36,9 @@ export default function AdminLiveEnergyFlow() {
       apply: () => { setSolarPower(0); setHomePower(0.9); setBatteryPower(-0.6); setBatteryPercent(60); setGridPower(0.3); setEvPower(0); }
     },
     {
-      label: '🚗 EV Charging',
-      desc: 'Heavy solar to EV + battery',
-      apply: () => { setSolarPower(7.2); setHomePower(1.5); setBatteryPower(1.2); setBatteryPercent(30); setGridPower(0); setEvPower(3.5); }
+      label: '🚗 Model X Charging',
+      desc: 'Solar + battery powering Model X at 11kW',
+      apply: () => { setSolarPower(7.2); setHomePower(1.5); setBatteryPower(-1.2); setBatteryPercent(65); setGridPower(0); setEvPower(11); }
     },
     {
       label: '💰 Grid Export',
@@ -128,7 +128,7 @@ export default function AdminLiveEnergyFlow() {
                 onChange={setGridPower}
                 suffix={gridPower > 0 ? '(import)' : gridPower < 0 ? '(export)' : ''}
               />
-              <SliderControl label="🚗 EV" value={evPower} unit="kW" min={0} max={11} step={0.1} onChange={setEvPower} />
+              <SliderControl label="🚗 Model X" value={evPower} unit="kW" min={0} max={11.5} step={0.1} onChange={setEvPower} />
 
               <Button variant="ghost" size="sm" className="w-full mt-2" onClick={resetToTeslaDemo}>
                 <RotateCcw className="h-3 w-3 mr-2" />
@@ -146,7 +146,7 @@ export default function AdminLiveEnergyFlow() {
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>• <strong>SVG particle animation</strong> with glow trails — speed and count scale with kW values</p>
           <p>• <strong>Always-dark canvas</strong> with stylized house + solar panel illustration</p>
-          <p>• <strong>5 nodes</strong>: Solar, Powerwall, Home, Grid, EV — exceeds Tesla's 4-node view</p>
+          <p>• <strong>5 nodes</strong>: Solar, Powerwall, Home, Grid, Tesla Model X — exceeds Tesla's 4-node view</p>
           <p>• <strong>No new dependencies</strong> — pure SVG + existing Framer Motion</p>
           <p>• Ready for real-time API data from Tesla/Enphase/SolarEdge edge functions</p>
         </CardContent>
