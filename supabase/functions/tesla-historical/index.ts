@@ -479,7 +479,12 @@ Deno.serve(async (req) => {
               fee_amount: totalFee > 0 ? totalFee : null,
               fee_currency: totalFee > 0 ? feeCurrency : null,
               charging_type: chargingType,
-              session_metadata: { vin: session.vin || null, charger_type: session.sessionType || null },
+              session_metadata: {
+                vin: session.vin || null,
+                charger_type: session.sessionType || null,
+                chargeStartDateTime: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
+                chargeStopDateTime: session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null,
+              },
             });
 
             totalSessions++;

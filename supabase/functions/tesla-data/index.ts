@@ -639,6 +639,8 @@ Deno.serve(async (req) => {
                   session_metadata: {
                     vin: session.vin || null,
                     charger_type: session.sessionType || session.chargerType || null,
+                    chargeStartDateTime: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
+                    chargeStopDateTime: session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null,
                   },
                 });
               }
