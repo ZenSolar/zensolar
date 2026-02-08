@@ -19,8 +19,8 @@ const demoNftsEarned = getAllEarnedNFTNames(
 );
 
 const createDemoActivityData = (): ActivityData => ({
-  // Lifetime minted (demo shows some tokens already minted)
-  lifetimeMinted: 31930,
+  // Start at 0 so demo users see wallet update from zero when they mint
+  lifetimeMinted: 0,
   // Lifetime totals (for NFT milestone progress)
   solarEnergyProduced: DEMO_SOLAR_KWH,
   evMilesDriven: DEMO_EV_MILES,

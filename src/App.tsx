@@ -26,6 +26,7 @@ const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => (
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboard").then(m => ({ default: m.DemoDashboard })));
 const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
 const DemoEnergyLog = lazy(() => import("./components/demo/DemoEnergyLog").then(m => ({ default: m.DemoEnergyLog })));
+const DemoWallet = lazy(() => import("./components/demo/DemoWallet").then(m => ({ default: m.DemoWallet })));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminContracts = lazy(() => import("./pages/AdminContracts"));
@@ -151,7 +152,7 @@ const App = () => {
                       <Route path="referrals" element={<Referrals />} />
                       <Route path="notifications" element={<Notifications />} />
                       <Route path="profile" element={<Profile />} />
-                      <Route path="wallet" element={<Wallet />} />
+                      <Route path="wallet" element={<DemoWallet />} />
                       <Route path="settings" element={<Settings />} />
                       <Route path="about" element={<About />} />
                       <Route path="help" element={<Help />} />
