@@ -25,6 +25,7 @@ const Demo = lazy(() => import("./pages/Demo"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboard").then(m => ({ default: m.DemoDashboard })));
 const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
+const DemoEnergyLog = lazy(() => import("./components/demo/DemoEnergyLog").then(m => ({ default: m.DemoEnergyLog })));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminContracts = lazy(() => import("./pages/AdminContracts"));
@@ -139,7 +140,7 @@ const App = () => {
                     {/* Demo routes with full sidebar */}
                     <Route path="/demo" element={<DemoLayout />}>
                       <Route index element={<DemoDashboard />} />
-                      <Route path="energy-log" element={<EnergyLog />} />
+                      <Route path="energy-log" element={<DemoEnergyLog />} />
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="how-it-works" element={<HowItWorks />} />
                       <Route path="white-paper" element={<WhitePaper />} />
