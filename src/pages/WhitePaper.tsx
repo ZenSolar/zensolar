@@ -1294,35 +1294,16 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
-      {/* Footer with disclaimer integrated */}
+      {/* Footer */}
       <motion.div {...fadeIn} transition={{ delay: 0.7 }}>
-        <footer className="py-8 border-t border-border/40 pb-[calc(2rem+env(safe-area-inset-bottom))]">
-          <div className="container max-w-6xl mx-auto px-4 space-y-5 text-center">
+        <footer className="py-10 border-t border-border/40 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+          <div className="container max-w-5xl mx-auto px-4 space-y-6 text-center">
             {/* Disclaimer */}
             <div className="space-y-2 max-w-xl mx-auto">
-              <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">ZenSolar</strong> • Patent Pending • Built on Base L2 • Last Updated February 2026
-              </p>
-              <p className="text-xs text-muted-foreground/80">
+              <p className="text-xs text-muted-foreground/80 leading-relaxed">
                 This white paper is for informational purposes only. $ZSOLAR tokens have no monetary value during 
                 beta testing on Base Sepolia testnet. Tokenomics and features are subject to change.
               </p>
-            </div>
-
-            <Separator className="bg-border/30 max-w-md mx-auto" />
-
-            {/* Tagline */}
-            <div className="text-sm font-medium tracking-wide">
-              <p className="bg-gradient-to-r from-primary via-secondary to-energy bg-clip-text text-transparent">
-                The World's First One-Tap, Mint-on-Proof
-              </p>
-              <p className="bg-gradient-to-r from-primary via-secondary to-energy bg-clip-text text-transparent">
-                Web3 Clean Energy Platform
-              </p>
-            </div>
-
-            <div className="flex justify-center">
-              <img src={zenLogo} alt="ZenSolar" width="81" height="24" className="h-6 w-auto dark:animate-logo-glow" />
             </div>
 
             {/* Nav links */}
@@ -1330,12 +1311,11 @@ export default function WhitePaper() {
               <Link to="/how-it-works" className="hover:text-foreground transition-colors whitespace-nowrap">How It Works</Link>
               <Link to="/technology" className="hover:text-foreground transition-colors whitespace-nowrap">Technology</Link>
               <Link to="/demo" className="hover:text-foreground transition-colors whitespace-nowrap">Demo</Link>
-              <Link to="/white-paper" className="hover:text-foreground transition-colors whitespace-nowrap">White Paper</Link>
               <Link to="/terms" className="hover:text-foreground transition-colors whitespace-nowrap">Terms</Link>
               <Link to="/privacy" className="hover:text-foreground transition-colors whitespace-nowrap">Privacy</Link>
             </div>
 
-            <p className="text-sm text-muted-foreground">© 2026 ZenSolar. Patent Pending.</p>
+            <p className="text-xs text-muted-foreground/60">© 2026 ZenSolar. Patent Pending. Built on Base L2.</p>
           </div>
         </footer>
       </motion.div>

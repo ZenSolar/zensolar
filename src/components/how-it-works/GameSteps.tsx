@@ -101,7 +101,7 @@ export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
         icon={Zap}
         title="Do What You Already Do"
         body="Every kilowatt-hour your panels produce, every mile your EV drives, every time your battery powers your home — it all counts. We track it automatically, verified and secure."
-        keyMessage="Your existing lifestyle IS the gameplay."
+        keyMessage="1 kWh of solar = 1 $ZSOLAR token. 1 EV mile driven = 1 $ZSOLAR token."
         reversed
       >
         {/* Mini activity icons */}
@@ -117,6 +117,17 @@ export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
             </div>
           ))}
         </div>
+        {/* Earning rate callouts */}
+        <div className="grid grid-cols-2 gap-3 pt-4 max-w-sm mx-auto md:mx-0">
+          <div className="px-3 py-2.5 rounded-xl bg-primary/5 border border-primary/20 text-center">
+            <p className="text-lg font-black text-primary">1 kWh</p>
+            <p className="text-[10px] text-muted-foreground font-medium">= 1 $ZSOLAR</p>
+          </div>
+          <div className="px-3 py-2.5 rounded-xl bg-accent/5 border border-accent/20 text-center">
+            <p className="text-lg font-black text-accent">1 Mile</p>
+            <p className="text-[10px] text-muted-foreground font-medium">= 1 $ZSOLAR</p>
+          </div>
+        </div>
         <div className="flex items-center gap-6 pt-4 justify-center md:justify-start">
           <AnimatedCounter end={25} suffix=" kWh" label="Daily Solar" duration={1800} />
           <div className="w-px h-8 bg-border/40" />
@@ -129,7 +140,7 @@ export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
         number="3"
         icon={Sparkles}
         title="Tap to Mint"
-        body="When you're ready, tap one button. Your verified clean energy activity is converted into $ZSOLAR tokens — real digital assets in your Rewards Account. Each token is backed by actual energy you produced."
+        body="When you're ready, tap one button. Your verified clean energy activity is converted into $ZSOLAR tokens — real digital assets in your Rewards Account. Each token is backed by actual energy you produced. Requires a Pro or Elite subscription."
         keyMessage="One tap. That's it. No crypto knowledge required."
       >
         {/* Mint animation hint */}
