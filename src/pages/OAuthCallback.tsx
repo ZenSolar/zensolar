@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +25,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { exchangeTeslaCode, exchangeEnphaseCode } = useEnergyOAuth();
   const [status, setStatus] = useState<'processing' | 'success' | 'error' | 'device-selection'>('processing');
   const [deviceProvider, setDeviceProvider] = useState<'tesla' | 'enphase'>('tesla');
@@ -51,7 +50,7 @@ export default function OAuthCallback() {
       console.error('[OAuthCallback] OAuth error from provider:', error, errorDescription);
       setErrorMessage(errorDescription || error);
       setStatus('error');
-      setTimeout(() => navigate('/'), 3000);
+      setTimeout(() => { window.location.href = '/'; }, 3000);
       return;
     }
 
@@ -59,7 +58,7 @@ export default function OAuthCallback() {
       console.error('[OAuthCallback] No authorization code received');
       setErrorMessage('No authorization code received');
       setStatus('error');
-      setTimeout(() => navigate('/'), 2000);
+      setTimeout(() => { window.location.href = '/'; }, 2000);
       return;
     }
 
@@ -98,7 +97,7 @@ export default function OAuthCallback() {
       setErrorMessage('Session expired. Please log in and try again.');
       setStatus('error');
       setCanRetry(true);
-      setTimeout(() => navigate('/auth'), 5000);
+      setTimeout(() => { window.location.href = '/auth'; }, 5000);
       return;
     }
 
@@ -201,8 +200,9 @@ export default function OAuthCallback() {
             window.close();
             return;
           }
-          console.log('[OAuthCallback] Mobile redirect: navigating to onboarding with Tesla success');
-          navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
+          // CRITICAL: Use hard redirect, not react-router navigate — SPA routing breaks on PWA after OAuth redirects
+          console.log('[OAuthCallback] Hard redirect to onboarding with Tesla success');
+          window.location.href = '/onboarding?oauth_success=true&provider=tesla';
         } else {
           setDeviceProvider('tesla');
           setStatus('device-selection');
@@ -212,7 +212,7 @@ export default function OAuthCallback() {
         setErrorMessage('Connection timed out. Please try again.');
         setStatus('error');
         setCanRetry(true);
-        setTimeout(() => navigate('/'), 5000);
+        setTimeout(() => { window.location.href = '/'; }, 5000);
       }
       return;
     }
@@ -240,7 +240,7 @@ export default function OAuthCallback() {
               window.close();
               return;
             }
-            navigate('/onboarding?oauth_success=true&provider=enphase', { replace: true });
+            window.location.href = '/onboarding?oauth_success=true&provider=enphase';
           } else {
             setDeviceProvider('enphase');
             setStatus('device-selection');
@@ -249,14 +249,14 @@ export default function OAuthCallback() {
           setErrorMessage('Failed to connect Enphase account');
           setStatus('error');
           setCanRetry(true);
-          setTimeout(() => navigate('/'), 5000);
+          setTimeout(() => { window.location.href = '/'; }, 5000);
         }
       } catch (err) {
         console.error('[OAuthCallback] Enphase exchange error:', err);
         setErrorMessage('Connection timed out. Please try again.');
         setStatus('error');
         setCanRetry(true);
-        setTimeout(() => navigate('/'), 5000);
+        setTimeout(() => { window.location.href = '/'; }, 5000);
       }
       return;
     }
@@ -266,7 +266,7 @@ export default function OAuthCallback() {
     setErrorMessage('Authorization session expired. Please try again.');
     setStatus('error');
     setCanRetry(true);
-    setTimeout(() => navigate('/'), 3000);
+    setTimeout(() => { window.location.href = '/'; }, 3000);
   };
 
   useEffect(() => {
@@ -288,23 +288,23 @@ export default function OAuthCallback() {
     return () => {
       setTimeout(() => { moduleProcessed = false; }, 2000);
     };
-  }, [searchParams, navigate, exchangeTeslaCode, exchangeEnphaseCode]);
+  }, [searchParams, exchangeTeslaCode, exchangeEnphaseCode]);
 
   const handleDeviceSelectionComplete = () => {
-    navigate('/');
+    window.location.href = '/';
   };
 
   const handleDeviceSelectionClose = (open: boolean) => {
     if (!open) {
-      navigate('/');
+      window.location.href = '/';
     }
   };
 
   const handleRetry = () => {
-    // Reset flags and re-navigate to trigger a fresh attempt
+    // Reset flags and hard-redirect to trigger a fresh attempt
     hasProcessed.current = false;
     moduleProcessed = false;
-    navigate('/onboarding', { replace: true });
+    window.location.href = '/onboarding';
   };
 
   return (
