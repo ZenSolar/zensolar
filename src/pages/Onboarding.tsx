@@ -376,7 +376,6 @@ export default function Onboarding() {
             if (walletSaved) {
               console.log('[Onboarding] ✅ Wallet saved and verified:', nextAddress);
               dispatchProfileUpdated();
-              toast.success('Wallet connected!', { id: 'wallet-save-success' });
             } else {
               console.error('[Onboarding] ❌ Failed to save wallet after all retries');
               toast.error('Failed to save wallet. You can add it later from Settings.', { id: 'wallet-save-failed' });
