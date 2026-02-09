@@ -326,8 +326,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
   // Meter position (right side of house)
   const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 380' : '0 0 400 470';
-  const maxH = compact ? '390px' : '570px';
+  const vb = compact ? '0 0 400 410' : '0 0 400 500';
+  const maxH = compact ? '420px' : '610px';
   const labelFs = compact ? 8 : 10;
   const valueFs = compact ? 13 : 18;
   const subValueFs = compact ? 10 : 15;
@@ -533,17 +533,17 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Today's Stats — bottom left, polished card style */}
           {(() => {
             const sx = compact ? 10 : 12;
-            const sy = compact ? 332 : 412;
+            const sy = compact ? 340 : 425;
             const rowH = compact ? 18 : 22;
-            const cardW = compact ? 115 : 140;
-            const cardH = compact ? 68 : 82;
+            const cardW = compact ? 120 : 145;
+            const cardH = compact ? 78 : 90;
             const valueFontSize = compact ? 9 : 11;
             const labelFontSize = compact ? 5.5 : 6.5;
             const headerFs = compact ? 5.5 : 6.5;
 
             const stats = [
-              { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar', active: flow.solarPower > 0 },
-              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery', active: flow.batteryPower !== 0 },
+              { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar Generated', active: flow.solarPower > 0 },
+              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Cycled', active: flow.batteryPower !== 0 },
               { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)}`, unit: 'kWh', label: 'EV Charged', active: flow.evPower > 0 },
             ];
             return (
@@ -586,9 +586,9 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
           {/* Stacked manufacturer pills — bottom right */}
           {(() => {
-            const bx = compact ? 340 : 355;
-            const by = compact ? 340 : 425;
-            const gap = compact ? 13 : 15;
+            const bx = compact ? 345 : 358;
+            const by = compact ? 350 : 435;
+            const gap = compact ? 14 : 16;
             const pillW = compact ? 50 : 58;
             const pillH = compact ? 11 : 13;
             const fs = compact ? 5.5 : 6.5;
