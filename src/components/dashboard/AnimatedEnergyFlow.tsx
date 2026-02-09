@@ -136,17 +136,21 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         {/* Roof */}
         <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
-        {/* Solar panels — carefully laid out on left roof slope */}
-        <g opacity="0.95">
-          {/* Row 1 — 3 panels, follows roof angle */}
-          <rect x="158" y="148" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 168 154)" />
-          <rect x="178" y="140" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 188 146)" />
-          <rect x="198" y="132" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 208 138)" />
-          {/* Row 2 — 2 panels */}
-          <rect x="165" y="165" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 175 171)" />
-          <rect x="185" y="157" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 195 163)" />
+        {/* Solar panel array — uniform grid on left roof slope */}
+        <g opacity="0.95" transform="rotate(-28 200 155)">
+          {/* 2×3 uniform array */}
+          <rect x="155" y="138" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="183" y="138" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="211" y="138" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="155" y="154" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="183" y="154" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="211" y="154" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          {/* Grid lines */}
+          <line x1="168" y1="138" x2="168" y2="168" stroke="#2d6090" strokeWidth="0.25" />
+          <line x1="196" y1="138" x2="196" y2="168" stroke="#2d6090" strokeWidth="0.25" />
+          <line x1="224" y1="138" x2="224" y2="168" stroke="#2d6090" strokeWidth="0.25" />
           {/* Shimmer */}
-          <rect x="158" y="132" width="70" height="50" fill="#3b82f6" opacity="0" transform="rotate(-28 193 157)">
+          <rect x="155" y="138" width="82" height="30" fill="#3b82f6" opacity="0">
             <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
           </rect>
         </g>
@@ -194,22 +198,21 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       {/* Chimney */}
       <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
       <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Solar panels — properly angled on left roof slope, no clipping */}
-      <g opacity="0.95">
-        {/* Row 1 — 4 panels along roof slope */}
-        <rect x="140" y="157" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 152 164)" />
-        <rect x="165" y="147" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 177 154)" />
-        <rect x="190" y="137" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 202 144)" />
-        {/* Row 2 — 3 panels */}
-        <rect x="148" y="175" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 160 182)" />
-        <rect x="173" y="165" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 185 172)" />
-        <rect x="198" y="155" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 210 162)" />
-        {/* Grid lines on panels */}
-        <line x1="152" y1="157" x2="152" y2="172" stroke="#2d6090" strokeWidth="0.25" transform="rotate(-25 152 164)" />
-        <line x1="177" y1="147" x2="177" y2="162" stroke="#2d6090" strokeWidth="0.25" transform="rotate(-25 177 154)" />
-        <line x1="202" y1="137" x2="202" y2="152" stroke="#2d6090" strokeWidth="0.25" transform="rotate(-25 202 144)" />
+      {/* Solar panel array — uniform grid on left roof slope */}
+      <g opacity="0.95" transform="rotate(-25 200 160)">
+        {/* 2×3 uniform array */}
+        <rect x="145" y="140" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="177" y="140" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="209" y="140" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="145" y="159" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="177" y="159" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="209" y="159" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        {/* Grid lines */}
+        <line x1="160" y1="140" x2="160" y2="176" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="192" y1="140" x2="192" y2="176" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="224" y1="140" x2="224" y2="176" stroke="#2d6090" strokeWidth="0.25" />
         {/* Shimmer */}
-        <rect x="140" y="137" width="85" height="55" fill="#3b82f6" opacity="0" transform="rotate(-25 182 164)">
+        <rect x="145" y="140" width="94" height="36" fill="#3b82f6" opacity="0">
           <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
         </rect>
       </g>
@@ -308,21 +311,21 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         home: { x: 200, y: 190 },
         battery: { x: 55, y: 210 },
         grid: { x: 345, y: 210 },
-        ev: { x: 200, y: 310 },
+        ev: { x: 200, y: 325 },
       }
     : {
         solar: { x: 200, y: 70 },
         home: { x: 200, y: 230 },
         battery: { x: 50, y: 265 },
         grid: { x: 350, y: 265 },
-        ev: { x: 200, y: 385 },
+        ev: { x: 200, y: 405 },
       };
 
   // Meter position (right side of house)
   const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 420' : '0 0 400 510';
-  const maxH = compact ? '430px' : '620px';
+  const vb = compact ? '0 0 400 440' : '0 0 400 530';
+  const maxH = compact ? '450px' : '640px';
   const labelFs = compact ? 8 : 10;
   const valueFs = compact ? 13 : 18;
   const subValueFs = compact ? 10 : 15;
@@ -527,7 +530,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Today's Stats — bottom left, polished card style */}
           {(() => {
             const sx = compact ? 10 : 12;
-            const sy = compact ? 348 : 435;
+            const sy = compact ? 358 : 448;
             const rowH = compact ? 17 : 20;
             const cardW = compact ? 125 : 150;
             const cardH = compact ? 72 : 84;
@@ -581,7 +584,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Stacked manufacturer pills — bottom right */}
           {(() => {
             const bx = compact ? 350 : 362;
-            const by = compact ? 358 : 445;
+            const by = compact ? 368 : 458;
             const gap = compact ? 14 : 16;
             const pillW = compact ? 50 : 58;
             const pillH = compact ? 11 : 13;
