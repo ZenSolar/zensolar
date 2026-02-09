@@ -492,26 +492,16 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           )}
         </g>
 
-        {/* ── EV — MODEL X (simplified) ── */}
+        {/* ── EV CHARGER ── */}
         <g>
           <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 16 : 20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
-          <foreignObject x={nodes.ev.x - 12} y={nodes.ev.y - 10} width={24} height={20}>
+          {/* Simple EV plug/charger icon */}
+          <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 10} width={20} height={20}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 32 18" fill="none" className="w-6 h-4">
-                {/* Simple clean car silhouette */}
-                <path d="M4 12 C4 12 6 7 10 6 C14 5 18 5 22 6 C26 7 28 12 28 12 L28 13 C28 14 27 15 26 15 L6 15 C5 15 4 14 4 13 Z" fill="#1e293b" stroke={colors.ev} strokeWidth="0.8" />
-                {/* Windshield */}
-                <path d="M10 11 C10 11 12 7 16 7 C20 7 22 11 22 11 Z" fill="#0f172a" stroke={colors.ev} strokeWidth="0.4" opacity="0.6" />
-                {/* Headlights */}
-                <ellipse cx="5.5" cy="11.5" rx="1.5" ry="1" fill={colors.ev} opacity="0.6">
-                  {flow.evPower > 0 && <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />}
-                </ellipse>
-                <ellipse cx="26.5" cy="11.5" rx="1.5" ry="1" fill={colors.ev} opacity="0.6">
-                  {flow.evPower > 0 && <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />}
-                </ellipse>
-                {/* Wheels */}
-                <circle cx="9" cy="15" r="2" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
-                <circle cx="23" cy="15" r="2" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.19" />
+                <line x1="23" y1="13" x2="23" y2="11" />
+                <polyline points="11 6 7 12 13 12 9 18" />
               </svg>
             </div>
           </foreignObject>
@@ -525,7 +515,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
               </path>
             </g>
           )}
-          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">MODEL X</text>
+          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">EV CHARGER</text>
           <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
             {flow.evPower.toFixed(1)} kW
           </text>
@@ -539,27 +529,43 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
         {/* ── Footer ── */}
         <g>
-          {/* Status indicators — bottom left, stacked */}
+          {/* Today's Stats — bottom left */}
           {(() => {
-            const sx = 18;
-            const sy = compact ? 340 : 425;
-            const gap = compact ? 13 : 15;
-            const fs = compact ? 7 : 8;
-            const indicators = [
-              { active: flow.solarPower > 0, color: colors.solar, label: 'Producing' },
-              { active: flow.batteryPower < 0, color: colors.battery, label: 'Discharging' },
-              { active: flow.evPower > 0, color: colors.ev, label: 'EV Charging' },
+            const sx = compact ? 12 : 15;
+            const sy = compact ? 338 : 420;
+            const gap = compact ? 12 : 14;
+            const labelFontSize = compact ? 6 : 7;
+            const valueFontSize = compact ? 8.5 : 10;
+
+            // Simulated daily totals (in real app these would come from props/API)
+            const stats = [
+              { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)} kWh`, label: 'Solar Generated', active: flow.solarPower > 0 },
+              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)} kWh`, label: 'Battery Cycled', active: flow.batteryPower !== 0 },
+              { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)} kWh`, label: 'EV Charged', active: flow.evPower > 0 },
             ];
-            return indicators.map((ind, i) => (
-              <g key={ind.label}>
-                <circle cx={sx} cy={sy + i * gap} r={3.5} fill={ind.active ? ind.color : '#4b5563'} opacity={ind.active ? 1 : 0.4}>
-                  {ind.active && <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />}
-                </circle>
-                <text x={sx + 8} y={sy + i * gap + 3} fill={ind.active ? '#d1d5db' : '#4b5563'} fontSize={fs} fontWeight={ind.active ? '600' : '400'}>
-                  {ind.label}
+            return (
+              <g>
+                <text x={sx} y={sy - (compact ? 8 : 10)} fill="#6b7280" fontSize={compact ? 6 : 7} fontWeight="600" letterSpacing="1.2">
+                  TODAY
                 </text>
+                {stats.map((s, i) => (
+                  <g key={s.label}>
+                    {/* Colored dot */}
+                    <circle cx={sx + 3} cy={sy + i * gap - 1} r={2.5} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.8 : 0.3}>
+                      {s.active && <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />}
+                    </circle>
+                    {/* Value */}
+                    <text x={sx + 10} y={sy + i * gap + 2} fill={s.active ? '#e5e7eb' : '#4b5563'} fontSize={valueFontSize} fontWeight="700" fontFamily="monospace">
+                      {s.value}
+                    </text>
+                    {/* Label */}
+                    <text x={sx + 10} y={sy + i * gap + 2 + (compact ? 8 : 9)} fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={labelFontSize} fontWeight="400">
+                      {s.label}
+                    </text>
+                  </g>
+                ))}
               </g>
-            ));
+            );
           })()}
 
           {/* Stacked manufacturer pills — bottom right */}
