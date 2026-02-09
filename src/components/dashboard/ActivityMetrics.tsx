@@ -747,10 +747,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         <div className="flex items-center gap-1.5">
           <p 
             className={cn(
-              "text-sm font-medium truncate transition-all duration-300 text-glow-dark-only",
+              "text-sm font-medium truncate transition-all duration-300",
               active ? "text-foreground" : "text-muted-foreground"
             )}
-            style={active ? { textShadow: styles.textGlow } : undefined}
           >{label}</p>
           {liveIndicator && (
             <span className="relative flex h-2 w-2 shrink-0">
