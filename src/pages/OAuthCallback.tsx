@@ -125,7 +125,7 @@ export default function OAuthCallback() {
         (err) => console.warn('[OAuthCallback] Tesla exchange rejected (expected on mobile):', err)
       );
 
-      // Poll the database for tokens to appear (server processes in background)
+      // Poll via edge function (bypasses RLS issues on PWA where session may be weak)
       const maxPollAttempts = 40; // 20 seconds total
       let pollAttempt = 0;
       let tokensFound = false;
@@ -135,17 +135,17 @@ export default function OAuthCallback() {
         pollAttempt++;
         
         try {
-          const { data: tokenCheck } = await supabase
-            .from('energy_tokens')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .eq('provider', 'tesla')
-            .maybeSingle();
+          const { data: checkResult, error: checkError } = await supabase.functions.invoke('tesla-auth', {
+            body: { action: 'check-tokens' },
+          });
           
-          if (tokenCheck) {
-            console.log('[OAuthCallback] Tesla tokens found after', pollAttempt, 'polls');
+          if (checkResult?.exists) {
+            console.log('[OAuthCallback] Tesla tokens confirmed via edge function after', pollAttempt, 'polls');
             tokensFound = true;
             break;
+          }
+          if (checkError) {
+            console.warn('[OAuthCallback] Token check error:', checkError);
           }
         } catch (pollErr) {
           console.warn('[OAuthCallback] Poll error:', pollErr);
