@@ -202,6 +202,24 @@ function HouseIllustration() {
       <ellipse cx="150" cy="279" rx="5" ry="3" fill="#0a1a0a" opacity="0.5" />
       <ellipse cx="250" cy="279" rx="5" ry="3" fill="#0a1a0a" opacity="0.5" />
       
+      {/* Utility meter on right side of house */}
+      <g>
+        {/* Meter box */}
+        <rect x="262" y="230" width="16" height="22" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.7" />
+        {/* Meter glass/display */}
+        <circle cx="270" cy="238" r="5" fill="#0a1018" stroke="#3a5070" strokeWidth="0.4" />
+        {/* Meter dial */}
+        <line x1="270" y1="238" x2="273" y2="236" stroke="#8B5CF6" strokeWidth="0.5" opacity="0.7">
+          <animateTransform attributeName="transform" type="rotate" from="0 270 238" to="360 270 238" dur="8s" repeatCount="indefinite" />
+        </line>
+        {/* Meter center dot */}
+        <circle cx="270" cy="238" r="0.8" fill="#8B5CF6" opacity="0.6" />
+        {/* Meter label */}
+        <text x="270" y="248" textAnchor="middle" fill="#4a6080" fontSize="3.5" fontWeight="600" letterSpacing="0.3">kWh</text>
+        {/* Conduit line going down */}
+        <line x1="270" y1="252" x2="270" y2="260" stroke="#2a4060" strokeWidth="0.8" />
+      </g>
+      
       {/* Ground line */}
       <line x1="90" y1="280" x2="310" y2="280" stroke="#1a2030" strokeWidth="0.8" />
     </g>
@@ -340,24 +358,26 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
         />
 
-        {/* Grid → Home */}
-        <path
-          id="p-grid-home"
-          d={`M${nodes.grid.x - 25},${nodes.grid.y - 15} C${nodes.grid.x - 60},${nodes.grid.y - 50} ${nodes.home.x + 60},${nodes.home.y + 10} ${nodes.home.x + 30},${nodes.home.y}`}
-          fill="none"
-          stroke={colors.grid}
-          strokeWidth={gridToHome > 0 ? 1 : 0.3}
-          strokeOpacity={gridToHome > 0 ? 0.25 : 0.06}
-        />
+        {/* (Grid→Home path moved below, paired with Home→Grid for clarity) */}
 
-        {/* Solar → Grid */}
+        {/* Home (meter) → Grid — flows from utility meter on side of house */}
         <path
           id="p-solar-grid"
-          d={`M${nodes.solar.x + 30},${nodes.solar.y + 20} C${nodes.solar.x + 80},${nodes.solar.y + 80} ${nodes.grid.x - 20},${nodes.grid.y - 60} ${nodes.grid.x},${nodes.grid.y - 25}`}
+          d={`M278,241 C295,241 ${nodes.grid.x - 30},${nodes.grid.y - 20} ${nodes.grid.x},${nodes.grid.y - 20}`}
           fill="none"
           stroke={colors.grid}
           strokeWidth={solarToGrid > 0 ? 1 : 0.3}
           strokeOpacity={solarToGrid > 0 ? 0.25 : 0.06}
+        />
+
+        {/* Grid → Home (meter) — import flows into meter */}
+        <path
+          id="p-grid-home"
+          d={`M${nodes.grid.x},${nodes.grid.y - 20} C${nodes.grid.x - 30},${nodes.grid.y - 20} 295,241 278,241`}
+          fill="none"
+          stroke={colors.grid}
+          strokeWidth={gridToHome > 0 ? 1 : 0.3}
+          strokeOpacity={gridToHome > 0 ? 0.25 : 0.06}
         />
 
         {/* Home/Solar → EV */}
@@ -394,9 +414,6 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <text x={nodes.solar.x} y={nodes.solar.y - 42} textAnchor="middle" fill="white" fontSize="18" fontWeight="700">
             {flow.solarPower.toFixed(1)} kW
           </text>
-          {/* Enphase manufacturer badge */}
-          <rect x={nodes.solar.x + 30} y={nodes.solar.y - 15} width={42} height={13} rx={6.5} fill="#F59E0B" fillOpacity={0.12} stroke="#F59E0B" strokeWidth={0.5} strokeOpacity={0.4} />
-          <text x={nodes.solar.x + 51} y={nodes.solar.y - 5.5} textAnchor="middle" fill="#F59E0B" fontSize="6.5" fontWeight="600" letterSpacing="0.3">ENPHASE</text>
         </g>
 
         {/* HOME */}
@@ -428,9 +445,6 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Battery bar */}
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + 68} width={36} height={5} rx={2.5} fill="#1a2030" />
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + 68} width={36 * (flow.batteryPercent / 100)} height={5} rx={2.5} fill={colors.battery} fillOpacity={0.6} />
-          {/* Tesla manufacturer badge */}
-          <rect x={nodes.battery.x - 16} y={nodes.battery.y + 78} width={32} height={13} rx={6.5} fill="#22C55E" fillOpacity={0.12} stroke="#22C55E" strokeWidth={0.5} strokeOpacity={0.4} />
-          <text x={nodes.battery.x} y={nodes.battery.y + 87.5} textAnchor="middle" fill="#22C55E" fontSize="6.5" fontWeight="600" letterSpacing="0.3">TESLA</text>
         </g>
 
         {/* GRID */}
@@ -535,22 +549,32 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
               ⚡ CHARGING
             </text>
           )}
-          {/* ChargePoint manufacturer badge */}
-          <rect x={nodes.ev.x + 30} y={nodes.ev.y + 27} width={58} height={13} rx={6.5} fill="#3B82F6" fillOpacity={0.12} stroke="#3B82F6" strokeWidth={0.5} strokeOpacity={0.4} />
-          <text x={nodes.ev.x + 59} y={nodes.ev.y + 36.5} textAnchor="middle" fill="#3B82F6" fontSize="6.5" fontWeight="600" letterSpacing="0.3">CHARGEPOINT</text>
         </g>
 
-        {/* Status indicator + manufacturer count */}
+        {/* Status + polished manufacturer footer */}
         <g>
-          <circle cx="20" cy="415" r={4} fill={flow.solarPower > 0 ? colors.solar : '#4b5563'}>
+          <circle cx="20" cy="430" r={3.5} fill={flow.solarPower > 0 ? colors.solar : '#4b5563'}>
             {flow.solarPower > 0 && <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />}
           </circle>
-          <text x="30" y="418" fill="#6b7280" fontSize="9">
+          <text x="28" y="433" fill="#6b7280" fontSize="8">
             {flow.solarPower > 0 ? 'Producing' : 'Not producing'}
           </text>
-          <text x="380" y="418" textAnchor="end" fill="#4b5563" fontSize="7" letterSpacing="0.5">
-            3 MANUFACTURERS · 1 VIEW
-          </text>
+
+          {/* Manufacturer pills — bottom right */}
+          {/* Separator line */}
+          <line x1="230" y1="422" x2="390" y2="422" stroke="#1a2030" strokeWidth="0.5" />
+          
+          {/* Enphase */}
+          <rect x="232" y="427" width={44} height={14} rx={7} fill="#F59E0B" fillOpacity={0.08} stroke="#F59E0B" strokeWidth={0.4} strokeOpacity={0.3} />
+          <text x="254" y="436.5" textAnchor="middle" fill="#F59E0B" fontSize="6" fontWeight="600" letterSpacing="0.3" opacity="0.9">ENPHASE</text>
+          
+          {/* Tesla */}
+          <rect x="280" y="427" width={34} height={14} rx={7} fill="#22C55E" fillOpacity={0.08} stroke="#22C55E" strokeWidth={0.4} strokeOpacity={0.3} />
+          <text x="297" y="436.5" textAnchor="middle" fill="#22C55E" fontSize="6" fontWeight="600" letterSpacing="0.3" opacity="0.9">TESLA</text>
+          
+          {/* ChargePoint */}
+          <rect x="318" y="427" width={62} height={14} rx={7} fill="#3B82F6" fillOpacity={0.08} stroke="#3B82F6" strokeWidth={0.4} strokeOpacity={0.3} />
+          <text x="349" y="436.5" textAnchor="middle" fill="#3B82F6" fontSize="6" fontWeight="600" letterSpacing="0.3" opacity="0.9">CHARGEPOINT</text>
         </g>
       </svg>
     </div>
