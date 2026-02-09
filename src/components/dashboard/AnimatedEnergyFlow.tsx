@@ -98,46 +98,112 @@ function FlowingDots({
   );
 }
 
-// Stylized house SVG
+// Upgraded stylized house SVG with more architectural detail
 function HouseIllustration() {
   return (
     <g>
-      {/* House body */}
-      <rect x="145" y="195" width="110" height="85" rx="3" fill="#1a1f2e" stroke="#2a3040" strokeWidth="1" />
-      {/* Roof */}
-      <polygon points="135,198 200,148 265,198" fill="#141825" stroke="#2a3040" strokeWidth="1" />
-      {/* Solar panels on roof */}
-      <g opacity="0.9">
-        {/* Panel row 1 */}
-        <rect x="155" y="168" width="22" height="14" rx="1" fill="#1e3a5f" stroke="#2d5a8a" strokeWidth="0.5" />
-        <rect x="179" y="168" width="22" height="14" rx="1" fill="#1e3a5f" stroke="#2d5a8a" strokeWidth="0.5" />
-        <rect x="203" y="168" width="22" height="14" rx="1" fill="#1e3a5f" stroke="#2d5a8a" strokeWidth="0.5" />
-        {/* Panel grid lines */}
-        <line x1="166" y1="168" x2="166" y2="182" stroke="#2d5a8a" strokeWidth="0.3" />
-        <line x1="190" y1="168" x2="190" y2="182" stroke="#2d5a8a" strokeWidth="0.3" />
-        <line x1="214" y1="168" x2="214" y2="182" stroke="#2d5a8a" strokeWidth="0.3" />
-        <line x1="155" y1="175" x2="225" y2="175" stroke="#2d5a8a" strokeWidth="0.3" />
-        {/* Panel row 2 */}
-        <rect x="161" y="183" width="22" height="12" rx="1" fill="#1e3a5f" stroke="#2d5a8a" strokeWidth="0.5" />
-        <rect x="185" y="183" width="22" height="12" rx="1" fill="#1e3a5f" stroke="#2d5a8a" strokeWidth="0.5" />
-        <rect x="209" y="183" width="16" height="12" rx="1" fill="#1e3a5f" stroke="#2d5a8a" strokeWidth="0.5" />
+      {/* Foundation / ground shadow */}
+      <ellipse cx="200" cy="282" rx="90" ry="4" fill="#0a0e18" opacity="0.6" />
+      
+      {/* House body - main structure with subtle gradient */}
+      <rect x="145" y="195" width="110" height="85" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.8" />
+      
+      {/* Side wall accent - adds depth */}
+      <rect x="145" y="195" width="4" height="85" fill="#151b2a" />
+      <rect x="251" y="195" width="4" height="85" fill="#151b2a" />
+      
+      {/* Roof - steeper, more modern with overhang */}
+      <polygon points="130,198 200,138 270,198" fill="#111827" stroke="#2a3448" strokeWidth="0.8" />
+      {/* Roof ridge line */}
+      <line x1="200" y1="138" x2="200" y2="142" stroke="#3a4560" strokeWidth="0.5" />
+      {/* Roof overhang shadow */}
+      <line x1="132" y1="198" x2="268" y2="198" stroke="#0a0e18" strokeWidth="1.5" opacity="0.5" />
+      
+      {/* Chimney */}
+      <rect x="230" y="148" width="12" height="25" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
+      <rect x="228" y="146" width="16" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
+      
+      {/* Solar panels on roof - larger, more realistic */}
+      <g opacity="0.95">
+        {/* Panel row 1 - upper */}
+        <rect x="150" y="163" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="176" y="163" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="202" y="163" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        {/* Panel cell grid lines */}
+        <line x1="162" y1="163" x2="162" y2="178" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="188" y1="163" x2="188" y2="178" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="214" y1="163" x2="214" y2="178" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="150" y1="170.5" x2="226" y2="170.5" stroke="#2d6090" strokeWidth="0.25" />
+        {/* Panel row 2 - lower */}
+        <rect x="157" y="179" width="22" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="181" y="179" width="22" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="205" y="179" width="18" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        {/* Subtle solar shimmer */}
+        <rect x="150" y="163" width="76" height="15" rx="1" fill="#3b82f6" opacity="0">
+          <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
+        </rect>
       </g>
-      {/* Windows */}
-      <rect x="160" y="215" width="18" height="22" rx="1" fill="#0d1117" stroke="#2a3040" strokeWidth="0.5">
-        <animate attributeName="fill" values="#0d1117;#1a2332;#0d1117" dur="5s" repeatCount="indefinite" />
+      
+      {/* Windows - modern style with warm interior glow */}
+      <g>
+        {/* Left window */}
+        <rect x="157" y="212" width="22" height="26" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
+        {/* Window frame cross */}
+        <line x1="168" y1="212" x2="168" y2="238" stroke="#2a3448" strokeWidth="0.4" />
+        <line x1="157" y1="225" x2="179" y2="225" stroke="#2a3448" strokeWidth="0.4" />
+        {/* Warm interior glow */}
+        <rect x="158" y="213" width="9.5" height="11.5" fill="#1a1800" opacity="0.6">
+          <animate attributeName="fill" values="#1a1800;#221e00;#1a1800" dur="6s" repeatCount="indefinite" />
+        </rect>
+        <rect x="169" y="226" width="9.5" height="11.5" fill="#1a1800" opacity="0.4">
+          <animate attributeName="fill" values="#1a1800;#1e1a00;#1a1800" dur="8s" repeatCount="indefinite" />
+        </rect>
+        
+        {/* Right window */}
+        <rect x="221" y="212" width="22" height="26" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="232" y1="212" x2="232" y2="238" stroke="#2a3448" strokeWidth="0.4" />
+        <line x1="221" y1="225" x2="243" y2="225" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="222" y="213" width="9.5" height="11.5" fill="#1a1800" opacity="0.5">
+          <animate attributeName="fill" values="#1a1800;#201c00;#1a1800" dur="7s" repeatCount="indefinite" />
+        </rect>
+      </g>
+      
+      {/* Front door - modern with sidelight */}
+      <rect x="189" y="243" width="22" height="37" rx="1.5" fill="#0c1018" stroke="#2a3448" strokeWidth="0.6" />
+      {/* Door panel detail */}
+      <rect x="192" y="247" width="16" height="12" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
+      <rect x="192" y="262" width="16" height="14" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
+      {/* Door handle */}
+      <circle cx="207" cy="264" r="1.2" fill="#4a5568" />
+      {/* Door light / welcome glow */}
+      <ellipse cx="200" cy="241" rx="4" ry="2" fill="#F59E0B" opacity="0.08">
+        <animate attributeName="opacity" values="0.06;0.12;0.06" dur="4s" repeatCount="indefinite" />
+      </ellipse>
+      
+      {/* Porch step */}
+      <rect x="185" y="278" width="30" height="3" rx="0.5" fill="#1a2030" stroke="#2a3448" strokeWidth="0.3" />
+      
+      {/* Powerwall unit (left side of house) */}
+      <rect x="116" y="238" width="20" height="38" rx="2.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.8" />
+      {/* Powerwall LED indicators */}
+      <rect x="119.5" y="242" width="13" height="3" rx="1" fill="#22c55e" opacity="0.25">
+        <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
       </rect>
-      <rect x="222" y="215" width="18" height="22" rx="1" fill="#0d1117" stroke="#2a3040" strokeWidth="0.5">
-        <animate attributeName="fill" values="#0d1117;#182030;#0d1117" dur="7s" repeatCount="indefinite" />
-      </rect>
-      {/* Door */}
-      <rect x="190" y="245" width="20" height="35" rx="2" fill="#0f1520" stroke="#2a3040" strokeWidth="0.5" />
-      <circle cx="206" cy="263" r="1.5" fill="#3a4050" />
-      {/* Powerwall unit (left side) */}
-      <rect x="118" y="240" width="18" height="35" rx="2" fill="#1a2030" stroke="#2a3550" strokeWidth="0.8" />
-      <rect x="121" y="243" width="12" height="4" rx="1" fill="#22c55e" opacity="0.3" />
-      <text x="127" y="268" textAnchor="middle" fill="#4a5568" fontSize="5" fontWeight="600">PW</text>
+      <rect x="119.5" y="247" width="13" height="3" rx="1" fill="#22c55e" opacity="0.15" />
+      <rect x="119.5" y="252" width="13" height="3" rx="1" fill="#22c55e" opacity="0.1" />
+      {/* Tesla T logo on Powerwall */}
+      <text x="126" y="268" textAnchor="middle" fill="#4a6080" fontSize="5" fontWeight="700" letterSpacing="0.5">PW</text>
+      {/* Powerwall mounting bracket */}
+      <line x1="126" y1="236" x2="126" y2="238" stroke="#2a4060" strokeWidth="1" />
+      
+      {/* Landscaping - small bushes */}
+      <ellipse cx="155" cy="278" rx="8" ry="4" fill="#0f2010" opacity="0.6" />
+      <ellipse cx="245" cy="278" rx="8" ry="4" fill="#0f2010" opacity="0.6" />
+      <ellipse cx="150" cy="279" rx="5" ry="3" fill="#0a1a0a" opacity="0.5" />
+      <ellipse cx="250" cy="279" rx="5" ry="3" fill="#0a1a0a" opacity="0.5" />
+      
       {/* Ground line */}
-      <line x1="100" y1="280" x2="300" y2="280" stroke="#1a2030" strokeWidth="1" />
+      <line x1="90" y1="280" x2="310" y2="280" stroke="#1a2030" strokeWidth="0.8" />
     </g>
   );
 }
@@ -215,6 +281,12 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             <stop offset="60%" stopColor={colors.solar} stopOpacity={0.04} />
             <stop offset="100%" stopColor={colors.solar} stopOpacity={0} />
           </radialGradient>
+
+          {/* House body gradient */}
+          <linearGradient id="houseFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1a2235" />
+            <stop offset="100%" stopColor="#141a28" />
+          </linearGradient>
         </defs>
 
         {/* Solar ambient light */}
