@@ -38,9 +38,11 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
       setError(null);
       setStep('connecting');
 
+      // Clear any cached wallet data from previous sessions
+      localStorage.removeItem('zensolar_wallet_type');
+      localStorage.removeItem('zensolar_wallet_address');
+
       // Create Coinbase Wallet SDK with Smart Wallet preference
-      // This enables passkey-based authentication without requiring an extension
-      // Use the published app URL for the logo so Coinbase can fetch it
       const appUrl = window.location.hostname.includes('lovable.app') 
         ? 'https://zensolar.lovable.app' 
         : window.location.origin;
@@ -50,16 +52,24 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
         appLogoUrl: `${appUrl}/logos/zen-icon.png`,
         appChainIds: [baseSepolia.id],
         preference: {
-          options: 'smartWalletOnly', // Forces Smart Wallet with passkey auth
+          options: 'smartWalletOnly',
         },
       });
 
       const provider = sdk.getProvider();
       providerRef.current = provider;
 
+      // Disconnect any existing session first so the user gets a fresh
+      // passkey prompt and can choose to create a NEW passkey/wallet
+      try {
+        await provider.disconnect();
+      } catch {
+        // disconnect may throw if no session exists — that's fine
+      }
+
       setStep('authenticating');
 
-      // Request accounts - this triggers the Smart Wallet popup for passkey auth
+      // Request accounts — triggers Smart Wallet popup for passkey auth
       const accounts = await provider.request({
         method: 'eth_requestAccounts',
       }) as string[];
@@ -69,7 +79,6 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
         setWalletAddress(connectedAddress);
         setStep('success');
         
-        // Store that we're using Coinbase Smart Wallet
         localStorage.setItem('zensolar_wallet_type', 'coinbase_smart');
         localStorage.setItem('zensolar_wallet_address', connectedAddress);
         
@@ -81,7 +90,6 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
       console.error('[useCoinbaseSmartWallet] Error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to create wallet';
       
-      // Handle user rejection gracefully
       if (
         errorMessage.includes('User rejected') || 
         errorMessage.includes('user rejected') ||
