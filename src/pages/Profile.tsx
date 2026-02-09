@@ -202,10 +202,11 @@ export default function Profile() {
     setDisconnectConfirm(service);
   };
 
-  const handleDisconnectEnergyConfirm = () => {
+  const handleDisconnectEnergyConfirm = async () => {
     if (disconnectConfirm) {
-      disconnectAccount(disconnectConfirm);
+      await disconnectAccount(disconnectConfirm);
       setDisconnectConfirm(null);
+      await refetch();
     }
   };
 
