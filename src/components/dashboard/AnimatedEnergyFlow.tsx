@@ -138,17 +138,17 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
         {/* Solar panels — 3-2-1 pyramid inside roof triangle */}
         <g opacity="0.95">
-          {/* Row 1 (bottom, 3 panels) — just above gutter line */}
-          <rect x="160" y="161" width="22" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="184" y="161" width="22" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="208" y="161" width="22" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          {/* Row 1 (bottom, 3 panels) — just above gutter at y=183 */}
+          <rect x="164" y="166" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="186" y="166" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="208" y="166" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
           {/* Row 2 (middle, 2 panels) */}
-          <rect x="172" y="147" width="22" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="196" y="147" width="22" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="175" y="153" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="197" y="153" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
           {/* Row 3 (top, 1 panel) */}
-          <rect x="184" y="133" width="22" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="186" y="140" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
           {/* Shimmer */}
-          <rect x="158" y="131" width="74" height="44" fill="#3b82f6" opacity="0" rx="2">
+          <rect x="162" y="138" width="68" height="41" fill="#3b82f6" opacity="0" rx="2">
             <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
           </rect>
         </g>
@@ -198,17 +198,17 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
       {/* Solar panels — 3-2-1 pyramid inside roof triangle */}
       <g opacity="0.95">
-        {/* Row 1 (bottom, 3 panels) — just above gutter */}
-        <rect x="148" y="170" width="28" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="179" y="170" width="28" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="210" y="170" width="28" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        {/* Row 1 (bottom, 3 panels) — just above gutter at y=195 */}
+        <rect x="152" y="175" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="181" y="175" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="210" y="175" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
         {/* Row 2 (middle, 2 panels) */}
-        <rect x="163" y="151" width="28" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="194" y="151" width="28" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        {/* Row 3 (top, 1 panel) */}
-        <rect x="179" y="132" width="28" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="166" y="159" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="195" y="159" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        {/* Row 3 (top, 1 panel — near peak) */}
+        <rect x="181" y="143" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
         {/* Shimmer */}
-        <rect x="146" y="130" width="94" height="58" fill="#3b82f6" opacity="0" rx="2">
+        <rect x="150" y="141" width="88" height="50" fill="#3b82f6" opacity="0" rx="2">
           <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
         </rect>
       </g>
@@ -442,10 +442,10 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           </text>
         </g>
 
-        {/* ── HOME ── */}
+        {/* ── HOME ── label on the house body wall */}
         <g>
-          <text x={nodes.home.x} y={nodes.home.y - (compact ? 32 : 40)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
-          <text x={nodes.home.x} y={nodes.home.y - (compact ? 42 : 52)} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
+          <text x={nodes.home.x} y={nodes.home.y + (compact ? 5 : 10)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
+          <text x={nodes.home.x} y={nodes.home.y + (compact ? -8 : -5)} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
             {flow.homePower.toFixed(1)} kW
           </text>
         </g>
