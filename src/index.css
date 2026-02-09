@@ -46,13 +46,13 @@
     --token: 280 68% 60%;
     --token-foreground: 0 0% 100%;
 
-    --sidebar-background: 220 20% 12%;
-    --sidebar-foreground: 210 20% 94%;
-    --sidebar-primary: 207 90% 54%;
+    --sidebar-background: 216 18% 91%;
+    --sidebar-foreground: 220 20% 14%;
+    --sidebar-primary: 207 90% 44%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 18%;
-    --sidebar-accent-foreground: 210 20% 94%;
-    --sidebar-border: 220 20% 20%;
+    --sidebar-accent: 214 18% 85%;
+    --sidebar-accent-foreground: 220 20% 14%;
+    --sidebar-border: 214 16% 82%;
     --sidebar-ring: 207 90% 54%;
   }
 
