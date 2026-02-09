@@ -495,13 +495,14 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         {/* ── EV CHARGER ── */}
         <g>
           <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 16 : 20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
-          {/* Simple EV plug/charger icon */}
+          {/* Car icon using Lucide-style Car SVG */}
           <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 10} width={20} height={20}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                <path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.19" />
-                <line x1="23" y1="13" x2="23" y2="11" />
-                <polyline points="11 6 7 12 13 12 9 18" />
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10H8s-2.7.6-4.5 1.1C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2" />
+                <path d="M16 10l1.5-4.5c.2-.6-.1-1.3-.8-1.4C15.4 3.9 13.8 3.5 12 3.5s-3.4.4-4.7.6c-.7.1-1 .8-.8 1.4L8 10" />
+                <circle cx="7.5" cy="17" r="2.5" />
+                <circle cx="16.5" cy="17" r="2.5" />
               </svg>
             </div>
           </foreignObject>
@@ -529,41 +530,56 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
         {/* ── Footer ── */}
         <g>
-          {/* Today's Stats — bottom left */}
+          {/* Today's Stats — bottom left, polished card style */}
           {(() => {
-            const sx = compact ? 12 : 15;
-            const sy = compact ? 338 : 420;
-            const gap = compact ? 12 : 14;
-            const labelFontSize = compact ? 6 : 7;
-            const valueFontSize = compact ? 8.5 : 10;
+            const sx = compact ? 10 : 12;
+            const sy = compact ? 332 : 412;
+            const rowH = compact ? 18 : 22;
+            const cardW = compact ? 115 : 140;
+            const cardH = compact ? 68 : 82;
+            const valueFontSize = compact ? 9 : 11;
+            const labelFontSize = compact ? 5.5 : 6.5;
+            const headerFs = compact ? 5.5 : 6.5;
 
-            // Simulated daily totals (in real app these would come from props/API)
             const stats = [
-              { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)} kWh`, label: 'Solar Generated', active: flow.solarPower > 0 },
-              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)} kWh`, label: 'Battery Cycled', active: flow.batteryPower !== 0 },
-              { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)} kWh`, label: 'EV Charged', active: flow.evPower > 0 },
+              { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar', active: flow.solarPower > 0 },
+              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery', active: flow.batteryPower !== 0 },
+              { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)}`, unit: 'kWh', label: 'EV Charged', active: flow.evPower > 0 },
             ];
             return (
               <g>
-                <text x={sx} y={sy - (compact ? 8 : 10)} fill="#6b7280" fontSize={compact ? 6 : 7} fontWeight="600" letterSpacing="1.2">
-                  TODAY
+                {/* Card background */}
+                <rect x={sx} y={sy - 2} width={cardW} height={cardH} rx={6} fill="#0d1220" fillOpacity={0.8} stroke="#1e293b" strokeWidth={0.5} />
+                {/* Header */}
+                <text x={sx + 8} y={sy + 10} fill="#6b7280" fontSize={headerFs} fontWeight="700" letterSpacing="1.5">
+                  TODAY&apos;S ENERGY
                 </text>
-                {stats.map((s, i) => (
-                  <g key={s.label}>
-                    {/* Colored dot */}
-                    <circle cx={sx + 3} cy={sy + i * gap - 1} r={2.5} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.8 : 0.3}>
-                      {s.active && <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />}
-                    </circle>
-                    {/* Value */}
-                    <text x={sx + 10} y={sy + i * gap + 2} fill={s.active ? '#e5e7eb' : '#4b5563'} fontSize={valueFontSize} fontWeight="700" fontFamily="monospace">
-                      {s.value}
-                    </text>
-                    {/* Label */}
-                    <text x={sx + 10} y={sy + i * gap + 2 + (compact ? 8 : 9)} fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={labelFontSize} fontWeight="400">
-                      {s.label}
-                    </text>
-                  </g>
-                ))}
+                {/* Divider line */}
+                <line x1={sx + 8} y1={sy + 14} x2={sx + cardW - 8} y2={sy + 14} stroke="#1e293b" strokeWidth={0.5} />
+                {/* Stats rows */}
+                {stats.map((s, i) => {
+                  const rowY = sy + 20 + i * rowH;
+                  return (
+                    <g key={s.label}>
+                      {/* Color bar indicator */}
+                      <rect x={sx + 8} y={rowY} width={2.5} height={compact ? 10 : 12} rx={1.25} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.9 : 0.3}>
+                        {s.active && <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />}
+                      </rect>
+                      {/* Value */}
+                      <text x={sx + 16} y={rowY + (compact ? 6 : 7)} fill={s.active ? '#f3f4f6' : '#4b5563'} fontSize={valueFontSize} fontWeight="800">
+                        {s.value}
+                      </text>
+                      {/* Unit */}
+                      <text x={sx + 16 + s.value.length * (valueFontSize * 0.62)} y={rowY + (compact ? 6 : 7)} fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={valueFontSize - 2} fontWeight="500">
+                        {' '}{s.unit}
+                      </text>
+                      {/* Label */}
+                      <text x={sx + 16} y={rowY + (compact ? 14 : 16)} fill={s.active ? '#6b7280' : '#374151'} fontSize={labelFontSize} fontWeight="400">
+                        {s.label}
+                      </text>
+                    </g>
+                  );
+                })}
               </g>
             );
           })()}
