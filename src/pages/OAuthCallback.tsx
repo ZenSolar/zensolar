@@ -5,6 +5,9 @@ import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDia
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
+// Module-level flag to survive component remounts during the same page session
+let moduleProcessed = false;
+
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -16,12 +19,13 @@ export default function OAuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Prevent double-processing (React Strict Mode can cause double-mount)
-      if (hasProcessed.current) {
+      // Prevent double-processing across both re-renders AND remounts
+      if (hasProcessed.current || moduleProcessed) {
         console.log('[OAuthCallback] Already processed, skipping');
         return;
       }
       hasProcessed.current = true;
+      moduleProcessed = true;
 
       const code = searchParams.get('code');
       const state = searchParams.get('state');
@@ -53,7 +57,6 @@ export default function OAuthCallback() {
       }
 
       // Wait for session to be restored (important after mobile redirect)
-      // Mobile redirects can take longer to restore sessions, especially for new signups
       let retries = 0;
       const maxRetries = 30; // 15 seconds total
       let session = null;
@@ -67,7 +70,6 @@ export default function OAuthCallback() {
           break;
         }
         
-        // Try refreshing the session explicitly on every 5th attempt
         if (retries > 0 && retries % 5 === 0) {
           console.log('[OAuthCallback] Attempting explicit session refresh');
           const { data: refreshData } = await supabase.auth.refreshSession();
@@ -91,14 +93,20 @@ export default function OAuthCallback() {
         return;
       }
 
-      // Check if this is a Tesla callback
+      // --- Determine which provider this callback is for ---
+      // Tesla detection: check localStorage markers OR presence of state param
+      // (Only Tesla uses a state parameter in our OAuth flow)
       const savedState = localStorage.getItem('tesla_oauth_state');
       const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
+      const isTesla = (state && savedState === state) || teslaMobilePending || (state && !sessionStorage.getItem('enphase_oauth_pending'));
       
-      if ((state && savedState === state) || teslaMobilePending) {
-        console.log('[OAuthCallback] Processing Tesla callback');
+      // Enphase detection
+      const enphaseOAuthPending = sessionStorage.getItem('enphase_oauth_pending');
+
+      if (isTesla) {
+        console.log('[OAuthCallback] Processing Tesla callback (state match:', !!(state && savedState === state), ', mobile pending:', !!teslaMobilePending, ', fallback:', !(state && savedState === state) && !teslaMobilePending, ')');
         
-        // Clear OAuth state immediately to prevent reprocessing
+        // Clear OAuth state
         localStorage.removeItem('tesla_oauth_state');
         localStorage.removeItem('tesla_oauth_pending');
         
@@ -107,40 +115,24 @@ export default function OAuthCallback() {
           console.log('[OAuthCallback] Tesla exchange result:', success);
           
           if (success) {
-            // Verify tokens were actually saved
-            const { data: tokens } = await supabase
-              .from('energy_tokens')
-              .select('id')
-              .eq('user_id', session.user.id)
-              .eq('provider', 'tesla')
-              .maybeSingle();
+            // Check if we're in onboarding flow
+            const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+            localStorage.removeItem('onboarding_energy_flow');
             
-            if (tokens) {
-              console.log('[OAuthCallback] Tesla tokens verified in database');
-              
-              // Check if we're in onboarding flow
-              const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
-              localStorage.removeItem('onboarding_energy_flow');
-              
-              if (isOnboardingFlow) {
-                // If we're in a popup, signal the opener window and close
-                if (window.opener && !window.opener.closed) {
-                  console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
-                  window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
-                  window.close();
-                  return;
-                }
-                // Fallback for mobile same-tab redirect
-                navigate('/onboarding?oauth_success=true&provider=tesla');
-              } else {
-                setDeviceProvider('tesla');
-                setStatus('device-selection');
+            if (isOnboardingFlow) {
+              // If we're in a popup, signal the opener window and close
+              if (window.opener && !window.opener.closed) {
+                console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
+                window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
+                window.close();
+                return;
               }
+              // Mobile same-tab redirect: navigate back to onboarding
+              console.log('[OAuthCallback] Mobile redirect: navigating to onboarding with Tesla success');
+              navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
             } else {
-              console.error('[OAuthCallback] Tesla tokens not found after exchange');
-              setErrorMessage('Token storage failed. Please try again.');
-              setStatus('error');
-              setTimeout(() => navigate('/'), 2000);
+              setDeviceProvider('tesla');
+              setStatus('device-selection');
             }
           } else {
             console.error('[OAuthCallback] Tesla exchange returned false');
@@ -157,8 +149,6 @@ export default function OAuthCallback() {
         return;
       }
 
-      // Check if this is an Enphase callback
-      const enphaseOAuthPending = sessionStorage.getItem('enphase_oauth_pending');
       if (enphaseOAuthPending) {
         console.log('[OAuthCallback] Processing Enphase callback');
         sessionStorage.removeItem('enphase_oauth_pending');
@@ -168,19 +158,18 @@ export default function OAuthCallback() {
           console.log('[OAuthCallback] Enphase exchange result:', success);
           
           if (success) {
-            // Check if we're in onboarding flow
             const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
             localStorage.removeItem('onboarding_energy_flow');
             
             if (isOnboardingFlow) {
-                if (window.opener && !window.opener.closed) {
-                  console.log('[OAuthCallback] Signaling opener window for Enphase onboarding success');
-                  window.opener.postMessage({ type: 'oauth_success', provider: 'enphase' }, window.location.origin);
-                  window.close();
-                  return;
-                }
-                navigate('/onboarding?oauth_success=true&provider=enphase');
-              } else {
+              if (window.opener && !window.opener.closed) {
+                console.log('[OAuthCallback] Signaling opener window for Enphase onboarding success');
+                window.opener.postMessage({ type: 'oauth_success', provider: 'enphase' }, window.location.origin);
+                window.close();
+                return;
+              }
+              navigate('/onboarding?oauth_success=true&provider=enphase', { replace: true });
+            } else {
               setDeviceProvider('enphase');
               setStatus('device-selection');
             }
@@ -206,6 +195,12 @@ export default function OAuthCallback() {
     };
 
     handleCallback();
+
+    // Reset module flag when component fully unmounts (navigated away)
+    return () => {
+      // Small delay to allow navigate to complete before resetting
+      setTimeout(() => { moduleProcessed = false; }, 2000);
+    };
   }, [searchParams, navigate, exchangeTeslaCode, exchangeEnphaseCode]);
 
   const handleDeviceSelectionComplete = () => {
@@ -228,7 +223,7 @@ export default function OAuthCallback() {
           </>
         )}
         {status === 'success' && (
-          <p className="text-green-500 font-medium">Account connected! Redirecting...</p>
+          <p className="text-primary font-medium">Account connected! Redirecting...</p>
         )}
         {status === 'error' && (
           <div className="space-y-2">
