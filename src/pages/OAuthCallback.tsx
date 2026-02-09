@@ -125,43 +125,69 @@ export default function OAuthCallback() {
         (err) => console.warn('[OAuthCallback] Tesla exchange rejected (expected on mobile):', err)
       );
 
-      // Poll via edge function (bypasses RLS issues on PWA where session may be weak)
-      const maxPollAttempts = 40; // 20 seconds total
+      // Give exchange-code time to complete on the server before polling
+      console.log('[OAuthCallback] Waiting 3s for exchange to complete before polling...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Poll for tokens using multiple strategies (edge function + direct DB fallback)
+      const maxPollAttempts = 30; // 30 seconds total (1s per attempt)
       let pollAttempt = 0;
       let tokensFound = false;
 
       while (pollAttempt < maxPollAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 500));
         pollAttempt++;
+        console.log('[OAuthCallback] Poll attempt', pollAttempt);
         
+        // Strategy 1: Edge function (bypasses RLS, uses service role key)
         try {
-          // CRITICAL: Wrap in timeout – Mobile Safari can hang indefinitely on fetch responses after redirects
           const checkResult = await withTimeout(
             supabase.functions.invoke('tesla-auth', {
               body: { action: 'check-tokens' },
             }).then(({ data, error }) => {
               if (error) {
-                console.warn('[OAuthCallback] Token check error:', error);
+                console.warn('[OAuthCallback] Edge fn check error:', error);
                 return null;
               }
               return data;
             }),
             3000,
-            'check-tokens poll'
+            'check-tokens edge fn'
           ).catch(() => null);
           
           if (checkResult?.exists) {
-            console.log('[OAuthCallback] Tesla tokens confirmed via edge function after', pollAttempt, 'polls');
+            console.log('[OAuthCallback] ✅ Tesla tokens confirmed via edge function on attempt', pollAttempt);
             tokensFound = true;
             break;
           }
-        } catch (pollErr) {
-          console.warn('[OAuthCallback] Poll error:', pollErr);
+        } catch (e) {
+          console.warn('[OAuthCallback] Edge fn poll failed:', e);
         }
 
-        if (pollAttempt % 10 === 0) {
-          console.log('[OAuthCallback] Still polling for Tesla tokens...', pollAttempt);
+        // Strategy 2: Direct DB query fallback (works when session is strong)
+        try {
+          const directResult = await withTimeout(
+            Promise.resolve(
+              supabase
+                .from('energy_tokens')
+                .select('id')
+                .eq('user_id', session.user.id)
+                .eq('provider', 'tesla')
+                .maybeSingle()
+            ).then(({ data }) => data),
+            2000,
+            'check-tokens direct DB'
+          ).catch(() => null);
+          
+          if (directResult) {
+            console.log('[OAuthCallback] ✅ Tesla tokens confirmed via direct DB on attempt', pollAttempt);
+            tokensFound = true;
+            break;
+          }
+        } catch (e) {
+          console.warn('[OAuthCallback] Direct DB poll failed:', e);
         }
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       if (tokensFound) {
