@@ -136,24 +136,54 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         {/* Roof */}
         <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
-        {/* Solar panel array — uniform grid on left roof slope */}
-        <g opacity="0.95" transform="rotate(-28 200 155)">
-          {/* 2×3 uniform array */}
-          <rect x="155" y="138" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="183" y="138" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="211" y="138" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="155" y="154" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="183" y="154" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="211" y="154" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          {/* Grid lines */}
-          <line x1="168" y1="138" x2="168" y2="168" stroke="#2d6090" strokeWidth="0.25" />
-          <line x1="196" y1="138" x2="196" y2="168" stroke="#2d6090" strokeWidth="0.25" />
-          <line x1="224" y1="138" x2="224" y2="168" stroke="#2d6090" strokeWidth="0.25" />
-          {/* Shimmer */}
-          <rect x="155" y="138" width="82" height="30" fill="#3b82f6" opacity="0">
-            <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
-          </rect>
-        </g>
+        {/* Solar panel array — realistic panels along left roof slope */}
+        {(() => {
+          // Left roof slope goes from peak (200,118) to eave (132,183)
+          // Place panels as a parallelogram along this slope
+          const panels: { x: number; y: number }[] = [];
+          const cols = 4;
+          const rows = 2;
+          const pw = 14; // panel width along slope
+          const ph = 9;  // panel height perpendicular to slope
+          const gap = 1.5;
+          // Slope vector: from (200,118) toward (132,183) => dx=-68, dy=65
+          // Unit along slope
+          const slopeLen = Math.sqrt(68 * 68 + 65 * 65);
+          const sx = -68 / slopeLen;
+          const sy2 = 65 / slopeLen;
+          // Perpendicular (pointing into roof)
+          const px = -sy2;
+          const py = sx;
+          // Start point — offset from peak down the slope a bit
+          const startX = 196 + sx * 12 + px * 4;
+          const startY = 122 + sy2 * 12 + py * 4;
+
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              const cx2 = startX + sx * c * (pw + gap) + px * r * (ph + gap);
+              const cy2 = startY + sy2 * c * (pw + gap) + py * r * (ph + gap);
+              panels.push({ x: cx2, y: cy2 });
+            }
+          }
+          const angle = Math.atan2(65, -68) * (180 / Math.PI); // ~-43.7 → rotation
+          return (
+            <g opacity="0.95">
+              {panels.map((p, i) => (
+                <g key={i} transform={`translate(${p.x},${p.y}) rotate(${angle + 90})`}>
+                  <rect x={-pw / 2} y={-ph / 2} width={pw} height={ph} rx={0.5} fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+                  {/* Cell divider */}
+                  <line x1={0} y1={-ph / 2} x2={0} y2={ph / 2} stroke="#2d6090" strokeWidth="0.3" />
+                </g>
+              ))}
+              {/* Subtle shimmer over the whole array */}
+              <rect x={startX - 5} y={startY - 5} width="70" height="30"
+                transform={`rotate(${angle + 90} ${startX} ${startY})`}
+                fill="#3b82f6" opacity="0">
+                <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
+              </rect>
+            </g>
+          );
+        })()}
         {/* Windows */}
         <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
         <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
@@ -198,24 +228,47 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       {/* Chimney */}
       <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
       <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Solar panel array — uniform grid on left roof slope */}
-      <g opacity="0.95" transform="rotate(-25 200 160)">
-        {/* 2×3 uniform array */}
-        <rect x="145" y="140" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="177" y="140" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="209" y="140" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="145" y="159" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="177" y="159" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="209" y="159" width="30" height="17" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        {/* Grid lines */}
-        <line x1="160" y1="140" x2="160" y2="176" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="192" y1="140" x2="192" y2="176" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="224" y1="140" x2="224" y2="176" stroke="#2d6090" strokeWidth="0.25" />
-        {/* Shimmer */}
-        <rect x="145" y="140" width="94" height="36" fill="#3b82f6" opacity="0">
-          <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
-        </rect>
-      </g>
+      {/* Solar panel array — realistic panels along left roof slope */}
+      {(() => {
+        // Left roof slope: peak (200,110) to eave (110,195) => dx=-90, dy=85
+        const panels: { x: number; y: number }[] = [];
+        const cols = 5;
+        const rows = 2;
+        const pw = 16;
+        const ph = 11;
+        const gap = 1.5;
+        const slopeLen = Math.sqrt(90 * 90 + 85 * 85);
+        const slx = -90 / slopeLen;
+        const sly = 85 / slopeLen;
+        const ppx = -sly;
+        const ppy = slx;
+        const startX = 196 + slx * 10 + ppx * 5;
+        const startY = 115 + sly * 10 + ppy * 5;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            panels.push({
+              x: startX + slx * c * (pw + gap) + ppx * r * (ph + gap),
+              y: startY + sly * c * (pw + gap) + ppy * r * (ph + gap),
+            });
+          }
+        }
+        const angle = Math.atan2(85, -90) * (180 / Math.PI);
+        return (
+          <g opacity="0.95">
+            {panels.map((p, i) => (
+              <g key={i} transform={`translate(${p.x},${p.y}) rotate(${angle + 90})`}>
+                <rect x={-pw / 2} y={-ph / 2} width={pw} height={ph} rx={0.5} fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+                <line x1={0} y1={-ph / 2} x2={0} y2={ph / 2} stroke="#2d6090" strokeWidth="0.3" />
+              </g>
+            ))}
+            <rect x={startX - 8} y={startY - 8} width="95" height="35"
+              transform={`rotate(${angle + 90} ${startX} ${startY})`}
+              fill="#3b82f6" opacity="0">
+              <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
+            </rect>
+          </g>
+        );
+      })()}
       {/* Windows */}
       <g>
         <rect x="145" y="212" width="28" height="32" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
@@ -469,13 +522,16 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36 * (flow.batteryPercent / 100)} height={5} rx={2.5} fill={colors.battery} fillOpacity={0.6} />
         </g>
 
-        {/* ── GRID ── */}
+        {/* ── GRID (power tower icon) ── */}
         <g>
           <circle cx={nodes.grid.x} cy={nodes.grid.y} r={compact ? 16 : 20} fill={colors.grid} fillOpacity={0.1} stroke={colors.grid} strokeWidth={1} strokeOpacity={0.4} />
           <foreignObject x={nodes.grid.x - 10} y={nodes.grid.y - 10} width={20} height={20}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.grid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.grid} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                {/* Power transmission tower */}
+                <path d="M8 2h8l-2 6h3l-5 14 1-8H9l1-6H8z" fill="none" />
+                <line x1="4" y1="8" x2="20" y2="8" />
+                <line x1="6" y1="4" x2="18" y2="4" />
               </svg>
             </div>
           </foreignObject>
@@ -493,13 +549,11 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         {/* ── EV CHARGER ── */}
         <g>
           <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 16 : 20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
-          {/* Clean car side profile icon */}
+          {/* Lightning bolt icon for EV charger */}
           <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 10} width={20} height={20}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10H8s-2.7.6-4.5 1.1C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2" />
-                <circle cx="7.5" cy="17" r="2.5" />
-                <circle cx="16.5" cy="17" r="2.5" />
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
               </svg>
             </div>
           </foreignObject>
@@ -530,7 +584,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Today's Stats — bottom left, polished card style */}
           {(() => {
             const sx = compact ? 10 : 12;
-            const sy = compact ? 358 : 448;
+            const sy = compact ? 348 : 435;
             const rowH = compact ? 17 : 20;
             const cardW = compact ? 125 : 150;
             const cardH = compact ? 72 : 84;
