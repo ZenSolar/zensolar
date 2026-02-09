@@ -4,16 +4,8 @@ import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
 
 import { DemoProvider } from '@/contexts/DemoContext';
-import { useTheme } from 'next-themes';
-import { useEffect } from 'react';
 
 export function DemoLayout() {
-  const { setTheme } = useTheme();
-
-  // Default demo mode to dark theme for consistent brand presentation
-  useEffect(() => {
-    setTheme('dark');
-  }, [setTheme]);
 
   return (
     <DemoProvider>
