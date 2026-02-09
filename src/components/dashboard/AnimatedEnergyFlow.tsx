@@ -101,11 +101,8 @@ function BatteryIcon({ percent, color, cx, cy }: { percent: number; color: strin
   const bars = Math.max(0, Math.min(4, Math.ceil((percent / 100) * 4)));
   return (
     <g>
-      {/* Battery outline */}
       <rect x={cx - 9} y={cy - 6} width={18} height={12} rx={2} fill="none" stroke={color} strokeWidth={1.5} />
-      {/* Battery terminal */}
       <rect x={cx + 9} y={cy - 2.5} width={2.5} height={5} rx={1} fill={color} opacity={0.6} />
-      {/* Fill bars */}
       {Array.from({ length: bars }).map((_, i) => (
         <rect
           key={i}
@@ -126,159 +123,154 @@ function BatteryIcon({ percent, color, cx, cy }: { percent: number; color: strin
   );
 }
 
-// House illustration with bigger roof and clipped solar panels
+// House illustration — enlarged
 function HouseIllustration({ compact }: { compact?: boolean }) {
   if (compact) {
     return (
       <g>
-        <ellipse cx="200" cy="242" rx="60" ry="3" fill="#0a0e18" opacity="0.5" />
+        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.5" />
         {/* House body */}
-        <rect x="162" y="185" width="76" height="55" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.6" />
-        <rect x="162" y="185" width="3" height="55" fill="#151b2a" />
-        <rect x="235" y="185" width="3" height="55" fill="#151b2a" />
-        {/* Roof — wider for panels */}
-        <polygon points="148,188 200,135 252,188" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
-        <line x1="150" y1="188" x2="250" y2="188" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
+        <rect x="150" y="180" width="100" height="73" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.6" />
+        <rect x="150" y="180" width="3" height="73" fill="#151b2a" />
+        <rect x="247" y="180" width="3" height="73" fill="#151b2a" />
+        {/* Roof */}
+        <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
         {/* Solar panels clipped to roof */}
         <clipPath id="roofClipC">
-          <polygon points="152,187 200,138 248,187" />
+          <polygon points="136,182 200,121 264,182" />
         </clipPath>
         <g clipPath="url(#roofClipC)" opacity="0.95">
-          <rect x="165" y="155" width="18" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="185" y="155" width="18" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="170" y="169" width="16" height="10" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="188" y="169" width="16" height="10" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="165" y="155" width="38" height="12" fill="#3b82f6" opacity="0">
+          <rect x="155" y="143" width="22" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="179" y="143" width="22" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="203" y="143" width="22" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="160" y="159" width="20" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="182" y="159" width="20" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="204" y="159" width="20" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
+          <rect x="155" y="143" width="70" height="14" fill="#3b82f6" opacity="0">
             <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
           </rect>
         </g>
         {/* Windows */}
-        <rect x="172" y="198" width="15" height="18" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
-        <rect x="213" y="198" width="15" height="18" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
-        <rect x="173" y="199" width="6.5" height="8" fill="#1a1800" opacity="0.5">
+        <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="163" y="196" width="8" height="10" fill="#1a1800" opacity="0.5">
           <animate attributeName="fill" values="#1a1800;#221e00;#1a1800" dur="6s" repeatCount="indefinite" />
         </rect>
         {/* Door */}
-        <rect x="193" y="216" width="14" height="24" rx="1" fill="#0c1018" stroke="#2a3448" strokeWidth="0.4" />
-        <circle cx="204" cy="229" r="0.8" fill="#4a5568" />
+        <rect x="190" y="222" width="18" height="30" rx="1" fill="#0c1018" stroke="#2a3448" strokeWidth="0.4" />
+        <circle cx="205" cy="238" r="0.8" fill="#4a5568" />
         {/* Powerwall */}
-        <rect x="140" y="210" width="14" height="26" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.6" />
-        <rect x="142.5" y="213" width="9" height="2.5" rx="0.8" fill="#22c55e" opacity="0.25">
+        <rect x="127" y="212" width="16" height="30" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.6" />
+        <rect x="129.5" y="215" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.25">
           <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
         </rect>
-        <rect x="142.5" y="217" width="9" height="2.5" rx="0.8" fill="#22c55e" opacity="0.15" />
-        <text x="147" y="230" textAnchor="middle" fill="#4a6080" fontSize="4" fontWeight="700">PW</text>
+        <rect x="129.5" y="219" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.15" />
+        <text x="135" y="234" textAnchor="middle" fill="#4a6080" fontSize="4" fontWeight="700">PW</text>
         {/* Utility meter */}
-        <rect x="244" y="206" width="12" height="16" rx="1.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.5" />
-        <circle cx="250" cy="212" r="3.5" fill="#0a1018" stroke="#3a5070" strokeWidth="0.3" />
-        <line x1="250" y1="212" x2="252" y2="210.5" stroke="#8B5CF6" strokeWidth="0.4" opacity="0.7">
-          <animateTransform attributeName="transform" type="rotate" from="0 250 212" to="360 250 212" dur="8s" repeatCount="indefinite" />
+        <rect x="256" y="210" width="14" height="18" rx="1.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.5" />
+        <circle cx="263" cy="217" r="4" fill="#0a1018" stroke="#3a5070" strokeWidth="0.3" />
+        <line x1="263" y1="217" x2="265.5" y2="215.5" stroke="#8B5CF6" strokeWidth="0.4" opacity="0.7">
+          <animateTransform attributeName="transform" type="rotate" from="0 263 217" to="360 263 217" dur="8s" repeatCount="indefinite" />
         </line>
-        <circle cx="250" cy="212" r="0.6" fill="#8B5CF6" opacity="0.6" />
-        <text x="250" y="219" textAnchor="middle" fill="#4a6080" fontSize="2.8" fontWeight="600">kWh</text>
+        <circle cx="263" cy="217" r="0.6" fill="#8B5CF6" opacity="0.6" />
+        <text x="263" y="225" textAnchor="middle" fill="#4a6080" fontSize="3" fontWeight="600">kWh</text>
         {/* Ground */}
-        <line x1="120" y1="240" x2="280" y2="240" stroke="#1a2030" strokeWidth="0.6" />
+        <line x1="110" y1="253" x2="290" y2="253" stroke="#1a2030" strokeWidth="0.6" />
       </g>
     );
   }
 
   return (
     <g>
-      <ellipse cx="200" cy="282" rx="90" ry="4" fill="#0a0e18" opacity="0.6" />
-      {/* House body */}
-      <rect x="145" y="200" width="110" height="80" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.8" />
-      <rect x="145" y="200" width="4" height="80" fill="#151b2a" />
-      <rect x="251" y="200" width="4" height="80" fill="#151b2a" />
-      {/* Roof — taller and wider so panels fit */}
-      <polygon points="125,203 200,128 275,203" fill="#111827" stroke="#2a3448" strokeWidth="0.8" />
-      <line x1="200" y1="128" x2="200" y2="132" stroke="#3a4560" strokeWidth="0.5" />
-      <line x1="127" y1="203" x2="273" y2="203" stroke="#0a0e18" strokeWidth="1.5" opacity="0.5" />
+      <ellipse cx="200" cy="298" rx="100" ry="5" fill="#0a0e18" opacity="0.6" />
+      {/* House body — bigger */}
+      <rect x="130" y="192" width="140" height="103" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.8" />
+      <rect x="130" y="192" width="4" height="103" fill="#151b2a" />
+      <rect x="266" y="192" width="4" height="103" fill="#151b2a" />
+      {/* Roof */}
+      <polygon points="110,195 200,110 290,195" fill="#111827" stroke="#2a3448" strokeWidth="0.8" />
+      <line x1="200" y1="110" x2="200" y2="114" stroke="#3a4560" strokeWidth="0.5" />
+      <line x1="112" y1="195" x2="288" y2="195" stroke="#0a0e18" strokeWidth="1.5" opacity="0.5" />
       {/* Chimney */}
-      <rect x="240" y="145" width="12" height="30" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
-      <rect x="238" y="143" width="16" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Solar panels — clipped to roof surface */}
+      <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
+      <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
+      {/* Solar panels — clipped to roof */}
       <clipPath id="roofClip">
-        <polygon points="132,201 200,132 235,165 235,201" />
+        <polygon points="116,193 200,114 248,158 248,193" />
       </clipPath>
       <g clipPath="url(#roofClip)" opacity="0.95">
-        {/* Row 1 */}
-        <rect x="145" y="155" width="28" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="175" y="155" width="28" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="205" y="155" width="26" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        {/* Grid lines row 1 */}
-        <line x1="159" y1="155" x2="159" y2="173" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="189" y1="155" x2="189" y2="173" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="218" y1="155" x2="218" y2="173" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="145" y1="164" x2="231" y2="164" stroke="#2d6090" strokeWidth="0.25" />
-        {/* Row 2 */}
-        <rect x="152" y="175" width="26" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="180" y="175" width="26" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="208" y="175" width="24" height="16" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        {/* Grid lines row 2 */}
-        <line x1="165" y1="175" x2="165" y2="191" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="193" y1="175" x2="193" y2="191" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="220" y1="175" x2="220" y2="191" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="152" y1="183" x2="232" y2="183" stroke="#2d6090" strokeWidth="0.25" />
-        {/* Shimmer */}
-        <rect x="145" y="155" width="86" height="18" fill="#3b82f6" opacity="0">
+        <rect x="135" y="140" width="32" height="20" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="169" y="140" width="32" height="20" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="203" y="140" width="30" height="20" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <line x1="151" y1="140" x2="151" y2="160" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="185" y1="140" x2="185" y2="160" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="218" y1="140" x2="218" y2="160" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="135" y1="150" x2="233" y2="150" stroke="#2d6090" strokeWidth="0.25" />
+        <rect x="142" y="162" width="30" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="174" y="162" width="30" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <rect x="206" y="162" width="28" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
+        <line x1="157" y1="162" x2="157" y2="180" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="189" y1="162" x2="189" y2="180" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="220" y1="162" x2="220" y2="180" stroke="#2d6090" strokeWidth="0.25" />
+        <line x1="142" y1="171" x2="234" y2="171" stroke="#2d6090" strokeWidth="0.25" />
+        <rect x="135" y="140" width="98" height="20" fill="#3b82f6" opacity="0">
           <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
         </rect>
       </g>
       {/* Windows */}
       <g>
-        <rect x="157" y="217" width="22" height="26" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
-        <line x1="168" y1="217" x2="168" y2="243" stroke="#2a3448" strokeWidth="0.4" />
-        <line x1="157" y1="230" x2="179" y2="230" stroke="#2a3448" strokeWidth="0.4" />
-        <rect x="158" y="218" width="9.5" height="11.5" fill="#1a1800" opacity="0.6">
+        <rect x="145" y="212" width="28" height="32" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="159" y1="212" x2="159" y2="244" stroke="#2a3448" strokeWidth="0.4" />
+        <line x1="145" y1="228" x2="173" y2="228" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="146" y="213" width="12.5" height="14.5" fill="#1a1800" opacity="0.6">
           <animate attributeName="fill" values="#1a1800;#221e00;#1a1800" dur="6s" repeatCount="indefinite" />
         </rect>
-        <rect x="169" y="231" width="9.5" height="11.5" fill="#1a1800" opacity="0.4">
+        <rect x="160" y="229" width="12.5" height="14.5" fill="#1a1800" opacity="0.4">
           <animate attributeName="fill" values="#1a1800;#1e1a00;#1a1800" dur="8s" repeatCount="indefinite" />
         </rect>
-        <rect x="221" y="217" width="22" height="26" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
-        <line x1="232" y1="217" x2="232" y2="243" stroke="#2a3448" strokeWidth="0.4" />
-        <line x1="221" y1="230" x2="243" y2="230" stroke="#2a3448" strokeWidth="0.4" />
-        <rect x="222" y="218" width="9.5" height="11.5" fill="#1a1800" opacity="0.5">
+        <rect x="228" y="212" width="28" height="32" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="242" y1="212" x2="242" y2="244" stroke="#2a3448" strokeWidth="0.4" />
+        <line x1="228" y1="228" x2="256" y2="228" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="229" y="213" width="12.5" height="14.5" fill="#1a1800" opacity="0.5">
           <animate attributeName="fill" values="#1a1800;#201c00;#1a1800" dur="7s" repeatCount="indefinite" />
         </rect>
       </g>
       {/* Door */}
-      <rect x="189" y="248" width="22" height="32" rx="1.5" fill="#0c1018" stroke="#2a3448" strokeWidth="0.6" />
-      <rect x="192" y="252" width="16" height="10" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
-      <rect x="192" y="265" width="16" height="12" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
-      <circle cx="207" cy="268" r="1.2" fill="#4a5568" />
-      <ellipse cx="200" cy="246" rx="4" ry="2" fill="#F59E0B" opacity="0.08">
+      <rect x="186" y="255" width="28" height="40" rx="1.5" fill="#0c1018" stroke="#2a3448" strokeWidth="0.6" />
+      <rect x="189" y="259" width="22" height="14" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
+      <rect x="189" y="276" width="22" height="16" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
+      <circle cx="210" cy="279" r="1.2" fill="#4a5568" />
+      <ellipse cx="200" cy="253" rx="4" ry="2" fill="#F59E0B" opacity="0.08">
         <animate attributeName="opacity" values="0.06;0.12;0.06" dur="4s" repeatCount="indefinite" />
       </ellipse>
       {/* Porch step */}
-      <rect x="185" y="278" width="30" height="3" rx="0.5" fill="#1a2030" stroke="#2a3448" strokeWidth="0.3" />
-      {/* Powerwall unit (left side) */}
-      <rect x="116" y="243" width="20" height="35" rx="2.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.8" />
-      <rect x="119.5" y="247" width="13" height="3" rx="1" fill="#22c55e" opacity="0.25">
+      <rect x="182" y="293" width="36" height="4" rx="0.5" fill="#1a2030" stroke="#2a3448" strokeWidth="0.3" />
+      {/* Powerwall unit */}
+      <rect x="100" y="252" width="22" height="42" rx="2.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.8" />
+      <rect x="104" y="257" width="14" height="3.5" rx="1" fill="#22c55e" opacity="0.25">
         <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
       </rect>
-      <rect x="119.5" y="252" width="13" height="3" rx="1" fill="#22c55e" opacity="0.15" />
-      <rect x="119.5" y="257" width="13" height="3" rx="1" fill="#22c55e" opacity="0.1" />
-      <text x="126" y="270" textAnchor="middle" fill="#4a6080" fontSize="5" fontWeight="700" letterSpacing="0.5">PW</text>
-      <line x1="126" y1="241" x2="126" y2="243" stroke="#2a4060" strokeWidth="1" />
-      {/* Utility meter (right side) */}
+      <rect x="104" y="262" width="14" height="3.5" rx="1" fill="#22c55e" opacity="0.15" />
+      <rect x="104" y="267" width="14" height="3.5" rx="1" fill="#22c55e" opacity="0.1" />
+      <text x="111" y="283" textAnchor="middle" fill="#4a6080" fontSize="5" fontWeight="700" letterSpacing="0.5">PW</text>
+      <line x1="111" y1="250" x2="111" y2="252" stroke="#2a4060" strokeWidth="1" />
+      {/* Utility meter */}
       <g>
-        <rect x="262" y="235" width="16" height="22" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.7" />
-        <circle cx="270" cy="243" r="5" fill="#0a1018" stroke="#3a5070" strokeWidth="0.4" />
-        <line x1="270" y1="243" x2="273" y2="241" stroke="#8B5CF6" strokeWidth="0.5" opacity="0.7">
-          <animateTransform attributeName="transform" type="rotate" from="0 270 243" to="360 270 243" dur="8s" repeatCount="indefinite" />
+        <rect x="278" y="245" width="18" height="24" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.7" />
+        <circle cx="287" cy="254" r="5.5" fill="#0a1018" stroke="#3a5070" strokeWidth="0.4" />
+        <line x1="287" y1="254" x2="290" y2="252" stroke="#8B5CF6" strokeWidth="0.5" opacity="0.7">
+          <animateTransform attributeName="transform" type="rotate" from="0 287 254" to="360 287 254" dur="8s" repeatCount="indefinite" />
         </line>
-        <circle cx="270" cy="243" r="0.8" fill="#8B5CF6" opacity="0.6" />
-        <text x="270" y="253" textAnchor="middle" fill="#4a6080" fontSize="3.5" fontWeight="600" letterSpacing="0.3">kWh</text>
-        <line x1="270" y1="257" x2="270" y2="264" stroke="#2a4060" strokeWidth="0.8" />
+        <circle cx="287" cy="254" r="0.8" fill="#8B5CF6" opacity="0.6" />
+        <text x="287" y="265" textAnchor="middle" fill="#4a6080" fontSize="3.5" fontWeight="600" letterSpacing="0.3">kWh</text>
+        <line x1="287" y1="269" x2="287" y2="276" stroke="#2a4060" strokeWidth="0.8" />
       </g>
       {/* Landscaping */}
-      <ellipse cx="155" cy="278" rx="8" ry="4" fill="#0f2010" opacity="0.6" />
-      <ellipse cx="245" cy="278" rx="8" ry="4" fill="#0f2010" opacity="0.6" />
-      <ellipse cx="150" cy="279" rx="5" ry="3" fill="#0a1a0a" opacity="0.5" />
-      <ellipse cx="250" cy="279" rx="5" ry="3" fill="#0a1a0a" opacity="0.5" />
+      <ellipse cx="140" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.6" />
+      <ellipse cx="260" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.6" />
       {/* Ground line */}
-      <line x1="90" y1="280" x2="310" y2="280" stroke="#1a2030" strokeWidth="0.8" />
+      <line x1="70" y1="296" x2="330" y2="296" stroke="#1a2030" strokeWidth="0.8" />
     </g>
   );
 }
@@ -314,28 +306,28 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
     ev: '#3B82F6',
   };
 
-  // Responsive node positions
+  // Responsive node positions — tighter on mobile
   const nodes = compact
     ? {
-        solar: { x: 200, y: 70 },
-        home: { x: 200, y: 195 },
-        battery: { x: 60, y: 225 },
-        grid: { x: 340, y: 225 },
-        ev: { x: 200, y: 320 },
+        solar: { x: 200, y: 55 },
+        home: { x: 200, y: 190 },
+        battery: { x: 55, y: 210 },
+        grid: { x: 345, y: 210 },
+        ev: { x: 200, y: 310 },
       }
     : {
-        solar: { x: 200, y: 80 },
-        home: { x: 200, y: 225 },
-        battery: { x: 55, y: 260 },
-        grid: { x: 345, y: 260 },
-        ev: { x: 200, y: 370 },
+        solar: { x: 200, y: 70 },
+        home: { x: 200, y: 230 },
+        battery: { x: 50, y: 265 },
+        grid: { x: 350, y: 265 },
+        ev: { x: 200, y: 385 },
       };
 
   // Meter position (right side of house)
-  const meter = compact ? { x: 250, y: 212 } : { x: 270, y: 243 };
+  const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 390' : '0 0 400 460';
-  const maxH = compact ? '400px' : '560px';
+  const vb = compact ? '0 0 400 380' : '0 0 400 470';
+  const maxH = compact ? '390px' : '570px';
   const labelFs = compact ? 8 : 10;
   const valueFs = compact ? 13 : 18;
   const subValueFs = compact ? 10 : 15;
@@ -394,45 +386,39 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         <HouseIllustration compact={compact} />
 
         {/* ── Connection paths ── */}
-        {/* Solar → Home */}
         <path
           id="p-solar-home"
           d={`M${nodes.solar.x},${nodes.solar.y + 22} L${nodes.home.x},${nodes.home.y - 30}`}
           fill="none" stroke={colors.solar}
           strokeWidth={solarToHome > 0 ? 1 : 0.3} strokeOpacity={solarToHome > 0 ? 0.25 : 0.06}
         />
-        {/* Solar → Battery */}
         <path
           id="p-solar-bat"
           d={`M${nodes.solar.x - 30},${nodes.solar.y + 18} C${nodes.solar.x - 80},${nodes.solar.y + 70} ${nodes.battery.x + 20},${nodes.battery.y - 50} ${nodes.battery.x},${nodes.battery.y - 25}`}
           fill="none" stroke={colors.solar}
           strokeWidth={solarToBattery > 0 ? 1 : 0.3} strokeOpacity={solarToBattery > 0 ? 0.25 : 0.06}
         />
-        {/* Battery → Home */}
         <path
           id="p-bat-home"
           d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
           fill="none" stroke={colors.battery}
           strokeWidth={batteryToHome > 0 ? 1 : 0.3} strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
         />
-        {/* Home (meter) → Grid — export */}
         <path
           id="p-solar-grid"
           d={`M${meter.x + 8},${meter.y} C${meter.x + 30},${meter.y} ${nodes.grid.x - 30},${nodes.grid.y - 15} ${nodes.grid.x},${nodes.grid.y - 20}`}
           fill="none" stroke={colors.grid}
           strokeWidth={solarToGrid > 0 ? 1 : 0.3} strokeOpacity={solarToGrid > 0 ? 0.25 : 0.06}
         />
-        {/* Grid → Home (meter) — import */}
         <path
           id="p-grid-home"
           d={`M${nodes.grid.x},${nodes.grid.y - 20} C${nodes.grid.x - 30},${nodes.grid.y - 15} ${meter.x + 30},${meter.y} ${meter.x + 8},${meter.y}`}
           fill="none" stroke={colors.grid}
           strokeWidth={gridToHome > 0 ? 1 : 0.3} strokeOpacity={gridToHome > 0 ? 0.25 : 0.06}
         />
-        {/* Home → EV */}
         <path
           id="p-to-ev"
-          d={`M${nodes.home.x},${nodes.home.y + (compact ? 45 : 55)} C${nodes.home.x},${nodes.home.y + (compact ? 80 : 95)} ${nodes.ev.x},${nodes.ev.y - 55} ${nodes.ev.x},${nodes.ev.y - 25}`}
+          d={`M${nodes.home.x},${nodes.home.y + (compact ? 60 : 65)} C${nodes.home.x},${nodes.home.y + (compact ? 90 : 100)} ${nodes.ev.x},${nodes.ev.y - 55} ${nodes.ev.x},${nodes.ev.y - 25}`}
           fill="none" stroke={colors.ev}
           strokeWidth={solarToEV > 0 ? 1 : 0.3} strokeOpacity={solarToEV > 0 ? 0.25 : 0.06}
         />
@@ -473,7 +459,6 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         {/* ── POWERWALL ── */}
         <g>
           <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 16 : 20} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={1} strokeOpacity={0.4} />
-          {/* Battery icon with fill bars */}
           <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">POWERWALL</text>
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
@@ -482,7 +467,6 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 48 : 63)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 9 : 11}>
             · {flow.batteryPercent}%
           </text>
-          {/* Battery bar */}
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36} height={5} rx={2.5} fill="#1a2030" />
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36 * (flow.batteryPercent / 100)} height={5} rx={2.5} fill={colors.battery} fillOpacity={0.6} />
         </g>
@@ -508,30 +492,26 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           )}
         </g>
 
-        {/* ── EV — MODEL X ── */}
+        {/* ── EV — MODEL X (simplified) ── */}
         <g>
           <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 16 : 20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
-          <foreignObject x={nodes.ev.x - 14} y={nodes.ev.y - 12} width={28} height={24}>
+          <foreignObject x={nodes.ev.x - 12} y={nodes.ev.y - 10} width={24} height={20}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 40 24" fill="none" className="w-7 h-5">
-                <path d="M4 16 C4 16 5 10 8 8 C11 6 14 5.5 20 5.5 C26 5.5 29 6 32 8 C35 10 36 16 36 16 L36 17 C36 18.1 35.1 19 34 19 L6 19 C4.9 19 4 18.1 4 17 Z" fill="#1e293b" stroke={colors.ev} strokeWidth="0.8" />
-                <path d="M11 14 C11 14 13 8.5 20 8.5 C27 8.5 29 14 29 14 Z" fill="#0f172a" stroke={colors.ev} strokeWidth="0.4" opacity="0.7" />
-                <path d="M10 11 C10 11 8 6 7 4 C6.5 3 7 2.5 7.5 3 C9 5 11 8 11 8" fill="none" stroke={colors.ev} strokeWidth="0.7" opacity="0.5" />
-                <path d="M30 11 C30 11 32 6 33 4 C33.5 3 33 2.5 32.5 3 C31 5 29 8 29 8" fill="none" stroke={colors.ev} strokeWidth="0.7" opacity="0.5" />
-                <ellipse cx="7" cy="14" rx="2" ry="1.2" fill={colors.ev} opacity="0.6">
+              <svg viewBox="0 0 32 18" fill="none" className="w-6 h-4">
+                {/* Simple clean car silhouette */}
+                <path d="M4 12 C4 12 6 7 10 6 C14 5 18 5 22 6 C26 7 28 12 28 12 L28 13 C28 14 27 15 26 15 L6 15 C5 15 4 14 4 13 Z" fill="#1e293b" stroke={colors.ev} strokeWidth="0.8" />
+                {/* Windshield */}
+                <path d="M10 11 C10 11 12 7 16 7 C20 7 22 11 22 11 Z" fill="#0f172a" stroke={colors.ev} strokeWidth="0.4" opacity="0.6" />
+                {/* Headlights */}
+                <ellipse cx="5.5" cy="11.5" rx="1.5" ry="1" fill={colors.ev} opacity="0.6">
                   {flow.evPower > 0 && <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />}
                 </ellipse>
-                <ellipse cx="33" cy="14" rx="2" ry="1.2" fill={colors.ev} opacity="0.6">
+                <ellipse cx="26.5" cy="11.5" rx="1.5" ry="1" fill={colors.ev} opacity="0.6">
                   {flow.evPower > 0 && <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />}
                 </ellipse>
-                <circle cx="11" cy="18.5" r="2.5" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
-                <circle cx="29" cy="18.5" r="2.5" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
-                {flow.evPower > 0 && (
-                  <circle cx="33" cy="11" r="1.5" fill={colors.ev}>
-                    <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" />
-                    <animate attributeName="r" values="1;2;1" dur="1.5s" repeatCount="indefinite" />
-                  </circle>
-                )}
+                {/* Wheels */}
+                <circle cx="9" cy="15" r="2" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
+                <circle cx="23" cy="15" r="2" fill="#0a0e18" stroke="#374151" strokeWidth="0.5" />
               </svg>
             </div>
           </foreignObject>
@@ -557,20 +537,35 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           )}
         </g>
 
-        {/* ── Footer: status + stacked manufacturer pills ── */}
+        {/* ── Footer ── */}
         <g>
-          {/* Status indicator — bottom left */}
-          <circle cx="20" cy={compact ? 355 : 430} r={3.5} fill={flow.solarPower > 0 ? colors.solar : '#4b5563'}>
-            {flow.solarPower > 0 && <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />}
-          </circle>
-          <text x="28" y={compact ? 358 : 433} fill="#6b7280" fontSize={compact ? 7 : 8}>
-            {flow.solarPower > 0 ? 'Producing' : 'Not producing'}
-          </text>
+          {/* Status indicators — bottom left, stacked */}
+          {(() => {
+            const sx = 18;
+            const sy = compact ? 340 : 425;
+            const gap = compact ? 13 : 15;
+            const fs = compact ? 7 : 8;
+            const indicators = [
+              { active: flow.solarPower > 0, color: colors.solar, label: 'Producing' },
+              { active: flow.batteryPower < 0, color: colors.battery, label: 'Discharging' },
+              { active: flow.evPower > 0, color: colors.ev, label: 'EV Charging' },
+            ];
+            return indicators.map((ind, i) => (
+              <g key={ind.label}>
+                <circle cx={sx} cy={sy + i * gap} r={3.5} fill={ind.active ? ind.color : '#4b5563'} opacity={ind.active ? 1 : 0.4}>
+                  {ind.active && <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />}
+                </circle>
+                <text x={sx + 8} y={sy + i * gap + 3} fill={ind.active ? '#d1d5db' : '#4b5563'} fontSize={fs} fontWeight={ind.active ? '600' : '400'}>
+                  {ind.label}
+                </text>
+              </g>
+            ));
+          })()}
 
           {/* Stacked manufacturer pills — bottom right */}
           {(() => {
             const bx = compact ? 340 : 355;
-            const by = compact ? 340 : 415;
+            const by = compact ? 340 : 425;
             const gap = compact ? 13 : 15;
             const pillW = compact ? 50 : 58;
             const pillH = compact ? 11 : 13;
