@@ -53,8 +53,9 @@ export default function OAuthCallback() {
       }
 
       // Wait for session to be restored (important after mobile redirect)
+      // Mobile redirects can take longer to restore sessions, especially for new signups
       let retries = 0;
-      const maxRetries = 10;
+      const maxRetries = 30; // 15 seconds total
       let session = null;
       
       while (retries < maxRetries) {
@@ -64,6 +65,17 @@ export default function OAuthCallback() {
         if (session) {
           console.log('[OAuthCallback] Session restored after', retries, 'retries');
           break;
+        }
+        
+        // Try refreshing the session explicitly on every 5th attempt
+        if (retries > 0 && retries % 5 === 0) {
+          console.log('[OAuthCallback] Attempting explicit session refresh');
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          if (refreshData.session) {
+            session = refreshData.session;
+            console.log('[OAuthCallback] Session restored via explicit refresh');
+            break;
+          }
         }
         
         console.log('[OAuthCallback] Waiting for session restoration, attempt', retries + 1);
