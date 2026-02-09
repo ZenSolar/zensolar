@@ -616,7 +616,7 @@ export default function Onboarding() {
       )}
       
       {step === 'zensolar-setup' && (
-        <div className="pt-16">
+        <div className="pt-24">
           <WalletSetupScreen 
             onComplete={handleWalletComplete}
             onBack={handleBack}
@@ -625,7 +625,7 @@ export default function Onboarding() {
       )}
       
       {step === 'external-wallet' && (
-        <div className="pt-16">
+        <div className="pt-24">
           <ExternalWalletScreen
             onComplete={handleWalletComplete}
             onBack={handleBack}
@@ -634,7 +634,7 @@ export default function Onboarding() {
       )}
       
       {step === 'wallet-success' && (
-        <div className="pt-16">
+        <div className="pt-24">
           <OnboardingSuccessScreen 
             walletAddress={walletAddress}
             walletType={walletType}
@@ -644,7 +644,7 @@ export default function Onboarding() {
       )}
 
       {(step === 'energy-connect' || step === 'device-selection') && (
-        <div className="pt-16">
+        <div className="pt-24">
           <EnergyConnectionScreen
             onConnect={handleEnergyConnect}
             onSkip={handleEnergySkip}
@@ -657,7 +657,7 @@ export default function Onboarding() {
       )}
 
       {step === 'energy-success' && (
-        <div className="pt-16">
+        <div className="pt-24">
           <EnergySuccessScreen
             provider={lastConnectedProvider}
             connectedProviders={connectedProviders}

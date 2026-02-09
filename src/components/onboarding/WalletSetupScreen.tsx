@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Fingerprint, Sparkles, Shield, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCoinbaseSmartWallet } from '@/hooks/useCoinbaseSmartWallet';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+
 
 interface WalletSetupScreenProps {
   onComplete: (walletAddress: string) => void;
@@ -120,15 +120,6 @@ function ReadyStep({ onStart }: { onStart: () => void }) {
       exit={{ opacity: 0, scale: 0.95 }}
       className="text-center"
     >
-      {/* ZenSolar Logo */}
-      <motion.img
-        src={zenLogo}
-        alt="ZenSolar"
-        className="h-8 w-auto mx-auto mb-8 dark:drop-shadow-[0_0_20px_rgba(34,197,94,0.3)]"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-      />
-
       {/* Icon */}
       <motion.div
         initial={{ scale: 0 }}
