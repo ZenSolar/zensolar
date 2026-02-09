@@ -319,7 +319,7 @@ export default function Auth() {
         />
       </div>
 
-      <div className="relative z-10 flex min-h-[100dvh] w-full flex-col lg:flex-row pt-safe pb-safe px-safe py-6 lg:py-0">
+      <div className="relative z-10 flex min-h-[100dvh] w-full flex-col lg:flex-row items-center justify-center pt-safe pb-safe px-safe py-6 lg:py-0">
         {/* Left side - Branding (hidden on mobile) */}
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12">
           <div className="max-w-md text-center">
@@ -375,7 +375,7 @@ export default function Auth() {
       </div>
 
         {/* Right side - Auth form */}
-        <div className="flex w-full flex-1 items-start lg:items-center justify-center lg:w-1/2 px-3 sm:px-6">
+        <div className="flex w-full flex-1 items-center justify-center lg:w-1/2 px-3 sm:px-6">
           <Card className="w-full max-w-md bg-card/40 backdrop-blur-xl border-border/50 shadow-2xl">
           <CardHeader className="text-center pb-3 pt-5">
             {/* Mobile logo */}
