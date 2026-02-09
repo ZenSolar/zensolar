@@ -136,49 +136,44 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         {/* Roof */}
         <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
-        {/* Solar panel array — realistic panels along left roof slope */}
+        {/* Solar panels — pyramid: 3 bottom, 2 middle, 1 top on left roof slope */}
+        {/* Left roof: peak (200,118) to eave (132,183). Slope angle ≈ -43.7° */}
         {(() => {
-          // Left roof slope goes from peak (200,118) to eave (132,183)
-          // Place panels as a parallelogram along this slope
-          const panels: { x: number; y: number }[] = [];
-          const cols = 4;
-          const rows = 2;
-          const pw = 14; // panel width along slope
-          const ph = 9;  // panel height perpendicular to slope
-          const gap = 1.5;
-          // Slope vector: from (200,118) toward (132,183) => dx=-68, dy=65
-          // Unit along slope
-          const slopeLen = Math.sqrt(68 * 68 + 65 * 65);
-          const sx = -68 / slopeLen;
-          const sy2 = 65 / slopeLen;
-          // Perpendicular (pointing into roof)
-          const px = -sy2;
-          const py = sx;
-          // Start point — offset from peak down the slope a bit
-          const startX = 196 + sx * 12 + px * 4;
-          const startY = 122 + sy2 * 12 + py * 4;
-
-          for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-              const cx2 = startX + sx * c * (pw + gap) + px * r * (ph + gap);
-              const cy2 = startY + sy2 * c * (pw + gap) + py * r * (ph + gap);
-              panels.push({ x: cx2, y: cy2 });
+          const angle = Math.atan2(183 - 118, 132 - 200) * (180 / Math.PI) + 90; // rotation to align with slope
+          // Along-slope unit vector (toward eave)
+          const asx = (132 - 200) / 94.1;  // -0.723
+          const asy = (183 - 118) / 94.1;  //  0.691
+          // Perpendicular unit (into roof surface, pointing right-upward)
+          const apx = -asy; // -0.691
+          const apy = asx;  // -0.723
+          const pw = 13, ph = 9, gap = 1.5;
+          // Anchor: bottom-left of bottom row, near eave
+          // Place bottom row starting ~8px from eave along slope
+          const baseX = 132 + (200 - 132) * 0.12; // slightly inward from eave
+          const baseY = 183 + (118 - 183) * 0.12;
+          // Rows go UP the slope (toward peak). Each row: centered panels.
+          const rows = [3, 2, 1]; // bottom to top
+          const panelPositions: { x: number; y: number }[] = [];
+          rows.forEach((count, rowIdx) => {
+            const rowOffset = rowIdx * (ph + gap); // distance up the slope
+            const totalW = count * pw + (count - 1) * gap;
+            for (let c = 0; c < count; c++) {
+              const along = -(totalW / 2) + c * (pw + gap) + pw / 2; // centered laterally
+              const px2 = baseX - asx * rowOffset + apx * along;
+              const py2 = baseY - asy * rowOffset + apy * along;
+              panelPositions.push({ x: px2, y: py2 });
             }
-          }
-          const angle = Math.atan2(65, -68) * (180 / Math.PI); // ~-43.7 → rotation
+          });
           return (
             <g opacity="0.95">
-              {panels.map((p, i) => (
-                <g key={i} transform={`translate(${p.x},${p.y}) rotate(${angle + 90})`}>
+              {panelPositions.map((p, i) => (
+                <g key={i} transform={`translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) rotate(${angle.toFixed(1)})`}>
                   <rect x={-pw / 2} y={-ph / 2} width={pw} height={ph} rx={0.5} fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-                  {/* Cell divider */}
                   <line x1={0} y1={-ph / 2} x2={0} y2={ph / 2} stroke="#2d6090" strokeWidth="0.3" />
                 </g>
               ))}
-              {/* Subtle shimmer over the whole array */}
-              <rect x={startX - 5} y={startY - 5} width="70" height="30"
-                transform={`rotate(${angle + 90} ${startX} ${startY})`}
-                fill="#3b82f6" opacity="0">
+              {/* Shimmer */}
+              <rect x="148" y="135" width="45" height="45" fill="#3b82f6" opacity="0" transform={`rotate(${angle.toFixed(1)} 170 158)`}>
                 <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
               </rect>
             </g>
@@ -228,42 +223,37 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       {/* Chimney */}
       <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
       <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Solar panel array — realistic panels along left roof slope */}
+      {/* Solar panels — pyramid: 3 bottom, 2 middle, 1 top on left roof slope */}
       {(() => {
-        // Left roof slope: peak (200,110) to eave (110,195) => dx=-90, dy=85
-        const panels: { x: number; y: number }[] = [];
-        const cols = 5;
-        const rows = 2;
-        const pw = 16;
-        const ph = 11;
-        const gap = 1.5;
-        const slopeLen = Math.sqrt(90 * 90 + 85 * 85);
-        const slx = -90 / slopeLen;
-        const sly = 85 / slopeLen;
-        const ppx = -sly;
-        const ppy = slx;
-        const startX = 196 + slx * 10 + ppx * 5;
-        const startY = 115 + sly * 10 + ppy * 5;
-        for (let r = 0; r < rows; r++) {
-          for (let c = 0; c < cols; c++) {
-            panels.push({
-              x: startX + slx * c * (pw + gap) + ppx * r * (ph + gap),
-              y: startY + sly * c * (pw + gap) + ppy * r * (ph + gap),
-            });
+        const angle = Math.atan2(195 - 110, 110 - 200) * (180 / Math.PI) + 90;
+        const asx = (110 - 200) / 123.7;
+        const asy = (195 - 110) / 123.7;
+        const apx = -asy;
+        const apy = asx;
+        const pw = 17, ph = 12, gap = 2;
+        const baseX = 110 + (200 - 110) * 0.12;
+        const baseY = 195 + (110 - 195) * 0.12;
+        const rows = [3, 2, 1];
+        const panelPositions: { x: number; y: number }[] = [];
+        rows.forEach((count, rowIdx) => {
+          const rowOffset = rowIdx * (ph + gap);
+          const totalW = count * pw + (count - 1) * gap;
+          for (let c = 0; c < count; c++) {
+            const along = -(totalW / 2) + c * (pw + gap) + pw / 2;
+            const px2 = baseX - asx * rowOffset + apx * along;
+            const py2 = baseY - asy * rowOffset + apy * along;
+            panelPositions.push({ x: px2, y: py2 });
           }
-        }
-        const angle = Math.atan2(85, -90) * (180 / Math.PI);
+        });
         return (
           <g opacity="0.95">
-            {panels.map((p, i) => (
-              <g key={i} transform={`translate(${p.x},${p.y}) rotate(${angle + 90})`}>
+            {panelPositions.map((p, i) => (
+              <g key={i} transform={`translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) rotate(${angle.toFixed(1)})`}>
                 <rect x={-pw / 2} y={-ph / 2} width={pw} height={ph} rx={0.5} fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
                 <line x1={0} y1={-ph / 2} x2={0} y2={ph / 2} stroke="#2d6090" strokeWidth="0.3" />
               </g>
             ))}
-            <rect x={startX - 8} y={startY - 8} width="95" height="35"
-              transform={`rotate(${angle + 90} ${startX} ${startY})`}
-              fill="#3b82f6" opacity="0">
+            <rect x="130" y="140" width="60" height="55" fill="#3b82f6" opacity="0" transform={`rotate(${angle.toFixed(1)} 160 168)`}>
               <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
             </rect>
           </g>
