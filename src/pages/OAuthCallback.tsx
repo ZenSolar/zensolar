@@ -135,17 +135,25 @@ export default function OAuthCallback() {
         pollAttempt++;
         
         try {
-          const { data: checkResult, error: checkError } = await supabase.functions.invoke('tesla-auth', {
-            body: { action: 'check-tokens' },
-          });
+          // CRITICAL: Wrap in timeout – Mobile Safari can hang indefinitely on fetch responses after redirects
+          const checkResult = await withTimeout(
+            supabase.functions.invoke('tesla-auth', {
+              body: { action: 'check-tokens' },
+            }).then(({ data, error }) => {
+              if (error) {
+                console.warn('[OAuthCallback] Token check error:', error);
+                return null;
+              }
+              return data;
+            }),
+            3000,
+            'check-tokens poll'
+          ).catch(() => null);
           
           if (checkResult?.exists) {
             console.log('[OAuthCallback] Tesla tokens confirmed via edge function after', pollAttempt, 'polls');
             tokensFound = true;
             break;
-          }
-          if (checkError) {
-            console.warn('[OAuthCallback] Token check error:', checkError);
           }
         } catch (pollErr) {
           console.warn('[OAuthCallback] Poll error:', pollErr);
