@@ -136,26 +136,19 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         {/* Roof */}
         <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
-        {/* Solar panels — 4-3-2-1 pyramid fitted to roof triangle */}
-        {/* Roof: peak (200,118) eaves (132,183)-(268,183). Triangle height=65, base half=68 */}
+        {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
         {(() => {
-          const peakY = 121, eaveY = 180; // inset slightly from actual roof edges
-          const cx = 200;
-          const roofHalfBase = 62; // inset from eave edges
+          const peakY = 121, eaveY = 180, cx = 200;
           const rows = [4, 3, 2, 1];
           const totalRows = rows.length;
           const rowH = (eaveY - peakY) / totalRows;
-          const ph = rowH - 2; // panel height with 2px gap
+          const ph = rowH - 2;
+          const pw = 18; // fixed uniform width
           const gap = 2;
           return (
             <g opacity="0.95">
               {rows.map((count, ri) => {
                 const rowTop = peakY + ri * rowH;
-                // Width available at this row's vertical center
-                const rowMid = rowTop + rowH / 2;
-                const frac = (eaveY - rowMid) / (eaveY - peakY);
-                const availW = roofHalfBase * 2 * (1 - frac) * 0.85;
-                const pw = (availW - (count - 1) * gap) / count;
                 const totalW = count * pw + (count - 1) * gap;
                 const startX = cx - totalW / 2;
                 return Array.from({ length: count }).map((_, ci) => (
@@ -222,25 +215,19 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       {/* Chimney */}
       <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
       <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Solar panels — 4-3-2-1 pyramid fitted to roof triangle */}
-      {/* Roof: peak (200,110) eaves (110,195)-(290,195). */}
+      {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
       {(() => {
-        const peakY = 115, eaveY = 191;
-        const cx = 200;
-        const roofHalfBase = 82;
+        const peakY = 115, eaveY = 191, cx = 200;
         const rows = [4, 3, 2, 1];
         const totalRows = rows.length;
         const rowH = (eaveY - peakY) / totalRows;
-        const ph = rowH - 2;
+        const ph = rowH - 2.5;
+        const pw = 24; // fixed uniform width
         const gap = 2.5;
         return (
           <g opacity="0.95">
             {rows.map((count, ri) => {
               const rowTop = peakY + ri * rowH;
-              const rowMid = rowTop + rowH / 2;
-              const frac = (eaveY - rowMid) / (eaveY - peakY);
-              const availW = roofHalfBase * 2 * (1 - frac) * 0.82;
-              const pw = (availW - (count - 1) * gap) / count;
               const totalW = count * pw + (count - 1) * gap;
               const startX = cx - totalW / 2;
               return Array.from({ length: count }).map((_, ci) => (
@@ -493,12 +480,13 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           </text>
         </g>
 
-        {/* ── HOME ── label on the house body wall */}
+        {/* ── HOME ── centered in house body */}
         <g>
-          <text x={nodes.home.x} y={nodes.home.y + (compact ? 5 : 10)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
-          <text x={nodes.home.x} y={nodes.home.y + (compact ? -8 : -5)} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
+          {/* Compact: house body y=180-253, center~216. Desktop: y=192-295, center~243 */}
+          <text x={nodes.home.x} y={compact ? 220 : 248} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
             {flow.homePower.toFixed(1)} kW
           </text>
+          <text x={nodes.home.x} y={compact ? 232 : 261} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
         </g>
 
         {/* ── POWERWALL ── */}
