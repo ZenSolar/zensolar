@@ -136,22 +136,48 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         {/* Roof */}
         <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
-        {/* Solar panels — 3-2-1 pyramid inside roof triangle */}
-        <g opacity="0.95">
-          {/* Row 1 (bottom, 3 panels) — just above gutter at y=183 */}
-          <rect x="164" y="166" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="186" y="166" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="208" y="166" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          {/* Row 2 (middle, 2 panels) */}
-          <rect x="175" y="153" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="197" y="153" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          {/* Row 3 (top, 1 panel) */}
-          <rect x="186" y="140" width="20" height="11" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          {/* Shimmer */}
-          <rect x="162" y="138" width="68" height="41" fill="#3b82f6" opacity="0" rx="2">
-            <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
-          </rect>
-        </g>
+        {/* Solar panels — 4-3-2-1 pyramid fitted to roof triangle */}
+        {/* Roof: peak (200,118) eaves (132,183)-(268,183). Triangle height=65, base half=68 */}
+        {(() => {
+          const peakY = 121, eaveY = 180; // inset slightly from actual roof edges
+          const cx = 200;
+          const roofHalfBase = 62; // inset from eave edges
+          const rows = [4, 3, 2, 1];
+          const totalRows = rows.length;
+          const rowH = (eaveY - peakY) / totalRows;
+          const ph = rowH - 2; // panel height with 2px gap
+          const gap = 2;
+          return (
+            <g opacity="0.95">
+              {rows.map((count, ri) => {
+                const rowTop = peakY + ri * rowH;
+                // Width available at this row's vertical center
+                const rowMid = rowTop + rowH / 2;
+                const frac = (eaveY - rowMid) / (eaveY - peakY);
+                const availW = roofHalfBase * 2 * (1 - frac) * 0.85;
+                const pw = (availW - (count - 1) * gap) / count;
+                const totalW = count * pw + (count - 1) * gap;
+                const startX = cx - totalW / 2;
+                return Array.from({ length: count }).map((_, ci) => (
+                  <rect
+                    key={`${ri}-${ci}`}
+                    x={startX + ci * (pw + gap)}
+                    y={rowTop + 1}
+                    width={pw}
+                    height={ph}
+                    rx={1}
+                    fill="#1a3a60"
+                    stroke="#2d6090"
+                    strokeWidth="0.5"
+                  />
+                ));
+              })}
+              <rect x="155" y={peakY - 2} width="90" height={eaveY - peakY + 4} fill="#3b82f6" opacity="0" rx="2">
+                <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
+              </rect>
+            </g>
+          );
+        })()}
         {/* Windows */}
         <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
         <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
@@ -196,22 +222,47 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       {/* Chimney */}
       <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
       <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Solar panels — 3-2-1 pyramid inside roof triangle */}
-      <g opacity="0.95">
-        {/* Row 1 (bottom, 3 panels) — just above gutter at y=195 */}
-        <rect x="152" y="175" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="181" y="175" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="210" y="175" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        {/* Row 2 (middle, 2 panels) */}
-        <rect x="166" y="159" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="195" y="159" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        {/* Row 3 (top, 1 panel — near peak) */}
-        <rect x="181" y="143" width="26" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        {/* Shimmer */}
-        <rect x="150" y="141" width="88" height="50" fill="#3b82f6" opacity="0" rx="2">
-          <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
-        </rect>
-      </g>
+      {/* Solar panels — 4-3-2-1 pyramid fitted to roof triangle */}
+      {/* Roof: peak (200,110) eaves (110,195)-(290,195). */}
+      {(() => {
+        const peakY = 115, eaveY = 191;
+        const cx = 200;
+        const roofHalfBase = 82;
+        const rows = [4, 3, 2, 1];
+        const totalRows = rows.length;
+        const rowH = (eaveY - peakY) / totalRows;
+        const ph = rowH - 2;
+        const gap = 2.5;
+        return (
+          <g opacity="0.95">
+            {rows.map((count, ri) => {
+              const rowTop = peakY + ri * rowH;
+              const rowMid = rowTop + rowH / 2;
+              const frac = (eaveY - rowMid) / (eaveY - peakY);
+              const availW = roofHalfBase * 2 * (1 - frac) * 0.82;
+              const pw = (availW - (count - 1) * gap) / count;
+              const totalW = count * pw + (count - 1) * gap;
+              const startX = cx - totalW / 2;
+              return Array.from({ length: count }).map((_, ci) => (
+                <rect
+                  key={`${ri}-${ci}`}
+                  x={startX + ci * (pw + gap)}
+                  y={rowTop + 1}
+                  width={pw}
+                  height={ph}
+                  rx={1}
+                  fill="#1a3a60"
+                  stroke="#2d6090"
+                  strokeWidth="0.6"
+                />
+              ));
+            })}
+            <rect x="140" y={peakY - 2} width="120" height={eaveY - peakY + 4} fill="#3b82f6" opacity="0" rx="2">
+              <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
+            </rect>
+          </g>
+        );
+      })()}
       {/* Windows */}
       <g>
         <rect x="145" y="212" width="28" height="32" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
