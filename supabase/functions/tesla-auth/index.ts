@@ -154,6 +154,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check if tokens exist for the current user (used by OAuth callback polling)
+    if (action === "check-tokens") {
+      const { data: tokenCheck } = await supabaseClient
+        .from("energy_tokens")
+        .select("id, provider")
+        .eq("user_id", user.id)
+        .eq("provider", "tesla")
+        .maybeSingle();
+
+      return new Response(JSON.stringify({ 
+        exists: !!tokenCheck,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Refresh access token
     if (action === "refresh-token") {
       const { refreshToken } = body;
