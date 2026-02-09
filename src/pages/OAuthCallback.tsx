@@ -116,46 +116,25 @@ export default function OAuthCallback() {
       localStorage.removeItem('tesla_oauth_state');
       localStorage.removeItem('tesla_oauth_pending');
       
-      try {
-        // Wrap exchange in a 20-second timeout to prevent hanging forever
-        console.log('[OAuthCallback] Calling exchangeTeslaCode...');
-        const success = await withTimeout(
-          exchangeTeslaCode(code),
-          20000,
-          'Tesla code exchange'
-        );
-        console.log('[OAuthCallback] Tesla exchange result:', success);
+      // Fire the exchange request but DON'T wait for the response.
+      // Mobile Safari often drops fetch responses after redirects.
+      // Instead, we fire-and-forget, then poll the DB for success.
+      console.log('[OAuthCallback] Firing Tesla code exchange (fire-and-forget)...');
+      exchangeTeslaCode(code).then(
+        (result) => console.log('[OAuthCallback] Tesla exchange resolved:', result),
+        (err) => console.warn('[OAuthCallback] Tesla exchange rejected (expected on mobile):', err)
+      );
+
+      // Poll the database for tokens to appear (server processes in background)
+      const maxPollAttempts = 40; // 20 seconds total
+      let pollAttempt = 0;
+      let tokensFound = false;
+
+      while (pollAttempt < maxPollAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        pollAttempt++;
         
-        if (success) {
-          const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
-          localStorage.removeItem('onboarding_energy_flow');
-          
-          if (isOnboardingFlow) {
-            if (window.opener && !window.opener.closed) {
-              console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
-              window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
-              window.close();
-              return;
-            }
-            console.log('[OAuthCallback] Mobile redirect: navigating to onboarding with Tesla success');
-            navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
-          } else {
-            setDeviceProvider('tesla');
-            setStatus('device-selection');
-          }
-        } else {
-          console.error('[OAuthCallback] Tesla exchange returned false');
-          setErrorMessage('Failed to exchange authorization code. Please try connecting again.');
-          setStatus('error');
-          setCanRetry(true);
-          setTimeout(() => navigate('/'), 5000);
-        }
-      } catch (err) {
-        console.error('[OAuthCallback] Tesla exchange error:', err);
-        // On timeout/error, check if the exchange actually succeeded server-side
-        // by looking for the token in the database
         try {
-          console.log('[OAuthCallback] Checking if Tesla tokens were saved despite client error...');
           const { data: tokenCheck } = await supabase
             .from('energy_tokens')
             .select('id')
@@ -164,27 +143,38 @@ export default function OAuthCallback() {
             .maybeSingle();
           
           if (tokenCheck) {
-            console.log('[OAuthCallback] Tesla tokens found! Exchange succeeded server-side.');
-            const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
-            localStorage.removeItem('onboarding_energy_flow');
-            
-            if (isOnboardingFlow) {
-              if (window.opener && !window.opener.closed) {
-                window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
-                window.close();
-                return;
-              }
-              navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
-            } else {
-              setDeviceProvider('tesla');
-              setStatus('device-selection');
-            }
+            console.log('[OAuthCallback] Tesla tokens found after', pollAttempt, 'polls');
+            tokensFound = true;
+            break;
+          }
+        } catch (pollErr) {
+          console.warn('[OAuthCallback] Poll error:', pollErr);
+        }
+
+        if (pollAttempt % 10 === 0) {
+          console.log('[OAuthCallback] Still polling for Tesla tokens...', pollAttempt);
+        }
+      }
+
+      if (tokensFound) {
+        const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+        localStorage.removeItem('onboarding_energy_flow');
+        
+        if (isOnboardingFlow) {
+          if (window.opener && !window.opener.closed) {
+            console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
+            window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
+            window.close();
             return;
           }
-        } catch (checkErr) {
-          console.error('[OAuthCallback] Token check also failed:', checkErr);
+          console.log('[OAuthCallback] Mobile redirect: navigating to onboarding with Tesla success');
+          navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
+        } else {
+          setDeviceProvider('tesla');
+          setStatus('device-selection');
         }
-        
+      } else {
+        console.error('[OAuthCallback] Tesla tokens not found after polling');
         setErrorMessage('Connection timed out. Please try again.');
         setStatus('error');
         setCanRetry(true);
