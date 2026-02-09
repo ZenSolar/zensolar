@@ -68,16 +68,6 @@ export function YCChoiceQuestion({
           })}
         </div>
 
-        {/* Supporting detail text */}
-        {answer && (
-          <div className="whitespace-pre-wrap text-muted-foreground border-l-2 border-muted pl-3">
-            {answer.split("\n\n").map((paragraph, i) => (
-              <p key={i} className={i > 0 ? "mt-2" : ""}>
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        )}
       </CardContent>
     </Card>
   );
