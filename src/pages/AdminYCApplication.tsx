@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ExportButtons } from "@/components/admin/ExportButtons";
 import { EditableYCCard } from "@/components/admin/EditableYCCard";
+import { YCChoiceQuestion } from "@/components/admin/YCChoiceQuestion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -216,12 +217,13 @@ function IPProtectionSection({ section, isAdmin, isSaving, onUpdate }: {
 }
 
 // Render a generic section with editable cards
-function GenericSection({ section, isAdmin, isSaving, onUpdate, onStatusChange }: { 
+function GenericSection({ section, isAdmin, isSaving, onUpdate, onStatusChange, onChoiceChange }: { 
   section: YCSection; 
   isAdmin: boolean;
   isSaving: boolean;
   onUpdate: (questionKey: string, newAnswer: string) => void;
   onStatusChange: (questionKey: string, newStatus: YCQuestion["status"]) => void;
+  onChoiceChange: (questionKey: string, newChoice: "yes" | "no") => void;
 }) {
   return (
     <section className="space-y-4">
@@ -230,18 +232,31 @@ function GenericSection({ section, isAdmin, isSaving, onUpdate, onStatusChange }
         {section.section_title}
       </h2>
 
-      {Object.entries(section.content).map(([key, q]) => (
-        <EditableYCCard
-          key={key}
-          question={q.question}
-          answer={q.answer}
-          status={q.status}
-          isEditable={isAdmin}
-          isSaving={isSaving}
-          onSave={(newAnswer) => onUpdate(key, newAnswer)}
-          onStatusChange={(newStatus) => onStatusChange(key, newStatus)}
-        />
-      ))}
+      {Object.entries(section.content).map(([key, q]) => 
+        q.choice !== undefined ? (
+          <YCChoiceQuestion
+            key={key}
+            question={q.question}
+            answer={q.answer}
+            choice={q.choice}
+            status={q.status}
+            isEditable={isAdmin}
+            isSaving={isSaving}
+            onChoiceChange={(newChoice) => onChoiceChange(key, newChoice)}
+          />
+        ) : (
+          <EditableYCCard
+            key={key}
+            question={q.question}
+            answer={q.answer}
+            status={q.status}
+            isEditable={isAdmin}
+            isSaving={isSaving}
+            onSave={(newAnswer) => onUpdate(key, newAnswer)}
+            onStatusChange={(newStatus) => onStatusChange(key, newStatus)}
+          />
+        )
+      )}
     </section>
   );
 }
@@ -253,7 +268,8 @@ export default function AdminYCApplication() {
     isSaving, 
     isAdmin: isAdminUser, 
     updateQuestion, 
-    updateQuestionStatus 
+    updateQuestionStatus,
+    updateQuestionChoice,
   } = useYCContent();
 
   const location = useLocation();
@@ -340,6 +356,7 @@ export default function AdminYCApplication() {
             isSaving={isSaving}
             onUpdate={(key, value) => updateQuestion(section.section_key, key, value)}
             onStatusChange={(key, status) => updateQuestionStatus(section.section_key, key, status)}
+            onChoiceChange={(key, choice) => updateQuestionChoice(section.section_key, key, choice)}
           />
           {index < otherSections.length - 1 && <Separator className="mt-8" />}
         </div>

@@ -17,6 +17,7 @@ export interface YCQuestion {
   answer: string;
   status?: "ready" | "draft" | "to-record";
   badge_color?: string;
+  choice?: "yes" | "no";
 }
 
 export function useYCContent() {
@@ -168,6 +169,46 @@ export function useYCContent() {
     [sections, isAdmin]
   );
 
+  const updateQuestionChoice = useCallback(
+    async (sectionKey: string, questionKey: string, newChoice: "yes" | "no") => {
+      if (!isAdmin) return;
+
+      setIsSaving(true);
+      try {
+        const section = sections.find((s) => s.section_key === sectionKey);
+        if (!section) throw new Error("Section not found");
+
+        const updatedContent = {
+          ...section.content,
+          [questionKey]: {
+            ...section.content[questionKey],
+            choice: newChoice,
+          },
+        };
+
+        const { error } = await supabase
+          .from("yc_application_content")
+          .update({ content: updatedContent as unknown as Json })
+          .eq("section_key", sectionKey);
+
+        if (error) throw error;
+
+        setSections((prev) =>
+          prev.map((s) =>
+            s.section_key === sectionKey
+              ? { ...s, content: updatedContent }
+              : s
+          )
+        );
+      } catch (error) {
+        console.error("Error updating choice:", error);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [sections, isAdmin]
+  );
+
   const addQuestion = useCallback(
     async (sectionKey: string, questionKey: string, question: YCQuestion) => {
       if (!isAdmin) return;
@@ -267,6 +308,7 @@ export function useYCContent() {
     isAuthenticated,
     updateQuestion,
     updateQuestionStatus,
+    updateQuestionChoice,
     addQuestion,
     deleteQuestion,
     refetch: fetchContent,
