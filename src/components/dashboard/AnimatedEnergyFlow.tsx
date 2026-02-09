@@ -136,18 +136,17 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         {/* Roof */}
         <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
-        {/* Solar panels clipped to roof */}
-        <clipPath id="roofClipC">
-          <polygon points="136,182 200,121 264,182" />
-        </clipPath>
-        <g clipPath="url(#roofClipC)" opacity="0.95">
-          <rect x="155" y="143" width="22" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="179" y="143" width="22" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="203" y="143" width="22" height="14" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="160" y="159" width="20" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="182" y="159" width="20" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="204" y="159" width="20" height="12" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" />
-          <rect x="155" y="143" width="70" height="14" fill="#3b82f6" opacity="0">
+        {/* Solar panels — carefully laid out on left roof slope */}
+        <g opacity="0.95">
+          {/* Row 1 — 3 panels, follows roof angle */}
+          <rect x="158" y="148" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 168 154)" />
+          <rect x="178" y="140" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 188 146)" />
+          <rect x="198" y="132" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 208 138)" />
+          {/* Row 2 — 2 panels */}
+          <rect x="165" y="165" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 175 171)" />
+          <rect x="185" y="157" width="20" height="13" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.5" transform="rotate(-28 195 163)" />
+          {/* Shimmer */}
+          <rect x="158" y="132" width="70" height="50" fill="#3b82f6" opacity="0" transform="rotate(-28 193 157)">
             <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
           </rect>
         </g>
@@ -195,26 +194,22 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       {/* Chimney */}
       <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
       <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Solar panels — clipped to roof */}
-      <clipPath id="roofClip">
-        <polygon points="116,193 200,114 248,158 248,193" />
-      </clipPath>
-      <g clipPath="url(#roofClip)" opacity="0.95">
-        <rect x="135" y="140" width="32" height="20" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="169" y="140" width="32" height="20" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="203" y="140" width="30" height="20" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <line x1="151" y1="140" x2="151" y2="160" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="185" y1="140" x2="185" y2="160" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="218" y1="140" x2="218" y2="160" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="135" y1="150" x2="233" y2="150" stroke="#2d6090" strokeWidth="0.25" />
-        <rect x="142" y="162" width="30" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="174" y="162" width="30" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <rect x="206" y="162" width="28" height="18" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" />
-        <line x1="157" y1="162" x2="157" y2="180" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="189" y1="162" x2="189" y2="180" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="220" y1="162" x2="220" y2="180" stroke="#2d6090" strokeWidth="0.25" />
-        <line x1="142" y1="171" x2="234" y2="171" stroke="#2d6090" strokeWidth="0.25" />
-        <rect x="135" y="140" width="98" height="20" fill="#3b82f6" opacity="0">
+      {/* Solar panels — properly angled on left roof slope, no clipping */}
+      <g opacity="0.95">
+        {/* Row 1 — 4 panels along roof slope */}
+        <rect x="140" y="157" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 152 164)" />
+        <rect x="165" y="147" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 177 154)" />
+        <rect x="190" y="137" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 202 144)" />
+        {/* Row 2 — 3 panels */}
+        <rect x="148" y="175" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 160 182)" />
+        <rect x="173" y="165" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 185 172)" />
+        <rect x="198" y="155" width="24" height="15" rx="1" fill="#1a3a60" stroke="#2d6090" strokeWidth="0.6" transform="rotate(-25 210 162)" />
+        {/* Grid lines on panels */}
+        <line x1="152" y1="157" x2="152" y2="172" stroke="#2d6090" strokeWidth="0.25" transform="rotate(-25 152 164)" />
+        <line x1="177" y1="147" x2="177" y2="162" stroke="#2d6090" strokeWidth="0.25" transform="rotate(-25 177 154)" />
+        <line x1="202" y1="137" x2="202" y2="152" stroke="#2d6090" strokeWidth="0.25" transform="rotate(-25 202 144)" />
+        {/* Shimmer */}
+        <rect x="140" y="137" width="85" height="55" fill="#3b82f6" opacity="0" transform="rotate(-25 182 164)">
           <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
         </rect>
       </g>
@@ -326,8 +321,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
   // Meter position (right side of house)
   const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 410' : '0 0 400 500';
-  const maxH = compact ? '420px' : '610px';
+  const vb = compact ? '0 0 400 420' : '0 0 400 510';
+  const maxH = compact ? '430px' : '620px';
   const labelFs = compact ? 8 : 10;
   const valueFs = compact ? 13 : 18;
   const subValueFs = compact ? 10 : 15;
@@ -406,13 +401,13 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         />
         <path
           id="p-solar-grid"
-          d={`M${meter.x + 8},${meter.y} C${meter.x + 30},${meter.y} ${nodes.grid.x - 30},${nodes.grid.y - 15} ${nodes.grid.x},${nodes.grid.y - 20}`}
+          d={`M${meter.x + 8},${meter.y} C${meter.x + 30},${meter.y} ${nodes.grid.x - 30},${nodes.grid.y} ${nodes.grid.x},${nodes.grid.y}`}
           fill="none" stroke={colors.grid}
           strokeWidth={solarToGrid > 0 ? 1 : 0.3} strokeOpacity={solarToGrid > 0 ? 0.25 : 0.06}
         />
         <path
           id="p-grid-home"
-          d={`M${nodes.grid.x},${nodes.grid.y - 20} C${nodes.grid.x - 30},${nodes.grid.y - 15} ${meter.x + 30},${meter.y} ${meter.x + 8},${meter.y}`}
+          d={`M${nodes.grid.x},${nodes.grid.y} C${nodes.grid.x - 30},${nodes.grid.y} ${meter.x + 30},${meter.y} ${meter.x + 8},${meter.y}`}
           fill="none" stroke={colors.grid}
           strokeWidth={gridToHome > 0 ? 1 : 0.3} strokeOpacity={gridToHome > 0 ? 0.25 : 0.06}
         />
@@ -495,12 +490,11 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         {/* ── EV CHARGER ── */}
         <g>
           <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 16 : 20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
-          {/* Car icon using Lucide-style Car SVG */}
+          {/* Clean car side profile icon */}
           <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 10} width={20} height={20}>
             <div className="flex items-center justify-center w-full h-full">
               <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                 <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10H8s-2.7.6-4.5 1.1C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2" />
-                <path d="M16 10l1.5-4.5c.2-.6-.1-1.3-.8-1.4C15.4 3.9 13.8 3.5 12 3.5s-3.4.4-4.7.6c-.7.1-1 .8-.8 1.4L8 10" />
                 <circle cx="7.5" cy="17" r="2.5" />
                 <circle cx="16.5" cy="17" r="2.5" />
               </svg>
@@ -533,17 +527,17 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Today's Stats — bottom left, polished card style */}
           {(() => {
             const sx = compact ? 10 : 12;
-            const sy = compact ? 340 : 425;
-            const rowH = compact ? 18 : 22;
-            const cardW = compact ? 120 : 145;
-            const cardH = compact ? 78 : 90;
+            const sy = compact ? 348 : 435;
+            const rowH = compact ? 17 : 20;
+            const cardW = compact ? 125 : 150;
+            const cardH = compact ? 72 : 84;
             const valueFontSize = compact ? 9 : 11;
             const labelFontSize = compact ? 5.5 : 6.5;
             const headerFs = compact ? 5.5 : 6.5;
 
             const stats = [
               { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar Generated', active: flow.solarPower > 0 },
-              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Cycled', active: flow.batteryPower !== 0 },
+              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Discharged', active: flow.batteryPower < 0 },
               { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)}`, unit: 'kWh', label: 'EV Charged', active: flow.evPower > 0 },
             ];
             return (
@@ -586,8 +580,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
           {/* Stacked manufacturer pills — bottom right */}
           {(() => {
-            const bx = compact ? 345 : 358;
-            const by = compact ? 350 : 435;
+            const bx = compact ? 350 : 362;
+            const by = compact ? 358 : 445;
             const gap = compact ? 14 : 16;
             const pillW = compact ? 50 : 58;
             const pillH = compact ? 11 : 13;
