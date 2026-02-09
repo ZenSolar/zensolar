@@ -1,34 +1,74 @@
 
 
-# Update "What is your company going to make?" — Add First-Mover + IP Defensibility
+# Add Multiple-Choice (Yes/No) Questions to YC Application Page
 
 ## What Changes
 
-Update the `what_does_company_make` answer in the `yc_application_content` table (section_key: `company`) to:
+Add visual Yes/No radio-button style indicators to the YC application page for 5 questions, matching the actual YC application format shown in the screenshots.
 
-1. **Opening line** — Add "first" positioning: "ZenSolar is the first platform that cryptographically verifies clean energy use and rewards users with $ZSOLAR tokens and NFTs."
-2. **IP paragraph** — Add a concise closing paragraph before the "result" line:
-   > "This is a first-of-its-kind platform. The core verification engine is protected by a patent-pending utility application covering three dependent claims: Mint-on-Proof, Proof-of-Delta, and Proof-of-Origin, with trademark filings on all three. The Device Watermark Registry creates an on-chain anti-double-mint standard that makes competing claims provably fraudulent."
-3. **Minor tone polish** — Tighten any remaining marketing-speak in the same pass.
+## Questions and Selected Answers
 
-## How
+| Question | Answer | Current Status |
+|----------|--------|---------------|
+| Are people using your product? | **Yes** | Missing entirely - needs to be added to the `progress` section in DB |
+| Do you have revenue? | **No** | Exists as text in `progress` section but no radio indicator |
+| Have you formed ANY legal entity yet? | **No** | Exists as text in `equity` section but no radio indicator |
+| Have you taken any investment yet? | **No** | Exists as text in `equity` section but no radio indicator |
+| Are you currently fundraising? | **No** | Exists as text in `equity` section but no radio indicator |
 
-- Single database update to the `content` JSONB field for section_key `company`, updating only the `what_does_company_make` entry's `answer` value.
-- No schema changes, no code changes, no new files.
+## Implementation
 
-## Full Proposed Answer
+### 1. Database Update
+- Add a new question `people_using_product` to the `progress` section with answer "Yes" and a `choice` field set to `"yes"`
+- Add a `choice` field (`"yes"` or `"no"`) to the existing questions: `revenue`, `legal_entity`, `investment`, `fundraising` in their respective sections so the UI knows which radio to highlight
 
-> ZenSolar is the first platform that cryptographically verifies clean energy use and rewards users with $ZSOLAR tokens and NFTs for hitting clean energy milestones.
->
-> We use patent-pending technology to verify solar production, battery storage, EV charging, and EV miles driven across 4 hardware integrations (Tesla, Enphase, SolarEdge, Wallbox).
->
-> For every verified kilowatt-hour or mile, users earn $ZSOLAR tokens. They unlock collectible NFTs for hitting milestones, gamifying the sustainable actions people already do daily.
->
-> The entire experience from signup to blockchain mint happens inside ZenSolar. No MetaMask. No seed phrases. No browser extensions.
->
-> Through a first-of-its-kind tokenomics flywheel (50% of subscription revenue feeds the liquidity pool), tokens and NFTs carry real USD value. Users can trade them or redeem them in our in-app store for consumer tech, EV chargers, and Tesla Supercharging gift cards, or cash out from right inside the app.
->
-> The core verification engine is protected by a patent-pending utility application covering three proprietary methods: Mint-on-Proof, Proof-of-Delta, and Proof-of-Origin, with trademark filings on all three. Our Device Watermark Registry creates an on-chain anti-double-mint standard, giving us strong first-mover defensibility.
->
-> The result: ongoing financial incentives for the millions who already own solar, batteries, or EVs, and a compelling new reason for those who haven't switched yet.
+### 2. New UI Component: `YCChoiceQuestion`
+- Create a small component that renders a question with Yes/No radio buttons (read-only display, matching the YC screenshot style)
+- Shows the selected choice visually with filled/unfilled radio indicators
+- Displays the existing text answer below the radio selection as supporting detail
+- Admin users can toggle the choice by clicking
+
+### 3. Update `AdminYCApplication.tsx`
+- In `GenericSection`, detect questions that have a `choice` field and render them using the new `YCChoiceQuestion` component instead of the standard `EditableYCCard`
+- The radio buttons are primarily visual indicators (not interactive for public view), showing which option was selected
+
+## Visual Design
+- Each choice question renders with the question text in bold
+- Two radio circles: filled for selected, empty for unselected, labeled "Yes" and "No"
+- The existing detailed text answer appears below in the standard card format
+- Matches the clean, minimal style from the YC screenshots
+
+## Technical Details
+
+### Database Changes (content JSONB updates only, no schema changes)
+
+**Progress section** - Add new entry:
+```json
+"people_using_product": {
+  "question": "Are people using your product?",
+  "answer": "Yes. 19 active beta users on testnet connecting real devices.",
+  "status": "ready",
+  "choice": "yes"
+}
+```
+
+**Progress section** - Update `revenue` to add choice field:
+```json
+"choice": "no"
+```
+
+**Equity section** - Update `legal_entity`, `investment`, `fundraising` to add choice field:
+```json
+"choice": "no"
+```
+
+### New Component: `src/components/admin/YCChoiceQuestion.tsx`
+- Renders the Yes/No radio button display
+- Props: question, answer, choice ("yes"|"no"), isEditable, onChoiceChange, onSave
+- Uses existing RadioGroup from radix UI for consistent styling
+
+### Modified File: `src/pages/AdminYCApplication.tsx`
+- Import `YCChoiceQuestion`
+- In `GenericSection`, check if a question entry has a `choice` property
+- If so, render `YCChoiceQuestion` instead of `EditableYCCard`
 
