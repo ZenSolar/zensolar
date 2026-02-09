@@ -319,7 +319,7 @@ export default function Auth() {
         />
       </div>
 
-      <div className="relative z-10 flex min-h-[100dvh] w-full flex-col lg:flex-row items-center justify-center pt-safe pb-safe px-safe py-6 lg:py-0">
+      <div className="relative z-10 flex min-h-[100dvh] w-full flex-col lg:flex-row items-center justify-center pb-safe px-safe py-6 lg:py-0" style={{ paddingTop: 'max(env(safe-area-inset-top, 0px) + 12px, 1.5rem)' }}>
         {/* Left side - Branding (hidden on mobile) */}
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12">
           <div className="max-w-md text-center">
