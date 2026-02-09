@@ -28,6 +28,9 @@ export function useCoinbaseSmartWallet(): UseCoinbaseSmartWalletResult {
     setStep('idle');
     setWalletAddress(null);
     setError(null);
+    // Clear cached wallet data so a fresh connection is attempted
+    localStorage.removeItem('zensolar_wallet_type');
+    localStorage.removeItem('zensolar_wallet_address');
   }, []);
 
   const createWallet = useCallback(async (): Promise<string | null> => {
