@@ -17,6 +17,7 @@ import { WalletSetupModal } from './dashboard/WalletSetupModal';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
+import { AnimatedEnergyFlow } from './dashboard/AnimatedEnergyFlow';
 
 import { NFTQuickMintDialog, NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
@@ -257,6 +258,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               charging: currentActivity.chargingKwh,
             }}
           />
+        </AnimatedItem>
+
+        {/* Live Energy Flow Diagram */}
+        <AnimatedItem>
+          <div className="rounded-xl overflow-hidden border border-border/50 shadow-lg">
+            <AnimatedEnergyFlow className="w-full" />
+          </div>
         </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
