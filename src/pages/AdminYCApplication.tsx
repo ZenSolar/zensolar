@@ -216,6 +216,31 @@ function IPProtectionSection({ section, isAdmin, isSaving, onUpdate }: {
   );
 }
 
+// Define the correct question order within each section (matching the actual YC application)
+const QUESTION_ORDER: Record<string, string[]> = {
+  company: ["company_name", "company_url", "tagline_50_chars", "what_does_company_make", "location"],
+  founders: ["founder_video", "who_writes_code", "looking_for_cofounder"],
+  progress: ["how_far_along", "how_long_working", "people_using_product", "revenue", "active_users", "tech_stack", "previous_batch", "other_accelerators"],
+  idea: ["why_this_idea", "competitors", "how_make_money", "other_ideas", "category"],
+  equity: ["legal_entity", "equity_breakdown", "investment", "fundraising"],
+  curious: ["why_yc", "how_heard"],
+};
+
+function getOrderedEntries(sectionKey: string, content: Record<string, YCQuestion>): [string, YCQuestion][] {
+  const order = QUESTION_ORDER[sectionKey];
+  if (!order) return Object.entries(content);
+  
+  const ordered: [string, YCQuestion][] = [];
+  for (const key of order) {
+    if (content[key]) ordered.push([key, content[key]]);
+  }
+  // Append any keys not in the predefined order
+  for (const key of Object.keys(content)) {
+    if (!order.includes(key)) ordered.push([key, content[key]]);
+  }
+  return ordered;
+}
+
 // Render a generic section with editable cards
 function GenericSection({ section, isAdmin, isSaving, onUpdate, onStatusChange, onChoiceChange }: { 
   section: YCSection; 
@@ -232,7 +257,7 @@ function GenericSection({ section, isAdmin, isSaving, onUpdate, onStatusChange, 
         {section.section_title}
       </h2>
 
-      {Object.entries(section.content).map(([key, q]) => 
+      {getOrderedEntries(section.section_key, section.content).map(([key, q]) => 
         q.choice !== undefined ? (
           <YCChoiceQuestion
             key={key}
