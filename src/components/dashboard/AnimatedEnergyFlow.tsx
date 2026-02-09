@@ -214,7 +214,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
     homePower: 0.7,
     batteryPower: -2.5,
     batteryPercent: 73,
-    gridPower: 0,
+    gridPower: -0.8,
     evPower: 11,
   };
 
@@ -250,11 +250,20 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
       {/* Dark premium background */}
       <div className="absolute inset-0 rounded-xl overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e1a] via-[#0d1220] to-[#0a0e18]" />
-        {/* Subtle stars/dots */}
         <div className="absolute inset-0 opacity-30" style={{
           backgroundImage: 'radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.3), transparent), radial-gradient(1px 1px at 80px 60px, rgba(255,255,255,0.2), transparent), radial-gradient(1px 1px at 140px 20px, rgba(255,255,255,0.15), transparent), radial-gradient(1px 1px at 280px 45px, rgba(255,255,255,0.2), transparent), radial-gradient(1px 1px at 320px 80px, rgba(255,255,255,0.15), transparent)',
           backgroundSize: '400px 100px',
         }} />
+      </div>
+
+      {/* Title header */}
+      <div className="relative z-10 pt-4 pb-1 px-4 text-center">
+        <h3 className="text-sm sm:text-base font-bold tracking-wide" style={{ color: '#F59E0B' }}>
+          ⚡ Live Energy Flow
+        </h3>
+        <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide" style={{ color: '#6b7280' }}>
+          First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>multi-manufacturer view</span>
+        </p>
       </div>
 
       <svg
@@ -385,6 +394,9 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <text x={nodes.solar.x} y={nodes.solar.y - 42} textAnchor="middle" fill="white" fontSize="18" fontWeight="700">
             {flow.solarPower.toFixed(1)} kW
           </text>
+          {/* Enphase manufacturer badge */}
+          <rect x={nodes.solar.x + 30} y={nodes.solar.y - 15} width={42} height={13} rx={6.5} fill="#F59E0B" fillOpacity={0.12} stroke="#F59E0B" strokeWidth={0.5} strokeOpacity={0.4} />
+          <text x={nodes.solar.x + 51} y={nodes.solar.y - 5.5} textAnchor="middle" fill="#F59E0B" fontSize="6.5" fontWeight="600" letterSpacing="0.3">ENPHASE</text>
         </g>
 
         {/* HOME */}
@@ -416,6 +428,9 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Battery bar */}
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + 68} width={36} height={5} rx={2.5} fill="#1a2030" />
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + 68} width={36 * (flow.batteryPercent / 100)} height={5} rx={2.5} fill={colors.battery} fillOpacity={0.6} />
+          {/* Tesla manufacturer badge */}
+          <rect x={nodes.battery.x - 16} y={nodes.battery.y + 78} width={32} height={13} rx={6.5} fill="#22C55E" fillOpacity={0.12} stroke="#22C55E" strokeWidth={0.5} strokeOpacity={0.4} />
+          <text x={nodes.battery.x} y={nodes.battery.y + 87.5} textAnchor="middle" fill="#22C55E" fontSize="6.5" fontWeight="600" letterSpacing="0.3">TESLA</text>
         </g>
 
         {/* GRID */}
@@ -520,15 +535,21 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
               ⚡ CHARGING
             </text>
           )}
+          {/* ChargePoint manufacturer badge */}
+          <rect x={nodes.ev.x + 30} y={nodes.ev.y + 27} width={58} height={13} rx={6.5} fill="#3B82F6" fillOpacity={0.12} stroke="#3B82F6" strokeWidth={0.5} strokeOpacity={0.4} />
+          <text x={nodes.ev.x + 59} y={nodes.ev.y + 36.5} textAnchor="middle" fill="#3B82F6" fontSize="6.5" fontWeight="600" letterSpacing="0.3">CHARGEPOINT</text>
         </g>
 
-        {/* Status indicator */}
+        {/* Status indicator + manufacturer count */}
         <g>
           <circle cx="20" cy="415" r={4} fill={flow.solarPower > 0 ? colors.solar : '#4b5563'}>
             {flow.solarPower > 0 && <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />}
           </circle>
           <text x="30" y="418" fill="#6b7280" fontSize="9">
             {flow.solarPower > 0 ? 'Producing' : 'Not producing'}
+          </text>
+          <text x="380" y="418" textAnchor="end" fill="#4b5563" fontSize="7" letterSpacing="0.5">
+            3 MANUFACTURERS · 1 VIEW
           </text>
         </g>
       </svg>
