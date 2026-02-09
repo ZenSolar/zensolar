@@ -144,6 +144,26 @@ export default function Onboarding() {
     trackWalletChoiceViewed();
   }, []);
 
+  // Listen for OAuth success messages from popup windows
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === 'oauth_success' && event.data?.provider) {
+        const provider = event.data.provider as 'tesla' | 'enphase';
+        console.log('[Onboarding] Received OAuth success from popup for:', provider);
+        setConnectingProvider(null);
+        setDeviceSelectionProvider(provider);
+        setShowDeviceSelection(true);
+        setStep('device-selection');
+        // Clean up onboarding flow flag
+        localStorage.removeItem('onboarding_energy_flow');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   // Handle window focus to detect if user returned from OAuth popup without completing
   // This prevents the "frozen" state when user closes the OAuth popup
   useEffect(() => {

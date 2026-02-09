@@ -123,7 +123,14 @@ export default function OAuthCallback() {
               localStorage.removeItem('onboarding_energy_flow');
               
               if (isOnboardingFlow) {
-                // Redirect back to onboarding with success state
+                // If we're in a popup, signal the opener window and close
+                if (window.opener && !window.opener.closed) {
+                  console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
+                  window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
+                  window.close();
+                  return;
+                }
+                // Fallback for mobile same-tab redirect
                 navigate('/onboarding?oauth_success=true&provider=tesla');
               } else {
                 setDeviceProvider('tesla');
@@ -166,8 +173,14 @@ export default function OAuthCallback() {
             localStorage.removeItem('onboarding_energy_flow');
             
             if (isOnboardingFlow) {
-              navigate('/onboarding?oauth_success=true&provider=enphase');
-            } else {
+                if (window.opener && !window.opener.closed) {
+                  console.log('[OAuthCallback] Signaling opener window for Enphase onboarding success');
+                  window.opener.postMessage({ type: 'oauth_success', provider: 'enphase' }, window.location.origin);
+                  window.close();
+                  return;
+                }
+                navigate('/onboarding?oauth_success=true&provider=enphase');
+              } else {
               setDeviceProvider('enphase');
               setStatus('device-selection');
             }
