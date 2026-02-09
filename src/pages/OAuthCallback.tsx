@@ -4,9 +4,24 @@ import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Module-level flag to survive component remounts during the same page session
 let moduleProcessed = false;
+
+// Timeout wrapper to prevent hanging promises
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      console.error(`[OAuthCallback] ${label} timed out after ${ms}ms`);
+      reject(new Error(`${label} timed out`));
+    }, ms);
+    promise.then(
+      (val) => { clearTimeout(timer); resolve(val); },
+      (err) => { clearTimeout(timer); reject(err); }
+    );
+  });
+}
 
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
@@ -15,7 +30,220 @@ export default function OAuthCallback() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error' | 'device-selection'>('processing');
   const [deviceProvider, setDeviceProvider] = useState<'tesla' | 'enphase'>('tesla');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [canRetry, setCanRetry] = useState(false);
   const hasProcessed = useRef(false);
+
+  const processCallback = async () => {
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+    const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+
+    console.log('[OAuthCallback] Processing callback:', { 
+      hasCode: !!code, 
+      hasState: !!state, 
+      error,
+      errorDescription 
+    });
+
+    // Handle OAuth provider errors
+    if (error) {
+      console.error('[OAuthCallback] OAuth error from provider:', error, errorDescription);
+      setErrorMessage(errorDescription || error);
+      setStatus('error');
+      setTimeout(() => navigate('/'), 3000);
+      return;
+    }
+
+    if (!code) {
+      console.error('[OAuthCallback] No authorization code received');
+      setErrorMessage('No authorization code received');
+      setStatus('error');
+      setTimeout(() => navigate('/'), 2000);
+      return;
+    }
+
+    // Wait for session to be restored (important after mobile redirect)
+    console.log('[OAuthCallback] Starting session restoration...');
+    let retries = 0;
+    const maxRetries = 30; // 15 seconds total
+    let session = null;
+    
+    while (retries < maxRetries) {
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+      
+      if (session) {
+        console.log('[OAuthCallback] Session restored after', retries, 'retries');
+        break;
+      }
+      
+      if (retries > 0 && retries % 5 === 0) {
+        console.log('[OAuthCallback] Attempting explicit session refresh');
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        if (refreshData.session) {
+          session = refreshData.session;
+          console.log('[OAuthCallback] Session restored via explicit refresh');
+          break;
+        }
+      }
+      
+      console.log('[OAuthCallback] Waiting for session restoration, attempt', retries + 1);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      retries++;
+    }
+
+    if (!session) {
+      console.error('[OAuthCallback] Failed to restore session after', maxRetries, 'attempts');
+      setErrorMessage('Session expired. Please log in and try again.');
+      setStatus('error');
+      setCanRetry(true);
+      setTimeout(() => navigate('/auth'), 5000);
+      return;
+    }
+
+    // --- Determine which provider this callback is for ---
+    const savedState = localStorage.getItem('tesla_oauth_state');
+    const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
+    const isTesla = (state && savedState === state) || teslaMobilePending || (state && !sessionStorage.getItem('enphase_oauth_pending'));
+    
+    const enphaseOAuthPending = sessionStorage.getItem('enphase_oauth_pending');
+
+    if (isTesla) {
+      console.log('[OAuthCallback] Processing Tesla callback');
+      
+      // Clear OAuth state
+      localStorage.removeItem('tesla_oauth_state');
+      localStorage.removeItem('tesla_oauth_pending');
+      
+      try {
+        // Wrap exchange in a 20-second timeout to prevent hanging forever
+        console.log('[OAuthCallback] Calling exchangeTeslaCode...');
+        const success = await withTimeout(
+          exchangeTeslaCode(code),
+          20000,
+          'Tesla code exchange'
+        );
+        console.log('[OAuthCallback] Tesla exchange result:', success);
+        
+        if (success) {
+          const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+          localStorage.removeItem('onboarding_energy_flow');
+          
+          if (isOnboardingFlow) {
+            if (window.opener && !window.opener.closed) {
+              console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
+              window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
+              window.close();
+              return;
+            }
+            console.log('[OAuthCallback] Mobile redirect: navigating to onboarding with Tesla success');
+            navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
+          } else {
+            setDeviceProvider('tesla');
+            setStatus('device-selection');
+          }
+        } else {
+          console.error('[OAuthCallback] Tesla exchange returned false');
+          setErrorMessage('Failed to exchange authorization code. Please try connecting again.');
+          setStatus('error');
+          setCanRetry(true);
+          setTimeout(() => navigate('/'), 5000);
+        }
+      } catch (err) {
+        console.error('[OAuthCallback] Tesla exchange error:', err);
+        // On timeout/error, check if the exchange actually succeeded server-side
+        // by looking for the token in the database
+        try {
+          console.log('[OAuthCallback] Checking if Tesla tokens were saved despite client error...');
+          const { data: tokenCheck } = await supabase
+            .from('energy_tokens')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .eq('provider', 'tesla')
+            .maybeSingle();
+          
+          if (tokenCheck) {
+            console.log('[OAuthCallback] Tesla tokens found! Exchange succeeded server-side.');
+            const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+            localStorage.removeItem('onboarding_energy_flow');
+            
+            if (isOnboardingFlow) {
+              if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
+                window.close();
+                return;
+              }
+              navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
+            } else {
+              setDeviceProvider('tesla');
+              setStatus('device-selection');
+            }
+            return;
+          }
+        } catch (checkErr) {
+          console.error('[OAuthCallback] Token check also failed:', checkErr);
+        }
+        
+        setErrorMessage('Connection timed out. Please try again.');
+        setStatus('error');
+        setCanRetry(true);
+        setTimeout(() => navigate('/'), 5000);
+      }
+      return;
+    }
+
+    if (enphaseOAuthPending) {
+      console.log('[OAuthCallback] Processing Enphase callback');
+      sessionStorage.removeItem('enphase_oauth_pending');
+      
+      try {
+        const success = await withTimeout(
+          exchangeEnphaseCode(code),
+          20000,
+          'Enphase code exchange'
+        );
+        console.log('[OAuthCallback] Enphase exchange result:', success);
+        
+        if (success) {
+          const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+          localStorage.removeItem('onboarding_energy_flow');
+          
+          if (isOnboardingFlow) {
+            if (window.opener && !window.opener.closed) {
+              console.log('[OAuthCallback] Signaling opener window for Enphase onboarding success');
+              window.opener.postMessage({ type: 'oauth_success', provider: 'enphase' }, window.location.origin);
+              window.close();
+              return;
+            }
+            navigate('/onboarding?oauth_success=true&provider=enphase', { replace: true });
+          } else {
+            setDeviceProvider('enphase');
+            setStatus('device-selection');
+          }
+        } else {
+          setErrorMessage('Failed to connect Enphase account');
+          setStatus('error');
+          setCanRetry(true);
+          setTimeout(() => navigate('/'), 5000);
+        }
+      } catch (err) {
+        console.error('[OAuthCallback] Enphase exchange error:', err);
+        setErrorMessage('Connection timed out. Please try again.');
+        setStatus('error');
+        setCanRetry(true);
+        setTimeout(() => navigate('/'), 5000);
+      }
+      return;
+    }
+
+    // Unknown callback
+    console.error('[OAuthCallback] Unknown callback - no matching OAuth state found');
+    setErrorMessage('Authorization session expired. Please try again.');
+    setStatus('error');
+    setCanRetry(true);
+    setTimeout(() => navigate('/'), 3000);
+  };
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -27,178 +255,13 @@ export default function OAuthCallback() {
       hasProcessed.current = true;
       moduleProcessed = true;
 
-      const code = searchParams.get('code');
-      const state = searchParams.get('state');
-      const error = searchParams.get('error');
-      const errorDescription = searchParams.get('error_description');
-
-      console.log('[OAuthCallback] Processing callback:', { 
-        hasCode: !!code, 
-        hasState: !!state, 
-        error,
-        errorDescription 
-      });
-
-      // Handle OAuth provider errors
-      if (error) {
-        console.error('[OAuthCallback] OAuth error from provider:', error, errorDescription);
-        setErrorMessage(errorDescription || error);
-        setStatus('error');
-        setTimeout(() => navigate('/'), 3000);
-        return;
-      }
-
-      if (!code) {
-        console.error('[OAuthCallback] No authorization code received');
-        setErrorMessage('No authorization code received');
-        setStatus('error');
-        setTimeout(() => navigate('/'), 2000);
-        return;
-      }
-
-      // Wait for session to be restored (important after mobile redirect)
-      let retries = 0;
-      const maxRetries = 30; // 15 seconds total
-      let session = null;
-      
-      while (retries < maxRetries) {
-        const { data } = await supabase.auth.getSession();
-        session = data.session;
-        
-        if (session) {
-          console.log('[OAuthCallback] Session restored after', retries, 'retries');
-          break;
-        }
-        
-        if (retries > 0 && retries % 5 === 0) {
-          console.log('[OAuthCallback] Attempting explicit session refresh');
-          const { data: refreshData } = await supabase.auth.refreshSession();
-          if (refreshData.session) {
-            session = refreshData.session;
-            console.log('[OAuthCallback] Session restored via explicit refresh');
-            break;
-          }
-        }
-        
-        console.log('[OAuthCallback] Waiting for session restoration, attempt', retries + 1);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        retries++;
-      }
-
-      if (!session) {
-        console.error('[OAuthCallback] Failed to restore session after', maxRetries, 'attempts');
-        setErrorMessage('Session expired. Please log in and try again.');
-        setStatus('error');
-        setTimeout(() => navigate('/auth'), 3000);
-        return;
-      }
-
-      // --- Determine which provider this callback is for ---
-      // Tesla detection: check localStorage markers OR presence of state param
-      // (Only Tesla uses a state parameter in our OAuth flow)
-      const savedState = localStorage.getItem('tesla_oauth_state');
-      const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
-      const isTesla = (state && savedState === state) || teslaMobilePending || (state && !sessionStorage.getItem('enphase_oauth_pending'));
-      
-      // Enphase detection
-      const enphaseOAuthPending = sessionStorage.getItem('enphase_oauth_pending');
-
-      if (isTesla) {
-        console.log('[OAuthCallback] Processing Tesla callback (state match:', !!(state && savedState === state), ', mobile pending:', !!teslaMobilePending, ', fallback:', !(state && savedState === state) && !teslaMobilePending, ')');
-        
-        // Clear OAuth state
-        localStorage.removeItem('tesla_oauth_state');
-        localStorage.removeItem('tesla_oauth_pending');
-        
-        try {
-          const success = await exchangeTeslaCode(code);
-          console.log('[OAuthCallback] Tesla exchange result:', success);
-          
-          if (success) {
-            // Check if we're in onboarding flow
-            const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
-            localStorage.removeItem('onboarding_energy_flow');
-            
-            if (isOnboardingFlow) {
-              // If we're in a popup, signal the opener window and close
-              if (window.opener && !window.opener.closed) {
-                console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
-                window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
-                window.close();
-                return;
-              }
-              // Mobile same-tab redirect: navigate back to onboarding
-              console.log('[OAuthCallback] Mobile redirect: navigating to onboarding with Tesla success');
-              navigate('/onboarding?oauth_success=true&provider=tesla', { replace: true });
-            } else {
-              setDeviceProvider('tesla');
-              setStatus('device-selection');
-            }
-          } else {
-            console.error('[OAuthCallback] Tesla exchange returned false');
-            setErrorMessage('Failed to exchange authorization code');
-            setStatus('error');
-            setTimeout(() => navigate('/'), 2000);
-          }
-        } catch (err) {
-          console.error('[OAuthCallback] Tesla exchange error:', err);
-          setErrorMessage('Connection error. Please try again.');
-          setStatus('error');
-          setTimeout(() => navigate('/'), 2000);
-        }
-        return;
-      }
-
-      if (enphaseOAuthPending) {
-        console.log('[OAuthCallback] Processing Enphase callback');
-        sessionStorage.removeItem('enphase_oauth_pending');
-        
-        try {
-          const success = await exchangeEnphaseCode(code);
-          console.log('[OAuthCallback] Enphase exchange result:', success);
-          
-          if (success) {
-            const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
-            localStorage.removeItem('onboarding_energy_flow');
-            
-            if (isOnboardingFlow) {
-              if (window.opener && !window.opener.closed) {
-                console.log('[OAuthCallback] Signaling opener window for Enphase onboarding success');
-                window.opener.postMessage({ type: 'oauth_success', provider: 'enphase' }, window.location.origin);
-                window.close();
-                return;
-              }
-              navigate('/onboarding?oauth_success=true&provider=enphase', { replace: true });
-            } else {
-              setDeviceProvider('enphase');
-              setStatus('device-selection');
-            }
-          } else {
-            setErrorMessage('Failed to connect Enphase account');
-            setStatus('error');
-            setTimeout(() => navigate('/'), 2000);
-          }
-        } catch (err) {
-          console.error('[OAuthCallback] Enphase exchange error:', err);
-          setErrorMessage('Connection error. Please try again.');
-          setStatus('error');
-          setTimeout(() => navigate('/'), 2000);
-        }
-        return;
-      }
-
-      // Unknown callback - no matching OAuth state
-      console.error('[OAuthCallback] Unknown callback - no matching OAuth state found');
-      setErrorMessage('Authorization session expired. Please try again.');
-      setStatus('error');
-      setTimeout(() => navigate('/'), 2000);
+      await processCallback();
     };
 
     handleCallback();
 
     // Reset module flag when component fully unmounts (navigated away)
     return () => {
-      // Small delay to allow navigate to complete before resetting
       setTimeout(() => { moduleProcessed = false; }, 2000);
     };
   }, [searchParams, navigate, exchangeTeslaCode, exchangeEnphaseCode]);
@@ -211,6 +274,13 @@ export default function OAuthCallback() {
     if (!open) {
       navigate('/');
     }
+  };
+
+  const handleRetry = () => {
+    // Reset flags and re-navigate to trigger a fresh attempt
+    hasProcessed.current = false;
+    moduleProcessed = false;
+    navigate('/onboarding', { replace: true });
   };
 
   return (
@@ -226,12 +296,18 @@ export default function OAuthCallback() {
           <p className="text-primary font-medium">Account connected! Redirecting...</p>
         )}
         {status === 'error' && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p className="text-destructive font-medium">Connection failed</p>
             {errorMessage && (
               <p className="text-sm text-muted-foreground">{errorMessage}</p>
             )}
-            <p className="text-xs text-muted-foreground">Redirecting...</p>
+            {canRetry ? (
+              <Button variant="outline" onClick={handleRetry} className="mt-2">
+                Try Again
+              </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground">Redirecting...</p>
+            )}
           </div>
         )}
         {status === 'device-selection' && (
