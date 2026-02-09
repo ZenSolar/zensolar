@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 // Import wallet logos
 import baseWalletLogo from '@/assets/wallets/base-wallet.png';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 export function CompactWalletPrompt() {
   const navigate = useNavigate();
@@ -18,14 +19,17 @@ export function CompactWalletPrompt() {
   return (
     <Card className="border-token/30 bg-gradient-to-br from-token/5 via-card to-card overflow-hidden">
       <CardContent className="p-4 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-token/10">
-            <Wallet className="h-5 w-5 text-token" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-token/10">
+              <Wallet className="h-5 w-5 text-token" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Connect Wallet</h2>
+              <p className="text-sm text-muted-foreground">Link your wallet to receive blockchain rewards</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">Connect Wallet</h2>
-            <p className="text-sm text-muted-foreground">Link your wallet to receive blockchain rewards</p>
-          </div>
+          <img src={zenLogo} alt="ZenSolar" className="h-5 w-auto opacity-60 dark:drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" />
         </div>
         
         <div className="space-y-3">
