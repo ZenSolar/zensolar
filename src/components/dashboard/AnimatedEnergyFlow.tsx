@@ -139,7 +139,7 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
         {(() => {
           const peakY = 121, eaveY = 180, cx = 200;
-          const rows = [4, 3, 2, 1];
+          const rows = [1, 2, 3, 4];
           const totalRows = rows.length;
           const rowH = (eaveY - peakY) / totalRows;
           const ph = rowH - 2;
@@ -218,7 +218,7 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
       {(() => {
         const peakY = 115, eaveY = 191, cx = 200;
-        const rows = [4, 3, 2, 1];
+        const rows = [1, 2, 3, 4];
         const totalRows = rows.length;
         const rowH = (eaveY - peakY) / totalRows;
         const ph = rowH - 2.5;
