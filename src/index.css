@@ -176,6 +176,10 @@
 }
 
 @layer utilities {
+  /* Remove text glow in light mode only - dark mode keeps inline text-shadow */
+  :root:not(.dark) .text-glow-dark-only {
+    text-shadow: none !important;
+  }
   .text-gradient-solar {
     @apply bg-gradient-to-r from-[hsl(var(--solar))] via-[hsl(var(--accent))] to-[hsl(var(--secondary))] bg-clip-text text-transparent;
   }
