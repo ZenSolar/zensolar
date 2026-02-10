@@ -223,7 +223,7 @@ const QUESTION_ORDER: Record<string, string[]> = {
   progress: ["how_far_along", "how_long_working", "people_using_product", "revenue", "active_users", "tech_stack", "previous_batch", "other_accelerators"],
   idea: ["why_this_idea", "competitors", "how_make_money", "other_ideas", "category"],
   equity: ["legal_entity", "equity_breakdown", "investment", "fundraising"],
-  curious: ["why_yc", "how_heard", "coding_session"],
+  curious: ["why_yc", "how_heard", "coding_session", "founder_video_script"],
 };
 
 function getOrderedEntries(sectionKey: string, content: Record<string, YCQuestion>): [string, YCQuestion][] {
