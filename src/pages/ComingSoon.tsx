@@ -252,7 +252,7 @@ export default function ComingSoon() {
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
               <span className="text-primary font-semibold">NFTs</span> for:
             </p>
-            <p className="text-sm text-muted-foreground/70 mb-5 italic">
+            <p className="text-sm text-muted-foreground/70 mb-5 italic hidden">
               Your clean energy, your digital income.
             </p>
             <ul className="space-y-3 text-left inline-block text-base md:text-lg">
@@ -276,6 +276,22 @@ export default function ComingSoon() {
                 </motion.li>
               ))}
             </ul>
+          </motion.div>
+
+          {/* Digital income pill */}
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
+          >
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm shadow-lg shadow-primary/5">
+              <Zap className="w-4 h-4 text-token" />
+              <span className="text-sm font-medium text-foreground tracking-wide">
+                Your clean energy, now your digital income
+              </span>
+              <Sun className="w-4 h-4 text-solar" />
+            </div>
           </motion.div>
 
           {/* Connects With logos */}
