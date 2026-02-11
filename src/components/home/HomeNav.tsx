@@ -15,11 +15,11 @@ export function HomeNav() {
           <img src={zenLogo} alt="ZenSolar" width="108" height="32" className="h-8 w-auto dark:animate-logo-glow" />
         </Link>
         <nav className="hidden md:flex items-center gap-6">
+          <a href="#why-zensolar" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Why ZenSolar</a>
           <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
+          <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
           <a href="#tokenomics" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Tokenomics</a>
-          <a href="#integrations" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Integrations</a>
           <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
-          <Link to="/white-paper" className="text-sm text-muted-foreground hover:text-foreground transition-colors">White Paper</Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />
