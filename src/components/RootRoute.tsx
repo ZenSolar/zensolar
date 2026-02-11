@@ -15,7 +15,7 @@ function RouteLoader() {
   );
 }
 
-const COMING_SOON_HOSTS = ['zensolar.com', 'www.zensolar.com'];
+const BETA_HOSTS = ['beta.zen.solar'];
 
 export function RootRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -25,7 +25,7 @@ export function RootRoute() {
   }
 
   if (!isAuthenticated) {
-    const isComingSoon = COMING_SOON_HOSTS.includes(window.location.hostname);
+    const isComingSoon = !BETA_HOSTS.includes(window.location.hostname);
     return (
       <Suspense fallback={<RouteLoader />}>
         {isComingSoon ? <ComingSoon /> : <Landing />}
