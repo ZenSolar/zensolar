@@ -13,13 +13,13 @@ import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
 /* ── Animated particle field ── */
 function ParticleField() {
-  const particles = Array.from({ length: 40 }, (_, i) => ({
+  const particles = Array.from({ length: 30 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: Math.random() * 3 + 1,
-    duration: Math.random() * 20 + 10,
-    delay: Math.random() * 5,
+    size: Math.random() * 2.5 + 0.5,
+    duration: Math.random() * 25 + 15,
+    delay: Math.random() * 8,
   }));
 
   return (
@@ -27,12 +27,12 @@ function ParticleField() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-primary/30"
+          className="absolute rounded-full bg-primary/20"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{
-            y: [0, -80, 0],
-            x: [0, Math.random() * 40 - 20, 0],
-            opacity: [0, 0.8, 0],
+            y: [0, -60, 0],
+            x: [0, Math.random() * 30 - 15, 0],
+            opacity: [0, 0.6, 0],
           }}
           transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -44,7 +44,7 @@ function ParticleField() {
 /* ── Hex grid background ── */
 function HexGrid() {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04]">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="hexagons" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(1.5)">
@@ -52,13 +52,13 @@ function HexGrid() {
               d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="0.5"
+              strokeWidth="0.4"
             />
             <path
               d="M28 0L56 16L56 50L28 66L0 50L0 16"
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="0.5"
+              strokeWidth="0.4"
             />
           </pattern>
         </defs>
@@ -72,13 +72,13 @@ function HexGrid() {
 function ScannerLine() {
   return (
     <motion.div
-      className="absolute left-0 right-0 h-[1px] pointer-events-none z-20"
+      className="absolute left-0 right-0 h-[2px] pointer-events-none z-20"
       style={{
-        background: 'linear-gradient(90deg, transparent, hsl(var(--primary) / 0.4), hsl(var(--secondary) / 0.4), transparent)',
-        boxShadow: '0 0 20px 4px hsl(var(--primary) / 0.15)',
+        background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.3) 30%, hsl(var(--secondary) / 0.35) 50%, hsl(var(--primary) / 0.3) 70%, transparent 95%)',
+        boxShadow: '0 0 30px 8px hsl(var(--primary) / 0.08), 0 0 60px 16px hsl(var(--secondary) / 0.04)',
       }}
-      animate={{ top: ['0%', '100%'] }}
-      transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+      animate={{ top: ['0%', '100%', '0%'] }}
+      transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
     />
   );
 }
@@ -117,12 +117,10 @@ function GlowOrbs() {
 
 /* ── Floating energy icons with glow ── */
 const floatingIcons = [
-  { Icon: Sun, delay: 0, x: '12%', y: '18%', color: 'text-solar/20' },
-  { Icon: Zap, delay: 0.5, x: '82%', y: '12%', color: 'text-token/20' },
-  { Icon: Battery, delay: 1, x: '8%', y: '78%', color: 'text-secondary/20' },
-  { Icon: Car, delay: 1.5, x: '88%', y: '72%', color: 'text-energy/20' },
-  { Icon: Hexagon, delay: 2, x: '50%', y: '8%', color: 'text-primary/10' },
-  { Icon: Shield, delay: 2.5, x: '20%', y: '50%', color: 'text-primary/10' },
+  { Icon: Sun, delay: 0, x: '10%', y: '20%', color: 'text-solar/15' },
+  { Icon: Zap, delay: 0.8, x: '85%', y: '14%', color: 'text-token/15' },
+  { Icon: Battery, delay: 1.6, x: '7%', y: '75%', color: 'text-secondary/15' },
+  { Icon: Car, delay: 2.4, x: '90%', y: '70%', color: 'text-energy/15' },
 ];
 
 /* ── Typing cursor for tagline ── */
