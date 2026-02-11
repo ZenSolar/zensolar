@@ -1,18 +1,136 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Sun, Zap, Battery, Car, Check, Loader2, Shield } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sun, Zap, Battery, Car, Check, Loader2, Shield, Hexagon } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
+/* ── Animated particle field ── */
+function ParticleField() {
+  const particles = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 3 + 1,
+    duration: Math.random() * 20 + 10,
+    delay: Math.random() * 5,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-primary/30"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
+          animate={{
+            y: [0, -80, 0],
+            x: [0, Math.random() * 40 - 20, 0],
+            opacity: [0, 0.8, 0],
+          }}
+          transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ── Hex grid background ── */
+function HexGrid() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04]">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="hexagons" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(1.5)">
+            <path
+              d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="0.5"
+            />
+            <path
+              d="M28 0L56 16L56 50L28 66L0 50L0 16"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="0.5"
+            />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hexagons)" />
+      </svg>
+    </div>
+  );
+}
+
+/* ── Scanner line ── */
+function ScannerLine() {
+  return (
+    <motion.div
+      className="absolute left-0 right-0 h-[1px] pointer-events-none z-20"
+      style={{
+        background: 'linear-gradient(90deg, transparent, hsl(var(--primary) / 0.4), hsl(var(--secondary) / 0.4), transparent)',
+        boxShadow: '0 0 20px 4px hsl(var(--primary) / 0.15)',
+      }}
+      animate={{ top: ['0%', '100%'] }}
+      transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+    />
+  );
+}
+
+/* ── Glowing orbs ── */
+function GlowOrbs() {
+  return (
+    <>
+      <motion.div
+        className="absolute top-1/4 left-1/6 w-[500px] h-[500px] rounded-full blur-[150px]"
+        style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)' }}
+        animate={{ scale: [1, 1.3, 1], x: [0, 60, 0], y: [0, -40, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/6 w-[400px] h-[400px] rounded-full blur-[130px]"
+        style={{ background: 'radial-gradient(circle, hsl(var(--secondary) / 0.1), transparent 70%)' }}
+        animate={{ scale: [1.2, 0.9, 1.2], x: [0, -50, 0], y: [0, 50, 0] }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[180px]"
+        style={{ background: 'radial-gradient(circle, hsl(var(--solar) / 0.06), transparent 70%)' }}
+        animate={{ scale: [1, 1.15, 1], rotate: [0, 180, 360] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+      />
+      <motion.div
+        className="absolute top-[10%] right-[20%] w-[250px] h-[250px] rounded-full blur-[100px]"
+        style={{ background: 'radial-gradient(circle, hsl(var(--token) / 0.08), transparent 70%)' }}
+        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+      />
+    </>
+  );
+}
+
+/* ── Floating energy icons with glow ── */
 const floatingIcons = [
-  { Icon: Sun, delay: 0, x: '15%', y: '20%' },
-  { Icon: Zap, delay: 0.5, x: '80%', y: '15%' },
-  { Icon: Battery, delay: 1, x: '10%', y: '75%' },
-  { Icon: Car, delay: 1.5, x: '85%', y: '70%' },
+  { Icon: Sun, delay: 0, x: '12%', y: '18%', color: 'text-solar/20' },
+  { Icon: Zap, delay: 0.5, x: '82%', y: '12%', color: 'text-token/20' },
+  { Icon: Battery, delay: 1, x: '8%', y: '78%', color: 'text-secondary/20' },
+  { Icon: Car, delay: 1.5, x: '88%', y: '72%', color: 'text-energy/20' },
+  { Icon: Hexagon, delay: 2, x: '50%', y: '8%', color: 'text-primary/10' },
+  { Icon: Shield, delay: 2.5, x: '20%', y: '50%', color: 'text-primary/10' },
 ];
+
+/* ── Typing cursor for tagline ── */
+function BlinkingCursor() {
+  return (
+    <motion.span
+      className="inline-block w-[2px] h-4 bg-primary ml-1 align-middle"
+      animate={{ opacity: [1, 0, 1] }}
+      transition={{ duration: 1, repeat: Infinity }}
+    />
+  );
+}
 
 export default function ComingSoon() {
   const [name, setName] = useState('');
@@ -54,204 +172,257 @@ export default function ComingSoon() {
         image="https://zensolar.com/og-image.png"
       />
       <div className="relative min-h-screen overflow-hidden bg-background">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]"
-            animate={{ scale: [1, 1.2, 1], x: [0, 40, 0], y: [0, -30, 0] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-solar/5 blur-[100px]"
-            animate={{ scale: [1.2, 1, 1.2], x: [0, -30, 0], y: [0, 40, 0] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </div>
+        {/* Layered backgrounds */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-primary/5" />
+        <HexGrid />
+        <GlowOrbs />
+        <ParticleField />
+        <ScannerLine />
 
         {/* Floating energy icons */}
-        {floatingIcons.map(({ Icon, delay, x, y }, i) => (
+        {floatingIcons.map(({ Icon, delay, x, y, color }, i) => (
           <motion.div
             key={i}
-            className="absolute text-primary/15"
+            className={`absolute ${color}`}
             style={{ left: x, top: y }}
             initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1, y: [0, -12, 0] }}
+            animate={{ opacity: 1, scale: 1, y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
             transition={{
               opacity: { delay: delay + 0.5, duration: 0.8 },
               scale: { delay: delay + 0.5, duration: 0.8 },
-              y: { delay: delay + 1.3, duration: 4, repeat: Infinity, ease: 'easeInOut' },
+              y: { delay: delay + 1.3, duration: 5 + i, repeat: Infinity, ease: 'easeInOut' },
+              rotate: { delay: delay + 1.3, duration: 8, repeat: Infinity, ease: 'easeInOut' },
             }}
           >
-            <Icon className="w-10 h-10 md:w-14 md:h-14" />
+            <Icon className="w-8 h-8 md:w-12 md:h-12" strokeWidth={1} />
           </motion.div>
         ))}
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-center">
-          {/* Logo — use object-contain to prevent distortion */}
-          <motion.img
-            src="/logos/zen-stacked.png"
-            alt="ZenSolar"
-            className="w-auto h-24 md:h-32 mb-8 object-contain drop-shadow-lg"
+          {/* Logo */}
+          <motion.div
+            className="relative mb-10"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-          />
+          >
+            <div className="absolute inset-0 blur-2xl bg-primary/10 rounded-full scale-150" />
+            <img
+              src="/logos/zen-stacked.png"
+              alt="ZenSolar"
+              className="relative w-auto h-20 md:h-28 object-contain drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]"
+            />
+          </motion.div>
 
           {/* Heading */}
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-4"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Something{' '}
-            <span className="bg-gradient-to-r from-primary via-secondary to-solar bg-clip-text text-transparent">
+            <motion.span
+              className="bg-gradient-to-r from-primary via-secondary to-solar bg-clip-text text-transparent"
+              animate={{
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+              }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+              style={{ backgroundSize: '200% 200%' }}
+            >
               powerful
-            </span>{' '}
+            </motion.span>{' '}
             is coming
           </motion.h1>
 
           {/* Value prop — mirrors landing hero copy */}
           <motion.div
-            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-8"
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <p className="mb-4">
+            <p className="mb-5">
               ZenSolar rewards solar users and EV drivers with{' '}
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
               <span className="text-primary font-semibold">NFTs</span> for:
             </p>
-            <ul className="space-y-2 text-left inline-block text-base md:text-lg">
-              <li className="flex items-center gap-2.5">
-                <Sun className="h-4 w-4 text-solar flex-shrink-0" />
-                <span>Every kWh your solar panels produce</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Battery className="h-4 w-4 text-secondary flex-shrink-0" />
-                <span>Every kWh your battery discharges</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Car className="h-4 w-4 text-energy flex-shrink-0" />
-                <span>Every EV mile you drive</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Zap className="h-4 w-4 text-token flex-shrink-0" />
-                <span>Every kWh used to charge your EV</span>
-              </li>
+            <ul className="space-y-3 text-left inline-block text-base md:text-lg">
+              {[
+                { Icon: Sun, color: 'from-solar to-solar/50', text: 'Every kWh your solar panels produce' },
+                { Icon: Battery, color: 'from-secondary to-secondary/50', text: 'Every kWh your battery discharges' },
+                { Icon: Car, color: 'from-energy to-energy/50', text: 'Every EV mile you drive' },
+                { Icon: Zap, color: 'from-token to-token/50', text: 'Every kWh used to charge your EV' },
+              ].map(({ Icon, color, text }, idx) => (
+                <motion.li
+                  key={idx}
+                  className="flex items-center gap-3 group"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
+                >
+                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                    <Icon className="h-4 w-4 text-foreground" />
+                  </div>
+                  <span className="group-hover:text-foreground transition-colors">{text}</span>
+                </motion.li>
+              ))}
             </ul>
           </motion.div>
 
-          {/* Mint-on-Proof — upgraded visual */}
+          {/* Mint-on-Proof — holographic card */}
           <motion.div
-            className="relative w-full max-w-md mb-10 p-[1px] rounded-2xl bg-gradient-to-r from-primary via-secondary to-solar"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            className="relative w-full max-w-md mb-12"
+            initial={{ opacity: 0, scale: 0.9, rotateX: 10 }}
+            animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <div className="rounded-2xl bg-card/90 backdrop-blur-sm px-6 py-5 flex flex-col items-center gap-3">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
-                    <Shield className="w-5 h-5 text-primary-foreground" />
+            {/* Animated gradient border */}
+            <motion.div
+              className="absolute -inset-[1px] rounded-2xl"
+              style={{
+                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--solar)), hsl(var(--token)), hsl(var(--primary)))',
+                backgroundSize: '400% 400%',
+              }}
+              animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+            />
+            {/* Card content */}
+            <div className="relative rounded-2xl bg-card/95 backdrop-blur-xl px-6 py-6">
+              {/* Top row */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <motion.div
+                      className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-secondary to-solar flex items-center justify-center shadow-xl shadow-primary/30"
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <Shield className="w-6 h-6 text-primary-foreground" />
+                    </motion.div>
+                    <motion.div
+                      className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-secondary ring-2 ring-card"
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-secondary animate-pulse ring-2 ring-card" />
+                  <div className="text-left">
+                    <p className="font-bold text-foreground text-lg tracking-tight">Mint-on-Proof™</p>
+                    <p className="text-xs text-muted-foreground">Patent-pending technology</p>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <p className="font-bold text-foreground text-base tracking-tight">Mint-on-Proof™</p>
-                  <p className="text-xs text-muted-foreground">Patent-pending technology</p>
-                </div>
+                <motion.div
+                  className="px-3 py-1 rounded-full bg-secondary/15 border border-secondary/30"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <span className="text-xs font-mono font-semibold text-secondary">ACTIVE</span>
+                </motion.div>
               </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Verified on-chain
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                  Base L2
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-solar" />
-                  Anti-gaming
-                </span>
+
+              {/* Divider with glow */}
+              <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-4" />
+
+              {/* Feature pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {[
+                  { label: 'Verified on-chain', color: 'primary' },
+                  { label: 'Base L2', color: 'secondary' },
+                  { label: 'Anti-gaming', color: 'solar' },
+                ].map(({ label, color }) => (
+                  <div
+                    key={label}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-${color}/10 border border-${color}/20`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full bg-${color} animate-pulse`} />
+                    <span className="text-xs font-medium text-foreground">{label}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
 
-          {/* Beta signup form */}
+          {/* Beta signup form — glassmorphism */}
           <motion.div
             className="w-full max-w-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            {submitted ? (
-              <div className="flex flex-col items-center gap-3 p-6 rounded-xl border border-secondary/30 bg-card/60 backdrop-blur-sm">
-                <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center">
-                  <Check className="w-6 h-6 text-secondary" />
-                </div>
-                <p className="font-semibold text-foreground">You're on the list!</p>
-                <p className="text-sm text-muted-foreground">We'll reach out when your spot is ready.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-6 rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">
-                <p className="text-sm font-medium text-foreground mb-1">Request early access</p>
-                <Input
-                  type="text"
-                  placeholder="Your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="bg-background/60"
-                />
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-background/60"
-                />
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-shadow"
+            <AnimatePresence mode="wait">
+              {submitted ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center gap-4 p-8 rounded-2xl border border-secondary/30 bg-card/60 backdrop-blur-xl"
                 >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Zap className="w-4 h-4 mr-2" />
-                  )}
-                  {loading ? 'Submitting...' : 'Join the Beta'}
-                </Button>
-              </form>
-            )}
+                  <motion.div
+                    className="w-16 h-16 rounded-full bg-gradient-to-br from-secondary to-secondary/50 flex items-center justify-center shadow-xl shadow-secondary/30"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', delay: 0.2 }}
+                  >
+                    <Check className="w-8 h-8 text-secondary-foreground" />
+                  </motion.div>
+                  <p className="font-bold text-lg text-foreground">You're on the list!</p>
+                  <p className="text-sm text-muted-foreground">We'll reach out when your spot is ready.</p>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  onSubmit={handleSubmit}
+                  className="flex flex-col gap-4 p-6 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-xl shadow-2xl shadow-primary/5"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Hexagon className="w-4 h-4 text-primary" />
+                    <p className="text-sm font-semibold text-foreground">Request early access</p>
+                  </div>
+                  <Input
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="bg-background/40 border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all"
+                  />
+                  <Input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-background/40 border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-5 bg-gradient-to-r from-primary via-primary to-secondary hover:opacity-90 shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-[1.02]"
+                  >
+                    {loading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Zap className="w-4 h-4 mr-2" />
+                    )}
+                    {loading ? 'Submitting...' : 'Join the Beta'}
+                  </Button>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* Bottom tagline */}
           <motion.p
-            className="mt-16 text-xs text-muted-foreground/60 tracking-widest uppercase"
+            className="mt-16 text-xs text-muted-foreground/50 tracking-[0.3em] uppercase font-mono"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.2 }}
           >
             Clean energy. Real rewards. On-chain proof.
+            <BlinkingCursor />
           </motion.p>
         </div>
-
-        {/* Subtle grid overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
       </div>
     </>
   );
