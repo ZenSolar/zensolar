@@ -242,7 +242,7 @@ export default function ComingSoon() {
 
           {/* Value prop — mirrors landing hero copy */}
           <motion.div
-            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-6"
+            className="text-base md:text-xl text-muted-foreground max-w-xl mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
