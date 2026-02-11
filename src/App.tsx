@@ -90,6 +90,7 @@ const EnergyLog = lazy(() => import("./pages/EnergyLog"));
 const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataArchitecture"));
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
+const Home = lazy(() => import("./pages/Home"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -158,6 +159,7 @@ const App = () => {
                       <Route path="help" element={<Help />} />
                       <Route path="feedback" element={<Feedback />} />
                     </Route>
+                    <Route path="/home" element={<Home />} />
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
