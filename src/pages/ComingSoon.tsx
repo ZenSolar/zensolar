@@ -287,7 +287,7 @@ export default function ComingSoon() {
               {[
                 { src: teslaLogo, alt: 'Tesla', h: 'h-8 md:h-10' },
                 { src: enphaseLogo, alt: 'Enphase', h: 'h-5 md:h-6' },
-                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-8 md:h-10' },
+                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-10 md:h-14' },
                 { src: wallboxLogo, alt: 'Wallbox', h: 'h-5 md:h-6' },
               ].map(({ src, alt, h }, idx) => (
                 <motion.img
