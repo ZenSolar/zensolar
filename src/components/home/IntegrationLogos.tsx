@@ -1,13 +1,19 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.svg';
+import wallboxLogo from '@/assets/logos/wallbox-logo.svg';
+import baseLogo from '@/assets/logos/base-logo.svg';
+import coinbaseLogo from '@/assets/logos/coinbase-logo.svg';
 
 const integrations = [
-  { name: 'Tesla', icon: '⚡', desc: 'Solar, Powerwall & EV' },
-  { name: 'Enphase', icon: '☀️', desc: 'Solar Monitoring' },
-  { name: 'SolarEdge', icon: '🔆', desc: 'Solar Inverters' },
-  { name: 'Wallbox', icon: '🔌', desc: 'EV Charging' },
-  { name: 'Base', icon: '🔵', desc: 'L2 Blockchain' },
-  { name: 'Coinbase', icon: '💰', desc: 'Smart Wallet' },
+  { name: 'Tesla', logo: teslaLogo, desc: 'Solar, Powerwall & EV', invert: true },
+  { name: 'Enphase', logo: enphaseLogo, desc: 'Solar Monitoring', invert: false },
+  { name: 'SolarEdge', logo: solaredgeLogo, desc: 'Solar Inverters', invert: true },
+  { name: 'Wallbox', logo: wallboxLogo, desc: 'EV Charging', invert: true },
+  { name: 'Base', logo: baseLogo, desc: 'L2 Blockchain', invert: false },
+  { name: 'Coinbase', logo: coinbaseLogo, desc: 'Smart Wallet', invert: true },
 ];
 
 export function IntegrationLogos() {
@@ -46,11 +52,18 @@ export function IntegrationLogos() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className="flex flex-col items-center gap-2 p-5 rounded-xl border border-border/60 bg-card/50 hover:bg-card hover:shadow-md hover:border-primary/30 transition-all cursor-default"
+              className="flex flex-col items-center justify-center gap-3 p-5 rounded-xl border border-border/60 bg-card/50 hover:bg-card hover:shadow-md hover:border-primary/30 transition-all cursor-default min-h-[120px]"
             >
-              <span className="text-3xl">{item.icon}</span>
-              <span className="text-sm font-semibold text-foreground">{item.name}</span>
-              <span className="text-xs text-muted-foreground text-center">{item.desc}</span>
+              <img
+                src={item.logo}
+                alt={`${item.name} logo`}
+                className={`h-8 w-auto max-w-[80px] object-contain ${item.invert ? 'dark:invert dark:brightness-200' : ''}`}
+                loading="lazy"
+              />
+              <div className="text-center">
+                <span className="text-sm font-semibold text-foreground block">{item.name}</span>
+                <span className="text-xs text-muted-foreground">{item.desc}</span>
+              </div>
             </motion.div>
           ))}
         </div>
