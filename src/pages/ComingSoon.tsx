@@ -242,16 +242,14 @@ export default function ComingSoon() {
 
           {/* Value prop — mirrors landing hero copy */}
           <motion.div
-            className="text-base md:text-xl text-muted-foreground max-w-xl mb-6"
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <p className="mb-1">
-              <span className="block">ZenSolar rewards solar users</span>
-              <span className="block">and EV drivers with</span>
-              <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
-              <span className="text-primary font-semibold">NFTs</span> for:
+              <span className="block">Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> & <span className="text-primary font-semibold">NFTs</span></span>
+              <span className="block">for your clean energy activities:</span>
             </p>
 
             {/* Decorative divider */}
