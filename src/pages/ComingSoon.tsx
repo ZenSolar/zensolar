@@ -242,7 +242,7 @@ export default function ComingSoon() {
 
           {/* Value prop — mirrors landing hero copy */}
           <motion.div
-            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-6"
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -284,7 +284,7 @@ export default function ComingSoon() {
           </motion.div>
 
           {/* Divider between KPIs and pill */}
-          <div className="flex items-center justify-center gap-3 mb-5">
+          <div className="flex items-center justify-center gap-3 mb-3">
             <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-secondary/25" />
             <Shield className="w-3 h-3 text-secondary/30" />
             <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-secondary/25" />
