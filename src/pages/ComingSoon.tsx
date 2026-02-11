@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import teslaLogo from '@/assets/logos/tesla-wordmark.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import solarEdgeLogo from '@/assets/logos/solaredge-wordmark.png';
+import solarEdgeLogo from '@/assets/logos/solaredge-wordmark.svg';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
 /* ── Animated particle field ── */
@@ -282,21 +282,21 @@ export default function ComingSoon() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.55 }}
           >
-            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-4">Connects with</p>
-            <div className="flex items-center justify-center gap-8 md:gap-10">
+            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
+            <div className="flex items-center justify-center gap-6">
               {[
-                { src: teslaLogo, alt: 'Tesla', h: 'h-9 md:h-12' },
-                { src: enphaseLogo, alt: 'Enphase', h: 'h-6 md:h-7' },
-                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-9 md:h-11' },
-                { src: wallboxLogo, alt: 'Wallbox', h: 'h-7 md:h-8' },
+                { src: teslaLogo, alt: 'Tesla', h: 'h-7 md:h-9' },
+                { src: enphaseLogo, alt: 'Enphase', h: 'h-5 md:h-6' },
+                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-5 md:h-6' },
+                { src: wallboxLogo, alt: 'Wallbox', h: 'h-5 md:h-6' },
               ].map(({ src, alt, h }, idx) => (
                 <motion.img
                   key={alt}
                   src={src}
                   alt={alt}
-                  className={`${h} w-auto object-contain opacity-70 hover:opacity-100 transition-all duration-300`}
+                  className={`${h} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-300`}
                   initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 0.7, y: 0 }}
+                  animate={{ opacity: 0.6, y: 0 }}
                   transition={{ delay: 0.6 + idx * 0.1, duration: 0.5 }}
                 />
               ))}
