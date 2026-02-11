@@ -360,6 +360,7 @@ export default function ComingSoon() {
                 {[
                   { label: 'Verified on-chain', color: 'primary' },
                   { label: 'Base Blockchain L2', color: 'secondary' },
+                  { label: 'One-tap minting', color: 'token' },
                   { label: 'Anti-gaming', color: 'solar' },
                 ].map(({ label, color }) => (
                   <div
