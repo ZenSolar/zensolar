@@ -6,9 +6,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import teslaLogo from '@/assets/logos/tesla-logo.png';
+import teslaLogo from '@/assets/logos/tesla-wordmark.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import solarEdgeLogo from '@/assets/logos/solaredge-logo.png';
+import solarEdgeLogo from '@/assets/logos/solaredge-wordmark.svg';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
 /* ── Animated particle field ── */
