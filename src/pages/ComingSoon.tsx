@@ -242,7 +242,7 @@ export default function ComingSoon() {
 
           {/* Value prop — mirrors landing hero copy */}
           <motion.div
-            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-4"
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -292,7 +292,7 @@ export default function ComingSoon() {
 
           {/* Digital income pill */}
           <motion.div
-            className="mb-8"
+            className="mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.55 }}
