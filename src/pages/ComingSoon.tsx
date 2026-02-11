@@ -44,7 +44,7 @@ function ParticleField() {
 /* ── Hex grid background ── */
 function HexGrid() {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04]">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="hexagons" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(1.5)">
@@ -52,13 +52,13 @@ function HexGrid() {
               d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="0.4"
+              strokeWidth="0.5"
             />
             <path
               d="M28 0L56 16L56 50L28 66L0 50L0 16"
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="0.4"
+              strokeWidth="0.5"
             />
           </pattern>
         </defs>
@@ -117,10 +117,12 @@ function GlowOrbs() {
 
 /* ── Floating energy icons with glow ── */
 const floatingIcons = [
-  { Icon: Sun, delay: 0, x: '10%', y: '20%', color: 'text-solar/15' },
-  { Icon: Zap, delay: 0.8, x: '85%', y: '14%', color: 'text-token/15' },
-  { Icon: Battery, delay: 1.6, x: '7%', y: '75%', color: 'text-secondary/15' },
-  { Icon: Car, delay: 2.4, x: '90%', y: '70%', color: 'text-energy/15' },
+  { Icon: Sun, delay: 0, x: '12%', y: '18%', color: 'text-solar/20' },
+  { Icon: Zap, delay: 0.5, x: '82%', y: '12%', color: 'text-token/20' },
+  { Icon: Battery, delay: 1, x: '8%', y: '78%', color: 'text-secondary/20' },
+  { Icon: Car, delay: 1.5, x: '88%', y: '72%', color: 'text-energy/20' },
+  { Icon: Hexagon, delay: 2, x: '50%', y: '8%', color: 'text-primary/10' },
+  { Icon: Shield, delay: 2.5, x: '20%', y: '50%', color: 'text-primary/10' },
 ];
 
 /* ── Typing cursor for tagline ── */
