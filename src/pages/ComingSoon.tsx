@@ -221,14 +221,14 @@ export default function ComingSoon() {
 
           {/* Heading */}
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 leading-[1.1]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Something{' '}
+            <span className="block">Something</span>
             <motion.span
-              className="bg-gradient-to-r from-primary via-secondary to-solar bg-clip-text text-transparent"
+              className="block bg-gradient-to-r from-primary via-secondary to-solar bg-clip-text text-transparent"
               animate={{
                 backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
               }}
@@ -236,8 +236,8 @@ export default function ComingSoon() {
               style={{ backgroundSize: '200% 200%' }}
             >
               powerful
-            </motion.span>{' '}
-            is coming…
+            </motion.span>
+            <span className="block">is coming…</span>
           </motion.h1>
 
           {/* Value prop — mirrors landing hero copy */}
@@ -285,12 +285,24 @@ export default function ComingSoon() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.55 }}
           >
-            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm shadow-lg shadow-primary/5">
-              <Zap className="w-4 h-4 text-token" />
-              <span className="text-sm font-medium text-foreground tracking-wide">
-                Your clean energy, now your digital income
-              </span>
-              <Sun className="w-4 h-4 text-solar" />
+            <div className="relative inline-flex items-center gap-2 px-5 py-2 rounded-full backdrop-blur-sm shadow-lg shadow-primary/5">
+              {/* Gradient border */}
+              <motion.div
+                className="absolute -inset-[1px] rounded-full"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(var(--primary) / 0.4), hsl(var(--secondary) / 0.3), hsl(var(--solar) / 0.4), hsl(var(--token) / 0.3), hsl(var(--primary) / 0.4))',
+                  backgroundSize: '300% 300%',
+                }}
+                animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+              />
+              <div className="relative flex items-center gap-2 px-1 py-0.5 rounded-full bg-card/90">
+                <Zap className="w-3.5 h-3.5 text-token flex-shrink-0" />
+                <span className="text-xs md:text-sm font-medium text-foreground whitespace-nowrap">
+                  Your clean energy, now your digital income
+                </span>
+                <Sun className="w-3.5 h-3.5 text-solar flex-shrink-0" />
+              </div>
             </div>
           </motion.div>
 
