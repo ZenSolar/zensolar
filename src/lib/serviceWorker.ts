@@ -26,7 +26,7 @@ export async function getPushSubscription(timeoutMs = 1500): Promise<PushSubscri
   if (!reg) return null;
 
   try {
-    return await reg.pushManager.getSubscription();
+    return await (reg as any).pushManager.getSubscription();
   } catch {
     return null;
   }

@@ -441,7 +441,7 @@ export default function Admin() {
     await navigator.serviceWorker.ready;
 
     // Check existing subscription
-    let subscription = await registration.pushManager.getSubscription();
+    let subscription = await (registration as any).pushManager.getSubscription();
 
     if (!subscription) {
       // Fetch VAPID public key
@@ -460,7 +460,7 @@ export default function Admin() {
       }
 
       // Subscribe
-      subscription = await registration.pushManager.subscribe({
+      subscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
       });
@@ -596,7 +596,7 @@ export default function Admin() {
       try {
         const reg = await waitForServiceWorkerReady(1500);
         if (reg) {
-          const sub = await reg.pushManager.getSubscription();
+          const sub = await (reg as any).pushManager.getSubscription();
           currentEndpoint = sub?.endpoint;
         }
       } catch {
