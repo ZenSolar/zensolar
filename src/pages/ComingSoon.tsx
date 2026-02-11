@@ -283,20 +283,20 @@ export default function ComingSoon() {
             transition={{ duration: 0.6, delay: 0.55 }}
           >
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-4">Connects with</p>
-            <div className="flex items-center justify-center gap-6 md:gap-8">
+            <div className="flex items-center justify-center gap-8 md:gap-10">
               {[
-                { src: teslaLogo, alt: 'Tesla' },
-                { src: enphaseLogo, alt: 'Enphase' },
-                { src: solarEdgeLogo, alt: 'SolarEdge' },
-                { src: wallboxLogo, alt: 'Wallbox' },
-              ].map(({ src, alt }, idx) => (
+                { src: teslaLogo, alt: 'Tesla', h: 'h-7 md:h-8' },
+                { src: enphaseLogo, alt: 'Enphase', h: 'h-5 md:h-6' },
+                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-6 md:h-7' },
+                { src: wallboxLogo, alt: 'Wallbox', h: 'h-6 md:h-7' },
+              ].map(({ src, alt, h }, idx) => (
                 <motion.img
                   key={alt}
                   src={src}
                   alt={alt}
-                  className="h-6 md:h-7 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity brightness-0 invert dark:brightness-100 dark:invert-0 hover:brightness-100 hover:invert-0 dark:hover:brightness-100"
+                  className={`${h} w-auto object-contain opacity-70 hover:opacity-100 transition-all duration-300`}
                   initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 0.8, y: 0 }}
+                  animate={{ opacity: 0.7, y: 0 }}
                   transition={{ delay: 0.6 + idx * 0.1, duration: 0.5 }}
                 />
               ))}
