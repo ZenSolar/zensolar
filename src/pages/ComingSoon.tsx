@@ -285,10 +285,10 @@ export default function ComingSoon() {
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
             <div className="flex items-center justify-center gap-6">
               {[
-                { src: teslaLogo, alt: 'Tesla', h: 'h-8 md:h-10' },
-                { src: enphaseLogo, alt: 'Enphase', h: 'h-5 md:h-6' },
-                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-10 md:h-14' },
-                { src: wallboxLogo, alt: 'Wallbox', h: 'h-5 md:h-6' },
+                { src: teslaLogo, alt: 'Tesla', h: 'h-9 md:h-11' },
+                { src: enphaseLogo, alt: 'Enphase', h: 'h-6 md:h-7' },
+                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-12 md:h-16' },
+                { src: wallboxLogo, alt: 'Wallbox', h: 'h-6 md:h-7' },
               ].map(({ src, alt, h }, idx) => (
                 <motion.img
                   key={alt}
