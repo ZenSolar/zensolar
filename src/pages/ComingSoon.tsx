@@ -359,7 +359,7 @@ export default function ComingSoon() {
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {[
                   { label: 'Verified on-chain', color: 'primary' },
-                  { label: 'Base L2', color: 'secondary' },
+                  { label: 'Base Blockchain L2', color: 'secondary' },
                   { label: 'Anti-gaming', color: 'solar' },
                 ].map(({ label, color }) => (
                   <div
