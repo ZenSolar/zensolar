@@ -237,7 +237,7 @@ export default function ComingSoon() {
             >
               powerful
             </motion.span>{' '}
-            is coming
+            is coming…
           </motion.h1>
 
           {/* Value prop — mirrors landing hero copy */}
@@ -254,11 +254,11 @@ export default function ComingSoon() {
             </p>
             <ul className="space-y-3 text-left inline-block text-base md:text-lg">
               {[
-                { Icon: Sun, color: 'from-solar to-solar/50', text: 'Every kWh your solar panels produce' },
-                { Icon: Battery, color: 'from-secondary to-secondary/50', text: 'Every kWh your battery discharges' },
-                { Icon: Car, color: 'from-energy to-energy/50', text: 'Every EV mile you drive' },
-                { Icon: Zap, color: 'from-token to-token/50', text: 'Every kWh used to charge your EV' },
-              ].map(({ Icon, color, text }, idx) => (
+                { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
+                { Icon: Battery, iconColor: 'text-secondary', text: 'Every kWh your battery discharges' },
+                { Icon: Car, iconColor: 'text-energy', text: 'Every EV mile you drive' },
+                { Icon: Zap, iconColor: 'text-token', text: 'Every kWh used to charge your EV' },
+              ].map(({ Icon, iconColor, text }, idx) => (
                 <motion.li
                   key={idx}
                   className="flex items-center gap-3 group"
@@ -266,8 +266,8 @@ export default function ComingSoon() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
                 >
-                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center shadow-lg flex-shrink-0`}>
-                    <Icon className="h-4 w-4 text-foreground" />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Icon className={`h-5 w-5 ${iconColor}`} />
                   </div>
                   <span className="group-hover:text-foreground transition-colors">{text}</span>
                 </motion.li>
@@ -294,9 +294,9 @@ export default function ComingSoon() {
                   key={alt}
                   src={src}
                   alt={alt}
-                  className="h-6 md:h-7 w-auto object-contain opacity-50 hover:opacity-90 transition-opacity grayscale hover:grayscale-0"
+                  className="h-6 md:h-7 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity brightness-0 invert dark:brightness-100 dark:invert-0 hover:brightness-100 hover:invert-0 dark:hover:brightness-100"
                   initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 0.5, y: 0 }}
+                  animate={{ opacity: 0.8, y: 0 }}
                   transition={{ delay: 0.6 + idx * 0.1, duration: 0.5 }}
                 />
               ))}
