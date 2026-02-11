@@ -1,6 +1,11 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Zap, Battery, Car } from 'lucide-react';
+import { Sun, Zap, Battery, Car, Check, Loader2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 const floatingIcons = [
   { Icon: Sun, delay: 0, x: '15%', y: '20%' },
@@ -10,11 +15,41 @@ const floatingIcons = [
 ];
 
 export default function ComingSoon() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim()) return;
+
+    setLoading(true);
+    const { error } = await supabase
+      .from('beta_signups')
+      .insert({ name: name.trim(), email: email.trim().toLowerCase() });
+
+    setLoading(false);
+
+    if (error) {
+      if (error.code === '23505') {
+        toast.info("You're already on the list! We'll be in touch soon.");
+        setSubmitted(true);
+      } else {
+        toast.error('Something went wrong. Please try again.');
+      }
+      return;
+    }
+
+    setSubmitted(true);
+    toast.success("You're in! We'll reach out when your spot is ready.");
+  };
+
   return (
     <>
       <SEO
         title="Coming Soon — ZenSolar"
-        description="ZenSolar is launching soon. Earn $ZSOLAR tokens for every kWh your solar panels produce, every EV mile you drive, and every battery cycle."
+        description="ZenSolar is launching soon. Earn $ZSOLAR tokens for every kWh your solar panels produce, every battery discharge, every EV charge, and every mile you drive."
         url="https://zensolar.com"
         image="https://zensolar.com/og-image.png"
       />
@@ -54,11 +89,11 @@ export default function ComingSoon() {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-center">
-          {/* Logo */}
+          {/* Logo — use object-contain to prevent distortion */}
           <motion.img
             src="/logos/zen-stacked.png"
             alt="ZenSolar"
-            className="w-28 h-28 md:w-36 md:h-36 mb-8 drop-shadow-lg"
+            className="w-auto h-24 md:h-32 mb-8 object-contain drop-shadow-lg"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -78,7 +113,7 @@ export default function ComingSoon() {
             is coming
           </motion.h1>
 
-          {/* Subheading */}
+          {/* Subheading — updated copy */}
           <motion.p
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8"
             initial={{ opacity: 0, y: 20 }}
@@ -87,8 +122,8 @@ export default function ComingSoon() {
           >
             Earn{' '}
             <span className="font-semibold text-primary">$ZSOLAR</span>{' '}
-            tokens for every kWh your solar panels produce, every EV mile you drive,
-            and every battery cycle you complete.
+            for every kWh your solar panels produce, every battery discharge,
+            every kWh used to charge your EV, and every mile you drive.
           </motion.p>
 
           {/* Mint-on-Proof badge */}
@@ -104,23 +139,55 @@ export default function ComingSoon() {
             </span>
           </motion.div>
 
-          {/* CTA — link to beta */}
-          <motion.a
-            href="https://beta.zen.solar/auth"
-            className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-shadow duration-300"
+          {/* Beta signup form */}
+          <motion.div
+            className="w-full max-w-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            <Zap className="w-5 h-5" />
-            Join the Beta
-            <motion.span
-              className="absolute inset-0 rounded-xl bg-white/10"
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            />
-          </motion.a>
+            {submitted ? (
+              <div className="flex flex-col items-center gap-3 p-6 rounded-xl border border-secondary/30 bg-card/60 backdrop-blur-sm">
+                <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center">
+                  <Check className="w-6 h-6 text-secondary" />
+                </div>
+                <p className="font-semibold text-foreground">You're on the list!</p>
+                <p className="text-sm text-muted-foreground">We'll reach out when your spot is ready.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-6 rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">
+                <p className="text-sm font-medium text-foreground mb-1">Request early access</p>
+                <Input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="bg-background/60"
+                />
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-background/60"
+                />
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-shadow"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Zap className="w-4 h-4 mr-2" />
+                  )}
+                  {loading ? 'Submitting...' : 'Join the Beta'}
+                </Button>
+              </form>
+            )}
+          </motion.div>
 
           {/* Bottom tagline */}
           <motion.p
