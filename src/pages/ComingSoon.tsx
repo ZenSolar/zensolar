@@ -247,10 +247,13 @@ export default function ComingSoon() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <p className="mb-5">
+            <p className="mb-2">
               ZenSolar rewards solar users and EV drivers with{' '}
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
               <span className="text-primary font-semibold">NFTs</span> for:
+            </p>
+            <p className="text-sm text-muted-foreground/70 mb-5 italic">
+              Your clean energy, your digital income.
             </p>
             <ul className="space-y-3 text-left inline-block text-base md:text-lg">
               {[
