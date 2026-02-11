@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import teslaLogo from '@/assets/logos/tesla-wordmark.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import solarEdgeLogo from '@/assets/logos/solaredge-wordmark.svg';
+import solarEdgeLogo from '@/assets/logos/solaredge-wordmark.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
 /* ── Animated particle field ── */
@@ -285,10 +285,10 @@ export default function ComingSoon() {
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-4">Connects with</p>
             <div className="flex items-center justify-center gap-8 md:gap-10">
               {[
-                { src: teslaLogo, alt: 'Tesla', h: 'h-7 md:h-8' },
-                { src: enphaseLogo, alt: 'Enphase', h: 'h-5 md:h-6' },
-                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-6 md:h-7' },
-                { src: wallboxLogo, alt: 'Wallbox', h: 'h-6 md:h-7' },
+                { src: teslaLogo, alt: 'Tesla', h: 'h-8 md:h-10' },
+                { src: enphaseLogo, alt: 'Enphase', h: 'h-6 md:h-7' },
+                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-8 md:h-10' },
+                { src: wallboxLogo, alt: 'Wallbox', h: 'h-7 md:h-8' },
               ].map(({ src, alt, h }, idx) => (
                 <motion.img
                   key={alt}
