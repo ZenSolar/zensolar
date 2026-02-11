@@ -6,6 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solarEdgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
 /* ── Animated particle field ── */
 function ParticleField() {
@@ -271,6 +275,33 @@ export default function ComingSoon() {
             </ul>
           </motion.div>
 
+          {/* Connects With logos */}
+          <motion.div
+            className="w-full max-w-md mb-10"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
+          >
+            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-4">Connects with</p>
+            <div className="flex items-center justify-center gap-6 md:gap-8">
+              {[
+                { src: teslaLogo, alt: 'Tesla' },
+                { src: enphaseLogo, alt: 'Enphase' },
+                { src: solarEdgeLogo, alt: 'SolarEdge' },
+                { src: wallboxLogo, alt: 'Wallbox' },
+              ].map(({ src, alt }, idx) => (
+                <motion.img
+                  key={alt}
+                  src={src}
+                  alt={alt}
+                  className="h-6 md:h-7 w-auto object-contain opacity-50 hover:opacity-90 transition-opacity grayscale hover:grayscale-0"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 0.5, y: 0 }}
+                  transition={{ delay: 0.6 + idx * 0.1, duration: 0.5 }}
+                />
+              ))}
+            </div>
+          </motion.div>
           {/* Mint-on-Proof — holographic card */}
           <motion.div
             className="relative w-full max-w-md mb-12"
