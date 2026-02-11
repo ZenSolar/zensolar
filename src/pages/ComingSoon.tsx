@@ -248,8 +248,9 @@ export default function ComingSoon() {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <p className="mb-1">
-              <span className="block">Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> & <span className="text-primary font-semibold">NFTs</span></span>
-              <span className="block">for your clean energy activities:</span>
+              ZenSolar rewards solar users and EV drivers with{' '}
+              <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
+              <span className="text-primary font-semibold">NFTs</span> for:
             </p>
 
             {/* Decorative divider */}
