@@ -106,25 +106,43 @@ export default function ComingSoon() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Something{' '}
-            <span className="bg-gradient-to-r from-primary via-secondary to-solar bg-clip-text text-transparent">
-              powerful
-            </span>{' '}
-            is coming
+            Turn Clean Energy Into{' '}
+            <span className="bg-gradient-to-r from-secondary via-energy to-primary bg-clip-text text-transparent">
+              Digital Income
+            </span>
           </motion.h1>
 
-          {/* Subheading — updated copy */}
-          <motion.p
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8"
+          {/* Value prop — mirrors landing hero */}
+          <motion.div
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Earn{' '}
-            <span className="font-semibold text-primary">$ZSOLAR</span>{' '}
-            for every kWh your solar panels produce, every battery discharge,
-            every kWh used to charge your EV, and every mile you drive.
-          </motion.p>
+            <p className="mb-4">
+              ZenSolar rewards solar users and EV drivers with{' '}
+              <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
+              <span className="text-primary font-semibold">NFTs</span> for:
+            </p>
+            <ul className="space-y-2 text-left inline-block text-base md:text-lg">
+              <li className="flex items-center gap-2.5">
+                <Sun className="h-4 w-4 text-solar flex-shrink-0" />
+                <span>Every kWh your solar panels produce</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Battery className="h-4 w-4 text-secondary flex-shrink-0" />
+                <span>Every kWh your battery discharges</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Car className="h-4 w-4 text-energy flex-shrink-0" />
+                <span>Every EV mile you drive</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Zap className="h-4 w-4 text-token flex-shrink-0" />
+                <span>Every kWh used to charge your EV</span>
+              </li>
+            </ul>
+          </motion.div>
 
           {/* Mint-on-Proof badge */}
           <motion.div
