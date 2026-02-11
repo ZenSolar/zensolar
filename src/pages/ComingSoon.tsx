@@ -252,6 +252,7 @@ export default function ComingSoon() {
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
               <span className="text-primary font-semibold">NFTs</span> for:
             </p>
+            <div className="h-3" />
             <ul className="space-y-1.5 text-left inline-block text-base md:text-lg">
               {[
                 { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
