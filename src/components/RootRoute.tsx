@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
 const Index = lazy(() => import('@/pages/Index'));
-const Landing = lazy(() => import('@/pages/Landing'));
+const ComingSoon = lazy(() => import('@/pages/ComingSoon'));
 
 function RouteLoader() {
   return (
@@ -24,7 +24,7 @@ export function RootRoute() {
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<RouteLoader />}>
-        <Landing />
+        <ComingSoon />
       </Suspense>
     );
   }
