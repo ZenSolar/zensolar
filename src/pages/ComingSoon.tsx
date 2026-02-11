@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Zap, Battery, Car, Check, Loader2 } from 'lucide-react';
+import { Sun, Zap, Battery, Car, Check, Loader2, Shield } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -106,13 +106,14 @@ export default function ComingSoon() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Turn Clean Energy Into{' '}
-            <span className="bg-gradient-to-r from-secondary via-energy to-primary bg-clip-text text-transparent">
-              Digital Income
-            </span>
+            Something{' '}
+            <span className="bg-gradient-to-r from-primary via-secondary to-solar bg-clip-text text-transparent">
+              powerful
+            </span>{' '}
+            is coming
           </motion.h1>
 
-          {/* Value prop — mirrors landing hero */}
+          {/* Value prop — mirrors landing hero copy */}
           <motion.div
             className="text-lg md:text-xl text-muted-foreground max-w-xl mb-8"
             initial={{ opacity: 0, y: 20 }}
@@ -144,17 +145,41 @@ export default function ComingSoon() {
             </ul>
           </motion.div>
 
-          {/* Mint-on-Proof badge */}
+          {/* Mint-on-Proof — upgraded visual */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm mb-10"
+            className="relative w-full max-w-md mb-10 p-[1px] rounded-2xl bg-gradient-to-r from-primary via-secondary to-solar"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-            <span className="text-sm text-muted-foreground">
-              Patent-pending <span className="font-medium text-foreground">Mint-on-Proof™</span> technology on Base L2
-            </span>
+            <div className="rounded-2xl bg-card/90 backdrop-blur-sm px-6 py-5 flex flex-col items-center gap-3">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Shield className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-secondary animate-pulse ring-2 ring-card" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-foreground text-base tracking-tight">Mint-on-Proof™</p>
+                  <p className="text-xs text-muted-foreground">Patent-pending technology</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Verified on-chain
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                  Base L2
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-solar" />
+                  Anti-gaming
+                </span>
+              </div>
+            </div>
           </motion.div>
 
           {/* Beta signup form */}
