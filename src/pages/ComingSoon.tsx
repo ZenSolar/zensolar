@@ -44,7 +44,7 @@ function ParticleField() {
 /* ── Hex grid background ── */
 function HexGrid() {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04]">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.08]">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="hexagons" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(1.5)">
