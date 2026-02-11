@@ -248,11 +248,18 @@ export default function ComingSoon() {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <p className="mb-2">
-              <span className="block">ZenSolar rewards solar users and EV drivers with</span>
+              <span className="block">ZenSolar rewards solar users</span>
+              <span className="block">and EV drivers with</span>
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
               <span className="text-primary font-semibold">NFTs</span> for:
             </p>
-            <div className="h-3" />
+
+            {/* Decorative divider */}
+            <div className="flex items-center justify-center gap-3 my-4">
+              <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-primary/30" />
+              <Hexagon className="w-3.5 h-3.5 text-primary/40" />
+              <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary/30" />
+            </div>
             <ul className="space-y-1.5 text-left inline-block text-base md:text-lg">
               {[
                 { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
