@@ -242,12 +242,12 @@ export default function ComingSoon() {
 
           {/* Value prop — mirrors landing hero copy */}
           <motion.div
-            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10"
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <p className="mb-2">
+            <p className="mb-1">
               <span className="block">ZenSolar rewards solar users</span>
               <span className="block">and EV drivers with</span>
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
@@ -255,12 +255,13 @@ export default function ComingSoon() {
             </p>
 
             {/* Decorative divider */}
-            <div className="flex items-center justify-center gap-3 my-4">
+            <div className="flex items-center justify-center gap-3 my-3">
               <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-primary/30" />
-              <Hexagon className="w-3.5 h-3.5 text-primary/40" />
+              <Hexagon className="w-3 h-3 text-primary/40" />
               <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary/30" />
             </div>
-            <ul className="space-y-1.5 text-left inline-block text-base md:text-lg">
+
+            <ul className="space-y-1 text-left inline-block text-base md:text-lg">
               {[
                 { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
                 { Icon: Battery, iconColor: 'text-secondary', text: 'Every kWh your battery discharges' },
@@ -274,7 +275,7 @@ export default function ComingSoon() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
                 >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Icon className={`h-5 w-5 ${iconColor}`} />
                   </div>
                   <span className="group-hover:text-foreground transition-colors">{text}</span>
@@ -282,6 +283,13 @@ export default function ComingSoon() {
               ))}
             </ul>
           </motion.div>
+
+          {/* Divider between KPIs and pill */}
+          <div className="flex items-center justify-center gap-3 mb-5">
+            <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-secondary/25" />
+            <Shield className="w-3 h-3 text-secondary/30" />
+            <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-secondary/25" />
+          </div>
 
           {/* Digital income pill */}
           <motion.div
