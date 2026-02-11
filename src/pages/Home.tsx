@@ -1,8 +1,10 @@
 import { SEO } from '@/components/SEO';
 import { HomeHero } from '@/components/home/HomeHero';
 import { LiveStatsBar } from '@/components/home/LiveStatsBar';
+import { WhyZenSolarSection } from '@/components/home/WhyZenSolarSection';
 import { HowItWorksSection } from '@/components/home/HowItWorksSection';
 import { IntegrationLogos } from '@/components/home/IntegrationLogos';
+import { PricingSection } from '@/components/home/PricingSection';
 import { TokenomicsOverview } from '@/components/home/TokenomicsOverview';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { FAQSection } from '@/components/home/FAQSection';
@@ -26,14 +28,18 @@ export default function Home() {
           <HomeHero />
           <LiveStatsBar />
           <SectionDivider variant="chevron" />
-          <HowItWorksSection />
+          <WhyZenSolarSection />
           <SectionDivider variant="diamond" />
-          <IntegrationLogos />
+          <HowItWorksSection />
           <SectionDivider variant="angle" />
-          <TokenomicsOverview />
+          <IntegrationLogos />
           <SectionDivider variant="angle" flip />
-          <TestimonialsSection />
+          <PricingSection />
           <SectionDivider variant="chevron" />
+          <TokenomicsOverview />
+          <SectionDivider variant="diamond" />
+          <TestimonialsSection />
+          <SectionDivider variant="angle" />
           <FAQSection />
           <HomeCTA />
         </main>
