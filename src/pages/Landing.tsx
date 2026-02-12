@@ -12,8 +12,24 @@ export default function Landing() {
     <>
       <SEO
         title="Earn $ZSOLAR For Your Clean Energy Use"
+        description="Turn your solar panels, batteries, and EVs into digital income. ZenSolar rewards every kWh with blockchain tokens — no crypto experience needed."
         url="https://zensolar.com"
         image="https://zensolar.com/og-image.png"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'ZenSolar',
+          url: 'https://zensolar.com',
+          logo: 'https://zensolar.com/logos/zen-logo-horizontal-new.png',
+          description: 'ZenSolar rewards clean energy production with blockchain tokens. Connect solar panels, batteries, or EVs and earn $ZSOLAR automatically.',
+          sameAs: ['https://twitter.com/ZenSolar'],
+          foundingDate: '2024',
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'customer support',
+            url: 'https://zensolar.com/home#faq',
+          },
+        }}
       />
       <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
         <LandingNav />

@@ -91,6 +91,10 @@ const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataA
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const Home = lazy(() => import("./pages/Home"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
+const BlogHowToEarn = lazy(() => import("./pages/blog/HowToEarnCryptoFromSolar"));
+const BlogProofOfDelta = lazy(() => import("./pages/blog/ProofOfDeltaExplained"));
 
 // Minimal loading fallback
 function PageLoader() {
@@ -160,6 +164,10 @@ const App = () => {
                       <Route path="feedback" element={<Feedback />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/what-is-solar-energy-blockchain-rewards" element={<BlogWhatIsSolar />} />
+                    <Route path="/blog/how-to-earn-crypto-from-solar-panels" element={<BlogHowToEarn />} />
+                    <Route path="/blog/proof-of-delta-explained" element={<BlogProofOfDelta />} />
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
