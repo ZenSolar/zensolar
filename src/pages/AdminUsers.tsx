@@ -11,8 +11,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import {
   Loader2, Users, RefreshCw, Zap, Bell, Award, Coins, ChevronDown, ChevronUp,
-  Sun, Battery, Car, Plug, Trash2, Search, Circle, Clock, LogIn, Eye,
+  Sun, Battery, Car, Plug, Trash2, Search, Circle, Clock, LogIn, Eye, ArrowUpDown,
 } from 'lucide-react';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -614,23 +617,61 @@ export default function AdminUsers() {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [sortBy, setSortBy] = useState<string>('joined_desc');
+
   // Build online user set for O(1) lookup
   const onlineUserIds = useMemo(
     () => new Set(onlineUsers.map(u => u.user_id)),
     [onlineUsers]
   );
 
-  // Filter profiles by search
+  // Filter and sort profiles
   const filteredProfiles = useMemo(() => {
-    if (!searchQuery.trim()) return profiles;
-    const q = searchQuery.toLowerCase();
-    return profiles.filter(p =>
-      (p.display_name?.toLowerCase().includes(q)) ||
-      (p.email?.toLowerCase().includes(q)) ||
-      (p.wallet_address?.toLowerCase().includes(q)) ||
-      p.user_id.toLowerCase().includes(q)
-    );
-  }, [profiles, searchQuery]);
+    let result = profiles;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p =>
+        (p.display_name?.toLowerCase().includes(q)) ||
+        (p.email?.toLowerCase().includes(q)) ||
+        (p.wallet_address?.toLowerCase().includes(q)) ||
+        p.user_id.toLowerCase().includes(q)
+      );
+    }
+
+    const sorted = [...result];
+    switch (sortBy) {
+      case 'last_seen_desc':
+        sorted.sort((a, b) => {
+          if (!a.last_seen_at && !b.last_seen_at) return 0;
+          if (!a.last_seen_at) return 1;
+          if (!b.last_seen_at) return -1;
+          return new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime();
+        });
+        break;
+      case 'last_seen_asc':
+        sorted.sort((a, b) => {
+          if (!a.last_seen_at && !b.last_seen_at) return 0;
+          if (!a.last_seen_at) return 1;
+          if (!b.last_seen_at) return -1;
+          return new Date(a.last_seen_at).getTime() - new Date(b.last_seen_at).getTime();
+        });
+        break;
+      case 'logins_desc':
+        sorted.sort((a, b) => b.login_count - a.login_count);
+        break;
+      case 'logins_asc':
+        sorted.sort((a, b) => a.login_count - b.login_count);
+        break;
+      case 'joined_asc':
+        sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case 'joined_desc':
+      default:
+        sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+    }
+    return sorted;
+  }, [profiles, searchQuery, sortBy]);
 
   const onlineCount = onlineUsers.length;
 
@@ -889,14 +930,30 @@ export default function AdminUsers() {
                 </CardTitle>
                 <CardDescription className="text-sm">Tap a user to see details, NFTs, and token history</CardDescription>
               </div>
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search users…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-48">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search users…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[160px] shrink-0">
+                    <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="joined_desc">Newest first</SelectItem>
+                    <SelectItem value="joined_asc">Oldest first</SelectItem>
+                    <SelectItem value="last_seen_desc">Recently active</SelectItem>
+                    <SelectItem value="last_seen_asc">Least active</SelectItem>
+                    <SelectItem value="logins_desc">Most logins</SelectItem>
+                    <SelectItem value="logins_asc">Fewest logins</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardHeader>
