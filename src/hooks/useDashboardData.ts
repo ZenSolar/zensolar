@@ -841,6 +841,12 @@ export function useDashboardData() {
         superchargerKwh = fallback.chargingKwhLifetime;
         pendingSupercharger = fallback.chargingKwhPending;
         pendingCharging = fallback.chargingKwhPending;
+
+        // Also apply Tesla solar fallback when no dedicated solar provider
+        if (!hasDedicatedSolarProvider && solarEnergy <= 0 && fallback.solarLifetimeKwh > 0) {
+          solarEnergy = fallback.solarLifetimeKwh;
+          pendingSolar = fallback.solarPendingKwh;
+        }
       }
 
       // If dedicated solar provider is connected but returned 0 (rate-limited), use backend fallback
