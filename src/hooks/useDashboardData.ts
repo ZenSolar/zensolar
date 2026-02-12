@@ -244,10 +244,28 @@ export function useDashboardData() {
   };
 
   // Initial load — skip if we already have cached connections from a previous mount
+  // BUT always re-fetch when viewAsUserId changes
+  const prevViewAsRef = useRef<string | null | undefined>(undefined);
   useEffect(() => {
+    const viewAsChanged = prevViewAsRef.current !== undefined && prevViewAsRef.current !== viewAsUserId;
+    prevViewAsRef.current = viewAsUserId;
+
+    if (viewAsChanged) {
+      // Clear module-level caches when switching users
+      cachedProfileConnections = null;
+      cachedConnectionKey = null;
+      cachedActivityData = null;
+      cachedLastUpdatedAt = null;
+      hasAutoRefreshedOnceGlobal = false;
+      hasAutoRefreshedOnce.current = false;
+      setActivityData(defaultActivityData);
+      fetchConnections();
+      return;
+    }
+
     if (cachedProfileConnections) return;
     fetchConnections();
-  }, [fetchConnections]);
+  }, [fetchConnections, viewAsUserId]);
 
   // Keep connection state in sync (Onboarding, Profile, Device selection, etc.)
   useEffect(() => {
@@ -571,12 +589,16 @@ export function useDashboardData() {
         } catch { return 0; }
       };
 
+      // When viewing as another user, skip external API calls (they authenticate as admin, not target user).
+      // Instead rely entirely on DB-stored data (devices, rewards, etc.) which uses getEffectiveUserId().
+      const shouldCallAPIs = !isViewingAsOther;
+
       const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot, homeChargingMonitorKwh] = await Promise.all([
-        profileConnections?.enphase_connected ? fetchEnphaseData() : null,
-        profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
-        profileConnections?.tesla_connected ? fetchTeslaData() : null,
-        profileConnections?.wallbox_connected ? fetchWallboxData() : null,
-        fetchRewardsData(),
+        shouldCallAPIs && profileConnections?.enphase_connected ? fetchEnphaseData() : null,
+        shouldCallAPIs && profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
+        shouldCallAPIs && profileConnections?.tesla_connected ? fetchTeslaData() : null,
+        shouldCallAPIs && profileConnections?.wallbox_connected ? fetchWallboxData() : null,
+        shouldCallAPIs ? fetchRewardsData() : null,
         fetchReferralTokens(),
         fetchDeviceLabels(),
         fetchMintedTokens(),
@@ -1030,7 +1052,7 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [profileConnections, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels, fetchMintedTokens, fetchDevicesSnapshot]);
+  }, [profileConnections, isViewingAsOther, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels, fetchMintedTokens, fetchDevicesSnapshot]);
 
   // Auto-refresh once when the user has at least one connected provider.
   // This ensures that after connecting Tesla during onboarding, the FIRST dashboard view
