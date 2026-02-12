@@ -26,6 +26,7 @@ const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   // Battery types
   'battery': 'battery',
   'powerwall': 'battery',
+  'energy_site': 'battery',
   'energy_storage': 'battery',
   'storage': 'battery',
   
