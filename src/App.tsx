@@ -83,7 +83,7 @@ const AdminPatentUpdatedLanguage = lazy(() => import("./pages/AdminPatentUpdated
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
-const AdminViewAsUser = lazy(() => import("./pages/AdminViewAsUser"));
+
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
 const EnergyLog = lazy(() => import("./pages/EnergyLog"));
@@ -231,16 +231,6 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminUsers />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/view-as-user" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminViewAsUser />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
