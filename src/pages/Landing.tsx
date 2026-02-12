@@ -12,8 +12,8 @@ export default function Landing() {
     <>
       <SEO
         title="Earn $ZSOLAR For Your Clean Energy Use"
-        url="https://zensolar.lovable.app"
-        image="https://zensolar.lovable.app/og-image.png"
+        url="https://zensolar.com"
+        image="https://zensolar.com/og-image.png"
       />
       <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
         <LandingNav />
