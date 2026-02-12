@@ -9,6 +9,7 @@ Allow: /demo
 Allow: /onboarding
 Allow: /terms
 Allow: /privacy
+Allow: /home
 Disallow: /admin
 Disallow: /profile
 Disallow: /settings
@@ -21,18 +22,8 @@ Disallow: /feedback
 Disallow: /store
 Disallow: /about
 Disallow: /oauth
-Disallow: /admin
-Disallow: /profile
-Disallow: /settings
-Disallow: /tokenomics
-Disallow: /help
-Disallow: /mint-history
-Disallow: /notifications
-Disallow: /referrals
-Disallow: /feedback
-Disallow: /store
-Disallow: /about
-Disallow: /oauth
+
+Sitemap: https://zensolar.com/sitemap.xml
 
 # Block common bad bots
 User-agent: AhrefsBot

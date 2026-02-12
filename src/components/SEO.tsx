@@ -9,7 +9,7 @@ interface SEOProps {
   jsonLd?: Record<string, unknown>;
 }
 
-const BASE_URL = 'https://beta.zen.solar';
+const BASE_URL = 'https://zensolar.com';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 const DEFAULT_DESCRIPTION =
   'Earn $ZSOLAR tokens and NFTs for every kWh your solar panels produce, every EV mile you drive, and every battery cycle. Patent-pending Mint-on-Proof™ technology on Base L2.';
