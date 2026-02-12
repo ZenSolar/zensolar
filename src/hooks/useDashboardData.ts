@@ -57,6 +57,7 @@ let cachedProfileConnections: ProfileConnections | null = null;
 let cachedConnectionKey: string | null = null;
 let cachedActivityData: ActivityData | null = null;
 let cachedLastUpdatedAt: string | null = null;
+let cachedForUserId: string | null = null; // tracks which user the cache belongs to
 
 interface ProfileConnections {
   tesla_connected: boolean;
@@ -225,6 +226,7 @@ export function useDashboardData() {
 
     // Cache at module level so remounts don't re-fetch
     cachedProfileConnections = connections;
+    cachedForUserId = viewAsUserId ?? '__self__';
     cachedConnectionKey = [
       connections.enphase_connected,
       connections.solaredge_connected,
@@ -244,18 +246,23 @@ export function useDashboardData() {
   };
 
   // Initial load — skip if we already have cached connections from a previous mount
-  // BUT always re-fetch when viewAsUserId changes
+  // BUT always re-fetch when viewAsUserId changes or cache belongs to a different user
   const prevViewAsRef = useRef<string | null | undefined>(undefined);
+  const effectiveViewKey = viewAsUserId ?? '__self__';
   useEffect(() => {
     const viewAsChanged = prevViewAsRef.current !== undefined && prevViewAsRef.current !== viewAsUserId;
     prevViewAsRef.current = viewAsUserId;
 
-    if (viewAsChanged) {
+    // Also detect stale cache from a different user (e.g. first mount with viewAsUserId already set)
+    const cacheStale = cachedForUserId !== null && cachedForUserId !== effectiveViewKey;
+
+    if (viewAsChanged || cacheStale) {
       // Clear module-level caches when switching users
       cachedProfileConnections = null;
       cachedConnectionKey = null;
       cachedActivityData = null;
       cachedLastUpdatedAt = null;
+      cachedForUserId = null;
       hasAutoRefreshedOnceGlobal = false;
       hasAutoRefreshedOnce.current = false;
       setActivityData(defaultActivityData);
@@ -277,6 +284,7 @@ export function useDashboardData() {
       cachedConnectionKey = null;
       cachedActivityData = null;
       cachedLastUpdatedAt = null;
+      cachedForUserId = null;
       fetchConnections();
     };
 

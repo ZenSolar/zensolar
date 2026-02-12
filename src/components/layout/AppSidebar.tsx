@@ -31,7 +31,7 @@ import {
   Rocket,
   Wallet,
   ClipboardList,
-  Eye,
+  
   Activity,
   Sun,
   Moon,
@@ -91,7 +91,7 @@ const adminMenuGroups = {
     { title: "Admin Panel", url: "/admin", icon: Shield },
     { title: "Work Journal", url: "/admin/work-journal", icon: BookOpen, highlight: true },
     { title: "Project Summary", url: "/admin/project-summary", icon: FileText, highlight: true },
-    { title: "View as User", url: "/admin/view-as-user", icon: Eye, highlight: true },
+    
     { title: "To-Do List", url: "/admin/todo", icon: ClipboardList, highlight: true },
     { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
     { title: "Users", url: "/admin/users", icon: Users },

@@ -17,7 +17,7 @@ export function ViewAsUserBanner() {
 
   const handleExit = () => {
     stopViewingAs();
-    navigate('/admin/view-as-user');
+    navigate('/admin/users');
   };
 
   return (
