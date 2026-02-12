@@ -66,6 +66,10 @@ export default defineConfig(({ mode }) => ({
         // Keep precache manifest small to speed up builds/publishing.
         // Large images are still served normally and can be cached at runtime.
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
+        // CRITICAL: OAuth callback must NEVER be served from cache.
+        // Mobile Safari PWA can serve stale JS after external OAuth redirects,
+        // causing the callback page to hang on "Connecting..."
+        navigateFallbackDenylist: [/^\/oauth\/callback/, /^\/~oauth/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
@@ -79,6 +83,9 @@ export default defineConfig(({ mode }) => ({
             },
           },
         ],
+        // Force new service worker to activate immediately (don't wait for tabs to close)
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ].filter(Boolean),
