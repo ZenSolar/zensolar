@@ -22,11 +22,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Listener FIRST
+    // Listener FIRST — handles INITIAL_SESSION, TOKEN_REFRESHED, SIGNED_OUT etc.
+    // This fires synchronously with the cached session from localStorage,
+    // so isLoading is set to false immediately without a network round-trip.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, newSession) => {
-      // If token refresh fails, the session is stale — clear it
       if (event === 'TOKEN_REFRESHED' && !newSession) {
         setSession(null);
         setUser(null);
@@ -44,33 +45,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     });
 
-    // Then check existing session — validate it's still good
-    supabase.auth
-      .getSession()
-      .then(({ data: { session: existing } }) => {
-        if (existing) {
-          // Validate the session is still valid server-side
-          supabase.auth.getUser(existing.access_token).then(({ error }) => {
-            if (error) {
-              // Session is stale/invalid — sign out cleanly
-              console.warn('[Auth] Stale session detected, clearing');
-              supabase.auth.signOut();
-              setSession(null);
-              setUser(null);
-            } else {
-              setSession(existing);
-              setUser(existing.user ?? null);
-            }
-          }).finally(() => setIsLoading(false));
-        } else {
-          setSession(null);
-          setUser(null);
-          setIsLoading(false);
+    // Fallback: if onAuthStateChange hasn't fired within 2s (e.g. no cached session),
+    // stop loading to prevent infinite spinner.
+    const fallbackTimer = setTimeout(() => {
+      setIsLoading((prev) => {
+        if (prev) {
+          console.warn('[Auth] Fallback: no auth event after 2s, clearing loading state');
+          return false;
         }
-      })
-      .catch(() => setIsLoading(false));
+        return prev;
+      });
+    }, 2000);
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(fallbackTimer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName?: string, referralCode?: string) => {

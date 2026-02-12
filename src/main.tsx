@@ -50,19 +50,7 @@ root.render(
   </React.StrictMode>
 );
 
-// Signal to splash screen that React has mounted
-// Use requestIdleCallback for smooth transition after render
-if (typeof window !== 'undefined') {
-  const hideSplash = () => {
-    if (typeof (window as any).hideSplashScreen === 'function') {
-      (window as any).hideSplashScreen();
-    }
-  };
-  
-  if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(hideSplash);
-  } else {
-    // Fallback for Safari - use short timeout after render
-    setTimeout(hideSplash, 100);
-  }
+// Signal to splash screen that React has mounted — dismiss immediately
+if (typeof window !== 'undefined' && typeof (window as any).hideSplashScreen === 'function') {
+  (window as any).hideSplashScreen();
 }
