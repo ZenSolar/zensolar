@@ -146,19 +146,28 @@ Deno.serve(async (req) => {
 
     if (authHeader) {
       const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-      // Skip auth validation for cron calls using anon key
-      if (authHeader === `Bearer ${anonKey}`) {
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      const token = authHeader.replace("Bearer ", "");
+      const tokenPrefix = token.slice(0, 20);
+      const anonPrefix = anonKey.slice(0, 20);
+      const srkPrefix = serviceRoleKey.slice(0, 20);
+      console.log(`[ChargeMonitor] Auth debug: token=${tokenPrefix}… anon=${anonPrefix}… srk=${srkPrefix}… match_anon=${token === anonKey} match_srk=${token === serviceRoleKey}`);
+      // Accept anon key or service role key as cron/system caller
+      if (token === anonKey || token === serviceRoleKey) {
         const { data: tokens } = await supabase
           .from("energy_tokens")
           .select("user_id")
           .eq("provider", "tesla");
         targetUserIds = (tokens || []).map((t: any) => t.user_id);
+        console.log(`[ChargeMonitor] Cron/system call — processing all ${targetUserIds.length} Tesla users`);
       } else {
+        // Try user auth
         const {
           data: { user },
           error,
-        } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
+        } = await supabase.auth.getUser(token);
         if (error || !user) {
+          console.log(`[ChargeMonitor] Auth failed: ${error?.message || 'no user'}`);
           return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
