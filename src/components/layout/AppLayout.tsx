@@ -7,6 +7,7 @@ import { useViewAsUser } from "@/contexts/ViewAsUserContext";
 import { ViewAsUserIdProvider } from "@/hooks/useViewAsUserId";
 
 import { usePresence } from "@/hooks/usePresence";
+import { useActivityTracker } from "@/hooks/useActivityTracker";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const { targetUserId } = useViewAsUser();
   usePresence(); // Track all authenticated users for real-time presence
+  useActivityTracker(); // Track last_seen_at, last_login_at, login_count
   
   return (
     <ViewAsUserIdProvider value={targetUserId}>
