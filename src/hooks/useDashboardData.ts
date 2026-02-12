@@ -553,6 +553,159 @@ export function useDashboardData() {
     }
   }, []);
 
+  // ── Fast path: build dashboard from DB-stored lifetime_totals (instant, no API calls) ──
+  const buildFastPathData = useCallback(async (): Promise<ActivityData | null> => {
+    try {
+      const userId = await getEffectiveUserId();
+      if (!userId) return null;
+
+      const [devicesSnapshot, homeChargingMonitorKwh, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
+        supabase.from('connected_devices')
+          .select('device_id, device_name, device_type, provider, baseline_data, lifetime_totals, last_minted_at')
+          .eq('user_id', userId).then(r => r.data || []),
+        supabase.from('home_charging_sessions')
+          .select('total_session_kwh')
+          .eq('user_id', userId)
+          .eq('status', 'completed')
+          .then(r => (r.data || []).reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)),
+        fetchMintedTokens(),
+        fetchReferralTokens(),
+        fetchDeviceLabels(),
+      ]);
+
+      if (devicesSnapshot.length === 0) return null;
+
+      // Reuse the same fallback logic to build data from device snapshots
+      const devices = devicesSnapshot as any[];
+      const sum = (arr: any[], fn: (d: any) => number) => arr.reduce((acc, d) => acc + (Number(fn(d)) || 0), 0);
+      const extractSolarWh = (obj: any): number => Number(obj?.solar_wh || obj?.lifetime_solar_wh || obj?.solar_production_wh || obj?.total_solar_produced_wh || 0);
+      const extractBatteryWh = (obj: any): number => Number(obj?.battery_discharge_wh || obj?.total_energy_discharged_wh || obj?.lifetime_battery_discharge_wh || 0);
+
+      const hasDedicatedSolarProvider = profileConnections?.enphase_connected || profileConnections?.solaredge_connected;
+
+      // Solar
+      const enphaseSolar = devices.filter(d => d.provider === 'enphase');
+      const solaredgeSolar = devices.filter(d => d.provider === 'solaredge');
+      const teslaDevices = devices.filter(d => d.provider === 'tesla');
+
+      let solarEnergy = 0;
+      let pendingSolar = 0;
+      if (enphaseSolar.length > 0) {
+        solarEnergy = sum(enphaseSolar, d => extractSolarWh(d.lifetime_totals)) / 1000;
+        pendingSolar = sum(enphaseSolar, d => Math.max(0, extractSolarWh(d.lifetime_totals) - extractSolarWh(d.baseline_data))) / 1000;
+      } else if (solaredgeSolar.length > 0) {
+        solarEnergy = sum(solaredgeSolar, d => extractSolarWh(d.lifetime_totals)) / 1000;
+        pendingSolar = sum(solaredgeSolar, d => Math.max(0, extractSolarWh(d.lifetime_totals) - extractSolarWh(d.baseline_data))) / 1000;
+      } else {
+        const teslaSolarDevices = teslaDevices.filter(d => canHaveSolarData(d.device_type));
+        solarEnergy = sum(teslaSolarDevices, d => extractSolarWh(d.lifetime_totals)) / 1000;
+        pendingSolar = sum(teslaSolarDevices, d => Math.max(0, extractSolarWh(d.lifetime_totals) - extractSolarWh(d.baseline_data))) / 1000;
+      }
+
+      // Battery
+      const batteryDevicesArr = teslaDevices.filter(d => isBatteryDevice(d.device_type));
+      const batteryDischarge = sum(batteryDevicesArr, d => extractBatteryWh(d.lifetime_totals)) / 1000;
+      const pendingBattery = sum(batteryDevicesArr, d => Math.max(0, extractBatteryWh(d.lifetime_totals) - extractBatteryWh(d.baseline_data))) / 1000;
+
+      // EV
+      const vehicleDevices = teslaDevices.filter(d => isVehicleDevice(d.device_type));
+      const evMiles = sum(vehicleDevices, d => Number(d.lifetime_totals?.odometer || 0));
+      const pendingEvMiles = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.odometer || 0) - Number(d.baseline_data?.odometer || 0)));
+      const superchargerKwh = sum(vehicleDevices, d => Number(d.lifetime_totals?.charging_kwh || 0));
+      const pendingSupercharger = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
+
+      const homeChargerKwh = homeChargingMonitorKwh;
+      const pendingHomeCharger = homeChargingMonitorKwh;
+      const pendingCharging = pendingSupercharger + pendingHomeCharger;
+
+      const tokensEarned = Math.floor(evMiles) + Math.floor(solarEnergy) + Math.floor(batteryDischarge) + Math.floor(superchargerKwh) + Math.floor(homeChargerKwh);
+      const pendingActivityUnits = Math.floor(pendingSolar) + Math.floor(pendingEvMiles) + Math.floor(pendingBattery) + Math.floor(pendingCharging);
+      const { calculatePendingTokens } = await import('@/lib/tokenomics');
+      const pendingTokens = calculatePendingTokens(pendingActivityUnits);
+
+      // Build per-device arrays (same logic as full refresh but from DB only)
+      const solarDevicesArr: SolarDeviceData[] = [];
+      const batteryDevicesResult: BatteryDeviceData[] = [];
+      const evDevicesArr: EVDeviceData[] = [];
+      const chargerDevicesArr: ChargerDeviceData[] = [];
+
+      for (const device of devices) {
+        const deviceName = device.device_name || `${device.provider?.charAt(0).toUpperCase() + device.provider?.slice(1)} Device`;
+        
+        if (isSolarDevice(device.device_type)) {
+          const lifetimeWh = extractSolarWh(device.lifetime_totals);
+          if (lifetimeWh > 0) {
+            const baselineWh = extractSolarWh(device.baseline_data);
+            const pendingWh = Math.max(0, lifetimeWh - baselineWh);
+            if (device.provider === 'tesla') {
+              if (!hasDedicatedSolarProvider) {
+                const existing = solarDevicesArr.find(d => d.provider === 'tesla');
+                if (existing) { existing.lifetimeKwh += lifetimeWh / 1000; existing.pendingKwh += pendingWh / 1000; }
+                else solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: 'tesla', lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
+              }
+            } else {
+              solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: device.provider, lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
+            }
+          }
+        }
+        if (isBatteryDevice(device.device_type)) {
+          const lifetimeWh = extractBatteryWh(device.lifetime_totals);
+          const baselineWh = extractBatteryWh(device.baseline_data);
+          const pendingWh = Math.max(0, lifetimeWh - baselineWh);
+          if (batteryDevicesResult.length > 0) { batteryDevicesResult[0].lifetimeKwh += lifetimeWh / 1000; batteryDevicesResult[0].pendingKwh += pendingWh / 1000; }
+          else batteryDevicesResult.push({ deviceId: device.device_id, deviceName, provider: 'tesla', lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
+        }
+        if (isVehicleDevice(device.device_type)) {
+          const lifetimeMilesVal = Number(device.lifetime_totals?.odometer || 0);
+          const baselineMilesVal = Number(device.baseline_data?.odometer || 0);
+          evDevicesArr.push({
+            deviceId: device.device_id, deviceName, provider: 'tesla',
+            lifetimeMiles: lifetimeMilesVal, pendingMiles: Math.max(0, lifetimeMilesVal - baselineMilesVal),
+            lifetimeChargingKwh: Number(device.lifetime_totals?.charging_kwh || 0),
+            pendingChargingKwh: Math.max(0, Number(device.lifetime_totals?.charging_kwh || 0) - Number(device.baseline_data?.charging_kwh || 0)),
+            lifetimeSuperchargerKwh: Number(device.lifetime_totals?.supercharger_kwh || 0),
+            pendingSuperchargerKwh: Math.max(0, Number(device.lifetime_totals?.supercharger_kwh || 0) - Number(device.baseline_data?.supercharger_kwh || 0)),
+          });
+        }
+        if (isChargerDevice(device.device_type)) {
+          const lifetimeKwh = Number(device.lifetime_totals?.charging_kwh || device.lifetime_totals?.home_charger_kwh || 0);
+          const baselineKwh = Number(device.baseline_data?.charging_kwh || 0);
+          chargerDevicesArr.push({ deviceId: device.device_id, deviceName, provider: device.provider as 'tesla' | 'wallbox', lifetimeKwh, pendingKwh: Math.max(0, lifetimeKwh - baselineKwh) });
+        }
+      }
+
+      const newData: ActivityData = {
+        lifetimeMinted,
+        solarEnergyProduced: solarEnergy,
+        evMilesDriven: evMiles,
+        batteryStorageDischarged: batteryDischarge,
+        teslaSuperchargerKwh: superchargerKwh,
+        homeChargerKwh,
+        pendingSolarKwh: pendingSolar,
+        pendingEvMiles,
+        pendingBatteryKwh: pendingBattery,
+        pendingChargingKwh: pendingCharging,
+        pendingSuperchargerKwh: pendingSupercharger,
+        pendingHomeChargerKwh: pendingHomeCharger,
+        tokensEarned,
+        pendingTokens,
+        referralTokens,
+        nftsEarned: [],
+        co2OffsetPounds: 0,
+        deviceLabels: deviceLabelsResult,
+        solarDevices: solarDevicesArr,
+        batteryDevices: batteryDevicesResult,
+        evDevices: evDevicesArr,
+        chargerDevices: chargerDevicesArr,
+      };
+      newData.co2OffsetPounds = calculateCO2Offset(newData);
+      return newData;
+    } catch (err) {
+      console.error('Fast path error:', err);
+      return null;
+    }
+  }, [profileConnections, fetchMintedTokens, fetchReferralTokens, fetchDeviceLabels]);
+
   const refreshDashboard = useCallback(async () => {
     setIsLoading(true);
 
@@ -1069,8 +1222,7 @@ export function useDashboardData() {
   }, [profileConnections, isViewingAsOther, fetchEnphaseData, fetchSolarEdgeData, fetchTeslaData, fetchWallboxData, fetchRewardsData, fetchReferralTokens, fetchDeviceLabels, fetchMintedTokens, fetchDevicesSnapshot]);
 
   // Auto-refresh once when the user has at least one connected provider.
-  // This ensures that after connecting Tesla during onboarding, the FIRST dashboard view
-  // pulls and displays KPIs without requiring a manual refresh.
+  // FAST PATH: Show DB-cached data instantly, then update with fresh API data in background.
   useEffect(() => {
     if (!isOnDashboard) return;
     if (!profileConnections) return;
@@ -1086,9 +1238,20 @@ export function useDashboardData() {
 
     hasAutoRefreshedOnce.current = true;
     hasAutoRefreshedOnceGlobal = true;
+
+    // Step 1: Show DB-stored data instantly (no API calls, ~200ms)
+    buildFastPathData().then((fastData) => {
+      if (fastData) {
+        console.log('[Dashboard] Fast path loaded from DB');
+        setActivityData(fastData);
+        setLastUpdatedAt(new Date().toISOString());
+      }
+    });
+
+    // Step 2: Full API refresh in background (updates when APIs respond)
     setIsAutoSyncing(true);
     refreshDashboard().finally(() => setIsAutoSyncing(false));
-  }, [isOnDashboard, profileConnections, refreshDashboard]);
+  }, [isOnDashboard, profileConnections, refreshDashboard, buildFastPathData]);
 
   // Auto-refresh when connections actually change (not on route transitions)
   const prevConnectionsRef = useRef<string | null>(cachedConnectionKey);
