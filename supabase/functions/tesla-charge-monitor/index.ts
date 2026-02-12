@@ -140,47 +140,34 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    // Two modes: cron (no auth → all Tesla users) or single-user (with auth)
+    // Two modes: single-user (valid user JWT) or cron/system (everything else → all Tesla users)
     const authHeader = req.headers.get("Authorization");
     let targetUserIds: string[] = [];
 
-    if (authHeader) {
-      const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-      const token = authHeader.replace("Bearer ", "");
-      const tokenPrefix = token.slice(0, 20);
-      const anonPrefix = anonKey.slice(0, 20);
-      const srkPrefix = serviceRoleKey.slice(0, 20);
-      console.log(`[ChargeMonitor] Auth debug: token=${tokenPrefix}… anon=${anonPrefix}… srk=${srkPrefix}… match_anon=${token === anonKey} match_srk=${token === serviceRoleKey}`);
-      // Accept anon key or service role key as cron/system caller
-      if (token === anonKey || token === serviceRoleKey) {
-        const { data: tokens } = await supabase
-          .from("energy_tokens")
-          .select("user_id")
-          .eq("provider", "tesla");
-        targetUserIds = (tokens || []).map((t: any) => t.user_id);
-        console.log(`[ChargeMonitor] Cron/system call — processing all ${targetUserIds.length} Tesla users`);
-      } else {
-        // Try user auth
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser(token);
-        if (error || !user) {
-          console.log(`[ChargeMonitor] Auth failed: ${error?.message || 'no user'}`);
-          return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        targetUserIds = [user.id];
-      }
-    } else {
+    const fetchAllTeslaUsers = async () => {
       const { data: tokens } = await supabase
         .from("energy_tokens")
         .select("user_id")
         .eq("provider", "tesla");
-      targetUserIds = (tokens || []).map((t: any) => t.user_id);
+      return (tokens || []).map((t: any) => t.user_id);
+    };
+
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      // Try to authenticate as a specific user
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      if (user && !error) {
+        // Valid user JWT — single-user mode
+        targetUserIds = [user.id];
+        console.log(`[ChargeMonitor] User call for ${user.id.slice(0, 8)}`);
+      } else {
+        // Not a valid user JWT — treat as cron/system call
+        targetUserIds = await fetchAllTeslaUsers();
+        console.log(`[ChargeMonitor] Cron/system call — processing all ${targetUserIds.length} Tesla users`);
+      }
+    } else {
+      targetUserIds = await fetchAllTeslaUsers();
+      console.log(`[ChargeMonitor] No auth — processing all ${targetUserIds.length} Tesla users`);
     }
 
     console.log(`[ChargeMonitor] Processing ${targetUserIds.length} user(s)`);
