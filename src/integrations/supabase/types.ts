@@ -504,8 +504,11 @@ export type Database = {
           instagram_connected: boolean | null
           instagram_handle: string | null
           is_admin: boolean | null
+          last_login_at: string | null
+          last_seen_at: string | null
           linkedin_connected: boolean | null
           linkedin_handle: string | null
+          login_count: number
           referral_code: string | null
           referred_by: string | null
           solaredge_connected: boolean | null
@@ -533,8 +536,11 @@ export type Database = {
           instagram_connected?: boolean | null
           instagram_handle?: string | null
           is_admin?: boolean | null
+          last_login_at?: string | null
+          last_seen_at?: string | null
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
+          login_count?: number
           referral_code?: string | null
           referred_by?: string | null
           solaredge_connected?: boolean | null
@@ -562,8 +568,11 @@ export type Database = {
           instagram_connected?: boolean | null
           instagram_handle?: string | null
           is_admin?: boolean | null
+          last_login_at?: string | null
+          last_seen_at?: string | null
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
+          login_count?: number
           referral_code?: string | null
           referred_by?: string | null
           solaredge_connected?: boolean | null
