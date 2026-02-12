@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useViewAsUser } from '@/contexts/ViewAsUserContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -603,6 +604,7 @@ export default function AdminUsers() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminChecking } = useAdminCheck();
   const { onlineUsers } = usePresence();
+  const { startViewingAs } = useViewAsUser();
   const navigate = useNavigate();
 
   const [profiles, setProfiles] = useState<ProfileWithEmail[]>([]);
@@ -669,14 +671,23 @@ export default function AdminUsers() {
       default:
         sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         break;
+      case 'tokens_desc':
+        sorted.sort((a, b) => (userKPIs.get(b.user_id)?.total_tokens_earned || 0) - (userKPIs.get(a.user_id)?.total_tokens_earned || 0));
+        break;
+      case 'tokens_asc':
+        sorted.sort((a, b) => (userKPIs.get(a.user_id)?.total_tokens_earned || 0) - (userKPIs.get(b.user_id)?.total_tokens_earned || 0));
+        break;
     }
     return sorted;
-  }, [profiles, searchQuery, sortBy]);
+  }, [profiles, searchQuery, sortBy, userKPIs]);
 
   const onlineCount = onlineUsers.length;
 
   const handleViewAs = (userId: string) => {
-    navigate(`/admin/view-as-user?userId=${userId}`);
+    const profile = profiles.find(p => p.user_id === userId);
+    startViewingAs(userId, profile?.display_name || null, profile?.email || null);
+    toast.success(`Now viewing as ${profile?.display_name || profile?.email || 'user'}`);
+    navigate('/');
   };
 
   const handleDeleteUser = async (userId: string, displayName: string | null) => {
@@ -952,6 +963,8 @@ export default function AdminUsers() {
                     <SelectItem value="last_seen_asc">Least active</SelectItem>
                     <SelectItem value="logins_desc">Most logins</SelectItem>
                     <SelectItem value="logins_asc">Fewest logins</SelectItem>
+                    <SelectItem value="tokens_desc">Most tokens</SelectItem>
+                    <SelectItem value="tokens_asc">Fewest tokens</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
