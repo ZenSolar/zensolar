@@ -10,6 +10,7 @@ Allow: /onboarding
 Allow: /terms
 Allow: /privacy
 Allow: /home
+Allow: /blog
 Disallow: /admin
 Disallow: /profile
 Disallow: /settings
