@@ -7,7 +7,8 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Module-level flag to survive component remounts during the same page session
-let moduleProcessed = false;
+// Track which code was processed to allow retries with new codes
+let moduleProcessedCode: string | null = null;
 
 // Timeout wrapper to prevent hanging promises
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -270,14 +271,17 @@ export default function OAuthCallback() {
   };
 
   useEffect(() => {
+    const currentCode = searchParams.get('code');
+    
     const handleCallback = async () => {
       // Prevent double-processing across both re-renders AND remounts
-      if (hasProcessed.current || moduleProcessed) {
-        console.log('[OAuthCallback] Already processed, skipping');
+      // But allow processing if a NEW code arrives (e.g. retry with fresh OAuth)
+      if (hasProcessed.current || (moduleProcessedCode && moduleProcessedCode === currentCode)) {
+        console.log('[OAuthCallback] Already processed this code, skipping');
         return;
       }
       hasProcessed.current = true;
-      moduleProcessed = true;
+      moduleProcessedCode = currentCode;
 
       await processCallback();
     };
@@ -286,7 +290,7 @@ export default function OAuthCallback() {
 
     // Reset module flag when component fully unmounts (navigated away)
     return () => {
-      setTimeout(() => { moduleProcessed = false; }, 2000);
+      setTimeout(() => { moduleProcessedCode = null; }, 2000);
     };
   }, [searchParams, exchangeTeslaCode, exchangeEnphaseCode]);
 
@@ -303,7 +307,7 @@ export default function OAuthCallback() {
   const handleRetry = () => {
     // Reset flags and hard-redirect to trigger a fresh attempt
     hasProcessed.current = false;
-    moduleProcessed = false;
+    moduleProcessedCode = null;
     window.location.href = '/onboarding';
   };
 
