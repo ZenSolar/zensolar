@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Sun, Battery, Car, Plug, CheckCircle2 } from 'lucide-react';
+import { Sun, BatteryFull, Car, Plug, CheckCircle2 } from 'lucide-react';
 import teslaLogo from '@/assets/logos/tesla-logo.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import solarEdgeLogo from '@/assets/logos/solaredge-logo.png';
@@ -32,7 +32,7 @@ const providers = [
 
 const deviceTypes = [
   { icon: Sun, label: 'Solar Panels', desc: 'Track kWh production' },
-  { icon: Battery, label: 'Home Batteries', desc: 'Track discharge cycles' },
+  { icon: BatteryFull, label: 'Home Batteries', desc: 'Track export cycles' },
   { icon: Car, label: 'Electric Vehicles', desc: 'Track miles driven' },
   { icon: Plug, label: 'EV Chargers', desc: 'Track charging sessions' },
 ];

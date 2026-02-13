@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlugZap, ShieldCheck, Coins, Wallet, Sun, Battery, Car, Zap } from 'lucide-react';
+import { PlugZap, ShieldCheck, Coins, Wallet, Sun, BatteryFull, Car, Zap } from 'lucide-react';
 
 const steps = [
   {
@@ -44,7 +44,7 @@ const steps = [
 
 const earningRates = [
   { icon: Sun, activity: 'Solar Production', rate: '1 kWh = 1 $ZSOLAR', color: 'text-solar' },
-  { icon: Battery, activity: 'Battery Discharge', rate: '1 kWh = 1 $ZSOLAR', color: 'text-secondary' },
+  { icon: BatteryFull, activity: 'Battery Storage Exported', rate: '1 kWh = 1 $ZSOLAR', color: 'text-secondary' },
   { icon: Zap, activity: 'EV Charging', rate: '1 kWh = 1 $ZSOLAR', color: 'text-energy' },
   { icon: Car, activity: 'EV Miles Driven', rate: '1 mile = 1 $ZSOLAR', color: 'text-token' },
 ];

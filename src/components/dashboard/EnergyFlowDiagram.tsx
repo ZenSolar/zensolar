@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sankey, Tooltip, Layer, Rectangle } from 'recharts';
 import { motion } from 'framer-motion';
-import { Activity, Sun, Battery, Car, Home, Zap, RefreshCw, Info } from 'lucide-react';
+import { Activity, Sun, BatteryFull, Car, Home, Zap, RefreshCw, Info } from 'lucide-react';
 import {
   Tooltip as UITooltip,
   TooltipContent,
@@ -40,7 +40,7 @@ const nodeColors: Record<string, string> = {
 
 const nodeIcons: Record<string, React.ReactNode> = {
   'Solar': <Sun className="h-4 w-4" />,
-  'Battery': <Battery className="h-4 w-4" />,
+  'Battery': <BatteryFull className="h-4 w-4" />,
   'EV': <Car className="h-4 w-4" />,
   'Home': <Home className="h-4 w-4" />,
   'Grid': <Zap className="h-4 w-4" />,

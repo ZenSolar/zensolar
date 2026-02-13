@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Award, ChevronRight, Sun, Car, Battery, Zap, Sparkles } from 'lucide-react';
+import { Award, ChevronRight, Sun, Car, BatteryFull, Zap, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -61,7 +61,7 @@ const categoryStyles = {
 
 const categoryIcons = {
   solar: Sun,
-  battery: Battery,
+  battery: BatteryFull,
   ev_miles: Car,
   charging: Zap,
 };
@@ -413,7 +413,7 @@ export function RewardProgress({
             onClick={() => handleSelectCategory('solar')}
           />
           <CategoryDot 
-            icon={Battery}
+            icon={BatteryFull}
             label="Battery" 
             count={batteryEarned.length} 
             total={BATTERY_MILESTONES.length} 

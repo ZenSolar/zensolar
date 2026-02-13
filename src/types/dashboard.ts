@@ -126,9 +126,9 @@ export function calculateCO2Offset(data: ActivityData): number {
   // 1) Solar: each kWh produced is assumed to displace 1 kWh of average grid electricity
   const solarOffsetLbs = data.solarEnergyProduced * EPA_CO2_LBS_PER_KWH;
 
-  // 2) Battery discharge: assume discharged kWh served load that would otherwise come from the grid
+  // 2) Battery storage exported: assume exported kWh served load that would otherwise come from the grid
   // (If your solar metric already includes all self-consumed energy, this can double-count. Keeping it
-  // in because the UI tracks battery discharge as its own metric.)
+  // in because the UI tracks battery storage exported as its own metric.)
   const batteryOffsetLbs = data.batteryStorageDischarged * EPA_CO2_LBS_PER_KWH;
 
   // 3) EV driving: net CO2 avoided vs a typical gasoline vehicle

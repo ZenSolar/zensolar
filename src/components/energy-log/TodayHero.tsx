@@ -1,5 +1,5 @@
 import { isSameDay, subDays, format } from 'date-fns';
-import { Sun, TrendingUp, TrendingDown, Minus, Battery, Plug, Car } from 'lucide-react';
+import { Sun, TrendingUp, TrendingDown, Minus, BatteryFull, Plug, Car } from 'lucide-react';
 import type { ActivityType, DailyProduction } from '@/hooks/useEnergyLog';
 
 interface TodayHeroProps {
@@ -9,7 +9,7 @@ interface TodayHeroProps {
 
 const tabConfig: Record<ActivityType, { icon: React.ReactNode; unit: string; emptyLabel: string }> = {
   solar: { icon: <Sun className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No production recorded yet today' },
-  battery: { icon: <Battery className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No battery discharge recorded yet today' },
+  battery: { icon: <BatteryFull className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No battery export recorded yet today' },
   'ev-charging': { icon: <Plug className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No charging recorded yet today' },
   'ev-miles': { icon: <Car className="h-6 w-6 text-primary self-center" />, unit: 'mi', emptyLabel: 'No miles recorded yet today' },
 };

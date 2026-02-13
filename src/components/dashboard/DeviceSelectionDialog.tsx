@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Battery, Sun, AlertTriangle, Mail, Moon, Wifi, Zap } from 'lucide-react';
+import { Loader2, Car, BatteryFull, Sun, AlertTriangle, Mail, Moon, Wifi, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -33,7 +33,7 @@ interface DeviceSelectionDialogProps {
 
 const deviceIcons: Record<string, React.ReactNode> = {
   vehicle: <Car className="h-5 w-5" />,
-  powerwall: <Battery className="h-5 w-5" />,
+  powerwall: <BatteryFull className="h-5 w-5" />,
   solar: <Sun className="h-5 w-5" />,
   solar_system: <Sun className="h-5 w-5" />,
 };

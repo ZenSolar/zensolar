@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Sun, Battery, Zap, Car, Star, Hexagon, Award } from 'lucide-react';
+import { Trophy, Sun, BatteryFull, Zap, Car, Star, Hexagon, Award } from 'lucide-react';
 
 const milestoneJourney = [
   {
@@ -15,8 +15,8 @@ const milestoneJourney = [
     dotColor: 'bg-amber-400',
   },
   {
-    icon: Battery,
-    category: 'Battery Discharge',
+    icon: BatteryFull,
+    category: 'Battery Storage Exported',
     nftCount: 7,
     range: '500 – 50,000 kWh',
     highlight: 'First Reserve',

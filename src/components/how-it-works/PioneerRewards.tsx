@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Award, Sun, Battery, Car, Zap, Crown, Sparkles, Trophy } from 'lucide-react';
+import { Award, Sun, BatteryFull, Car, Zap, Crown, Sparkles, Trophy } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -15,8 +15,8 @@ const nftCategories = [
     border: 'border-yellow-500/20',
   },
   {
-    icon: Battery,
-    name: 'Battery Discharge',
+    icon: BatteryFull,
+    name: 'Battery Storage Exported',
     count: 7,
     range: '500 – 50,000 kWh',
     examples: ['Voltbank (500 kWh)', 'Dynamax (10K kWh)', 'Gigavolt (50K kWh)'],

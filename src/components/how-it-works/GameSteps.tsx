@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import { Link2, Zap, Sparkles, Wallet, Sun, Battery, Car, Plug } from 'lucide-react';
+import { Link2, Zap, Sparkles, Wallet, Sun, BatteryFull, Car, Plug } from 'lucide-react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import teslaLogo from '@/assets/logos/tesla-logo.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
@@ -108,7 +108,7 @@ export const GameSteps = forwardRef<HTMLDivElement>(function GameSteps(_, ref) {
         <div className="flex items-center gap-4 pt-2 justify-center md:justify-start">
           {[
             { icon: Sun, label: 'Solar' },
-            { icon: Battery, label: 'Battery' },
+            { icon: BatteryFull, label: 'Battery' },
             { icon: Car, label: 'EV Miles' },
             { icon: Plug, label: 'EV Charging' },
           ].map(d => (

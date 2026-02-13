@@ -15,7 +15,7 @@ export const MILESTONE_TO_TOKEN_ID: Record<string, number> = {
   'solar_7': 7,   // Gigasun - 50,000 kWh
   'solar_8': 8,   // Starforge - 100,000 kWh
   
-  // Battery Discharge (Tokens 9-15)
+  // Battery Storage Exported (Tokens 9-15)
   'battery_1': 9,   // Voltbank - 500 kWh
   'battery_2': 10,  // Gridpulse - 1,000 kWh
   'battery_3': 11,  // Megacell - 2,500 kWh

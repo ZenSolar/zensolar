@@ -18,7 +18,7 @@ export default function TeslaSolarCryptoRewards() {
         earn you <strong>crypto rewards</strong>? That's exactly what ZenSolar makes possible.
       </p>
       <p>
-        By connecting your Tesla account to ZenSolar, your solar production and battery discharge data
+        By connecting your Tesla account to ZenSolar, your solar production and battery export data
         is automatically read through the official Tesla API. No extra hardware, no manual logging —
         just passive income on top of your existing solar savings. Learn more about{' '}
         <Link to="/blog/what-is-solar-energy-blockchain-rewards" className="text-primary hover:underline">how solar blockchain rewards work</Link>.

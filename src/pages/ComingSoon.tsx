@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Zap, Battery, Car, Check, Loader2, Shield, Hexagon } from 'lucide-react';
+import { Sun, Zap, BatteryFull, Car, Check, Loader2, Shield, Hexagon } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -119,7 +119,7 @@ function GlowOrbs() {
 const floatingIcons = [
   { Icon: Sun, delay: 0, x: '12%', y: '18%', color: 'text-solar/20' },
   { Icon: Zap, delay: 0.5, x: '82%', y: '12%', color: 'text-token/20' },
-  { Icon: Battery, delay: 1, x: '8%', y: '78%', color: 'text-secondary/20' },
+  { Icon: BatteryFull, delay: 1, x: '8%', y: '78%', color: 'text-secondary/20' },
   { Icon: Car, delay: 1.5, x: '88%', y: '72%', color: 'text-energy/20' },
   { Icon: Hexagon, delay: 2, x: '50%', y: '8%', color: 'text-primary/10' },
   { Icon: Shield, delay: 2.5, x: '20%', y: '50%', color: 'text-primary/10' },
@@ -171,7 +171,7 @@ export default function ComingSoon() {
     <>
       <SEO
         title="Coming Soon — ZenSolar"
-        description="ZenSolar is launching soon. Earn $ZSOLAR tokens for every kWh your solar panels produce, every battery discharge, every EV charge, and every mile you drive."
+        description="ZenSolar is launching soon. Earn $ZSOLAR tokens for every kWh your solar panels produce, every battery storage export, every EV charge, and every mile you drive."
         url="https://zensolar.com"
         image="https://zensolar.com/og-image.png"
       />
@@ -263,7 +263,7 @@ export default function ComingSoon() {
             <ul className="space-y-1 text-left inline-block text-base md:text-lg">
               {[
                 { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
-                { Icon: Battery, iconColor: 'text-secondary', text: 'Every kWh your battery discharges' },
+                { Icon: BatteryFull, iconColor: 'text-secondary', text: 'Every kWh your battery storage exports' },
                 { Icon: Car, iconColor: 'text-energy', text: 'Every EV mile you drive' },
                 { Icon: Zap, iconColor: 'text-token', text: 'Every kWh used to charge your EV' },
               ].map(({ Icon, iconColor, text }, idx) => (

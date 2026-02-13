@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, Zap, ChevronRight, Clock, AlertTriangle, Battery } from 'lucide-react';
+import { Loader2, Zap, ChevronRight, Clock, AlertTriangle, BatteryFull } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnphaseInverters, type InverterData, type ArrayData } from '@/hooks/useEnphaseInverters';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
@@ -200,7 +200,7 @@ export function SystemPerformanceCard({ enabled }: SystemPerformanceCardProps) {
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-primary/10">
-            <Battery className="h-5 w-5 text-primary" />
+            <BatteryFull className="h-5 w-5 text-primary" />
           </div>
           <div className="text-left">
             <p className="text-sm font-semibold text-foreground">System Performance</p>

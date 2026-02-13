@@ -34,7 +34,7 @@ export function DailyList({ days, unit = 'kWh', activityType }: DailyListProps) 
       {allZero && isBattery && (
         <div className="flex items-center gap-2 px-3 py-2.5 mb-1 rounded-lg bg-muted/50 border border-border/30">
           <span className="text-xs text-muted-foreground">
-            No battery discharge recorded this month — the battery may have been set to 100% backup reserve.
+            No battery export recorded this month — the battery may have been set to 100% backup reserve.
           </span>
         </div>
       )}
