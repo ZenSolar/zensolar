@@ -5,7 +5,7 @@ import { WhyZenSolarSection } from '@/components/home/WhyZenSolarSection';
 import { HowItWorksSection } from '@/components/home/HowItWorksSection';
 import { IntegrationLogos } from '@/components/home/IntegrationLogos';
 import { PricingSection } from '@/components/home/PricingSection';
-import { TokenomicsOverview } from '@/components/home/TokenomicsOverview';
+
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { FAQSection } from '@/components/home/FAQSection';
 import { HomeCTA } from '@/components/home/HomeCTA';
@@ -47,7 +47,6 @@ export default function Home() {
           <SectionDivider variant="angle" flip />
           <PricingSection />
           <SectionDivider variant="chevron" />
-          <TokenomicsOverview />
           <SectionDivider variant="diamond" />
           <TestimonialsSection />
           <SectionDivider variant="angle" />
