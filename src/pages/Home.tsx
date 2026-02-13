@@ -3,6 +3,7 @@ import { HomeHero } from '@/components/home/HomeHero';
 import { LiveStatsBar } from '@/components/home/LiveStatsBar';
 import { WhyZenSolarSection } from '@/components/home/WhyZenSolarSection';
 import { HowItWorksSection } from '@/components/home/HowItWorksSection';
+import { NFTMilestoneSection } from '@/components/home/NFTMilestoneSection';
 import { IntegrationLogos } from '@/components/home/IntegrationLogos';
 import { PricingSection } from '@/components/home/PricingSection';
 
@@ -41,6 +42,8 @@ export default function Home() {
           <SectionDivider variant="chevron" />
           <HowItWorksSection />
           <SectionDivider variant="diamond" />
+          <NFTMilestoneSection />
+          <SectionDivider variant="angle" />
           <IntegrationLogos />
           <SectionDivider variant="angle" />
           <WhyZenSolarSection />

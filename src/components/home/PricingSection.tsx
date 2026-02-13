@@ -124,7 +124,7 @@ export function PricingSection() {
             ))}
           </div>
           <p className="text-center text-xs text-muted-foreground mt-3">
-            🔥 Live Beta: 10x multiplier active — earning 1 $ZSOLAR/kWh (projected mainnet: 0.1 $ZSOLAR/kWh)
+            Pro & Elite subscribers earn rewards for every kWh and mile tracked.
           </p>
         </motion.div>
 

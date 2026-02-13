@@ -124,7 +124,7 @@ export function HowItWorksSection() {
                 ))}
               </div>
               <p className="text-center text-xs text-muted-foreground mt-4">
-                🔥 <span className="text-primary font-semibold">Live Beta:</span> 10x multiplier active — Pro & Elite subscribers earn these rates. Free tier tracks data only.
+                Pro & Elite subscribers earn these rates. Free tier tracks data only.
               </p>
             </CardContent>
           </Card>

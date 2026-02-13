@@ -44,7 +44,7 @@ export function LiveStatsBar() {
   const { data } = useHomeStats();
 
   const stats: StatItem[] = [
-    { icon: Users, label: 'Beta Status', value: '● Live', color: 'text-primary' },
+    { icon: Users, label: 'Beta Status', value: '🟢 Live', color: 'text-primary' },
     { icon: Zap, label: 'kWh Tracked', value: formatNumber(data?.totalKWhProduced ?? 1028539), color: 'text-solar' },
     { icon: Coins, label: '$ZSOLAR Minted', value: '623K', color: 'text-token' },
     { icon: Leaf, label: 'kg CO₂ Offset', value: formatNumber(data?.co2Offset ?? 431987), color: 'text-secondary' },
@@ -69,7 +69,7 @@ export function LiveStatsBar() {
               className="flex flex-col items-center text-center gap-1"
             >
               <stat.icon className={`h-6 w-6 ${stat.color} mb-1`} />
-              <span className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">{stat.value}</span>
+              <span className="text-lg md:text-2xl font-bold text-foreground tracking-tight">{stat.value}</span>
               <span className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</span>
             </motion.div>
           ))}
