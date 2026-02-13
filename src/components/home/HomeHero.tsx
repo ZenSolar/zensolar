@@ -59,26 +59,19 @@ export function HomeHero() {
             <p className="mb-4">
               Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
             </p>
-            <ul className="space-y-2 text-left inline-block text-[clamp(0.9rem,2.5vw,1.05rem)]">
-              <li className="flex items-center gap-2.5">
-                <Sun className="h-4 w-4 text-solar flex-shrink-0" />
-                <span>Every kWh your solar panels produce</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Battery className="h-4 w-4 text-secondary flex-shrink-0" />
-                <span>Every kWh your battery discharges</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Car className="h-4 w-4 text-energy flex-shrink-0" />
-                <span>Every EV mile you drive</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Zap className="h-4 w-4 text-token flex-shrink-0" />
-                <span>Every kWh used to charge your EV</span>
-              </li>
-            </ul>
-            <div className="mt-6 inline-flex items-center px-5 py-2.5 rounded-full border-primary/50 bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 animate-breathing-glow">
-              <span className="text-sm tracking-tight">Start monetizing your sustainable lifestyle →</span>
+            <div className="flex flex-wrap justify-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-solar/10 text-solar text-sm font-medium ring-1 ring-solar/20">
+                <Sun className="h-3.5 w-3.5" />Solar
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-medium ring-1 ring-secondary/20">
+                <Battery className="h-3.5 w-3.5" />Battery
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-energy/10 text-energy text-sm font-medium ring-1 ring-energy/20">
+                <Car className="h-3.5 w-3.5" />EV Miles
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-token/10 text-token text-sm font-medium ring-1 ring-token/20">
+                <Zap className="h-3.5 w-3.5" />EV Charging
+              </span>
             </div>
           </motion.div>
 
