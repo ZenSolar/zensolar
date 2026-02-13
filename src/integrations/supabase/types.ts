@@ -828,6 +828,36 @@ export type Database = {
         }
         Relationships: []
       }
+      work_journal_snapshots_schema: {
+        Row: {
+          columns_snapshot: Json
+          created_at: string | null
+          functions_snapshot: Json
+          id: string
+          policies_snapshot: Json
+          snapshot_date: string
+          tables_snapshot: Json
+        }
+        Insert: {
+          columns_snapshot?: Json
+          created_at?: string | null
+          functions_snapshot?: Json
+          id?: string
+          policies_snapshot?: Json
+          snapshot_date: string
+          tables_snapshot?: Json
+        }
+        Update: {
+          columns_snapshot?: Json
+          created_at?: string | null
+          functions_snapshot?: Json
+          id?: string
+          policies_snapshot?: Json
+          snapshot_date?: string
+          tables_snapshot?: Json
+        }
+        Relationships: []
+      }
       work_journal_summaries: {
         Row: {
           created_at: string
@@ -890,6 +920,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_schema_snapshot: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
