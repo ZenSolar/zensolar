@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { RotateCcw, Loader2, AlertTriangle, Sun, Car, Battery, Zap, CheckCircle2 } from 'lucide-react';
+import { RotateCcw, Loader2, AlertTriangle, Sun, Car, BatteryFull, Zap, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -26,7 +26,7 @@ interface AdminBaselineResetProps {
 const categoryConfig: { id: Category; label: string; icon: React.ReactNode; description: string }[] = [
   { id: 'solar', label: 'Solar Energy', icon: <Sun className="h-4 w-4" />, description: 'Reset solar production baseline' },
   { id: 'ev_miles', label: 'EV Miles', icon: <Car className="h-4 w-4" />, description: 'Reset odometer baseline' },
-  { id: 'battery', label: 'Battery Storage', icon: <Battery className="h-4 w-4" />, description: 'Reset battery discharge baseline' },
+  { id: 'battery', label: 'Battery Storage', icon: <BatteryFull className="h-4 w-4" />, description: 'Reset battery export baseline' },
   { id: 'charging', label: 'EV Charging', icon: <Zap className="h-4 w-4" />, description: 'Reset charging baseline' },
 ];
 

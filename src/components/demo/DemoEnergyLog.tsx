@@ -111,7 +111,7 @@ function generateDemoChargingSessions(monthStart: Date, monthEnd: Date): Chargin
 
 const tabTitles: Record<ActivityType, string> = {
   solar: 'Solar Production',
-  battery: 'Battery Discharge',
+  battery: 'Battery Storage Exported',
   'ev-charging': 'EV Charging',
   'ev-miles': 'EV Miles',
 };

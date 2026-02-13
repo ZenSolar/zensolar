@@ -56,7 +56,7 @@ interface MintTransaction {
 function getCategoryFromMilestoneId(id: string): string {
   if (id === 'welcome') return 'Welcome';
   if (id.startsWith('solar_')) return 'Solar Production';
-  if (id.startsWith('battery_')) return 'Battery Discharge';
+  if (id.startsWith('battery_')) return 'Battery Storage Exported';
   if (id.startsWith('charge_')) return 'EV Charging';
   if (id.startsWith('ev_')) return 'EV Miles';
   if (id.startsWith('combo_')) return 'Combo Achievement';

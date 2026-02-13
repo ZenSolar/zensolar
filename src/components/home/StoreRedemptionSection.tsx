@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Gift, Zap, Battery, Shirt, ArrowRight, Sparkles } from 'lucide-react';
+import { ShoppingBag, Gift, Zap, BatteryFull, Shirt, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const featuredItems = [
@@ -13,7 +13,7 @@ const featuredItems = [
     borderColor: 'border-red-500/30',
   },
   {
-    icon: Battery,
+    icon: BatteryFull,
     title: 'Power Stations',
     items: ['Anker SOLIX', 'EcoFlow DELTA', 'Bluetti AC200', 'Solar Generators'],
     accent: 'from-emerald-500/20 to-emerald-900/10',

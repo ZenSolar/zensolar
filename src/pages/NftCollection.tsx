@@ -17,7 +17,7 @@ import {
   Sun, 
   Car, 
   Zap, 
-  Battery, 
+  BatteryFull, 
   Sparkles, 
   Lock,
   CheckCircle2,
@@ -959,7 +959,7 @@ export default function NftCollection() {
           { icon: Sun, label: 'Solar', count: solarEarned.length, gradient: 'from-amber-500 to-orange-600', bg: 'from-amber-500/15 to-orange-500/5' },
           { icon: Car, label: 'EV Miles', count: evMilesEarned.length, gradient: 'from-blue-500 to-indigo-600', bg: 'from-blue-500/15 to-indigo-500/5' },
           { icon: Zap, label: 'Charging', count: evChargingEarned.length, gradient: 'from-yellow-500 to-amber-600', bg: 'from-yellow-500/15 to-amber-500/5' },
-          { icon: Battery, label: 'Battery', count: batteryEarned.length, gradient: 'from-emerald-500 to-teal-600', bg: 'from-emerald-500/15 to-teal-500/5' },
+          { icon: BatteryFull, label: 'Battery', count: batteryEarned.length, gradient: 'from-emerald-500 to-teal-600', bg: 'from-emerald-500/15 to-teal-500/5' },
         ].map((stat, index) => (
           <motion.div
             key={stat.label}
@@ -1035,7 +1035,7 @@ export default function NftCollection() {
             { value: 'solar', icon: Sun, label: 'Solar' },
             { value: 'ev_miles', icon: Car, label: 'EV Miles' },
             { value: 'charging', icon: Zap, label: 'Charging' },
-            { value: 'battery', icon: Battery, label: 'Battery' },
+            { value: 'battery', icon: BatteryFull, label: 'Battery' },
             { value: 'combos', icon: Trophy, label: 'Combos' },
           ].map((tab) => (
             <TabsTrigger 
@@ -1102,8 +1102,8 @@ export default function NftCollection() {
 
         <TabsContent value="battery" className="mt-8">
           <CategorySection
-            title="Battery Discharge"
-            icon={<Battery className="h-5 w-5 text-white" />}
+            title="Battery Storage Exported"
+            icon={<BatteryFull className="h-5 w-5 text-white" />}
             description="Use your home battery storage to earn NFTs"
             milestones={BATTERY_MILESTONES}
             earnedMilestones={batteryEarned}

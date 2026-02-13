@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sun, Battery, Zap, Car } from 'lucide-react';
+import { Sun, BatteryFull, Zap, Car } from 'lucide-react';
 import type { ActivityType } from '@/hooks/useEnergyLog';
 
 interface ActivityTabsProps {
@@ -9,7 +9,7 @@ interface ActivityTabsProps {
 
 const tabs: { value: ActivityType; label: string; icon: React.ElementType }[] = [
   { value: 'solar', label: 'Solar', icon: Sun },
-  { value: 'battery', label: 'Battery', icon: Battery },
+  { value: 'battery', label: 'Battery', icon: BatteryFull },
   { value: 'ev-charging', label: 'Charging', icon: Zap },
   { value: 'ev-miles', label: 'EV Miles', icon: Car },
 ];

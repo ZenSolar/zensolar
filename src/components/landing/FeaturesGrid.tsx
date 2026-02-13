@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sun, Car, Battery, Zap } from 'lucide-react';
+import { Sun, Car, BatteryFull, Zap } from 'lucide-react';
 
 const features = [
   {
@@ -16,7 +16,7 @@ const features = [
     gradient: 'from-energy to-primary',
   },
   {
-    icon: Battery,
+    icon: BatteryFull,
     title: 'Battery Storage',
     description: 'Maximize earnings from home battery systems',
     gradient: 'from-secondary to-eco',

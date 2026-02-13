@@ -4,7 +4,7 @@ import { useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Sun, Zap, Battery, Car,
+  Sun, Zap, BatteryFull, Car,
   ChevronRight, Sparkles, Hexagon, ArrowRight,
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
@@ -140,8 +140,8 @@ export function HeroSection() {
                 <span>Every kWh your solar panels produce</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <Battery className="h-4 w-4 text-secondary flex-shrink-0" />
-                <span>Every kWh your battery discharges</span>
+                <BatteryFull className="h-4 w-4 text-secondary flex-shrink-0" />
+                <span>Every kWh your battery storage exports</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Car className="h-4 w-4 text-energy flex-shrink-0" />

@@ -81,7 +81,7 @@ const claimsComparison: ClaimComparison[] = [
 const domainAgnosticApplications = [
   {
     domain: 'Clean Energy',
-    examples: 'Solar production (kWh), EV miles driven, battery discharge, EV charging',
+    examples: 'Solar production (kWh), EV miles driven, battery storage exported, EV charging',
     currentlyBuilt: true,
   },
   {

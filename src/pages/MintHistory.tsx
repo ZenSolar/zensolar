@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { Coins, Award, Loader2, TrendingUp, Zap, Car, Battery, ExternalLink, Hash, Sparkles, ChevronDown, ChevronUp, Sun, Clock, ArrowUpRight } from 'lucide-react';
+import { Coins, Award, Loader2, TrendingUp, Zap, Car, BatteryFull, ExternalLink, Hash, Sparkles, ChevronDown, ChevronUp, Sun, Clock, ArrowUpRight } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useProfile } from '@/hooks/useProfile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -201,7 +201,7 @@ export default function MintHistory() {
                 <div className="grid grid-cols-2 gap-4">
                   {[
                     { icon: Sun, label: 'Solar kWh', value: pendingActivity.solarKwh, gradient: 'from-amber-500 to-orange-600' },
-                    { icon: Battery, label: 'Battery kWh', value: pendingActivity.batteryKwh, gradient: 'from-emerald-500 to-teal-600' },
+                    { icon: BatteryFull, label: 'Battery kWh', value: pendingActivity.batteryKwh, gradient: 'from-emerald-500 to-teal-600' },
                     { icon: Car, label: 'EV Miles', value: pendingActivity.evMiles, gradient: 'from-blue-500 to-indigo-600' },
                     { icon: Zap, label: 'EV Charging kWh', value: pendingActivity.evChargingKwh, gradient: 'from-purple-500 to-pink-600' },
                   ].map((item) => (

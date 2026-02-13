@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, AlertCircle, Sun, Car, Battery, Zap, Wallet, Image } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, AlertCircle, Sun, Car, BatteryFull, Zap, Wallet, Image } from 'lucide-react';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useNavigate } from 'react-router-dom';
@@ -246,7 +246,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     switch (category) {
       case 'solar': return <Sun className="h-5 w-5 text-amber-500" />;
       case 'ev_miles': return <Car className="h-5 w-5 text-blue-500" />;
-      case 'battery': return <Battery className="h-5 w-5 text-green-500" />;
+      case 'battery': return <BatteryFull className="h-5 w-5 text-green-500" />;
       case 'charging': return <Zap className="h-5 w-5 text-purple-500" />;
       default: return <Coins className="h-5 w-5 text-primary" />;
     }

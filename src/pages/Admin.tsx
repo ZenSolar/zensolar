@@ -167,7 +167,7 @@ export default function Admin() {
             // Some providers store in kWh, others in Wh - normalize
             existing.lifetime_charging_kwh += chargingWh > 10000 ? chargingWh / 1000 : chargingWh;
             
-            // Battery discharge (from Tesla Powerwall)
+            // Battery storage exported (from Tesla Powerwall)
             const batteryWh = totals.battery_discharge_wh || totals.lifetime_battery_wh || 0;
             existing.lifetime_battery_kwh += batteryWh / 1000;
           }

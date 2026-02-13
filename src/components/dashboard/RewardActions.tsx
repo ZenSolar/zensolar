@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, Battery, Zap, Copy, Check, Wallet } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, BatteryFull, Zap, Copy, Check, Wallet } from 'lucide-react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
@@ -414,7 +414,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const getCategoryIcon = (category: MintCategory) => {
     if (category === 'solar') return Sun;
     if (category === 'ev_miles') return Car;
-    if (category === 'battery') return Battery;
+    if (category === 'battery') return BatteryFull;
     if (category === 'charging') return Zap;
     return Coins; // Default for 'all'
   };
@@ -955,7 +955,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-secondary/30 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 shadow-sm">
-                        <Battery className="h-4 w-4 text-secondary" />
+                        <BatteryFull className="h-4 w-4 text-secondary" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">Battery Storage</p>

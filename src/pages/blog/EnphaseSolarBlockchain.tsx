@@ -44,7 +44,7 @@ export default function EnphaseSolarBlockchain() {
       <h2>Enphase Battery (IQ Battery) Rewards</h2>
       <p>
         If your Enphase system includes IQ Batteries, you earn additional $ZSOLAR for every kWh
-        discharged. Battery discharge during peak hours demonstrates grid support and earns a
+        discharged. Battery export during peak hours demonstrates grid support and earns a
         higher reward multiplier. Enphase IQ Battery owners can also participate in{' '}
         <Link to="/blog/virtual-power-plant-vpp" className="text-primary hover:underline">Virtual Power Plant (VPP) events</Link> for
         even greater rewards.

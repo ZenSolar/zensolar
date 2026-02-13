@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
-import { Copy, Check, Database, Zap, Battery, Car, Plug, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
+import { Copy, Check, Database, Zap, BatteryFull, Car, Plug, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 type Status = 'available' | 'partial' | 'missing' | 'planned';
@@ -150,7 +150,7 @@ const schemaSection = `
 | recorded_at | timestamptz | Hourly timestamps for granular tracking |
 
 ### Key Gaps
-1. **No battery discharge column** — battery data is only in connected_devices.lifetime_totals
+1. **No battery export column** — battery data is only in connected_devices.lifetime_totals
 2. **No EV charging daily data** — charging kWh only stored as lifetime snapshots
 3. **No EV miles daily data** — odometer only stored as lifetime snapshot per sync
 4. **consumption_wh semantics are inconsistent** — Wallbox writes cumulative lifetime, others write 0
@@ -212,7 +212,7 @@ export default function EnergyDataArchitecture() {
 
   const categories = [
     { key: 'solar', label: 'Solar', icon: <Zap className="h-3.5 w-3.5" /> },
-    { key: 'battery', label: 'Battery', icon: <Battery className="h-3.5 w-3.5" /> },
+    { key: 'battery', label: 'Battery', icon: <BatteryFull className="h-3.5 w-3.5" /> },
     { key: 'evCharging', label: 'EV Charging', icon: <Plug className="h-3.5 w-3.5" /> },
     { key: 'evMiles', label: 'EV Miles', icon: <Car className="h-3.5 w-3.5" /> },
   ] as const;

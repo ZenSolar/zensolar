@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging, Sun, Battery, ArrowLeft } from 'lucide-react';
+import { ShieldX, Car, CheckCircle2, XCircle, AlertCircle, ExternalLink, Zap, BatteryCharging, Sun, BatteryFull, ArrowLeft } from 'lucide-react';
 import { ApiReferenceSkeleton } from '@/components/ui/loading-skeleton';
 
 interface EvApiInfo {

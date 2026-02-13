@@ -89,7 +89,7 @@ export function canHaveSolarData(deviceType: string): boolean {
 }
 
 /**
- * Check if a device can have battery discharge data
+ * Check if a device can have battery export data
  */
 export function canHaveBatteryData(deviceType: string): boolean {
   return normalizeDeviceType(deviceType) === 'battery';
