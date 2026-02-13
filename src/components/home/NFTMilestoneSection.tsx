@@ -1,68 +1,80 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Sun, BatteryFull, Zap, Car, Star, Hexagon, Award } from 'lucide-react';
+import { Award, Sun, BatteryFull, Zap, Car, Trophy, Star, Hexagon } from 'lucide-react';
+import { CategoryProgressRing } from './nft/CategoryProgressRing';
+import { TrophyShelf } from './nft/TrophyShelf';
 
-const milestoneJourney = [
-  {
-    icon: Sun,
-    category: 'Solar Production',
-    nftCount: 8,
-    range: '500 – 100,000 kWh',
-    highlight: 'Sunspark',
-    highlightDesc: 'Your first 500 kWh',
-    accent: 'from-amber-400 to-orange-500',
-    glowColor: 'shadow-amber-500/20',
-    dotColor: 'bg-amber-400',
-  },
-  {
-    icon: BatteryFull,
-    category: 'Battery Storage Exported',
-    nftCount: 7,
-    range: '500 – 50,000 kWh',
-    highlight: 'First Reserve',
-    highlightDesc: 'Your first 500 kWh stored',
-    accent: 'from-emerald-400 to-teal-500',
-    glowColor: 'shadow-emerald-500/20',
-    dotColor: 'bg-emerald-400',
-  },
-  {
-    icon: Zap,
-    category: 'EV Charging',
-    nftCount: 8,
-    range: '100 – 25,000 kWh',
-    highlight: 'First Charge',
-    highlightDesc: 'Your first 100 kWh charged',
-    accent: 'from-blue-400 to-cyan-500',
-    glowColor: 'shadow-blue-500/20',
-    dotColor: 'bg-blue-400',
-  },
-  {
-    icon: Car,
-    category: 'EV Miles Driven',
-    nftCount: 10,
-    range: '100 – 200,000 miles',
-    highlight: 'Odyssey',
-    highlightDesc: '200,000 miles driven',
-    accent: 'from-violet-400 to-purple-500',
-    glowColor: 'shadow-violet-500/20',
-    dotColor: 'bg-violet-400',
-  },
+// Demo "earned" state — first few in each category are earned for showcase
+const solarNFTs = [
+  { id: 'solar_1', name: 'Sunspark', earned: true },
+  { id: 'solar_2', name: 'Photonic', earned: true },
+  { id: 'solar_3', name: 'Rayforge', earned: true },
+  { id: 'solar_4', name: 'Solaris', earned: false },
+  { id: 'solar_5', name: 'Helios', earned: false },
+  { id: 'solar_6', name: 'Sunforge', earned: false },
+  { id: 'solar_7', name: 'Gigasun', earned: false },
+  { id: 'solar_8', name: 'Starforge', earned: false },
+];
+
+const batteryNFTs = [
+  { id: 'battery_1', name: 'Voltbank', earned: true },
+  { id: 'battery_2', name: 'Gridpulse', earned: true },
+  { id: 'battery_3', name: 'Megacell', earned: false },
+  { id: 'battery_4', name: 'Reservex', earned: false },
+  { id: 'battery_5', name: 'Dynamax', earned: false },
+  { id: 'battery_6', name: 'Ultracell', earned: false },
+  { id: 'battery_7', name: 'Gigavolt', earned: false },
+];
+
+const chargeNFTs = [
+  { id: 'charge_1', name: 'Ignite', earned: true },
+  { id: 'charge_2', name: 'Voltcharge', earned: true },
+  { id: 'charge_3', name: 'Kilovolt', earned: true },
+  { id: 'charge_4', name: 'Ampforge', earned: true },
+  { id: 'charge_5', name: 'Chargeon', earned: false },
+  { id: 'charge_6', name: 'Gigacharge', earned: false },
+  { id: 'charge_7', name: 'Megacharge', earned: false },
+  { id: 'charge_8', name: 'Teracharge', earned: false },
+];
+
+const evNFTs = [
+  { id: 'ev_1', name: 'Sparkstart', earned: true },
+  { id: 'ev_2', name: 'Velocity', earned: false },
+  { id: 'ev_3', name: 'Autobahn', earned: false },
+  { id: 'ev_4', name: 'Hyperdrive', earned: false },
+  { id: 'ev_5', name: 'Electra', earned: false },
+  { id: 'ev_6', name: 'Velocity Pro', earned: false },
+  { id: 'ev_7', name: 'Mach One', earned: false },
+  { id: 'ev_8', name: 'Centauri', earned: false },
+  { id: 'ev_9', name: 'Voyager', earned: false },
+  { id: 'ev_10', name: 'Odyssey', earned: false },
 ];
 
 const comboNFTs = [
-  { name: 'Duality', desc: '2 categories mastered' },
-  { name: 'Trifecta', desc: '3 categories mastered' },
-  { name: 'ZenMaster', desc: 'All 4 categories' },
-  { name: 'Total Eclipse', desc: 'Ultimate achievement' },
+  { id: 'combo_1', name: 'Duality', earned: true },
+  { id: 'combo_2', name: 'Trifecta', earned: false },
+  { id: 'combo_3', name: 'Quadrant', earned: false },
+  { id: 'combo_4', name: 'Constellation', earned: false },
+  { id: 'combo_5', name: 'Cyber Echo', earned: false },
+  { id: 'combo_6', name: 'Zenith', earned: false },
+  { id: 'combo_7', name: 'ZenMaster', earned: false },
+  { id: 'combo_8', name: 'Total Eclipse', earned: false },
+];
+
+const categories = [
+  { icon: Sun, label: 'Solar', earned: 3, total: 8, from: '#f59e0b', to: '#f97316' },
+  { icon: BatteryFull, label: 'Battery', earned: 2, total: 7, from: '#34d399', to: '#14b8a6' },
+  { icon: Zap, label: 'Charging', earned: 4, total: 8, from: '#60a5fa', to: '#06b6d4' },
+  { icon: Car, label: 'EV Miles', earned: 1, total: 10, from: '#a78bfa', to: '#8b5cf6' },
 ];
 
 function FloatingHexagon({ delay, x, y, size }: { delay: number; x: string; y: string; size: number }) {
   return (
     <motion.div
-      className="absolute pointer-events-none opacity-[0.07]"
+      className="absolute pointer-events-none opacity-[0.05]"
       style={{ left: x, top: y }}
-      animate={{ y: [0, -12, 0], rotate: [0, 8, 0] }}
-      transition={{ duration: 6, repeat: Infinity, delay, ease: 'easeInOut' }}
+      animate={{ y: [0, -10, 0], rotate: [0, 6, 0] }}
+      transition={{ duration: 7, repeat: Infinity, delay, ease: 'easeInOut' }}
     >
       <Hexagon className="text-token" style={{ width: size, height: size }} />
     </motion.div>
@@ -70,6 +82,9 @@ function FloatingHexagon({ delay, x, y, size }: { delay: number; x: string; y: s
 }
 
 export function NFTMilestoneSection() {
+  const totalEarned = 3 + 2 + 4 + 1 + 1; // 11 out of 42 for demo
+  const totalNFTs = 42;
+
   return (
     <section className="py-[clamp(4rem,10vw,7rem)] relative overflow-hidden">
       {/* Ambient background */}
@@ -77,14 +92,14 @@ export function NFTMilestoneSection() {
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-token/5 rounded-full blur-[150px]" />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
         <FloatingHexagon delay={0} x="5%" y="15%" size={48} />
-        <FloatingHexagon delay={1.5} x="85%" y="10%" size={36} />
-        <FloatingHexagon delay={3} x="75%" y="70%" size={56} />
-        <FloatingHexagon delay={2} x="15%" y="75%" size={40} />
+        <FloatingHexagon delay={1.5} x="88%" y="8%" size={36} />
+        <FloatingHexagon delay={3} x="78%" y="72%" size={56} />
+        <FloatingHexagon delay={2} x="12%" y="78%" size={40} />
       </div>
 
       <div className="container max-w-6xl mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
             <Badge variant="outline" className="px-3 py-1 border-token/40 bg-token/10 text-token font-medium mb-4">
               <Award className="h-3 w-3 mr-1.5" />
@@ -109,118 +124,96 @@ export function NFTMilestoneSection() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg"
           >
-            Powered by our patent-pending Mint-on-Proof™ engine, every kWh produced and every mile driven 
-            mints a unique achievement NFT — your proof-of-impact, forever on-chain.
+            Every kWh produced and mile driven mints a unique achievement NFT — 
+            your proof-of-impact, forever on-chain.
           </motion.p>
         </div>
 
-        {/* Milestone cards — 2x2 grid */}
-        <div className="grid sm:grid-cols-2 gap-5 mb-10">
-          {milestoneJourney.map((m, i) => (
-            <motion.div
-              key={m.category}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-              className={`group relative rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm p-6 hover:shadow-xl ${m.glowColor} transition-all duration-500`}
-            >
-              {/* Top row: icon + category + count */}
-              <div className="flex items-start justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-xl bg-gradient-to-br ${m.accent} shadow-lg`}>
-                    <m.icon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-foreground">{m.category}</h3>
-                    <p className="text-xs text-muted-foreground">{m.range}</p>
-                  </div>
-                </div>
-                <span className="text-xs font-semibold bg-muted/60 text-muted-foreground px-2.5 py-1 rounded-full">
-                  {m.nftCount} NFTs
-                </span>
-              </div>
-
-              {/* Progress tier dots */}
-              <div className="flex items-center gap-1 mb-5">
-                {Array.from({ length: m.nftCount }).map((_, j) => (
-                  <motion.div
-                    key={j}
-                    className={`h-1.5 flex-1 rounded-full ${j === 0 ? m.dotColor : 'bg-muted/40'}`}
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 + j * 0.04, duration: 0.3 }}
-                  />
-                ))}
-              </div>
-
-              {/* Featured NFT */}
-              <div className="flex items-center gap-3 rounded-xl bg-muted/30 border border-border/30 px-4 py-3">
-                <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${m.accent} flex items-center justify-center shadow-md`}>
-                  <Hexagon className="h-4 w-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">"{m.highlight}"</p>
-                  <p className="text-xs text-muted-foreground">{m.highlightDesc}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Combo achievements row */}
+        {/* ── Gamified Progress Dashboard ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.35 }}
-          className="rounded-2xl border border-token/20 bg-gradient-to-br from-token/10 via-card to-primary/5 p-6 md:p-8"
+          className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm p-6 md:p-8 mb-10"
         >
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            {/* Left side */}
-            <div className="flex items-center gap-4 shrink-0">
+          {/* Top stat bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-3">
               <motion.div
-                className="p-3 rounded-2xl bg-gradient-to-br from-token to-solar shadow-lg shadow-token/20"
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="p-2.5 rounded-xl bg-gradient-to-br from-token to-solar shadow-lg shadow-token/20"
+                animate={{ rotate: [0, 4, -4, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <Trophy className="h-7 w-7 text-white" />
+                <Trophy className="h-6 w-6 text-white" />
               </motion.div>
               <div>
-                <h3 className="text-lg font-bold text-foreground">Combo Achievements</h3>
-                <p className="text-sm text-muted-foreground">Master multiple categories</p>
+                <h3 className="text-lg font-bold text-foreground">Collection Progress</h3>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-token">{totalEarned}</span> of {totalNFTs} unlocked
+                </p>
               </div>
             </div>
 
-            {/* Combo NFT pills */}
-            <div className="flex flex-wrap gap-2.5 md:ml-auto">
-              {comboNFTs.map((combo, i) => (
+            {/* Overall XP bar */}
+            <div className="w-full sm:w-64">
+              <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                <span>Overall</span>
+                <span>{Math.round((totalEarned / totalNFTs) * 100)}%</span>
+              </div>
+              <div className="h-2.5 rounded-full bg-muted/30 overflow-hidden">
                 <motion.div
-                  key={combo.name}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
+                  className="h-full rounded-full bg-gradient-to-r from-token via-solar to-primary"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${(totalEarned / totalNFTs) * 100}%` }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.4 + i * 0.08 }}
-                  className="flex items-center gap-2 bg-background/60 backdrop-blur-sm border border-border/40 rounded-full pl-2 pr-3.5 py-1.5 hover:border-token/40 transition-colors"
-                >
-                  <Star className="h-3.5 w-3.5 text-token" />
-                  <div>
-                    <span className="text-xs font-semibold text-foreground">{combo.name}</span>
-                    <span className="text-[10px] text-muted-foreground ml-1.5 hidden sm:inline">— {combo.desc}</span>
-                  </div>
-                </motion.div>
-              ))}
+                  transition={{ delay: 0.4, duration: 1.2, ease: 'easeOut' }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* 8 combo badge + ERC-1155 note */}
-          <div className="flex flex-wrap items-center gap-3 mt-5 pt-5 border-t border-border/20">
-            <span className="text-xs text-muted-foreground">
-              <span className="font-semibold text-token">8 Combo NFTs</span> in total — including Duality, Trifecta, ZenMaster & Total Eclipse
-            </span>
-            <span className="text-[10px] text-muted-foreground/60 ml-auto">ERC-1155 on Base L2</span>
+          {/* Category progress rings */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-4">
+            {categories.map((cat, i) => (
+              <CategoryProgressRing
+                key={cat.label}
+                icon={cat.icon}
+                label={cat.label}
+                earned={cat.earned}
+                total={cat.total}
+                accentFrom={cat.from}
+                accentTo={cat.to}
+                delay={i * 0.1}
+              />
+            ))}
           </div>
+        </motion.div>
+
+        {/* ── Trophy Shelf — NFT Artwork Grid ── */}
+        <div className="space-y-8">
+          <TrophyShelf title="Solar Production" nfts={solarNFTs} accentColor="solar" delay={0} />
+          <TrophyShelf title="Battery Storage" nfts={batteryNFTs} accentColor="eco" delay={0.05} />
+          <TrophyShelf title="EV Charging" nfts={chargeNFTs} accentColor="primary" delay={0.1} />
+          <TrophyShelf title="EV Miles Driven" nfts={evNFTs} accentColor="token" delay={0.15} />
+          <TrophyShelf title="Combo Achievements" nfts={comboNFTs} accentColor="accent" delay={0.2} />
+        </div>
+
+        {/* Bottom note */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-wrap items-center justify-center gap-3 mt-10 pt-6 border-t border-border/20"
+        >
+          <div className="flex items-center gap-2">
+            <Star className="h-3.5 w-3.5 text-token" />
+            <span className="text-xs text-muted-foreground">
+              Powered by <span className="font-semibold text-foreground">Mint-on-Proof™</span>
+            </span>
+          </div>
+          <span className="text-border">·</span>
+          <span className="text-[10px] text-muted-foreground/60">ERC-1155 on Base L2</span>
         </motion.div>
       </div>
     </section>
