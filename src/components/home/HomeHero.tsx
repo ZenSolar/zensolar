@@ -45,7 +45,7 @@ export function HomeHero() {
           >
             Connect your solar panels, batteries, and EVs. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
             <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
-            <span className="text-primary font-semibold">achievement NFTs</span> — no manual claims, no middlemen.
+            <span className="text-primary font-semibold">achievement NFTs</span> — all in one app.
           </motion.p>
 
           <motion.div
