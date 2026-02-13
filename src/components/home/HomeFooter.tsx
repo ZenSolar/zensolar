@@ -14,6 +14,7 @@ const footerSections = [
   {
     title: 'Resources',
     links: [
+      { label: 'Blog', to: '/blog' },
       { label: 'FAQ', to: '#faq' },
       { label: 'Tokenomics', to: '#tokenomics' },
       { label: 'Terms of Service', to: '/terms' },
