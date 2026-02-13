@@ -29,13 +29,26 @@ export function HomeHero() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-[clamp(2.5rem,7vw,5rem)] font-bold tracking-tight leading-[1.08]"
           >
-            The World's First{' '}
-            <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
-              Mint-on-Proof<sup className="text-[0.4em] font-normal align-super">™</sup>
-            </span>
+            Turn Clean Energy
             <br />
-            Clean Energy Rewards Platform
+            Into{' '}
+            <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
+              Digital Income
+            </span>
           </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+            className="text-[clamp(1.1rem,2.8vw,1.5rem)] font-semibold text-muted-foreground tracking-tight"
+          >
+            The World's First{' '}
+            <span className="text-foreground">
+              Mint-on-Proof<sup className="text-[0.35em] font-normal align-super">™</sup>
+            </span>{' '}
+            Rewards Platform
+          </motion.p>
 
           <motion.p
             initial={{ opacity: 0, y: 15 }}
