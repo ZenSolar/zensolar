@@ -8,73 +8,154 @@ const corsHeaders = {
 
 const ADMIN_USER_ID = "331c79de-0c05-433c-a57e-9cdfcf2dc44d";
 
-function generateEntry(targetDate: string, activity: {
-  energyRecords: number;
-  totalKwh: number;
-  providers: string[];
-  dataTypes: string[];
-  chargingSessions: number;
-  chargingKwh: number;
-  newDevices: { name: string; provider: string }[];
-  rewards: number;
-  tokensEarned: number;
-  newUsers: number;
-}): { title: string; description: string; category: string } {
-  const parts: string[] = [];
-  let category = "infrastructure";
+interface SchemaSnapshot {
+  tables: { table_name: string }[];
+  columns: { table_name: string; column_name: string; data_type: string; is_nullable: string }[];
+  policies: { table_name: string; policy_name: string; cmd: string; permissive: string }[];
+  functions: { function_name: string; return_type: string }[];
+}
 
-  if (activity.energyRecords > 0) {
-    parts.push(
-      `${activity.energyRecords} energy data points recorded (${activity.totalKwh.toFixed(1)} kWh) across ${activity.providers.join(", ")} — data types: ${activity.dataTypes.join(", ")}`
-    );
-    category = "feature";
+interface JournalEntry {
+  title: string;
+  description: string;
+  category: string;
+}
+
+function diffSnapshots(prev: SchemaSnapshot, curr: SchemaSnapshot): JournalEntry[] {
+  const entries: JournalEntry[] = [];
+
+  // --- New tables ---
+  const prevTableNames = new Set(prev.tables.map(t => t.table_name));
+  const newTables = curr.tables.filter(t => !prevTableNames.has(t.table_name));
+  for (const t of newTables) {
+    const cols = curr.columns.filter(c => c.table_name === t.table_name);
+    const colList = cols.map(c => `${c.column_name} (${c.data_type})`).join(", ");
+    const policies = curr.policies.filter(p => p.table_name === t.table_name);
+    const policyNote = policies.length > 0
+      ? ` RLS enabled with ${policies.length} ${policies.length === 1 ? "policy" : "policies"}: ${policies.map(p => p.policy_name).join(", ")}.`
+      : " No RLS policies configured yet.";
+    entries.push({
+      title: `New table: ${t.table_name}`,
+      description: `Created ${t.table_name} table with ${cols.length} columns: ${colList}.${policyNote}`,
+      category: "database",
+    });
   }
 
-  if (activity.chargingSessions > 0) {
-    parts.push(
-      `${activity.chargingSessions} home charging session(s) tracked (${activity.chargingKwh.toFixed(1)} kWh)`
-    );
-    category = "feature";
+  // --- Dropped tables ---
+  const currTableNames = new Set(curr.tables.map(t => t.table_name));
+  const droppedTables = prev.tables.filter(t => !currTableNames.has(t.table_name));
+  for (const t of droppedTables) {
+    entries.push({
+      title: `Table removed: ${t.table_name}`,
+      description: `The ${t.table_name} table was dropped from the public schema.`,
+      category: "database",
+    });
   }
 
-  if (activity.newDevices.length > 0) {
-    parts.push(
-      `${activity.newDevices.length} new device(s) connected: ${activity.newDevices.map((d) => `${d.name} via ${d.provider}`).join(", ")}`
-    );
-    category = "feature";
+  // --- New columns on existing tables ---
+  const prevColKeys = new Set(prev.columns.map(c => `${c.table_name}.${c.column_name}`));
+  const newCols = curr.columns.filter(c =>
+    !prevColKeys.has(`${c.table_name}.${c.column_name}`) &&
+    prevTableNames.has(c.table_name) // only on existing tables, new tables handled above
+  );
+  // Group new columns by table
+  const newColsByTable = new Map<string, typeof newCols>();
+  for (const c of newCols) {
+    if (!newColsByTable.has(c.table_name)) newColsByTable.set(c.table_name, []);
+    newColsByTable.get(c.table_name)!.push(c);
+  }
+  for (const [table, cols] of newColsByTable) {
+    const colDesc = cols.map(c => {
+      const nullable = c.is_nullable === "YES" ? "nullable" : "not null";
+      return `${c.column_name} (${c.data_type}, ${nullable})`;
+    }).join(", ");
+    entries.push({
+      title: `${table} — ${cols.length} new column${cols.length > 1 ? "s" : ""} added`,
+      description: `Added ${colDesc} to the ${table} table.`,
+      category: "database",
+    });
   }
 
-  if (activity.rewards > 0) {
-    parts.push(
-      `${activity.rewards} reward(s) calculated — ${activity.tokensEarned.toFixed(0)} tokens earned`
-    );
+  // --- Dropped columns on existing tables ---
+  const currColKeys = new Set(curr.columns.map(c => `${c.table_name}.${c.column_name}`));
+  const droppedCols = prev.columns.filter(c =>
+    !currColKeys.has(`${c.table_name}.${c.column_name}`) &&
+    currTableNames.has(c.table_name) // table still exists
+  );
+  const droppedColsByTable = new Map<string, typeof droppedCols>();
+  for (const c of droppedCols) {
+    if (!droppedColsByTable.has(c.table_name)) droppedColsByTable.set(c.table_name, []);
+    droppedColsByTable.get(c.table_name)!.push(c);
+  }
+  for (const [table, cols] of droppedColsByTable) {
+    entries.push({
+      title: `${table} — ${cols.length} column${cols.length > 1 ? "s" : ""} removed`,
+      description: `Removed ${cols.map(c => c.column_name).join(", ")} from ${table}.`,
+      category: "database",
+    });
   }
 
-  if (activity.newUsers > 0) {
-    parts.push(`${activity.newUsers} new user(s) joined the platform`);
-    category = "admin";
+  // --- New RLS policies ---
+  const prevPolicyKeys = new Set(prev.policies.map(p => `${p.table_name}:${p.policy_name}`));
+  const newPolicies = curr.policies.filter(p => !prevPolicyKeys.has(`${p.table_name}:${p.policy_name}`));
+  const newPoliciesByTable = new Map<string, typeof newPolicies>();
+  for (const p of newPolicies) {
+    if (!newPoliciesByTable.has(p.table_name)) newPoliciesByTable.set(p.table_name, []);
+    newPoliciesByTable.get(p.table_name)!.push(p);
+  }
+  for (const [table, pols] of newPoliciesByTable) {
+    // Skip if this table is brand new (already covered above)
+    if (!prevTableNames.has(table)) continue;
+    const polDesc = pols.map(p => `"${p.policy_name}" (${p.cmd})`).join(", ");
+    entries.push({
+      title: `${table} — ${pols.length} new RLS ${pols.length === 1 ? "policy" : "policies"}`,
+      description: `Added RLS policies on ${table}: ${polDesc}.`,
+      category: "security",
+    });
   }
 
-  if (parts.length === 0) {
-    return {
-      title: "Quiet day — development focus",
-      description: "No significant platform activity detected. Likely a code-focused development day with changes to frontend, edge functions, or architecture work not reflected in database activity.",
-      category: "infrastructure",
-    };
+  // --- Removed RLS policies ---
+  const currPolicyKeys = new Set(curr.policies.map(p => `${p.table_name}:${p.policy_name}`));
+  const removedPolicies = prev.policies.filter(p => !currPolicyKeys.has(`${p.table_name}:${p.policy_name}`));
+  if (removedPolicies.length > 0) {
+    const grouped = new Map<string, string[]>();
+    for (const p of removedPolicies) {
+      if (!grouped.has(p.table_name)) grouped.set(p.table_name, []);
+      grouped.get(p.table_name)!.push(p.policy_name);
+    }
+    for (const [table, names] of grouped) {
+      if (!currTableNames.has(table)) continue; // table was dropped entirely
+      entries.push({
+        title: `${table} — RLS ${names.length === 1 ? "policy" : "policies"} removed`,
+        description: `Removed RLS policies from ${table}: ${names.map(n => `"${n}"`).join(", ")}.`,
+        category: "security",
+      });
+    }
   }
 
-  // Build title from primary activity
-  let title = "Platform activity";
-  if (activity.energyRecords > 20) title = `${activity.totalKwh.toFixed(0)} kWh energy data logged`;
-  else if (activity.newDevices.length > 0) title = `New device(s) connected`;
-  else if (activity.chargingSessions > 0) title = `Home charging tracked`;
-  else if (activity.newUsers > 0) title = `${activity.newUsers} new user(s) onboarded`;
+  // --- New database functions ---
+  const prevFnNames = new Set(prev.functions.map(f => f.function_name));
+  const newFns = curr.functions.filter(f => !prevFnNames.has(f.function_name));
+  for (const f of newFns) {
+    entries.push({
+      title: `New database function: ${f.function_name}()`,
+      description: `Created ${f.function_name}() returning ${f.return_type} in the public schema.`,
+      category: "database",
+    });
+  }
 
-  return {
-    title,
-    description: parts.join(". ") + ".",
-    category,
-  };
+  // --- Removed database functions ---
+  const currFnNames = new Set(curr.functions.map(f => f.function_name));
+  const removedFns = prev.functions.filter(f => !currFnNames.has(f.function_name));
+  for (const f of removedFns) {
+    entries.push({
+      title: `Database function removed: ${f.function_name}()`,
+      description: `The ${f.function_name}() function was dropped from the public schema.`,
+      category: "database",
+    });
+  }
+
+  return entries;
 }
 
 Deno.serve(async (req) => {
@@ -87,132 +168,95 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    const url = new URL(req.url);
-    const dateParam = url.searchParams.get("date");
-    const backfill = url.searchParams.get("backfill") === "true";
+    const today = new Date().toISOString().split("T")[0];
 
-    let targetDates: string[] = [];
+    // 1. Get current schema snapshot via RPC
+    const { data: currentSnapshot, error: rpcError } = await supabase.rpc("get_schema_snapshot");
+    if (rpcError) throw new Error(`RPC error: ${rpcError.message}`);
 
-    if (backfill) {
-      const { data: lastEntry } = await supabase
-        .from("work_journal")
-        .select("date")
-        .order("date", { ascending: false })
-        .limit(1)
-        .single();
+    const curr = currentSnapshot as SchemaSnapshot;
 
-      const lastDate = lastEntry?.date || "2026-02-08";
-      const today = new Date().toISOString().split("T")[0];
+    // 2. Get the most recent previous snapshot
+    const { data: prevRow } = await supabase
+      .from("work_journal_snapshots_schema")
+      .select("*")
+      .order("snapshot_date", { ascending: false })
+      .limit(1)
+      .single();
 
-      // Generate all dates from lastDate+1 to yesterday
-      const allDates = new Set<string>();
-      const start = new Date(lastDate);
-      start.setDate(start.getDate() + 1);
-      const end = new Date(today);
-      for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-        allDates.add(d.toISOString().split("T")[0]);
-      }
+    let entries: JournalEntry[] = [];
 
-      // Remove dates that already have entries
-      if (allDates.size > 0) {
-        const { data: existingEntries } = await supabase
-          .from("work_journal")
-          .select("date")
-          .in("date", Array.from(allDates));
-        const existingDates = new Set((existingEntries || []).map((e: any) => e.date));
-        targetDates = Array.from(allDates).filter((d) => !existingDates.has(d)).sort();
-      }
-    } else if (dateParam) {
-      targetDates = [dateParam];
+    if (prevRow) {
+      const prev: SchemaSnapshot = {
+        tables: prevRow.tables_snapshot as any,
+        columns: prevRow.columns_snapshot as any,
+        policies: prevRow.policies_snapshot as any,
+        functions: prevRow.functions_snapshot as any,
+      };
+
+      entries = diffSnapshots(prev, curr);
+      console.log(`[AutoJournal] Compared against ${prevRow.snapshot_date}: found ${entries.length} changes`);
     } else {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      targetDates = [yesterday.toISOString().split("T")[0]];
+      // First run — no previous snapshot, just store baseline
+      console.log("[AutoJournal] First run — storing baseline snapshot, no diff to generate");
     }
 
-    if (targetDates.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "No dates to process" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log(`[AutoJournal] Processing ${targetDates.length} date(s): ${targetDates.join(", ")}`);
-
-    const results: Record<string, string> = {};
-
-    for (const targetDate of targetDates) {
-      const nextDate = new Date(targetDate);
-      nextDate.setDate(nextDate.getDate() + 1);
-      const nextDateStr = nextDate.toISOString().split("T")[0];
-
-      const range = { gte: targetDate + "T00:00:00Z", lt: nextDateStr + "T00:00:00Z" };
-
-      const [energyRes, chargingRes, devicesRes, rewardsRes, profilesRes] =
-        await Promise.all([
-          supabase.from("energy_production")
-            .select("provider, data_type, production_wh, consumption_wh")
-            .gte("created_at", range.gte).lt("created_at", range.lt),
-          supabase.from("home_charging_sessions")
-            .select("status, total_session_kwh, device_id")
-            .gte("created_at", range.gte).lt("created_at", range.lt),
-          supabase.from("connected_devices")
-            .select("provider, device_type, device_name")
-            .gte("created_at", range.gte).lt("created_at", range.lt),
-          supabase.from("user_rewards")
-            .select("tokens_earned, reward_type")
-            .gte("created_at", range.gte).lt("created_at", range.lt),
-          supabase.from("profiles")
-            .select("created_at")
-            .gte("created_at", range.gte).lt("created_at", range.lt),
-        ]);
-
-      const energyRecords = energyRes.data || [];
-      const chargingRecords = chargingRes.data || [];
-      const newDevices = devicesRes.data || [];
-      const rewards = rewardsRes.data || [];
-      const newUsers = profilesRes.data || [];
-
-      const entry = generateEntry(targetDate, {
-        energyRecords: energyRecords.length,
-        totalKwh: energyRecords.reduce((s, r) => s + (r.production_wh || 0), 0) / 1000,
-        providers: [...new Set(energyRecords.map((r) => r.provider))],
-        dataTypes: [...new Set(energyRecords.map((r) => r.data_type))],
-        chargingSessions: chargingRecords.length,
-        chargingKwh: chargingRecords.reduce((s, r) => s + (r.total_session_kwh || 0), 0),
-        newDevices: newDevices.map((d) => ({
-          name: d.device_name || d.device_type,
-          provider: d.provider,
-        })),
-        rewards: rewards.length,
-        tokensEarned: rewards.reduce((s, r) => s + (r.tokens_earned || 0), 0),
-        newUsers: newUsers.length,
+    // 3. If no schema changes detected, log a quiet day
+    if (entries.length === 0 && prevRow) {
+      entries.push({
+        title: "Quiet day — no schema changes detected",
+        description: "No database migrations, new tables, column changes, RLS policy updates, or function changes were detected. Development may have focused on frontend code, UI polish, or edge function logic not reflected in schema changes.",
+        category: "infrastructure",
       });
+    }
 
+    // 4. Insert journal entries for today
+    const results: string[] = [];
+    for (const entry of entries) {
       const { error: insertError } = await supabase.from("work_journal").insert({
         title: entry.title,
         description: entry.description,
         category: entry.category,
-        date: targetDate,
+        date: today,
         created_by: ADMIN_USER_ID,
       });
-
       if (insertError) {
-        console.error(`[AutoJournal] Insert failed for ${targetDate}:`, insertError.message);
-        results[targetDate] = `error: ${insertError.message}`;
+        console.error(`[AutoJournal] Insert failed: ${insertError.message}`);
+        results.push(`error: ${insertError.message}`);
       } else {
-        // Upsert summary
-        await supabase.from("work_journal_summaries").upsert(
-          { date: targetDate, summary: entry.description, created_by: ADMIN_USER_ID },
-          { onConflict: "date" }
-        );
-        results[targetDate] = entry.title;
-        console.log(`[AutoJournal] ✓ ${targetDate}: ${entry.title}`);
+        results.push(entry.title);
+        console.log(`[AutoJournal] ✓ ${entry.title}`);
       }
     }
 
+    // 5. Generate daily summary from all entries
+    if (entries.length > 0) {
+      const summaryParts = entries.map(e => e.title).join(". ");
+      await supabase.from("work_journal_summaries").upsert(
+        { date: today, summary: summaryParts + ".", created_by: ADMIN_USER_ID },
+        { onConflict: "date" }
+      );
+    }
+
+    // 6. Store today's snapshot (upsert by date)
+    await supabase.from("work_journal_snapshots_schema").upsert(
+      {
+        snapshot_date: today,
+        tables_snapshot: curr.tables,
+        columns_snapshot: curr.columns,
+        policies_snapshot: curr.policies,
+        functions_snapshot: curr.functions,
+      },
+      { onConflict: "snapshot_date" }
+    );
+
     return new Response(
-      JSON.stringify({ processed: targetDates.length, results }),
+      JSON.stringify({
+        date: today,
+        entries_created: entries.length,
+        results,
+        has_previous_snapshot: !!prevRow,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
