@@ -29,11 +29,12 @@ export function HomeHero() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-[clamp(2.5rem,7vw,5rem)] font-bold tracking-tight leading-[1.08]"
           >
-            Play the Clean Energy Game.{' '}
-            <br />
-            <span className="bg-gradient-to-r from-solar via-accent to-primary bg-clip-text text-transparent">
-              Get Rewarded for Every kWh.
+            The World's First{' '}
+            <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
+              Mint-on-Proof
             </span>
+            <br />
+            Clean Energy Rewards Platform
           </motion.h1>
 
           <motion.p
