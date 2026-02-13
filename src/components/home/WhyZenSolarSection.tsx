@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trophy, Target, TrendingUp, Gamepad2, Flame, Award, DollarSign, ArrowRight } from 'lucide-react';
+import { AlertTriangle, TrendingDown, RefreshCcw, ArrowRight, DollarSign, ShieldOff, Repeat } from 'lucide-react';
 
 export function WhyZenSolarSection() {
   return (
@@ -10,8 +10,8 @@ export function WhyZenSolarSection() {
         {/* Header */}
         <div className="text-center mb-10">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-primary/40 bg-primary/10 text-primary font-medium mb-4">
-              Why ZenSolar?
+            <Badge variant="outline" className="px-3 py-1 border-destructive/40 bg-destructive/10 text-destructive font-medium mb-4">
+              The Problem
             </Badge>
           </motion.div>
           <motion.h2
@@ -20,10 +20,8 @@ export function WhyZenSolarSection() {
             viewport={{ once: true }}
             className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
           >
-            Your Clean Energy is a{' '}
-            <span className="bg-gradient-to-r from-solar via-accent to-primary bg-clip-text text-transparent">
-              Game Worth Playing
-            </span>
+            $40 Billion in Clean Energy Incentives —{' '}
+            <span className="text-destructive">Gone.</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -31,16 +29,16 @@ export function WhyZenSolarSection() {
             viewport={{ once: true }}
             className="text-muted-foreground max-w-2xl mx-auto text-lg"
           >
-            Every kWh you produce, store, and drive is a move in the game. ZenSolar tracks your impact, rewards your progress, and turns sustainable living into a rewarding experience.
+            The 30% Solar ITC and $7,500 EV tax credits are being repealed. Millions of homeowners and EV drivers are losing the financial motivation to go — or stay — green.
           </motion.p>
         </div>
 
-        {/* Gamification pillars */}
+        {/* Problem cards */}
         <div className="grid md:grid-cols-3 gap-5 mb-12">
           {[
-            { icon: Target, title: 'Track Your Impact', desc: 'See your solar production, battery cycles, and EV miles in real-time. Every action is measured, verified, and added to your clean energy score.', color: 'text-primary', border: 'border-primary/20', bg: 'from-primary/5' },
-            { icon: Trophy, title: 'Earn Tokens & NFTs', desc: 'Hit milestones, unlock achievement NFTs, and earn $ZSOLAR tokens automatically. The more you contribute, the more you earn.', color: 'text-solar', border: 'border-solar/20', bg: 'from-solar/5' },
-            { icon: TrendingUp, title: 'Level Up Over Time', desc: 'Build streaks, climb leaderboards, and compound your rewards. Your clean energy lifestyle gets more valuable every day.', color: 'text-secondary', border: 'border-secondary/20', bg: 'from-secondary/5' },
+            { icon: ShieldOff, title: 'Tax Credits Disappearing', desc: 'Federal incentives that drove solar and EV adoption are being eliminated, removing the #1 financial motivation for clean energy.' },
+            { icon: TrendingDown, title: 'Adoption Slowing', desc: 'Without financial incentives, new solar installations and EV purchases are projected to decline significantly.' },
+            { icon: AlertTriangle, title: 'Existing Users Ignored', desc: 'Government credits were one-time. After install, your solar system sits there generating value — but nobody rewards you for it.' },
           ].map((item, i) => (
             <motion.div
               key={item.title}
@@ -49,9 +47,9 @@ export function WhyZenSolarSection() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className={`h-full border ${item.border} bg-gradient-to-br ${item.bg} to-card hover:shadow-lg transition-shadow`}>
+              <Card className="h-full border-destructive/20 bg-gradient-to-br from-destructive/5 to-card">
                 <CardContent className="p-5 flex gap-4">
-                  <item.icon className={`h-6 w-6 ${item.color} shrink-0 mt-0.5`} />
+                  <item.icon className="h-6 w-6 text-destructive shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -62,7 +60,7 @@ export function WhyZenSolarSection() {
           ))}
         </div>
 
-        {/* The rewards engine */}
+        {/* The solution */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -72,42 +70,45 @@ export function WhyZenSolarSection() {
             <CardContent className="p-8 md:p-10">
               <div className="text-center mb-8">
                 <Badge variant="outline" className="px-3 py-1 border-primary/40 bg-primary/10 text-primary font-medium mb-4">
-                  The Rewards Engine
+                  The Solution
                 </Badge>
                 <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
-                  Built to Keep You{' '}
+                  ZenSolar Replaces Government Incentives with{' '}
                   <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    Motivated & Rewarded
+                    Permanent, Market-Backed Rewards
                   </span>
                 </h3>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Unlike one-time government incentives, ZenSolar delivers continuous, compounding rewards — turning your daily clean energy habits into lasting value.
+                  Unlike one-time tax credits, ZenSolar continuously rewards you for every kWh you produce, store, and consume — automatically, every single day.
                 </p>
               </div>
 
-              {/* Game mechanics */}
-              <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
-                {[
-                  { icon: Gamepad2, title: 'Daily Challenges', desc: 'Complete energy goals and unlock bonus token multipliers' },
-                  { icon: Flame, title: 'Streak Rewards', desc: 'Maintain consecutive days of production for escalating bonuses' },
-                  { icon: Award, title: 'Achievement NFTs', desc: 'Earn unique collectibles for milestones like 1 MWh produced' },
-                  { icon: TrendingUp, title: 'Compounding Value', desc: 'Your $ZSOLAR grows as the ecosystem and token demand expand' },
-                ].map((item, i) => (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.1 + i * 0.08 }}
-                    className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/50"
-                  >
-                    <item.icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-semibold text-foreground">{item.title}</h4>
-                      <p className="text-xs text-muted-foreground">{item.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
+              {/* Comparison */}
+              <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                <div className="p-5 rounded-xl border border-destructive/20 bg-destructive/5">
+                  <h4 className="font-semibold text-destructive mb-3 flex items-center gap-2">
+                    <ShieldOff className="h-5 w-5" />
+                    Government Credits
+                  </h4>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✗</span> One-time payment at installation</li>
+                    <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✗</span> Subject to political changes</li>
+                    <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✗</span> No ongoing motivation to maximize usage</li>
+                    <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✗</span> Being repealed in 2025-2026</li>
+                  </ul>
+                </div>
+                <div className="p-5 rounded-xl border border-primary/30 bg-primary/5">
+                  <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
+                    <Repeat className="h-5 w-5" />
+                    ZenSolar Rewards
+                  </h4>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Continuous daily rewards, every kWh</li>
+                    <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Backed by market economics, not politics</li>
+                    <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Compounds — the more you use, the more you earn</li>
+                    <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Verified by patent-pending decentralized tech</li>
+                  </ul>
+                </div>
               </div>
 
               {/* Earning projection */}

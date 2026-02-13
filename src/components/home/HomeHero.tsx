@@ -43,9 +43,9 @@ export function HomeHero() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-[clamp(1.05rem,2.5vw,1.3rem)] text-muted-foreground max-w-2xl leading-relaxed"
           >
-            Track your solar production, battery storage, and EV miles — then earn{' '}
+            Connect your solar panels, batteries, and EVs. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
             <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
-            <span className="text-primary font-semibold">achievement NFTs</span> automatically. Level up, build streaks, and watch your impact grow.
+            <span className="text-primary font-semibold">achievement NFTs</span> — no manual claims, no middlemen.
           </motion.p>
 
           <motion.div
