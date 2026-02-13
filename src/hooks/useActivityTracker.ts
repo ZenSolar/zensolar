@@ -23,7 +23,6 @@ export function useActivityTracker() {
       .update({
         last_login_at: new Date().toISOString(),
         last_seen_at: new Date().toISOString(),
-        login_count: undefined, // handled below via rpc-free increment
       })
       .eq('user_id', user.id)
       .then(() => {

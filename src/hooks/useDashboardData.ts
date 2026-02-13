@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   ActivityData, 
   ConnectedAccount, 
@@ -67,17 +68,19 @@ interface ProfileConnections {
 }
 
 export function useDashboardData() {
+  // Use cached auth state — NO network calls needed for user/session
+  const { user: authUser, session: authSession } = useAuth();
+  
   // Check if we're in "view as user" mode (admin viewing another user's data)
   const viewAsUserId = useViewAsUserId();
   const isViewingAsOther = viewAsUserId !== null;
   const location = useLocation();
   const isOnDashboard = location.pathname === '/' || location.pathname === '/dashboard';
 
-  // Helper to get the effective user ID for data fetching
-  const getEffectiveUserId = async (): Promise<string | null> => {
+  // Helper to get the effective user ID — uses cached auth, NO network call
+  const getEffectiveUserId = (): string | null => {
     if (viewAsUserId) return viewAsUserId;
-    const { data: { user } } = await supabase.auth.getUser();
-    return user?.id ?? null;
+    return authUser?.id ?? null;
   };
   const [activityData, setActivityDataRaw] = useState<ActivityData>(cachedActivityData ?? defaultActivityData);
   const setActivityData = useCallback((data: ActivityData) => {
@@ -122,9 +125,8 @@ export function useDashboardData() {
     const targetUserId = viewAsUserId ?? null;
     
     if (!targetUserId) {
-      // Normal mode - get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      // Normal mode - use cached auth user (NO network call)
+      if (!authUser) {
         setProfileConnections(null);
         setConnectedAccounts([
           { service: 'tesla', connected: false, label: 'Tesla' },
@@ -137,12 +139,12 @@ export function useDashboardData() {
       }
       
       // Use current user's ID
-      await fetchConnectionsForUser(user.id, true);
+      await fetchConnectionsForUser(authUser.id, true);
     } else {
       // View as user mode - fetch that user's connections (read-only)
       await fetchConnectionsForUser(targetUserId, false);
     }
-  }, [viewAsUserId]);
+  }, [viewAsUserId, authUser]);
   
   const fetchConnectionsForUser = async (userId: string, canReconcile: boolean) => {
     // Fetch connection state from BOTH profile flags and tokens.
@@ -294,8 +296,8 @@ export function useDashboardData() {
 
   const fetchEnphaseData = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return null;
+      if (!authSession) return null;
+      const session = authSession;
 
       // Throttle Enphase calls to once every 6 hours to stay within API limits
       const cacheKey = `enphase_last_fetch_${session.user.id}`;
@@ -333,12 +335,12 @@ export function useDashboardData() {
       console.error('Failed to fetch Enphase data:', error);
       return null;
     }
-  }, []);
+  }, [authSession]);
 
   const fetchSolarEdgeData = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return null;
+      if (!authSession) return null;
+      const session = authSession;
 
       const response = await supabase.functions.invoke('solaredge-data', {
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -358,12 +360,12 @@ export function useDashboardData() {
       console.error('Failed to fetch SolarEdge data:', error);
       return null;
     }
-  }, []);
+  }, [authSession]);
 
   const fetchTeslaData = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return null;
+      if (!authSession) return null;
+      const session = authSession;
 
       const response = await supabase.functions.invoke('tesla-data', {
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -387,12 +389,12 @@ export function useDashboardData() {
       console.error('Failed to fetch Tesla data:', error);
       return { error: 'fetch_failed' };
     }
-  }, []);
+  }, [authSession]);
 
   const fetchWallboxData = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return null;
+      if (!authSession) return null;
+      const session = authSession;
 
       const response = await supabase.functions.invoke('wallbox-data', {
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -412,12 +414,12 @@ export function useDashboardData() {
       console.error('Failed to fetch Wallbox data:', error);
       return null;
     }
-  }, []);
+  }, [authSession]);
 
   const fetchRewardsData = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return null;
+      if (!authSession) return null;
+      const session = authSession;
 
       const response = await supabase.functions.invoke('calculate-rewards', {
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -433,11 +435,11 @@ export function useDashboardData() {
       console.error('Failed to fetch rewards data:', error);
       return null;
     }
-  }, []);
+  }, [authSession]);
 
   const fetchReferralTokens = useCallback(async () => {
     try {
-      const userId = await getEffectiveUserId();
+      const userId = getEffectiveUserId();
       if (!userId) return 0;
 
       const { data, error } = await supabase
@@ -459,7 +461,7 @@ export function useDashboardData() {
 
   const fetchMintedTokens = useCallback(async () => {
     try {
-      const userId = await getEffectiveUserId();
+      const userId = getEffectiveUserId();
       if (!userId) return 0;
 
       const { data, error } = await supabase
@@ -482,7 +484,7 @@ export function useDashboardData() {
 
   const fetchDeviceLabels = useCallback(async (): Promise<DeviceLabels> => {
     try {
-      const userId = await getEffectiveUserId();
+      const userId = getEffectiveUserId();
       if (!userId) return {};
 
       const { data: devices, error } = await supabase
@@ -533,7 +535,7 @@ export function useDashboardData() {
 
   const fetchDevicesSnapshot = useCallback(async () => {
     try {
-      const userId = await getEffectiveUserId();
+      const userId = getEffectiveUserId();
       if (!userId) return [];
 
       const { data, error } = await supabase
@@ -556,7 +558,7 @@ export function useDashboardData() {
   // ── Fast path: build dashboard from DB-stored lifetime_totals (instant, no API calls) ──
   const buildFastPathData = useCallback(async (): Promise<ActivityData | null> => {
     try {
-      const userId = await getEffectiveUserId();
+      const userId = getEffectiveUserId();
       if (!userId) return null;
 
       const [devicesSnapshot, homeChargingMonitorKwh, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
@@ -738,7 +740,7 @@ export function useDashboardData() {
       // Fetch data in parallel (including device labels and minted tokens)
       const fetchHomeChargingTotal = async () => {
         try {
-          const userId = await getEffectiveUserId();
+          const userId = getEffectiveUserId();
           if (!userId) return 0;
           const { data, error } = await supabase
             .from('home_charging_sessions')
@@ -1291,11 +1293,11 @@ export function useDashboardData() {
 
   const disconnectAccount = useCallback(async (service: ConnectedAccount['service']) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      if (!authUser) {
         toast.error('Not authenticated');
         return;
       }
+      const user = authUser;
 
       // 1. Delete energy tokens for this provider
       const { error: tokenError } = await supabase
