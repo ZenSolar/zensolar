@@ -131,7 +131,7 @@ export function HomeHero() {
                     key={alt}
                     src={src}
                     alt={alt}
-                    className={`${extra} w-auto object-contain opacity-50 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[160px] md:max-w-[200px] max-h-14 md:max-h-16' : 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12'}`}
+                    className={`${extra} w-auto object-contain opacity-50 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[200px] md:max-w-[260px] max-h-16 md:max-h-20' : 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12'}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 0.5, y: 0 }}
                     transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
@@ -140,7 +140,7 @@ export function HomeHero() {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More manufacturers coming soon…</p>
+            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More partners coming soon…</p>
           </motion.div>
         </div>
       </div>
