@@ -1,158 +1,160 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { Sun, Battery, Zap, ArrowDown, ArrowUp, Home, Plug } from 'lucide-react';
 
-function MiniEnergyFlow() {
+/**
+ * Animated flowing dots along a path
+ */
+function FlowDots({ 
+  cx, cy, dx, dy, color, count = 3, duration = 2, delay = 0, vertical = false 
+}: { 
+  cx: number; cy: number; dx: number; dy: number; color: string; 
+  count?: number; duration?: number; delay?: number; vertical?: boolean;
+}) {
   return (
-    <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-background via-card to-muted/30 rounded-xl border border-border/60 overflow-hidden p-4 md:p-8">
-      {/* Grid background pattern */}
-      <div className="absolute inset-0 opacity-5" style={{
-        backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)',
-        backgroundSize: '24px 24px',
-      }} />
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <motion.circle
+          key={i}
+          r={3}
+          fill={color}
+          opacity={0.8}
+          animate={vertical 
+            ? { cx: [cx, cx], cy: [cy, cy + dy] }
+            : { cx: [cx, cx + dx], cy: [cy, cy + dy] }
+          }
+          transition={{
+            duration,
+            delay: delay + i * (duration / count),
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        />
+      ))}
+    </>
+  );
+}
 
-      {/* Live indicator */}
-      <div className="absolute top-3 left-3 md:top-5 md:left-5 flex items-center gap-2">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary" />
-        </span>
-        <span className="text-xs font-medium text-primary">LIVE</span>
+function LiveEnergyFlowSVG() {
+  return (
+    <div className="relative w-full bg-gradient-to-b from-[#0d1520] via-[#111d2e] to-[#0d1520] rounded-xl border border-border/30 overflow-hidden">
+      {/* Header */}
+      <div className="text-center pt-6 pb-2 relative z-10">
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <span className="text-xl">⚡</span>
+          <h3 className="text-xl md:text-2xl font-bold text-solar">Live Energy Flow</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          First of its kind — <strong className="text-foreground">multi-manufacturer view</strong>
+        </p>
       </div>
 
-      {/* Manufacturer badges */}
-      <div className="absolute top-3 right-3 md:top-5 md:right-5 flex gap-1.5">
-        {['Tesla', 'Enphase', 'ChargePoint'].map((name) => (
-          <span key={name} className="text-[10px] px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground border border-border/40 font-medium">
-            {name}
-          </span>
+      <svg viewBox="0 0 500 420" className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+        {/* --- SOLAR --- */}
+        <text x="250" y="60" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">3.2 kW</text>
+        <text x="250" y="76" textAnchor="middle" fill="#d4a843" fontSize="10" fontWeight="600" letterSpacing="2">SOLAR</text>
+        {/* Solar icon circle */}
+        <circle cx="250" cy="100" r="20" fill="none" stroke="#d4a843" strokeWidth="1.5" opacity="0.5" />
+        <text x="250" y="106" textAnchor="middle" fill="#d4a843" fontSize="18">☀</text>
+        
+        {/* Flow: Solar → House */}
+        <line x1="250" y1="122" x2="250" y2="165" stroke="#d4a843" strokeWidth="1" opacity="0.2" />
+        <FlowDots cx={250} cy={122} dx={0} dy={43} color="#d4a843" vertical count={2} duration={1.5} />
+
+        {/* --- HOUSE --- */}
+        {/* Roof */}
+        <polygon points="170,195 250,155 330,195" fill="none" stroke="#3a5068" strokeWidth="1.5" />
+        {/* Solar panels on roof */}
+        {[
+          [230, 172], [245, 172], [260, 172],
+          [215, 182], [230, 182], [245, 182], [260, 182], [275, 182],
+        ].map(([px, py], i) => (
+          <rect key={i} x={px} y={py} width="12" height="8" rx="1" fill="#2a4a6b" stroke="#3a6a8b" strokeWidth="0.5" />
         ))}
-      </div>
+        
+        {/* House body */}
+        <rect x="180" y="195" width="140" height="80" fill="#111d2e" stroke="#3a5068" strokeWidth="1.5" rx="2" />
+        {/* Windows */}
+        <rect x="195" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
+        <rect x="285" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
+        
+        {/* HOME label */}
+        <text x="250" y="252" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">0.7 kW</text>
+        <text x="250" y="266" textAnchor="middle" fill="#8899aa" fontSize="10" fontWeight="600" letterSpacing="1.5">HOME</text>
 
-      {/* Energy flow visualization */}
-      <div className="relative flex items-center justify-center h-full gap-4 md:gap-8 pt-4">
-        {/* Solar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col items-center gap-2"
-        >
-          <div className="p-3 md:p-4 rounded-2xl bg-solar/10 border border-solar/20">
-            <Sun className="h-6 w-6 md:h-8 md:w-8 text-solar" />
-          </div>
-          <span className="text-xs font-semibold text-foreground">Solar</span>
-          <span className="text-[10px] text-solar font-bold">8.4 kW</span>
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            <ArrowDown className="h-4 w-4 text-solar/60" />
-          </motion.div>
-        </motion.div>
+        {/* --- POWERWALL (left) --- */}
+        <circle cx="80" cy="235" r="24" fill="none" stroke="#22c55e" strokeWidth="1.5" opacity="0.5" />
+        <text x="80" y="240" textAnchor="middle" fill="#22c55e" fontSize="16">🔋</text>
+        <text x="80" y="280" textAnchor="middle" fill="#8899aa" fontSize="9" fontWeight="600" letterSpacing="1">POWERWALL</text>
+        <text x="80" y="296" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">2.5 kW</text>
+        <text x="80" y="310" textAnchor="middle" fill="#22c55e" fontSize="9">73%</text>
+        {/* Battery bar */}
+        <rect x="55" y="314" width="50" height="4" rx="2" fill="#1a2a3e" />
+        <rect x="55" y="314" width="36" height="4" rx="2" fill="#22c55e" />
+        
+        {/* Flow: Powerwall → House */}
+        <line x1="106" y1="235" x2="178" y2="235" stroke="#22c55e" strokeWidth="1" opacity="0.15" />
+        <FlowDots cx={106} cy={235} dx={72} dy={0} color="#22c55e" count={3} duration={2} />
 
-        {/* Home hub */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col items-center gap-2"
-        >
-          <div className="p-4 md:p-6 rounded-2xl bg-primary/10 border-2 border-primary/30 relative">
-            <Home className="h-8 w-8 md:h-10 md:w-10 text-primary" />
-            <motion.div
-              className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-primary"
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-            />
-          </div>
-          <span className="text-sm font-bold text-foreground">HOME</span>
-          <span className="text-[10px] text-muted-foreground">2.1 kW usage</span>
-        </motion.div>
+        {/* --- GRID (right) --- */}
+        <circle cx="420" cy="235" r="24" fill="none" stroke="#a78bfa" strokeWidth="1.5" opacity="0.5" />
+        <text x="420" y="241" textAnchor="middle" fill="#a78bfa" fontSize="14">⚡</text>
+        <text x="420" y="280" textAnchor="middle" fill="#8899aa" fontSize="9" fontWeight="600" letterSpacing="1">GRID</text>
+        <text x="420" y="296" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">0.8 kW</text>
+        <text x="420" y="310" textAnchor="middle" fill="#a78bfa" fontSize="9">exporting</text>
+        
+        {/* Flow: House → Grid */}
+        <line x1="322" y1="235" x2="394" y2="235" stroke="#a78bfa" strokeWidth="1" opacity="0.15" />
+        <FlowDots cx={322} cy={235} dx={72} dy={0} color="#a78bfa" count={3} duration={2} delay={0.3} />
 
-        {/* Battery */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-col items-center gap-2"
-        >
-          <div className="p-3 md:p-4 rounded-2xl bg-secondary/10 border border-secondary/20">
-            <Battery className="h-6 w-6 md:h-8 md:w-8 text-secondary" />
-          </div>
-          <span className="text-xs font-semibold text-foreground">Battery</span>
-          <span className="text-[10px] text-secondary font-bold">92%</span>
-          <motion.div
-            animate={{ y: [0, -6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, delay: 0.5 }}
-          >
-            <ArrowUp className="h-4 w-4 text-secondary/60" />
-          </motion.div>
-        </motion.div>
+        {/* --- EV CHARGER (bottom) --- */}
+        <line x1="250" y1="277" x2="250" y2="335" stroke="#3b82f6" strokeWidth="1" opacity="0.15" />
+        <FlowDots cx={250} cy={277} dx={0} dy={58} color="#3b82f6" vertical count={3} duration={1.8} delay={0.2} />
+        
+        <circle cx="250" cy="360" r="24" fill="none" stroke="#3b82f6" strokeWidth="1.5" opacity="0.5" />
+        <text x="250" y="366" textAnchor="middle" fill="#3b82f6" fontSize="14">⚡</text>
+        <text x="250" y="390" textAnchor="middle" fill="#8899aa" fontSize="9" fontWeight="600" letterSpacing="1">EV CHARGER</text>
+        <text x="250" y="406" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">11.0 kW</text>
+        <text x="250" y="418" textAnchor="middle" fill="#3b82f6" fontSize="9">⚡ CHARGING</text>
+      </svg>
 
-        {/* EV */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.15 }}
-          className="flex flex-col items-center gap-2"
-        >
-          <div className="p-3 md:p-4 rounded-2xl bg-energy/10 border border-energy/20">
-            <Plug className="h-6 w-6 md:h-8 md:w-8 text-energy" />
+      {/* Bottom stats + manufacturer badges */}
+      <div className="px-4 pb-5 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+        {/* Today's Energy */}
+        <div className="border border-border/30 rounded-lg px-4 py-3 bg-[#0d1520]/80">
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Today&apos;s Energy</span>
+          <div className="mt-2 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-4 rounded-full bg-solar" />
+              <span className="text-sm font-bold text-white">13.4</span>
+              <span className="text-xs text-muted-foreground">kWh</span>
+              <span className="text-[10px] text-muted-foreground ml-1">Solar Generated</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-4 rounded-full bg-secondary" />
+              <span className="text-sm font-bold text-white">7.3</span>
+              <span className="text-xs text-muted-foreground">kWh</span>
+              <span className="text-[10px] text-muted-foreground ml-1">Battery Discharged</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-4 rounded-full bg-energy" />
+              <span className="text-sm font-bold text-white">35.2</span>
+              <span className="text-xs text-muted-foreground">kWh</span>
+              <span className="text-[10px] text-muted-foreground ml-1">EV Charged</span>
+            </div>
           </div>
-          <span className="text-xs font-semibold text-foreground">EV</span>
-          <span className="text-[10px] text-energy font-bold">7.6 kW</span>
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, delay: 0.3 }}
-          >
-            <ArrowDown className="h-4 w-4 text-energy/60" />
-          </motion.div>
-        </motion.div>
+        </div>
 
-        {/* Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col items-center gap-2"
-        >
-          <div className="p-3 md:p-4 rounded-2xl bg-muted border border-border/40">
-            <Zap className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground" />
-          </div>
-          <span className="text-xs font-semibold text-foreground">Grid</span>
-          <span className="text-[10px] text-primary font-bold">Exporting</span>
-          <motion.div
-            animate={{ y: [0, -6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, delay: 0.7 }}
-          >
-            <ArrowUp className="h-4 w-4 text-primary/60" />
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Today's stats bar */}
-      <div className="absolute bottom-3 left-3 right-3 md:bottom-5 md:left-5 md:right-5">
-        <div className="flex items-center justify-center gap-4 md:gap-8 px-4 py-2 rounded-lg bg-card/80 backdrop-blur border border-border/40">
-          <div className="text-center">
-            <span className="text-[10px] text-muted-foreground block">Solar Today</span>
-            <span className="text-xs md:text-sm font-bold text-solar">42.3 kWh</span>
-          </div>
-          <div className="w-px h-6 bg-border/40" />
-          <div className="text-center">
-            <span className="text-[10px] text-muted-foreground block">Battery</span>
-            <span className="text-xs md:text-sm font-bold text-secondary">8.1 kWh</span>
-          </div>
-          <div className="w-px h-6 bg-border/40" />
-          <div className="text-center">
-            <span className="text-[10px] text-muted-foreground block">EV Charged</span>
-            <span className="text-xs md:text-sm font-bold text-energy">22.5 kWh</span>
-          </div>
+        {/* Manufacturer badges */}
+        <div className="flex flex-row sm:flex-col gap-1.5">
+          {['ENPHASE', 'TESLA', 'CHARGEPOINT'].map((name, i) => {
+            const colors = ['border-solar/40 text-solar', 'border-primary/40 text-primary', 'border-energy/40 text-energy'];
+            return (
+              <span key={name} className={`text-[10px] px-3 py-1 rounded-full border ${colors[i]} bg-transparent font-semibold tracking-wider`}>
+                {name}
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -162,7 +164,7 @@ function MiniEnergyFlow() {
 export function DashboardShowcase() {
   return (
     <section className="py-[clamp(3rem,8vw,6rem)]">
-      <div className="container max-w-6xl mx-auto px-4">
+      <div className="container max-w-4xl mx-auto px-4">
         <div className="text-center mb-10">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             <Badge variant="outline" className="px-3 py-1 border-primary/40 bg-primary/10 text-primary font-medium mb-4">
@@ -195,8 +197,8 @@ export function DashboardShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-xl shadow-primary/5">
-            <MiniEnergyFlow />
+          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10">
+            <LiveEnergyFlowSVG />
           </Card>
         </motion.div>
       </div>
