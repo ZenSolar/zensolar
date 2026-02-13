@@ -44,7 +44,7 @@ export function LiveStatsBar() {
   const { data } = useHomeStats();
 
   const stats: StatItem[] = [
-    { icon: Users, label: 'Beta Status', value: '🟢 Live', color: 'text-primary' },
+    { icon: Users, label: 'Beta Status', value: '● Live', color: 'text-primary' },
     { icon: Zap, label: 'kWh Tracked', value: formatNumber(data?.totalKWhProduced ?? 1028539), color: 'text-solar' },
     { icon: Coins, label: '$ZSOLAR Minted', value: '623K', color: 'text-token' },
     { icon: Leaf, label: 'kg CO₂ Offset', value: formatNumber(data?.co2Offset ?? 431987), color: 'text-secondary' },

@@ -32,7 +32,7 @@ export function IntegrationLogos() {
             viewport={{ once: true }}
             className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
           >
-            Powered By Industry Leaders
+            Who We're Connected With
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -57,7 +57,7 @@ export function IntegrationLogos() {
               <img
                 src={item.logo}
                 alt={`${item.name} logo`}
-                className={`h-8 w-auto max-w-[80px] object-contain ${item.invert ? 'dark:invert dark:brightness-200' : ''}`}
+                className={`h-10 w-auto max-w-[100px] object-contain ${item.invert ? 'dark:invert dark:brightness-200' : ''}`}
                 loading="lazy"
               />
               <div className="text-center">
