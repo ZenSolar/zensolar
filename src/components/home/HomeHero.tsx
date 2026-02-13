@@ -44,7 +44,7 @@ export function HomeHero() {
             className="text-[clamp(1.1rem,2.8vw,1.5rem)] font-semibold text-muted-foreground tracking-tight"
           >
             The World's First{' '}
-            <span className="bg-gradient-to-r from-eco to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
               Mint-on-Proof<sup className="text-[0.35em] font-normal align-super text-muted-foreground">™</sup>
             </span>{' '}
             Rewards Platform
