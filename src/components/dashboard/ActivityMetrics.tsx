@@ -759,30 +759,38 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           )}
         </div>
         <div className="flex items-center gap-2">
-          {isLoading ? (
+          {isLoading && value === 0 ? (
             <div className="flex items-center gap-2">
               <Loader2 className={cn("h-5 w-5 animate-spin", styles.text)} />
               <span className="text-sm text-muted-foreground">Syncing...</span>
             </div>
           ) : (
-            <p className="text-xl font-semibold tracking-tight">
-              <span className={cn(
-                "transition-all duration-300",
-                active ? "text-foreground" : "text-muted-foreground"
-              )}>
-                {value.toLocaleString()}
-              </span>
-              <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xl font-semibold tracking-tight">
+                <span className={cn(
+                  "transition-all duration-300",
+                  active ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {value.toLocaleString()}
+                </span>
+                <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
+              </p>
+              {isLoading && value > 0 && (
+                <span className="flex items-center gap-1 text-[10px] text-muted-foreground animate-pulse">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Updating
+                </span>
+              )}
+            </div>
           )}
         </div>
-        {liveIndicator && !isLoading && (
+        {liveIndicator && !(isLoading && value === 0) && (
           <p className="text-[10px] text-emerald-500 font-medium tracking-wide">Charging in progress…</p>
         )}
       </div>
       
       {/* History link icon */}
-      {historyLink && !isLoading && (
+      {historyLink && !(isLoading && value === 0) && (
         <button
           onClick={(e) => { e.stopPropagation(); navigate(historyLink); }}
           onTouchEnd={(e) => { e.stopPropagation(); }}
