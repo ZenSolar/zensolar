@@ -103,30 +103,6 @@ export function PricingSection() {
           </motion.p>
         </div>
 
-        {/* Earning rates callout */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-10"
-        >
-          <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-center">
-            {[
-              { activity: '☀️ Solar', rate: '1 kWh = 1 $ZSOLAR' },
-              { activity: '🔋 Battery', rate: '1 kWh = 1 $ZSOLAR' },
-              { activity: '⚡ EV Charging', rate: '1 kWh = 1 $ZSOLAR' },
-              { activity: '🚗 EV Driving', rate: '1 mile = 1 $ZSOLAR' },
-            ].map((item) => (
-              <div key={item.activity} className="px-4 py-2.5 rounded-full border border-primary/30 bg-primary/5">
-                <span className="text-sm font-semibold text-foreground">{item.activity}</span>
-                <span className="text-sm text-primary font-bold ml-2">{item.rate}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-xs text-muted-foreground mt-3">
-            Pro & Elite subscribers earn rewards for every kWh and mile tracked.
-          </p>
-        </motion.div>
 
         {/* Pricing cards */}
         <div className="grid md:grid-cols-3 gap-6">

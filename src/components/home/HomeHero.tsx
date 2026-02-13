@@ -118,22 +118,25 @@ export function HomeHero() {
             className="w-full max-w-2xl pt-8"
           >
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="relative overflow-hidden rounded-lg py-3">
+            <div className="relative overflow-hidden rounded-2xl py-5 px-6 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
+              {/* Ambient glow spots */}
+              <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
+              <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
               {/* Subtle shimmer sweep */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -skew-x-12 pointer-events-none"
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent -skew-x-12 pointer-events-none"
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 4, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
               />
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 items-center justify-items-center px-4">
+              <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 items-center justify-items-center">
                 {brandLogos.map(({ src, alt, extra }, idx) => (
                   <motion.img
                     key={alt}
                     src={src}
                     alt={alt}
-                    className={`${extra} w-auto object-contain opacity-50 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[260px] md:max-w-[320px] max-h-20 md:max-h-24' : 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12'}`}
+                    className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[260px] md:max-w-[320px] max-h-20 md:max-h-24' : 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12'}`}
                     initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 0.5, y: 0 }}
+                    animate={{ opacity: 0.6, y: 0 }}
                     transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
                     whileHover={{ scale: 1.05 }}
                   />
