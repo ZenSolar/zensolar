@@ -498,6 +498,26 @@ export default function ComingSoon() {
             <BlinkingCursor />
           </motion.p>
         </div>
+
+        {/* Footer — crawlable links for SEO */}
+        <footer className="relative z-10 w-full border-t border-border/20 bg-card/30 backdrop-blur-sm">
+          <div className="max-w-4xl mx-auto px-6 py-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-2">
+                <img src="/logos/zen-stacked.png" alt="ZenSolar" className="h-6 w-auto opacity-60" />
+                <span className="text-xs text-muted-foreground/50">© {new Date().getFullYear()} ZenSolar</span>
+              </div>
+              <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+                <a href="/blog" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">Blog</a>
+                <a href="/how-it-works" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">How It Works</a>
+                <a href="/technology" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">Technology</a>
+                <a href="/tokenomics" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">Tokenomics</a>
+                <a href="/privacy" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">Privacy</a>
+                <a href="/terms" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">Terms</a>
+              </nav>
+            </div>
+          </div>
+        </footer>
       </div>
     </>
   );
