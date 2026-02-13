@@ -223,8 +223,8 @@ export function ActivityMetrics({
     ? `${deviceLabels.solar} Solar Energy Produced` 
     : 'Solar Energy Produced';
   const batteryLabel = deviceLabels?.powerwall 
-    ? `${deviceLabels.powerwall} Battery Discharged` 
-    : 'Battery Discharged';
+    ? `${deviceLabels.powerwall} Battery Storage Exported` 
+    : 'Battery Storage Exported';
   const evLabel = deviceLabels?.vehicle 
     ? `${deviceLabels.vehicle} EV Miles Driven` 
     : 'EV Miles Driven';

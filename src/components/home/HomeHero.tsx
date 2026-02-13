@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles, Zap, Sun, Battery, Car } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
 
 export function HomeHero() {
   return (
@@ -56,8 +56,8 @@ export function HomeHero() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-[clamp(1.05rem,2.5vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed text-center"
           >
-            <p className="mb-4">
-              ZenSolar rewards solar users and EV drivers with <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
+            <p className="mb-4 font-normal text-[clamp(0.95rem,2.3vw,1.1rem)] leading-relaxed">
+              ZenSolar rewards solar users and EV drivers with <span className="text-primary font-medium">$ZSOLAR tokens</span> and <span className="text-primary font-medium">NFTs</span> for:
             </p>
             <ul className="space-y-2 text-left inline-block text-[clamp(0.9rem,2.5vw,1.05rem)]">
               <li className="flex items-center gap-2.5">
@@ -65,8 +65,8 @@ export function HomeHero() {
                 <span>Every kWh your solar panels produce</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <Battery className="h-4 w-4 text-secondary flex-shrink-0" />
-                <span>Every kWh your battery discharges</span>
+                <BatteryFull className="h-4 w-4 text-secondary flex-shrink-0" />
+                <span>Every kWh your battery storage exports</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Car className="h-4 w-4 text-energy flex-shrink-0" />
