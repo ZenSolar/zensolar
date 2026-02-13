@@ -4,6 +4,7 @@ import { LiveStatsBar } from '@/components/home/LiveStatsBar';
 import { WhyZenSolarSection } from '@/components/home/WhyZenSolarSection';
 import { HowItWorksSection } from '@/components/home/HowItWorksSection';
 import { DashboardShowcase } from '@/components/home/DashboardShowcase';
+import { CleanEnergyCenterShowcase } from '@/components/home/CleanEnergyCenterShowcase';
 import { NFTMilestoneSection } from '@/components/home/NFTMilestoneSection';
 import { StoreRedemptionSection } from '@/components/home/StoreRedemptionSection';
 import { IntegrationLogos } from '@/components/home/IntegrationLogos';
@@ -45,6 +46,8 @@ export default function Home() {
           <HowItWorksSection />
           <SectionDivider variant="diamond" />
           <DashboardShowcase />
+          <SectionDivider variant="diamond" />
+          <CleanEnergyCenterShowcase />
           <SectionDivider variant="angle" />
           <NFTMilestoneSection />
           <SectionDivider variant="chevron" />

@@ -8,12 +8,12 @@ import baseLogo from '@/assets/logos/base-logo.svg';
 import coinbaseLogo from '@/assets/logos/coinbase-logo.svg';
 
 const integrations = [
-  { name: 'Tesla', logo: teslaLogo, desc: 'Solar, Powerwall & EV', invert: true },
-  { name: 'Enphase', logo: enphaseLogo, desc: 'Solar Monitoring', invert: false },
-  { name: 'SolarEdge', logo: solaredgeLogo, desc: 'Solar Inverters', invert: true },
-  { name: 'Wallbox', logo: wallboxLogo, desc: 'EV Charging', invert: true },
-  { name: 'Base', logo: baseLogo, desc: 'L2 Blockchain', invert: true },
-  { name: 'Coinbase', logo: coinbaseLogo, desc: 'Smart Wallet', invert: true },
+  { name: 'Tesla', logo: teslaLogo, desc: 'Solar, Powerwall & EV', darkClass: 'dark:brightness-0 dark:invert' },
+  { name: 'Enphase', logo: enphaseLogo, desc: 'Solar Monitoring', darkClass: '' },
+  { name: 'SolarEdge', logo: solaredgeLogo, desc: 'Solar Inverters', darkClass: 'dark:brightness-0 dark:invert' },
+  { name: 'Wallbox', logo: wallboxLogo, desc: 'EV Charging', darkClass: 'dark:brightness-0 dark:invert' },
+  { name: 'Base', logo: baseLogo, desc: 'L2 Blockchain', darkClass: 'dark:brightness-0 dark:invert' },
+  { name: 'Coinbase', logo: coinbaseLogo, desc: 'Smart Wallet', darkClass: 'dark:brightness-0 dark:invert' },
 ];
 
 export function IntegrationLogos() {
@@ -57,7 +57,7 @@ export function IntegrationLogos() {
               <img
                 src={item.logo}
                 alt={`${item.name} logo`}
-                className={`h-10 w-auto max-w-[100px] object-contain ${item.invert ? 'dark:invert dark:brightness-200' : ''}`}
+                className={`h-10 w-auto max-w-[100px] object-contain ${item.darkClass}`}
                 loading="lazy"
               />
               <div className="text-center">
