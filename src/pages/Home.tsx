@@ -7,7 +7,7 @@ import { DashboardShowcase } from '@/components/home/DashboardShowcase';
 import { CleanEnergyCenterShowcase } from '@/components/home/CleanEnergyCenterShowcase';
 import { NFTMilestoneSection } from '@/components/home/NFTMilestoneSection';
 import { StoreRedemptionSection } from '@/components/home/StoreRedemptionSection';
-import { IntegrationLogos } from '@/components/home/IntegrationLogos';
+
 import { PricingSection } from '@/components/home/PricingSection';
 
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
@@ -52,8 +52,6 @@ export default function Home() {
           <NFTMilestoneSection />
           <SectionDivider variant="chevron" />
           <StoreRedemptionSection />
-          <SectionDivider variant="diamond" />
-          <IntegrationLogos />
           <SectionDivider variant="angle" />
           <WhyZenSolarSection />
           <SectionDivider variant="angle" flip />

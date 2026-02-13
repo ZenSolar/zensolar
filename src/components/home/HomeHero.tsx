@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.svg';
+import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
 
 export function HomeHero() {
   return (
@@ -98,6 +102,33 @@ export function HomeHero() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.6 }}
+            className="w-full max-w-md pt-6"
+          >
+            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
+            <div className="flex items-center justify-center gap-6">
+              {[
+                { src: teslaLogo, alt: 'Tesla', h: 'h-9 md:h-11' },
+                { src: enphaseLogo, alt: 'Enphase', h: 'h-6 md:h-7' },
+                { src: solaredgeLogo, alt: 'SolarEdge', h: 'h-12 md:h-16' },
+                { src: wallboxLogo, alt: 'Wallbox', h: 'h-6 md:h-7' },
+              ].map(({ src, alt, h }, idx) => (
+                <motion.img
+                  key={alt}
+                  src={src}
+                  alt={alt}
+                  className={`${h} w-auto object-contain opacity-50 hover:opacity-100 transition-all duration-300 dark:brightness-0 dark:invert`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 0.5, y: 0 }}
+                  transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
+                />
+              ))}
+            </div>
           </motion.div>
         </div>
       </div>
