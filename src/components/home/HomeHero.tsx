@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import solaredgeLogo from '@/assets/logos/solaredge-wordmark.png';
-import wallboxLogo from '@/assets/logos/wallbox-logo.png';
-import teslaLogo from '@/assets/logos/tesla-logo.png';
+import teslaLogo from '@/assets/logos/tesla-brand.png';
+import solaredgeLogo from '@/assets/logos/solaredge-brand.png';
+import wallboxLogo from '@/assets/logos/wallbox-brand.png';
 
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', style: 'h-7 md:h-9' },
-  { src: enphaseLogo, alt: 'Enphase', style: 'h-5 md:h-6' },
-  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-5 md:h-6' },
-  { src: wallboxLogo, alt: 'Wallbox', style: 'h-7 md:h-9' },
+  { src: teslaLogo, alt: 'Tesla', style: 'h-8 md:h-10', extra: '' },
+  { src: enphaseLogo, alt: 'Enphase', style: 'h-5 md:h-6', extra: '' },
+  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-6 md:h-7', extra: '' },
+  { src: wallboxLogo, alt: 'Wallbox', style: 'h-5 md:h-6', extra: 'dark:invert' },
 ];
 
 export function HomeHero() {
@@ -126,12 +126,12 @@ export function HomeHero() {
                 transition={{ duration: 4, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
               />
               <div className="flex items-center justify-center gap-6 md:gap-10 flex-wrap">
-                {brandLogos.map(({ src, alt, style }, idx) => (
+                {brandLogos.map(({ src, alt, style, extra }, idx) => (
                   <motion.img
                     key={alt}
                     src={src}
                     alt={alt}
-                    className={`${style} object-contain opacity-40 hover:opacity-90 transition-all duration-500 dark:invert dark:hover:invert-0 hover:grayscale-0 grayscale`}
+                    className={`${style} ${extra} w-auto object-contain opacity-50 hover:opacity-100 transition-all duration-500`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 0.4, y: 0 }}
                     transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
