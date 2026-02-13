@@ -9,10 +9,10 @@ import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-brand.png';
 
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', style: 'h-8 md:h-11', extra: '' },
-  { src: enphaseLogo, alt: 'Enphase', style: 'h-6 md:h-8', extra: '' },
-  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-6 md:h-8', extra: '' },
-  { src: wallboxLogo, alt: 'Wallbox', style: 'h-6 md:h-8', extra: 'dark:invert' },
+  { src: teslaLogo, alt: 'Tesla', extra: '' },
+  { src: enphaseLogo, alt: 'Enphase', extra: '' },
+  { src: solaredgeLogo, alt: 'SolarEdge', extra: '' },
+  { src: wallboxLogo, alt: 'Wallbox', extra: 'dark:invert' },
 ];
 
 export function HomeHero() {
@@ -118,22 +118,22 @@ export function HomeHero() {
             className="w-full max-w-2xl pt-8"
           >
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="relative overflow-hidden rounded-lg py-2">
+            <div className="relative overflow-hidden rounded-lg py-3">
               {/* Subtle shimmer sweep */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -skew-x-12 pointer-events-none"
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 4, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
               />
-              <div className="flex items-center justify-center gap-6 md:gap-10 flex-wrap">
-                {brandLogos.map(({ src, alt, style, extra }, idx) => (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 items-center justify-items-center px-4">
+                {brandLogos.map(({ src, alt, extra }, idx) => (
                   <motion.img
                     key={alt}
                     src={src}
                     alt={alt}
-                    className={`${style} ${extra} w-auto object-contain opacity-50 hover:opacity-100 transition-all duration-500`}
+                    className={`${extra} w-auto max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12 object-contain opacity-50 hover:opacity-100 transition-all duration-500`}
                     initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 0.4, y: 0 }}
+                    animate={{ opacity: 0.5, y: 0 }}
                     transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
                     whileHover={{ scale: 1.05 }}
                   />
