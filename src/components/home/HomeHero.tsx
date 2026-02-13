@@ -6,13 +6,13 @@ import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
-import wallboxLogo from '@/assets/logos/wallbox-full.jpeg';
+import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
 const brandLogos = [
   { src: teslaLogo, alt: 'Tesla', extra: '' },
   { src: enphaseLogo, alt: 'Enphase', extra: '' },
   { src: solaredgeLogo, alt: 'SolarEdge', extra: '' },
-  { src: wallboxLogo, alt: 'Wallbox', extra: 'dark:brightness-0 dark:invert' },
+  { src: wallboxLogo, alt: 'Wallbox', extra: '' },
 ];
 
 export function HomeHero() {
@@ -134,7 +134,7 @@ export function HomeHero() {
                     key={alt}
                     src={src}
                     alt={alt}
-                    className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12`}
+                    className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[200px] md:max-w-[240px] max-h-14 md:max-h-16' : 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12'}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 0.6, y: 0 }}
                     transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
