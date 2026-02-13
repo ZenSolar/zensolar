@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
 const Index = lazy(() => import('@/pages/Index'));
-const Landing = lazy(() => import('@/pages/Landing'));
+const Home = lazy(() => import('@/pages/Home'));
 const ComingSoon = lazy(() => import('@/pages/ComingSoon'));
 
 // Eagerly preload dashboard chunks for returning PWA users.
@@ -34,7 +34,7 @@ export function RootRoute() {
     const isComingSoon = !BETA_HOSTS.includes(window.location.hostname);
     return (
       <Suspense fallback={<RouteLoader />}>
-        {isComingSoon ? <ComingSoon /> : <Landing />}
+        {isComingSoon ? <ComingSoon /> : <Home />}
       </Suspense>
     );
   }
