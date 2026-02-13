@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
-import { useAccount, useWalletClient, useWatchAsset } from 'wagmi';
+import { useSafeAccount, useSafeWalletClient, useSafeWatchAsset } from '@/hooks/useSafeWagmi';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_TOKEN_SYMBOL, ZSOLAR_TOKEN_DECIMALS, ZSOLAR_TOKEN_IMAGE } from '@/lib/wagmi';
 import { hasTokenBeenAdded, hasNFTsBeenAdded, markTokenAsAdded as markTokenAdded, markNFTsAsAdded as markNFTsAdded, resetAssetPromptFlags } from '@/lib/walletAssets';
 import { useNavigate } from 'react-router-dom';
@@ -123,9 +123,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const { toast } = useToast();
   const { triggerConfetti } = useConfetti();
   const { success: hapticSuccess } = useHaptics();
-  const { isConnected } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const { watchAssetAsync } = useWatchAsset();
+  const { isConnected } = useSafeAccount();
+  const { data: walletClient } = useSafeWalletClient();
+  const { watchAssetAsync } = useSafeWatchAsset();
   const { isAdmin } = useAdminCheck();
   const { type: walletType, supportsWatchAsset } = useWalletType();
   const [mintingState, setMintingState] = useState<{
@@ -361,7 +361,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (walletClient) {
       console.log('Attempting to add $ZSOLAR token via walletClient.watchAsset...');
       try {
-        const success = await walletClient.watchAsset({
+        const success = await (walletClient as any).watchAsset({
           type: 'ERC20',
           options: paramsOptions,
         });
