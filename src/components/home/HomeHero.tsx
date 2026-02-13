@@ -32,7 +32,7 @@ export function HomeHero() {
             Turn Clean Energy
             <br />
             Into{' '}
-            <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-eco via-primary to-secondary bg-clip-text text-transparent">
               Digital Income
             </span>
           </motion.h1>
