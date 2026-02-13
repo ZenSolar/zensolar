@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import teslaLogo from '@/assets/logos/tesla-brand.png';
+import teslaLogo from '@/assets/logos/tesla-wordmark.png';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
-import wallboxLogo from '@/assets/logos/wallbox-brand.png';
+import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
 
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', extra: '' },
+  { src: teslaLogo, alt: 'Tesla', extra: 'dark:brightness-0 dark:invert' },
   { src: enphaseLogo, alt: 'Enphase', extra: '' },
   { src: solaredgeLogo, alt: 'SolarEdge', extra: '' },
-  { src: wallboxLogo, alt: 'Wallbox', extra: 'dark:invert' },
+  { src: wallboxLogo, alt: 'Wallbox', extra: '' },
 ];
 
 export function HomeHero() {
