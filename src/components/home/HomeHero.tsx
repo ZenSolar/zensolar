@@ -5,13 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-brand.png';
-import solaredgeLogo from '@/assets/logos/solaredge-brand.png';
+import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-brand.png';
 
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', style: 'h-8 md:h-10', extra: '' },
+  { src: teslaLogo, alt: 'Tesla', style: 'h-6 md:h-8', extra: '' },
   { src: enphaseLogo, alt: 'Enphase', style: 'h-5 md:h-6', extra: '' },
-  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-6 md:h-7', extra: '' },
+  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-7 md:h-8', extra: '' },
   { src: wallboxLogo, alt: 'Wallbox', style: 'h-5 md:h-6', extra: 'dark:invert' },
 ];
 
