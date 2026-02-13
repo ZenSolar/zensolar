@@ -9,36 +9,48 @@ import {
 
 const faqs = [
   {
-    q: 'What is $ZSOLAR?',
-    a: '$ZSOLAR is a utility token on the Base blockchain (Coinbase L2). It\'s earned by connecting your solar panels, batteries, or EVs and having your clean energy usage verified through our patent-pending Proof-of-Delta system.',
+    q: 'What is ZenSolar?',
+    a: 'ZenSolar is a rewards platform that pays you for the clean energy you already produce. Connect your solar panels, home battery, or EV — and earn $ZSOLAR tokens automatically based on your verified energy activity.',
   },
   {
     q: 'How do I start earning?',
-    a: 'Sign up, connect your energy device (Tesla, Enphase, SolarEdge, or Wallbox), and your rewards begin accruing automatically. No manual claiming required — tokens are minted directly to your wallet.',
+    a: 'Sign up, connect your energy device (Tesla, Enphase, SolarEdge, or Wallbox), and your rewards start accruing automatically. No manual claiming, no complicated setup — it takes about 60 seconds.',
   },
   {
-    q: 'Do I need a crypto wallet?',
-    a: 'We support Coinbase Smart Wallet for a gasless, seedless experience — no prior crypto knowledge needed. You can also connect MetaMask or WalletConnect-compatible wallets.',
+    q: 'Do I need any crypto experience?',
+    a: 'Not at all. ZenSolar includes a built-in rewards wallet — no browser extensions, no seed phrases, no prior crypto knowledge needed. Think of it like a rewards account for your clean energy.',
   },
   {
-    q: 'What is Proof-of-Delta?',
-    a: 'It\'s our patent-pending verification engine. We compare your device\'s energy readings over time (the "delta") and create an on-chain proof that your kWh data is real — not faked or duplicated.',
+    q: 'How does verification work?',
+    a: 'We use a patent-pending system called Mint-on-Proof™ that reads your device\'s real energy data, verifies it hasn\'t been tampered with, and then issues your rewards. Every token is backed by real, verified energy activity.',
+  },
+  {
+    q: 'What can I spend my tokens on?',
+    a: 'You can redeem $ZSOLAR for Tesla gift cards, Anker & EcoFlow portable power stations, ZenSolar merch, and more in our built-in store. You can also cash out your balance whenever you want.',
   },
   {
     q: 'Are there any fees?',
-    a: 'No gas fees for users. ZenSolar covers all blockchain transaction costs. There is a built-in 20% mint burn on every mint, which creates deflationary pressure and long-term value.',
+    a: 'No transaction fees for users — ZenSolar covers all costs. Our subscription plans (starting at $9.99/mo) unlock higher earning rates and premium features, but there are no hidden charges.',
   },
   {
     q: 'What are achievement NFTs?',
-    a: 'As you hit energy milestones (first kWh, first 100 kWh, etc.), unique NFTs are minted to your wallet as permanent proof of your clean energy contribution. They\'re collectible and showcase your impact.',
+    a: 'As you hit energy milestones (your first 500 kWh, first 1,000 miles, etc.), you automatically earn digital collectibles that permanently prove your clean energy contribution. Think of them like badges or trophies for your impact.',
   },
   {
-    q: 'Is this available outside the US?',
-    a: 'Currently we\'re focused on US-based users during the beta period since our device integrations (Tesla, Enphase, SolarEdge) are primarily US-focused. International expansion is on our roadmap.',
+    q: 'Which devices are supported?',
+    a: 'We currently support Tesla (Solar, Powerwall, and vehicles), Enphase solar inverters, SolarEdge solar systems, and Wallbox EV chargers. More integrations are on the way.',
   },
   {
-    q: 'What blockchain is $ZSOLAR on?',
-    a: 'We\'re built on Base, Coinbase\'s Layer 2 network. This gives us Ethereum-level security with fast, low-cost transactions — perfect for frequent energy reward minting.',
+    q: 'How much can I earn?',
+    a: 'Earnings depend on your energy production and subscription tier. A typical solar homeowner on our Pro plan could earn $4,000–$9,000+ per year in token rewards based on projected rates.',
+  },
+  {
+    q: 'Is ZenSolar available outside the US?',
+    a: 'We\'re currently focused on US-based users during our beta period since our device integrations are primarily US-focused. International expansion is on our roadmap.',
+  },
+  {
+    q: 'Is my energy data secure?',
+    a: 'Absolutely. We use encrypted API connections to read your device data — we never control your devices. Your energy data is verified and recorded using tamper-proof technology, giving you a permanent, auditable record of your impact.',
   },
 ];
 
