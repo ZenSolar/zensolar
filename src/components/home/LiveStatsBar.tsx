@@ -1,37 +1,11 @@
 import { motion } from 'framer-motion';
 import { Users, Zap, Coins, Leaf } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 interface StatItem {
   icon: React.ElementType;
   label: string;
   value: string;
   color: string;
-}
-
-function useHomeStats() {
-  return useQuery({
-    queryKey: ['home-live-stats'],
-    queryFn: async () => {
-      const [usersRes, devicesRes, mintsRes, energyRes] = await Promise.all([
-        supabase.rpc('is_admin', { _user_id: '00000000-0000-0000-0000-000000000000' }), // dummy call to avoid direct table access
-        supabase.from('connected_devices').select('id', { count: 'exact', head: true }),
-        supabase.from('mint_transactions').select('tokens_minted').eq('status', 'confirmed'),
-        supabase.from('energy_production').select('production_wh'),
-      ]);
-
-      // Since these are RLS-protected, we'll use fallback stats for public display
-      return {
-        totalUsers: 11,
-        totalDevices: 10,
-        totalTokensMinted: 355609,
-        totalKWhProduced: Math.round(1028538780 / 1000), // Convert Wh to kWh
-        co2Offset: Math.round((1028538780 / 1000) * 0.42), // ~0.42 kg CO₂ per kWh
-      };
-    },
-    staleTime: 60_000,
-  });
 }
 
 function formatNumber(n: number): string {
@@ -41,13 +15,11 @@ function formatNumber(n: number): string {
 }
 
 export function LiveStatsBar() {
-  const { data } = useHomeStats();
-
   const stats: StatItem[] = [
     { icon: Users, label: 'Beta Status', value: '🟢 Live', color: 'text-primary' },
-    { icon: Zap, label: 'kWh Tracked', value: formatNumber(data?.totalKWhProduced ?? 1028539), color: 'text-solar' },
+    { icon: Zap, label: 'kWh Tracked', value: formatNumber(1028539), color: 'text-solar' },
     { icon: Coins, label: '$ZSOLAR Minted', value: '623K', color: 'text-token' },
-    { icon: Leaf, label: 'kg CO₂ Offset', value: formatNumber(data?.co2Offset ?? 431987), color: 'text-secondary' },
+    { icon: Leaf, label: 'kg CO₂ Offset', value: formatNumber(431987), color: 'text-secondary' },
   ];
 
   return (
