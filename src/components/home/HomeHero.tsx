@@ -140,7 +140,7 @@ export function HomeHero() {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More manufacturer connections coming soon…</p>
+            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More manufacturers coming soon…</p>
           </motion.div>
         </div>
       </div>
