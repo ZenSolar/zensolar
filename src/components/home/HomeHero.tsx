@@ -134,7 +134,7 @@ export function HomeHero() {
                     key={alt}
                     src={src}
                     alt={alt}
-                    className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12`}
+                    className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[400px] md:max-w-[500px] max-h-20 md:max-h-28' : 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12'}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 0.6, y: 0 }}
                     transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
