@@ -9,10 +9,10 @@ import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-brand.png';
 
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', style: 'h-5 md:h-7', extra: '' },
-  { src: enphaseLogo, alt: 'Enphase', style: 'h-4 md:h-5', extra: '' },
-  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-4 md:h-5', extra: '' },
-  { src: wallboxLogo, alt: 'Wallbox', style: 'h-4 md:h-5', extra: 'dark:invert' },
+  { src: teslaLogo, alt: 'Tesla', style: 'h-8 md:h-11', extra: '' },
+  { src: enphaseLogo, alt: 'Enphase', style: 'h-6 md:h-8', extra: '' },
+  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-6 md:h-8', extra: '' },
+  { src: wallboxLogo, alt: 'Wallbox', style: 'h-6 md:h-8', extra: 'dark:invert' },
 ];
 
 export function HomeHero() {
