@@ -1,4 +1,5 @@
 import { BlogArticle } from '@/components/blog/BlogArticle';
+import { Link } from 'react-router-dom';
 
 export default function HowToEarnCryptoFromSolar() {
   return (
@@ -16,12 +17,13 @@ export default function HowToEarnCryptoFromSolar() {
         of residential solar installations in the United States:
       </p>
       <ul>
-        <li><strong>Tesla</strong> — Solar Roof, Powerwall, and Tesla-branded inverters</li>
-        <li><strong>Enphase</strong> — IQ series microinverters and Envoy gateways</li>
+        <li><strong><Link to="/blog/tesla-solar-panel-crypto-rewards" className="text-primary hover:underline">Tesla</Link></strong> — Solar Roof, Powerwall, and Tesla-branded inverters</li>
+        <li><strong><Link to="/blog/enphase-solar-blockchain" className="text-primary hover:underline">Enphase</Link></strong> — IQ series microinverters and Envoy gateways</li>
         <li><strong>SolarEdge</strong> — Optimizers and HD-Wave inverters</li>
       </ul>
       <p>
-        If your system uses one of these brands, you're ready to earn. EV owners with Tesla
+        If your system uses one of these brands, you're ready to earn.{' '}
+        <Link to="/blog/ev-charging-crypto-earnings" className="text-primary hover:underline">EV owners</Link> with Tesla
         vehicles or Wallbox chargers can also earn from their driving and charging activity.
       </p>
 
@@ -29,7 +31,8 @@ export default function HowToEarnCryptoFromSolar() {
       <p>
         Visit <strong>zensolar.com</strong> and sign up with your email. The process takes
         under a minute. You'll automatically receive a Coinbase Smart Wallet — no seed phrases,
-        no gas fees, no crypto apps to download.
+        no gas fees, no crypto apps to download. Not sure how it works?{' '}
+        <Link to="/blog/what-is-solar-energy-blockchain-rewards" className="text-primary hover:underline">Read our explainer on solar blockchain rewards</Link>.
       </p>
 
       <h2>Step 3: Connect Your Devices</h2>
@@ -46,8 +49,9 @@ export default function HowToEarnCryptoFromSolar() {
       <h2>Step 4: Start Earning Automatically</h2>
       <p>
         Once connected, ZenSolar begins monitoring your energy production in real-time. Every
-        kilowatt-hour is verified through our Proof-of-Delta system and converted into $ZSOLAR
-        tokens. There's nothing else you need to do — earnings accumulate 24/7.
+        kilowatt-hour is verified through our{' '}
+        <Link to="/blog/proof-of-delta-explained" className="text-primary hover:underline">Proof-of-Delta system</Link> and
+        converted into $ZSOLAR tokens. There's nothing else you need to do — earnings accumulate 24/7.
       </p>
 
       <h2>Step 5: Track Your Rewards</h2>
@@ -56,6 +60,21 @@ export default function HowToEarnCryptoFromSolar() {
         calculations, and achievement NFTs. You can see exactly how much energy you've produced
         and how many tokens you've earned at any time.
       </p>
+
+      <h2>Maximize Your Earnings</h2>
+      <p>
+        Beyond basic solar production, there are several ways to earn more $ZSOLAR:
+      </p>
+      <ul>
+        <li><strong>Add a home battery</strong> — Powerwall and{' '}
+          <Link to="/blog/enphase-solar-blockchain" className="text-primary hover:underline">Enphase IQ Battery</Link> discharge earns extra tokens</li>
+        <li><strong>Connect your EV</strong> — Every{' '}
+          <Link to="/blog/ev-charging-crypto-earnings" className="text-primary hover:underline">kWh charged and mile driven</Link> earns rewards</li>
+        <li><strong>Enable bi-directional charging</strong> — If your EV supports{' '}
+          <Link to="/blog/v2g-v2h-bidirectional-ev-charging" className="text-primary hover:underline">V2G, V2H, or V2L</Link>, earn even more</li>
+        <li><strong>Join VPP events</strong> — Participate in{' '}
+          <Link to="/blog/virtual-power-plant-vpp" className="text-primary hover:underline">Virtual Power Plant</Link> dispatch for bonus multipliers</li>
+      </ul>
 
       <h2>How Much Can I Earn?</h2>
       <p>
