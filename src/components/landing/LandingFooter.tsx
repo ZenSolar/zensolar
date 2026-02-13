@@ -23,6 +23,7 @@ export function LandingFooter() {
           <Link to="/technology" className="hover:text-foreground transition-colors whitespace-nowrap">Technology</Link>
           <Link to="/demo" className="hover:text-foreground transition-colors whitespace-nowrap">Demo</Link>
           <Link to="/white-paper" className="hover:text-foreground transition-colors whitespace-nowrap">White Paper</Link>
+          <Link to="/blog" className="hover:text-foreground transition-colors whitespace-nowrap">Blog</Link>
           <Link to="/terms" className="hover:text-foreground transition-colors whitespace-nowrap">Terms</Link>
           <Link to="/privacy" className="hover:text-foreground transition-colors whitespace-nowrap">Privacy</Link>
         </div>
