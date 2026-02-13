@@ -34,18 +34,19 @@ export function HomeFooter() {
   return (
     <footer className="border-t border-border/40 pt-12 pb-[calc(2rem+env(safe-area-inset-bottom))]">
       <div className="container max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-          {/* Brand column */}
-          <div className="col-span-2 md:col-span-1">
-            <img src={zenLogo} alt="ZenSolar" width="108" height="32" className="h-8 w-auto dark:animate-logo-glow mb-4" />
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              The world's first mint-on-proof clean energy rewards platform. Patent pending.
-            </p>
-            <div className="flex items-center gap-2 mt-4">
-              <span className="text-xs text-muted-foreground">Built on</span>
-              <span className="text-xs font-semibold text-primary">Base L2</span>
-            </div>
+        {/* Centered logo */}
+        <div className="flex flex-col items-center text-center mb-10">
+          <img src={zenLogo} alt="ZenSolar" width="108" height="32" className="h-8 w-auto dark:animate-logo-glow mb-4" />
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
+            The world's first Mint-on-Proof™ clean energy rewards platform. Patent pending.
+          </p>
+          <div className="flex items-center gap-2 mt-3">
+            <span className="text-xs text-muted-foreground">Built on</span>
+            <span className="text-xs font-semibold text-primary">Base L2</span>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-10 max-w-2xl mx-auto">
 
           {/* Link columns */}
           {footerSections.map((section) => (
@@ -76,7 +77,7 @@ export function HomeFooter() {
           <div className="flex items-center gap-4">
             <span className="text-xs text-muted-foreground">🛡️ Patent Pending</span>
             <span className="text-xs text-muted-foreground">🌐 Base L2</span>
-            <span className="text-xs text-muted-foreground">⬡ Mint-on-Proof</span>
+            <span className="text-xs text-muted-foreground">⬡ Mint-on-Proof™</span>
           </div>
         </div>
       </div>
