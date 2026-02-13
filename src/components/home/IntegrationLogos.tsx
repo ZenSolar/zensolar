@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import teslaLogo from '@/assets/logos/tesla-logo.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.svg';
-import wallboxLogo from '@/assets/logos/wallbox-logo.svg';
+import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
 import baseLogo from '@/assets/logos/base-logo.svg';
 import coinbaseLogo from '@/assets/logos/coinbase-logo.svg';
 
