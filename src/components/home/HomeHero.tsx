@@ -29,12 +29,11 @@ export function HomeHero() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-[clamp(2.5rem,7vw,5rem)] font-bold tracking-tight leading-[1.08]"
           >
-            The World's First{' '}
-            <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
-              Mint-on-Proof
-            </span>
+            Play the Clean Energy Game.{' '}
             <br />
-            Clean Energy Rewards Platform
+            <span className="bg-gradient-to-r from-solar via-accent to-primary bg-clip-text text-transparent">
+              Get Rewarded for Every kWh.
+            </span>
           </motion.h1>
 
           <motion.p
@@ -43,9 +42,9 @@ export function HomeHero() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-[clamp(1.05rem,2.5vw,1.3rem)] text-muted-foreground max-w-2xl leading-relaxed"
           >
-            Connect your solar panels, batteries, and EVs. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
+            Track your solar production, battery storage, and EV miles — then earn{' '}
             <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
-            <span className="text-primary font-semibold">achievement NFTs</span> — no manual claims, no middlemen.
+            <span className="text-primary font-semibold">achievement NFTs</span> automatically. Level up, build streaks, and watch your impact grow.
           </motion.p>
 
           <motion.div
