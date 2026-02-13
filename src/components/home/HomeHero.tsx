@@ -56,7 +56,7 @@ export function HomeHero() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-[clamp(1.05rem,2.5vw,1.3rem)] text-muted-foreground max-w-2xl leading-relaxed"
           >
-            Connect your solar panels, batteries, and EVs. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
+            Connect your solar panels, batteries, and EV. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
             <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
             <span className="text-primary font-semibold">achievement NFTs</span> — all in one app.
           </motion.p>
