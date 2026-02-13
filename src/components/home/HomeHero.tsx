@@ -44,8 +44,8 @@ export function HomeHero() {
             className="text-[clamp(1.1rem,2.8vw,1.5rem)] font-semibold text-muted-foreground tracking-tight"
           >
             The World's First{' '}
-            <span className="text-foreground">
-              Mint-on-Proof<sup className="text-[0.35em] font-normal align-super">™</sup>
+            <span className="bg-gradient-to-r from-eco to-primary bg-clip-text text-transparent">
+              Mint-on-Proof<sup className="text-[0.35em] font-normal align-super text-muted-foreground">™</sup>
             </span>{' '}
             Rewards Platform
           </motion.p>
@@ -56,7 +56,7 @@ export function HomeHero() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-[clamp(1.05rem,2.5vw,1.3rem)] text-muted-foreground max-w-2xl leading-relaxed"
           >
-            Connect your solar panels, batteries, and EV. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
+            Connect your solar panels, batteries, and EVs. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
             <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
             <span className="text-primary font-semibold">achievement NFTs</span> — all in one app.
           </motion.p>
