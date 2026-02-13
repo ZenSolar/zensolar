@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sun, Battery, Car, Zap, ChevronRight, Wallet } from 'lucide-react';
+import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet } from 'lucide-react';
 
 const kpiItems = [
   {
@@ -15,8 +15,8 @@ const kpiItems = [
     iconBg: 'bg-solar/10',
   },
   {
-    icon: Battery,
-    label: 'Battery Discharged',
+    icon: BatteryFull,
+    label: 'Battery Storage Exported',
     value: '2,476',
     unit: 'kWh',
     name: 'ZenCasa',

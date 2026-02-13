@@ -87,9 +87,9 @@ const createDemoEligibility = (hasWelcomeNFT: boolean, mintedNfts: number[]) => 
     { tokenId: 4, category: 'solar', name: 'Solaris', threshold: 5000, description: '5,000 kWh solar generated' },
     { tokenId: 5, category: 'solar', name: 'Helios', threshold: 10000, description: '10,000 kWh solar generated' },
     // Battery NFTs earned (500, 1000, 2500 thresholds - demo has 3218)
-    { tokenId: 9, category: 'battery', name: 'Voltbank', threshold: 500, description: '500 kWh battery discharged' },
-    { tokenId: 10, category: 'battery', name: 'Gridpulse', threshold: 1000, description: '1,000 kWh battery discharged' },
-    { tokenId: 11, category: 'battery', name: 'Megacell', threshold: 2500, description: '2,500 kWh battery discharged' },
+    { tokenId: 9, category: 'battery', name: 'Voltbank', threshold: 500, description: '500 kWh battery storage exported' },
+    { tokenId: 10, category: 'battery', name: 'Gridpulse', threshold: 1000, description: '1,000 kWh battery storage exported' },
+    { tokenId: 11, category: 'battery', name: 'Megacell', threshold: 2500, description: '2,500 kWh battery storage exported' },
     // EV Charging NFTs earned (100, 500, 1000, 1500, 2500, 5000 thresholds - demo has 5019)
     { tokenId: 16, category: 'charging', name: 'Ignite', threshold: 100, description: '100 kWh EV charging' },
     { tokenId: 17, category: 'charging', name: 'Voltcharge', threshold: 500, description: '500 kWh EV charging' },

@@ -134,7 +134,7 @@ function LiveEnergyFlowSVG() {
               <div className="w-1 h-4 rounded-full bg-secondary" />
               <span className="text-sm font-bold text-white">7.3</span>
               <span className="text-xs text-muted-foreground">kWh</span>
-              <span className="text-[10px] text-muted-foreground ml-1">Battery Discharged</span>
+              <span className="text-[10px] text-muted-foreground ml-1">Battery Storage Exported</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-1 h-4 rounded-full bg-energy" />

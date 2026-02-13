@@ -576,7 +576,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
             const stats = [
               { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar Generated', active: flow.solarPower > 0 },
-              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Discharged', active: flow.batteryPower < 0 },
+              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Storage Exported', active: flow.batteryPower < 0 },
               { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)}`, unit: 'kWh', label: 'EV Charged', active: flow.evPower > 0 },
             ];
             return (
