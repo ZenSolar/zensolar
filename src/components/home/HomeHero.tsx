@@ -111,18 +111,18 @@ export function HomeHero() {
             className="w-full max-w-md pt-6"
           >
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="flex items-center justify-center gap-6">
+            <div className="flex items-center justify-center gap-8">
               {[
-                { src: teslaLogo, alt: 'Tesla', h: 'h-9 md:h-11' },
-                { src: enphaseLogo, alt: 'Enphase', h: 'h-6 md:h-7' },
-                { src: solaredgeLogo, alt: 'SolarEdge', h: 'h-12 md:h-16' },
-                { src: wallboxLogo, alt: 'Wallbox', h: 'h-6 md:h-7' },
-              ].map(({ src, alt, h }, idx) => (
+                { src: teslaLogo, alt: 'Tesla' },
+                { src: enphaseLogo, alt: 'Enphase' },
+                { src: solaredgeLogo, alt: 'SolarEdge' },
+                { src: wallboxLogo, alt: 'Wallbox' },
+              ].map(({ src, alt }, idx) => (
                 <motion.img
                   key={alt}
                   src={src}
                   alt={alt}
-                  className={`${h} w-auto object-contain opacity-50 hover:opacity-100 transition-all duration-300 dark:brightness-0 dark:invert`}
+                  className="h-6 md:h-7 w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-300"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 0.5, y: 0 }}
                   transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
