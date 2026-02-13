@@ -8,12 +8,12 @@ import baseLogo from '@/assets/logos/base-logo.svg';
 import coinbaseLogo from '@/assets/logos/coinbase-logo.svg';
 
 const integrations = [
-  { name: 'Tesla', logo: teslaLogo, desc: 'Solar, Powerwall & EV', invert: true },
+  { name: 'Tesla', logo: teslaLogo, desc: 'Solar, Powerwall & EV', invert: false },
   { name: 'Enphase', logo: enphaseLogo, desc: 'Solar Monitoring', invert: false },
-  { name: 'SolarEdge', logo: solaredgeLogo, desc: 'Solar Inverters', invert: true },
-  { name: 'Wallbox', logo: wallboxLogo, desc: 'EV Charging', invert: true },
+  { name: 'SolarEdge', logo: solaredgeLogo, desc: 'Solar Inverters', invert: false },
+  { name: 'Wallbox', logo: wallboxLogo, desc: 'EV Charging', invert: false },
   { name: 'Base', logo: baseLogo, desc: 'L2 Blockchain', invert: false },
-  { name: 'Coinbase', logo: coinbaseLogo, desc: 'Smart Wallet', invert: true },
+  { name: 'Coinbase', logo: coinbaseLogo, desc: 'Smart Wallet', invert: false },
 ];
 
 export function IntegrationLogos() {
