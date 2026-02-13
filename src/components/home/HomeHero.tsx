@@ -31,7 +31,7 @@ export function HomeHero() {
           >
             The World's First{' '}
             <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
-              Mint-on-Proof
+              Mint-on-Proof™
             </span>
             <br />
             Clean Energy Rewards Platform
