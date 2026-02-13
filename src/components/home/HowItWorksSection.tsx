@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlugZap, ShieldCheck, Coins, Sun, Battery, Car, Zap } from 'lucide-react';
+import { PlugZap, ShieldCheck, Coins, Wallet, Sun, Battery, Car, Zap } from 'lucide-react';
 
 const steps = [
   {
@@ -30,6 +30,15 @@ const steps = [
     color: 'text-solar',
     bg: 'bg-solar/10',
     border: 'border-solar/20',
+  },
+  {
+    icon: Wallet,
+    step: '04',
+    title: 'Your Built-In ZenSolar Wallet',
+    description: 'Your $ZSOLAR tokens and NFTs are held securely in your embedded ZenSolar wallet — no external wallets or browser extensions needed. Cash out whenever you\'re ready.',
+    color: 'text-token',
+    bg: 'bg-token/10',
+    border: 'border-token/20',
   },
 ];
 
@@ -65,11 +74,11 @@ export function HowItWorksSection() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground max-w-xl mx-auto"
           >
-            Three steps to start earning rewards for your clean energy usage.
+            Four steps to start earning rewards for your clean energy usage.
           </motion.p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((step, i) => (
             <motion.div
               key={step.step}
