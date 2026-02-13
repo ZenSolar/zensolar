@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useAccount } from 'wagmi';
+import { useSafeAccount } from '@/hooks/useSafeWagmi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useConfetti } from '@/hooks/useConfetti';
 import { MILESTONE_TO_TOKEN_ID } from '@/lib/nftTokenMapping';
@@ -85,7 +85,7 @@ function CopyButton({
 }
 
 export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintButtonProps) {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useSafeAccount();
   const { triggerCelebration, triggerGoldBurst } = useConfetti();
   
   const [isChecking, setIsChecking] = useState(false);
