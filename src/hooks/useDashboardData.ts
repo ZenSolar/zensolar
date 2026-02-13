@@ -52,13 +52,36 @@ const defaultActivityData: ActivityData = {
   chargerDevices: [],
 };
 
+// ── localStorage-backed stale-while-revalidate cache ──
+// On cold start, we hydrate from localStorage instantly (0ms) so the PWA
+// shows real data before any network call. Module-level vars then take over
+// for in-session navigation.
+
+const CACHE_KEY_ACTIVITY = 'zs_dashboard_activity';
+const CACHE_KEY_CONNECTIONS = 'zs_dashboard_connections';
+const CACHE_KEY_UPDATED = 'zs_dashboard_updated';
+const CACHE_KEY_USER = 'zs_dashboard_user';
+
+function readLocalCache<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function writeLocalCache(key: string, value: unknown) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+
 // Module-level flags so state survives component remounts during navigation.
 let hasAutoRefreshedOnceGlobal = false;
-let cachedProfileConnections: ProfileConnections | null = null;
-let cachedConnectionKey: string | null = null;
-let cachedActivityData: ActivityData | null = null;
-let cachedLastUpdatedAt: string | null = null;
-let cachedForUserId: string | null = null; // tracks which user the cache belongs to
+let cachedProfileConnections: ProfileConnections | null = readLocalCache<ProfileConnections>(CACHE_KEY_CONNECTIONS);
+let cachedConnectionKey: string | null = cachedProfileConnections
+  ? [cachedProfileConnections.enphase_connected, cachedProfileConnections.solaredge_connected, cachedProfileConnections.tesla_connected, cachedProfileConnections.wallbox_connected].join(',')
+  : null;
+let cachedActivityData: ActivityData | null = readLocalCache<ActivityData>(CACHE_KEY_ACTIVITY);
+let cachedLastUpdatedAt: string | null = readLocalCache<string>(CACHE_KEY_UPDATED);
+let cachedForUserId: string | null = readLocalCache<string>(CACHE_KEY_USER);
 
 interface ProfileConnections {
   tesla_connected: boolean;
@@ -85,6 +108,7 @@ export function useDashboardData() {
   const [activityData, setActivityDataRaw] = useState<ActivityData>(cachedActivityData ?? defaultActivityData);
   const setActivityData = useCallback((data: ActivityData) => {
     cachedActivityData = data;
+    writeLocalCache(CACHE_KEY_ACTIVITY, data);
     setActivityDataRaw(data);
   }, []);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([
@@ -111,6 +135,7 @@ export function useDashboardData() {
   const [lastUpdatedAt, setLastUpdatedAtRaw] = useState<string | null>(cachedLastUpdatedAt);
   const setLastUpdatedAt = useCallback((val: string | null) => {
     cachedLastUpdatedAt = val;
+    writeLocalCache(CACHE_KEY_UPDATED, val);
     setLastUpdatedAtRaw(val);
   }, []);
   const [isAutoSyncing, setIsAutoSyncing] = useState(false);
@@ -226,7 +251,7 @@ export function useDashboardData() {
       }
     }
 
-    // Cache at module level so remounts don't re-fetch
+    // Cache at module level + localStorage so remounts and cold starts don't re-fetch
     cachedProfileConnections = connections;
     cachedForUserId = viewAsUserId ?? '__self__';
     cachedConnectionKey = [
@@ -235,6 +260,8 @@ export function useDashboardData() {
       connections.tesla_connected,
       connections.wallbox_connected,
     ].join(',');
+    writeLocalCache(CACHE_KEY_CONNECTIONS, connections);
+    writeLocalCache(CACHE_KEY_USER, cachedForUserId);
 
     setProfileConnections(connections);
     setConnectedAccounts([
@@ -265,6 +292,11 @@ export function useDashboardData() {
       cachedActivityData = null;
       cachedLastUpdatedAt = null;
       cachedForUserId = null;
+      // Clear localStorage caches too
+      localStorage.removeItem(CACHE_KEY_ACTIVITY);
+      localStorage.removeItem(CACHE_KEY_CONNECTIONS);
+      localStorage.removeItem(CACHE_KEY_UPDATED);
+      localStorage.removeItem(CACHE_KEY_USER);
       hasAutoRefreshedOnceGlobal = false;
       hasAutoRefreshedOnce.current = false;
       setActivityData(defaultActivityData);
@@ -287,6 +319,10 @@ export function useDashboardData() {
       cachedActivityData = null;
       cachedLastUpdatedAt = null;
       cachedForUserId = null;
+      localStorage.removeItem(CACHE_KEY_ACTIVITY);
+      localStorage.removeItem(CACHE_KEY_CONNECTIONS);
+      localStorage.removeItem(CACHE_KEY_UPDATED);
+      localStorage.removeItem(CACHE_KEY_USER);
       fetchConnections();
     };
 
