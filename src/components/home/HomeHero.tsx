@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, Sun, Battery, Car } from 'lucide-react';
 
 export function HomeHero() {
   return (
@@ -50,16 +50,37 @@ export function HomeHero() {
             Rewards Platform
           </motion.p>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-[clamp(1.05rem,2.5vw,1.3rem)] text-muted-foreground max-w-2xl leading-relaxed"
+            className="text-[clamp(1.05rem,2.5vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed text-center"
           >
-            Connect your solar panels, batteries, and EVs. ZenSolar automatically verifies your clean energy usage and rewards you with{' '}
-            <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
-            <span className="text-primary font-semibold">achievement NFTs</span> — all in one app.
-          </motion.p>
+            <p className="mb-4">
+              Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
+            </p>
+            <ul className="space-y-2 text-left inline-block text-[clamp(0.9rem,2.5vw,1.05rem)]">
+              <li className="flex items-center gap-2.5">
+                <Sun className="h-4 w-4 text-solar flex-shrink-0" />
+                <span>Every kWh your solar panels produce</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Battery className="h-4 w-4 text-secondary flex-shrink-0" />
+                <span>Every kWh your battery discharges</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Car className="h-4 w-4 text-energy flex-shrink-0" />
+                <span>Every EV mile you drive</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Zap className="h-4 w-4 text-token flex-shrink-0" />
+                <span>Every kWh used to charge your EV</span>
+              </li>
+            </ul>
+            <div className="mt-6 inline-flex items-center px-5 py-2.5 rounded-full border-primary/50 bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 animate-breathing-glow">
+              <span className="text-sm tracking-tight">Start monetizing your sustainable lifestyle →</span>
+            </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
