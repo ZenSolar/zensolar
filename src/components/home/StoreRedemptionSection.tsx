@@ -1,27 +1,27 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingBag, CreditCard, Leaf, Zap } from 'lucide-react';
+import { ShoppingBag, CreditCard, Zap, Battery, Shirt } from 'lucide-react';
 
 const redemptionItems = [
   {
     icon: Zap,
-    title: 'Tesla Gift Cards',
-    description: 'Redeem $ZSOLAR for Tesla gift cards to use on products, accessories, or Supercharging credits.',
+    title: 'Tesla Gift Cards & Gear',
+    description: 'Redeem for Tesla gift cards, Mobile Connectors, Wall Connectors, and Supercharging credits.',
     color: 'text-primary',
     bg: 'bg-primary/10',
   },
   {
-    icon: ShoppingBag,
-    title: 'Clean Energy Gear',
-    description: 'Browse portable power stations, solar chargers, and sustainability-focused products.',
+    icon: Battery,
+    title: 'Portable Power Stations',
+    description: 'Shop Anker, EcoFlow, and Bluetti portable power stations and solar generators.',
     color: 'text-solar',
     bg: 'bg-solar/10',
   },
   {
-    icon: Leaf,
-    title: 'Carbon Offsets',
-    description: 'Double your impact — use your tokens to fund verified carbon offset projects worldwide.',
+    icon: Shirt,
+    title: 'ZenSolar Merch',
+    description: 'Rep the movement — exclusive ZenSolar apparel, accessories, and limited drops.',
     color: 'text-secondary',
     bg: 'bg-secondary/10',
   },
@@ -59,8 +59,8 @@ export function StoreRedemptionSection() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground max-w-2xl mx-auto"
           >
-            Your $ZSOLAR tokens aren't just numbers on a screen — redeem them for gift cards, 
-            clean energy gear, carbon offsets, or simply cash out.
+            Your $ZSOLAR tokens aren't just numbers on a screen — redeem them for Tesla gift cards, 
+            Anker & EcoFlow power stations, ZenSolar merch, and much more.
           </motion.p>
         </div>
 

@@ -175,15 +175,6 @@ export function PricingSection() {
                     ))}
                   </ul>
 
-                  {/* Earning projection */}
-                  <div className={`p-3 rounded-lg mb-4 text-center text-sm font-medium ${
-                    tier.name === 'Free' 
-                      ? 'bg-muted/50 text-muted-foreground' 
-                      : 'bg-solar/10 text-solar border border-solar/20'
-                  }`}>
-                    {tier.earningNote}
-                  </div>
-
                   <Link to="/auth" className="mt-auto">
                     <Button 
                       variant={tier.ctaVariant} 
@@ -199,15 +190,31 @@ export function PricingSection() {
           ))}
         </div>
 
-        {/* ROI note */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+        {/* Projected earnings */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center text-sm text-muted-foreground mt-8 max-w-2xl mx-auto"
+          className="mt-10"
         >
-          💡 Even at our Pro tier ($9.99/mo = $120/year), projected annual earnings of $4,000+ represent a <span className="text-primary font-semibold">33x return</span> on your subscription. Your solar system is already generating the energy — we just turn it into money.
-        </motion.p>
+          <div className="flex flex-wrap justify-center gap-4 mb-4">
+            <div className="px-5 py-3 rounded-xl border border-border/60 bg-muted/30 text-center">
+              <p className="text-xs text-muted-foreground mb-1">Free</p>
+              <p className="text-sm font-medium text-muted-foreground">Data tracking only</p>
+            </div>
+            <div className="px-5 py-3 rounded-xl border border-primary/30 bg-primary/5 text-center">
+              <p className="text-xs text-primary mb-1">Pro — Projected Earnings</p>
+              <p className="text-lg font-bold text-primary">~$4,000–$9,000<span className="text-xs font-normal text-muted-foreground">/year</span></p>
+            </div>
+            <div className="px-5 py-3 rounded-xl border border-solar/30 bg-solar/5 text-center">
+              <p className="text-xs text-solar mb-1">Elite — Projected Earnings</p>
+              <p className="text-lg font-bold text-solar">~$8,000–$19,875<span className="text-xs font-normal text-muted-foreground">/year</span></p>
+            </div>
+          </div>
+          <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
+            💡 Even at Pro ($9.99/mo = $120/year), projected earnings of $4,000+ represent a <span className="text-primary font-semibold">33x return</span> on your subscription.
+          </p>
+        </motion.div>
       </div>
     </section>
   );
