@@ -6,10 +6,13 @@ import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExportButtons } from '@/components/admin/ExportButtons';
 import { 
   Loader2, 
   Shield,
+  ShieldAlert,
+  ShieldCheck,
   TrendingDown,
   Flame,
   Lock,
@@ -30,6 +33,13 @@ import {
   Code,
   GitBranch,
   Package,
+  PieChart,
+  BarChart3,
+  CircuitBoard,
+  Scale,
+  Layers,
+  Eye,
+  Gauge,
 } from 'lucide-react';
 import {
   MINT_DISTRIBUTION,
@@ -52,190 +62,275 @@ const staggerContainer = {
   }
 };
 
+// === THREE-TIER DEFENSE FRAMEWORK ===
+
 interface DefenseMechanism {
   id: string;
   name: string;
   description: string;
   trigger?: string;
   effect: string;
-  status: 'implemented' | 'planned' | 'future';
+  status: 'live' | 'development' | 'planned';
   icon: React.ReactNode;
   details?: string[];
+  soliditySnippet?: string;
+  reference?: string;
 }
 
-const implementedMechanisms: DefenseMechanism[] = [
+// --- TIER 1: CRITICAL (Existential Threats) ---
+const tier1Mechanisms: DefenseMechanism[] = [
   {
-    id: 'mint-burn',
-    name: '20% Mint Burn',
-    description: 'Aggressive deflationary pressure on every token minted',
-    effect: 'Permanently removes 20% of all minted tokens from circulation',
-    status: 'implemented',
-    icon: <Flame className="h-5 w-5 text-destructive" />,
-    details: [
-      'Automatic on every mint transaction',
-      'No admin intervention required',
-      'Reduces effective supply growth rate',
-      'Creates constant upward price pressure',
-    ],
-  },
-  {
-    id: 'transfer-tax',
-    name: '7% Transfer Tax',
-    description: 'Triple-purpose tax on all token transfers',
-    effect: '3% burn + 2% LP + 2% treasury on every transfer',
-    status: 'implemented',
-    icon: <Coins className="h-5 w-5 text-solar" />,
-    details: [
-      '3% permanently burned (deflationary)',
-      '2% injected into liquidity pool (floor support)',
-      '2% to treasury (buyback reserves)',
-      'Discourages short-term speculation',
-    ],
-  },
-  {
-    id: 'subscription-lp',
-    name: 'Subscription LP Injection',
-    description: '50% of all subscription revenue flows to liquidity pool',
-    effect: 'Continuous USDC injection regardless of crypto market conditions',
-    status: 'implemented',
+    id: 'revenue-buyback',
+    name: 'Automated Revenue-Backed Buybacks',
+    description: 'Smart contract that automatically swaps subscription USDC for $ZSOLAR on Uniswap, then burns purchased tokens',
+    trigger: '7-day TWAP drops >15% below $0.10 floor',
+    effect: 'Creates buy pressure + supply reduction simultaneously using real revenue',
+    status: 'development',
     icon: <DollarSign className="h-5 w-5 text-green-500" />,
     details: [
-      `$${SUBSCRIPTION.monthlyPrice}/month × 50% = $${(SUBSCRIPTION.monthlyPrice * 0.5).toFixed(2)}/user/month`,
-      'Fiat-denominated revenue (not crypto-correlated)',
-      'Automatic injection on subscription billing',
-      'Creates predictable floor support',
+      'Chainlink price oracle monitors 7-day TWAP',
+      'Treasury USDC is used to market-buy $ZSOLAR from LP',
+      'Purchased tokens are immediately burned (not recycled)',
+      'Buyback intensity scales with deviation from floor',
+      'Lesson from Terra/Luna: backed by fiat revenue, NOT algorithmic minting',
     ],
+    soliditySnippet: `function executeBuyback(uint256 usdcAmount) external onlyAutomation {
+    require(getTWAP() < FLOOR_PRICE * 85 / 100, "Above threshold");
+    // Swap USDC → ZSOLAR via Uniswap V3
+    uint256 tokensBought = router.exactInputSingle(params);
+    // Burn all purchased tokens
+    ZSOLAR.burn(tokensBought);
+    emit BuybackExecuted(usdcAmount, tokensBought);
+}`,
+    reference: 'Lessons from: Aave Safety Module, MakerDAO Surplus Auctions',
   },
   {
-    id: 'utility-anchor',
-    name: 'Real-World Utility Anchor',
-    description: 'Token value tied to verified energy production, not speculation',
-    effect: 'User activity continues regardless of BTC/ETH price movements',
-    status: 'implemented',
-    icon: <Zap className="h-5 w-5 text-primary" />,
+    id: 'erc7265-circuit-breaker',
+    name: 'ERC-7265 Circuit Breaker',
+    description: 'Emergency pause on asset outflows when withdrawal velocity exceeds safe thresholds — prevents flash crashes and exploit drains',
+    trigger: '>30% of LP drained within 1 hour OR >50% within 24 hours',
+    effect: 'Temporarily pauses all sells/transfers, protecting remaining LP from cascade liquidation',
+    status: 'planned',
+    icon: <CircuitBoard className="h-5 w-5 text-red-500" />,
     details: [
-      'Solar panels produce energy regardless of crypto markets',
-      'EVs are driven regardless of Bitcoin price',
-      'Mint-on-Proof™ verifies real activity',
-      'Creates non-correlated reward flow',
+      'Implements ERC-7265 standard (proposed by OpenZeppelin team)',
+      'Monitors outflow velocity per rolling time window',
+      'Tier 1 trigger (>30%/1hr): 1-hour cooldown, admin notification',
+      'Tier 2 trigger (>50%/24hr): Full pause until governance review',
+      'Auto-expires after 24hr max pause to prevent permanent lockup',
+      'Whitelisted addresses (LP contracts, staking) exempt from pause',
+      'Prevents "bank run" dynamics that killed Terra/Luna',
     ],
+    soliditySnippet: `// ERC-7265 Circuit Breaker Implementation
+modifier circuitBreakerCheck(uint256 amount) {
+    uint256 hourlyOutflow = _getOutflow(1 hours);
+    uint256 dailyOutflow = _getOutflow(24 hours);
+    uint256 lpDepth = _getLPTokenBalance();
+    
+    require(hourlyOutflow + amount <= lpDepth * 30 / 100, 
+        "Circuit breaker: hourly limit");
+    require(dailyOutflow + amount <= lpDepth * 50 / 100, 
+        "Circuit breaker: daily limit");
+    
+    _recordOutflow(amount);
+    _;
+}`,
+    reference: 'Standard: ERC-7265 (ethereum-magicians.org)',
+  },
+  {
+    id: 'progressive-sell-tax',
+    name: 'Progressive Sell Tax (Anti-Dump)',
+    description: 'Dynamic tax brackets that scale with sell size relative to total supply — small users pay base 7%, whale dumps pay up to 40%',
+    trigger: 'Applied on every sell, scales with transaction size vs supply',
+    effect: 'Makes large coordinated dumps economically irrational while protecting retail users',
+    status: 'planned',
+    icon: <Scale className="h-5 w-5 text-orange-500" />,
+    details: [
+      'Bracket 1: ≤0.1% of supply → 7% tax (standard)',
+      'Bracket 2: 0.1–0.5% of supply → 15% tax',
+      'Bracket 3: 0.5–1.0% of supply → 25% tax',
+      'Bracket 4: >1.0% of supply → 40% tax',
+      'Tax revenue split: 50% burned, 30% to LP, 20% to treasury',
+      'Prevents flash crash scenarios from single whale dumps',
+      'Wallet-level tracking prevents split-sell circumvention',
+    ],
+    soliditySnippet: `function _calculateProgressiveTax(uint256 sellAmount) internal view returns (uint256) {
+    uint256 supplyBps = sellAmount * 10000 / totalSupply();
+    
+    if (supplyBps <= 10)   return sellAmount * 700 / 10000;  // 7%
+    if (supplyBps <= 50)   return sellAmount * 1500 / 10000; // 15%
+    if (supplyBps <= 100)  return sellAmount * 2500 / 10000; // 25%
+    return sellAmount * 4000 / 10000;                         // 40%
+}`,
+    reference: 'Inspired by: SafeMoon progressive tax, Reflect Finance',
   },
 ];
 
-const plannedMechanisms: DefenseMechanism[] = [
+// --- TIER 2: HIGH PRIORITY (Operational Resilience) ---
+const tier2Mechanisms: DefenseMechanism[] = [
   {
-    id: 'treasury-buyback',
-    name: 'Treasury Buyback Protocol',
-    description: 'Automated floor defense using treasury reserves',
-    trigger: 'Token drops >15% below $0.10 floor',
-    effect: 'Treasury buys and burns tokens from LP to restore floor',
-    status: 'planned',
-    icon: <Shield className="h-5 w-5 text-primary" />,
+    id: 'treasury-diversification',
+    name: 'Treasury Diversification (60/40 Rule)',
+    description: 'Maintain ≥60% of treasury in non-$ZSOLAR assets to ensure 18+ months operational runway regardless of token price',
+    trigger: 'Continuous rebalancing via governance',
+    effect: 'Protocol survives even if $ZSOLAR drops 90% — operational costs covered by stablecoins',
+    status: 'development',
+    icon: <PieChart className="h-5 w-5 text-blue-500" />,
     details: [
-      'Monitor price via on-chain oracle',
-      'Trigger when 7-day average drops >15% below floor',
-      'Use treasury USDC to buy $ZSOLAR from LP',
-      'Immediately burn purchased tokens',
-      'Creates buy pressure + supply reduction simultaneously',
+      '40% USDC (immediate operational expenses)',
+      '15% ETH (gas reserves + blue-chip exposure)',
+      '5% RWA tokens (real-world asset yield)',
+      '40% $ZSOLAR (protocol alignment, buyback reserves)',
+      'Quarterly rebalancing with on-chain governance votes',
+      '18-month operational runway minimum at all times',
+      'Lesson from: Olympus DAO (treasury 95% in OHM → death spiral)',
     ],
+    reference: 'Best practice from: Aave Treasury, Uniswap Foundation',
   },
   {
-    id: 'dynamic-burn',
-    name: 'Dynamic Burn Amplifier',
-    description: 'Increase burn rates during market stress',
-    trigger: 'BTC drops >25% in 30 days (crisis mode)',
-    effect: 'Temporarily increase mint burn to 30% and transfer burn to 5%',
+    id: 'real-yield-staking',
+    name: 'Real Yield Staking (USDC Dividends)',
+    description: 'Distribute protocol revenue (USDC from subscriptions) to stakers instead of minting new inflationary tokens',
+    trigger: 'User voluntarily stakes $ZSOLAR tokens',
+    effect: 'Stakers earn real USDC yield — not inflated token emissions that dilute everyone',
     status: 'planned',
-    icon: <Flame className="h-5 w-5 text-orange-500" />,
+    icon: <Coins className="h-5 w-5 text-green-500" />,
     details: [
-      'Normal: 20% mint burn, 3% transfer burn',
-      'Crisis: 30% mint burn, 5% transfer burn',
-      'Auto-reverts when BTC recovers to -10% threshold',
-      'Accelerates deflation during panic periods',
+      '30-day lock: Base yield (share of 10% subscription revenue)',
+      '90-day lock: 1.5x yield multiplier',
+      '180-day lock: 2.5x yield multiplier',
+      'Yield paid in USDC, not $ZSOLAR (no dilution)',
+      'Removes tokens from sell pressure during downturns',
+      'Lesson from: GMX real yield model (sustained through bear market)',
     ],
+    soliditySnippet: `// Real Yield: distribute USDC, not minted tokens
+function claimYield() external {
+    uint256 share = stakedBalance[msg.sender] * yieldPerToken;
+    uint256 multiplier = _getLockMultiplier(msg.sender);
+    uint256 payout = share * multiplier / 1e18;
+    USDC.transfer(msg.sender, payout); // Real yield!
+}`,
+    reference: 'Model from: GMX, GNS (survived 2022 bear market)',
   },
   {
     id: 'diamond-hands',
-    name: '"Diamond Hands" Staking Rewards',
-    description: 'Incentivize holding during volatility',
-    trigger: 'User voluntarily locks tokens',
-    effect: 'Bonus reward multipliers for locked tokens',
-    status: 'planned',
+    name: '"Diamond Hands" Lock Incentives',
+    description: 'Time-weighted staking with increasing multipliers to incentivize holding during volatility',
+    trigger: 'User voluntarily locks tokens for fixed duration',
+    effect: 'Removes tokens from circulating supply, reduces sell pressure during crashes',
+    status: 'development',
     icon: <Lock className="h-5 w-5 text-cyan-500" />,
     details: [
       '30-day lock = 1.5x reward multiplier',
       '90-day lock = 2.0x reward multiplier',
       '180-day lock = 2.5x reward multiplier',
-      'Removes tokens from sell pressure during downturn',
-      'Rewards loyalty with enhanced earnings',
+      '365-day lock = 3.0x reward multiplier + NFT badge',
+      'Early withdrawal penalty: 50% of earned rewards forfeited',
+      'Locked tokens cannot be sold (smart contract enforced)',
     ],
   },
   {
     id: 'lp-surge',
-    name: 'Subscription LP Surge',
-    description: 'Emergency LP allocation increase',
-    trigger: 'Manual admin trigger during crisis',
-    effect: 'Temporarily increase LP allocation from 50% to 70%',
-    status: 'planned',
-    icon: <ArrowUp className="h-5 w-5 text-solar" />,
+    name: 'Emergency LP Surge Protocol',
+    description: 'Temporarily increase LP allocation from 50% to 70% of subscription revenue during market stress',
+    trigger: 'Admin trigger OR automatic when floor breached >10%',
+    effect: 'Accelerated floor defense with extra USDC injection',
+    status: 'development',
+    icon: <ArrowUp className="h-5 w-5 text-primary" />,
     details: [
-      'Normal: 50% of subscription → LP',
-      'Crisis: 70% of subscription → LP',
-      'Extra USDC strengthens floor faster',
-      'Reduces treasury accumulation temporarily',
+      'Normal: 50% of subscription revenue → LP',
+      'Crisis mode: 70% of subscription revenue → LP',
+      'Extra $2/user/month enters LP during emergency',
+      'Auto-reverts when price recovers above 95% of floor',
+      'Reduces treasury accumulation temporarily for survival',
     ],
   },
 ];
 
-const futureMechanisms: DefenseMechanism[] = [
+// --- TIER 3: ADVANCED (Long-Term Moat) ---
+const tier3Mechanisms: DefenseMechanism[] = [
+  {
+    id: 'dynamic-burn-oracle',
+    name: 'Dynamic Burn Rate (Chainlink Oracle)',
+    description: 'Use Chainlink price feeds to automatically increase burn percentages during sell pressure — creates adaptive deflation',
+    trigger: 'BTC drops >25% in 30 days OR $ZSOLAR 7-day TWAP drops >20%',
+    effect: 'Mint burn increases from 20% → 30%, transfer burn from 3% → 5%',
+    status: 'planned',
+    icon: <Flame className="h-5 w-5 text-orange-500" />,
+    details: [
+      'Chainlink BTC/USD and custom $ZSOLAR/USDC feeds',
+      'Normal: 20% mint burn, 3% transfer burn',
+      'Stress Level 1 (BTC -15%): 25% mint, 4% transfer',
+      'Stress Level 2 (BTC -25%): 30% mint, 5% transfer',
+      'Stress Level 3 (BTC -40%): 35% mint, 6% transfer',
+      'Auto-reverts in 7-day increments as market recovers',
+      'On-chain verifiable — no admin trust required',
+    ],
+    soliditySnippet: `function getMintBurnRate() public view returns (uint256) {
+    int256 btcPrice = chainlinkBTC.latestAnswer();
+    int256 btc30dAgo = _getHistoricalPrice(30 days);
+    int256 drawdown = (btc30dAgo - btcPrice) * 10000 / btc30dAgo;
+    
+    if (drawdown > 4000) return 3500; // 35% burn
+    if (drawdown > 2500) return 3000; // 30% burn
+    if (drawdown > 1500) return 2500; // 25% burn
+    return 2000;                       // 20% base
+}`,
+    reference: 'Oracle pattern from: Aave risk parameters, Compound governance',
+  },
+  {
+    id: 'energy-fundamental-floor',
+    name: 'Energy Production Fundamental Floor',
+    description: 'Use verified energy data to establish a "fundamental value" for $ZSOLAR based on real-world energy production metrics',
+    trigger: 'Continuous — updates with each Mint-on-Proof™ verification',
+    effect: 'Creates a non-speculative floor: "Each $ZSOLAR represents X kWh of verified clean energy"',
+    status: 'planned',
+    icon: <Zap className="h-5 w-5 text-primary" />,
+    details: [
+      'Track total network kWh produced / circulating supply = kWh/token',
+      'At 10M kWh and 1M tokens: each token = 10 kWh equivalent',
+      'Average US electricity cost: $0.16/kWh → fundamental floor ~$1.60',
+      'This metric only goes UP as energy is produced and tokens are burned',
+      'Publishable on-chain metric for investor confidence',
+      'Creates "energy-backed" narrative vs pure speculation',
+    ],
+    reference: 'Concept from: Carbon credit tokens (KlimaDAO, Toucan)',
+  },
   {
     id: 'utility-acceleration',
-    name: 'Utility Acceleration Program',
-    description: 'Push users toward spending vs. selling during downturns',
-    trigger: 'Token price drops >20%',
-    effect: 'Offer 20% bonus store credit for token redemptions',
-    status: 'future',
+    name: 'Bear Market Utility Acceleration',
+    description: 'During downturns, offer enhanced store/redemption incentives to redirect sell pressure into utility spending',
+    trigger: 'Token price drops >20% below target',
+    effect: 'Users spend tokens instead of selling — removes from circulation with 5% burn',
+    status: 'planned',
     icon: <ShoppingBag className="h-5 w-5 text-secondary" />,
     details: [
-      'Users spend tokens in store instead of selling',
-      'Removes tokens from circulation',
-      '5% redemption burn still applies',
-      'Creates positive feedback loop',
-    ],
-  },
-  {
-    id: 'anti-whale',
-    name: 'Anti-Whale Circuit Breaker',
-    description: 'Prevent coordinated large-scale dumps',
-    trigger: 'Single transaction >1% of LP depth',
-    effect: 'Transaction blocked or split across cooldown periods',
-    status: 'future',
-    icon: <AlertTriangle className="h-5 w-5 text-yellow-500" />,
-    details: [
-      'Max single sell = 1% of LP token balance',
-      '4-hour cooldown between large sells from same wallet',
-      'Prevents flash crashes from whale dumps',
-      'Smart contract level enforcement',
-    ],
-  },
-  {
-    id: 'progressive-tax',
-    name: 'Progressive Sell Tax',
-    description: 'Higher tax on larger sells during volatility',
-    trigger: 'Market volatility index exceeds threshold',
-    effect: 'Sell tax scales with transaction size',
-    status: 'future',
-    icon: <TrendingDown className="h-5 w-5 text-destructive" />,
-    details: [
-      'Base: 7% transfer tax',
-      '>$1K sell: +2% additional tax',
-      '>$10K sell: +5% additional tax',
-      '>$50K sell: +10% additional tax',
-      'Only active during high volatility periods',
+      '20% bonus store credit when redeeming tokens during crash',
+      '$100 of tokens → $120 of store value (funded by treasury)',
+      '5% redemption burn still applies on every redemption',
+      'Creates positive feedback: crash → better deals → users spend not sell',
+      'Time-limited flash sales during high volatility periods',
     ],
   },
 ];
 
+// === PROGRESSIVE SELL TAX BRACKETS TABLE ===
+const sellTaxBrackets = [
+  { bracket: '≤ 0.1% of supply', dollarExample: '≤ ~$100K', tax: '7%', taxSplit: '3% burn / 2% LP / 2% treasury', intent: 'Retail-friendly base rate' },
+  { bracket: '0.1% – 0.5%', dollarExample: '$100K – $500K', tax: '15%', taxSplit: '7% burn / 5% LP / 3% treasury', intent: 'Discourage medium dumps' },
+  { bracket: '0.5% – 1.0%', dollarExample: '$500K – $1M', tax: '25%', taxSplit: '12% burn / 8% LP / 5% treasury', intent: 'Major dump deterrent' },
+  { bracket: '> 1.0% of supply', dollarExample: '> $1M', tax: '40%', taxSplit: '20% burn / 12% LP / 8% treasury', intent: 'Flash crash prevention' },
+];
+
+// === TREASURY DIVERSIFICATION ===
+const treasuryAllocation = [
+  { asset: 'USDC', percentage: 40, purpose: 'Operational expenses, LP injection, buybacks', color: 'bg-green-500' },
+  { asset: '$ZSOLAR', percentage: 40, purpose: 'Protocol alignment, governance, burn reserves', color: 'bg-primary' },
+  { asset: 'ETH', percentage: 15, purpose: 'Gas reserves, blue-chip crypto exposure', color: 'bg-blue-500' },
+  { asset: 'RWA Tokens', percentage: 5, purpose: 'Real-world asset yield generation', color: 'bg-yellow-500' },
+];
+
+// === SMART CONTRACT PHASES ===
 interface ContractFeature {
   name: string;
   description: string;
@@ -244,106 +339,58 @@ interface ContractFeature {
 }
 
 const v1Features: ContractFeature[] = [
-  {
-    name: '7% Transfer Tax',
-    description: 'Adjustable via admin function',
-    status: 'deployed',
-    contractMethod: 'setTaxRates(burn, lp, treasury)',
-  },
-  {
-    name: '20% Mint Burn',
-    description: 'Built into minting controller',
-    status: 'deployed',
-    contractMethod: 'mint() → burns 20% automatically',
-  },
-  {
-    name: 'Tax Exemptions',
-    description: 'Whitelist addresses from transfer tax',
-    status: 'deployed',
-    contractMethod: 'setTaxExempt(address, bool)',
-  },
-  {
-    name: 'Rate Adjustments',
-    description: 'Modify burn/LP/treasury splits',
-    status: 'deployed',
-    contractMethod: 'setTaxRates(300, 200, 200)',
-  },
-];
-
-const v2Features: ContractFeature[] = [
-  {
-    name: 'Anti-Whale Circuit Breaker',
-    description: 'Max single sell = 1% of LP, 4hr cooldown',
-    status: 'v2',
-    contractMethod: 'Requires transfer() modification',
-  },
-  {
-    name: 'Progressive Sell Tax',
-    description: 'Higher tax on larger sells during volatility',
-    status: 'v2',
-    contractMethod: 'Requires per-wallet tracking',
-  },
-  {
-    name: 'On-Chain Staking',
-    description: 'Native lock mechanism with multipliers',
-    status: 'v2',
-    contractMethod: 'Optional: integrate into V2 token',
-  },
+  { name: '7% Transfer Tax', description: 'Adjustable via admin function', status: 'deployed', contractMethod: 'setTaxRates(burn, lp, treasury)' },
+  { name: '20% Mint Burn', description: 'Built into minting controller', status: 'deployed', contractMethod: 'mint() → burns 20% automatically' },
+  { name: 'Tax Exemptions', description: 'Whitelist addresses from transfer tax', status: 'deployed', contractMethod: 'setTaxExempt(address, bool)' },
+  { name: 'Rate Adjustments', description: 'Modify burn/LP/treasury splits', status: 'deployed', contractMethod: 'setTaxRates(300, 200, 200)' },
 ];
 
 const separateContracts: ContractFeature[] = [
-  {
-    name: 'Treasury Buyback Contract',
-    description: 'Monitors price, executes buy-and-burn',
-    status: 'separate',
-    contractMethod: 'executeBuyback(amount)',
-  },
-  {
-    name: 'Staking Contract',
-    description: 'Separate contract for token lockups',
-    status: 'separate',
-    contractMethod: 'stake(amount, duration)',
-  },
-  {
-    name: 'LP Manager Contract',
-    description: 'Automates subscription → LP injection',
-    status: 'separate',
-    contractMethod: 'injectLiquidity(usdcAmount)',
-  },
+  { name: 'Treasury Buyback Contract', description: 'Chainlink-triggered buy-and-burn', status: 'separate', contractMethod: 'executeBuyback(amount)' },
+  { name: 'Diamond Hands Staking', description: 'Time-locked staking with USDC yield', status: 'separate', contractMethod: 'stake(amount, duration)' },
+  { name: 'LP Manager Contract', description: 'Automates subscription → LP injection', status: 'separate', contractMethod: 'injectLiquidity(usdcAmount)' },
+  { name: 'Circuit Breaker (ERC-7265)', description: 'Velocity-based outflow pause', status: 'separate', contractMethod: 'circuitBreakerCheck(amount)' },
+];
+
+const v2Features: ContractFeature[] = [
+  { name: 'Progressive Sell Tax', description: 'Supply-weighted tax brackets per wallet', status: 'v2', contractMethod: '_calculateProgressiveTax(sellAmount)' },
+  { name: 'Anti-Whale Circuit Breaker', description: 'Max single sell = 1% of LP, 4hr cooldown', status: 'v2', contractMethod: 'Requires transfer() modification' },
+  { name: 'Dynamic Burn (Oracle)', description: 'Chainlink-driven adaptive burn rates', status: 'v2', contractMethod: 'getMintBurnRate() → oracle lookup' },
+];
+
+// === FAILED PROTOCOL LESSONS ===
+const failedProtocols = [
+  { name: 'Terra/Luna', failure: 'Algorithmic peg backed by nothing — death spiral when UST depegged', lesson: 'Our floor is backed by fiat subscription revenue (USDC), not algorithmic minting' },
+  { name: 'Olympus DAO', failure: '95% treasury in own token — when OHM dropped, treasury collapsed too', lesson: '60/40 treasury rule: never hold >40% of treasury in native token' },
+  { name: 'Iron Finance', failure: 'No circuit breakers — $2B → $0 in hours from cascading liquidations', lesson: 'ERC-7265 circuit breaker pauses outflows during velocity spikes' },
+  { name: 'SafeMoon V1', failure: 'Flat sell tax easily circumvented by splitting transactions', lesson: 'Progressive tax with wallet-level tracking prevents split-sell attacks' },
 ];
 
 function MechanismCard({ mechanism }: { mechanism: DefenseMechanism }) {
-  const statusColors = {
-    implemented: 'bg-green-500/10 text-green-500 border-green-500/30',
-    planned: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30',
-    future: 'bg-muted text-muted-foreground border-muted',
+  const [showCode, setShowCode] = useState(false);
+
+  const statusConfig = {
+    live: { color: 'bg-green-500/10 text-green-500 border-green-500/30', label: 'Live', icon: <CheckCircle2 className="h-3 w-3 mr-1" /> },
+    development: { color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30', label: 'In Dev', icon: <Clock className="h-3 w-3 mr-1" /> },
+    planned: { color: 'bg-blue-500/10 text-blue-500 border-blue-500/30', label: 'Planned', icon: <Target className="h-3 w-3 mr-1" /> },
   };
 
-  const statusLabels = {
-    implemented: 'Live',
-    planned: 'In Development',
-    future: 'Roadmap',
-  };
+  const config = statusConfig[mechanism.status];
 
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-muted">
-              {mechanism.icon}
-            </div>
+            <div className="p-2 rounded-lg bg-muted">{mechanism.icon}</div>
             <div>
               <CardTitle className="text-base">{mechanism.name}</CardTitle>
-              <CardDescription className="text-xs mt-0.5">
-                {mechanism.description}
-              </CardDescription>
+              <CardDescription className="text-xs mt-0.5">{mechanism.description}</CardDescription>
             </div>
           </div>
-          <Badge variant="outline" className={statusColors[mechanism.status]}>
-            {mechanism.status === 'implemented' && <CheckCircle2 className="h-3 w-3 mr-1" />}
-            {mechanism.status === 'planned' && <Clock className="h-3 w-3 mr-1" />}
-            {statusLabels[mechanism.status]}
+          <Badge variant="outline" className={config.color}>
+            {config.icon}
+            {config.label}
           </Badge>
         </div>
       </CardHeader>
@@ -353,7 +400,7 @@ function MechanismCard({ mechanism }: { mechanism: DefenseMechanism }) {
             <Target className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
             <div>
               <span className="text-muted-foreground">Trigger: </span>
-              <span>{mechanism.trigger}</span>
+              <span className="font-medium">{mechanism.trigger}</span>
             </div>
           </div>
         )}
@@ -376,8 +423,68 @@ function MechanismCard({ mechanism }: { mechanism: DefenseMechanism }) {
             </ul>
           </div>
         )}
+        {mechanism.soliditySnippet && (
+          <div className="pt-2">
+            <button
+              onClick={() => setShowCode(!showCode)}
+              className="text-[10px] text-primary hover:underline flex items-center gap-1"
+            >
+              <Code className="h-3 w-3" />
+              {showCode ? 'Hide' : 'Show'} Solidity Reference
+            </button>
+            {showCode && (
+              <pre className="mt-2 p-3 bg-muted rounded-lg text-[10px] font-mono overflow-x-auto whitespace-pre-wrap border border-border/50">
+                {mechanism.soliditySnippet}
+              </pre>
+            )}
+          </div>
+        )}
+        {mechanism.reference && (
+          <p className="text-[10px] text-muted-foreground italic pt-1">
+            📚 {mechanism.reference}
+          </p>
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+function TierSection({ 
+  tier, 
+  title, 
+  subtitle, 
+  mechanisms, 
+  color, 
+  icon 
+}: { 
+  tier: number; 
+  title: string; 
+  subtitle: string; 
+  mechanisms: DefenseMechanism[]; 
+  color: string; 
+  icon: React.ReactNode;
+}) {
+  return (
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`p-2 rounded-lg ${color}`}>
+          {icon}
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            Tier {tier}: {title}
+          </h2>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {mechanisms.map((m) => (
+          <motion.div key={m.id} variants={fadeIn}>
+            <MechanismCard mechanism={m} />
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
   );
 }
 
@@ -385,7 +492,6 @@ export default function AdminMarketDefenseMechanisms() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
-  // Loading and auth checks
   if (authLoading || adminLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -394,9 +500,7 @@ export default function AdminMarketDefenseMechanisms() {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+  if (!user) return <Navigate to="/auth" replace />;
 
   if (!isAdmin) {
     return (
@@ -412,14 +516,13 @@ export default function AdminMarketDefenseMechanisms() {
   }
 
   const getExportData = () => {
-    const allMechanisms = [
-      ...implementedMechanisms.map(m => ({ ...m, category: 'Implemented' })),
-      ...plannedMechanisms.map(m => ({ ...m, category: 'Planned' })),
-      ...futureMechanisms.map(m => ({ ...m, category: 'Future' })),
+    const all = [
+      ...tier1Mechanisms.map(m => ({ ...m, tier: 'Tier 1: Critical' })),
+      ...tier2Mechanisms.map(m => ({ ...m, tier: 'Tier 2: High Priority' })),
+      ...tier3Mechanisms.map(m => ({ ...m, tier: 'Tier 3: Advanced' })),
     ];
-    
-    return allMechanisms.map(m => ({
-      category: m.category,
+    return all.map(m => ({
+      tier: m.tier,
       name: m.name,
       description: m.description,
       trigger: m.trigger || 'Always Active',
@@ -431,69 +534,219 @@ export default function AdminMarketDefenseMechanisms() {
   return (
     <div className="container max-w-6xl py-6 space-y-8">
       {/* Header */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-      >
+      <motion.div initial="hidden" animate="visible" variants={fadeIn} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <Shield className="h-8 w-8 text-primary" />
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Market Defense Mechanisms
+              Anti-Crash Defense Framework
             </h1>
           </div>
           <p className="text-muted-foreground">
-            Counter-cyclical protections for crypto market downturns
+            Three-tier counter-cyclical protection system — lessons from Terra, Olympus, and Iron Finance
           </p>
         </div>
-        <ExportButtons 
-          pageTitle="Market Defense Mechanisms" 
-          getData={getExportData}
-        />
+        <ExportButtons pageTitle="Anti-Crash Defense Framework" getData={getExportData} />
       </motion.div>
 
-      {/* Core Thesis */}
+      {/* Core Stats Banner */}
       <motion.div variants={fadeIn} initial="hidden" animate="visible">
-        <Card className="bg-gradient-to-br from-primary/5 via-transparent to-solar/5 border-primary/20">
+        <Card className="bg-gradient-to-br from-primary/5 via-transparent to-destructive/5 border-primary/20">
           <CardContent className="py-6">
-            <div className="flex flex-col md:flex-row md:items-center gap-6">
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-2">
-                  Why $ZSOLAR Resists Crypto Winters
-                </h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Unlike speculative tokens tied to market sentiment, $ZSOLAR is anchored to 
-                  <span className="text-primary font-medium"> real-world utility</span> and 
-                  <span className="text-solar font-medium"> subscription revenue</span>—both 
-                  continue regardless of Bitcoin's price.
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div className="p-3 rounded-lg bg-background/80">
-                    <p className="text-xl font-bold text-destructive">{formatPercent(MINT_DISTRIBUTION.burn)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">Mint Burn</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-background/80">
-                    <p className="text-xl font-bold text-solar">{formatPercent(TRANSFER_TAX.total)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">Transfer Tax</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-background/80">
-                    <p className="text-xl font-bold text-green-500">{formatPercent(SUBSCRIPTION.lpContribution)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">Sub → LP</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-background/80">
-                    <p className="text-xl font-bold text-primary">${PRICES.launchFloor}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">Floor Price</p>
-                  </div>
-                </div>
+            <h2 className="text-lg font-semibold mb-4">Current Defense Stack</h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+              <div className="p-3 rounded-lg bg-background/80">
+                <p className="text-xl font-bold text-destructive">{formatPercent(MINT_DISTRIBUTION.burn)}</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Mint Burn</p>
+              </div>
+              <div className="p-3 rounded-lg bg-background/80">
+                <p className="text-xl font-bold text-orange-500">{formatPercent(TRANSFER_TAX.total)}</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Transfer Tax</p>
+              </div>
+              <div className="p-3 rounded-lg bg-background/80">
+                <p className="text-xl font-bold text-green-500">{formatPercent(SUBSCRIPTION.lpContribution)}</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Sub → LP</p>
+              </div>
+              <div className="p-3 rounded-lg bg-background/80">
+                <p className="text-xl font-bold text-primary">${PRICES.launchFloor}</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Floor Price</p>
+              </div>
+              <div className="p-3 rounded-lg bg-background/80">
+                <p className="text-xl font-bold text-cyan-500">60/40</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Treasury Rule</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Counter-Cyclical Flywheel Diagram */}
+      {/* Failed Protocol Lessons */}
+      <motion.div variants={fadeIn} initial="hidden" animate="visible">
+        <Card className="border-destructive/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Why Others Failed — What We Learned
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {failedProtocols.map((p) => (
+                <div key={p.name} className="p-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-sm text-destructive">☠ {p.name}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">{p.failure}</p>
+                  <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    ✓ Our answer: {p.lesson}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <Separator />
+
+      {/* === TIER 1: CRITICAL === */}
+      <TierSection
+        tier={1}
+        title="Critical"
+        subtitle="Existential threat defenses — prevents death spirals and flash crashes"
+        mechanisms={tier1Mechanisms}
+        color="bg-red-500/10"
+        icon={<ShieldAlert className="h-5 w-5 text-red-500" />}
+      />
+
+      {/* Progressive Sell Tax Detail Table */}
+      <motion.div variants={fadeIn} initial="hidden" animate="visible">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <BarChart3 className="h-5 w-5 text-orange-500" />
+              Progressive Sell Tax Brackets (Detail)
+            </CardTitle>
+            <CardDescription>
+              Retail users pay standard 7% — whale dumps face up to 40% friction
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 px-2 font-semibold text-xs">Sell Size (% of Supply)</th>
+                    <th className="text-left py-2 px-2 font-semibold text-xs">Approx. Dollar Value</th>
+                    <th className="text-center py-2 px-2 font-semibold text-xs">Tax Rate</th>
+                    <th className="text-left py-2 px-2 font-semibold text-xs">Tax Split</th>
+                    <th className="text-left py-2 px-2 font-semibold text-xs">Intent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sellTaxBrackets.map((b, i) => (
+                    <tr key={i} className="border-b border-border/50">
+                      <td className="py-2 px-2 text-xs font-mono">{b.bracket}</td>
+                      <td className="py-2 px-2 text-xs text-muted-foreground">{b.dollarExample}</td>
+                      <td className="py-2 px-2 text-center">
+                        <Badge variant="outline" className={
+                          i === 0 ? 'text-green-500 border-green-500/30' :
+                          i === 1 ? 'text-yellow-500 border-yellow-500/30' :
+                          i === 2 ? 'text-orange-500 border-orange-500/30' :
+                          'text-red-500 border-red-500/30'
+                        }>
+                          {b.tax}
+                        </Badge>
+                      </td>
+                      <td className="py-2 px-2 text-[10px] text-muted-foreground">{b.taxSplit}</td>
+                      <td className="py-2 px-2 text-xs">{b.intent}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-3">
+              * Dollar values assume $1B fully diluted market cap. Wallet-level tracking prevents split-sell circumvention via 24-hour rolling window.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <Separator />
+
+      {/* === TIER 2: HIGH PRIORITY === */}
+      <TierSection
+        tier={2}
+        title="High Priority"
+        subtitle="Operational resilience — ensures protocol survives prolonged bear markets"
+        mechanisms={tier2Mechanisms}
+        color="bg-yellow-500/10"
+        icon={<ShieldCheck className="h-5 w-5 text-yellow-500" />}
+      />
+
+      {/* Treasury Diversification Visual */}
+      <motion.div variants={fadeIn} initial="hidden" animate="visible">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <PieChart className="h-5 w-5 text-blue-500" />
+              Treasury Diversification Target (60/40 Rule)
+            </CardTitle>
+            <CardDescription>
+              Never hold {">"} 40% of treasury in native token — lesson from Olympus DAO collapse
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Visual bar */}
+            <div className="flex h-8 rounded-lg overflow-hidden">
+              {treasuryAllocation.map((a) => (
+                <div
+                  key={a.asset}
+                  className={`${a.color} flex items-center justify-center`}
+                  style={{ width: `${a.percentage}%` }}
+                >
+                  <span className="text-[10px] font-bold text-white drop-shadow-sm">
+                    {a.percentage}%
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {treasuryAllocation.map((a) => (
+                <div key={a.asset} className="p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className={`h-3 w-3 rounded-full ${a.color}`} />
+                    <span className="font-semibold text-sm">{a.asset}</span>
+                    <span className="text-xs text-muted-foreground ml-auto">{a.percentage}%</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">{a.purpose}</p>
+                </div>
+              ))}
+            </div>
+            <div className="p-3 bg-blue-500/5 rounded-lg border border-blue-500/20">
+              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                🎯 Key metric: 60% non-$ZSOLAR reserves = 18+ months operational runway even if token drops 90%
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <Separator />
+
+      {/* === TIER 3: ADVANCED === */}
+      <TierSection
+        tier={3}
+        title="Advanced"
+        subtitle="Long-term moat — establishes fundamental value floor and adaptive mechanics"
+        mechanisms={tier3Mechanisms}
+        color="bg-blue-500/10"
+        icon={<Layers className="h-5 w-5 text-blue-500" />}
+      />
+
+      <Separator />
+
+      {/* Counter-Cyclical Flywheel */}
       <motion.div variants={fadeIn} initial="hidden" animate="visible">
         <Card>
           <CardHeader>
@@ -501,38 +754,25 @@ export default function AdminMarketDefenseMechanisms() {
               <Activity className="h-5 w-5 text-primary" />
               The Counter-Cyclical Flywheel
             </CardTitle>
-            <CardDescription>
-              How $ZSOLAR maintains stability when crypto markets crash
-            </CardDescription>
+            <CardDescription>How all three tiers work together during a crash</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
               {[
-                { step: 1, icon: <TrendingDown className="h-6 w-6" />, label: 'BTC Drops', color: 'text-destructive' },
-                { step: 2, icon: <Zap className="h-6 w-6" />, label: 'Solar Still Produces', color: 'text-solar' },
-                { step: 3, icon: <Coins className="h-6 w-6" />, label: 'Users Still Earn', color: 'text-primary' },
-                { step: 4, icon: <DollarSign className="h-6 w-6" />, label: 'Subs Still Pay', color: 'text-green-500' },
-                { step: 5, icon: <Shield className="h-6 w-6" />, label: 'Floor Holds', color: 'text-cyan-500' },
-              ].map((item, i) => (
+                { step: 1, icon: <TrendingDown className="h-6 w-6" />, label: 'BTC Crashes', sublabel: 'Market panic', color: 'text-destructive' },
+                { step: 2, icon: <Zap className="h-6 w-6" />, label: 'Energy Unaffected', sublabel: 'Solar still produces', color: 'text-primary' },
+                { step: 3, icon: <Scale className="h-6 w-6" />, label: 'Taxes Scale Up', sublabel: 'Progressive + dynamic', color: 'text-orange-500' },
+                { step: 4, icon: <DollarSign className="h-6 w-6" />, label: 'Revenue Buys Back', sublabel: 'Auto floor defense', color: 'text-green-500' },
+                { step: 5, icon: <Shield className="h-6 w-6" />, label: 'Floor Holds', sublabel: 'Price recovers', color: 'text-cyan-500' },
+              ].map((item) => (
                 <div key={item.step} className="flex flex-col items-center">
                   <div className={`p-4 rounded-full bg-muted mb-2 ${item.color}`}>
                     {item.icon}
                   </div>
                   <p className="text-sm font-medium">{item.label}</p>
-                  {i < 4 && (
-                    <div className="hidden md:block absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2">
-                      <ArrowDown className="h-4 w-4 text-muted-foreground rotate-[-90deg]" />
-                    </div>
-                  )}
+                  <p className="text-[10px] text-muted-foreground">{item.sublabel}</p>
                 </div>
               ))}
-            </div>
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-center text-muted-foreground">
-                <span className="font-semibold text-foreground">Result:</span> While speculative tokens crash with BTC, 
-                $ZSOLAR's price floor is maintained by continuous fiat revenue injection—creating a 
-                <span className="text-primary font-semibold"> "crypto hedge" narrative</span>.
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -546,33 +786,30 @@ export default function AdminMarketDefenseMechanisms() {
               <GitBranch className="h-5 w-5 text-primary" />
               Smart Contract Upgrade Path
             </CardTitle>
-            <CardDescription>
-              What's deployed at launch vs. what requires V2 upgrade or separate contracts
-            </CardDescription>
+            <CardDescription>Phased deployment — no migration required for Tier 1</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* V1 - Deployed */}
+            {/* V1 */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Badge className="bg-green-500/10 text-green-500 border-green-500/30">
-                  <Rocket className="h-3 w-3 mr-1" />
-                  V1 Deployed
+                  <Rocket className="h-3 w-3 mr-1" /> V1 Deployed
                 </Badge>
                 <span className="text-sm text-muted-foreground">Live in ZSOLAR.sol</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {v1Features.map((feature) => (
-                  <div key={feature.name} className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                {v1Features.map((f) => (
+                  <div key={f.name} className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-medium text-sm">{feature.name}</p>
-                        <p className="text-xs text-muted-foreground">{feature.description}</p>
+                        <p className="font-medium text-sm">{f.name}</p>
+                        <p className="text-xs text-muted-foreground">{f.description}</p>
                       </div>
                       <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
                     </div>
-                    {feature.contractMethod && (
+                    {f.contractMethod && (
                       <code className="mt-2 block text-[10px] text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-1 rounded">
-                        {feature.contractMethod}
+                        {f.contractMethod}
                       </code>
                     )}
                   </div>
@@ -582,28 +819,27 @@ export default function AdminMarketDefenseMechanisms() {
 
             <Separator />
 
-            {/* Separate Contracts - Post-Launch */}
+            {/* Separate Contracts */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/30">
-                  <Package className="h-3 w-3 mr-1" />
-                  Separate Contracts
+                  <Package className="h-3 w-3 mr-1" /> Separate Contracts
                 </Badge>
-                <span className="text-sm text-muted-foreground">Deploy independently post-launch</span>
+                <span className="text-sm text-muted-foreground">Deploy independently (no migration)</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {separateContracts.map((feature) => (
-                  <div key={feature.name} className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {separateContracts.map((f) => (
+                  <div key={f.name} className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-medium text-sm">{feature.name}</p>
-                        <p className="text-xs text-muted-foreground">{feature.description}</p>
+                        <p className="font-medium text-sm">{f.name}</p>
+                        <p className="text-xs text-muted-foreground">{f.description}</p>
                       </div>
                       <Code className="h-4 w-4 text-blue-500 flex-shrink-0" />
                     </div>
-                    {feature.contractMethod && (
+                    {f.contractMethod && (
                       <code className="mt-2 block text-[10px] text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
-                        {feature.contractMethod}
+                        {f.contractMethod}
                       </code>
                     )}
                   </div>
@@ -613,254 +849,76 @@ export default function AdminMarketDefenseMechanisms() {
 
             <Separator />
 
-            {/* V2 - Future Upgrade */}
+            {/* V2 */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/30">
-                  <GitBranch className="h-3 w-3 mr-1" />
-                  V2 Upgrade
+                  <GitBranch className="h-3 w-3 mr-1" /> V2 Upgrade
                 </Badge>
-                <span className="text-sm text-muted-foreground">Requires token contract upgrade</span>
+                <span className="text-sm text-muted-foreground">Requires token migration</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {v2Features.map((feature) => (
-                  <div key={feature.name} className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                {v2Features.map((f) => (
+                  <div key={f.name} className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-medium text-sm">{feature.name}</p>
-                        <p className="text-xs text-muted-foreground">{feature.description}</p>
+                        <p className="font-medium text-sm">{f.name}</p>
+                        <p className="text-xs text-muted-foreground">{f.description}</p>
                       </div>
                       <Clock className="h-4 w-4 text-purple-500 flex-shrink-0" />
                     </div>
-                    {feature.contractMethod && (
+                    {f.contractMethod && (
                       <code className="mt-2 block text-[10px] text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-1 rounded">
-                        {feature.contractMethod}
+                        {f.contractMethod}
                       </code>
                     )}
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                Note: V2 features require a token migration or proxy upgrade pattern. 
-                These should only be considered if market conditions demand stronger protections.
-              </p>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      <Separator />
-
-      {/* Implemented Mechanisms */}
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible">
-        <div className="flex items-center gap-3 mb-4">
-          <Badge className="bg-green-500/10 text-green-500 border-green-500/30">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
-            Implemented
-          </Badge>
-          <h2 className="text-lg font-semibold">Active Defense Mechanisms</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {implementedMechanisms.map((mechanism) => (
-            <motion.div key={mechanism.id} variants={fadeIn}>
-              <MechanismCard mechanism={mechanism} />
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Planned Mechanisms */}
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible">
-        <div className="flex items-center gap-3 mb-4">
-          <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
-            <Clock className="h-3 w-3 mr-1" />
-            In Development
-          </Badge>
-          <h2 className="text-lg font-semibold">Planned Mechanisms</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {plannedMechanisms.map((mechanism) => (
-            <motion.div key={mechanism.id} variants={fadeIn}>
-              <MechanismCard mechanism={mechanism} />
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Future Mechanisms */}
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible">
-        <div className="flex items-center gap-3 mb-4">
-          <Badge variant="secondary">
-            <Target className="h-3 w-3 mr-1" />
-            Future Roadmap
-          </Badge>
-          <h2 className="text-lg font-semibold">Future Considerations</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {futureMechanisms.map((mechanism) => (
-            <motion.div key={mechanism.id} variants={fadeIn}>
-              <MechanismCard mechanism={mechanism} />
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Crypto Winter Resilience Section */}
+      {/* Crypto Winter Resilience Comparison */}
       <motion.div variants={fadeIn} initial="hidden" animate="visible">
         <Card className="bg-gradient-to-br from-cyan-500/5 via-transparent to-primary/5 border-cyan-500/20">
           <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-cyan-500/10">
-                <TrendingDown className="h-6 w-6 text-cyan-500" />
-              </div>
-              <div>
-                <CardTitle className="text-xl">Crypto Winter Resilience</CardTitle>
-                <CardDescription>
-                  How $ZSOLAR's counter-cyclical design performs during market crashes
-                </CardDescription>
-              </div>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 text-cyan-500" />
+              Crypto Winter Resilience Comparison
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Market Comparison Table */}
+          <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-3 px-2 font-semibold">Scenario</th>
                     <th className="text-center py-3 px-2 font-semibold text-orange-500">Bitcoin</th>
-                    <th className="text-center py-3 px-2 font-semibold text-blue-500">Ethereum</th>
                     <th className="text-center py-3 px-2 font-semibold text-purple-500">Typical Alt</th>
-                    <th className="text-center py-3 px-2 font-semibold text-solar">$ZSOLAR</th>
+                    <th className="text-center py-3 px-2 font-semibold text-primary">$ZSOLAR</th>
+                    <th className="text-center py-3 px-2 font-semibold text-green-500">Why</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-border/50">
-                    <td className="py-3 px-2 text-muted-foreground">30% BTC crash</td>
-                    <td className="py-3 px-2 text-center text-destructive font-mono">-30%</td>
-                    <td className="py-3 px-2 text-center text-destructive font-mono">-35-45%</td>
-                    <td className="py-3 px-2 text-center text-destructive font-mono">-50-70%</td>
-                    <td className="py-3 px-2 text-center text-green-500 font-mono font-semibold">Floor Held ✓</td>
-                  </tr>
-                  <tr className="border-b border-border/50">
-                    <td className="py-3 px-2 text-muted-foreground">LP depth during crash</td>
-                    <td className="py-3 px-2 text-center text-destructive">Drained</td>
-                    <td className="py-3 px-2 text-center text-destructive">Drained</td>
-                    <td className="py-3 px-2 text-center text-destructive">Rugged</td>
-                    <td className="py-3 px-2 text-center text-green-500 font-semibold">+Growing</td>
-                  </tr>
-                  <tr className="border-b border-border/50">
-                    <td className="py-3 px-2 text-muted-foreground">Revenue during downturn</td>
-                    <td className="py-3 px-2 text-center text-yellow-500">Mining fees only</td>
-                    <td className="py-3 px-2 text-center text-yellow-500">Gas fees drop</td>
-                    <td className="py-3 px-2 text-center text-destructive">Zero</td>
-                    <td className="py-3 px-2 text-center text-green-500 font-semibold">Subs continue</td>
-                  </tr>
-                  <tr className="border-b border-border/50">
-                    <td className="py-3 px-2 text-muted-foreground">User activity</td>
-                    <td className="py-3 px-2 text-center text-destructive">Drops 60%+</td>
-                    <td className="py-3 px-2 text-center text-destructive">Drops 60%+</td>
-                    <td className="py-3 px-2 text-center text-destructive">Ghost town</td>
-                    <td className="py-3 px-2 text-center text-green-500 font-semibold">Unchanged*</td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 px-2 text-muted-foreground">Supply during crash</td>
-                    <td className="py-3 px-2 text-center text-yellow-500">Fixed issuance</td>
-                    <td className="py-3 px-2 text-center text-yellow-500">Slight burn</td>
-                    <td className="py-3 px-2 text-center text-destructive">Unlock dumps</td>
-                    <td className="py-3 px-2 text-center text-green-500 font-semibold">Accelerated burn</td>
-                  </tr>
+                  {[
+                    { scenario: '30% BTC crash', btc: '-30%', alt: '-50-70%', zsolar: 'Floor Held ✓', why: 'Revenue buybacks + circuit breaker' },
+                    { scenario: 'LP depth', btc: 'Drained', alt: 'Rugged', zsolar: '+Growing', why: 'Fiat subscription injection' },
+                    { scenario: 'Revenue', btc: 'Fees drop', alt: 'Zero', zsolar: 'Subs continue', why: 'Non-crypto revenue stream' },
+                    { scenario: 'Whale dump', btc: 'Cascades', alt: 'Death spiral', zsolar: '40% tax wall', why: 'Progressive sell tax' },
+                    { scenario: 'Supply', btc: 'Fixed', alt: 'Unlock dumps', zsolar: 'Accelerated burn', why: 'Dynamic oracle burn' },
+                  ].map((row, i) => (
+                    <tr key={i} className="border-b border-border/50">
+                      <td className="py-2 px-2 text-muted-foreground text-xs">{row.scenario}</td>
+                      <td className="py-2 px-2 text-center text-destructive font-mono text-xs">{row.btc}</td>
+                      <td className="py-2 px-2 text-center text-destructive font-mono text-xs">{row.alt}</td>
+                      <td className="py-2 px-2 text-center text-green-500 font-semibold text-xs">{row.zsolar}</td>
+                      <td className="py-2 px-2 text-center text-xs text-muted-foreground">{row.why}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
-              <p className="text-[10px] text-muted-foreground mt-2">
-                *Solar panels produce regardless of crypto prices. EVs are driven regardless of Bitcoin.
-              </p>
-            </div>
-
-            <Separator />
-
-            {/* The Secret Weapon: Fiat-Backed LP */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-green-500" />
-                  The Secret Weapon: Fiat-Backed LP
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Most token liquidity pools are funded with crypto (ETH, USDC from crypto sources). 
-                  When markets crash, LPs get drained as holders panic sell.
-                </p>
-                <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                  <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                    $ZSOLAR's LP is fed by subscription revenue—real fiat money from credit cards and bank accounts.
-                  </p>
-                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                    <li>• Users pay $9.99-$19.99/month regardless of BTC price</li>
-                    <li>• 50% of every payment goes directly to LP</li>
-                    <li>• This creates constant buy pressure during crashes</li>
-                    <li>• At 25K subs: ~$75K/month entering LP automatically</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Flame className="h-4 w-4 text-destructive" />
-                  Panic Selling Actually Helps
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Our 7% transfer tax means every panic sell strengthens the floor:
-                </p>
-                <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
-                  <p className="text-sm font-medium text-destructive">
-                    When someone sells $10,000 of $ZSOLAR during a crash:
-                  </p>
-                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                    <li>• <span className="text-destructive font-semibold">$300</span> worth burned permanently (3%)</li>
-                    <li>• <span className="text-green-500 font-semibold">$200</span> worth added to LP depth (2%)</li>
-                    <li>• <span className="text-primary font-semibold">$200</span> to treasury for buybacks (2%)</li>
-                    <li className="pt-2 font-medium text-foreground">
-                      = Seller gets $9,300, ecosystem gets stronger
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Historical Comparison - What Would Have Happened */}
-            <div>
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Activity className="h-4 w-4 text-primary" />
-                Simulated Performance: 2022 Crypto Winter
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                If $ZSOLAR had existed during the 2022 bear market (BTC: -77%, ETH: -82%):
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-2xl font-bold text-green-500">~$0.10</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Projected floor maintained via subscription injection
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-2xl font-bold text-solar">+40%</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Projected supply reduction from panic-sell burns
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-2xl font-bold text-primary">Stable</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    User activity (energy production) unaffected by crypto
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-4 italic">
-                Note: This is a simulation based on our tokenomics model. Actual results depend on subscriber count and market conditions.
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -875,34 +933,28 @@ export default function AdminMarketDefenseMechanisms() {
               Investor Narrative
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <div className="p-4 bg-primary/5 rounded-lg">
               <p className="text-sm italic">
-                "$ZSOLAR is designed as a <span className="font-semibold text-primary">non-correlated crypto asset</span>. 
-                When Bitcoin crashes 50%, our token maintains its floor because:
+                "$ZSOLAR implements a <span className="font-semibold text-primary">three-tier anti-crash framework</span> informed by the failures of Terra/Luna, Olympus DAO, and Iron Finance:
               </p>
               <ol className="mt-3 space-y-2 text-sm">
                 <li className="flex items-start gap-2">
-                  <span className="font-bold text-primary">1.</span>
-                  <span>Users don't stop driving EVs or producing solar when BTC drops</span>
+                  <span className="font-bold text-red-500">T1.</span>
+                  <span><strong>Existential defense:</strong> Automated buybacks, ERC-7265 circuit breakers, and progressive sell tax (7–40%) prevent flash crashes</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="font-bold text-primary">2.</span>
-                  <span>Subscription revenue is fiat-denominated and keeps flowing</span>
+                  <span className="font-bold text-yellow-500">T2.</span>
+                  <span><strong>Operational resilience:</strong> 60/40 treasury diversification ensures 18-month runway; real yield staking pays USDC not inflated tokens</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="font-bold text-primary">3.</span>
-                  <span>Our deflationary mechanisms accelerate during stress periods</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-primary">4.</span>
-                  <span>Treasury buybacks create automated floor defense</span>
+                  <span className="font-bold text-blue-500">T3.</span>
+                  <span><strong>Fundamental floor:</strong> Chainlink oracle-driven dynamic burns and energy-backed token valuation establish non-speculative price support</span>
                 </li>
               </ol>
               <p className="mt-4 text-sm font-medium">
-                This makes $ZSOLAR a unique position in any crypto portfolio—a utility token that 
-                can actually <span className="text-solar">appreciate during bear markets</span> as 
-                users continue earning and the burn mechanics reduce supply."
+                The result: a utility token that can <span className="text-primary">appreciate during bear markets</span> as 
+                fiat revenue injects into LP, burns accelerate, and user activity continues regardless of crypto sentiment."
               </p>
             </div>
           </CardContent>
