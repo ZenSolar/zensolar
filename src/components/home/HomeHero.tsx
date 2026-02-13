@@ -3,10 +3,17 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
-import teslaLogo from '@/assets/logos/tesla-logo.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import solaredgeLogo from '@/assets/logos/solaredge-logo.svg';
-import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
+import solaredgeLogo from '@/assets/logos/solaredge-wordmark.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+
+const brandLogos = [
+  { src: teslaLogo, alt: 'Tesla', style: 'h-7 md:h-9' },
+  { src: enphaseLogo, alt: 'Enphase', style: 'h-5 md:h-6' },
+  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-5 md:h-6' },
+  { src: wallboxLogo, alt: 'Wallbox', style: 'h-7 md:h-9' },
+];
 
 export function HomeHero() {
   return (
@@ -108,26 +115,30 @@ export function HomeHero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.6 }}
-            className="w-full max-w-md pt-6"
+            className="w-full max-w-2xl pt-8"
           >
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="flex items-center justify-center gap-8">
-              {[
-                { src: teslaLogo, alt: 'Tesla' },
-                { src: enphaseLogo, alt: 'Enphase' },
-                { src: solaredgeLogo, alt: 'SolarEdge' },
-                { src: wallboxLogo, alt: 'Wallbox' },
-              ].map(({ src, alt }, idx) => (
-                <motion.img
-                  key={alt}
-                  src={src}
-                  alt={alt}
-                  className="h-6 md:h-7 w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-300"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 0.5, y: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
-                />
-              ))}
+            <div className="relative overflow-hidden rounded-lg py-2">
+              {/* Subtle shimmer sweep */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -skew-x-12 pointer-events-none"
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{ duration: 4, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
+              />
+              <div className="flex items-center justify-center gap-6 md:gap-10 flex-wrap">
+                {brandLogos.map(({ src, alt, style }, idx) => (
+                  <motion.img
+                    key={alt}
+                    src={src}
+                    alt={alt}
+                    className={`${style} object-contain opacity-40 hover:opacity-90 transition-all duration-500 dark:invert dark:hover:invert-0 hover:grayscale-0 grayscale`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 0.4, y: 0 }}
+                    transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
+                    whileHover={{ scale: 1.05 }}
+                  />
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
