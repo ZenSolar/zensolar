@@ -57,7 +57,7 @@ export function HomeHero() {
             className="text-[clamp(1.05rem,2.5vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed text-center"
           >
             <p className="mb-4">
-              Earn <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
+              ZenSolar rewards solar users and EV drivers with <span className="text-primary font-semibold">$ZSOLAR tokens</span> and <span className="text-primary font-semibold">NFTs</span> for:
             </p>
             <ul className="space-y-2 text-left inline-block text-[clamp(0.9rem,2.5vw,1.05rem)]">
               <li className="flex items-center gap-2.5">
