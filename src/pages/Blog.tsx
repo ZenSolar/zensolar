@@ -8,6 +8,46 @@ import { ArrowRight, Calendar } from 'lucide-react';
 
 const posts = [
   {
+    slug: 'tesla-solar-panel-crypto-rewards',
+    title: 'Tesla Solar Panel Crypto Rewards: How to Earn $ZSOLAR With Your Powerwall',
+    excerpt: 'Discover how Tesla solar panel and Powerwall owners can earn $ZSOLAR crypto tokens automatically for every kWh produced and stored.',
+    date: '2026-02-13',
+    category: 'Guide',
+    readTime: '7 min read',
+  },
+  {
+    slug: 'enphase-solar-blockchain',
+    title: 'Enphase Solar Blockchain Integration: Earn Crypto With Microinverters',
+    excerpt: 'How Enphase IQ microinverter owners can earn blockchain-verified $ZSOLAR crypto tokens for every kWh of solar energy produced.',
+    date: '2026-02-13',
+    category: 'Guide',
+    readTime: '6 min read',
+  },
+  {
+    slug: 'ev-charging-crypto-earnings',
+    title: 'EV Charging Crypto Earnings: How Electric Vehicle Owners Earn $ZSOLAR',
+    excerpt: 'Electric vehicle owners earn $ZSOLAR tokens for every kWh charged and every mile driven. Learn how EV charging becomes a reward-earning activity.',
+    date: '2026-02-12',
+    category: 'Guide',
+    readTime: '7 min read',
+  },
+  {
+    slug: 'v2g-v2h-bidirectional-ev-charging',
+    title: 'V2G, V2H, and V2X: How Bi-Directional EV Charging Creates Blockchain Rewards',
+    excerpt: 'Bi-directional EV charging (V2G, V2H, V2X) lets your EV power your home and the grid. Learn how ZenSolar rewards this with $ZSOLAR tokens.',
+    date: '2026-02-11',
+    category: 'Technology',
+    readTime: '8 min read',
+  },
+  {
+    slug: 'virtual-power-plant-vpp',
+    title: 'Virtual Power Plants (VPP): How Your Home Battery and EV Power the Grid — and Earn Crypto',
+    excerpt: 'Virtual Power Plants aggregate solar panels, batteries, and EVs into a grid-scale resource. Learn how VPP participants earn $ZSOLAR blockchain rewards.',
+    date: '2026-02-10',
+    category: 'Technology',
+    readTime: '8 min read',
+  },
+  {
     slug: 'what-is-solar-energy-blockchain-rewards',
     title: 'What Are Solar Energy Blockchain Rewards?',
     excerpt: 'Learn how blockchain technology is creating a new way for solar panel owners to earn passive income from every kilowatt-hour they produce.',

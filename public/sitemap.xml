@@ -26,9 +26,39 @@
   </url>
   <url>
     <loc>https://zensolar.com/blog</loc>
-    <lastmod>2026-02-12</lastmod>
+    <lastmod>2026-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zensolar.com/blog/tesla-solar-panel-crypto-rewards</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://zensolar.com/blog/enphase-solar-blockchain</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://zensolar.com/blog/ev-charging-crypto-earnings</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://zensolar.com/blog/v2g-v2h-bidirectional-ev-charging</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://zensolar.com/blog/virtual-power-plant-vpp</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zensolar.com/blog/what-is-solar-energy-blockchain-rewards</loc>
