@@ -98,7 +98,11 @@ const BlogProofOfDelta = lazy(() => import("./pages/blog/ProofOfDeltaExplained")
 const BlogTeslaSolar = lazy(() => import("./pages/blog/TeslaSolarCryptoRewards"));
 const BlogEnphase = lazy(() => import("./pages/blog/EnphaseSolarBlockchain"));
 const BlogEVCharging = lazy(() => import("./pages/blog/EVChargingCryptoEarnings"));
-const BlogV2G = lazy(() => import("./pages/blog/V2GV2HBidirectionalCharging"));
+const BlogV2GHub = lazy(() => import("./pages/blog/V2GV2HBidirectionalCharging"));
+const BlogV2G = lazy(() => import("./pages/blog/V2GVehicleToGrid"));
+const BlogV2H = lazy(() => import("./pages/blog/V2HVehicleToHome"));
+const BlogV2X = lazy(() => import("./pages/blog/V2XVehicleToEverything"));
+const BlogV2L = lazy(() => import("./pages/blog/V2LVehicleToLoad"));
 const BlogVPP = lazy(() => import("./pages/blog/VirtualPowerPlantVPP"));
 
 // Minimal loading fallback
@@ -176,7 +180,11 @@ const App = () => {
                     <Route path="/blog/tesla-solar-panel-crypto-rewards" element={<BlogTeslaSolar />} />
                     <Route path="/blog/enphase-solar-blockchain" element={<BlogEnphase />} />
                     <Route path="/blog/ev-charging-crypto-earnings" element={<BlogEVCharging />} />
-                    <Route path="/blog/v2g-v2h-bidirectional-ev-charging" element={<BlogV2G />} />
+                    <Route path="/blog/v2g-v2h-bidirectional-ev-charging" element={<BlogV2GHub />} />
+                    <Route path="/blog/v2g-vehicle-to-grid" element={<BlogV2G />} />
+                    <Route path="/blog/v2h-vehicle-to-home" element={<BlogV2H />} />
+                    <Route path="/blog/v2x-vehicle-to-everything" element={<BlogV2X />} />
+                    <Route path="/blog/v2l-vehicle-to-load" element={<BlogV2L />} />
                     <Route path="/blog/virtual-power-plant-vpp" element={<BlogVPP />} />
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/terms" element={<Terms />} />

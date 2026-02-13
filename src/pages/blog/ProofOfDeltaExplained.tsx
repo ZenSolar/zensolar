@@ -1,4 +1,5 @@
 import { BlogArticle } from '@/components/blog/BlogArticle';
+import { Link } from 'react-router-dom';
 
 export default function ProofOfDeltaExplained() {
   return (
@@ -12,7 +13,8 @@ export default function ProofOfDeltaExplained() {
     >
       <h2>The Problem: How Do You Prove Energy Was Actually Produced?</h2>
       <p>
-        If you're going to reward people with real-value tokens for clean energy production,
+        If you're going to reward people with real-value tokens for{' '}
+        <Link to="/blog/what-is-solar-energy-blockchain-rewards" className="text-primary hover:underline">clean energy production</Link>,
         you need to be absolutely certain the energy data is real. Self-reported data can be
         faked. Screenshots can be doctored. Even API data can theoretically be replayed.
       </p>
@@ -42,7 +44,9 @@ export default function ProofOfDeltaExplained() {
         </li>
         <li>
           <strong>Periodic Sampling:</strong> ZenSolar reads your production data at regular
-          intervals through the manufacturer's official API (Tesla, Enphase, or SolarEdge).
+          intervals through the manufacturer's official API ({' '}
+          <Link to="/blog/tesla-solar-panel-crypto-rewards" className="text-primary hover:underline">Tesla</Link>,{' '}
+          <Link to="/blog/enphase-solar-blockchain" className="text-primary hover:underline">Enphase</Link>, or SolarEdge).
         </li>
         <li>
           <strong>Delta Calculation:</strong> The system calculates the difference between
@@ -69,6 +73,18 @@ export default function ProofOfDeltaExplained() {
           specific energy delta on the blockchain</li>
       </ul>
 
+      <h2>Proof-of-Delta for Bi-Directional Charging</h2>
+      <p>
+        Proof-of-Delta isn't limited to solar production. The same system verifies{' '}
+        <Link to="/blog/v2g-v2h-bidirectional-ev-charging" className="text-primary hover:underline">bi-directional EV charging</Link> flows —{' '}
+        <Link to="/blog/v2g-vehicle-to-grid" className="text-primary hover:underline">V2G</Link>,{' '}
+        <Link to="/blog/v2h-vehicle-to-home" className="text-primary hover:underline">V2H</Link>, and{' '}
+        <Link to="/blog/v2l-vehicle-to-load" className="text-primary hover:underline">V2L</Link> discharge.
+        It also powers the verification layer for{' '}
+        <Link to="/blog/virtual-power-plant-vpp" className="text-primary hover:underline">Virtual Power Plant (VPP)</Link> events,
+        ensuring every coordinated discharge is accurately settled.
+      </p>
+
       <h2>The Patent-Pending Innovation</h2>
       <p>
         ZenSolar's Proof-of-Delta system is patent-pending because it represents a novel
@@ -84,6 +100,13 @@ export default function ProofOfDeltaExplained() {
         Base provides Ethereum-level security with fast, low-cost transactions — essential
         for a system that needs to process frequent, small-value energy reward mints without
         prohibitive gas fees.
+      </p>
+
+      <h2>Getting Started</h2>
+      <p>
+        Ready to see Proof-of-Delta in action? Follow our{' '}
+        <Link to="/blog/how-to-earn-crypto-from-solar-panels" className="text-primary hover:underline">step-by-step guide</Link> to
+        connect your solar inverter or EV and start earning verified $ZSOLAR tokens.
       </p>
     </BlogArticle>
   );
