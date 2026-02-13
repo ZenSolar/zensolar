@@ -9,9 +9,9 @@ import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-brand.png';
 
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', style: 'h-6 md:h-8', extra: '' },
-  { src: enphaseLogo, alt: 'Enphase', style: 'h-5 md:h-6', extra: '' },
-  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-7 md:h-8', extra: '' },
+  { src: teslaLogo, alt: 'Tesla', style: 'h-7 md:h-9', extra: '' },
+  { src: enphaseLogo, alt: 'Enphase', style: 'h-6 md:h-7', extra: '' },
+  { src: solaredgeLogo, alt: 'SolarEdge', style: 'h-5 md:h-6', extra: '' },
   { src: wallboxLogo, alt: 'Wallbox', style: 'h-5 md:h-6', extra: 'dark:invert' },
 ];
 
@@ -125,7 +125,7 @@ export function HomeHero() {
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 4, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
               />
-              <div className="flex items-center justify-center gap-6 md:gap-10 flex-wrap">
+              <div className="flex items-center justify-center gap-8 md:gap-12">
                 {brandLogos.map(({ src, alt, style, extra }, idx) => (
                   <motion.img
                     key={alt}
