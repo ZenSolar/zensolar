@@ -39,11 +39,11 @@ export default function Home() {
           <HomeHero />
           <LiveStatsBar />
           <SectionDivider variant="chevron" />
-          <WhyZenSolarSection />
-          <SectionDivider variant="diamond" />
           <HowItWorksSection />
-          <SectionDivider variant="angle" />
+          <SectionDivider variant="diamond" />
           <IntegrationLogos />
+          <SectionDivider variant="angle" />
+          <WhyZenSolarSection />
           <SectionDivider variant="angle" flip />
           <PricingSection />
           <SectionDivider variant="chevron" />
