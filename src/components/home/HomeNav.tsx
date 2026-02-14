@@ -1,13 +1,22 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Menu, X } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
+
+const navLinks = [
+  { href: '#why-zensolar', label: 'Why ZenSolar' },
+  { href: '#how-it-works', label: 'How It Works' },
+  { href: '#pricing', label: 'Pricing' },
+  { href: '#tokenomics', label: 'Tokenomics' },
+  { href: '#faq', label: 'FAQ' },
+];
 
 export function HomeNav() {
   const { setTheme, theme } = useTheme();
   const previousTheme = theme;
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     setTheme('dark');
@@ -27,17 +36,17 @@ export function HomeNav() {
         <Link to="/home" className="flex items-center shrink-0">
           <img src={zenLogo} alt="ZenSolar" width="108" height="32" className="h-8 w-auto dark:animate-logo-glow" />
         </Link>
+
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
-          <a href="#why-zensolar" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Why ZenSolar</a>
-          <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
-          <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
-          <a href="#tokenomics" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Tokenomics</a>
-          <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
+          {navLinks.map((l) => (
+            <a key={l.href} href={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
+          ))}
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
         </nav>
+
         <div className="flex items-center gap-2 sm:gap-4">
-          
-          <Link to="/auth">
+          <Link to="/auth" className="hidden sm:inline-flex">
             <Button variant="ghost" size="sm" className="px-3">Log In</Button>
           </Link>
           <Link to="/auth">
@@ -47,8 +56,47 @@ export function HomeNav() {
               <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </Link>
+
+          {/* Hamburger toggle */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <nav className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl px-4 pb-4 pt-2 flex flex-col gap-1">
+          {navLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={() => setMobileOpen(false)}
+              className="block py-2.5 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+            >
+              {l.label}
+            </a>
+          ))}
+          <Link
+            to="/blog"
+            onClick={() => setMobileOpen(false)}
+            className="block py-2.5 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+          >
+            Blog
+          </Link>
+          <Link
+            to="/auth"
+            onClick={() => setMobileOpen(false)}
+            className="block py-2.5 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+          >
+            Log In
+          </Link>
+        </nav>
+      )}
     </header>
   );
 }
