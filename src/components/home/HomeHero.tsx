@@ -101,7 +101,7 @@ export function HomeHero() {
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 pointer-events-none"
                   animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+                  transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1, ease: 'easeInOut' }}
                 />
                 <Zap className="mr-2 h-5 w-5 relative z-10" />
                 <span className="relative z-10">Try Minting — Free Demo</span>
