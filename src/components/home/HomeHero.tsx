@@ -104,7 +104,7 @@ export function HomeHero() {
                   transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
                 />
                 <Zap className="mr-2 h-5 w-5 relative z-10" />
-                <span className="relative z-10">Mint Your First Tokens</span>
+                <span className="relative z-10">Try Minting — Free Demo</span>
                 <ArrowRight className="ml-2 h-5 w-5 relative z-10" />
               </Button>
             </Link>
