@@ -133,7 +133,7 @@ export function HomeHero() {
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
               />
-              <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 items-center justify-items-center">
+              <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 place-items-center">
                 {brandLogos.map(({ src, alt, extra }, idx) => (
                   <motion.img
                     key={alt}
