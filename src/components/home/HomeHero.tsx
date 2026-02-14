@@ -131,7 +131,7 @@ export function HomeHero() {
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent -skew-x-12 pointer-events-none"
                 animate={{ x: ['-100%', '200%'] }}
-                transition={{ duration: 4, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
               />
               <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 items-center justify-items-center">
                 {brandLogos.map(({ src, alt, extra }, idx) => (
