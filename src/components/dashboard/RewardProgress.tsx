@@ -29,6 +29,7 @@ interface RewardProgressProps {
   nftsEarned: string[];
   lifetimeMinted?: number;
   isNewUser?: boolean;
+  initialCategory?: 'solar' | 'battery' | 'ev_miles' | 'charging';
 }
 
 // Color styles matching landing page gradients
@@ -180,12 +181,13 @@ export function RewardProgress({
   evMilesDriven,
   evChargingKwh,
   batteryDischargedKwh,
+  initialCategory,
 }: RewardProgressProps) {
   // Haptic feedback hook
   const { lightTap } = useHaptics();
   
   // State for selected category (null = auto priority)
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(initialCategory || null);
   
   // Calculate earned milestones for each category
   const solarEarned = calculateEarnedMilestones(solarKwh, SOLAR_MILESTONES);
