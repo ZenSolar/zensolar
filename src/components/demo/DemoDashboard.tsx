@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
@@ -195,6 +196,13 @@ export function DemoDashboard() {
             }}
             demoMintHandler={demoMintHandler}
           />
+        </AnimatedItem>
+
+        {/* Live Energy Flow Diagram */}
+        <AnimatedItem>
+          <div className="rounded-xl overflow-hidden border border-border/50 shadow-lg">
+            <AnimatedEnergyFlow className="w-full" />
+          </div>
         </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
