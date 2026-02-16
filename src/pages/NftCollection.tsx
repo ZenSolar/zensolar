@@ -938,6 +938,12 @@ export default function NftCollection() {
           Earn unique NFTs by reaching milestones in solar production, EV driving, charging, and battery usage. 
           Each achievement is minted on-chain as proof of your clean energy journey.
         </p>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-token/10 border border-token/20">
+          <Sparkles className="h-3.5 w-3.5 text-token" />
+          <span className="text-xs text-token font-medium">
+            Artwork is beta preview — final art upgrades coming at mainnet launch
+          </span>
+        </div>
       </motion.div>
 
       {/* Welcome NFT */}
