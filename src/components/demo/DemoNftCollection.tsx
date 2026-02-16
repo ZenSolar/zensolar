@@ -963,7 +963,7 @@ export function DemoNftCollection() {
         </motion.div>
 
         {/* Category Tabs */}
-        <Tabs defaultValue="solar" className="w-full">
+        <Tabs defaultValue="battery" className="w-full">
           <TabsList className="grid w-full grid-cols-5 h-auto p-1.5 bg-muted/50 rounded-xl">
             {[
               { value: 'solar', icon: Sun, label: 'Solar' },
