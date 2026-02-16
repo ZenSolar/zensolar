@@ -307,6 +307,10 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange, onMint
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <h2 className="text-2xl font-bold text-white drop-shadow-lg">{milestone.name}</h2>
             <p className="text-sm text-white/80">{milestone.description}</p>
+            <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm border border-white/10">
+              <Sparkles className="h-3 w-3 text-amber-400" />
+              <span className="text-[10px] text-white/70">Beta artwork — upgrades coming at mainnet</span>
+            </div>
           </div>
         </div>
 
