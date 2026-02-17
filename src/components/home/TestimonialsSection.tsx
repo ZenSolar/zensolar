@@ -29,7 +29,7 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-[clamp(3rem,8vw,6rem)]">
+    <section id="testimonials" className="py-[clamp(3rem,8vw,6rem)]">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>

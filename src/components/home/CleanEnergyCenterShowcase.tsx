@@ -48,7 +48,7 @@ const kpiItems = [
 
 export function CleanEnergyCenterShowcase() {
   return (
-    <section className="py-[clamp(3rem,8vw,6rem)]">
+    <section id="clean-energy-center" className="py-[clamp(3rem,8vw,6rem)]">
       <div className="container max-w-4xl mx-auto px-4">
         <div className="text-center mb-10">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
