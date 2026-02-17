@@ -3,7 +3,7 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, FileText, Clock, CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Clock, Loader2 } from "lucide-react";
 
 type ContentStatus = "published" | "scheduled" | "draft" | "idea";
 
@@ -32,7 +32,6 @@ const typeStyles: Record<string, string> = {
 };
 
 const contentPipeline: ContentItem[] = [
-  // Published
   { title: "What Is Solar Energy Blockchain Rewards?", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "How to Earn Crypto From Solar Panels", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "Proof-of-Delta™ Explained", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
@@ -45,8 +44,6 @@ const contentPipeline: ContentItem[] = [
   { title: "V2X Vehicle-to-Everything", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "V2L Vehicle-to-Load", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "Virtual Power Plant (VPP)", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
-  
-  // Planned
   { title: "Tesla Owner Earns 150 $ZSOLAR in 30 Days", type: "case-study", status: "idea", notes: "Proof content — real user data" },
   { title: "Solar + EV: Double-Dip Rewards Guide", type: "blog", status: "idea", notes: "High-intent keyword target" },
   { title: "ZenSolar vs. Traditional RECs", type: "blog", status: "idea", notes: "Competitor differentiation" },
@@ -56,7 +53,15 @@ const contentPipeline: ContentItem[] = [
 ];
 
 export default function ContentCalendar() {
-  const { isAdmin } = useAdminCheck();
+  const { isAdmin, isChecking } = useAdminCheck();
+
+  if (isChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   if (!isAdmin) return <Navigate to="/" replace />;
 
   const published = contentPipeline.filter(c => c.status === "published").length;
@@ -88,7 +93,6 @@ export default function ContentCalendar() {
         </Card>
       </div>
 
-      {/* Published Content */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -107,7 +111,6 @@ export default function ContentCalendar() {
         </CardContent>
       </Card>
 
-      {/* Pipeline */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
