@@ -25,8 +25,16 @@ const faqs = [
     a: 'We use a patent-pending system called Mint-on-Proof™ that reads your device\'s real energy data, verifies it hasn\'t been tampered with, and then issues your rewards. Every token is backed by real, verified energy activity.',
   },
   {
-    q: 'What can I spend my tokens on?',
-    a: 'You can redeem $ZSOLAR for Tesla gift cards, Anker & EcoFlow portable power stations, ZenSolar merch, and more in our built-in store. You can also cash out your balance whenever you want.',
+    q: 'Where does the value of $ZSOLAR come from?',
+    a: 'Your $ZSOLAR tokens are backed by a real USD cash reserve held on a public crypto exchange. As more members join, subscription revenue continuously grows this reserve, meaning your tokens always have a market to trade on and are designed to increase in USD value as the platform grows and more users mint their clean energy into real digital income. The short answer: the value comes from the amount of USD in our liquidity pool.',
+  },
+  {
+    q: 'What can I do with my tokens?',
+    a: 'You can redeem $ZSOLAR for Tesla gift cards, Anker & EcoFlow portable power stations, ZenSolar merch, and more in our built-in store. You can also trade them on the exchange or cash out your balance whenever you want.',
+  },
+  {
+    q: 'Why hold my tokens?',
+    a: 'As the ZenSolar platform grows, subscription revenue continuously flows into the cash reserve backing your tokens. Combined with built-in token burns that reduce supply over time, holding your tokens means you benefit from increasing demand against a shrinking supply. Early members are positioned to see the most growth.',
   },
   {
     q: 'Are there any fees?',
