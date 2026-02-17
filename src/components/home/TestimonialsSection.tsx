@@ -14,7 +14,7 @@ const testimonials = [
   {
     name: 'Sarah K.',
     role: 'Enphase Solar System Owner',
-    quote: "The Proof-of-Delta verification is brilliant. I can see exactly how my solar production translates to token rewards — it's completely transparent.",
+    quote: "The Proof-of-Delta verification is brilliant. I can see exactly how my solar production translates to token rewards. It's completely transparent.",
     avatar: '⚡',
     highlight: 'Full transparency',
   },

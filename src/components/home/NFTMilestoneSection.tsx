@@ -124,8 +124,8 @@ export function NFTMilestoneSection() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg"
           >
-            Every kWh produced and mile driven mints a unique achievement NFT — 
-            your proof-of-impact, forever on-chain.
+             Every kWh produced and mile driven mints a unique achievement NFT. 
+            Your proof-of-impact, forever on-chain.
           </motion.p>
         </div>
 

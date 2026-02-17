@@ -71,7 +71,7 @@ export function CleanEnergyCenterShowcase() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground max-w-2xl mx-auto"
           >
-            Track every kWh produced, every mile driven, and every battery cycle — all in one place. 
+            Track every kWh produced, every mile driven, and every battery cycle, all in one place. 
             Your lifetime clean energy impact, always up to date.
           </motion.p>
         </div>

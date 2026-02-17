@@ -10,15 +10,15 @@ import {
 const faqs = [
   {
     q: 'What is ZenSolar?',
-    a: 'ZenSolar is a rewards platform that pays you for the clean energy you already produce. Connect your solar panels, home battery, or EV — and earn $ZSOLAR tokens automatically based on your verified energy activity.',
+    a: 'ZenSolar is a rewards platform that pays you for the clean energy you already produce. Connect your solar panels, home battery, or EV and earn $ZSOLAR tokens automatically based on your verified energy activity.',
   },
   {
     q: 'How do I start earning?',
-    a: 'Sign up, connect your energy device (Tesla, Enphase, SolarEdge, or Wallbox), and your rewards start accruing automatically. No manual claiming, no complicated setup — it takes about 60 seconds.',
+    a: 'Sign up, connect your energy device (Tesla, Enphase, SolarEdge, or Wallbox), and your rewards start accruing automatically. No manual claiming, no complicated setup. It takes about 60 seconds.',
   },
   {
     q: 'Do I need any crypto experience?',
-    a: 'Not at all. ZenSolar includes a built-in rewards wallet — no browser extensions, no seed phrases, no prior crypto knowledge needed. Think of it like a rewards account for your clean energy.',
+    a: 'Not at all. ZenSolar includes a built-in rewards wallet. No browser extensions, no seed phrases, no prior crypto knowledge needed. Think of it like a rewards account for your clean energy.',
   },
   {
     q: 'How does verification work?',
@@ -38,7 +38,7 @@ const faqs = [
   },
   {
     q: 'Are there any fees?',
-    a: 'No transaction fees for users — ZenSolar covers all costs. Our subscription plans (starting at $9.99/mo) unlock higher earning rates and premium features, but there are no hidden charges.',
+    a: 'No transaction fees for users. ZenSolar covers all costs. Our subscription plans (starting at $9.99/mo) unlock higher earning rates and premium features, but there are no hidden charges.',
   },
   {
     q: 'What are achievement NFTs?',
@@ -58,7 +58,7 @@ const faqs = [
   },
   {
     q: 'Is my energy data secure?',
-    a: 'Absolutely. We use encrypted API connections to read your device data — we never control your devices. Your energy data is verified and recorded using tamper-proof technology, giving you a permanent, auditable record of your impact.',
+    a: 'Absolutely. We use encrypted API connections to read your device data and we never control your devices. Your energy data is verified and recorded using tamper-proof technology, giving you a permanent, auditable record of your impact.',
   },
 ];
 

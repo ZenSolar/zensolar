@@ -45,7 +45,7 @@ function LiveEnergyFlowSVG() {
           <h3 className="text-xl md:text-2xl font-bold text-solar">Live Energy Flow</h3>
         </div>
         <p className="text-sm text-muted-foreground">
-          First of its kind — <strong className="text-foreground">multi-manufacturer view</strong>
+          First of its kind: <strong className="text-foreground">multi-manufacturer view</strong>
         </p>
       </div>
 
@@ -186,8 +186,8 @@ export function DashboardShowcase() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground max-w-2xl mx-auto"
           >
-            See your Tesla, Enphase, and ChargePoint data flowing together in real-time — 
-            the first multi-manufacturer clean energy view of its kind.
+            See your Tesla, Enphase, and ChargePoint data flowing together in real-time. 
+            The first multi-manufacturer clean energy view of its kind.
           </motion.p>
         </div>
 

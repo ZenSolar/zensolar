@@ -40,7 +40,7 @@ export function IntegrationLogos() {
             viewport={{ once: true }}
             className="text-muted-foreground max-w-lg mx-auto"
           >
-            We integrate with the platforms you already use — no new hardware needed.
+            We integrate with the platforms you already use. No new hardware needed.
           </motion.p>
         </div>
 

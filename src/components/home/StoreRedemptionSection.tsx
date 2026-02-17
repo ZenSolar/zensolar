@@ -64,7 +64,7 @@ export function StoreRedemptionSection() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground max-w-2xl mx-auto text-base"
           >
-            Your $ZSOLAR tokens aren't just numbers on a screen — redeem them for Tesla gear, 
+            Your $ZSOLAR tokens aren't just numbers on a screen. Redeem them for Tesla gear, 
             portable power stations, exclusive merch, or cash out anytime.
           </motion.p>
         </div>
@@ -112,7 +112,7 @@ export function StoreRedemptionSection() {
             </div>
             <div>
               <p className="font-semibold text-foreground">Or Cash Out Anytime</p>
-              <p className="text-sm text-muted-foreground">Your tokens, your choice — withdraw your $ZSOLAR balance whenever you're ready.</p>
+              <p className="text-sm text-muted-foreground">Your tokens, your choice. Withdraw your $ZSOLAR balance whenever you're ready.</p>
             </div>
           </div>
           <Button variant="outline" className="border-solar/30 text-solar hover:bg-solar/10 shrink-0 group">
