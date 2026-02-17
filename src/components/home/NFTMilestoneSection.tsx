@@ -86,7 +86,7 @@ export function NFTMilestoneSection() {
   const totalNFTs = 42;
 
   return (
-    <section className="py-[clamp(4rem,10vw,7rem)] relative overflow-hidden">
+    <section id="nft-milestones" className="py-[clamp(4rem,10vw,7rem)] relative overflow-hidden">
       {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-token/5 rounded-full blur-[150px]" />
