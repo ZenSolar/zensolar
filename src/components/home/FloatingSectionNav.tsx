@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 const sections = [
@@ -12,38 +11,42 @@ const sections = [
 export function FloatingSectionNav() {
   const [visible, setVisible] = useState(false);
   const [activeId, setActiveId] = useState('');
+  const rafRef = useRef<number>();
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Show after scrolling past the hero (~600px)
-      setVisible(window.scrollY > 600);
+    // Use rAF loop to reliably detect scroll position
+    // This handles cases where scroll events don't fire (anchor nav, programmatic scroll)
+    let lastScrollY = -1;
+
+    const tick = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      if (scrollY !== lastScrollY) {
+        lastScrollY = scrollY;
+        setVisible(scrollY > 500);
+      }
+      rafRef.current = requestAnimationFrame(tick);
     };
+
+    rafRef.current = requestAnimationFrame(tick);
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const visibleEntries = entries.filter((e) => e.isIntersecting);
-        if (visibleEntries.length > 0) {
-          // Pick the one closest to the top
-          const closest = visibleEntries.reduce((a, b) =>
-            Math.abs(a.boundingClientRect.top) < Math.abs(b.boundingClientRect.top) ? a : b
-          );
-          setActiveId(closest.target.id);
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
         }
       },
       { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
     );
 
-    // Observe all sections
     sections.forEach(({ id }) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       observer.disconnect();
     };
   }, []);
@@ -56,33 +59,28 @@ export function FloatingSectionNav() {
   };
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.nav
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.25 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-        >
-          <div className="flex items-center gap-1 px-2 py-1.5 rounded-full border border-border/50 bg-background/90 backdrop-blur-xl shadow-lg shadow-black/20">
-            {sections.map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => scrollTo(id)}
-                className={cn(
-                  'px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap',
-                  activeId === id
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </motion.nav>
+    <nav
+      className={cn(
+        'fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300',
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       )}
-    </AnimatePresence>
+    >
+      <div className="flex items-center gap-1 px-2 py-1.5 rounded-full border border-border/50 bg-background/90 backdrop-blur-xl shadow-lg shadow-black/20">
+        {sections.map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => scrollTo(id)}
+            className={cn(
+              'px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap',
+              activeId === id
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </nav>
   );
 }

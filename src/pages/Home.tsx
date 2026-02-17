@@ -40,8 +40,8 @@ export default function Home() {
       />
       <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
         <HomeNav />
+        <FloatingSectionNav />
          <main>
-          <FloatingSectionNav />
           <HomeHero />
           <LiveStatsBar />
           <SectionDivider variant="chevron" />
