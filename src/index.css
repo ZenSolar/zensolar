@@ -176,6 +176,13 @@
 }
 
 @layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
   /* Remove text glow in light mode only - dark mode keeps inline text-shadow */
   :root:not(.dark) .text-glow-dark-only {
     text-shadow: none !important;
