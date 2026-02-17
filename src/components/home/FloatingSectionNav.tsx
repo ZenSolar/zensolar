@@ -1,18 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
 const primarySections = [
   { id: 'how-it-works', label: 'How It Works' },
-  { id: 'pricing', label: 'Pricing' },
   { id: 'why-zensolar', label: 'Why Us' },
+  { id: 'pricing', label: 'Pricing' },
   { id: 'faq', label: 'FAQ' },
 ];
 
 const overflowSections = [
   { id: 'dashboard-showcase', label: 'Dashboard' },
   { id: 'clean-energy-center', label: 'Energy Center' },
-  { id: 'nft-milestones', label: 'NFTs' },
-  { id: 'store-redemption', label: 'Store' },
+  { id: 'nft-milestones', label: 'NFT Milestones' },
+  { id: 'store-redemption', label: 'Store & Rewards' },
   { id: 'testimonials', label: 'Testimonials' },
 ];
 
@@ -30,9 +30,7 @@ export function FloatingSectionNav() {
     if (!sentinel) return;
 
     const visibilityObserver = new IntersectionObserver(
-      ([entry]) => {
-        setVisible(!entry.isIntersecting);
-      },
+      ([entry]) => setVisible(!entry.isIntersecting),
       { threshold: 0 }
     );
     visibilityObserver.observe(sentinel);
@@ -40,9 +38,7 @@ export function FloatingSectionNav() {
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveId(entry.target.id);
         }
       },
       { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
@@ -59,7 +55,7 @@ export function FloatingSectionNav() {
     };
   }, []);
 
-  // Close menu on outside click
+  // Close menu on outside click — use click (not mousedown) so menu item clicks fire first
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -67,17 +63,19 @@ export function FloatingSectionNav() {
         setMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    // Use setTimeout to avoid the same click that opened the menu from closing it
+    const id = setTimeout(() => document.addEventListener('click', handler), 0);
+    return () => {
+      clearTimeout(id);
+      document.removeEventListener('click', handler);
+    };
   }, [menuOpen]);
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  const scrollTo = useCallback((sectionId: string) => {
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setMenuOpen(false);
-  };
+  }, []);
 
   const isOverflowActive = overflowSections.some(s => s.id === activeId);
 
@@ -109,7 +107,10 @@ export function FloatingSectionNav() {
           {/* Overflow trigger */}
           <div className="relative" ref={menuRef}>
             <button
-              onClick={() => setMenuOpen(o => !o)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(o => !o);
+              }}
               className={cn(
                 'px-2.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 whitespace-nowrap',
                 isOverflowActive
@@ -122,13 +123,16 @@ export function FloatingSectionNav() {
             </button>
 
             {menuOpen && (
-              <div className="absolute bottom-full mb-2 right-0 min-w-[160px] rounded-xl border border-border bg-background shadow-xl shadow-black/20 py-1.5 z-[110]">
+              <div className="absolute bottom-full mb-2 right-0 min-w-[170px] rounded-xl border border-border bg-background shadow-xl shadow-black/20 py-1.5 z-[110] overflow-hidden">
                 {overflowSections.map(({ id, label }) => (
                   <button
                     key={id}
-                    onClick={() => scrollTo(id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      scrollTo(id);
+                    }}
                     className={cn(
-                      'w-full text-left px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap',
+                      'w-full text-left px-4 py-2.5 text-xs font-medium transition-colors whitespace-nowrap',
                       activeId === id
                         ? 'bg-primary/10 text-primary'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
