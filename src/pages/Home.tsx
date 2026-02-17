@@ -15,6 +15,7 @@ import { FAQSection } from '@/components/home/FAQSection';
 import { HomeCTA } from '@/components/home/HomeCTA';
 import { HomeFooter } from '@/components/home/HomeFooter';
 import { HomeNav } from '@/components/home/HomeNav';
+import { FloatingSectionNav } from '@/components/home/FloatingSectionNav';
 import { SectionDivider } from '@/components/ui/section-divider';
 
 export default function Home() {
@@ -39,7 +40,8 @@ export default function Home() {
       />
       <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
         <HomeNav />
-        <main>
+         <main>
+          <FloatingSectionNav />
           <HomeHero />
           <LiveStatsBar />
           <SectionDivider variant="chevron" />
