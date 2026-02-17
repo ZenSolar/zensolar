@@ -3,7 +3,7 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Eye, FileText, Link2, Search } from "lucide-react";
+import { Eye, FileText, Link2, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BlogArticle {
@@ -31,7 +31,15 @@ const articles: BlogArticle[] = [
 ];
 
 export default function BlogManager() {
-  const { isAdmin } = useAdminCheck();
+  const { isAdmin, isChecking } = useAdminCheck();
+
+  if (isChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   if (!isAdmin) return <Navigate to="/" replace />;
 
   const liveCount = articles.filter(a => a.status === "live").length;

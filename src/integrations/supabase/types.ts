@@ -672,6 +672,33 @@ export type Database = {
           },
         ]
       }
+      seo_tasks: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          task_key: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          task_key: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          task_key?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: []
+      }
       support_requests: {
         Row: {
           admin_response: string | null
