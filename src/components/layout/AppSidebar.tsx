@@ -31,11 +31,14 @@ import {
   Rocket,
   Wallet,
   ClipboardList,
-  
   Activity,
   Sun,
   Moon,
   Coffee,
+  Megaphone,
+  Calendar,
+  PenTool,
+  Search,
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -136,6 +139,11 @@ const adminMenuGroups = {
     { title: "Patent Application", url: "/admin/patent/application", icon: FileText, highlight: true },
     { title: "Updated Language", url: "/admin/patent/updated-language", icon: FileText, highlight: true },
     { title: "Patent Mapping", url: "/admin/patent-mapping", icon: FileText },
+  ],
+  marketing: [
+    { title: "SEO Strategy", url: "/admin/seo-strategy", icon: Search, highlight: true },
+    { title: "Content Calendar", url: "/admin/content-calendar", icon: Calendar, highlight: true },
+    { title: "Blog Manager", url: "/admin/blog-manager", icon: PenTool, highlight: true },
   ],
 };
 
@@ -407,6 +415,37 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                   <CollapsibleContent>
                     {adminMenuGroups.patent.map((item) => (
+                      <SidebarMenuItem key={item.title} className="pl-4">
+                        <SidebarMenuButton asChild tooltip={item.title}>
+                          <NavLink 
+                            to={item.url}
+                            onClick={handleNavClick}
+                            className={({ isActive }) => 
+                              isActive 
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
+                            }
+                          >
+                            <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Marketing Submenu */}
+                <Collapsible defaultOpen={location.pathname.includes('seo-strategy') || location.pathname.includes('content-calendar') || location.pathname.includes('blog-manager')}>
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-sidebar-accent/50">
+                      <Megaphone className="h-4 w-4" />
+                      {!collapsed && <span>Marketing</span>}
+                      {!collapsed && <ChevronDown className="h-3 w-3 ml-auto transition-transform group-data-[state=open]:rotate-180" />}
+                    </CollapsibleTrigger>
+                  </SidebarMenuItem>
+                  <CollapsibleContent>
+                    {adminMenuGroups.marketing.map((item) => (
                       <SidebarMenuItem key={item.title} className="pl-4">
                         <SidebarMenuButton asChild tooltip={item.title}>
                           <NavLink 

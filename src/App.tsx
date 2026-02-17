@@ -87,6 +87,9 @@ const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
+const AdminSeoStrategy = lazy(() => import("./pages/admin/SeoStrategy"));
+const AdminContentCalendar = lazy(() => import("./pages/admin/ContentCalendar"));
+const AdminBlogManager = lazy(() => import("./pages/admin/BlogManager"));
 const EnergyLog = lazy(() => import("./pages/EnergyLog"));
 const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataArchitecture"));
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
@@ -753,6 +756,36 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminPatentUpdatedLanguage />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/seo-strategy" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminSeoStrategy />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/content-calendar" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminContentCalendar />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/blog-manager" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminBlogManager />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
