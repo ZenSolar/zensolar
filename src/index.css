@@ -101,6 +101,11 @@
     @apply border-border;
   }
 
+  /* Ensure section titles are visible when navigating via anchor links */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
   html {
     /* iOS momentum scrolling */
     -webkit-overflow-scrolling: touch;
