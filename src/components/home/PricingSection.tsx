@@ -26,7 +26,7 @@ const tiers = [
       { text: 'Mint achievement NFTs', included: false },
       { text: 'Daily auto-minting', included: false },
     ],
-    earningNote: 'Data tracking only — no token rewards',
+    earningNote: 'Data tracking only, no token rewards',
   },
   {
     name: 'Pro',
@@ -99,7 +99,7 @@ export function PricingSection() {
             viewport={{ once: true }}
             className="text-muted-foreground max-w-xl mx-auto"
           >
-            Free to track. Subscribe to mint. Your clean energy is already generating value — we just help you capture it.
+            Free to track. Subscribe to mint. Your clean energy is already generating value and we help you capture it.
           </motion.p>
         </div>
 
@@ -179,11 +179,11 @@ export function PricingSection() {
               <p className="text-sm font-medium text-muted-foreground">Data tracking only</p>
             </div>
             <div className="px-5 py-3 rounded-xl border border-primary/30 bg-primary/5 text-center">
-              <p className="text-xs text-primary mb-1">Pro — Projected Earnings</p>
+              <p className="text-xs text-primary mb-1">Pro · Projected Earnings</p>
               <p className="text-lg font-bold text-primary">~$4,000–$9,000<span className="text-xs font-normal text-muted-foreground">/year</span></p>
             </div>
             <div className="px-5 py-3 rounded-xl border border-solar/30 bg-solar/5 text-center">
-              <p className="text-xs text-solar mb-1">Elite — Projected Earnings</p>
+              <p className="text-xs text-solar mb-1">Elite · Projected Earnings</p>
               <p className="text-lg font-bold text-solar">~$8,000–$19,875<span className="text-xs font-normal text-muted-foreground">/year</span></p>
             </div>
           </div>

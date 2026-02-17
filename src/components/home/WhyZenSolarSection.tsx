@@ -20,7 +20,7 @@ export function WhyZenSolarSection() {
             viewport={{ once: true }}
             className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
           >
-            $40 Billion in Clean Energy Incentives —{' '}
+            $40 Billion in Clean Energy Incentives:{' '}
             <span className="text-destructive">Gone.</span>
           </motion.h2>
           <motion.p
@@ -29,7 +29,7 @@ export function WhyZenSolarSection() {
             viewport={{ once: true }}
             className="text-muted-foreground max-w-2xl mx-auto text-lg"
           >
-            The 30% Solar ITC and $7,500 EV tax credits are being repealed. Millions of homeowners and EV drivers are losing the financial motivation to go — or stay — green.
+            The 30% Solar ITC and $7,500 EV tax credits are being repealed. Millions of homeowners and EV drivers are losing the financial motivation to go green, or stay green.
           </motion.p>
         </div>
 
@@ -79,7 +79,7 @@ export function WhyZenSolarSection() {
                   </span>
                 </h3>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Unlike one-time tax credits, ZenSolar continuously rewards you for every kWh you produce, store, and consume — automatically, every single day.
+                  Unlike one-time tax credits, ZenSolar continuously rewards you for every kWh you produce, store, and consume. Automatically, every single day.
                 </p>
               </div>
 
