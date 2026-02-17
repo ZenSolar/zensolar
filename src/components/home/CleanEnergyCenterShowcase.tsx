@@ -9,7 +9,7 @@ const kpiItems = [
     label: 'Solar Energy Produced',
     value: '28,742',
     unit: 'kWh',
-    name: 'My Home',
+    name: 'Tesla Solar Roof',
     borderColor: 'border-l-solar',
     iconColor: 'text-solar',
     iconBg: 'bg-solar/10',
@@ -19,7 +19,7 @@ const kpiItems = [
     label: 'Battery Storage Exported',
     value: '2,476',
     unit: 'kWh',
-    name: 'My Home',
+    name: 'Powerwall 2',
     borderColor: 'border-l-secondary',
     iconColor: 'text-secondary',
     iconBg: 'bg-secondary/10',
@@ -29,7 +29,7 @@ const kpiItems = [
     label: 'EV Miles Driven',
     value: '70,103',
     unit: 'mi',
-    name: 'My Tesla',
+    name: 'Model Y Long Range',
     borderColor: 'border-l-primary',
     iconColor: 'text-primary',
     iconBg: 'bg-primary/10',
@@ -39,7 +39,7 @@ const kpiItems = [
     label: 'Tesla Supercharging',
     value: '2,580',
     unit: 'kWh',
-    name: 'My Tesla',
+    name: '',
     borderColor: 'border-l-energy',
     iconColor: 'text-energy',
     iconBg: 'bg-energy/10',
@@ -121,7 +121,7 @@ export function CleanEnergyCenterShowcase() {
                       <item.icon className={`h-5 w-5 ${item.iconColor}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-xs text-muted-foreground block">{item.name} {item.label}</span>
+                      <span className="text-xs text-muted-foreground block">{item.name ? `${item.name} ${item.label}` : item.label}</span>
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-xl font-bold text-foreground">{item.value}</span>
                         <span className="text-sm text-muted-foreground">{item.unit}</span>
