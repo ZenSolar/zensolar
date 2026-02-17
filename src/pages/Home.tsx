@@ -38,7 +38,7 @@ export default function Home() {
           aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', ratingCount: '124' },
         }}
       />
-      <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
+      <div className="relative min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
         <HomeNav />
         <FloatingSectionNav />
          <main>
