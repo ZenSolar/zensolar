@@ -107,6 +107,7 @@ const adminMenuGroups = {
   ],
   investor: [
     { title: "YC Application", url: "/admin/yc-application", icon: Rocket, highlight: true },
+    { title: "a16z Speedrun", url: "/admin/a16z-speedrun", icon: Rocket, highlight: true },
     { title: "10-Year Roadmap", url: "/admin/future-roadmap", icon: Target, highlight: true },
     { title: "Market Defense", url: "/admin/market-defense", icon: Shield, highlight: true },
     { title: "Investment Thesis", url: "/admin/investment-thesis", icon: Briefcase },
