@@ -74,6 +74,7 @@ const AdminBetaDeployment = lazy(() => import("./pages/AdminBetaDeployment"));
 const AdminTodo = lazy(() => import("./pages/AdminTodo"));
 const AdminWalletProviders = lazy(() => import("./pages/AdminWalletProviders"));
 const AdminYCApplication = lazy(() => import("./pages/AdminYCApplication"));
+const A16ZSpeedrunApplication = lazy(() => import("./pages/A16ZSpeedrunApplication"));
 const AdminFutureRoadmap = lazy(() => import("./pages/AdminFutureRoadmap"));
 const AdminMarketDefenseMechanisms = lazy(() => import("./pages/AdminMarketDefenseMechanisms"));
 const AdminPatentMintOnProof = lazy(() => import("./pages/AdminPatentMintOnProof"));
@@ -190,6 +191,7 @@ const App = () => {
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/yc-application" element={<AdminYCApplication />} />
+                    <Route path="/a16z-speedrun" element={<A16ZSpeedrunApplication />} />
                     <Route path="/oauth/callback" element={<OAuthCallback />} />
                     <Route 
                       path="/admin" 
@@ -671,6 +673,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminYCApplication />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/a16z-speedrun" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <A16ZSpeedrunApplication />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
