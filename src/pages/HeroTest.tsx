@@ -32,7 +32,7 @@ function EarningsCalculator() {
   const totalUsd = totalTokens * ZSOLAR_USD_PRICE;
 
   return (
-    <section className="bg-black py-28 px-6">
+    <section className="bg-black py-16 md:py-28 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
@@ -40,10 +40,10 @@ function EarningsCalculator() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-14"
+          className="text-center mb-10 md:mb-14"
         >
           <p className="text-xs font-semibold tracking-[0.22em] uppercase text-white/30 mb-3">Personalized Estimate</p>
-          <h2 className="text-white text-4xl md:text-5xl font-black tracking-tight leading-none mb-4">
+          <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none mb-4">
             What would{' '}
             <span style={{
               background: 'linear-gradient(90deg, hsl(var(--solar)), hsl(var(--primary)))',
@@ -55,7 +55,7 @@ function EarningsCalculator() {
             </span>
             {' '}earn?
           </h2>
-          <p className="text-white/40 max-w-md mx-auto">Slide to match your setup. See your estimated monthly $ZSOLAR rewards instantly.</p>
+          <p className="text-white/40 text-sm sm:text-base max-w-md mx-auto">Slide to match your setup. See your estimated monthly $ZSOLAR rewards instantly.</p>
         </motion.div>
 
         <motion.div
@@ -63,10 +63,10 @@ function EarningsCalculator() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="grid md:grid-cols-2 gap-8 items-start"
+          className="grid md:grid-cols-2 gap-6 md:gap-8 items-start"
         >
           {/* Sliders */}
-          <div className="space-y-10 bg-white/[0.04] border border-white/10 rounded-3xl p-8">
+          <div className="space-y-8 md:space-y-10 bg-white/[0.04] border border-white/10 rounded-2xl md:rounded-3xl p-5 sm:p-8">
             {/* Solar slider */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -204,20 +204,20 @@ const tagColors: Record<string, string> = {
 
 function CommunityWall() {
   return (
-    <section className="bg-[#050505] py-28 px-6">
+    <section className="bg-[#050505] py-16 md:py-28 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-14"
+          className="text-center mb-10 md:mb-14"
         >
           <p className="text-xs font-semibold tracking-[0.22em] uppercase text-white/30 mb-3">Real Users. Real Earnings.</p>
-          <h2 className="text-white text-4xl md:text-5xl font-black tracking-tight leading-none mb-4">
+          <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none mb-4">
             #ZenSolarLife
           </h2>
-          <p className="text-white/40 max-w-md mx-auto">Join 1,240+ beta users already converting clean energy into digital income.</p>
+          <p className="text-white/40 text-sm sm:text-base max-w-md mx-auto">Join 1,240+ beta users already converting clean energy into digital income.</p>
         </motion.div>
 
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
@@ -312,17 +312,17 @@ function TokenInfoCard() {
   ];
 
   return (
-    <section className="bg-black py-28 px-6">
+    <section className="bg-black py-16 md:py-28 px-4 sm:px-6">
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-14"
+          className="text-center mb-10 md:mb-14"
         >
           <p className="text-xs font-semibold tracking-[0.22em] uppercase text-white/30 mb-3">On-Chain Transparency</p>
-          <h2 className="text-white text-4xl md:text-5xl font-black tracking-tight leading-none">
+          <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none">
             $ZSOLAR Token
           </h2>
         </motion.div>
@@ -332,85 +332,76 @@ function TokenInfoCard() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="rounded-3xl overflow-hidden border border-white/10"
+          className="rounded-2xl md:rounded-3xl overflow-hidden border border-white/10"
           style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)' }}
         >
           {/* Card header */}
           <div
-            className="px-8 py-6 border-b border-white/10 flex items-center gap-4"
+            className="px-4 sm:px-8 py-4 sm:py-6 border-b border-white/10 flex items-center gap-3 sm:gap-4"
             style={{ background: 'linear-gradient(90deg, hsl(var(--solar)/0.12), hsl(var(--primary)/0.12))' }}
           >
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-black text-sm"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex-shrink-0 flex items-center justify-center font-black text-black text-sm"
               style={{ background: 'linear-gradient(135deg, hsl(var(--solar)), hsl(var(--primary)))' }}
             >
               Z
             </div>
-            <div>
-              <p className="text-white font-bold text-lg">$ZSOLAR</p>
-              <p className="text-white/40 text-sm">ZenSolar Utility Token</p>
+            <div className="min-w-0">
+              <p className="text-white font-bold text-base sm:text-lg">$ZSOLAR</p>
+              <p className="text-white/40 text-xs sm:text-sm">ZenSolar Utility Token</p>
             </div>
-            <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-emerald-400 text-xs font-semibold">Live Beta</span>
+            <div className="ml-auto flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+              <span className="text-emerald-400 text-[0.65rem] sm:text-xs font-semibold whitespace-nowrap">Live Beta</span>
             </div>
           </div>
 
-          {/* Rows */}
+          {/* Rows — stack label/value on smallest screens */}
           <div className="divide-y divide-white/5">
             {rows.map(({ label, value }) => (
-              <div key={label} className="flex items-center justify-between px-8 py-4">
-                <span className="text-white/40 text-sm">{label}</span>
-                <span className="text-white text-sm font-semibold text-right max-w-[55%]">{value}</span>
+              <div key={label} className="flex items-start sm:items-center justify-between gap-2 px-4 sm:px-8 py-3 sm:py-4">
+                <span className="text-white/40 text-xs sm:text-sm flex-shrink-0">{label}</span>
+                <span className="text-white text-xs sm:text-sm font-semibold text-right">{value}</span>
               </div>
             ))}
 
-            {/* Contract address row */}
-            <div className="flex items-center justify-between px-8 py-4">
-              <span className="text-white/40 text-sm">Contract Address</span>
+            {/* Contract address row — truncate on mobile */}
+            <div className="flex items-center justify-between gap-2 px-4 sm:px-8 py-3 sm:py-4">
+              <span className="text-white/40 text-xs sm:text-sm flex-shrink-0">Contract</span>
               <button
                 onClick={copyAddress}
-                className="flex items-center gap-2 text-white/60 hover:text-white text-sm font-mono transition-colors group"
+                className="flex items-center gap-2 text-white/60 hover:text-white text-xs sm:text-sm font-mono transition-colors group min-w-0"
               >
-                <span>{CONTRACT_ADDRESS}</span>
+                <span className="truncate max-w-[140px] sm:max-w-none">{CONTRACT_ADDRESS}</span>
                 {copied
-                  ? <Check className="h-3.5 w-3.5 text-emerald-400" />
-                  : <Copy className="h-3.5 w-3.5 opacity-40 group-hover:opacity-80" />
+                  ? <Check className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
+                  : <Copy className="h-3.5 w-3.5 opacity-40 group-hover:opacity-80 flex-shrink-0" />
                 }
               </button>
             </div>
           </div>
 
-          {/* Card footer — links */}
-          <div className="px-8 py-6 border-t border-white/10 flex flex-wrap gap-3">
-            <a
-              href="#"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white text-sm font-medium transition-all"
-            >
-              <Shield className="h-4 w-4 text-emerald-400" />
-              Security Audit
-              <ExternalLink className="h-3 w-3 opacity-40" />
-            </a>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white text-sm font-medium transition-all"
-            >
-              <Github className="h-4 w-4" />
-              GitHub
-              <ExternalLink className="h-3 w-3 opacity-40" />
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white text-sm font-medium transition-all"
-            >
-              <ExternalLink className="h-4 w-4 text-blue-400" />
-              BaseScan Explorer
-            </a>
+          {/* Card footer — links, wrap on mobile */}
+          <div className="px-4 sm:px-8 py-4 sm:py-6 border-t border-white/10 flex flex-wrap gap-2 sm:gap-3">
+            {[
+              { href: '#', icon: <Shield className="h-3.5 w-3.5 text-emerald-400" />, label: 'Security Audit' },
+              { href: 'https://github.com', icon: <Github className="h-3.5 w-3.5" />, label: 'GitHub', external: true },
+              { href: '#', icon: <ExternalLink className="h-3.5 w-3.5 text-blue-400" />, label: 'BaseScan' },
+            ].map(({ href, icon, label, external }) => (
+              <a
+                key={label}
+                href={href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
+                className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white text-xs sm:text-sm font-medium transition-all"
+              >
+                {icon}
+                {label}
+              </a>
+            ))}
             <Link
               to="/white-paper"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white text-sm font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white text-xs sm:text-sm font-medium transition-all"
             >
               White Paper
             </Link>
@@ -458,23 +449,24 @@ export default function HeroTest() {
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
 
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.6], [0.55, 0.85]);
+  // Disable parallax on mobile — causes bg to disappear on small screens
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.6], [0.5, 0.85]);
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Minimal nav */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 bg-transparent">
-        <img src={zenLogo} alt="ZenSolar" className="h-7 w-auto brightness-0 invert opacity-90" />
-        <div className="flex items-center gap-3">
+      {/* Nav — solid bg on mobile so it's readable */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-12 h-14 md:h-16 bg-black/70 md:bg-transparent backdrop-blur-md md:backdrop-blur-none border-b border-white/5 md:border-transparent">
+        <img src={zenLogo} alt="ZenSolar" className="h-6 md:h-7 w-auto brightness-0 invert opacity-90" />
+        <div className="flex items-center gap-2">
           <Link to="/auth">
-            <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10">
+            <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10 px-3 text-sm">
               Log In
             </Button>
           </Link>
           <Link to="/auth">
-            <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-5">
+            <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-4 text-sm">
               Get Started
             </Button>
           </Link>
@@ -482,41 +474,58 @@ export default function HeroTest() {
       </header>
 
       {/* Full-bleed hero */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-        <motion.div className="absolute inset-0 -z-10" style={{ y: bgY }}>
+      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col items-center justify-center overflow-hidden">
+        {/* Background: static on mobile, parallax on desktop */}
+        <motion.div
+          className="absolute inset-0 -z-10 hidden md:block"
+          style={{ y: bgY }}
+        >
           <img src={heroBg} alt="" aria-hidden className="w-full h-[115%] object-cover object-center" fetchPriority="high" />
         </motion.div>
-        <motion.div
-          className="absolute inset-0 -z-[9]"
-          style={{ opacity: overlayOpacity, background: 'linear-gradient(to top, #000 0%, #000c 40%, #0007 70%, transparent 100%)' }}
-        />
-        <div className="absolute inset-0 -z-[8] bg-gradient-to-b from-black/60 via-transparent to-transparent" />
+        {/* Static bg for mobile — no parallax clipping */}
+        <div className="absolute inset-0 -z-10 block md:hidden">
+          <img src={heroBg} alt="" aria-hidden className="w-full h-full object-cover object-center" fetchPriority="high" />
+        </div>
 
         <motion.div
+          className="absolute inset-0 -z-[9]"
+          style={{ opacity: overlayOpacity, background: 'linear-gradient(to top, #000 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.3) 100%)' }}
+        />
+        <div className="absolute inset-0 -z-[8] bg-gradient-to-b from-black/70 via-black/20 to-transparent" />
+
+        {/* Content */}
+        <motion.div
           style={{ y: contentY }}
-          className="relative z-10 flex flex-col items-center text-center px-5 max-w-5xl mx-auto gap-8 pt-16"
+          className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 max-w-5xl mx-auto gap-5 md:gap-8 pt-20 md:pt-16 pb-24"
         >
+          {/* Live pill */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase text-white/70">Now Live on Base Blockchain</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+            <span className="text-[0.65rem] sm:text-xs font-semibold tracking-[0.15em] uppercase text-white/70 whitespace-nowrap">
+              Now Live on Base Blockchain
+            </span>
           </motion.div>
 
+          {/* $ZSOLAR — responsive size, won't overflow */}
           <motion.div
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
+            className="relative w-full"
           >
-            <div className="absolute inset-0 -z-10 blur-[80px] opacity-50 rounded-full" style={{ background: 'radial-gradient(ellipse, hsl(var(--solar)) 0%, hsl(var(--primary)) 40%, transparent 70%)' }} />
+            <div
+              className="absolute inset-0 -z-10 blur-[60px] md:blur-[80px] opacity-50 rounded-full"
+              style={{ background: 'radial-gradient(ellipse, hsl(var(--solar)) 0%, hsl(var(--primary)) 40%, transparent 70%)' }}
+            />
             <p
-              className="font-black leading-none tracking-[-0.04em] select-none"
+              className="font-black leading-none tracking-[-0.04em] select-none w-full"
               style={{
-                fontSize: 'clamp(5.5rem, 20vw, 14rem)',
+                fontSize: 'clamp(3.2rem, 18vw, 14rem)',
                 background: 'linear-gradient(135deg, #fff 0%, hsl(var(--solar)) 35%, hsl(var(--primary)) 65%, #fff 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -527,12 +536,13 @@ export default function HeroTest() {
             </p>
           </motion.div>
 
+          {/* Headline — bigger on mobile for impact */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.35 }}
             className="text-white font-bold leading-[1.1] tracking-tight"
-            style={{ fontSize: 'clamp(1.6rem, 4.5vw, 3rem)' }}
+            style={{ fontSize: 'clamp(1.4rem, 6vw, 3rem)' }}
           >
             Your sun generates power.
             <br />
@@ -541,26 +551,27 @@ export default function HeroTest() {
             </span>
           </motion.h1>
 
+          {/* Sub-line — hidden on smallest screens to keep hero clean */}
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.45 }}
-            className="text-white/55 max-w-lg leading-relaxed"
-            style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.2rem)' }}
+            className="text-white/55 max-w-sm md:max-w-lg leading-relaxed text-sm sm:text-base md:text-lg"
           >
-            Every kWh you produce, every EV mile you drive — automatically minted as $ZSOLAR tokens and NFTs. No crypto experience needed.
+            Every kWh you produce, every EV mile you drive — minted as $ZSOLAR tokens automatically.
           </motion.p>
 
+          {/* CTAs — full-width on mobile */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.55 }}
-            className="flex flex-col sm:flex-row items-center gap-3 pt-2"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 w-full max-w-sm sm:max-w-none sm:w-auto"
           >
-            <Link to="/auth">
+            <Link to="/auth" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="relative overflow-hidden px-9 py-6 text-[1rem] font-bold tracking-tight text-black rounded-full"
+                className="relative overflow-hidden w-full sm:w-auto px-7 py-5 sm:py-6 text-[0.95rem] font-bold tracking-tight text-black rounded-full"
                 style={{ background: 'linear-gradient(135deg, hsl(var(--solar)), hsl(var(--primary)))' }}
               >
                 <motion.div
@@ -568,23 +579,24 @@ export default function HeroTest() {
                   animate={{ x: ['-120%', '220%'] }}
                   transition={{ duration: 1.4, repeat: Infinity, repeatDelay: 1.6, ease: 'easeInOut' }}
                 />
-                <Zap className="mr-2 h-5 w-5 relative z-10" />
+                <Zap className="mr-2 h-4 w-4 relative z-10 flex-shrink-0" />
                 <span className="relative z-10">Start Earning Free</span>
-                <ArrowRight className="ml-2 h-5 w-5 relative z-10" />
+                <ArrowRight className="ml-2 h-4 w-4 relative z-10 flex-shrink-0" />
               </Button>
             </Link>
-            <Link to="/demo">
-              <Button size="lg" variant="outline" className="px-9 py-6 text-[1rem] font-semibold rounded-full border-white/25 text-white bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all">
+            <Link to="/demo" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto px-7 py-5 sm:py-6 text-[0.95rem] font-semibold rounded-full border-white/25 text-white bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all">
                 Try Demo
               </Button>
             </Link>
           </motion.div>
 
+          {/* Stats strip — 2x2 grid on mobile */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.7 }}
-            className="flex flex-wrap items-center justify-center gap-6 md:gap-10 pt-6 border-t border-white/10 w-full max-w-2xl"
+            className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-10 pt-5 border-t border-white/10 w-full max-w-xs sm:max-w-2xl"
           >
             {[
               { value: '2.4M+', label: 'kWh Verified' },
@@ -593,22 +605,23 @@ export default function HeroTest() {
               { value: 'Base L2', label: 'Blockchain' },
             ].map(({ value, label }) => (
               <div key={label} className="flex flex-col items-center gap-0.5">
-                <span className="text-white font-bold text-xl leading-none">{value}</span>
-                <span className="text-white/40 text-xs tracking-wide uppercase">{label}</span>
+                <span className="text-white font-bold text-lg sm:text-xl leading-none">{value}</span>
+                <span className="text-white/40 text-[0.65rem] tracking-wide uppercase">{label}</span>
               </div>
             ))}
           </motion.div>
         </motion.div>
 
+        {/* Scroll cue — hide on short screens */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1.5 hidden sm:flex"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.5 }}
           transition={{ delay: 1.2, duration: 0.6 }}
         >
-          <span className="text-white/40 text-[0.65rem] uppercase tracking-[0.2em]">Scroll</span>
+          <span className="text-white/40 text-[0.6rem] uppercase tracking-[0.2em]">Scroll</span>
           <motion.div
-            className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent"
+            className="w-px h-6 bg-gradient-to-b from-white/30 to-transparent"
             animate={{ scaleY: [1, 0.4, 1] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
           />
