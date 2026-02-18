@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
-import { Sun, Car, Zap, DollarSign } from 'lucide-react';
+import { Sun, Car, Zap, DollarSign, Battery, BatteryCharging } from 'lucide-react';
 import {
   BASE_REWARD_RATES,
   MINT_DISTRIBUTION,
@@ -9,25 +9,88 @@ import {
   formatUSD,
 } from '@/lib/tokenomics';
 
-// At mainnet rates: 1 $ZSOLAR per kWh solar, 1 $ZSOLAR per EV mile
-// After 75% user distribution from minting
 const USER_SHARE = MINT_DISTRIBUTION.user / 100; // 0.75
 
-const SOLAR_MIN = 0;
-const SOLAR_MAX = 1500;
-const SOLAR_DEFAULT = 400;
+const SLIDERS = [
+  {
+    key: 'solar',
+    label: 'Solar Production',
+    unit: 'kWh/mo',
+    icon: Sun,
+    iconBg: 'bg-solar/15',
+    iconColor: 'text-solar',
+    resultBg: 'bg-solar/8',
+    resultColor: 'text-solar',
+    rate: BASE_REWARD_RATES.solarProduction,
+    min: 0,
+    max: 1500,
+    step: 10,
+    default: 400,
+    hint: 'Avg. US solar home: 300–900 kWh/mo',
+  },
+  {
+    key: 'battery',
+    label: 'Battery Export',
+    unit: 'kWh/mo',
+    icon: Battery,
+    iconBg: 'bg-eco/15',
+    iconColor: 'text-eco',
+    resultBg: 'bg-eco/8',
+    resultColor: 'text-eco',
+    rate: BASE_REWARD_RATES.batteryDischarge,
+    min: 0,
+    max: 600,
+    step: 5,
+    default: 100,
+    hint: 'Powerwall: ~13.5 kWh per cycle',
+  },
+  {
+    key: 'evMiles',
+    label: 'EV Miles Driven',
+    unit: 'mi/mo',
+    icon: Car,
+    iconBg: 'bg-primary/15',
+    iconColor: 'text-primary',
+    resultBg: 'bg-primary/8',
+    resultColor: 'text-primary',
+    rate: BASE_REWARD_RATES.evMiles,
+    min: 0,
+    max: 3000,
+    step: 25,
+    default: 500,
+    hint: 'US avg: ~1,200 mi/mo',
+  },
+  {
+    key: 'evCharging',
+    label: 'EV Charging (Home + DC Fast)',
+    unit: 'kWh/mo',
+    icon: BatteryCharging,
+    iconBg: 'bg-token/15',
+    iconColor: 'text-token',
+    resultBg: 'bg-token/8',
+    resultColor: 'text-token',
+    rate: BASE_REWARD_RATES.evCharging,
+    min: 0,
+    max: 800,
+    step: 10,
+    default: 150,
+    hint: 'Model 3: ~250 Wh/mi × your miles',
+  },
+] as const;
 
-const EV_MIN = 0;
-const EV_MAX = 3000;
-const EV_DEFAULT = 500;
+type SliderKey = typeof SLIDERS[number]['key'];
 
 export function EarningsCalculatorSection() {
-  const [solarKwh, setSolarKwh] = useState(SOLAR_DEFAULT);
-  const [evMiles, setEvMiles] = useState(EV_DEFAULT);
+  const [values, setValues] = useState<Record<SliderKey, number>>(
+    Object.fromEntries(SLIDERS.map((s) => [s.key, s.default])) as Record<SliderKey, number>
+  );
 
-  const solarTokens = solarKwh * BASE_REWARD_RATES.solarProduction * USER_SHARE;
-  const evTokens = evMiles * BASE_REWARD_RATES.evMiles * USER_SHARE;
-  const totalTokens = Math.floor(solarTokens + evTokens);
+  const perActivity = SLIDERS.map((s) => ({
+    ...s,
+    tokens: Math.floor(values[s.key] * s.rate * USER_SHARE),
+  }));
+
+  const totalTokens = perActivity.reduce((sum, s) => sum + s.tokens, 0);
   const totalUsd = totalTokens * PRICES.launchFloor;
 
   return (
@@ -48,7 +111,7 @@ export function EarningsCalculatorSection() {
             What would <span className="text-primary">YOU</span> earn?
           </h2>
           <p className="text-muted-foreground text-base max-w-md mx-auto">
-            Move the sliders to match your setup. See your estimated monthly $ZSOLAR rewards.
+            Dial in your setup. Every activity earns $ZSOLAR.
           </p>
         </motion.div>
 
@@ -58,75 +121,41 @@ export function EarningsCalculatorSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-8"
+          className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-7"
         >
-          {/* Solar slider */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-solar/15">
-                  <Sun className="h-4 w-4 text-solar" />
+          {SLIDERS.map((slider, i) => {
+            const activity = perActivity[i];
+            const Icon = slider.icon;
+            return (
+              <div key={slider.key} className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${slider.iconBg}`}>
+                      <Icon className={`h-4 w-4 ${slider.iconColor}`} />
+                    </div>
+                    <span className="font-medium text-foreground text-sm">{slider.label}</span>
+                  </div>
+                  <span className="tabular-nums font-semibold text-foreground text-sm">
+                    {values[slider.key].toLocaleString()} {slider.unit}
+                  </span>
                 </div>
-                <span className="font-medium text-foreground text-sm">Solar Production</span>
-              </div>
-              <span className="tabular-nums font-semibold text-foreground text-sm">
-                {solarKwh.toLocaleString()} kWh/mo
-              </span>
-            </div>
-            <Slider
-              min={SOLAR_MIN}
-              max={SOLAR_MAX}
-              step={10}
-              value={[solarKwh]}
-              onValueChange={([v]) => setSolarKwh(v)}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>0 kWh</span>
-              <span>1,500 kWh</span>
-            </div>
-            {/* Solar sub-result */}
-            <div className="flex items-center justify-between rounded-lg bg-solar/8 px-3 py-2">
-              <span className="text-xs text-muted-foreground">Solar rewards</span>
-              <span className="text-xs font-semibold text-solar">
-                +{Math.floor(solarTokens).toLocaleString()} $ZSOLAR/mo
-              </span>
-            </div>
-          </div>
-
-          {/* EV slider */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
-                  <Car className="h-4 w-4 text-primary" />
+                <Slider
+                  min={slider.min}
+                  max={slider.max}
+                  step={slider.step}
+                  value={[values[slider.key]]}
+                  onValueChange={([v]) => setValues((prev) => ({ ...prev, [slider.key]: v }))}
+                  className="w-full"
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{slider.hint}</span>
+                  <span className={`text-xs font-semibold ${slider.resultColor}`}>
+                    +{activity.tokens.toLocaleString()} $ZSOLAR/mo
+                  </span>
                 </div>
-                <span className="font-medium text-foreground text-sm">EV Miles Driven</span>
               </div>
-              <span className="tabular-nums font-semibold text-foreground text-sm">
-                {evMiles.toLocaleString()} mi/mo
-              </span>
-            </div>
-            <Slider
-              min={EV_MIN}
-              max={EV_MAX}
-              step={25}
-              value={[evMiles]}
-              onValueChange={([v]) => setEvMiles(v)}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>0 mi</span>
-              <span>3,000 mi</span>
-            </div>
-            {/* EV sub-result */}
-            <div className="flex items-center justify-between rounded-lg bg-primary/8 px-3 py-2">
-              <span className="text-xs text-muted-foreground">EV rewards</span>
-              <span className="text-xs font-semibold text-primary">
-                +{Math.floor(evTokens).toLocaleString()} $ZSOLAR/mo
-              </span>
-            </div>
-          </div>
+            );
+          })}
 
           {/* Divider */}
           <div className="border-t border-border" />
@@ -167,7 +196,7 @@ export function EarningsCalculatorSection() {
 
           {/* Footnote */}
           <p className="text-center text-xs text-muted-foreground">
-            Estimates based on mainnet rates: 1 $ZSOLAR per kWh produced and per EV mile. 75% of minted tokens go to your wallet. USD value at $0.10 launch floor price.
+            Mainnet rates: 1 $ZSOLAR per kWh or mile. 75% of minted tokens go to your wallet. USD value at $0.10 launch floor price.
           </p>
         </motion.div>
       </div>
