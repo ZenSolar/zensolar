@@ -95,6 +95,7 @@ const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataA
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 import Home from "./pages/Home";
+const HeroTest = lazy(() => import("./pages/HeroTest"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
 const BlogHowToEarn = lazy(() => import("./pages/blog/HowToEarnCryptoFromSolar"));
@@ -155,6 +156,7 @@ const App = () => {
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/install" element={<Install />} />
+                    <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
                     {/* Demo routes with full sidebar */}
                     <Route path="/demo" element={<DemoLayout />}>
