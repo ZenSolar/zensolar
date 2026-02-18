@@ -16,6 +16,7 @@ import { HomeCTA } from '@/components/home/HomeCTA';
 import { HomeFooter } from '@/components/home/HomeFooter';
 import { HomeNav } from '@/components/home/HomeNav';
 import { FloatingSectionNav } from '@/components/home/FloatingSectionNav';
+import { EarningsCalculatorSection } from '@/components/home/EarningsCalculatorSection';
 import { SectionDivider } from '@/components/ui/section-divider';
 
 export default function Home() {
@@ -46,6 +47,8 @@ export default function Home() {
           <LiveStatsBar />
           <SectionDivider variant="chevron" />
           <HowItWorksSection />
+          <SectionDivider variant="diamond" />
+          <EarningsCalculatorSection />
           <SectionDivider variant="diamond" />
           <DashboardShowcase />
           <SectionDivider variant="diamond" />
