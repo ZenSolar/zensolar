@@ -198,6 +198,46 @@ async function sendChargingCompleteNotification(
   }
 }
 
+async function sendChargingStartNotification(
+  userId: string,
+  chargerPower: number,
+  location: string,
+): Promise<void> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceRoleKey) return;
+
+  const locationText = location && location !== "Home" ? ` at ${location}` : " at home";
+  const powerText = chargerPower > 0 ? ` (${chargerPower} kW)` : "";
+
+  try {
+    const resp = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${serviceRoleKey}`,
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        title: "🔌 Charging Started",
+        body: `Your Tesla is now charging${locationText}${powerText}.`,
+        notification_type: "home_charging_started",
+        url: "/dashboard",
+        data: { charger_power: chargerPower },
+      }),
+    });
+
+    if (resp.ok) {
+      console.log(`[ChargeMonitor] 🔔 Charging START notification sent to ${userId.slice(0, 8)}`);
+    } else {
+      const errText = await resp.text();
+      console.warn(`[ChargeMonitor] Start notification failed (${resp.status}): ${errText.slice(0, 200)}`);
+    }
+  } catch (err) {
+    console.warn(`[ChargeMonitor] Start notification error:`, err);
+  }
+}
+
 // ── Main handler ─────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -443,6 +483,8 @@ async function processVehicle(
         console.error(`[ChargeMonitor] Insert error:`, error);
       } else {
         console.log(`[ChargeMonitor] ▶ STARTED session for ${vin}: ${chargeEnergyAdded} kWh (hash: ${genesisHash.slice(0, 12)}…)`);
+        // Send push notification that charging has started
+        await sendChargingStartNotification(userId, chargerPower, homeAddress || "Home");
       }
       results.push({ vin, action: "started", energy: chargeEnergyAdded });
     } else {
