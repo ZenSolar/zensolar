@@ -1,44 +1,48 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Battery, Car, BatteryCharging, Zap, TrendingUp, Rocket, ChevronRight } from 'lucide-react';
+import { Sun, Battery, Car, BatteryCharging, Zap, TrendingUp, Rocket, ChevronRight, Check } from 'lucide-react';
 import { BASE_REWARD_RATES, MINT_DISTRIBUTION, PRICES, formatUSD } from '@/lib/tokenomics';
 
 const USER_SHARE = MINT_DISTRIBUTION.user / 100;
 
 const DEVICES = [
-  { id: 'solar',      label: 'Solar',       icon: Sun,            colorClass: 'solar',   rate: BASE_REWARD_RATES.solarProduction, values: { small: 220,  medium: 520,  large: 950  } },
-  { id: 'battery',    label: 'Battery',     icon: Battery,        colorClass: 'eco',     rate: BASE_REWARD_RATES.batteryDischarge, values: { small: 120, medium: 260,  large: 420  } },
-  { id: 'evMiles',    label: 'EV Miles',    icon: Car,            colorClass: 'primary', rate: BASE_REWARD_RATES.evMiles,          values: { small: 400, medium: 900,  large: 1800 } },
-  { id: 'evCharging', label: 'EV Charging', icon: BatteryCharging, colorClass: 'token',  rate: BASE_REWARD_RATES.evCharging,       values: { small: 120, medium: 260,  large: 480  } },
+  { id: 'solar',      label: 'Solar Panels',   icon: Sun,             colorClass: 'solar',   rate: BASE_REWARD_RATES.solarProduction, values: { starter: 220,  average: 520,  power: 950  } },
+  { id: 'battery',    label: 'Battery',         icon: Battery,         colorClass: 'eco',     rate: BASE_REWARD_RATES.batteryDischarge, values: { starter: 120, average: 260,  power: 420  } },
+  { id: 'evMiles',    label: 'EV Miles',        icon: Car,             colorClass: 'primary', rate: BASE_REWARD_RATES.evMiles,          values: { starter: 400, average: 900,  power: 1800 } },
+  { id: 'evCharging', label: 'EV Charging',     icon: BatteryCharging, colorClass: 'token',   rate: BASE_REWARD_RATES.evCharging,       values: { starter: 120, average: 260,  power: 480  } },
 ] as const;
 
 type DeviceId = typeof DEVICES[number]['id'];
-type SizeKey = 'small' | 'medium' | 'large';
+type SizeKey = 'starter' | 'average' | 'power';
 
-const SIZE_LABELS: Record<SizeKey, string> = { small: 'Small', medium: 'Medium', large: 'Large' };
-
-const SCENARIOS = [
-  { label: 'Launch',    price: PRICES.launchFloor, icon: Zap,        accent: 'text-muted-foreground' },
-  { label: 'Target',   price: PRICES.target,       icon: TrendingUp, accent: 'text-primary' },
-  { label: 'Moonshot', price: 5.00,                icon: Rocket,     accent: 'text-solar', glow: true },
-];
-
-const C: Record<string, { bg: string; border: string; icon: string }> = {
-  solar:   { bg: 'bg-solar/10',   border: 'border-solar/50',   icon: 'text-solar'   },
-  eco:     { bg: 'bg-eco/10',     border: 'border-eco/50',     icon: 'text-eco'     },
-  primary: { bg: 'bg-primary/10', border: 'border-primary/50', icon: 'text-primary' },
-  token:   { bg: 'bg-token/10',   border: 'border-token/50',   icon: 'text-token'   },
+const SIZE_LABELS: Record<SizeKey, { label: string; sub: string }> = {
+  starter: { label: 'Starter',      sub: 'Small setup'    },
+  average: { label: 'Average Home', sub: 'Typical setup'  },
+  power:   { label: 'Power User',   sub: 'Full setup'     },
 };
 
-function Num({ value }: { value: number }) {
+const SCENARIOS = [
+  { label: 'Launch',    price: PRICES.launchFloor, icon: Zap,        accent: 'text-muted-foreground', bg: 'bg-muted/60' },
+  { label: 'Target',   price: PRICES.target,       icon: TrendingUp, accent: 'text-primary',          bg: 'bg-primary/10' },
+  { label: 'Moonshot', price: 5.00,                icon: Rocket,     accent: 'text-solar',            bg: 'bg-solar/10' },
+];
+
+const C: Record<string, { bg: string; border: string; icon: string; activeBg: string }> = {
+  solar:   { bg: 'bg-solar/10',   border: 'border-solar/40',   icon: 'text-solar',   activeBg: 'bg-solar/15'   },
+  eco:     { bg: 'bg-eco/10',     border: 'border-eco/40',     icon: 'text-eco',     activeBg: 'bg-eco/15'     },
+  primary: { bg: 'bg-primary/10', border: 'border-primary/40', icon: 'text-primary', activeBg: 'bg-primary/15' },
+  token:   { bg: 'bg-token/10',   border: 'border-token/40',   icon: 'text-token',   activeBg: 'bg-token/15'   },
+};
+
+function AnimNum({ value }: { value: number }) {
   return (
     <AnimatePresence mode="wait">
       <motion.span
         key={Math.round(value)}
-        initial={{ opacity: 0, y: 5 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -5 }}
-        transition={{ duration: 0.12 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.15 }}
         className="tabular-nums"
       >
         {Math.round(value).toLocaleString()}
@@ -49,7 +53,7 @@ function Num({ value }: { value: number }) {
 
 export function EarningsCalculatorSection() {
   const [activeDevices, setActiveDevices] = useState<Set<DeviceId>>(new Set(['solar', 'evMiles']));
-  const [size, setSize] = useState<SizeKey>('medium');
+  const [size, setSize] = useState<SizeKey>('average');
 
   function toggle(id: DeviceId) {
     setActiveDevices((prev) => {
@@ -72,14 +76,14 @@ export function EarningsCalculatorSection() {
       {/* Background shimmer */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
-          style={{ background: 'radial-gradient(circle, hsl(var(--solar)/0.07) 0%, hsl(var(--primary)/0.04) 50%, transparent 70%)' }}
-          animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsl(var(--solar)/0.06) 0%, hsl(var(--primary)/0.03) 50%, transparent 70%)' }}
+          animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0.9, 0.4] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
-      <div className="relative max-w-md mx-auto">
+      <div className="relative max-w-sm mx-auto">
 
         {/* Header */}
         <motion.div
@@ -87,7 +91,7 @@ export function EarningsCalculatorSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-10"
         >
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-primary mb-4 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
             <Zap className="h-3 w-3" />
@@ -96,11 +100,11 @@ export function EarningsCalculatorSection() {
           <h2 className="text-3xl md:text-4xl font-black text-foreground mb-2">
             What would <span className="text-primary">you</span> earn?
           </h2>
-          <p className="text-muted-foreground text-sm">Pick what you own.</p>
+          <p className="text-muted-foreground text-sm">Select what you own.</p>
         </motion.div>
 
-        {/* Step 1 — Device toggles */}
-        <div className="grid grid-cols-2 gap-2.5 mb-5">
+        {/* Device cards */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
           {DEVICES.map((device, i) => {
             const active = activeDevices.has(device.id);
             const c = C[device.colorClass];
@@ -112,96 +116,101 @@ export function EarningsCalculatorSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.06 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => toggle(device.id)}
-                className={`relative flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200 ${
-                  active ? `${c.bg} ${c.border}` : 'bg-card border-border hover:border-border/80'
+                className={`relative flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-200 cursor-pointer select-none ${
+                  active
+                    ? `${c.activeBg} ${c.border} shadow-sm`
+                    : 'bg-card/60 border-border/60 hover:border-border'
                 }`}
               >
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl shrink-0 transition-all duration-200 ${
-                  active ? `${c.bg} border ${c.border}` : 'bg-muted border border-border'
+                {/* Icon circle */}
+                <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-200 ${
+                  active ? `${c.bg} border ${c.border}` : 'bg-muted/60 border border-border/40'
                 }`}>
-                  <Icon className={`h-4 w-4 transition-colors ${active ? c.icon : 'text-muted-foreground'}`} />
+                  <Icon className={`h-5 w-5 transition-colors ${active ? c.icon : 'text-muted-foreground'}`} />
+                  {/* Checkmark badge */}
+                  <AnimatePresence>
+                    {active && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                        className={`absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full flex items-center justify-center ${c.icon.replace('text-', 'bg-')}`}
+                      >
+                        <Check className="h-3 w-3 text-background" strokeWidth={3} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <span className={`font-semibold text-sm transition-colors ${active ? 'text-foreground' : 'text-muted-foreground'}`}>
+
+                <span className={`font-semibold text-sm leading-tight transition-colors ${active ? 'text-foreground' : 'text-muted-foreground'}`}>
                   {device.label}
                 </span>
-                {/* Active dot */}
-                <AnimatePresence>
-                  {active && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                      className={`absolute top-3 right-3 h-2 w-2 rounded-full ${c.icon.replace('text-', 'bg-')}`}
-                    />
-                  )}
-                </AnimatePresence>
               </motion.button>
             );
           })}
         </div>
 
-        {/* Step 2 — Global size */}
+        {/* Size selector */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.35, delay: 0.2 }}
-          className="flex items-center gap-3 mb-5"
+          className="flex bg-muted/40 rounded-2xl p-1 gap-1 mb-6 border border-border/40"
         >
-          <span className="text-xs text-muted-foreground font-medium shrink-0">My setup:</span>
-          <div className="flex flex-1 bg-muted/50 rounded-xl p-1 gap-1">
-            {(Object.keys(SIZE_LABELS) as SizeKey[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setSize(s)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                  size === s
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {SIZE_LABELS[s]}
-              </button>
-            ))}
-          </div>
+          {(Object.entries(SIZE_LABELS) as [SizeKey, { label: string; sub: string }][]).map(([s, meta]) => (
+            <button
+              key={s}
+              onClick={() => setSize(s)}
+              className={`flex-1 flex flex-col items-center py-2.5 px-1 rounded-xl text-center transition-all duration-200 ${
+                size === s
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <span className="text-xs font-bold leading-tight">{meta.label}</span>
+              <span className={`text-[10px] leading-tight mt-0.5 ${size === s ? 'text-primary-foreground/70' : 'text-muted-foreground/60'}`}>
+                {meta.sub}
+              </span>
+            </button>
+          ))}
         </motion.div>
 
         {/* Results */}
         <AnimatePresence>
           {hasAny && (
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
               className="rounded-2xl border border-border bg-card overflow-hidden"
             >
-              {/* Total */}
-              <div className="px-6 py-5 border-b border-border bg-muted/30 flex items-center justify-between">
-                <div>
-                  <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-1">Monthly $ZSOLAR</p>
-                  <div className="text-4xl font-black text-foreground"><Num value={totalTokens} /></div>
+              {/* Hero number */}
+              <div className="px-6 pt-7 pb-5 text-center border-b border-border">
+                <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-2">Monthly $ZSOLAR</p>
+                <div className="text-6xl font-black text-foreground leading-none mb-1">
+                  <AnimNum value={totalTokens} />
                 </div>
-                <div className="text-right">
-                  <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-1">Per Day</p>
-                  <div className="text-xl font-bold text-muted-foreground"><Num value={Math.floor(totalTokens / 30)} /></div>
-                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  ≈ <AnimNum value={Math.floor(totalTokens / 30)} /> tokens/day · 75% to your wallet
+                </p>
               </div>
 
-              {/* Moonshot scenarios */}
-              <div className="grid grid-cols-3 divide-x divide-border">
+              {/* Scenario chips */}
+              <div className="grid grid-cols-3 gap-2 p-4">
                 {SCENARIOS.map((s) => {
                   const usd = totalTokens * s.price;
                   const Icon = s.icon;
                   return (
-                    <div key={s.label} className={`px-3 py-4 ${s.glow ? 'bg-gradient-to-b from-solar/8 to-transparent' : ''}`}>
-                      <div className="flex items-center gap-1 mb-2">
+                    <div key={s.label} className={`rounded-xl ${s.bg} px-3 py-3 text-center`}>
+                      <div className="flex items-center justify-center gap-1 mb-1.5">
                         <Icon className={`h-3 w-3 ${s.accent}`} />
-                        <span className="text-[10px] font-semibold text-muted-foreground">{s.label}</span>
+                        <span className={`text-[10px] font-bold uppercase tracking-wide ${s.accent}`}>{s.label}</span>
                       </div>
-                      <p className="text-[10px] text-muted-foreground mb-1">${s.price.toFixed(2)}/token</p>
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={Math.round(usd)}
@@ -209,20 +218,21 @@ export function EarningsCalculatorSection() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -4 }}
                           transition={{ duration: 0.12 }}
-                          className={`text-base md:text-lg font-black tabular-nums ${s.accent}`}
+                          className={`text-sm font-black tabular-nums ${s.accent}`}
                         >
                           {formatUSD(usd)}
                         </motion.div>
                       </AnimatePresence>
+                      <p className="text-[9px] text-muted-foreground mt-0.5">${s.price.toFixed(2)}/token</p>
                     </div>
                   );
                 })}
               </div>
 
               {/* CTA */}
-              <div className="px-5 py-3 border-t border-border flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground">75% to your wallet · not financial advice</p>
-                <a href="/auth" className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
+              <div className="px-5 pb-4 flex items-center justify-between">
+                <p className="text-[11px] text-muted-foreground italic">Not financial advice</p>
+                <a href="/auth" className="flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/80 transition-colors">
                   Start free <ChevronRight className="h-3.5 w-3.5" />
                 </a>
               </div>
@@ -236,7 +246,7 @@ export function EarningsCalculatorSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-center py-6 text-muted-foreground text-sm"
+              className="text-center py-8 text-muted-foreground text-sm"
             >
               Select a device above to see your estimate.
             </motion.p>
