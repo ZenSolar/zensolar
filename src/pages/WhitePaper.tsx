@@ -752,10 +752,158 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      {/* Tokenization Supercycle — External Validation */}
+      <motion.section {...fadeIn} transition={{ delay: 0.28 }} className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="px-3 py-1">Chapter 5</Badge>
+          <h2 className="text-3xl font-bold">The Tokenization Supercycle</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Why ZenSolar is the clean energy layer of crypto's next major catalyst
+          </p>
+        </div>
+
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-accent/5 overflow-hidden relative">
+          <CardContent className="pt-6 space-y-6">
+            {/* External validation banner */}
+            <div className="flex items-start gap-4 p-5 rounded-xl bg-muted/50 border border-border/60">
+              <div className="p-2.5 rounded-xl bg-blue-500/10 shrink-0">
+                <ExternalLink className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">External Validation · Coinbase Bytes · February 19, 2026</p>
+                <blockquote className="text-foreground font-medium leading-relaxed">
+                  "The tokenization of everything – from treasury bills to real estate – creates a tangible use case that attracts traditional capital. This provides the fundamental bedrock for the next cycle."
+                </blockquote>
+                <p className="text-xs text-muted-foreground mt-2">— Gautam Chhugani, Senior Analyst, Bernstein Research</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">The $24.5 Billion Market That Just Started</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                On February 19, 2026, Coinbase published an analysis citing Bernstein Research's prediction of a tokenization 
+                "supercycle" driven by the conversion of real-world assets into blockchain tokens. The tokenized asset market 
+                hit a record <strong className="text-foreground">$24.5 billion</strong> that month—up 12% in 30 days on Ethereum alone.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                BlackRock, Franklin Templeton, JPMorgan, and other Wall Street giants are racing to tokenize treasuries, gold, 
+                real estate, and private credit. Tokenized stocks grew <strong className="text-foreground">2,800%</strong> in a 
+                single year. $432 million in VC funding has flowed into tokenization startups in 2026 alone.
+              </p>
+            </div>
+
+            <Separator />
+
+            {/* Comparison table */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">What Wall Street Tokenizes vs. What ZenSolar Tokenizes</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                The critical insight: Wall Street is tokenizing <em>financial claims</em>. ZenSolar tokenizes 
+                <strong className="text-primary"> physical reality</strong>—the most granular, tamper-evident, 
+                real-world asset class in crypto.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-xl bg-muted/30 border border-border/50 space-y-3">
+                  <h4 className="font-semibold text-muted-foreground flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    Traditional Tokenized Assets
+                  </h4>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    {[
+                      { asset: 'U.S. Treasuries', risk: 'Counterparty / custody risk' },
+                      { asset: 'Tokenized Gold', risk: 'Paper gold risk, re-hypothecation' },
+                      { asset: 'Real Estate', risk: 'Legal title, jurisdiction risk' },
+                      { asset: 'Tokenized Stocks', risk: 'Regulatory, issuer risk' },
+                    ].map(({ asset, risk }) => (
+                      <li key={asset} className="flex flex-col gap-0.5">
+                        <span className="font-medium text-foreground">{asset}</span>
+                        <span className="text-xs text-muted-foreground/70">{risk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="p-5 rounded-xl bg-primary/5 border border-primary/30 space-y-3">
+                  <h4 className="font-semibold text-primary flex items-center gap-2">
+                    <Sun className="h-4 w-4" />
+                    $ZSOLAR Tokenized Assets
+                  </h4>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    {[
+                      { asset: '1 kWh solar produced', proof: 'Cryptographically retired at mint' },
+                      { asset: '1 kWh battery discharged', proof: 'Proof-of-Delta™ hash chain' },
+                      { asset: '1 mile EV driven', proof: 'Device Watermark Registry' },
+                      { asset: '1 kWh EV charged', proof: 'Immutable on-chain record' },
+                    ].map(({ asset, proof }) => (
+                      <li key={asset} className="flex flex-col gap-0.5">
+                        <span className="font-medium text-foreground">{asset}</span>
+                        <span className="text-xs text-primary/70">{proof}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Permanent Scarcity: Physics + Math</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Bitcoin is scarce because of math. $ZSOLAR is scarce because of both physics and math.
+              </p>
+              <div className="grid md:grid-cols-3 gap-4">
+                {[
+                  {
+                    icon: Shield,
+                    title: 'No Re-Tokenization',
+                    desc: 'A kWh of solar that minted $ZSOLAR is permanently consumed. It cannot be tokenized again on any chain — your Proof-of-Delta™ baseline burns that unit of eligibility at mint time.',
+                    color: 'text-primary',
+                    bg: 'bg-primary/5 border-primary/20',
+                  },
+                  {
+                    icon: Globe,
+                    title: 'Cross-Chain Defense',
+                    desc: 'Timestamped hash chains and on-chain Merkle root snapshots provide publicly verifiable evidence to disprove any attempt to tokenize the same energy elsewhere.',
+                    color: 'text-accent',
+                    bg: 'bg-accent/5 border-accent/20',
+                  },
+                  {
+                    icon: TrendingUp,
+                    title: 'Uncaptured Territory',
+                    desc: 'The $24.5B tokenized asset market is dominated by treasuries and gold. Clean energy tokenization at the kilowatt-hour level is essentially an open frontier.',
+                    color: 'text-secondary',
+                    bg: 'bg-secondary/5 border-secondary/20',
+                  },
+                ].map((item) => (
+                  <div key={item.title} className={`p-5 rounded-xl border ${item.bg} space-y-2`}>
+                    <item.icon className={`h-5 w-5 ${item.color}`} />
+                    <h4 className="font-semibold text-foreground text-sm">{item.title}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6 rounded-xl bg-gradient-to-r from-primary/10 via-accent/5 to-secondary/10 border border-primary/20 text-center space-y-2">
+              <p className="text-lg font-semibold text-foreground">
+                ZenSolar's Position in the Tokenization Wave
+              </p>
+              <p className="text-muted-foreground max-w-2xl mx-auto text-sm leading-relaxed">
+                While Wall Street races to tokenize financial instruments, ZenSolar is tokenizing the physical actions 
+                that drive the clean energy economy — at the kilowatt-hour level. We are not competing with BlackRock's 
+                treasury fund. We are building the clean energy layer of the tokenization supercycle.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.section>
+
       {/* Market Landscape & Competitive Positioning */}
       <motion.section {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 5</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
           <h2 className="text-3xl font-bold">Market Landscape & Competitive Positioning</h2>
         </div>
 
