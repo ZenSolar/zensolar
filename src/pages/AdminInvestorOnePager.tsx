@@ -127,6 +127,46 @@ export default function AdminInvestorOnePager() {
         />
       </motion.div>
 
+      {/* Tokenization Supercycle Banner */}
+      <motion.div {...fadeIn} transition={{ delay: 0.08 }}>
+        <Card className="border-blue-500/20 bg-gradient-to-r from-blue-500/5 via-background to-primary/5">
+          <CardContent className="pt-5 pb-5">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+              <div className="p-2.5 rounded-xl bg-blue-500/10 shrink-0">
+                <Globe className="h-5 w-5 text-blue-500" />
+              </div>
+              <div className="flex-1 space-y-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  External Validation · Coinbase / Bernstein · Feb 19, 2026
+                </p>
+                <p className="text-sm font-medium text-foreground leading-snug">
+                  Tokenized assets hit a record{' '}
+                  <span className="text-primary font-bold">$24.5B</span>.
+                  {' '}Bernstein calls 2026 the start of a tokenization "supercycle" — 
+                  BlackRock, JPMorgan &amp; Franklin Templeton are racing to tokenize treasuries, gold &amp; real estate.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  $ZSOLAR tokenizes clean energy at the kWh level — an entirely uncaptured category. 
+                  <em className="ml-1">Bitcoin is scarce because of math. $ZSOLAR is scarce because of physics + math.</em>
+                </p>
+              </div>
+              <div className="flex gap-3 shrink-0">
+                {[
+                  { val: '$24.5B', lbl: 'Market' },
+                  { val: '2,800%', lbl: 'Stock growth' },
+                  { val: '$432M', lbl: 'VC in 2026' },
+                ].map(({ val, lbl }) => (
+                  <div key={lbl} className="text-center">
+                    <p className="text-lg font-bold text-primary leading-none">{val}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{lbl}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Key Value Prop */}
       <motion.div {...fadeIn} transition={{ delay: 0.1 }}>
         <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-emerald-500/5">

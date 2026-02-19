@@ -214,6 +214,59 @@ export default function InvestmentThesis() {
       </section>
 
       <div className="container max-w-6xl mx-auto px-4 pb-16 space-y-16">
+
+        {/* Tokenization Supercycle — External Validation */}
+        <motion.section {...fadeIn} transition={{ delay: 0.08 }}>
+          <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 via-background to-primary/5 overflow-hidden">
+            <CardContent className="pt-6 space-y-5">
+              {/* Quote banner */}
+              <div className="flex items-start gap-4 p-5 rounded-xl bg-muted/50 border border-border/50">
+                <div className="p-2 rounded-lg bg-blue-500/10 shrink-0 mt-0.5">
+                  <Globe className="h-4 w-4 text-blue-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Coinbase Bytes · Bernstein Research · February 19, 2026
+                  </p>
+                  <blockquote className="text-foreground font-medium leading-relaxed">
+                    "The tokenization of everything creates a tangible use case that attracts traditional capital. 
+                    This provides the fundamental bedrock for the next cycle."
+                  </blockquote>
+                  <p className="text-xs text-muted-foreground">— Gautam Chhugani, Senior Analyst, Bernstein Research</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                {[
+                  { stat: '$24.5B', label: 'Tokenized asset market cap', sub: 'Record high, Feb 2026 · 12% growth in 30 days' },
+                  { stat: '2,800%', label: 'Tokenized stocks growth', sub: 'In a single year, 2025→2026' },
+                  { stat: '$432M', label: 'VC into tokenization startups', sub: 'In 2026 alone — Bernstein "supercycle"' },
+                ].map(({ stat, label, sub }) => (
+                  <div key={label} className="text-center p-5 rounded-xl bg-muted/30 border border-border/40 space-y-1">
+                    <p className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{stat}</p>
+                    <p className="text-sm font-semibold text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground">{sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="p-5 rounded-xl bg-primary/5 border border-primary/20 space-y-2">
+                <p className="font-semibold text-foreground text-sm">Why this matters for $ZSOLAR investors</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  BlackRock, JPMorgan, and Franklin Templeton are tokenizing <em>financial claims</em> — 
+                  treasuries, gold, real estate. $ZSOLAR tokenizes <strong className="text-foreground">physical reality</strong> — 
+                  verified kilowatt-hours of clean energy that are permanently, irreversibly consumed at mint time. 
+                  We are not competing with Wall Street. We are building the clean energy layer of the tokenization supercycle — 
+                  an entirely uncaptured category.
+                </p>
+                <p className="text-xs text-muted-foreground italic">
+                  Bitcoin is scarce because of math. $ZSOLAR is scarce because of physics + math.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.section>
+
         {/* The Core Thesis */}
         <motion.section {...fadeIn} transition={{ delay: 0.1 }}>
           <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-accent/5 shadow-xl overflow-hidden">
