@@ -127,6 +127,77 @@ async function refreshTeslaToken(
   }
 }
 
+// ── Push Notification Helper ─────────────────────────────────────────────────
+
+/**
+ * Send a push notification to all of a user's registered devices.
+ * Called server-side using the service role key, so no user JWT is needed.
+ */
+async function sendChargingCompleteNotification(
+  userId: string,
+  totalKwh: number,
+  location: string,
+): Promise<void> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceRoleKey) return;
+
+  // Fetch push subscriptions directly — bypasses auth requirement
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const { data: subscriptions } = await supabase
+    .from("push_subscriptions")
+    .select("endpoint, p256dh, auth")
+    .eq("user_id", userId);
+
+  if (!subscriptions || subscriptions.length === 0) {
+    console.log(`[ChargeMonitor] No push subscriptions for ${userId.slice(0, 8)}`);
+    return;
+  }
+
+  const kwhText = totalKwh > 0 ? `${totalKwh.toFixed(1)} kWh added` : "Session complete";
+  const locationText = location && location !== "Home" ? ` at ${location}` : " at home";
+
+  const payload = {
+    title: "⚡ Charging Complete",
+    body: `${kwhText}${locationText}. Your Tesla is ready!`,
+    icon: "/pwa-192x192.png",
+    badge: "/pwa-192x192.png",
+    tag: "home_charging_complete",
+    url: "/dashboard",
+    data: { url: "/dashboard", total_kwh: totalKwh },
+  };
+
+  // Re-use the same VAPID logic via the send-push-notification function
+  try {
+    const resp = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Use service role key as bearer — send-push-notification validates via getClaims
+        // which works with the service role JWT. We pass user_id explicitly so it targets the right user.
+        "Authorization": `Bearer ${serviceRoleKey}`,
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        title: payload.title,
+        body: payload.body,
+        notification_type: "home_charging_complete",
+        url: "/dashboard",
+        data: { total_kwh: totalKwh },
+      }),
+    });
+
+    if (resp.ok) {
+      console.log(`[ChargeMonitor] 🔔 Push notification sent to ${userId.slice(0, 8)}: ${payload.body}`);
+    } else {
+      const errText = await resp.text();
+      console.warn(`[ChargeMonitor] Push notification failed (${resp.status}): ${errText.slice(0, 200)}`);
+    }
+  } catch (err) {
+    console.warn(`[ChargeMonitor] Push notification error:`, err);
+  }
+}
+
 // ── Main handler ─────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -452,6 +523,8 @@ async function processVehicle(
         await writeToEnergyProduction(supabase, userId, vin, activeSession.start_time, totalKwh, userTimezone);
         // Also write to charging_sessions for unified session list
         await writeToChargingSessions(supabase, userId, vin, activeSession, totalKwh, homeAddress, userTimezone);
+        // Send push notification to user's devices
+        await sendChargingCompleteNotification(userId, totalKwh, homeAddress || "Home");
       }
 
       results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
@@ -509,6 +582,7 @@ async function finalizeStaleSession(supabase: any, userId: string, vin: string, 
     if (totalKwh > 0) {
       await writeToEnergyProduction(supabase, userId, vin, session.start_time, totalKwh);
       await writeToChargingSessions(supabase, userId, vin, session, totalKwh, session.location);
+      await sendChargingCompleteNotification(userId, totalKwh, session.location || "Home");
     }
   }
 }

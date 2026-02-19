@@ -365,18 +365,32 @@ Deno.serve(async (req) => {
     );
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: authError } = await supabaseClient.auth.getClaims(token);
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
-    if (authError || !claimsData?.claims) {
-      console.error('Auth validation failed:', authError?.message || 'No claims');
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Allow system/server-side calls using the service role key directly
+    const isServiceRoleCall = token === serviceRoleKey;
+
+    let userId: string;
+
+    if (isServiceRoleCall) {
+      // Server-to-server call (e.g. from tesla-charge-monitor cron)
+      // Trust the user_id provided in the body
+      userId = 'system';
+      console.log('[Push] Service role call — system notification mode');
+    } else {
+      const { data: claimsData, error: authError } = await supabaseClient.auth.getClaims(token);
+
+      if (authError || !claimsData?.claims) {
+        console.error('Auth validation failed:', authError?.message || 'No claims');
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      userId = claimsData.claims.sub as string;
+      console.log(`Authenticated user: ${userId}`);
     }
-
-    const userId = claimsData.claims.sub as string;
-    console.log(`Authenticated user: ${userId}`);
 
     const body = await req.json();
     const {
@@ -406,20 +420,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { data: isAdmin } = await supabaseClient.rpc('has_role', {
-      _user_id: userId,
-      _role: 'admin'
-    });
+    if (!isServiceRoleCall) {
+      const { data: isAdmin } = await supabaseClient.rpc('has_role', {
+        _user_id: userId,
+        _role: 'admin'
+      });
 
-    console.log(`User is admin: ${isAdmin}`);
+      console.log(`User is admin: ${isAdmin}`);
 
-    if (!isAdmin) {
-      const targetingSelf = targetUserIds.length === 1 && targetUserIds[0] === userId;
-      if (!targetingSelf) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      if (!isAdmin) {
+        const targetingSelf = targetUserIds.length === 1 && targetUserIds[0] === userId;
+        if (!targetingSelf) {
+          return new Response(
+            JSON.stringify({ error: 'Unauthorized' }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
       }
     }
 
