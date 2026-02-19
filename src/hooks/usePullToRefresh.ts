@@ -65,30 +65,41 @@ export function usePullToRefresh({
     animationFrameId.current = requestAnimationFrame(animatePullDistance);
   }, [pullDistance]);
 
-  const handleTouchStart = useCallback((e: TouchEvent) => {
+  // Helper: get current scroll position (supports both element scroll and window scroll)
+  const getScrollTop = useCallback(() => {
     const container = containerRef.current;
-    if (!container || isRefreshing) return;
+    if (!container) return window.scrollY;
+    // If the container itself scrolls, use it; otherwise fall back to window scroll
+    return container.scrollHeight > container.clientHeight && container.scrollTop > 0
+      ? container.scrollTop
+      : window.scrollY;
+  }, []);
+
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (isRefreshing) return;
     
-    initialScrollTop.current = container.scrollTop;
+    const scrollTop = getScrollTop();
+    initialScrollTop.current = scrollTop;
     
     const touchY = e.touches[0].clientY;
     
     // Only enable pull-to-refresh when at the top AND touch started in the header zone
-    if (container.scrollTop <= 0 && touchY <= activationZoneHeight) {
+    if (scrollTop <= 0 && touchY <= activationZoneHeight) {
       startY.current = touchY;
       startTime.current = Date.now();
       setIsPulling(true);
       setIsActive(false);
       hasTriggeredThresholdHaptic.current = false;
     }
-  }, [isRefreshing, activationZoneHeight]);
+  }, [isRefreshing, activationZoneHeight, getScrollTop]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    const container = containerRef.current;
-    if (!isPulling || isRefreshing || !container) return;
+    if (!isPulling || isRefreshing) return;
     
+    const scrollTop = getScrollTop();
+
     // If user scrolled away from top, cancel pull-to-refresh
-    if (container.scrollTop > 0) {
+    if (scrollTop > 0) {
       setIsPulling(false);
       targetPullDistance.current = 0;
       setPullDistance(0);
@@ -188,17 +199,17 @@ export function usePullToRefresh({
   }, [isPulling, pullDistance, threshold, isRefreshing, onRefresh]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !enabled) return;
+    if (!enabled) return;
 
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    container.addEventListener('touchmove', handleTouchMove, { passive: false });
-    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    // Attach to document so we capture touches regardless of which element is scrolling
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
