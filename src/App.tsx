@@ -70,6 +70,7 @@ const AdminLiveBetaEconomics = lazy(() => import("./pages/AdminLiveBetaEconomics
 const AdminCompetitiveIntel = lazy(() => import("./pages/AdminCompetitiveIntel"));
 const AdminSecurityArchitecture = lazy(() => import("./pages/AdminSecurityArchitecture"));
 const AdminBootstrapCalculator = lazy(() => import("./pages/AdminBootstrapCalculator"));
+const AdminBootstrapSimulator = lazy(() => import("./pages/AdminBootstrapSimulator"));
 const AdminBetaDeployment = lazy(() => import("./pages/AdminBetaDeployment"));
 const AdminTodo = lazy(() => import("./pages/AdminTodo"));
 const AdminWalletProviders = lazy(() => import("./pages/AdminWalletProviders"));
@@ -628,6 +629,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminBootstrapCalculator />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/bootstrap-simulator" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminBootstrapSimulator />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
