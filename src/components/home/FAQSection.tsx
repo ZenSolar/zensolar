@@ -25,6 +25,10 @@ const faqs = [
     a: 'We use a patent-pending system called Mint-on-Proof™ that reads your device\'s real energy data, verifies it hasn\'t been tampered with, and then issues your rewards. Every token is backed by real, verified energy activity.',
   },
   {
+    q: 'How is $ZSOLAR different from tokenized gold or treasuries?',
+    a: 'Bitcoin is scarce because of math. $ZSOLAR is scarce because of physics and math. When Wall Street tokenizes gold or treasuries, those assets can still be re-hypothecated, held by custodians, or duplicated across systems. When you mint $ZSOLAR, the underlying kilowatt-hour of energy that earned it is permanently, irreversibly consumed — cryptographically retired on-chain at the moment of minting. You can\'t re-tokenize a kWh that already happened. Our Proof-of-Delta™ system burns that unit of eligibility at mint time and our Device Watermark Registry makes any attempt to double-mint the same energy publicly provable as fraud. This is a fundamentally more defensible form of digital scarcity.',
+  },
+  {
     q: 'Where does the value of $ZSOLAR come from?',
     a: 'Your $ZSOLAR tokens are backed by a real USD cash reserve held on a public crypto exchange. As more members join, subscription revenue continuously grows this reserve, meaning your tokens always have a market to trade on and are designed to increase in USD value as the platform grows and more users mint their clean energy into real digital income. The short answer: the value comes from the amount of USD in our liquidity pool.',
   },
