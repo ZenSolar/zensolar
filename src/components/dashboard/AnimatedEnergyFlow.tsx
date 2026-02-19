@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface EnergyFlowData {
@@ -14,195 +15,301 @@ interface AnimatedEnergyFlowProps {
   className?: string;
 }
 
-// ─── Flowing dashed energy line ────────────────────────────────────────────────
-function EnergyLine({
-  id, d, color, power, reverse = false,
-}: { id: string; d: string; color: string; power: number; reverse?: boolean }) {
-  const active = power > 0.05;
-  const speed = active ? Math.max(0.5, 1.8 - power * 0.09) : 0;
-  const total = 24;
-
-  return (
-    <g>
-      <path d={d} fill="none" stroke={color} strokeWidth={active ? 2 : 1} strokeOpacity={active ? 0.12 : 0.05} />
-      {active && (
-        <path d={d} fill="none" stroke={color} strokeWidth={7} strokeOpacity={0.04} filter={`url(#glow-${id})`} />
-      )}
-      {active && (
-        <path d={d} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round"
-          strokeDasharray="8 16" strokeOpacity={0.9}>
-          <animate attributeName="stroke-dashoffset" from="0" to={`${reverse ? total : -total}`}
-            dur={`${speed}s`} repeatCount="indefinite" />
-        </path>
-      )}
-    </g>
-  );
-}
-
-// ─── Pulsing node ──────────────────────────────────────────────────────────────
-function Node({
-  cx, cy, r, color, active, children,
-}: { cx: number; cy: number; r: number; color: string; active: boolean; children?: React.ReactNode }) {
-  return (
-    <g>
-      {active && (
-        <circle cx={cx} cy={cy} r={r + 2} fill="none" stroke={color} strokeWidth={0.8} strokeOpacity={0.25}>
-          <animate attributeName="r" values={`${r};${r + 12};${r}`} dur="3s" repeatCount="indefinite" />
-          <animate attributeName="stroke-opacity" values="0.35;0;0.35" dur="3s" repeatCount="indefinite" />
-        </circle>
-      )}
-      <circle cx={cx} cy={cy} r={r} fill={color} fillOpacity={active ? 0.15 : 0.06}
-        stroke={color} strokeWidth={1.5} strokeOpacity={active ? 0.65 : 0.2} />
-      {children}
-    </g>
-  );
-}
-
-// ─── Hero 3D isometric house (large, centre-stage) ────────────────────────────
-function House3D({ s, ox, oy, batteryPercent, solarActive }: {
-  s: number; ox: number; oy: number; batteryPercent: number; solarActive: boolean;
+// Smooth animated particles along SVG path
+function FlowingDots({
+  pathId,
+  color,
+  power,
+  dotCount = 4,
+}: {
+  pathId: string;
+  color: string;
+  power: number;
+  dotCount?: number;
 }) {
-  const x = (v: number) => ox + v * s;
-  const y = (v: number) => oy + v * s;
+  const [ready, setReady] = useState(false);
 
-  // Solar panel grid on left roof — 3 rows tapering to ridge
-  const panels: { row: number; col: number }[] = [];
-  [3, 3, 2, 1].forEach((cols, row) => {
-    for (let col = 0; col < cols; col++) panels.push({ row, col });
-  });
+  useEffect(() => {
+    const timer = setTimeout(() => setReady(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (power <= 0.05 || !ready) return null;
+
+  const duration = Math.max(1.8, 3.5 - power * 0.25);
+  const count = Math.min(Math.max(2, Math.ceil(power * 0.6)), dotCount);
 
   return (
-    <g>
-      {/* Ground shadow */}
-      <ellipse cx={x(0)} cy={y(125)} rx={130 * s} ry={11 * s} fill="#000" opacity={0.22} />
-
-      {/* ── Left wall (dark face) ── */}
-      <polygon
-        points={`${x(-90)},${y(26)} ${x(-90)},${y(125)} ${x(0)},${y(102)} ${x(0)},${y(0)}`}
-        fill="url(#houseLeft)" stroke="#1b2a3b" strokeWidth={0.7}
-      />
-
-      {/* ── Front wall (light face) ── */}
-      <polygon
-        points={`${x(0)},${y(0)} ${x(0)},${y(102)} ${x(90)},${y(125)} ${x(90)},${y(26)}`}
-        fill="url(#houseFront)" stroke="#1b2a3b" strokeWidth={0.7}
-      />
-
-      {/* ── Left roof ── */}
-      <polygon
-        points={`${x(-90)},${y(26)} ${x(0)},${y(0)} ${x(0)},${y(-70)} ${x(-50)},${y(-44)}`}
-        fill="url(#roofLeft)" stroke="#171f2e" strokeWidth={0.6}
-      />
-
-      {/* ── Right roof ── */}
-      <polygon
-        points={`${x(90)},${y(26)} ${x(0)},${y(0)} ${x(0)},${y(-70)} ${x(50)},${y(-44)}`}
-        fill="url(#roofRight)" stroke="#171f2e" strokeWidth={0.6}
-      />
-
-      {/* ── Solar panels on left roof (pyramid 3-3-2-1 layout) ── */}
-      {panels.map(({ row, col }) => {
-        const pw = 22 * s;
-        const ph = 13 * s;
-        // Walk down-left along the left roof face
-        const baseX = x(-82 + col * 24 + row * 11);
-        const baseY = y(16 - row * 16);
-        const skewY = -4 * s; // isometric skew up to left
-        return (
-          <polygon
-            key={`panel-${row}-${col}`}
-            points={`
-              ${baseX},${baseY + skewY}
-              ${baseX + pw},${baseY}
-              ${baseX + pw},${baseY + ph}
-              ${baseX},${baseY + ph + skewY}
-            `}
-            fill="#162d4d"
-            stroke="#1e4a75"
-            strokeWidth={0.5}
-            opacity={0.92}
-          />
-        );
-      })}
-
-      {/* Solar shimmer */}
-      {solarActive && (
-        <polygon
-          points={`${x(-90)},${y(26)} ${x(0)},${y(0)} ${x(0)},${y(-70)} ${x(-50)},${y(-44)}`}
-          fill="#fbbf24" opacity={0}
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <circle
+          key={`${pathId}-d-${i}`}
+          r={3}
+          fill={color}
+          opacity={0}
+          filter="url(#dotGlow)"
         >
-          <animate attributeName="opacity" values="0;0.06;0" dur="3.5s" repeatCount="indefinite" />
-        </polygon>
-      )}
-
-      {/* ── Front door ── */}
-      <rect x={x(10)} y={y(65)} width={20 * s} height={37 * s} rx={1.5}
-        fill="#080d17" stroke="#1e2d40" strokeWidth={0.6} />
-      <circle cx={x(26)} cy={y(84)} r={2 * s} fill="#3a4f6a" />
-
-      {/* ── Front windows (2 large) ── */}
-      {[{ bx: 35, by: 28, w: 30, h: 28 }, { bx: 35, by: 62, w: 30, h: 0 }].slice(0, 1).map((w, i) => (
-        <g key={i}>
-          <rect x={x(w.bx)} y={y(w.by)} width={w.w * s} height={w.h * s} rx={1}
-            fill="#0a1018" stroke="#1c2c3f" strokeWidth={0.5} />
-          <line x1={x(w.bx + w.w / 2)} y1={y(w.by)} x2={x(w.bx + w.w / 2)} y2={y(w.by + w.h)} stroke="#1c2c3f" strokeWidth={0.4} />
-          <line x1={x(w.bx)} y1={y(w.by + w.h / 2)} x2={x(w.bx + w.w)} y2={y(w.by + w.h / 2)} stroke="#1c2c3f" strokeWidth={0.4} />
-          {/* Warm interior glow */}
-          <rect x={x(w.bx + 1)} y={y(w.by + 1)} width={(w.w / 2 - 1) * s} height={(w.h / 2 - 1) * s}
-            fill="#2a1f00" opacity={0.5}>
-            <animate attributeName="fill" values="#2a1f00;#332500;#2a1f00" dur="6s" repeatCount="indefinite" />
-          </rect>
-        </g>
+          <animateMotion
+            dur={`${duration}s`}
+            repeatCount="indefinite"
+            begin={`${(i / count) * duration}s`}
+            calcMode="linear"
+          >
+            <mpath href={`#${pathId}`} />
+          </animateMotion>
+          <animate
+            attributeName="opacity"
+            values="0;0.9;0.9;0"
+            keyTimes="0;0.1;0.85;1"
+            dur={`${duration}s`}
+            repeatCount="indefinite"
+            begin={`${(i / count) * duration}s`}
+          />
+        </circle>
       ))}
+      {Array.from({ length: count }).map((_, i) => (
+        <circle
+          key={`${pathId}-t-${i}`}
+          r={6}
+          fill={color}
+          opacity={0}
+        >
+          <animateMotion
+            dur={`${duration}s`}
+            repeatCount="indefinite"
+            begin={`${(i / count) * duration}s`}
+            calcMode="linear"
+          >
+            <mpath href={`#${pathId}`} />
+          </animateMotion>
+          <animate
+            attributeName="opacity"
+            values="0;0.15;0.15;0"
+            keyTimes="0;0.1;0.85;1"
+            dur={`${duration}s`}
+            repeatCount="indefinite"
+            begin={`${(i / count) * duration}s`}
+          />
+        </circle>
+      ))}
+    </>
+  );
+}
 
-      {/* ── Front wall large window ── */}
-      <rect x={x(35)} y={y(28)} width={30 * s} height={28 * s} rx={1}
-        fill="#0a1018" stroke="#1c2c3f" strokeWidth={0.5} />
-      <line x1={x(50)} y1={y(28)} x2={x(50)} y2={y(56)} stroke="#1c2c3f" strokeWidth={0.4} />
-      <line x1={x(35)} y1={y(42)} x2={x(65)} y2={y(42)} stroke="#1c2c3f" strokeWidth={0.4} />
-      <rect x={x(36)} y={y(29)} width={13 * s} height={12 * s} rx={0.5} fill="#1e1400" opacity={0.55}>
-        <animate attributeName="fill" values="#1e1400;#281b00;#1e1400" dur="8s" repeatCount="indefinite" />
-      </rect>
-
-      {/* ── Left side window ── */}
-      <rect x={x(-74)} y={y(32)} width={24 * s} height={20 * s} rx={1}
-        fill="#0a1018" stroke="#1c2c3f" strokeWidth={0.4} />
-      <rect x={x(-73)} y={y(33)} width={10 * s} height={8 * s} fill="#1a1200" opacity={0.45} />
-
-      {/* ── Powerwall battery on left wall ── */}
-      <rect x={x(-83)} y={y(52)} width={18 * s} height={42 * s} rx={3}
-        fill="#0e1928" stroke="#1e3a5c" strokeWidth={0.8} />
-      {/* Battery bars */}
-      {[0, 1, 2, 3].map((i) => {
-        const filled = i < Math.ceil((batteryPercent / 100) * 4);
-        return (
-          <rect key={i} x={x(-80)} y={y(56 + i * 8)} width={12 * s} height={5 * s} rx={1}
-            fill="#22c55e" opacity={filled ? 0.4 + i * 0.06 : 0.07}>
-            {filled && <animate attributeName="opacity" values="0.3;0.55;0.3" dur="2.5s" repeatCount="indefinite" begin={`${i * 0.3}s`} />}
-          </rect>
-        );
-      })}
-      <text x={x(-74)} y={y(92)} textAnchor="middle" fill="#2a5a3a" fontSize={5 * s} fontWeight="700" letterSpacing="0.3">PW</text>
-
-      {/* ── Utility meter on front-right corner ── */}
-      <rect x={x(70)} y={y(70)} width={16 * s} height={26 * s} rx={2}
-        fill="#0e1928" stroke="#1e3a5c" strokeWidth={0.7} />
-      <circle cx={x(78)} cy={y(82)} r={5.5 * s} fill="#09111e" stroke="#253a55" strokeWidth={0.5} />
-      {/* Spinning dial */}
-      <line x1={x(78)} y1={y(82)} x2={x(81)} y2={y(78)} stroke="#8B5CF6" strokeWidth={0.8} opacity={0.9}>
-        <animateTransform attributeName="transform" type="rotate"
-          from={`0 ${x(78)} ${y(82)}`} to={`360 ${x(78)} ${y(82)}`} dur="5s" repeatCount="indefinite" />
-      </line>
-      <circle cx={x(78)} cy={y(82)} r={1 * s} fill="#8B5CF6" />
-      <text x={x(78)} y={y(93)} textAnchor="middle" fill="#3a5070" fontSize={3.5 * s} fontWeight="600">kWh</text>
+// Battery icon with animated fill bars
+function BatteryIcon({ percent, color, cx, cy }: { percent: number; color: string; cx: number; cy: number }) {
+  const bars = Math.max(0, Math.min(4, Math.ceil((percent / 100) * 4)));
+  return (
+    <g>
+      <rect x={cx - 9} y={cy - 6} width={18} height={12} rx={2} fill="none" stroke={color} strokeWidth={1.5} />
+      <rect x={cx + 9} y={cy - 2.5} width={2.5} height={5} rx={1} fill={color} opacity={0.6} />
+      {Array.from({ length: bars }).map((_, i) => (
+        <rect
+          key={i}
+          x={cx - 7 + i * 4}
+          y={cy - 3.5}
+          width={3}
+          height={7}
+          rx={0.5}
+          fill={color}
+          opacity={0.4 + i * 0.15}
+        >
+          {i === bars - 1 && (
+            <animate attributeName="opacity" values={`${0.3 + i * 0.15};${0.6 + i * 0.1};${0.3 + i * 0.15}`} dur="2s" repeatCount="indefinite" />
+          )}
+        </rect>
+      ))}
     </g>
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// House illustration — enlarged
+function HouseIllustration({ compact }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <g>
+        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.5" />
+        {/* House body */}
+        <rect x="150" y="180" width="100" height="73" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.6" />
+        <rect x="150" y="180" width="3" height="73" fill="#151b2a" />
+        <rect x="247" y="180" width="3" height="73" fill="#151b2a" />
+        {/* Roof */}
+        <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
+        {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
+        {(() => {
+          const peakY = 121, eaveY = 180, cx = 200;
+          const rows = [1, 2, 3, 4];
+          const totalRows = rows.length;
+          const rowH = (eaveY - peakY) / totalRows;
+          const ph = rowH - 2;
+          const pw = 18; // fixed uniform width
+          const gap = 2;
+          return (
+            <g opacity="0.95">
+              {rows.map((count, ri) => {
+                const rowTop = peakY + ri * rowH;
+                const totalW = count * pw + (count - 1) * gap;
+                const startX = cx - totalW / 2;
+                return Array.from({ length: count }).map((_, ci) => (
+                  <rect
+                    key={`${ri}-${ci}`}
+                    x={startX + ci * (pw + gap)}
+                    y={rowTop + 1}
+                    width={pw}
+                    height={ph}
+                    rx={1}
+                    fill="#1a3a60"
+                    stroke="#2d6090"
+                    strokeWidth="0.5"
+                  />
+                ));
+              })}
+              <rect x="155" y={peakY - 2} width="90" height={eaveY - peakY + 4} fill="#3b82f6" opacity="0" rx="2">
+                <animate attributeName="opacity" values="0;0.06;0" dur="3s" repeatCount="indefinite" />
+              </rect>
+            </g>
+          );
+        })()}
+        {/* Windows */}
+        <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="163" y="196" width="8" height="10" fill="#1a1800" opacity="0.5">
+          <animate attributeName="fill" values="#1a1800;#221e00;#1a1800" dur="6s" repeatCount="indefinite" />
+        </rect>
+        {/* Door */}
+        <rect x="190" y="222" width="18" height="30" rx="1" fill="#0c1018" stroke="#2a3448" strokeWidth="0.4" />
+        <circle cx="205" cy="238" r="0.8" fill="#4a5568" />
+        {/* Powerwall */}
+        <rect x="127" y="212" width="16" height="30" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.6" />
+        <rect x="129.5" y="215" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.25">
+          <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
+        </rect>
+        <rect x="129.5" y="219" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.15" />
+        <text x="135" y="234" textAnchor="middle" fill="#4a6080" fontSize="4" fontWeight="700">PW</text>
+        {/* Utility meter */}
+        <rect x="256" y="210" width="14" height="18" rx="1.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.5" />
+        <circle cx="263" cy="217" r="4" fill="#0a1018" stroke="#3a5070" strokeWidth="0.3" />
+        <line x1="263" y1="217" x2="265.5" y2="215.5" stroke="#8B5CF6" strokeWidth="0.4" opacity="0.7">
+          <animateTransform attributeName="transform" type="rotate" from="0 263 217" to="360 263 217" dur="8s" repeatCount="indefinite" />
+        </line>
+        <circle cx="263" cy="217" r="0.6" fill="#8B5CF6" opacity="0.6" />
+        <text x="263" y="225" textAnchor="middle" fill="#4a6080" fontSize="3" fontWeight="600">kWh</text>
+        {/* Ground */}
+        <line x1="110" y1="253" x2="290" y2="253" stroke="#1a2030" strokeWidth="0.6" />
+      </g>
+    );
+  }
+
+  return (
+    <g>
+      <ellipse cx="200" cy="298" rx="100" ry="5" fill="#0a0e18" opacity="0.6" />
+      {/* House body — bigger */}
+      <rect x="130" y="192" width="140" height="103" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.8" />
+      <rect x="130" y="192" width="4" height="103" fill="#151b2a" />
+      <rect x="266" y="192" width="4" height="103" fill="#151b2a" />
+      {/* Roof */}
+      <polygon points="110,195 200,110 290,195" fill="#111827" stroke="#2a3448" strokeWidth="0.8" />
+      <line x1="200" y1="110" x2="200" y2="114" stroke="#3a4560" strokeWidth="0.5" />
+      <line x1="112" y1="195" x2="288" y2="195" stroke="#0a0e18" strokeWidth="1.5" opacity="0.5" />
+      {/* Chimney */}
+      <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" stroke="#2a3448" strokeWidth="0.5" />
+      <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" stroke="#2a3448" strokeWidth="0.4" />
+      {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
+      {(() => {
+        const peakY = 115, eaveY = 191, cx = 200;
+        const rows = [1, 2, 3, 4];
+        const totalRows = rows.length;
+        const rowH = (eaveY - peakY) / totalRows;
+        const ph = rowH - 2.5;
+        const pw = 24; // fixed uniform width
+        const gap = 2.5;
+        return (
+          <g opacity="0.95">
+            {rows.map((count, ri) => {
+              const rowTop = peakY + ri * rowH;
+              const totalW = count * pw + (count - 1) * gap;
+              const startX = cx - totalW / 2;
+              return Array.from({ length: count }).map((_, ci) => (
+                <rect
+                  key={`${ri}-${ci}`}
+                  x={startX + ci * (pw + gap)}
+                  y={rowTop + 1}
+                  width={pw}
+                  height={ph}
+                  rx={1}
+                  fill="#1a3a60"
+                  stroke="#2d6090"
+                  strokeWidth="0.6"
+                />
+              ));
+            })}
+            <rect x="140" y={peakY - 2} width="120" height={eaveY - peakY + 4} fill="#3b82f6" opacity="0" rx="2">
+              <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
+            </rect>
+          </g>
+        );
+      })()}
+      {/* Windows */}
+      <g>
+        <rect x="145" y="212" width="28" height="32" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="159" y1="212" x2="159" y2="244" stroke="#2a3448" strokeWidth="0.4" />
+        <line x1="145" y1="228" x2="173" y2="228" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="146" y="213" width="12.5" height="14.5" fill="#1a1800" opacity="0.6">
+          <animate attributeName="fill" values="#1a1800;#221e00;#1a1800" dur="6s" repeatCount="indefinite" />
+        </rect>
+        <rect x="160" y="229" width="12.5" height="14.5" fill="#1a1800" opacity="0.4">
+          <animate attributeName="fill" values="#1a1800;#1e1a00;#1a1800" dur="8s" repeatCount="indefinite" />
+        </rect>
+        <rect x="228" y="212" width="28" height="32" rx="1.5" fill="#080c14" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="242" y1="212" x2="242" y2="244" stroke="#2a3448" strokeWidth="0.4" />
+        <line x1="228" y1="228" x2="256" y2="228" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="229" y="213" width="12.5" height="14.5" fill="#1a1800" opacity="0.5">
+          <animate attributeName="fill" values="#1a1800;#201c00;#1a1800" dur="7s" repeatCount="indefinite" />
+        </rect>
+      </g>
+      {/* Door */}
+      <rect x="186" y="255" width="28" height="40" rx="1.5" fill="#0c1018" stroke="#2a3448" strokeWidth="0.6" />
+      <rect x="189" y="259" width="22" height="14" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
+      <rect x="189" y="276" width="22" height="16" rx="1" fill="#0f1520" stroke="#1e2840" strokeWidth="0.3" />
+      <circle cx="210" cy="279" r="1.2" fill="#4a5568" />
+      <ellipse cx="200" cy="253" rx="4" ry="2" fill="#F59E0B" opacity="0.08">
+        <animate attributeName="opacity" values="0.06;0.12;0.06" dur="4s" repeatCount="indefinite" />
+      </ellipse>
+      {/* Porch step */}
+      <rect x="182" y="293" width="36" height="4" rx="0.5" fill="#1a2030" stroke="#2a3448" strokeWidth="0.3" />
+      {/* Powerwall unit */}
+      <rect x="100" y="252" width="22" height="42" rx="2.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.8" />
+      <rect x="104" y="257" width="14" height="3.5" rx="1" fill="#22c55e" opacity="0.25">
+        <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
+      </rect>
+      <rect x="104" y="262" width="14" height="3.5" rx="1" fill="#22c55e" opacity="0.15" />
+      <rect x="104" y="267" width="14" height="3.5" rx="1" fill="#22c55e" opacity="0.1" />
+      <text x="111" y="283" textAnchor="middle" fill="#4a6080" fontSize="5" fontWeight="700" letterSpacing="0.5">PW</text>
+      <line x1="111" y1="250" x2="111" y2="252" stroke="#2a4060" strokeWidth="1" />
+      {/* Utility meter */}
+      <g>
+        <rect x="278" y="245" width="18" height="24" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.7" />
+        <circle cx="287" cy="254" r="5.5" fill="#0a1018" stroke="#3a5070" strokeWidth="0.4" />
+        <line x1="287" y1="254" x2="290" y2="252" stroke="#8B5CF6" strokeWidth="0.5" opacity="0.7">
+          <animateTransform attributeName="transform" type="rotate" from="0 287 254" to="360 287 254" dur="8s" repeatCount="indefinite" />
+        </line>
+        <circle cx="287" cy="254" r="0.8" fill="#8B5CF6" opacity="0.6" />
+        <text x="287" y="265" textAnchor="middle" fill="#4a6080" fontSize="3.5" fontWeight="600" letterSpacing="0.3">kWh</text>
+        <line x1="287" y1="269" x2="287" y2="276" stroke="#2a4060" strokeWidth="0.8" />
+      </g>
+      {/* Landscaping */}
+      <ellipse cx="140" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.6" />
+      <ellipse cx="260" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.6" />
+      {/* Ground line */}
+      <line x1="70" y1="296" x2="330" y2="296" stroke="#1a2030" strokeWidth="0.8" />
+    </g>
+  );
+}
+
 export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps) {
   const isMobile = useIsMobile();
-  const C = isMobile;
+  const compact = isMobile;
 
   const demoData: EnergyFlowData = {
     solarPower: 3.2,
@@ -217,344 +324,331 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
   // Flow calculations
   const solarToHome = flow.solarPower > 0 && flow.homePower > 0 ? Math.min(flow.solarPower, flow.homePower) : 0;
-  const solarToBat  = flow.batteryPower > 0 ? Math.min(flow.solarPower, flow.batteryPower) : 0;
-  const batToHome   = flow.batteryPower < 0 ? Math.abs(flow.batteryPower) : 0;
-  const gridToHome  = flow.gridPower > 0 ? flow.gridPower : 0;
+  const solarToBattery = flow.solarPower > 0 && flow.batteryPower > 0 ? Math.min(flow.solarPower - solarToHome, flow.batteryPower) : 0;
+  const batteryToHome = flow.batteryPower < 0 ? Math.abs(flow.batteryPower) : 0;
+  const gridToHome = flow.gridPower > 0 ? flow.gridPower : 0;
   const solarToGrid = flow.gridPower < 0 ? Math.abs(flow.gridPower) : 0;
-  const evPower     = flow.evPower > 0 ? flow.evPower : 0;
+  const solarToEV = flow.evPower > 0 ? flow.evPower : 0;
 
   const colors = {
-    solar:   '#F59E0B',
+    solar: '#F59E0B',
     battery: '#22C55E',
-    grid:    '#8B5CF6',
-    ev:      '#3B82F6',
-    home:    '#F97316',
+    home: '#F97316',
+    grid: '#8B5CF6',
+    ev: '#3B82F6',
   };
 
-  // ── Layout constants ──────────────────────────────────────────────────────
-  // House is the HERO — positioned upper-center, much larger
-  const houseScale = C ? 1.0 : 1.22;
-  const houseOX    = 200;
-  const houseOY    = C ? 200 : 230;
+  // Responsive node positions — tighter on mobile
+  const nodes = compact
+    ? {
+        solar: { x: 200, y: 55 },
+        home: { x: 200, y: 190 },
+        battery: { x: 55, y: 210 },
+        grid: { x: 345, y: 210 },
+        ev: { x: 200, y: 325 },
+      }
+    : {
+        solar: { x: 200, y: 70 },
+        home: { x: 200, y: 230 },
+        battery: { x: 50, y: 265 },
+        grid: { x: 350, y: 265 },
+        ev: { x: 200, y: 405 },
+      };
 
-  // Node positions: pushed to extremes so house can breathe
-  const N = C ? {
-    solar:   { x: 200, y: 44  },
-    battery: { x: 46,  y: 334 },
-    grid:    { x: 354, y: 334 },
-    ev:      { x: 200, y: 415 },
-    homeX:   200, homeY: 254,
-  } : {
-    solar:   { x: 200, y: 48  },
-    battery: { x: 46,  y: 378 },
-    grid:    { x: 354, y: 378 },
-    ev:      { x: 200, y: 468 },
-    homeX:   210, homeY: 295,
-  };
+  // Meter position (right side of house)
+  const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const nr = C ? 17 : 20; // node radius
-  const vb = C ? '0 0 400 500' : '0 0 400 560';
-
-  // ── Energy flow paths ─────────────────────────────────────────────────────
-  // Solar → House (straight down into roof ridge)
-  const pSolarHome = `M${N.solar.x},${N.solar.y + nr} C${N.solar.x},${N.solar.y + 70} ${houseOX},${houseOY - 80} ${houseOX},${houseOY - (C ? 50 : 58)}`;
-
-  // Solar → Battery (sweeping left arc)
-  const pSolarBat  = `M${N.solar.x - nr},${N.solar.y + 8} C${N.solar.x - 120},${N.solar.y + 90} ${N.battery.x + 30},${N.battery.y - 70} ${N.battery.x + nr},${N.battery.y - 6}`;
-
-  // Battery → Home (rising right curve)
-  const pBatHome   = `M${N.battery.x + nr},${N.battery.y - 8} C${N.battery.x + 100},${N.battery.y - 50} ${houseOX - 90},${houseOY + 60} ${houseOX - (C ? 72 : 82)},${houseOY + (C ? 78 : 92)}`;
-
-  // Grid ↔ House (right arc)
-  const pGridHome  = `M${N.grid.x - nr},${N.grid.y - 8} C${N.grid.x - 100},${N.grid.y - 50} ${houseOX + 90},${houseOY + 60} ${houseOX + (C ? 72 : 82)},${houseOY + (C ? 78 : 92)}`;
-  const pSolarGrid = `M${N.solar.x + nr},${N.solar.y + 8} C${N.solar.x + 120},${N.solar.y + 90} ${N.grid.x - 30},${N.grid.y - 70} ${N.grid.x - nr},${N.grid.y - 6}`;
-
-  // Home → EV (straight down from house base)
-  const pToEV      = `M${houseOX},${houseOY + (C ? 108 : 124)} C${houseOX},${houseOY + (C ? 145 : 165)} ${N.ev.x},${N.ev.y - 60} ${N.ev.x},${N.ev.y - nr}`;
-
-  const lfs = C ? 7.5 : 9;   // label font size
-  const vfs = C ? 13 : 16;   // value font size
+  const vb = compact ? '0 0 400 440' : '0 0 400 530';
+  const maxH = compact ? '450px' : '640px';
+  const labelFs = compact ? 8 : 10;
+  const valueFs = compact ? 13 : 18;
+  const subValueFs = compact ? 10 : 15;
 
   return (
     <div className={`relative ${className}`}>
-      {/* Background */}
+      {/* Dark premium background */}
       <div className="absolute inset-0 rounded-xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#06080f] via-[#090d1c] to-[#060810]" />
-        {/* Star field */}
-        <div className="absolute inset-0 opacity-25" style={{
-          backgroundImage: [
-            'radial-gradient(1px 1px at 18px 22px,#fff 100%,transparent)',
-            'radial-gradient(1px 1px at 78px 58px,#fff 100%,transparent)',
-            'radial-gradient(1px 1px at 140px 12px,#fff 100%,transparent)',
-            'radial-gradient(1px 1px at 245px 42px,#fff 100%,transparent)',
-            'radial-gradient(1px 1px at 315px 72px,#fff 100%,transparent)',
-            'radial-gradient(1px 1px at 368px 18px,#fff 100%,transparent)',
-            'radial-gradient(1px 1px at 55px 135px,#fff 100%,transparent)',
-            'radial-gradient(1px 1px at 285px 155px,#fff 100%,transparent)',
-          ].join(', '),
-          backgroundSize: '400px 180px',
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e1a] via-[#0d1220] to-[#0a0e18]" />
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: 'radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.3), transparent), radial-gradient(1px 1px at 80px 60px, rgba(255,255,255,0.2), transparent), radial-gradient(1px 1px at 140px 20px, rgba(255,255,255,0.15), transparent), radial-gradient(1px 1px at 280px 45px, rgba(255,255,255,0.2), transparent), radial-gradient(1px 1px at 320px 80px, rgba(255,255,255,0.15), transparent)',
+          backgroundSize: '400px 100px',
         }} />
       </div>
 
-      {/* Header */}
+      {/* Title header */}
       <div className="relative z-10 pt-4 pb-1 px-4 text-center">
-        <h3 className="text-sm sm:text-base font-bold tracking-wide" style={{ color: colors.solar }}>
+        <h3 className="text-sm sm:text-base font-bold tracking-wide" style={{ color: '#F59E0B' }}>
           ⚡ Live Energy Flow
         </h3>
         <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide" style={{ color: '#6b7280' }}>
-          First of its kind · <span style={{ color: '#9ca3af', fontWeight: 500 }}>multi-manufacturer view</span>
+          First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>multi-manufacturer view</span>
         </p>
       </div>
 
-      <svg viewBox={vb} className="relative w-full h-full" style={{ maxHeight: C ? '510px' : '600px' }}>
+      <svg viewBox={vb} className="relative w-full h-full" style={{ maxHeight: maxH }}>
         <defs>
-          <linearGradient id="houseLeft" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a2840" />
-            <stop offset="100%" stopColor="#101825" />
+          <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <radialGradient id="solarAmbient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={colors.solar} stopOpacity={0.12} />
+            <stop offset="60%" stopColor={colors.solar} stopOpacity={0.04} />
+            <stop offset="100%" stopColor={colors.solar} stopOpacity={0} />
+          </radialGradient>
+          <linearGradient id="houseFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1a2235" />
+            <stop offset="100%" stopColor="#141a28" />
           </linearGradient>
-          <linearGradient id="houseFront" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1f3050" />
-            <stop offset="100%" stopColor="#131d30" />
-          </linearGradient>
-          <linearGradient id="roofLeft" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#0b1424" />
-            <stop offset="100%" stopColor="#080f1c" />
-          </linearGradient>
-          <linearGradient id="roofRight" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0e1a2e" />
-            <stop offset="100%" stopColor="#080f1c" />
-          </linearGradient>
-
-          {/* Per-line glow filters */}
-          {(['solar', 'battery', 'grid', 'ev'] as const).map(k => (
-            <filter key={k} id={`glow-${k}`} x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feFlood floodColor={colors[k]} floodOpacity="0.5" result="color" />
-              <feComposite in="color" in2="blur" operator="in" result="glow" />
-              <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          ))}
-
-          {/* Node ambient glow */}
-          {(['solar', 'battery', 'grid', 'ev'] as const).map(k => (
-            <radialGradient key={`rg-${k}`} id={`rg-${k}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor={colors[k]} stopOpacity={0.22} />
-              <stop offset="100%" stopColor={colors[k]} stopOpacity={0} />
-            </radialGradient>
-          ))}
         </defs>
 
-        {/* Solar ambient bloom */}
+        {/* Solar ambient glow */}
         {flow.solarPower > 0 && (
-          <ellipse cx={N.solar.x} cy={N.solar.y} rx={C ? 72 : 88} ry={C ? 60 : 74} fill="url(#rg-solar)" opacity={0.8}>
-            <animate attributeName="rx" values={C ? '60;80;60' : '75;100;75'} dur="4s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite" />
-          </ellipse>
+          <circle cx={nodes.solar.x} cy={nodes.solar.y - 10} r={compact ? 70 : 100} fill="url(#solarAmbient)">
+            <animate attributeName="r" values={compact ? '60;80;60' : '90;110;90'} dur="4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.8;1;0.8" dur="4s" repeatCount="indefinite" />
+          </circle>
         )}
 
-        {/* ── Energy flow lines — drawn UNDER house ── */}
-        <EnergyLine id="solar"    d={pSolarHome} color={colors.solar}   power={solarToHome} />
-        <EnergyLine id="solbat"   d={pSolarBat}  color={colors.solar}   power={solarToBat}  />
-        <EnergyLine id="battery"  d={pBatHome}   color={colors.battery} power={batToHome}   />
-        <EnergyLine id="grid"     d={pGridHome}  color={colors.grid}    power={gridToHome}  />
-        <EnergyLine id="solgrid"  d={pSolarGrid} color={colors.grid}    power={solarToGrid} reverse />
-        <EnergyLine id="ev"       d={pToEV}      color={colors.ev}      power={evPower}     />
+        {/* House illustration */}
+        <HouseIllustration compact={compact} />
 
-        {/* ── HERO 3D House ── */}
-        <House3D
-          s={houseScale}
-          ox={houseOX}
-          oy={houseOY}
-          batteryPercent={flow.batteryPercent}
-          solarActive={flow.solarPower > 0}
+        {/* ── Connection paths ── */}
+        <path
+          id="p-solar-home"
+          d={`M${nodes.solar.x},${nodes.solar.y + 22} L${nodes.home.x},${nodes.home.y - 30}`}
+          fill="none" stroke={colors.solar}
+          strokeWidth={solarToHome > 0 ? 1 : 0.3} strokeOpacity={solarToHome > 0 ? 0.25 : 0.06}
+        />
+        <path
+          id="p-solar-bat"
+          d={`M${nodes.solar.x - 30},${nodes.solar.y + 18} C${nodes.solar.x - 80},${nodes.solar.y + 70} ${nodes.battery.x + 20},${nodes.battery.y - 50} ${nodes.battery.x},${nodes.battery.y - 25}`}
+          fill="none" stroke={colors.solar}
+          strokeWidth={solarToBattery > 0 ? 1 : 0.3} strokeOpacity={solarToBattery > 0 ? 0.25 : 0.06}
+        />
+        <path
+          id="p-bat-home"
+          d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
+          fill="none" stroke={colors.battery}
+          strokeWidth={batteryToHome > 0 ? 1 : 0.3} strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
+        />
+        <path
+          id="p-solar-grid"
+          d={`M${meter.x + 8},${meter.y} C${meter.x + 30},${meter.y} ${nodes.grid.x - 30},${nodes.grid.y} ${nodes.grid.x},${nodes.grid.y}`}
+          fill="none" stroke={colors.grid}
+          strokeWidth={solarToGrid > 0 ? 1 : 0.3} strokeOpacity={solarToGrid > 0 ? 0.25 : 0.06}
+        />
+        <path
+          id="p-grid-home"
+          d={`M${nodes.grid.x},${nodes.grid.y} C${nodes.grid.x - 30},${nodes.grid.y} ${meter.x + 30},${meter.y} ${meter.x + 8},${meter.y}`}
+          fill="none" stroke={colors.grid}
+          strokeWidth={gridToHome > 0 ? 1 : 0.3} strokeOpacity={gridToHome > 0 ? 0.25 : 0.06}
+        />
+        <path
+          id="p-to-ev"
+          d={`M${nodes.home.x},${nodes.home.y + (compact ? 60 : 65)} C${nodes.home.x},${nodes.home.y + (compact ? 90 : 100)} ${nodes.ev.x},${nodes.ev.y - 55} ${nodes.ev.x},${nodes.ev.y - 25}`}
+          fill="none" stroke={colors.ev}
+          strokeWidth={solarToEV > 0 ? 1 : 0.3} strokeOpacity={solarToEV > 0 ? 0.25 : 0.06}
         />
 
-        {/* HOME kW label — centered on front face */}
-        <text x={N.homeX} y={N.homeY} textAnchor="middle"
-          fill="white" fontSize={vfs} fontWeight="800" opacity={0.95}>
-          {flow.homePower.toFixed(1)} kW
-        </text>
-        <text x={N.homeX} y={N.homeY + (C ? 13 : 15)} textAnchor="middle"
-          fill="#7a8fa8" fontSize={lfs} fontWeight="600" letterSpacing="1.8">
-          HOME
-        </text>
+        {/* ── Animated dots ── */}
+        <FlowingDots pathId="p-solar-home" color={colors.solar} power={solarToHome} dotCount={5} />
+        <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={4} />
+        <FlowingDots pathId="p-bat-home" color={colors.battery} power={batteryToHome} dotCount={5} />
+        <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={4} />
+        <FlowingDots pathId="p-solar-grid" color={colors.grid} power={solarToGrid} dotCount={4} />
+        <FlowingDots pathId="p-to-ev" color={colors.ev} power={solarToEV} dotCount={4} />
 
-        {/* ══ SOLAR NODE ══ */}
-        <Node cx={N.solar.x} cy={N.solar.y} r={nr} color={colors.solar} active={flow.solarPower > 0}>
-          {/* Sun rays icon */}
-          <g transform={`translate(${N.solar.x}, ${N.solar.y})`}>
-            {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => (
-              <line key={deg}
-                x1={0} y1={-(nr * 0.45)} x2={0} y2={-(nr * 0.7)}
-                stroke={colors.solar} strokeWidth={1.2} strokeLinecap="round" strokeOpacity={0.7}
-                transform={`rotate(${deg})`} />
-            ))}
-            <circle cx={0} cy={0} r={nr * 0.32} fill={colors.solar} fillOpacity={0.3}
-              stroke={colors.solar} strokeWidth={0.8} />
-          </g>
-        </Node>
-        <text x={N.solar.x} y={N.solar.y - nr - 12} textAnchor="middle"
-          fill={colors.solar} fontSize={vfs} fontWeight="800">
-          {flow.solarPower.toFixed(1)} kW
-        </text>
-        <text x={N.solar.x} y={N.solar.y - nr - 3} textAnchor="middle"
-          fill="#9ca3af" fontSize={lfs} fontWeight="600" letterSpacing="1.5">
-          SOLAR
-        </text>
-
-        {/* ══ BATTERY NODE ══ */}
-        <Node cx={N.battery.x} cy={N.battery.y} r={nr} color={colors.battery} active={Math.abs(flow.batteryPower) > 0.05}>
-          <g transform={`translate(${N.battery.x - 9}, ${N.battery.y - 6})`}>
-            <rect x={0} y={0} width={16} height={12} rx={2.5}
-              fill="none" stroke={colors.battery} strokeWidth={1.5} />
-            <rect x={16} y={3.5} width={2.5} height={5} rx={1}
-              fill={colors.battery} opacity={0.5} />
-            {Array.from({ length: Math.max(1, Math.ceil((flow.batteryPercent / 100) * 3)) }).map((_, i) => (
-              <rect key={i} x={2.5 + i * 4.5} y={2.5} width={3.5} height={7} rx={0.8}
-                fill={colors.battery} opacity={0.45 + i * 0.12} />
-            ))}
-          </g>
-        </Node>
-        <text x={N.battery.x} y={N.battery.y + nr + (C ? 13 : 15)} textAnchor="middle"
-          fill="white" fontSize={C ? 11 : 13} fontWeight="800">
-          {Math.abs(flow.batteryPower).toFixed(1)} kW
-        </text>
-        <text x={N.battery.x} y={N.battery.y + nr + (C ? 24 : 27)} textAnchor="middle"
-          fill="#9ca3af" fontSize={lfs} fontWeight="600" letterSpacing="1.2">
-          BATTERY
-        </text>
-        {/* % bar */}
-        <rect x={N.battery.x - 22} y={N.battery.y + nr + (C ? 30 : 33)} width={44} height={4} rx={2} fill="#111d30" />
-        <rect x={N.battery.x - 22} y={N.battery.y + nr + (C ? 30 : 33)} width={44 * (flow.batteryPercent / 100)} height={4} rx={2} fill={colors.battery} opacity={0.7} />
-        <text x={N.battery.x} y={N.battery.y + nr + (C ? 42 : 46)} textAnchor="middle"
-          fill="#6b7280" fontSize={C ? 7 : 8}>
-          {flow.batteryPercent}% charged
-        </text>
-
-        {/* ══ GRID NODE ══ */}
-        <Node cx={N.grid.x} cy={N.grid.y} r={nr} color={colors.grid} active={Math.abs(flow.gridPower) > 0.05}>
-          {/* Pylon-style icon */}
-          <g transform={`translate(${N.grid.x}, ${N.grid.y})`}>
-            <line x1={-5} y1={-9} x2={5} y2={-9} stroke={colors.grid} strokeWidth={1} strokeOpacity={0.8} />
-            <line x1={-7} y1={-5} x2={7} y2={-5} stroke={colors.grid} strokeWidth={1} strokeOpacity={0.7} />
-            <line x1={0} y1={-9} x2={-4} y2={9} stroke={colors.grid} strokeWidth={1.2} strokeOpacity={0.8} />
-            <line x1={0} y1={-9} x2={4} y2={9} stroke={colors.grid} strokeWidth={1.2} strokeOpacity={0.8} />
-            <line x1={-4} y1={9} x2={4} y2={9} stroke={colors.grid} strokeWidth={1} strokeOpacity={0.7} />
-          </g>
-        </Node>
-        <text x={N.grid.x} y={N.grid.y + nr + (C ? 13 : 15)} textAnchor="middle"
-          fill="white" fontSize={C ? 11 : 13} fontWeight="800">
-          {Math.abs(flow.gridPower).toFixed(1)} kW
-        </text>
-        <text x={N.grid.x} y={N.grid.y + nr + (C ? 24 : 27)} textAnchor="middle"
-          fill="#9ca3af" fontSize={lfs} fontWeight="600" letterSpacing="1.2">
-          GRID
-        </text>
-        {flow.gridPower !== 0 && (
-          <text x={N.grid.x} y={N.grid.y + nr + (C ? 35 : 38)} textAnchor="middle"
-            fill={flow.gridPower > 0 ? colors.grid : colors.solar} fontSize={C ? 7 : 8} fontWeight="600">
-            {flow.gridPower > 0 ? '↓ importing' : '↑ exporting'}
+        {/* ── SOLAR ── */}
+        <g>
+          <circle cx={nodes.solar.x} cy={nodes.solar.y} r={compact ? 16 : 20} fill={colors.solar} fillOpacity={0.1} stroke={colors.solar} strokeWidth={1} strokeOpacity={0.4} />
+          <foreignObject x={nodes.solar.x - 10} y={nodes.solar.y - 10} width={20} height={20}>
+            <div className="flex items-center justify-center w-full h-full">
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.solar} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              </svg>
+            </div>
+          </foreignObject>
+          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 22 : 30)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">SOLAR</text>
+          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 33 : 42)} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
+            {flow.solarPower.toFixed(1)} kW
           </text>
-        )}
+        </g>
 
-        {/* ══ EV NODE ══ */}
-        <Node cx={N.ev.x} cy={N.ev.y} r={nr} color={colors.ev} active={evPower > 0}>
-          <polygon
-            points={`${N.ev.x + 3},${N.ev.y - 9} ${N.ev.x - 5},${N.ev.y + 1} ${N.ev.x},${N.ev.y + 1} ${N.ev.x - 3},${N.ev.y + 9} ${N.ev.x + 5},${N.ev.y - 1} ${N.ev.x},${N.ev.y - 1}`}
-            fill={colors.ev} opacity={0.85}
-          />
-          {evPower > 0 && (
-            <>
-              {[0, 0.8].map((delay, i) => (
-                <circle key={i} cx={N.ev.x} cy={N.ev.y} r={nr} fill="none" stroke={colors.ev} strokeWidth={0.7} opacity={0}>
-                  <animate attributeName="r" values={`${nr};${nr + 20};${nr}`} dur="2.2s" repeatCount="indefinite" begin={`${delay}s`} />
-                  <animate attributeName="opacity" values="0.45;0;0.45" dur="2.2s" repeatCount="indefinite" begin={`${delay}s`} />
-                </circle>
-              ))}
-            </>
+        {/* ── HOME ── centered in house body */}
+        <g>
+          {/* Compact: house body y=180-253, center~216. Desktop: y=192-295, center~243 */}
+          <text x={nodes.home.x} y={compact ? 220 : 248} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
+            {flow.homePower.toFixed(1)} kW
+          </text>
+          <text x={nodes.home.x} y={compact ? 232 : 261} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
+        </g>
+
+        {/* ── POWERWALL ── */}
+        <g>
+          <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 16 : 20} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={1} strokeOpacity={0.4} />
+          <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">POWERWALL</text>
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
+            {Math.abs(flow.batteryPower).toFixed(1)} kW
+          </text>
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 48 : 63)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 9 : 11}>
+            · {flow.batteryPercent}%
+          </text>
+          <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36} height={5} rx={2.5} fill="#1a2030" />
+          <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36 * (flow.batteryPercent / 100)} height={5} rx={2.5} fill={colors.battery} fillOpacity={0.6} />
+        </g>
+
+        {/* ── GRID (power tower icon) ── */}
+        <g>
+          <circle cx={nodes.grid.x} cy={nodes.grid.y} r={compact ? 16 : 20} fill={colors.grid} fillOpacity={0.1} stroke={colors.grid} strokeWidth={1} strokeOpacity={0.4} />
+          <foreignObject x={nodes.grid.x - 10} y={nodes.grid.y - 10} width={20} height={20}>
+            <div className="flex items-center justify-center w-full h-full">
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.grid} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                {/* Power transmission tower */}
+                <path d="M8 2h8l-2 6h3l-5 14 1-8H9l1-6H8z" fill="none" />
+                <line x1="4" y1="8" x2="20" y2="8" />
+                <line x1="6" y1="4" x2="18" y2="4" />
+              </svg>
+            </div>
+          </foreignObject>
+          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">GRID</text>
+          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
+            {Math.abs(flow.gridPower).toFixed(1)} kW
+          </text>
+          {flow.gridPower !== 0 && (
+            <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 48 : 63)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 8 : 10}>
+              {flow.gridPower > 0 ? 'importing' : 'exporting'}
+            </text>
           )}
-        </Node>
-        <text x={N.ev.x} y={N.ev.y + nr + (C ? 13 : 15)} textAnchor="middle"
-          fill="white" fontSize={C ? 11 : 13} fontWeight="800">
-          {flow.evPower.toFixed(1)} kW
-        </text>
-        <text x={N.ev.x} y={N.ev.y + nr + (C ? 24 : 27)} textAnchor="middle"
-          fill="#9ca3af" fontSize={lfs} fontWeight="600" letterSpacing="1.2">
-          EV CHARGER
-        </text>
-        {evPower > 0 && (
-          <text x={N.ev.x} y={N.ev.y + nr + (C ? 35 : 38)} textAnchor="middle"
-            fill={colors.ev} fontSize={C ? 7 : 8.5} fontWeight="600">
-            <animate attributeName="opacity" values="0.5;1;0.5" dur="1.6s" repeatCount="indefinite" />
-            ⚡ CHARGING
+        </g>
+
+        {/* ── EV CHARGER ── */}
+        <g>
+          <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 16 : 20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
+          {/* Lightning bolt icon for EV charger */}
+          <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 10} width={20} height={20}>
+            <div className="flex items-center justify-center w-full h-full">
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </div>
+          </foreignObject>
+          {flow.evPower > 0 && (
+            <g opacity="0.6">
+              <path
+                d={`M${nodes.ev.x + 13},${nodes.ev.y - 1} Q${nodes.ev.x + 22},${nodes.ev.y - 8} ${nodes.ev.x + 18},${nodes.ev.y - 20}`}
+                fill="none" stroke={colors.ev} strokeWidth="1.2" strokeDasharray="3 2"
+              >
+                <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite" />
+              </path>
+            </g>
+          )}
+          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">EV CHARGER</text>
+          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
+            {flow.evPower.toFixed(1)} kW
           </text>
-        )}
+          {flow.evPower > 0 && (
+            <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 48 : 63)} textAnchor="middle" fill={colors.ev} fontSize={compact ? 7 : 9} fontWeight="500">
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+              ⚡ CHARGING
+            </text>
+          )}
+        </g>
 
-        {/* ── Today's Energy card ── */}
-        {(() => {
-          const sx = C ? 6 : 8;
-          const sy = C ? 428 : 484;
-          const cW = C ? 136 : 158;
-          const cH = C ? 62 : 72;
-          const rH = C ? 15 : 18;
-          const vS = C ? 9  : 11;
-          const lS = C ? 5.5 : 6.5;
+        {/* ── Footer ── */}
+        <g>
+          {/* Today's Stats — bottom left, polished card style */}
+          {(() => {
+            const sx = compact ? 10 : 12;
+            const sy = compact ? 348 : 435;
+            const rowH = compact ? 17 : 20;
+            const cardW = compact ? 125 : 150;
+            const cardH = compact ? 72 : 84;
+            const valueFontSize = compact ? 9 : 11;
+            const labelFontSize = compact ? 5.5 : 6.5;
+            const headerFs = compact ? 5.5 : 6.5;
 
-          const stats = [
-            { color: colors.solar,   val: (flow.solarPower * 4.2).toFixed(1),                label: 'Solar Generated',    on: flow.solarPower > 0 },
-            { color: colors.battery, val: (Math.abs(flow.batteryPower) * 2.9).toFixed(1),    label: 'Battery Discharged', on: flow.batteryPower < 0 },
-            { color: colors.ev,      val: (flow.evPower * 3.2).toFixed(1),                   label: 'EV Charged',         on: flow.evPower > 0 },
-          ];
+            const stats = [
+              { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar Generated', active: flow.solarPower > 0 },
+              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Storage Exported', active: flow.batteryPower < 0 },
+              { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)}`, unit: 'kWh', label: 'EV Charged', active: flow.evPower > 0 },
+            ];
+            return (
+              <g>
+                {/* Card background */}
+                <rect x={sx} y={sy - 2} width={cardW} height={cardH} rx={6} fill="#0d1220" fillOpacity={0.8} stroke="#1e293b" strokeWidth={0.5} />
+                {/* Header */}
+                <text x={sx + 8} y={sy + 10} fill="#6b7280" fontSize={headerFs} fontWeight="700" letterSpacing="1.5">
+                  TODAY&apos;S ENERGY
+                </text>
+                {/* Divider line */}
+                <line x1={sx + 8} y1={sy + 14} x2={sx + cardW - 8} y2={sy + 14} stroke="#1e293b" strokeWidth={0.5} />
+                {/* Stats rows */}
+                {stats.map((s, i) => {
+                  const rowY = sy + 20 + i * rowH;
+                  return (
+                    <g key={s.label}>
+                      {/* Color bar indicator */}
+                      <rect x={sx + 8} y={rowY} width={2.5} height={compact ? 10 : 12} rx={1.25} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.9 : 0.3}>
+                        {s.active && <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />}
+                      </rect>
+                      {/* Value */}
+                      <text x={sx + 16} y={rowY + (compact ? 6 : 7)} fill={s.active ? '#f3f4f6' : '#4b5563'} fontSize={valueFontSize} fontWeight="800">
+                        {s.value}
+                      </text>
+                      {/* Unit */}
+                      <text x={sx + 16 + s.value.length * (valueFontSize * 0.62)} y={rowY + (compact ? 6 : 7)} fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={valueFontSize - 2} fontWeight="500">
+                        {' '}{s.unit}
+                      </text>
+                      {/* Label */}
+                      <text x={sx + 16} y={rowY + (compact ? 14 : 16)} fill={s.active ? '#6b7280' : '#374151'} fontSize={labelFontSize} fontWeight="400">
+                        {s.label}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          })()}
 
-          return (
-            <g>
-              <rect x={sx} y={sy - 4} width={cW} height={cH} rx={7}
-                fill="#07090f" fillOpacity={0.9} stroke="#1e293b" strokeWidth={0.5} />
-              <text x={sx + 10} y={sy + 9} fill="#4b5563" fontSize={lS} fontWeight="700" letterSpacing="1.5">TODAY&apos;S ENERGY</text>
-              <line x1={sx + 10} y1={sy + 13} x2={sx + cW - 10} y2={sy + 13} stroke="#1e293b" strokeWidth={0.5} />
-              {stats.map((s, i) => {
-                const ry = sy + 19 + i * rH;
-                return (
-                  <g key={s.label}>
-                    <rect x={sx + 10} y={ry} width={2.5} height={C ? 9 : 11} rx={1.2}
-                      fill={s.on ? s.color : '#374151'} opacity={s.on ? 0.85 : 0.25}>
-                      {s.on && <animate attributeName="opacity" values="0.55;0.95;0.55" dur="3s" repeatCount="indefinite" />}
-                    </rect>
-                    <text x={sx + 17} y={ry + (C ? 6.5 : 7.5)} fill={s.on ? '#f1f5f9' : '#4b5563'}
-                      fontSize={vS} fontWeight="800">{s.val}</text>
-                    <text x={sx + 17 + s.val.length * (vS * 0.63)} y={ry + (C ? 6.5 : 7.5)}
-                      fill="#9ca3af" fontSize={vS - 1.5}> kWh</text>
-                    <text x={sx + 17} y={ry + (C ? 14 : 16)} fill={s.on ? '#6b7280' : '#374151'}
-                      fontSize={lS}>{s.label}</text>
-                  </g>
-                );
-              })}
-            </g>
-          );
-        })()}
-
-        {/* ── Manufacturer badges ── */}
-        {(() => {
-          const bx = C ? 356 : 370;
-          const by = C ? 444 : 500;
-          const gap = C ? 13 : 15;
-          const pW  = C ? 56 : 64;
-          const pH  = C ? 11 : 13;
-          const fs  = C ? 5.5 : 6.5;
-          const brands = [
-            { label: 'ENPHASE',     color: colors.solar   },
-            { label: 'TESLA',       color: colors.battery },
-            { label: 'CHARGEPOINT', color: colors.ev      },
-          ];
-          return brands.map((b, i) => (
-            <g key={b.label}>
-              <rect x={bx - pW / 2} y={by + i * gap} width={pW} height={pH} rx={pH / 2}
-                fill={b.color} fillOpacity={0.08} stroke={b.color} strokeWidth={0.4} strokeOpacity={0.35} />
-              <text x={bx} y={by + i * gap + pH / 2 + (C ? 1.8 : 2.2)} textAnchor="middle"
-                fill={b.color} fontSize={fs} fontWeight="600" letterSpacing="0.3" opacity={0.9}>{b.label}</text>
-            </g>
-          ));
-        })()}
+          {/* Stacked manufacturer pills — bottom right */}
+          {(() => {
+            const bx = compact ? 350 : 362;
+            const by = compact ? 368 : 458;
+            const gap = compact ? 14 : 16;
+            const pillW = compact ? 50 : 58;
+            const pillH = compact ? 11 : 13;
+            const fs = compact ? 5.5 : 6.5;
+            const manufacturers = [
+              { label: 'ENPHASE', color: '#F59E0B' },
+              { label: 'TESLA', color: '#22C55E' },
+              { label: 'CHARGEPOINT', color: '#3B82F6' },
+            ];
+            return manufacturers.map((m, i) => (
+              <g key={m.label}>
+                <rect
+                  x={bx - pillW / 2} y={by + i * gap}
+                  width={pillW} height={pillH} rx={pillH / 2}
+                  fill={m.color} fillOpacity={0.08}
+                  stroke={m.color} strokeWidth={0.4} strokeOpacity={0.3}
+                />
+                <text
+                  x={bx} y={by + i * gap + pillH / 2 + (compact ? 1.8 : 2.2)}
+                  textAnchor="middle" fill={m.color}
+                  fontSize={fs} fontWeight="600" letterSpacing="0.3" opacity="0.9"
+                >
+                  {m.label}
+                </text>
+              </g>
+            ));
+          })()}
+        </g>
       </svg>
     </div>
   );
