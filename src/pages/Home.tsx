@@ -7,7 +7,7 @@ import { DashboardShowcase } from '@/components/home/DashboardShowcase';
 import { CleanEnergyCenterShowcase } from '@/components/home/CleanEnergyCenterShowcase';
 import { NFTMilestoneSection } from '@/components/home/NFTMilestoneSection';
 import { StoreRedemptionSection } from '@/components/home/StoreRedemptionSection';
-
+import { TokenizationWaveSection } from '@/components/home/TokenizationWaveSection';
 import { PricingSection } from '@/components/home/PricingSection';
 
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
@@ -60,6 +60,8 @@ export default function Home() {
           <SectionDivider variant="angle" />
           <WhyZenSolarSection />
           <SectionDivider variant="angle" flip />
+          <TokenizationWaveSection />
+          <SectionDivider variant="diamond" />
           <PricingSection />
           <SectionDivider variant="chevron" />
           <SectionDivider variant="diamond" />
