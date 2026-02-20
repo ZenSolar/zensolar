@@ -1,17 +1,22 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const sections = [
-  { id: 'how-it-works',   label: 'How It Works' },
+  { id: 'how-it-works',      label: 'How It Works' },
+  { id: 'dashboard-showcase', label: 'Dashboard' },
+  { id: 'nft-milestones',    label: 'NFT Milestones' },
+  { id: 'why-zensolar',      label: 'Why ZenSolar' },
   { id: 'tokenization-wave', label: 'Tokenization' },
-  { id: 'pricing',        label: 'Pricing' },
-  { id: 'testimonials',   label: 'Reviews' },
-  { id: 'faq',            label: 'FAQ' },
+  { id: 'pricing',           label: 'Pricing' },
+  { id: 'testimonials',      label: 'Reviews' },
+  { id: 'faq',               label: 'FAQ' },
 ];
 
 export function FloatingSectionNav() {
-  const [visible, setVisible]   = useState(false);
-  const [activeId, setActiveId] = useState('');
+  const [visible, setVisible]     = useState(false);
+  const [activeId, setActiveId]   = useState('');
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,11 +31,13 @@ export function FloatingSectionNav() {
 
     const sectionObserver = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActiveId(entry.target.id);
-        }
+        // Find the topmost intersecting section
+        const intersecting = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (intersecting.length > 0) setActiveId(intersecting[0].target.id);
       },
-      { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
+      { rootMargin: '-15% 0px -55% 0px', threshold: 0 }
     );
 
     sections.forEach(({ id }) => {
@@ -52,28 +59,63 @@ export function FloatingSectionNav() {
   return (
     <>
       <div ref={sentinelRef} className="absolute top-[500px] h-px w-px pointer-events-none" aria-hidden />
+
       <nav
         aria-label="Page sections"
         className={cn(
-          'fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300',
-          visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+          'fixed right-5 top-1/2 -translate-y-1/2 z-[100] transition-all duration-500 hidden md:flex',
+          visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-3 pointer-events-none'
         )}
       >
-        <div className="flex items-center gap-0.5 px-1.5 py-1.5 rounded-full border border-border/40 bg-background/85 backdrop-blur-2xl shadow-xl shadow-black/25">
-          {sections.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => scrollTo(id)}
-              className={cn(
-                'px-3.5 py-1.5 rounded-full text-[11px] font-semibold tracking-wide transition-all duration-200 whitespace-nowrap',
-                activeId === id
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-              )}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex flex-col items-end gap-3">
+          {sections.map(({ id, label }) => {
+            const isActive  = activeId === id;
+            const isHovered = hoveredId === id;
+
+            return (
+              <button
+                key={id}
+                onClick={() => scrollTo(id)}
+                onMouseEnter={() => setHoveredId(id)}
+                onMouseLeave={() => setHoveredId(null)}
+                aria-label={label}
+                className="group relative flex items-center justify-end gap-2.5 focus:outline-none"
+              >
+                {/* Label */}
+                <AnimatePresence>
+                  {isHovered && (
+                    <motion.span
+                      initial={{ opacity: 0, x: 6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 6 }}
+                      transition={{ duration: 0.15, ease: 'easeOut' }}
+                      className="text-[11px] font-semibold tracking-wide text-foreground/80 bg-background/90 backdrop-blur-md border border-border/40 px-2.5 py-1 rounded-full shadow-lg shadow-black/20 whitespace-nowrap pointer-events-none select-none"
+                    >
+                      {label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+
+                {/* Dot */}
+                <motion.span
+                  animate={{
+                    scale:           isActive ? 1.2 : isHovered ? 1.1 : 1,
+                    backgroundColor: isActive
+                      ? 'hsl(var(--primary))'
+                      : isHovered
+                      ? 'hsl(var(--foreground) / 0.5)'
+                      : 'hsl(var(--muted-foreground) / 0.3)',
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="block rounded-full"
+                  style={{
+                    width:  isActive ? 8 : 6,
+                    height: isActive ? 8 : 6,
+                  }}
+                />
+              </button>
+            );
+          })}
         </div>
       </nav>
     </>
