@@ -83,9 +83,69 @@
   </head>
 
   <body>
+    <!-- Inline splash: shows instantly before any JS loads. React removes it on mount. -->
+    <style>
+      #pwa-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #0a1628;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        transition: opacity 0.3s ease;
+      }
+      #pwa-splash.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #pwa-splash img {
+        width: 160px;
+        height: auto;
+      }
+      #pwa-splash-bar-track {
+        width: 120px;
+        height: 3px;
+        background: rgba(255,255,255,0.12);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      #pwa-splash-bar {
+        height: 100%;
+        width: 0%;
+        background: #22c55e;
+        border-radius: 99px;
+        animation: splashProgress 2.5s cubic-bezier(0.4,0,0.2,1) forwards;
+      }
+      @keyframes splashProgress {
+        0%   { width: 0%; }
+        60%  { width: 75%; }
+        90%  { width: 90%; }
+        100% { width: 95%; }
+      }
+    </style>
+
+    <div id="pwa-splash" role="status" aria-label="Loading ZenSolar">
+      <img src="/logos/zen-logo-horizontal-new.png" alt="ZenSolar" />
+      <div id="pwa-splash-bar-track">
+        <div id="pwa-splash-bar"></div>
+      </div>
+    </div>
+
     <script>
-      // No-op: splash screen removed for faster page load
-      window.hideSplashScreen = function() {};
+      window.hideSplashScreen = function() {
+        var el = document.getElementById('pwa-splash');
+        if (!el) return;
+        // Complete the progress bar first, then fade
+        var bar = document.getElementById('pwa-splash-bar');
+        if (bar) bar.style.cssText = 'width:100%;transition:width 0.2s ease';
+        setTimeout(function() {
+          el.classList.add('fade-out');
+          setTimeout(function() { el.remove(); }, 320);
+        }, 200);
+      };
     </script>
 
     <div id="root"></div>

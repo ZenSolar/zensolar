@@ -50,7 +50,12 @@ root.render(
   </React.StrictMode>
 );
 
-// Signal to splash screen that React has mounted — dismiss immediately
+// Dismiss splash after React's first paint using a double-rAF to ensure
+// the browser has actually composited the first frame before fading out.
 if (typeof window !== 'undefined' && typeof (window as any).hideSplashScreen === 'function') {
-  (window as any).hideSplashScreen();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      (window as any).hideSplashScreen();
+    });
+  });
 }
