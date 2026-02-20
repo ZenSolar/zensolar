@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 const sections = [
   { id: 'how-it-works',        label: 'How It Works' },
@@ -51,6 +52,10 @@ export function FloatingSectionNav() {
       visibilityObserver.disconnect();
       sectionObserver.disconnect();
     };
+  }, []);
+
+  const haptic = useCallback(async (style: ImpactStyle = ImpactStyle.Light) => {
+    try { await Haptics.impact({ style }); } catch { /* web — no-op */ }
   }, []);
 
   const scrollTo = useCallback((sectionId: string) => {
@@ -137,7 +142,7 @@ export function FloatingSectionNav() {
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] md:hidden"
           >
             <button
-              onClick={() => setSheetOpen(true)}
+              onClick={() => { haptic(ImpactStyle.Light); setSheetOpen(true); }}
               aria-label="Open section navigation"
               className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-background/80 backdrop-blur-xl border border-border/50 shadow-xl shadow-black/30 text-[13px] font-semibold text-foreground/90 active:scale-95 transition-transform"
             >
@@ -167,7 +172,7 @@ export function FloatingSectionNav() {
               return (
                 <button
                   key={id}
-                  onClick={() => scrollTo(id)}
+                  onClick={() => { haptic(ImpactStyle.Medium); scrollTo(id); }}
                   className={cn(
                     'flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-left transition-all duration-150',
                     isActive
