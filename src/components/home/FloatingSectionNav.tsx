@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 const sections = [
@@ -55,7 +55,18 @@ export function FloatingSectionNav() {
   }, []);
 
   const haptic = useCallback(async (style: ImpactStyle = ImpactStyle.Light) => {
-    try { await Haptics.impact({ style }); } catch { /* web — no-op */ }
+    // 1. Native Capacitor (iOS + Android apps)
+    try {
+      await Haptics.impact({ style });
+      return;
+    } catch { /* not in native context */ }
+    // 2. Web Vibration API — Android Chrome / PWA (iOS Safari intentionally blocks this)
+    try {
+      const ms = style === ImpactStyle.Heavy ? 40 : style === ImpactStyle.Medium ? 20 : 10;
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(ms);
+      }
+    } catch { /* vibration not available */ }
   }, []);
 
   const scrollTo = useCallback((sectionId: string) => {
@@ -164,6 +175,9 @@ export function FloatingSectionNav() {
             <DrawerTitle className="text-sm font-semibold text-muted-foreground tracking-widest uppercase">
               Navigate
             </DrawerTitle>
+            <DrawerDescription className="sr-only">
+              Jump to any section on this page
+            </DrawerDescription>
           </DrawerHeader>
 
           <div className="px-4 pb-6 flex flex-col gap-1">
