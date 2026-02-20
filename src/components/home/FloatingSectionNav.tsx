@@ -1,22 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronUp } from 'lucide-react';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 
 const sections = [
-  { id: 'how-it-works',      label: 'How It Works' },
-  { id: 'dashboard-showcase', label: 'Dashboard' },
-  { id: 'nft-milestones',    label: 'NFT Milestones' },
-  { id: 'why-zensolar',      label: 'Why ZenSolar' },
-  { id: 'tokenization-wave', label: 'Tokenization' },
-  { id: 'pricing',           label: 'Pricing' },
-  { id: 'testimonials',      label: 'Reviews' },
-  { id: 'faq',               label: 'FAQ' },
+  { id: 'how-it-works',        label: 'How It Works' },
+  { id: 'dashboard-showcase',  label: 'Dashboard' },
+  { id: 'nft-milestones',      label: 'NFT Milestones' },
+  { id: 'why-zensolar',        label: 'Why ZenSolar' },
+  { id: 'tokenization-wave',   label: 'Tokenization' },
+  { id: 'pricing',             label: 'Pricing' },
+  { id: 'testimonials',        label: 'Reviews' },
+  { id: 'faq',                 label: 'FAQ' },
 ];
 
 export function FloatingSectionNav() {
-  const [visible, setVisible]     = useState(false);
-  const [activeId, setActiveId]   = useState('');
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [visible, setVisible]       = useState(false);
+  const [activeId, setActiveId]     = useState('');
+  const [hoveredId, setHoveredId]   = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen]   = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,7 +34,6 @@ export function FloatingSectionNav() {
 
     const sectionObserver = new IntersectionObserver(
       (entries) => {
-        // Find the topmost intersecting section
         const intersecting = entries
           .filter(e => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
@@ -54,12 +56,16 @@ export function FloatingSectionNav() {
   const scrollTo = useCallback((sectionId: string) => {
     const el = document.getElementById(sectionId);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setSheetOpen(false);
   }, []);
+
+  const activeLabel = sections.find(s => s.id === activeId)?.label ?? 'Sections';
 
   return (
     <>
       <div ref={sentinelRef} className="absolute top-[500px] h-px w-px pointer-events-none" aria-hidden />
 
+      {/* ── Desktop: vertical dot pips ── */}
       <nav
         aria-label="Page sections"
         className={cn(
@@ -81,7 +87,7 @@ export function FloatingSectionNav() {
                 aria-label={label}
                 className="group relative flex items-center justify-end gap-2.5 focus:outline-none"
               >
-                {/* Label */}
+                {/* Label tooltip */}
                 <AnimatePresence>
                   {isHovered && (
                     <motion.span
@@ -96,21 +102,22 @@ export function FloatingSectionNav() {
                   )}
                 </AnimatePresence>
 
-                {/* Dot */}
+                {/* Dot pip */}
                 <motion.span
                   animate={{
-                    scale:           isActive ? 1.2 : isHovered ? 1.1 : 1,
+                    scale: isActive ? 1.2 : isHovered ? 1.1 : 1,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="block rounded-full"
+                  style={{
+                    width:           isActive ? 8 : 6,
+                    height:          isActive ? 8 : 6,
                     backgroundColor: isActive
                       ? 'hsl(var(--primary))'
                       : isHovered
                       ? 'hsl(var(--foreground) / 0.5)'
                       : 'hsl(var(--muted-foreground) / 0.3)',
-                  }}
-                  transition={{ duration: 0.2 }}
-                  className="block rounded-full"
-                  style={{
-                    width:  isActive ? 8 : 6,
-                    height: isActive ? 8 : 6,
+                    transition: 'background-color 0.2s, width 0.2s, height 0.2s',
                   }}
                 />
               </button>
@@ -118,6 +125,71 @@ export function FloatingSectionNav() {
           })}
         </div>
       </nav>
+
+      {/* ── Mobile: floating section chip ── */}
+      <AnimatePresence>
+        {visible && (
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] md:hidden"
+          >
+            <button
+              onClick={() => setSheetOpen(true)}
+              aria-label="Open section navigation"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-background/80 backdrop-blur-xl border border-border/50 shadow-xl shadow-black/30 text-[13px] font-semibold text-foreground/90 active:scale-95 transition-transform"
+            >
+              <span
+                className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                style={{ backgroundColor: 'hsl(var(--primary))' }}
+              />
+              <span>{activeLabel}</span>
+              <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Mobile: bottom sheet ── */}
+      <Drawer open={sheetOpen} onOpenChange={setSheetOpen}>
+        <DrawerContent className="md:hidden pb-safe">
+          <DrawerHeader className="pb-2">
+            <DrawerTitle className="text-sm font-semibold text-muted-foreground tracking-widest uppercase">
+              Navigate
+            </DrawerTitle>
+          </DrawerHeader>
+
+          <div className="px-4 pb-6 flex flex-col gap-1">
+            {sections.map(({ id, label }) => {
+              const isActive = activeId === id;
+              return (
+                <button
+                  key={id}
+                  onClick={() => scrollTo(id)}
+                  className={cn(
+                    'flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-left transition-all duration-150',
+                    isActive
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'text-foreground/80 hover:bg-muted/60 active:bg-muted'
+                  )}
+                >
+                  <span
+                    className="inline-block w-2 h-2 rounded-full flex-shrink-0 transition-colors"
+                    style={{
+                      backgroundColor: isActive
+                        ? 'hsl(var(--primary))'
+                        : 'hsl(var(--muted-foreground) / 0.4)',
+                    }}
+                  />
+                  <span className="text-[15px]">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }
