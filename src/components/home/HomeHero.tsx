@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
@@ -16,6 +17,7 @@ const brandLogos = [
 ];
 
 export function HomeHero() {
+  const { mediumTap } = useHaptics();
   return (
     <section className="relative pt-[calc(4rem+env(safe-area-inset-top)+clamp(2rem,6vw,4rem))] pb-[clamp(3rem,8vw,6rem)]">
       {/* Background gradient orbs */}
@@ -97,7 +99,7 @@ export function HomeHero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2"
           >
             <Link to="/demo">
-              <Button size="lg" className="relative overflow-hidden px-8 py-6 text-base bg-gradient-to-r from-solar via-accent to-destructive hover:opacity-90 transition-all shadow-lg shadow-accent/30 hover:shadow-accent/50 hover:scale-[1.02]">
+              <Button size="lg" onClick={mediumTap} className="relative overflow-hidden px-8 py-6 text-base bg-gradient-to-r from-solar via-accent to-destructive hover:opacity-90 transition-all shadow-lg shadow-accent/30 hover:shadow-accent/50 hover:scale-[1.02]">
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 pointer-events-none"
                   animate={{ x: ['-100%', '200%'] }}
@@ -109,7 +111,7 @@ export function HomeHero() {
               </Button>
             </Link>
             <Link to="/auth">
-              <Button size="lg" variant="outline" className="px-8 py-6 text-base border-primary/40 hover:bg-primary/10 hover:border-primary/60 transition-all">
+              <Button size="lg" variant="outline" onClick={mediumTap} className="px-8 py-6 text-base border-primary/40 hover:bg-primary/10 hover:border-primary/60 transition-all">
                 Start Earning Today
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
