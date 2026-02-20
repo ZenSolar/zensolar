@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Check, X, ArrowRight, Sparkles, Crown, Zap } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
 
 const tiers = [
   {
@@ -76,6 +77,7 @@ const tiers = [
 ];
 
 export function PricingSection() {
+  const { mediumTap } = useHaptics();
   return (
     <section id="pricing" className="py-[clamp(3rem,8vw,6rem)]">
       <div className="container max-w-6xl mx-auto px-4">
@@ -153,7 +155,8 @@ export function PricingSection() {
 
                   <Link to="/auth" className="mt-auto">
                     <Button 
-                      variant={tier.ctaVariant} 
+                      variant={tier.ctaVariant}
+                      onClick={mediumTap}
                       className={`w-full ${tier.popular ? 'bg-primary hover:bg-primary/90 shadow-md' : ''} ${tier.name === 'Elite' ? 'bg-gradient-to-r from-solar to-accent text-accent-foreground hover:opacity-90' : ''}`}
                     >
                       {tier.cta}
