@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { getNftArtwork } from '@/lib/nftArtwork';
+import { useHaptics } from '@/hooks/useHaptics';
 
 interface ShelfNFT {
   id: string;
@@ -16,6 +17,7 @@ interface TrophyShelfProps {
 }
 
 export function TrophyShelf({ title, nfts, accentColor, delay = 0 }: TrophyShelfProps) {
+  const { lightTap, mediumTap } = useHaptics();
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -39,6 +41,7 @@ export function TrophyShelf({ title, nfts, accentColor, delay = 0 }: TrophyShelf
               className="group relative"
             >
               <div
+                  onClick={() => nft.earned ? mediumTap() : lightTap()}
                 className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 ${
                   nft.earned
                     ? `border-${accentColor}/50 shadow-lg shadow-${accentColor}/20 hover:shadow-xl hover:shadow-${accentColor}/30 hover:scale-105`

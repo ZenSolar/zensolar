@@ -2,8 +2,10 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Zap } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
 
 export function HomeCTA() {
+  const { mediumTap } = useHaptics();
   return (
     <section className="py-[clamp(4rem,10vw,8rem)]">
       <div className="container max-w-4xl mx-auto px-4">
@@ -30,14 +32,14 @@ export function HomeCTA() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link to="/auth">
-              <Button size="lg" className="px-10 py-6 text-base bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/45 hover:scale-[1.02]">
+              <Button size="lg" onClick={mediumTap} className="px-10 py-6 text-base bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/45 hover:scale-[1.02]">
                 <Zap className="mr-2 h-5 w-5" />
                 Start Earning Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/demo">
-              <Button size="lg" variant="outline" className="px-8 py-6 text-base border-primary/40 hover:bg-primary/10">
+              <Button size="lg" variant="outline" onClick={mediumTap} className="px-8 py-6 text-base border-primary/40 hover:bg-primary/10">
                 Try the Demo First
               </Button>
             </Link>
