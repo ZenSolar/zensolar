@@ -10,7 +10,7 @@ import {
 const faqs = [
   {
     q: 'What is ZenSolar?',
-    a: 'ZenSolar is a rewards platform that pays you for the clean energy you already produce. Connect your solar panels, home battery, or EV and earn $ZSOLAR tokens automatically based on your verified energy activity.',
+    a: 'ZenSolar is the world\'s first platform that tokenizes clean energy at the kilowatt-hour level. Every kWh your solar panels produce, your battery exports, or your EV consumes is verified and minted as a $ZSOLAR token on-chain. Think of it as turning your clean energy into a permanent digital asset.',
   },
   {
     q: 'How do I start earning?',
