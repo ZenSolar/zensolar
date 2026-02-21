@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 import {
   Drawer,
   DrawerContent,
@@ -23,6 +24,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { MintOnProofFlowDiagram } from '@/components/whitepaper/MintOnProofFlowDiagram';
 import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofComparison';
+import { TokenomicsPieChart } from '@/components/whitepaper/TokenomicsPieChart';
+import { RewardsFlywheelDiagram } from '@/components/whitepaper/RewardsFlywheelDiagram';
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
@@ -44,6 +47,46 @@ function ChapterHeader({ chapter, title, subtitle }: { chapter: number; title: s
         <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">{subtitle}</p>
       )}
     </div>
+  );
+}
+
+// Collapsible chapter wrapper
+function CollapsibleChapter({ 
+  id, chapter, title, subtitle, children, isExpanded, onToggle 
+}: { 
+  id: string; chapter: number; title: string; subtitle?: string; 
+  children: React.ReactNode; isExpanded: boolean; onToggle: () => void; 
+}) {
+  return (
+    <motion.section id={id} {...fadeIn} className="scroll-mt-20">
+      <Collapsible open={isExpanded} onOpenChange={onToggle}>
+        <CollapsibleTrigger asChild>
+          <button className="w-full text-left group cursor-pointer">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-primary/60">
+                  Chapter {chapter}
+                </span>
+                <div className="flex-1 h-px bg-gradient-to-r from-primary/30 to-transparent" />
+                <ChevronDown className={cn(
+                  "h-4 w-4 text-muted-foreground/50 transition-transform duration-200",
+                  isExpanded && "rotate-180"
+                )} />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight group-hover:text-primary/80 transition-colors">{title}</h2>
+              {subtitle && (
+                <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">{subtitle}</p>
+              )}
+            </div>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="space-y-6 mt-6">
+            {children}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </motion.section>
   );
 }
 
@@ -157,6 +200,14 @@ export default function WhitePaper() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [tocOpen, setTocOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [expandedChapters, setExpandedChapters] = useState<string[]>(['executive-summary', 'ch-1', 'ch-2', 'ch-3']);
+
+  const toggleChapter = useCallback((id: string) => {
+    setExpandedChapters(prev => 
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  }, []);
+
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Get active chapter info for floating chip
@@ -519,7 +570,22 @@ export default function WhitePaper() {
         </Collapsible>
       </motion.div>
 
-      {/* Executive Summary */}
+      {/* Expand/Collapse All toggle */}
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-xs text-muted-foreground gap-1.5"
+          onClick={() => {
+            const allIds = chapters.filter(c => c.ch).map(c => c.id);
+            setExpandedChapters(prev => prev.length >= allIds.length ? [] : allIds);
+          }}
+        >
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expandedChapters.length >= chapters.filter(c => c.ch).length && "rotate-180")} />
+          {expandedChapters.length >= chapters.filter(c => c.ch).length ? 'Collapse All' : 'Expand All'}
+        </Button>
+      </div>
+
       <motion.section id="executive-summary" {...fadeIn} transition={{ delay: 0.1 }} className="scroll-mt-20">
         <Card className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 overflow-hidden relative">
           <CardHeader className="pb-3">
@@ -567,8 +633,7 @@ export default function WhitePaper() {
       <SectionDivider variant="diamond" />
 
       {/* Who We Are */}
-      <motion.section id="ch-1" {...fadeIn} transition={{ delay: 0.15 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={1} title="Who We Are" />
+      <CollapsibleChapter id="ch-1" chapter={1} title="Who We Are" isExpanded={expandedChapters.includes('ch-1')} onToggle={() => toggleChapter('ch-1')}>
         
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -608,13 +673,12 @@ export default function WhitePaper() {
 
         {/* Mint-on-Proof Comparison */}
         <MintOnProofComparison autoPlay={true} showControls={false} />
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Our Mission */}
-      <motion.section id="ch-2" {...fadeIn} transition={{ delay: 0.2 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={2} title="Our Mission" />
+      <CollapsibleChapter id="ch-2" chapter={2} title="Our Mission" isExpanded={expandedChapters.includes('ch-2')} onToggle={() => toggleChapter('ch-2')}>
         
         <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 to-green-500/5">
           <CardContent className="pt-6">
@@ -661,13 +725,12 @@ export default function WhitePaper() {
             </CardContent>
           </Card>
         </div>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Total Addressable Market */}
-      <motion.section id="ch-3" {...fadeIn} transition={{ delay: 0.25 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={3} title="The Opportunity" />
+      <CollapsibleChapter id="ch-3" chapter={3} title="The Opportunity" isExpanded={expandedChapters.includes('ch-3')} onToggle={() => toggleChapter('ch-3')}>
         
         <Card>
           <CardHeader>
@@ -738,13 +801,12 @@ export default function WhitePaper() {
             </p>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Replacing Federal Incentives */}
-      <motion.section id="ch-4" {...fadeIn} transition={{ delay: 0.27 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={4} title="Replacing Federal Tax Incentives" />
+      <CollapsibleChapter id="ch-4" chapter={4} title="Replacing Federal Tax Incentives" isExpanded={expandedChapters.includes('ch-4')} onToggle={() => toggleChapter('ch-4')}>
         
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
           <CardHeader>
@@ -953,13 +1015,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Tokenization Supercycle — External Validation */}
-      <motion.section id="ch-5" {...fadeIn} transition={{ delay: 0.28 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={5} title="The Tokenization Supercycle" subtitle="Why ZenSolar is the clean energy layer of crypto's next major catalyst" />
+      <CollapsibleChapter id="ch-5" chapter={5} title="The Tokenization Supercycle" subtitle="Why ZenSolar is the clean energy layer of crypto's next major catalyst" isExpanded={expandedChapters.includes('ch-5')} onToggle={() => toggleChapter('ch-5')}>
 
         <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-accent/5 overflow-hidden relative">
           <CardContent className="pt-6 space-y-6">
@@ -1115,13 +1176,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Market Landscape & Competitive Positioning */}
-      <motion.section id="ch-6" {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={6} title="Market Landscape & Competitive Positioning" />
+      <CollapsibleChapter id="ch-6" chapter={6} title="Market Landscape & Competitive Positioning" isExpanded={expandedChapters.includes('ch-6')} onToggle={() => toggleChapter('ch-6')}>
 
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -1322,13 +1382,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* How Users Benefit */}
-      <motion.section id="ch-7" {...fadeIn} transition={{ delay: 0.35 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={7} title="How Users Benefit" />
+      <CollapsibleChapter id="ch-7" chapter={7} title="How Users Benefit" isExpanded={expandedChapters.includes('ch-7')} onToggle={() => toggleChapter('ch-7')}>
         
         <div className="grid md:grid-cols-2 gap-4">
           {userBenefits.map((benefit, i) => (
@@ -1370,13 +1429,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* How Investors Benefit */}
-      <motion.section id="ch-8" {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={8} title="How Investors Benefit" />
+      <CollapsibleChapter id="ch-8" chapter={8} title="How Investors Benefit" isExpanded={expandedChapters.includes('ch-8')} onToggle={() => toggleChapter('ch-8')}>
         
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -1428,6 +1486,12 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
 
+        {/* Tokenomics Pie Chart */}
+        <TokenomicsPieChart />
+
+        {/* Rewards Flywheel Diagram */}
+        <RewardsFlywheelDiagram />
+
         <Card className="bg-gradient-to-br from-blue-500/5 to-cyan-500/5 border-blue-500/30">
           <CardContent className="py-6">
             <div className="flex items-center gap-4">
@@ -1443,13 +1507,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* How the World Benefits */}
-      <motion.section id="ch-9" {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={9} title="How the World Benefits" />
+      <CollapsibleChapter id="ch-9" chapter={9} title="How the World Benefits" isExpanded={expandedChapters.includes('ch-9')} onToggle={() => toggleChapter('ch-9')}>
         
         <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 to-green-500/5">
           <CardContent className="pt-6 space-y-6">
@@ -1488,13 +1551,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* The Vision */}
-      <motion.section id="ch-10" {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={10} title="The Vision" />
+      <CollapsibleChapter id="ch-10" chapter={10} title="The Vision" isExpanded={expandedChapters.includes('ch-10')} onToggle={() => toggleChapter('ch-10')}>
         
         <Card className="bg-gradient-to-br from-primary/10 via-background to-accent/10 border-primary/30 overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NCAwLTE4IDguMDYtMTggMThzOC4wNiAxOCAxOCAxOCAxOC04LjA2IDE4LTE4LTguMDYtMTgtMTgtMTh6IiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLW9wYWNpdHk9Ii4wNSIvPjwvZz48L3N2Zz4=')] opacity-30" />
@@ -1517,13 +1579,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Moonshot Scenarios */}
-      <motion.section id="ch-11" {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={11} title="Moonshot Scenarios" />
+      <CollapsibleChapter id="ch-11" chapter={11} title="Moonshot Scenarios" isExpanded={expandedChapters.includes('ch-11')} onToggle={() => toggleChapter('ch-11')}>
         
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-yellow-500/5">
           <CardContent className="pt-6 space-y-6">
@@ -1610,13 +1671,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Competitive Advantage */}
-      <motion.section id="ch-12" {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={12} title="Competitive Moat" />
+      <CollapsibleChapter id="ch-12" chapter={12} title="Competitive Moat" isExpanded={expandedChapters.includes('ch-12')} onToggle={() => toggleChapter('ch-12')}>
         
         <Card>
           <CardContent className="pt-6">
@@ -1641,13 +1701,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Roadmap */}
-      <motion.section id="ch-13" {...fadeIn} transition={{ delay: 0.63 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={13} title="Roadmap" subtitle="Where we are, and the paths ahead" />
+      <CollapsibleChapter id="ch-13" chapter={13} title="Roadmap" subtitle="Where we are, and the paths ahead" isExpanded={expandedChapters.includes('ch-13')} onToggle={() => toggleChapter('ch-13')}>
 
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -1743,13 +1802,12 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       <SectionDivider variant="diamond" />
 
       {/* Risk Factors */}
-      <motion.section id="ch-14" {...fadeIn} transition={{ delay: 0.64 }} className="space-y-6 scroll-mt-20">
-        <ChapterHeader chapter={14} title="Risk Factors" />
+      <CollapsibleChapter id="ch-14" chapter={14} title="Risk Factors" isExpanded={expandedChapters.includes('ch-14')} onToggle={() => toggleChapter('ch-14')}>
 
         <Card className="border-destructive/20">
           <CardContent className="pt-6 space-y-6">
@@ -1800,7 +1858,7 @@ export default function WhitePaper() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </CollapsibleChapter>
 
       {/* CTA */}
       <motion.section {...fadeIn} transition={{ delay: 0.65 }} className="space-y-6">
