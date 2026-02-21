@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,16 +8,18 @@ import {
   TrendingUp, Shield, Cpu, Target, Sparkles, Battery,
   Car, Home, Building2, Landmark, Heart, Rocket,
   ChevronRight, ExternalLink, FileText, Share2, Star,
-  DollarSign, Download, Loader2, AlertTriangle, Calendar
+  DollarSign, Download, Loader2, AlertTriangle, Calendar,
+  ArrowUp
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { MintOnProofFlowDiagram } from '@/components/whitepaper/MintOnProofFlowDiagram';
 import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofComparison';
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
+import { cn } from "@/lib/utils";
 
 
 const fadeIn = {
@@ -103,10 +105,31 @@ const worldBenefits = [
   },
 ];
 
+const chapters = [
+  { id: 'executive-summary', ch: '', title: 'Executive Summary' },
+  { id: 'ch-1', ch: '1', title: 'Who We Are' },
+  { id: 'ch-2', ch: '2', title: 'Our Mission' },
+  { id: 'ch-3', ch: '3', title: 'The Opportunity' },
+  { id: 'ch-4', ch: '4', title: 'Replacing Tax Incentives' },
+  { id: 'ch-5', ch: '5', title: 'Tokenization Supercycle' },
+  { id: 'ch-6', ch: '6', title: 'Market & Competitive Position' },
+  { id: 'ch-7', ch: '7', title: 'How Users Benefit' },
+  { id: 'ch-8', ch: '8', title: 'How Investors Benefit' },
+  { id: 'ch-9', ch: '9', title: 'How the World Benefits' },
+  { id: 'ch-10', ch: '10', title: 'The Vision' },
+  { id: 'ch-11', ch: '11', title: 'Moonshot Scenarios' },
+  { id: 'ch-12', ch: '12', title: 'Competitive Moat' },
+  { id: 'ch-13', ch: '13', title: 'Roadmap' },
+  { id: 'ch-14', ch: '14', title: 'Risk Factors' },
+];
+
 export default function WhitePaper() {
   const { toast } = useToast();
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeChapter, setActiveChapter] = useState('executive-summary');
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Check if user is authenticated
@@ -116,6 +139,41 @@ export default function WhitePaper() {
       setIsAuthenticated(!!session);
     };
     checkAuth();
+  }, []);
+
+  // Scroll progress + back-to-top visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0);
+      setShowBackToTop(scrollTop > 600);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Active chapter tracking via IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveChapter(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -70% 0px' }
+    );
+    chapters.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleShare = async () => {
@@ -238,10 +296,20 @@ export default function WhitePaper() {
         image="https://zensolar.lovable.app/og-whitepaper.png"
       />
       <div className="min-h-screen bg-background">
+
+      {/* Reading progress bar */}
+      <div className="fixed top-0 left-0 right-0 z-[60] h-[3px] bg-transparent">
+        <motion.div
+          className="h-full bg-gradient-to-r from-primary via-emerald-400 to-primary"
+          style={{ width: `${scrollProgress}%` }}
+          transition={{ duration: 0.1 }}
+        />
+      </div>
+
       {/* Fixed Navigation Header - only shown for unauthenticated users (landing page visitors) */}
       {!isAuthenticated && (
-        <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
-          <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
+        <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
+          <div className="container max-w-7xl mx-auto px-4 flex h-14 items-center justify-between gap-4">
             <Link to="/" className="flex items-center shrink-0">
               <img 
                 src={zenLogo} 
@@ -264,8 +332,59 @@ export default function WhitePaper() {
         </header>
       )}
 
-      {/* Main content with proper top padding - different for authenticated vs unauthenticated */}
-      <div ref={contentRef} className={`container max-w-4xl mx-auto px-4 pb-8 space-y-12 ${isAuthenticated ? 'pt-6' : 'pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)]'}`}>
+      {/* Two-column layout: sidebar TOC + content */}
+      <div className={`container max-w-7xl mx-auto px-4 ${isAuthenticated ? 'pt-6' : 'pt-[calc(3.5rem+env(safe-area-inset-top)+1.5rem)]'}`}>
+        <div className="xl:grid xl:grid-cols-[240px_1fr] xl:gap-10">
+
+          {/* Sticky Sidebar TOC - desktop only */}
+          <aside className="hidden xl:block">
+            <div className="sticky top-20 py-8">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-4 px-3">
+                Contents
+              </p>
+              <nav className="space-y-0.5">
+                {chapters.map((item) => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    className={cn(
+                      'group flex items-center gap-2 px-3 py-2 text-[13px] rounded-lg transition-all duration-200 leading-snug',
+                      activeChapter === item.id
+                        ? 'text-primary bg-primary/8 font-medium border-l-2 border-primary -ml-[2px]'
+                        : 'text-muted-foreground/70 hover:text-foreground hover:bg-muted/40'
+                    )}
+                  >
+                    {item.ch && (
+                      <span className={cn(
+                        'text-[11px] font-mono w-5 shrink-0 transition-colors',
+                        activeChapter === item.id ? 'text-primary/70' : 'text-muted-foreground/40'
+                      )}>
+                        {item.ch}.
+                      </span>
+                    )}
+                    {!item.ch && <span className="w-5 shrink-0" />}
+                    {item.title}
+                  </a>
+                ))}
+              </nav>
+
+              {/* Sidebar progress indicator */}
+              <div className="mt-6 px-3">
+                <div className="h-1 rounded-full bg-muted/50 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary to-emerald-400 rounded-full transition-all duration-300"
+                    style={{ width: `${scrollProgress}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground/50 mt-1.5 font-mono">
+                  {Math.round(scrollProgress)}% read
+                </p>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <div ref={contentRef} className="max-w-4xl pb-8 space-y-14">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -329,41 +448,29 @@ export default function WhitePaper() {
 
       <Separator className="bg-border/50" />
 
-      {/* Table of Contents */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }}>
-        <Card className="border-border/60 bg-muted/20">
-          <CardContent className="pt-6 pb-4">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
+      {/* Mobile Table of Contents - shown only below xl */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }} className="xl:hidden">
+        <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+          <CardContent className="pt-5 pb-4">
+            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2 text-muted-foreground">
+              <FileText className="h-4 w-4 text-primary" />
               Table of Contents
             </h3>
-            <div className="grid md:grid-cols-2 gap-x-8 gap-y-1.5">
-              {[
-                { ch: '', title: 'Executive Summary', id: 'executive-summary' },
-                { ch: '1', title: 'Who We Are', id: 'ch-1' },
-                { ch: '2', title: 'Our Mission', id: 'ch-2' },
-                { ch: '3', title: 'The Opportunity', id: 'ch-3' },
-                { ch: '4', title: 'Replacing Federal Tax Incentives', id: 'ch-4' },
-                { ch: '5', title: 'The Tokenization Supercycle', id: 'ch-5' },
-                { ch: '6', title: 'Market Landscape & Competitive Positioning', id: 'ch-6' },
-                { ch: '7', title: 'How Users Benefit', id: 'ch-7' },
-                { ch: '8', title: 'How Investors Benefit', id: 'ch-8' },
-                { ch: '9', title: 'How the World Benefits', id: 'ch-9' },
-                { ch: '10', title: 'The Vision', id: 'ch-10' },
-                { ch: '11', title: 'Moonshot Scenarios', id: 'ch-11' },
-                { ch: '12', title: 'Competitive Moat', id: 'ch-12' },
-                { ch: '13', title: 'Roadmap', id: 'ch-13' },
-                { ch: '14', title: 'Risk Factors', id: 'ch-14' },
-              ].map((item) => (
+            <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1">
+              {chapters.map((item) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className="flex items-center gap-2 py-1.5 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                  className={cn(
+                    'flex items-center gap-1.5 py-1.5 text-[13px] transition-colors',
+                    activeChapter === item.id
+                      ? 'text-primary font-medium'
+                      : 'text-muted-foreground/70 hover:text-foreground'
+                  )}
                 >
-                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary shrink-0" />
-                  {item.ch && <span className="text-xs font-mono text-muted-foreground/60 w-5">{item.ch}.</span>}
+                  {item.ch && <span className="text-[11px] font-mono text-muted-foreground/40 w-5">{item.ch}.</span>}
                   {!item.ch && <span className="w-5" />}
-                  <span className="group-hover:underline underline-offset-2">{item.title}</span>
+                  {item.title}
                 </a>
               ))}
             </div>
@@ -1732,7 +1839,27 @@ export default function WhitePaper() {
           </div>
         </footer>
       </motion.div>
-      </div>
+
+      </div> {/* end main content column */}
+      </div> {/* end grid */}
+      </div> {/* end container */}
+
+      {/* Back to top button */}
+      <AnimatePresence>
+        {showBackToTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 transition-colors"
+            aria-label="Back to top"
+          >
+            <ArrowUp className="h-4 w-4" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       </div>
     </>
   );
