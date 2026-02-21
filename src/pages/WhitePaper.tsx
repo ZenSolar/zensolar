@@ -329,8 +329,50 @@ export default function WhitePaper() {
 
       <Separator className="bg-border/50" />
 
+      {/* Table of Contents */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }}>
+        <Card className="border-border/60 bg-muted/20">
+          <CardContent className="pt-6 pb-4">
+            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              Table of Contents
+            </h3>
+            <div className="grid md:grid-cols-2 gap-x-8 gap-y-1.5">
+              {[
+                { ch: '', title: 'Executive Summary', id: 'executive-summary' },
+                { ch: '1', title: 'Who We Are', id: 'ch-1' },
+                { ch: '2', title: 'Our Mission', id: 'ch-2' },
+                { ch: '3', title: 'The Opportunity', id: 'ch-3' },
+                { ch: '4', title: 'Replacing Federal Tax Incentives', id: 'ch-4' },
+                { ch: '5', title: 'The Tokenization Supercycle', id: 'ch-5' },
+                { ch: '6', title: 'Market Landscape & Competitive Positioning', id: 'ch-6' },
+                { ch: '7', title: 'How Users Benefit', id: 'ch-7' },
+                { ch: '8', title: 'How Investors Benefit', id: 'ch-8' },
+                { ch: '9', title: 'How the World Benefits', id: 'ch-9' },
+                { ch: '10', title: 'The Vision', id: 'ch-10' },
+                { ch: '11', title: 'Moonshot Scenarios', id: 'ch-11' },
+                { ch: '12', title: 'Competitive Moat', id: 'ch-12' },
+                { ch: '13', title: 'Roadmap', id: 'ch-13' },
+                { ch: '14', title: 'Risk Factors', id: 'ch-14' },
+              ].map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className="flex items-center gap-2 py-1.5 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary shrink-0" />
+                  {item.ch && <span className="text-xs font-mono text-muted-foreground/60 w-5">{item.ch}.</span>}
+                  {!item.ch && <span className="w-5" />}
+                  <span className="group-hover:underline underline-offset-2">{item.title}</span>
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Executive Summary */}
-      <motion.section {...fadeIn} transition={{ delay: 0.1 }}>
+      <motion.section id="executive-summary" {...fadeIn} transition={{ delay: 0.1 }} className="scroll-mt-20">
         <Card className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 overflow-hidden relative">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl">
@@ -370,7 +412,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Who We Are */}
-      <motion.section {...fadeIn} transition={{ delay: 0.15 }} className="space-y-6">
+      <motion.section id="ch-1" {...fadeIn} transition={{ delay: 0.15 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 1</Badge>
           <h2 className="text-3xl font-bold">Who We Are</h2>
@@ -417,7 +459,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Our Mission */}
-      <motion.section {...fadeIn} transition={{ delay: 0.2 }} className="space-y-6">
+      <motion.section id="ch-2" {...fadeIn} transition={{ delay: 0.2 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 2</Badge>
           <h2 className="text-3xl font-bold">Our Mission</h2>
@@ -471,7 +513,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Total Addressable Market */}
-      <motion.section {...fadeIn} transition={{ delay: 0.25 }} className="space-y-6">
+      <motion.section id="ch-3" {...fadeIn} transition={{ delay: 0.25 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 3</Badge>
           <h2 className="text-3xl font-bold">The Opportunity</h2>
@@ -549,7 +591,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Replacing Federal Incentives */}
-      <motion.section {...fadeIn} transition={{ delay: 0.27 }} className="space-y-6">
+      <motion.section id="ch-4" {...fadeIn} transition={{ delay: 0.27 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 4</Badge>
           <h2 className="text-3xl font-bold">Replacing Federal Tax Incentives</h2>
@@ -765,7 +807,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Tokenization Supercycle — External Validation */}
-      <motion.section {...fadeIn} transition={{ delay: 0.28 }} className="space-y-6">
+      <motion.section id="ch-5" {...fadeIn} transition={{ delay: 0.28 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 5</Badge>
           <h2 className="text-3xl font-bold">The Tokenization Supercycle</h2>
@@ -931,7 +973,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Market Landscape & Competitive Positioning */}
-      <motion.section {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6">
+      <motion.section id="ch-6" {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
           <h2 className="text-3xl font-bold">Market Landscape & Competitive Positioning</h2>
@@ -1139,7 +1181,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* How Users Benefit */}
-      <motion.section {...fadeIn} transition={{ delay: 0.35 }} className="space-y-6">
+      <motion.section id="ch-7" {...fadeIn} transition={{ delay: 0.35 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
           <h2 className="text-3xl font-bold">How Users Benefit</h2>
@@ -1188,7 +1230,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* How Investors Benefit */}
-      <motion.section {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6">
+      <motion.section id="ch-8" {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
           <h2 className="text-3xl font-bold">How Investors Benefit</h2>
@@ -1262,7 +1304,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* How the World Benefits */}
-      <motion.section {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6">
+      <motion.section id="ch-9" {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
           <h2 className="text-3xl font-bold">How the World Benefits</h2>
@@ -1308,7 +1350,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* The Vision */}
-      <motion.section {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6">
+      <motion.section id="ch-10" {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
           <h2 className="text-3xl font-bold">The Vision</h2>
@@ -1338,7 +1380,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Moonshot Scenarios */}
-      <motion.section {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6">
+      <motion.section id="ch-11" {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 11</Badge>
           <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
@@ -1434,7 +1476,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Competitive Advantage */}
-      <motion.section {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6">
+      <motion.section id="ch-12" {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 12</Badge>
           <h2 className="text-3xl font-bold">Competitive Moat</h2>
@@ -1466,7 +1508,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Roadmap */}
-      <motion.section {...fadeIn} transition={{ delay: 0.63 }} className="space-y-6">
+      <motion.section id="ch-13" {...fadeIn} transition={{ delay: 0.63 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 13</Badge>
           <h2 className="text-3xl font-bold">Roadmap</h2>
@@ -1572,7 +1614,7 @@ export default function WhitePaper() {
       </motion.section>
 
       {/* Risk Factors */}
-      <motion.section {...fadeIn} transition={{ delay: 0.64 }} className="space-y-6">
+      <motion.section id="ch-14" {...fadeIn} transition={{ delay: 0.64 }} className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
           <Badge variant="outline" className="px-3 py-1">Chapter 14</Badge>
           <h2 className="text-3xl font-bold">Risk Factors</h2>
