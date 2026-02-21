@@ -162,9 +162,10 @@ export function TokenizationWaveSection() {
                 </span>
               </h3>
               <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
-                A kilowatt-hour can only be used once. Once it powers your home, it's gone. We capture that moment, 
-                verify it cryptographically, and retire it on-chain. No counterparty. No custody risk. Just physics. 
-                That makes every $ZSOLAR token a permanent claim on clean energy the world actually used.
+                A kilowatt-hour can only be used once. Once it powers your home, it's gone forever. 
+                We capture that moment, verify it, and retire it on-chain. No counterparty risk. No custody risk. 
+                Just physics. As the world adds 1.5 billion solar homes by 2040, every token becomes 
+                a permanent stake in the clean energy economy.
               </p>
               <Link to="/white-paper" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium">
                 Read the full analysis in the White Paper
