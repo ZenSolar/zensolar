@@ -338,7 +338,7 @@ export default function ComingSoon() {
               />
               <div className="relative grid grid-cols-2 gap-y-10 gap-x-8 place-items-center">
                 {[
-                  { src: teslaLogo, alt: 'Tesla', cls: 'max-h-10 md:max-h-14' },
+                  { src: teslaLogo, alt: 'Tesla', cls: 'max-h-16 md:max-h-24' },
                   { src: enphaseLogo, alt: 'Enphase', cls: 'max-h-10 md:max-h-14' },
                   { src: solarEdgeLogo, alt: 'SolarEdge', cls: 'max-h-12 md:max-h-16' },
                   { src: wallboxLogo, alt: 'Wallbox', cls: 'max-h-10 md:max-h-14' },
