@@ -22,6 +22,24 @@ import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
 
 
+// Chapter Header component - editorial style, mobile-first
+function ChapterHeader({ chapter, title, subtitle }: { chapter: number; title: string; subtitle?: string }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-primary/60">
+          Chapter {chapter}
+        </span>
+        <div className="flex-1 h-px bg-gradient-to-r from-primary/30 to-transparent" />
+      </div>
+      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h2>
+      {subtitle && (
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">{subtitle}</p>
+      )}
+    </div>
+  );
+}
+
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -384,7 +402,7 @@ export default function WhitePaper() {
           </aside>
 
           {/* Main Content */}
-          <div ref={contentRef} className="max-w-4xl pb-8 space-y-14">
+          <div ref={contentRef} className="max-w-4xl pb-8 space-y-10 sm:space-y-14">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -432,15 +450,15 @@ export default function WhitePaper() {
             </Button>
           </div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-[1.15] tracking-tight">
             Turning Clean Energy Into{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
               Digital Income
             </span>
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            ZenSolar is building the bridge between sustainable living and financial prosperity—
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            ZenSolar is building the bridge between sustainable living and financial prosperity —
             rewarding households for the clean energy they already produce.
           </p>
         </div>
@@ -481,15 +499,20 @@ export default function WhitePaper() {
       {/* Executive Summary */}
       <motion.section id="executive-summary" {...fadeIn} transition={{ delay: 0.1 }} className="scroll-mt-20">
         <Card className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 overflow-hidden relative">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-2xl">
-              <div className="p-2.5 rounded-xl bg-primary/10">
-                <Rocket className="h-6 w-6 text-primary" />
+          <CardHeader className="pb-3">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <Rocket className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 h-px bg-gradient-to-r from-primary/30 to-transparent" />
               </div>
-              Executive Summary
-            </CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl tracking-tight">
+                Executive Summary
+              </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="prose prose-lg dark:prose-invert max-w-none relative z-10 space-y-4">
+          <CardContent className="prose prose-lg dark:prose-invert max-w-none relative z-10 space-y-4 prose-p:text-base sm:prose-p:text-lg">
             {/* Tokenization Supercycle Context */}
             <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 not-prose mb-2">
               <div className="p-2 rounded-lg bg-blue-500/10 shrink-0 mt-0.5">
@@ -520,10 +543,7 @@ export default function WhitePaper() {
 
       {/* Who We Are */}
       <motion.section id="ch-1" {...fadeIn} transition={{ delay: 0.15 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 1</Badge>
-          <h2 className="text-3xl font-bold">Who We Are</h2>
-        </div>
+        <ChapterHeader chapter={1} title="Who We Are" />
         
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -567,10 +587,7 @@ export default function WhitePaper() {
 
       {/* Our Mission */}
       <motion.section id="ch-2" {...fadeIn} transition={{ delay: 0.2 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 2</Badge>
-          <h2 className="text-3xl font-bold">Our Mission</h2>
-        </div>
+        <ChapterHeader chapter={2} title="Our Mission" />
         
         <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 to-green-500/5">
           <CardContent className="pt-6">
@@ -621,10 +638,7 @@ export default function WhitePaper() {
 
       {/* Total Addressable Market */}
       <motion.section id="ch-3" {...fadeIn} transition={{ delay: 0.25 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 3</Badge>
-          <h2 className="text-3xl font-bold">The Opportunity</h2>
-        </div>
+        <ChapterHeader chapter={3} title="The Opportunity" />
         
         <Card>
           <CardHeader>
@@ -699,10 +713,7 @@ export default function WhitePaper() {
 
       {/* Replacing Federal Incentives */}
       <motion.section id="ch-4" {...fadeIn} transition={{ delay: 0.27 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 4</Badge>
-          <h2 className="text-3xl font-bold">Replacing Federal Tax Incentives</h2>
-        </div>
+        <ChapterHeader chapter={4} title="Replacing Federal Tax Incentives" />
         
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
           <CardHeader>
@@ -915,13 +926,7 @@ export default function WhitePaper() {
 
       {/* Tokenization Supercycle — External Validation */}
       <motion.section id="ch-5" {...fadeIn} transition={{ delay: 0.28 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 5</Badge>
-          <h2 className="text-3xl font-bold">The Tokenization Supercycle</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Why ZenSolar is the clean energy layer of crypto's next major catalyst
-          </p>
-        </div>
+        <ChapterHeader chapter={5} title="The Tokenization Supercycle" subtitle="Why ZenSolar is the clean energy layer of crypto's next major catalyst" />
 
         <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-accent/5 overflow-hidden relative">
           <CardContent className="pt-6 space-y-6">
@@ -1081,10 +1086,7 @@ export default function WhitePaper() {
 
       {/* Market Landscape & Competitive Positioning */}
       <motion.section id="ch-6" {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
-          <h2 className="text-3xl font-bold">Market Landscape & Competitive Positioning</h2>
-        </div>
+        <ChapterHeader chapter={6} title="Market Landscape & Competitive Positioning" />
 
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -1289,10 +1291,7 @@ export default function WhitePaper() {
 
       {/* How Users Benefit */}
       <motion.section id="ch-7" {...fadeIn} transition={{ delay: 0.35 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
-          <h2 className="text-3xl font-bold">How Users Benefit</h2>
-        </div>
+        <ChapterHeader chapter={7} title="How Users Benefit" />
         
         <div className="grid md:grid-cols-2 gap-4">
           {userBenefits.map((benefit, i) => (
@@ -1338,10 +1337,7 @@ export default function WhitePaper() {
 
       {/* How Investors Benefit */}
       <motion.section id="ch-8" {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
-          <h2 className="text-3xl font-bold">How Investors Benefit</h2>
-        </div>
+        <ChapterHeader chapter={8} title="How Investors Benefit" />
         
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -1412,10 +1408,7 @@ export default function WhitePaper() {
 
       {/* How the World Benefits */}
       <motion.section id="ch-9" {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
-          <h2 className="text-3xl font-bold">How the World Benefits</h2>
-        </div>
+        <ChapterHeader chapter={9} title="How the World Benefits" />
         
         <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 to-green-500/5">
           <CardContent className="pt-6 space-y-6">
@@ -1458,10 +1451,7 @@ export default function WhitePaper() {
 
       {/* The Vision */}
       <motion.section id="ch-10" {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
-          <h2 className="text-3xl font-bold">The Vision</h2>
-        </div>
+        <ChapterHeader chapter={10} title="The Vision" />
         
         <Card className="bg-gradient-to-br from-primary/10 via-background to-accent/10 border-primary/30 overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NCAwLTE4IDguMDYtMTggMThzOC4wNiAxOCAxOCAxOCAxOC04LjA2IDE4LTE4LTguMDYtMTgtMTgtMTh6IiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLW9wYWNpdHk9Ii4wNSIvPjwvZz48L3N2Zz4=')] opacity-30" />
@@ -1488,12 +1478,7 @@ export default function WhitePaper() {
 
       {/* Moonshot Scenarios */}
       <motion.section id="ch-11" {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 11</Badge>
-          <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
-            Moonshot Scenarios
-          </h2>
-        </div>
+        <ChapterHeader chapter={11} title="Moonshot Scenarios" />
         
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-yellow-500/5">
           <CardContent className="pt-6 space-y-6">
@@ -1584,10 +1569,7 @@ export default function WhitePaper() {
 
       {/* Competitive Advantage */}
       <motion.section id="ch-12" {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 12</Badge>
-          <h2 className="text-3xl font-bold">Competitive Moat</h2>
-        </div>
+        <ChapterHeader chapter={12} title="Competitive Moat" />
         
         <Card>
           <CardContent className="pt-6">
@@ -1616,13 +1598,7 @@ export default function WhitePaper() {
 
       {/* Roadmap */}
       <motion.section id="ch-13" {...fadeIn} transition={{ delay: 0.63 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 13</Badge>
-          <h2 className="text-3xl font-bold">Roadmap</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Where we are, and the paths ahead
-          </p>
-        </div>
+        <ChapterHeader chapter={13} title="Roadmap" subtitle="Where we are, and the paths ahead" />
 
         <Card>
           <CardContent className="pt-6 space-y-6">
@@ -1722,10 +1698,7 @@ export default function WhitePaper() {
 
       {/* Risk Factors */}
       <motion.section id="ch-14" {...fadeIn} transition={{ delay: 0.64 }} className="space-y-6 scroll-mt-20">
-        <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 14</Badge>
-          <h2 className="text-3xl font-bold">Risk Factors</h2>
-        </div>
+        <ChapterHeader chapter={14} title="Risk Factors" />
 
         <Card className="border-destructive/20">
           <CardContent className="pt-6 space-y-6">
