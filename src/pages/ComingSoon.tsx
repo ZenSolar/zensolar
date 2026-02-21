@@ -326,7 +326,7 @@ export default function ComingSoon() {
             transition={{ duration: 0.6, delay: 0.55 }}
           >
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="relative overflow-hidden rounded-2xl pt-1 pb-6 px-6 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
+            <div className="relative overflow-hidden rounded-2xl py-10 px-8 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
               {/* Ambient glow spots */}
               <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
               <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
@@ -336,12 +336,12 @@ export default function ComingSoon() {
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
               />
-              <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 place-items-center">
+              <div className="relative grid grid-cols-2 gap-y-10 gap-x-8 place-items-center">
                 {[
-                  { src: teslaLogo, alt: 'Tesla', cls: 'max-w-[400px] md:max-w-[500px] max-h-20 md:max-h-28' },
-                  { src: enphaseLogo, alt: 'Enphase', cls: 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12' },
-                  { src: solarEdgeLogo, alt: 'SolarEdge', cls: 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12' },
-                  { src: wallboxLogo, alt: 'Wallbox', cls: 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12' },
+                  { src: teslaLogo, alt: 'Tesla', cls: 'max-h-10 md:max-h-14' },
+                  { src: enphaseLogo, alt: 'Enphase', cls: 'max-h-10 md:max-h-14' },
+                  { src: solarEdgeLogo, alt: 'SolarEdge', cls: 'max-h-12 md:max-h-16' },
+                  { src: wallboxLogo, alt: 'Wallbox', cls: 'max-h-10 md:max-h-14' },
                 ].map(({ src, alt, cls }, idx) => (
                   <motion.img
                     key={alt}
