@@ -3,13 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { 
   Sun, Zap, Coins, Leaf, Users, Globe, ArrowRight, 
   TrendingUp, Shield, Cpu, Target, Sparkles, Battery,
   Car, Home, Building2, Landmark, Heart, Rocket,
-  ChevronRight, ExternalLink, FileText, Share2, Star,
+  ChevronRight, ChevronDown, ExternalLink, FileText, Share2, Star,
   DollarSign, Download, Loader2, AlertTriangle, Calendar,
-  ArrowUp
+  ArrowUp, BookOpen
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -148,7 +154,12 @@ export default function WhitePaper() {
   const [activeChapter, setActiveChapter] = useState('executive-summary');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [tocOpen, setTocOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Get active chapter info for floating chip
+  const activeChapterInfo = chapters.find(c => c.id === activeChapter);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -402,7 +413,7 @@ export default function WhitePaper() {
           </aside>
 
           {/* Main Content */}
-          <div ref={contentRef} className="max-w-4xl pb-8 space-y-10 sm:space-y-14">
+          <div ref={contentRef} className="max-w-4xl pb-8 space-y-8 sm:space-y-14 [&_p.text-lg]:text-[15px] [&_p.text-lg]:sm:text-lg [&_.space-y-6]:space-y-4 [&_.space-y-6]:sm:space-y-6">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
@@ -466,34 +477,45 @@ export default function WhitePaper() {
 
       <Separator className="bg-border/50" />
 
-      {/* Mobile Table of Contents - shown only below xl */}
+      {/* Mobile Table of Contents - collapsible, shown only below xl */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }} className="xl:hidden">
-        <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-          <CardContent className="pt-5 pb-4">
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2 text-muted-foreground">
-              <FileText className="h-4 w-4 text-primary" />
-              Table of Contents
-            </h3>
-            <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1">
-              {chapters.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  className={cn(
-                    'flex items-center gap-1.5 py-1.5 text-[13px] transition-colors',
-                    activeChapter === item.id
-                      ? 'text-primary font-medium'
-                      : 'text-muted-foreground/70 hover:text-foreground'
-                  )}
-                >
-                  {item.ch && <span className="text-[11px] font-mono text-muted-foreground/40 w-5">{item.ch}.</span>}
-                  {!item.ch && <span className="w-5" />}
-                  {item.title}
-                </a>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <Collapsible open={tocOpen} onOpenChange={setTocOpen}>
+          <Card className="border-border/40 bg-card/60 backdrop-blur-sm">
+            <CollapsibleTrigger asChild>
+              <button className="w-full flex items-center justify-between px-5 py-3.5 text-left">
+                <span className="font-semibold text-sm flex items-center gap-2 text-muted-foreground">
+                  <FileText className="h-4 w-4 text-primary" />
+                  Table of Contents
+                </span>
+                <ChevronDown className={cn(
+                  "h-4 w-4 text-muted-foreground/60 transition-transform duration-200",
+                  tocOpen && "rotate-180"
+                )} />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="px-5 pb-4 grid sm:grid-cols-2 gap-x-6 gap-y-0.5">
+                {chapters.map((item) => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    onClick={() => setTocOpen(false)}
+                    className={cn(
+                      'flex items-center gap-1.5 py-1.5 text-[13px] transition-colors',
+                      activeChapter === item.id
+                        ? 'text-primary font-medium'
+                        : 'text-muted-foreground/70 hover:text-foreground'
+                    )}
+                  >
+                    {item.ch && <span className="text-[11px] font-mono text-muted-foreground/40 w-5">{item.ch}.</span>}
+                    {!item.ch && <span className="w-5" />}
+                    {item.title}
+                  </a>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </motion.div>
 
       {/* Executive Summary */}
@@ -1817,7 +1839,63 @@ export default function WhitePaper() {
       </div> {/* end grid */}
       </div> {/* end container */}
 
-      {/* Back to top button */}
+      {/* Floating chapter indicator chip - mobile only */}
+      <AnimatePresence>
+        {showBackToTop && activeChapterInfo && (
+          <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+            <DrawerTrigger asChild>
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 xl:hidden flex items-center gap-2 px-4 py-2.5 rounded-full bg-background/80 backdrop-blur-xl border border-border/50 shadow-lg shadow-black/10"
+              >
+                <BookOpen className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-foreground truncate max-w-[180px]">
+                  {activeChapterInfo.ch ? `${activeChapterInfo.ch}. ` : ''}{activeChapterInfo.title}
+                </span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground/60" />
+              </motion.button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <div className="px-4 pt-2 pb-8">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 mb-3 px-2">
+                  Jump to chapter
+                </p>
+                <nav className="space-y-0.5">
+                  {chapters.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      onClick={() => setDrawerOpen(false)}
+                      className={cn(
+                        'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all',
+                        activeChapter === item.id
+                          ? 'text-primary bg-primary/8 font-medium'
+                          : 'text-muted-foreground/70 active:bg-muted/40'
+                      )}
+                    >
+                      {item.ch ? (
+                        <span className={cn(
+                          'text-[11px] font-mono w-5 shrink-0',
+                          activeChapter === item.id ? 'text-primary/70' : 'text-muted-foreground/40'
+                        )}>
+                          {item.ch}.
+                        </span>
+                      ) : (
+                        <span className="w-5 shrink-0" />
+                      )}
+                      {item.title}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        )}
+      </AnimatePresence>
+
+      {/* Back to top button - repositioned for mobile chip */}
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
@@ -1825,7 +1903,7 @@ export default function WhitePaper() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={scrollToTop}
-            className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 transition-colors"
+            className="fixed bottom-6 right-4 z-50 p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 transition-colors"
             aria-label="Back to top"
           >
             <ArrowUp className="h-4 w-4" />
