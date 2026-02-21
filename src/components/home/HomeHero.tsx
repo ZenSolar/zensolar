@@ -32,7 +32,7 @@ export function HomeHero() {
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}>
             <Badge variant="outline" className="inline-flex items-center px-4 py-2 text-sm border-primary/50 bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 animate-breathing-glow">
               <Sparkles className="h-4 w-4 mr-2 flex-shrink-0" />
-              Now in Beta on Base Blockchain Network
+              Tokenizing Clean Energy · Beta Live on Base
             </Badge>
           </motion.div>
 
@@ -60,7 +60,7 @@ export function HomeHero() {
             <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
               Mint-on-Proof<sup className="text-[0.35em] font-normal align-super text-muted-foreground">™</sup>
             </span>{' '}
-            Rewards Platform
+            Platform. Tokenizing Clean Energy at the Kilowatt-Hour Level.
           </motion.p>
 
           <motion.div

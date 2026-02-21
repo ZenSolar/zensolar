@@ -22,8 +22,8 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="ZenSolar — Turn Clean Energy Into Digital Income"
-        description="Earn $ZSOLAR tokens and NFTs for your solar production, battery storage, and EV driving. The world's first mint-on-proof clean energy rewards platform."
+        title="ZenSolar — Tokenize Your Clean Energy Into Digital Income"
+        description="Tokenize your solar production, battery storage, and EV driving into $ZSOLAR rewards. The world's first physics-backed clean energy token."
         url="https://zensolar.com/home"
         image="https://zensolar.com/og-image.png"
         jsonLd={{
