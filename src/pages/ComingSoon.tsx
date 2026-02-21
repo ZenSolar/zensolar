@@ -170,8 +170,8 @@ export default function ComingSoon() {
   return (
     <>
       <SEO
-        title="Coming Soon — ZenSolar"
-        description="ZenSolar is launching soon. Earn $ZSOLAR tokens for every kWh your solar panels produce, every battery storage export, every EV charge, and every mile you drive."
+        title="Coming Soon — ZenSolar | Tokenizing Clean Energy"
+        description="The tokenization supercycle is here. ZenSolar tokenizes your solar production, battery storage, and EV driving into $ZSOLAR tokens at the kilowatt-hour level."
         url="https://zensolar.com"
         image="https://zensolar.com/og-image.png"
       />
@@ -226,7 +226,7 @@ export default function ComingSoon() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Something{' '}
+            Tokenizing{' '}
             <motion.span
               className="bg-gradient-to-r from-primary via-secondary to-solar bg-clip-text text-transparent"
               animate={{
@@ -235,7 +235,7 @@ export default function ComingSoon() {
               transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
               style={{ backgroundSize: '200% 200%' }}
             >
-              powerful
+              clean energy
             </motion.span>{' '}
             is coming…
           </motion.h1>
@@ -248,9 +248,9 @@ export default function ComingSoon() {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <p className="mb-1">
-              ZenSolar rewards solar users and EV drivers with{' '}
+              ZenSolar tokenizes your clean energy into{' '}
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
-              <span className="text-primary font-semibold">NFTs</span> for:
+              <span className="text-primary font-semibold">NFTs</span> at the kilowatt-hour level:
             </p>
 
             {/* Decorative divider */}
@@ -311,7 +311,7 @@ export default function ComingSoon() {
               <div className="relative flex items-center gap-2.5 px-5 py-2 rounded-full bg-card/95">
                 <Hexagon className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                 <span className="text-xs md:text-sm font-medium text-foreground/90 whitespace-nowrap tracking-wide">
-                  Your clean energy, now your digital income
+                  Tokenize your clean energy into digital income
                 </span>
                 <Shield className="w-3.5 h-3.5 text-secondary flex-shrink-0" />
               </div>
@@ -494,7 +494,7 @@ export default function ComingSoon() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.2 }}
           >
-            Clean energy. Real rewards. On-chain proof.
+            Clean energy. Tokenized. On-chain forever.
             <BlinkingCursor />
           </motion.p>
         </div>
