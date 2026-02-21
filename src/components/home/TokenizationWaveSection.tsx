@@ -5,10 +5,10 @@ import { Sun, Shield, TrendingUp, Building2, Zap, ExternalLink } from 'lucide-re
 import { Link } from 'react-router-dom';
 
 const wallStreetAssets = [
+  { label: 'BlackRock Digital Holdings', market: '$107.4B', type: 'ETF / fund claim' },
   { label: 'U.S. Treasuries', market: '$10B+', type: 'Financial claim' },
   { label: 'Tokenized Gold', market: '$5B+', type: 'Commodity claim' },
   { label: 'Tokenized Stocks', market: '$1B+', type: 'Equity claim' },
-  { label: 'Real Estate', market: 'Emerging', type: 'Property claim' },
 ];
 
 const zenSolarAssets = [
@@ -52,34 +52,66 @@ export function TokenizationWaveSection() {
           </motion.p>
         </div>
 
-        {/* Coinbase/Bernstein quote */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-card">
-            <CardContent className="p-6 flex items-start gap-4">
-              <div className="p-2.5 rounded-xl bg-blue-500/10 shrink-0 mt-0.5">
-                <ExternalLink className="h-4 w-4 text-blue-500" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Coinbase Bytes · Bernstein Research · February 19, 2026
-                </p>
-                <blockquote className="text-foreground font-medium leading-relaxed">
-                  "The tokenization of everything creates a tangible use case that attracts traditional capital.
-                  This provides the fundamental bedrock for the next cycle. Tokenized assets hit a record{' '}
-                  <span className="text-primary">$24.5 billion</span>."
-                </blockquote>
-                <p className="text-xs text-muted-foreground">
-                  Bernstein predicts a tokenization "supercycle" beginning in 2026, driven by BlackRock, 
-                  Franklin Templeton, JPMorgan, and $432M in new VC funding entering the space.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* Industry quotes */}
+        <div className="space-y-4">
+          {/* BlackRock / Larry Fink quote */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-card">
+              <CardContent className="p-6 flex items-start gap-4">
+                <div className="p-2.5 rounded-xl bg-amber-500/10 shrink-0 mt-0.5">
+                  <Building2 className="h-4 w-4 text-amber-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Larry Fink, CEO of BlackRock · CNBC · October 14, 2025
+                  </p>
+                  <blockquote className="text-foreground font-medium leading-relaxed">
+                    "We are at the beginning of the{' '}
+                    <span className="text-primary">tokenization of all assets</span>."
+                  </blockquote>
+                  <p className="text-xs text-muted-foreground">
+                    BlackRock's digital holdings surpassed <span className="font-medium text-foreground/80">$107.4 billion</span>, 
+                    with a strategy to "repot" traditional financial products into digital formats and access 
+                    $4.1 trillion held in digital wallets globally.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Coinbase/Bernstein quote */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-card">
+              <CardContent className="p-6 flex items-start gap-4">
+                <div className="p-2.5 rounded-xl bg-blue-500/10 shrink-0 mt-0.5">
+                  <ExternalLink className="h-4 w-4 text-blue-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Coinbase Bytes · Bernstein Research · February 19, 2026
+                  </p>
+                  <blockquote className="text-foreground font-medium leading-relaxed">
+                    "The tokenization of everything creates a tangible use case that attracts traditional capital.
+                    This provides the fundamental bedrock for the next cycle. Tokenized assets hit a record{' '}
+                    <span className="text-primary">$24.5 billion</span>."
+                  </blockquote>
+                  <p className="text-xs text-muted-foreground">
+                    Bernstein predicts a tokenization "supercycle" beginning in 2026, driven by BlackRock, 
+                    Franklin Templeton, JPMorgan, and $432M in new VC funding entering the space.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
 
         {/* The comparison */}
         <div className="grid md:grid-cols-2 gap-6">
