@@ -26,6 +26,7 @@ import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofCompar
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
+import { SectionDivider } from "@/components/ui/section-divider";
 
 
 // Chapter Header component - editorial style, mobile-first
@@ -563,6 +564,8 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      <SectionDivider variant="diamond" />
+
       {/* Who We Are */}
       <motion.section id="ch-1" {...fadeIn} transition={{ delay: 0.15 }} className="space-y-6 scroll-mt-20">
         <ChapterHeader chapter={1} title="Who We Are" />
@@ -606,6 +609,8 @@ export default function WhitePaper() {
         {/* Mint-on-Proof Comparison */}
         <MintOnProofComparison autoPlay={true} showControls={false} />
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* Our Mission */}
       <motion.section id="ch-2" {...fadeIn} transition={{ delay: 0.2 }} className="space-y-6 scroll-mt-20">
@@ -657,6 +662,8 @@ export default function WhitePaper() {
           </Card>
         </div>
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* Total Addressable Market */}
       <motion.section id="ch-3" {...fadeIn} transition={{ delay: 0.25 }} className="space-y-6 scroll-mt-20">
@@ -732,6 +739,8 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* Replacing Federal Incentives */}
       <motion.section id="ch-4" {...fadeIn} transition={{ delay: 0.27 }} className="space-y-6 scroll-mt-20">
@@ -946,6 +955,8 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      <SectionDivider variant="diamond" />
+
       {/* Tokenization Supercycle — External Validation */}
       <motion.section id="ch-5" {...fadeIn} transition={{ delay: 0.28 }} className="space-y-6 scroll-mt-20">
         <ChapterHeader chapter={5} title="The Tokenization Supercycle" subtitle="Why ZenSolar is the clean energy layer of crypto's next major catalyst" />
@@ -1105,6 +1116,8 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* Market Landscape & Competitive Positioning */}
       <motion.section id="ch-6" {...fadeIn} transition={{ delay: 0.3 }} className="space-y-6 scroll-mt-20">
@@ -1311,6 +1324,8 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      <SectionDivider variant="diamond" />
+
       {/* How Users Benefit */}
       <motion.section id="ch-7" {...fadeIn} transition={{ delay: 0.35 }} className="space-y-6 scroll-mt-20">
         <ChapterHeader chapter={7} title="How Users Benefit" />
@@ -1356,6 +1371,8 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* How Investors Benefit */}
       <motion.section id="ch-8" {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6 scroll-mt-20">
@@ -1428,6 +1445,8 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      <SectionDivider variant="diamond" />
+
       {/* How the World Benefits */}
       <motion.section id="ch-9" {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6 scroll-mt-20">
         <ChapterHeader chapter={9} title="How the World Benefits" />
@@ -1471,6 +1490,8 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      <SectionDivider variant="diamond" />
+
       {/* The Vision */}
       <motion.section id="ch-10" {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6 scroll-mt-20">
         <ChapterHeader chapter={10} title="The Vision" />
@@ -1497,6 +1518,8 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* Moonshot Scenarios */}
       <motion.section id="ch-11" {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6 scroll-mt-20">
@@ -1589,6 +1612,8 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      <SectionDivider variant="diamond" />
+
       {/* Competitive Advantage */}
       <motion.section id="ch-12" {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6 scroll-mt-20">
         <ChapterHeader chapter={12} title="Competitive Moat" />
@@ -1617,6 +1642,8 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* Roadmap */}
       <motion.section id="ch-13" {...fadeIn} transition={{ delay: 0.63 }} className="space-y-6 scroll-mt-20">
@@ -1717,6 +1744,8 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
       </motion.section>
+
+      <SectionDivider variant="diamond" />
 
       {/* Risk Factors */}
       <motion.section id="ch-14" {...fadeIn} transition={{ delay: 0.64 }} className="space-y-6 scroll-mt-20">
