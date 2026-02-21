@@ -8,7 +8,7 @@ import {
   TrendingUp, Shield, Cpu, Target, Sparkles, Battery,
   Car, Home, Building2, Landmark, Heart, Rocket,
   ChevronRight, ExternalLink, FileText, Share2, Star,
-  DollarSign, Download, Loader2
+  DollarSign, Download, Loader2, AlertTriangle, Calendar
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -777,6 +777,24 @@ export default function WhitePaper() {
         <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-accent/5 overflow-hidden relative">
           <CardContent className="pt-6 space-y-6">
             {/* External validation banner */}
+            {/* BlackRock / Larry Fink quote */}
+            <div className="flex items-start gap-4 p-5 rounded-xl bg-amber-500/5 border border-amber-500/20">
+              <div className="p-2.5 rounded-xl bg-amber-500/10 shrink-0">
+                <Building2 className="h-5 w-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Larry Fink, CEO of BlackRock · CNBC · October 14, 2025</p>
+                <blockquote className="text-foreground font-medium leading-relaxed">
+                  "We are at the beginning of the <span className="text-primary">tokenization of all assets</span>."
+                </blockquote>
+                <p className="text-xs text-muted-foreground mt-2">
+                  BlackRock's digital holdings surpassed <strong className="text-foreground">$107.4 billion</strong>, with a strategy to 
+                  "repot" traditional financial products into digital formats and access $4.1 trillion held in digital wallets globally.
+                </p>
+              </div>
+            </div>
+
+            {/* Coinbase / Bernstein quote */}
             <div className="flex items-start gap-4 p-5 rounded-xl bg-muted/50 border border-border/60">
               <div className="p-2.5 rounded-xl bg-blue-500/10 shrink-0">
                 <ExternalLink className="h-5 w-5 text-blue-500" />
@@ -784,7 +802,7 @@ export default function WhitePaper() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">External Validation · Coinbase Bytes · February 19, 2026</p>
                 <blockquote className="text-foreground font-medium leading-relaxed">
-                  "The tokenization of everything – from treasury bills to real estate – creates a tangible use case that attracts traditional capital. This provides the fundamental bedrock for the next cycle."
+                  "The tokenization of everything creates a tangible use case that attracts traditional capital. This provides the fundamental bedrock for the next cycle."
                 </blockquote>
                 <p className="text-xs text-muted-foreground mt-2">— Gautam Chhugani, Senior Analyst, Bernstein Research</p>
               </div>
@@ -1123,7 +1141,7 @@ export default function WhitePaper() {
       {/* How Users Benefit */}
       <motion.section {...fadeIn} transition={{ delay: 0.35 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 6</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
           <h2 className="text-3xl font-bold">How Users Benefit</h2>
         </div>
         
@@ -1172,7 +1190,7 @@ export default function WhitePaper() {
       {/* How Investors Benefit */}
       <motion.section {...fadeIn} transition={{ delay: 0.4 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 7</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
           <h2 className="text-3xl font-bold">How Investors Benefit</h2>
         </div>
         
@@ -1246,7 +1264,7 @@ export default function WhitePaper() {
       {/* How the World Benefits */}
       <motion.section {...fadeIn} transition={{ delay: 0.5 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 8</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
           <h2 className="text-3xl font-bold">How the World Benefits</h2>
         </div>
         
@@ -1292,7 +1310,7 @@ export default function WhitePaper() {
       {/* The Vision */}
       <motion.section {...fadeIn} transition={{ delay: 0.55 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 9</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
           <h2 className="text-3xl font-bold">The Vision</h2>
         </div>
         
@@ -1322,7 +1340,7 @@ export default function WhitePaper() {
       {/* Moonshot Scenarios */}
       <motion.section {...fadeIn} transition={{ delay: 0.57 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 10</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 11</Badge>
           <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
             Moonshot Scenarios
           </h2>
@@ -1330,11 +1348,20 @@ export default function WhitePaper() {
         
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-yellow-500/5">
           <CardContent className="pt-6 space-y-6">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 not-prose">
+              <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">Illustrative projections only. Not financial advice.</strong> Token prices are inherently volatile and speculative.
+                The scenarios below are hypothetical models based on stated tokenomic mechanics and are not guarantees of future performance.
+                Past performance of other tokens does not predict $ZSOLAR outcomes. Always conduct your own research before making any financial decisions.
+              </p>
+            </div>
+
             <p className="text-muted-foreground text-lg">
               While our <strong className="text-foreground">$1.00 target</strong> creates noticeable passive income, 
               aggressive deflation, viral adoption, and institutional demand could drive $ZSOLAR to{' '}
-              <strong className="text-foreground">$5, $10, or even $20+ per token</strong>—transforming passive 
-              income into genuine wealth creation.
+              <strong className="text-foreground">$5, $10, or even $20+ per token</strong>. These are aspirational scenarios, 
+              not promises. Actual outcomes depend on adoption, market conditions, and regulatory developments.
             </p>
 
             <div className="grid md:grid-cols-3 gap-4">
@@ -1409,7 +1436,7 @@ export default function WhitePaper() {
       {/* Competitive Advantage */}
       <motion.section {...fadeIn} transition={{ delay: 0.6 }} className="space-y-6">
         <div className="text-center space-y-2">
-          <Badge variant="outline" className="px-3 py-1">Chapter 11</Badge>
+          <Badge variant="outline" className="px-3 py-1">Chapter 12</Badge>
           <h2 className="text-3xl font-bold">Competitive Moat</h2>
         </div>
         
@@ -1438,6 +1465,170 @@ export default function WhitePaper() {
         </Card>
       </motion.section>
 
+      {/* Roadmap */}
+      <motion.section {...fadeIn} transition={{ delay: 0.63 }} className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="px-3 py-1">Chapter 13</Badge>
+          <h2 className="text-3xl font-bold">Roadmap</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Where we are, and the paths ahead
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="pt-6 space-y-6">
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              ZenSolar is pre-launch. The platform, smart contracts, tokenomics, and patent application are built. 
+              What comes next depends on capital. We are actively pursuing accelerator programs and investor partnerships, 
+              with parallel planning for a self-funded bootstrap path.
+            </p>
+
+            <div className="space-y-4">
+              {[
+                {
+                  phase: 'Completed',
+                  color: 'bg-emerald-500',
+                  items: [
+                    'Full-stack platform built (React, Supabase, Base L2)',
+                    'Smart contracts deployed on Base Sepolia testnet',
+                    'Patent-pending utility application filed (Mint-on-Proof, Proof-of-Delta, Proof-of-Origin)',
+                    'Device integrations live: Tesla, Enphase, SolarEdge, Wallbox',
+                    'White Paper v2.0 published',
+                    'Tokenomics framework finalized with anti-crash architecture',
+                  ],
+                },
+                {
+                  phase: 'In Progress (Q1 2026)',
+                  color: 'bg-amber-500',
+                  items: [
+                    'Refining UX, security, and documentation',
+                    'Y Combinator S25 application submitted',
+                    'Accelerator and investor outreach',
+                    'Stress-testing tokenomic models and liquidity scenarios',
+                  ],
+                },
+                {
+                  phase: 'Next: Funded Path',
+                  color: 'bg-blue-500',
+                  items: [
+                    'Mainnet deployment on Base L2',
+                    'Seed liquidity pool ($10K+ USDC initial)',
+                    'Beta launch with first 100 households',
+                    'App Store and Google Play distribution',
+                    'Scale to 1,000+ subscribers within 6 months',
+                  ],
+                },
+                {
+                  phase: 'Next: Bootstrap Path',
+                  color: 'bg-violet-500',
+                  items: [
+                    'Self-funded mainnet launch with lean liquidity seeding',
+                    'Grassroots community growth via solar forums, EV communities, and referral loops',
+                    'Revenue-first approach: subscription income funds LP before scaling',
+                    'Organic growth to 500+ subscribers, then reassess fundraising',
+                  ],
+                },
+                {
+                  phase: 'Long-Term Vision (2027+)',
+                  color: 'bg-primary',
+                  items: [
+                    '$ZSOLAR Debit Card and utility bill integration',
+                    'White-label SEGI licensing to energy providers',
+                    'International expansion beyond US market',
+                    'Carbon credit marketplace integration',
+                    'Target: 100K+ households in the global clean energy economy',
+                  ],
+                },
+              ].map((milestone) => (
+                <div key={milestone.phase} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className={`h-3 w-3 rounded-full ${milestone.color} shrink-0 mt-1.5`} />
+                    <div className="w-px flex-1 bg-border/50" />
+                  </div>
+                  <div className="pb-6">
+                    <h4 className="font-semibold text-foreground mb-2">{milestone.phase}</h4>
+                    <ul className="space-y-1">
+                      {milestone.items.map((item) => (
+                        <li key={item} className="text-sm text-muted-foreground flex items-start gap-2">
+                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0 mt-0.5" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-5 rounded-xl bg-muted/30 border border-border/50">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">A note on honesty:</strong> ZenSolar is a solo-founded, pre-revenue startup. 
+                The timeline above reflects genuine uncertainty. Whether through accelerator backing, angel investment, or a 
+                disciplined bootstrap, the technology is built and the market timing is right. The variable is capital, not capability.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.section>
+
+      {/* Risk Factors */}
+      <motion.section {...fadeIn} transition={{ delay: 0.64 }} className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="px-3 py-1">Chapter 14</Badge>
+          <h2 className="text-3xl font-bold">Risk Factors</h2>
+        </div>
+
+        <Card className="border-destructive/20">
+          <CardContent className="pt-6 space-y-6">
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              Transparency is a core value. Prospective users and investors should carefully consider the following risks 
+              before participating in the ZenSolar ecosystem.
+            </p>
+
+            <div className="space-y-4">
+              {[
+                {
+                  title: 'Token Price Volatility',
+                  description: '$ZSOLAR is a utility token on a public blockchain. Its price is subject to market forces, speculation, and broader crypto market conditions. The stated $0.10 floor and $1.00 target are design goals, not guarantees. Token value may decrease, including to zero.',
+                },
+                {
+                  title: 'Regulatory Uncertainty',
+                  description: 'The regulatory landscape for digital assets is evolving. Changes in securities law, tax treatment of tokens, or energy regulation could materially impact the platform, token utility, or user earnings. ZenSolar is designed as a utility token, not a security, but regulatory classification is ultimately determined by authorities.',
+                },
+                {
+                  title: 'Early-Stage Company Risk',
+                  description: 'ZenSolar is a pre-revenue, pre-launch startup. The platform has not yet been tested at scale. There is no guarantee that user adoption targets will be met, that the liquidity pool will reach sufficient depth, or that the economic flywheel will perform as modeled.',
+                },
+                {
+                  title: 'Smart Contract Risk',
+                  description: 'While our contracts will undergo professional auditing before mainnet deployment, all smart contracts carry inherent risk of bugs, exploits, or unforeseen interactions. Users should not commit funds they cannot afford to lose.',
+                },
+                {
+                  title: 'Third-Party API Dependency',
+                  description: 'ZenSolar relies on manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox) for energy data. Changes to these APIs, rate limits, deprecations, or access restrictions could impact platform functionality.',
+                },
+                {
+                  title: 'Liquidity Risk',
+                  description: 'During the early launch phase, the liquidity pool will be shallow. Large sell orders could significantly impact token price. The progressive sell tax and circuit breaker mechanisms are designed to mitigate this, but cannot eliminate it entirely.',
+                },
+                {
+                  title: 'No Guarantee of Returns',
+                  description: 'All earning projections in this document ($400-$1,000/month, $96,000 over 20 years, moonshot scenarios) are illustrative models based on specific assumptions about token price, adoption rates, and energy production. Actual results will vary. This is not financial advice.',
+                },
+              ].map((risk) => (
+                <div key={risk.title} className="flex items-start gap-3 p-4 rounded-xl bg-muted/20 border border-border/40">
+                  <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-sm text-foreground mb-1">{risk.title}</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{risk.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.section>
+
       {/* CTA */}
       <motion.section {...fadeIn} transition={{ delay: 0.65 }} className="space-y-6">
         <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border-primary/30">
@@ -1446,7 +1637,7 @@ export default function WhitePaper() {
               <h2 className="text-2xl md:text-3xl font-bold">Join the Clean Energy Revolution</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Whether you're a homeowner ready to monetize your sustainability investments, or an investor 
-                looking for the next paradigm shift in climate finance—ZenSolar welcomes you.
+                looking for the next paradigm shift in climate finance. ZenSolar welcomes you.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
