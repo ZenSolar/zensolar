@@ -311,7 +311,7 @@ export default function ComingSoon() {
               <div className="relative flex items-center gap-2.5 px-5 py-2 rounded-full bg-card/95">
                 <Hexagon className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                 <span className="text-xs md:text-sm font-medium text-foreground/90 whitespace-nowrap tracking-wide">
-                  Tokenize your clean energy into digital income
+                  Your clean energy, now your digital income
                 </span>
                 <Shield className="w-3.5 h-3.5 text-secondary flex-shrink-0" />
               </div>
@@ -320,30 +320,43 @@ export default function ComingSoon() {
 
           {/* Connects With logos */}
           <motion.div
-            className="w-full max-w-md mb-10"
+            className="w-full max-w-2xl mb-10"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.55 }}
           >
             <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="flex items-center justify-center gap-6">
-              {[
-                { src: teslaLogo, alt: 'Tesla', h: 'h-9 md:h-11' },
-                { src: enphaseLogo, alt: 'Enphase', h: 'h-6 md:h-7' },
-                { src: solarEdgeLogo, alt: 'SolarEdge', h: 'h-12 md:h-16' },
-                { src: wallboxLogo, alt: 'Wallbox', h: 'h-6 md:h-7' },
-              ].map(({ src, alt, h }, idx) => (
-                <motion.img
-                  key={alt}
-                  src={src}
-                  alt={alt}
-                  className={`${h} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-300`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 0.6, y: 0 }}
-                  transition={{ delay: 0.6 + idx * 0.1, duration: 0.5 }}
-                />
-              ))}
+            <div className="relative overflow-hidden rounded-2xl pt-1 pb-6 px-6 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
+              {/* Ambient glow spots */}
+              <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
+              <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
+              {/* Subtle shimmer sweep */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent -skew-x-12 pointer-events-none"
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+              />
+              <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 place-items-center">
+                {[
+                  { src: teslaLogo, alt: 'Tesla', cls: 'max-w-[400px] md:max-w-[500px] max-h-20 md:max-h-28' },
+                  { src: enphaseLogo, alt: 'Enphase', cls: 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12' },
+                  { src: solarEdgeLogo, alt: 'SolarEdge', cls: 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12' },
+                  { src: wallboxLogo, alt: 'Wallbox', cls: 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12' },
+                ].map(({ src, alt, cls }, idx) => (
+                  <motion.img
+                    key={alt}
+                    src={src}
+                    alt={alt}
+                    className={`${cls} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 0.6, y: 0 }}
+                    transition={{ delay: 0.6 + idx * 0.1, duration: 0.5 }}
+                    whileHover={{ scale: 1.05 }}
+                  />
+                ))}
+              </div>
             </div>
+            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More partners coming soon…</p>
           </motion.div>
           {/* Mint-on-Proof — holographic card */}
           <motion.div
