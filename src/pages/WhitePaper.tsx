@@ -536,18 +536,6 @@ export default function WhitePaper() {
             </div>
           </CardHeader>
           <CardContent className="prose prose-lg dark:prose-invert max-w-none relative z-10 space-y-4 prose-p:text-base sm:prose-p:text-lg">
-            {/* Tokenization Supercycle Context */}
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 not-prose mb-2">
-              <div className="p-2 rounded-lg bg-blue-500/10 shrink-0 mt-0.5">
-                <svg className="h-4 w-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Market Context · Coinbase Bytes & Bernstein Research · February 2026</p>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Tokenized real-world assets reached a record <strong className="text-foreground">$24.5 billion</strong> in early 2026, with Bernstein Research declaring the arrival of a tokenization "supercycle" led by BlackRock, Franklin Templeton, and JPMorgan. Wall Street is racing to put financial claims—treasuries, gold, equities—on-chain. ZenSolar is doing something more defensible: tokenizing the <em>physical reality</em> of clean energy at the kilowatt-hour level, creating scarcity backed by the laws of thermodynamics, not just cryptography.
-                </p>
-              </div>
-            </div>
             <p className="text-muted-foreground text-lg leading-relaxed">
               <strong className="text-foreground">ZenSolar</strong> is a blockchain-powered rewards platform that
               transforms clean energy production into verifiable digital assets. Using our patent-pending 
@@ -560,6 +548,18 @@ export default function WhitePaper() {
               who have already invested in sustainability. Our mission is simple: make doing good for the planet 
               financially rewarding.
             </p>
+            {/* Tokenization Supercycle Context */}
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 not-prose mt-2">
+              <div className="p-2 rounded-lg bg-blue-500/10 shrink-0 mt-0.5">
+                <svg className="h-4 w-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Market Context · Coinbase Bytes & Bernstein Research · February 2026</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Tokenized real-world assets reached a record <strong className="text-foreground">$24.5 billion</strong> in early 2026, with Bernstein Research declaring the arrival of a tokenization "supercycle" led by BlackRock, Franklin Templeton, and JPMorgan. Wall Street is racing to put financial claims—treasuries, gold, equities—on-chain. ZenSolar is doing something more defensible: tokenizing the <em>physical reality</em> of clean energy at the kilowatt-hour level, creating scarcity backed by the laws of thermodynamics, not just cryptography.
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.section>
