@@ -162,9 +162,9 @@ export function TokenizationWaveSection() {
                 </span>
               </h3>
               <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
-                Every token represents a permanently, irreversibly consumed unit of energy — cryptographically 
-                retired upon minting. Unlike gold or treasuries, you can't re-hypothecate a verified kilowatt-hour. 
-                It happened once. It's on-chain. Forever.
+                A kilowatt-hour can only be used once. Once it powers your home, it's gone. We capture that moment, 
+                verify it cryptographically, and retire it on-chain. No counterparty. No custody risk. Just physics. 
+                That makes every $ZSOLAR token a permanent claim on clean energy the world actually used.
               </p>
               <Link to="/white-paper" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium">
                 Read the full analysis in the White Paper
