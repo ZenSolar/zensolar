@@ -72,3 +72,9 @@ Add visual Yes/No radio-button style indicators to the YC application page for 5
 - In `GenericSection`, check if a question entry has a `choice` property
 - If so, render `YCChoiceQuestion` instead of `EditableYCCard`
 
+---
+
+## To-Do
+
+- [ ] Re-enable `tesla-charge-monitor` cron when ready to resume testing (was every 1 min, recommend 30 min + geocode caching to reduce API calls from ~4,200/day to ~240/day)
+
