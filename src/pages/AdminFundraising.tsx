@@ -6,26 +6,20 @@ import {
   Target, 
   Users, 
   TrendingUp, 
-  CheckCircle2, 
-  Circle,
-  Globe,
   Shield,
-  Fuel,
   Coins,
-  PieChart,
-  Calculator,
-  Milestone,
-  FileText,
-  Rocket,
-  Clock,
-  AlertCircle,
-  Loader2,
+  Lock,
   Layers,
-  ArrowRight,
+  Loader2,
   BarChart3,
-  Zap
+  Zap,
+  Flame,
+  ArrowRight,
+  CheckCircle2,
+  Circle,
+  AlertTriangle
 } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, ComposedChart, Line } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -46,305 +40,262 @@ const staggerChildren = {
   animate: { transition: { staggerChildren: 0.1 } }
 };
 
-// Milestone data
-const milestones = [
-  { 
-    id: 1, 
-    title: "Working MVP", 
-    description: "Functional app with core features", 
-    completed: true,
-    date: "Completed"
+// === PHASED FUNDRAISING MODEL ===
+
+const phases = [
+  {
+    id: "preseed",
+    name: "Pre-Seed (Beta)",
+    timeline: "Now – Month 6",
+    raise: "$0",
+    valuation: "N/A",
+    users: { start: 10, end: 100 },
+    lpLocked: "$5K (testnet)",
+    lpFromRevenue: "$0",
+    totalLP: "$5K",
+    circulatingSupply: "~1M (testnet)",
+    supplyPercent: "0%",
+    priceTarget: "$0.10 (placeholder)",
+    monthlyRevenue: "$0",
+    cumulativeRevenue: "$0",
+    arr: "$0",
+    lpTier: "Test",
+    lpTierColor: "text-muted-foreground",
+    status: "active",
+    milestones: [
+      { text: "Smart contract deployed (10B supply)", done: true },
+      { text: "Proof-of-Delta™ validation with real devices", done: true },
+      { text: "127+ on-chain mints completed", done: true },
+      { text: "50+ active beta users", done: false },
+      { text: "Device Watermark Registry stress-tested", done: false },
+      { text: "App Store submission (Q2 2026)", done: false },
+    ],
+    tokenRelease: [
+      { event: "Testnet activity", tokens: 0, destination: "N/A (testnet only)" },
+    ],
+    useOfFunds: [],
+    investorNarrative: "We've proven the technology works with real devices and real users on testnet. Zero mainnet tokens released."
   },
-  { 
-    id: 2, 
-    title: "Provisional Patent Filed", 
-    description: "US Patent Application submitted April 12, 2025", 
-    completed: true,
-    date: "Apr 12, 2025"
+  {
+    id: "seed",
+    name: "Seed Round",
+    timeline: "Month 7 – 18",
+    raise: "$3M – $5M",
+    valuation: "$15M – $25M pre-money",
+    users: { start: 100, end: 5000 },
+    lpLocked: "$1.5M",
+    lpFromRevenue: "$150K",
+    totalLP: "$1.65M",
+    circulatingSupply: "60M",
+    supplyPercent: "0.6%",
+    priceTarget: "$0.10 – $0.25",
+    monthlyRevenue: "$25K (at 5K users)",
+    cumulativeRevenue: "$180K",
+    arr: "$300K",
+    lpTier: "Viable",
+    lpTierColor: "text-yellow-500",
+    status: "upcoming",
+    milestones: [
+      { text: "Mainnet launch on Base L2", done: false },
+      { text: "$1.5M LP locked for 10 years (on-chain)", done: false },
+      { text: "1,000 paying subscribers", done: false },
+      { text: "Patent filing completed", done: false },
+      { text: "App Store live (iOS + Android)", done: false },
+      { text: "First $100K cumulative revenue", done: false },
+    ],
+    tokenRelease: [
+      { event: "LP Seed", tokens: 15_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Mo 7-12)", tokens: 7_500_000, destination: "User wallets (vested)" },
+      { event: "User Rewards (Mo 13-18)", tokens: 37_500_000, destination: "User wallets (vested)" },
+    ],
+    useOfFunds: [
+      { category: "Locked LP (10-year lock)", amount: "$1.5M", percentage: 37.5 },
+      { category: "Engineering (12 months)", amount: "$1M", percentage: 25 },
+      { category: "Legal / IP / Compliance", amount: "$400K", percentage: 10 },
+      { category: "Marketing & Growth", amount: "$500K", percentage: 12.5 },
+      { category: "Operations & Infrastructure", amount: "$400K", percentage: 10 },
+      { category: "Reserve / Contingency", amount: "$200K", percentage: 5 },
+    ],
+    investorNarrative: "We've proven the technology works. We're locking $1.5M to build the permanent financial foundation."
   },
-  { 
-    id: 3, 
-    title: "4 Vendor API Integrations", 
-    description: "Tesla, Enphase, SolarEdge, Wallbox connected", 
-    completed: true,
-    date: "Completed"
+  {
+    id: "seriesA",
+    name: "Series A",
+    timeline: "Month 19 – 36",
+    raise: "$15M – $25M",
+    valuation: "$75M – $125M pre-money",
+    users: { start: 5000, end: 50000 },
+    lpLocked: "$7.5M",
+    lpFromRevenue: "$2.5M",
+    totalLP: "$10M",
+    circulatingSupply: "350M",
+    supplyPercent: "3.5%",
+    priceTarget: "$0.20 – $0.60",
+    monthlyRevenue: "$375K (at 50K users)",
+    cumulativeRevenue: "$5.5M",
+    arr: "$4.5M",
+    lpTier: "Resilient",
+    lpTierColor: "text-green-500",
+    status: "future",
+    milestones: [
+      { text: "25,000 paying subscribers (self-sustaining)", done: false },
+      { text: "$7.5M total locked LP", done: false },
+      { text: "$1M+ ARR", done: false },
+      { text: "Patent granted", done: false },
+      { text: "5+ hardware integrations", done: false },
+      { text: "$ZSOLAR debit card pilot", done: false },
+    ],
+    tokenRelease: [
+      { event: "LP Expansion", tokens: 60_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Mo 19-36)", tokens: 180_000_000, destination: "User wallets (vested)" },
+      { event: "Treasury Unlock (Year 2)", tokens: 50_000_000, destination: "Treasury ops" },
+    ],
+    useOfFunds: [
+      { category: "Locked LP (added to lock)", amount: "$6M", percentage: 30 },
+      { category: "Engineering Scale-up", amount: "$5M", percentage: 25 },
+      { category: "Growth & Acquisition", amount: "$4M", percentage: 20 },
+      { category: "Legal / Compliance", amount: "$1.5M", percentage: 7.5 },
+      { category: "Operations & Infrastructure", amount: "$2M", percentage: 10 },
+      { category: "Reserve / Contingency", amount: "$1.5M", percentage: 7.5 },
+    ],
+    investorNarrative: "We have 5,000 users generating real revenue. We're locking $7.5M total to make this permanent infrastructure."
   },
-  { 
-    id: 4, 
-    title: "Smart Contracts Deployed (Testnet)", 
-    description: "ZSOLAR token + NFT contracts on Base Sepolia", 
-    completed: true,
-    date: "Completed"
+  {
+    id: "seriesB",
+    name: "Series B",
+    timeline: "Month 37 – 60 (Year 3-5)",
+    raise: "$50M – $75M",
+    valuation: "$300M – $500M pre-money",
+    users: { start: 50000, end: 500000 },
+    lpLocked: "$25M",
+    lpFromRevenue: "$35M",
+    totalLP: "$60M",
+    circulatingSupply: "1.1B",
+    supplyPercent: "11%",
+    priceTarget: "$0.50 – $2.00",
+    monthlyRevenue: "$5M (at 500K users)",
+    cumulativeRevenue: "$60M",
+    arr: "$60M",
+    lpTier: "Fortress",
+    lpTierColor: "text-blue-500",
+    status: "future",
+    milestones: [
+      { text: "100,000 paying subscribers", done: false },
+      { text: "$25M total locked LP (Fortress tier)", done: false },
+      { text: "$10M+ ARR", done: false },
+      { text: "$ZSOLAR debit card nationwide", done: false },
+      { text: "Utility bill payment integration", done: false },
+      { text: "Token price sustainably above $1.00", done: false },
+    ],
+    tokenRelease: [
+      { event: "LP Expansion", tokens: 175_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Mo 37-60)", tokens: 450_000_000, destination: "User wallets (vested)" },
+      { event: "Treasury Operations", tokens: 75_000_000, destination: "Ecosystem growth" },
+      { event: "Founder Vesting (Year 3+)", tokens: 50_000_000, destination: "Founder (vested)" },
+    ],
+    useOfFunds: [
+      { category: "Locked LP (fortress level)", amount: "$17.5M", percentage: 29 },
+      { category: "Engineering & Product", amount: "$15M", percentage: 25 },
+      { category: "Growth & Partnerships", amount: "$12M", percentage: 20 },
+      { category: "Debit Card Infrastructure", amount: "$5M", percentage: 8.3 },
+      { category: "International Expansion", amount: "$5M", percentage: 8.3 },
+      { category: "Legal / Compliance", amount: "$3M", percentage: 5 },
+    ],
+    investorNarrative: "We're at $10M ARR with 50K users. The $25M locked LP makes this price floor essentially unbreakable."
   },
-  { 
-    id: 5, 
-    title: "First $ZSOLAR Mints", 
-    description: "Token rewards successfully minted on testnet", 
-    completed: true,
-    date: "Completed"
-  },
-  { 
-    id: 6, 
-    title: "First NFT Mints", 
-    description: "Achievement NFTs minted on testnet", 
-    completed: true,
-    date: "Completed"
-  },
-  { 
-    id: 7, 
-    title: "Gas Sponsorship Model", 
-    description: "Minter wallet covers all user transaction fees", 
-    completed: true,
-    date: "Implemented"
-  },
-  { 
-    id: 8, 
-    title: "100-500 Beta Users", 
-    description: "Active users with connected energy devices", 
-    completed: false,
-    date: "In Progress"
-  },
-  { 
-    id: 9, 
-    title: "Security Audit", 
-    description: "Third-party smart contract audit", 
-    completed: false,
-    date: "Pre-Mainnet"
-  },
-  { 
-    id: 10, 
-    title: "Mainnet Deployment", 
-    description: "Production contracts on Base mainnet", 
-    completed: false,
-    date: "Post-Raise"
-  },
-  { 
-    id: 11, 
-    title: "Utility Patent Prosecution", 
-    description: "Convert provisional to full utility patent", 
-    completed: false,
-    date: "Within 12 months"
-  },
-  { 
-    id: 12, 
-    title: "Global Patent Filing (PCT)", 
-    description: "International patent protection", 
-    completed: false,
-    date: "Post-Raise"
+  {
+    id: "seriesC",
+    name: "Series C / Growth",
+    timeline: "Month 61 – 120 (Year 5-10)",
+    raise: "$100M – $200M (or revenue-funded)",
+    valuation: "$1B+",
+    users: { start: 500000, end: 3000000 },
+    lpLocked: "$50M",
+    lpFromRevenue: "$350M",
+    totalLP: "$400M",
+    circulatingSupply: "4B",
+    supplyPercent: "40%",
+    priceTarget: "$1.00 – $10.00",
+    monthlyRevenue: "$40M (at 3M users)",
+    cumulativeRevenue: "$750M",
+    arr: "$480M",
+    lpTier: "Unshakeable",
+    lpTierColor: "text-purple-500",
+    status: "future",
+    milestones: [
+      { text: "1M+ users globally", done: false },
+      { text: "$50M+ locked LP", done: false },
+      { text: "$100M+ ARR", done: false },
+      { text: "IPO readiness", done: false },
+      { text: "International markets (EU, APAC)", done: false },
+      { text: "$ZSOLAR accepted at major retailers", done: false },
+    ],
+    tokenRelease: [
+      { event: "LP Expansion", tokens: 500_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Year 5-10)", tokens: 2_000_000_000, destination: "User wallets" },
+      { event: "Treasury Operations", tokens: 200_000_000, destination: "Ecosystem growth" },
+      { event: "Founder Vesting (complete)", tokens: 200_000_000, destination: "Founder" },
+    ],
+    useOfFunds: [
+      { category: "Global Dominance", amount: "$80M+", percentage: 40 },
+      { category: "IPO Preparation", amount: "$40M+", percentage: 20 },
+      { category: "Strategic Acquisitions", amount: "$60M+", percentage: 30 },
+      { category: "Treasury / Runway", amount: "$20M+", percentage: 10 },
+    ],
+    investorNarrative: "We're replacing federal tax credits for millions of Americans. The $50M+ locked LP is the financial backbone of the clean energy transition."
   },
 ];
 
-// Cap table data
-const capTable = {
-  totalSupply: 10_000_000_000,
-  allocations: [
-    { name: "Community Rewards", percentage: 90, tokens: 9_000_000_000, status: "Mineable", vesting: "Earned through activity" },
-    { name: "Founder", percentage: 2.5, tokens: 250_000_000, status: "Allocated", vesting: "3-year linear vest" },
-    { name: "Treasury/Operations", percentage: 7.5, tokens: 750_000_000, status: "Allocated", vesting: "2-year vest, multisig" },
-  ]
-};
-
-// Comprehensive fundraising rounds data
-const fundraisingRounds = [
-  {
-    stage: "Pre-Seed",
-    amount: "$500K - $1M",
-    valuation: "$5M - $10M",
-    dilution: "10%",
-    runway: "12-18 months",
-    timeline: "Now",
-    recommended: true,
-    keyMilestones: [
-      "Security audit completed",
-      "Mainnet deployment",
-      "500+ beta users",
-      "Patent prosecution initiated"
-    ],
-    founderCompensation: {
-      annualSalary: "$120K - $150K",
-      signingBonus: "$0",
-      secondarySale: "$0",
-      totalCashYear1: "$120K - $150K",
-    },
-    useOfFunds: [
-      { category: "Legal & IP", percentage: 15, amount: "$75K-150K" },
-      { category: "Security Audit", percentage: 10, amount: "$50K-100K" },
-      { category: "Mainnet Launch", percentage: 15, amount: "$75K-150K" },
-      { category: "Team (12-18mo)", percentage: 40, amount: "$200K-400K" },
-      { category: "Marketing", percentage: 20, amount: "$100K-200K" },
-    ],
-    investorFocus: "Product-market fit, patent protection, first users"
-  },
-  {
-    stage: "Seed",
-    amount: "$1M - $2M",
-    valuation: "$15M - $25M",
-    dilution: "10-15%",
-    runway: "18-24 months",
-    timeline: "Post-Mainnet + 10K users",
-    recommended: false,
-    keyMilestones: [
-      "10,000+ active users",
-      "25K subscriber tipping point",
-      "$1.00 price target achieved",
-      "Global patent (PCT) filed"
-    ],
-    founderCompensation: {
-      annualSalary: "$175K - $225K",
-      signingBonus: "$25K - $50K",
-      secondarySale: "$150K - $300K",
-      totalCashYear1: "$350K - $575K",
-    },
-    useOfFunds: [
-      { category: "Team Expansion", percentage: 40, amount: "$400K-800K" },
-      { category: "Global Patent", percentage: 10, amount: "$100K-200K" },
-      { category: "LP Seeding", percentage: 20, amount: "$200K-400K" },
-      { category: "Partnerships", percentage: 15, amount: "$150K-300K" },
-      { category: "Operations", percentage: 15, amount: "$150K-300K" },
-    ],
-    investorFocus: "User growth, revenue metrics, LP sustainability"
-  },
-  {
-    stage: "Series A",
-    amount: "$5M - $10M",
-    valuation: "$50M - $100M",
-    dilution: "10-15%",
-    runway: "24-36 months",
-    timeline: "50K+ users, proven revenue",
-    recommended: false,
-    keyMilestones: [
-      "50,000+ paying subscribers",
-      "Positive unit economics",
-      "Strategic partnerships",
-      "International expansion"
-    ],
-    founderCompensation: {
-      annualSalary: "$250K - $350K",
-      signingBonus: "$50K - $100K",
-      secondarySale: "$500K - $1.5M",
-      totalCashYear1: "$800K - $1.95M",
-    },
-    useOfFunds: [
-      { category: "Scale Operations", percentage: 35, amount: "$1.75M-3.5M" },
-      { category: "Enterprise Sales", percentage: 20, amount: "$1M-2M" },
-      { category: "Product Expansion", percentage: 25, amount: "$1.25M-2.5M" },
-      { category: "Treasury Reserves", percentage: 20, amount: "$1M-2M" },
-    ],
-    investorFocus: "Revenue multiples, market leadership, defensibility"
-  },
-  {
-    stage: "Series B",
-    amount: "$15M - $30M",
-    valuation: "$150M - $300M",
-    dilution: "10-15%",
-    runway: "36-48 months",
-    timeline: "200K+ users, $5M+ ARR",
-    recommended: false,
-    keyMilestones: [
-      "200,000+ paying subscribers",
-      "$5M+ ARR achieved",
-      "B2B utility partnerships",
-      "Multi-chain deployment"
-    ],
-    founderCompensation: {
-      annualSalary: "$350K - $450K",
-      signingBonus: "$100K - $200K",
-      secondarySale: "$2M - $5M",
-      totalCashYear1: "$2.45M - $5.65M",
-    },
-    useOfFunds: [
-      { category: "Global Expansion", percentage: 30, amount: "$4.5M-9M" },
-      { category: "Enterprise Sales", percentage: 25, amount: "$3.75M-7.5M" },
-      { category: "R&D / New Products", percentage: 25, amount: "$3.75M-7.5M" },
-      { category: "M&A / Strategic", percentage: 20, amount: "$3M-6M" },
-    ],
-    investorFocus: "Path to profitability, market dominance, exit potential"
-  },
-  {
-    stage: "Series C+",
-    amount: "$50M+",
-    valuation: "$500M+",
-    dilution: "5-10%",
-    runway: "48+ months",
-    timeline: "1M+ users, $20M+ ARR",
-    recommended: false,
-    keyMilestones: [
-      "1,000,000+ users globally",
-      "$20M+ ARR",
-      "IPO readiness or acquisition",
-      "Category leader status"
-    ],
-    founderCompensation: {
-      annualSalary: "$500K+",
-      signingBonus: "$250K+",
-      secondarySale: "$10M+",
-      totalCashYear1: "$10M+",
-    },
-    useOfFunds: [
-      { category: "Global Dominance", percentage: 40, amount: "$20M+" },
-      { category: "IPO Preparation", percentage: 20, amount: "$10M+" },
-      { category: "Strategic Acquisitions", percentage: 30, amount: "$15M+" },
-      { category: "Treasury / Runway", percentage: 10, amount: "$5M+" },
-    ],
-    investorFocus: "Exit timeline, market cap potential, strategic value"
-  },
+// LP Resilience tiers
+const lpTiers = [
+  { name: "Viable", lp: "$1.5M", impact: "-9.1%", phase: "Seed", emoji: "🟡" },
+  { name: "Resilient", lp: "$10M", impact: "-5%", phase: "Series A", emoji: "🟢" },
+  { name: "Fortress", lp: "$25M", impact: "-2.5%", phase: "Series B", emoji: "🔵" },
+  { name: "Unshakeable", lp: "$50M+", impact: "<1%", phase: "Series C", emoji: "💎" },
 ];
 
-// Simplified raise scenarios for backward compatibility
-const raiseScenarios = fundraisingRounds.slice(0, 3).map(round => ({
-  stage: round.stage,
-  amount: round.amount,
-  recommended: round.recommended,
-  valuation: round.valuation,
-  dilution: round.dilution,
-  timeline: round.timeline,
-  founderCompensation: {
-    annualSalary: round.founderCompensation.annualSalary,
-    salaryNote: round.stage === "Pre-Seed" ? "Below-market founder salary, standard for pre-seed" : 
-                round.stage === "Seed" ? "Market-rate for early-stage CEO" : "Competitive CEO salary + benefits",
-    signingBonus: round.founderCompensation.signingBonus,
-    secondarySale: round.founderCompensation.secondarySale,
-    secondaryNote: round.stage === "Pre-Seed" ? "No secondary allowed at this stage" :
-                   round.stage === "Seed" ? "5-10% of shares sold (negotiable with lead investor)" : "10-15% secondary common at Series A",
-    totalCashYear1: round.founderCompensation.totalCashYear1,
-  },
-  useOfFunds: round.useOfFunds.map(f => ({
-    category: f.category,
-    amount: f.amount,
-    description: ""
-  }))
-}));
+// Token release summary
+const tokenReleaseSummary = [
+  { phase: "Pre-seed", tokens: 0, cumulative: 0, percent: "0%", price: "$0.10 (test)" },
+  { phase: "Seed", tokens: 60, cumulative: 60, percent: "0.6%", price: "$0.10 – $0.25" },
+  { phase: "Series A", tokens: 290, cumulative: 350, percent: "3.5%", price: "$0.20 – $0.60" },
+  { phase: "Series B", tokens: 750, cumulative: 1100, percent: "11%", price: "$0.50 – $2.00" },
+  { phase: "Series C", tokens: 2900, cumulative: 4000, percent: "40%", price: "$1.00 – $10.00" },
+];
 
-// Patent strategy
-const patentStrategy = {
-  current: {
-    type: "Provisional Patent Application",
-    filingDate: "April 12, 2025",
-    jurisdiction: "United States",
-    status: "Active",
-    expiryForConversion: "April 12, 2026"
-  },
-  globalStrategy: [
-    { jurisdiction: "United States", method: "Utility Patent", cost: "$15-25K", timeline: "2-3 years", priority: "High" },
-    { jurisdiction: "European Union", method: "EP Application", cost: "$20-40K", timeline: "3-4 years", priority: "High" },
-    { jurisdiction: "China", method: "CN Application", cost: "$10-20K", timeline: "2-3 years", priority: "Medium" },
-    { jurisdiction: "Japan", method: "JP Application", cost: "$10-15K", timeline: "2-3 years", priority: "Medium" },
-    { jurisdiction: "South Korea", method: "KR Application", cost: "$8-12K", timeline: "2 years", priority: "Medium" },
-    { jurisdiction: "Australia", method: "AU Application", cost: "$8-12K", timeline: "2 years", priority: "Low" },
-    { jurisdiction: "Canada", method: "CA Application", cost: "$8-12K", timeline: "2-3 years", priority: "Low" },
-  ],
-  pctRoute: {
-    description: "Patent Cooperation Treaty (PCT) Application",
-    benefit: "Single filing preserves rights in 150+ countries for 30 months",
-    cost: "$5-10K initial + national phase costs",
-    deadline: "Within 12 months of provisional filing (by April 12, 2026)"
-  }
-};
+// Revenue projection chart data
+const revenueChartData = [
+  { month: "Mo 7", users: 100, revenue: 0.5, lpDepth: 1500, arr: 6 },
+  { month: "Mo 12", users: 1000, revenue: 33, lpDepth: 1730, arr: 60 },
+  { month: "Mo 18", users: 5000, revenue: 180, lpDepth: 2250, arr: 300 },
+  { month: "Mo 24", users: 15000, revenue: 1100, lpDepth: 8150, arr: 1350 },
+  { month: "Mo 36", users: 50000, revenue: 5500, lpDepth: 10000, arr: 4500 },
+  { month: "Mo 48", users: 150000, revenue: 24000, lpDepth: 37000, arr: 18000 },
+  { month: "Mo 60", users: 500000, revenue: 60000, lpDepth: 60000, arr: 60000 },
+  { month: "Yr 7", users: 1000000, revenue: 200000, lpDepth: 170000, arr: 144000 },
+  { month: "Yr 10", users: 3000000, revenue: 750000, lpDepth: 400000, arr: 480000 },
+];
+
+// Price impact data for chart
+const priceImpactData = [
+  { lp: "$300K", sell10: 94, sell25: 97, sell50: 99 },
+  { lp: "$1M", sell10: 33, sell25: 56, sell50: 75 },
+  { lp: "$1.5M", sell10: 3.8, sell25: 9.1, sell50: 16.7 },
+  { lp: "$5M", sell10: 3.8, sell25: 9.1, sell50: 20 },
+  { lp: "$10M", sell10: 3.8, sell25: 5, sell50: 11 },
+  { lp: "$25M", sell10: 2, sell25: 2.5, sell50: 5 },
+  { lp: "$50M", sell10: 1, sell25: 1.2, sell50: 2.4 },
+];
+
+function formatTokens(m: number): string {
+  if (m >= 1000) return `${(m / 1000).toFixed(1)}B`;
+  return `${m}M`;
+}
 
 export default function AdminFundraising() {
   const { user, isLoading } = useAuth();
   const { isAdmin, isChecking } = useAdminCheck();
-  const [activeTab, setActiveTab] = useState("rounds");
+  const [activeTab, setActiveTab] = useState("overview");
 
   if (isLoading || isChecking) {
     return (
@@ -354,24 +305,15 @@ export default function AdminFundraising() {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+  if (!user) return <Navigate to="/auth" replace />;
 
   if (!isAdmin) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">Access Denied. Admin privileges required.</p>
-          </CardContent>
-        </Card>
+        <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground">Access Denied. Admin privileges required.</p></CardContent></Card>
       </div>
     );
   }
-
-  const completedMilestones = milestones.filter(m => m.completed).length;
-  const milestoneProgress = (completedMilestones / milestones.length) * 100;
 
   return (
     <motion.div
@@ -384,24 +326,48 @@ export default function AdminFundraising() {
       <motion.div variants={fadeIn} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-center md:text-left space-y-2">
           <Badge variant="outline" className="text-primary border-primary">
-            <DollarSign className="h-3 w-3 mr-1" />
-            Fundraising Strategy
+            <Lock className="h-3 w-3 mr-1" />
+            Permanent Infrastructure Model
           </Badge>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-            Fundraising Dashboard
+            Phased Fundraising & Token Release
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base">
-            Track milestones, model cap table scenarios, and plan raise strategy for $ZSOLAR
+            Building the permanent financial infrastructure that replaces federal tax credits for clean energy users.
           </p>
         </div>
         <ExportButtons 
-          pageTitle="Fundraising Dashboard" 
+          pageTitle="Phased Fundraising Model" 
           getData={() => [
-            ...milestones.map(m => ({ section: "Milestone", item: m.title, status: m.completed ? "Completed" : "Pending", date: m.date, description: m.description })),
-            ...fundraisingRounds.map(r => ({ section: "Round", stage: r.stage, amount: r.amount, valuation: r.valuation, dilution: r.dilution, runway: r.runway, timeline: r.timeline })),
-            ...capTable.allocations.map(a => ({ section: "Cap Table", allocation: a.name, percentage: `${a.percentage}%`, tokens: a.tokens, vesting: a.vesting }))
+            ...phases.map(p => ({ 
+              Phase: p.name, Raise: p.raise, Valuation: p.valuation, 
+              Users: `${p.users.start.toLocaleString()} → ${p.users.end.toLocaleString()}`,
+              "LP Locked": p.lpLocked, "Total LP": p.totalLP,
+              "Circulating Supply": p.circulatingSupply, "% of 10B": p.supplyPercent,
+              "Price Target": p.priceTarget, ARR: p.arr,
+              "Cumulative Revenue": p.cumulativeRevenue
+            })),
           ]} 
         />
+      </motion.div>
+
+      {/* Infrastructure Narrative Banner */}
+      <motion.div variants={fadeIn}>
+        <Card className="border-primary/30 bg-gradient-to-r from-primary/5 via-transparent to-blue-500/5">
+          <CardContent className="p-5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <div className="p-3 rounded-xl bg-primary/10 shrink-0">
+              <Shield className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">The Infrastructure Thesis</h3>
+              <p className="text-sm text-muted-foreground">
+                The locked liquidity pool is ZenSolar's equivalent of the U.S. Treasury backing tax credits. 
+                Users don't need to trust a founder. They need to trust that the <span className="text-primary font-semibold">mechanism is permanent and self-sustaining</span>. 
+                Subscription revenue feeds the pool automatically. Deflationary burns ensure scarcity. The longer it runs, the stronger it gets.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Quick Stats */}
@@ -409,10 +375,10 @@ export default function AdminFundraising() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
+              <Lock className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-2xl font-bold">{completedMilestones}/{milestones.length}</p>
-                <p className="text-xs text-muted-foreground">Milestones Complete</p>
+                <p className="text-2xl font-bold">10 yr</p>
+                <p className="text-xs text-muted-foreground">LP Lock Period</p>
               </div>
             </div>
           </CardContent>
@@ -420,10 +386,10 @@ export default function AdminFundraising() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <Rocket className="h-5 w-5 text-green-500" />
+              <Coins className="h-5 w-5 text-yellow-500" />
               <div>
-                <p className="text-2xl font-bold">Testnet</p>
-                <p className="text-xs text-muted-foreground">Current Stage</p>
+                <p className="text-2xl font-bold">10B</p>
+                <p className="text-xs text-muted-foreground">Total Supply</p>
               </div>
             </div>
           </CardContent>
@@ -431,10 +397,10 @@ export default function AdminFundraising() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-amber-500" />
+              <Flame className="h-5 w-5 text-destructive" />
               <div>
-                <p className="text-2xl font-bold">Active</p>
-                <p className="text-xs text-muted-foreground">Patent Status</p>
+                <p className="text-2xl font-bold">20%+7%</p>
+                <p className="text-xs text-muted-foreground">Mint + Transfer Burn</p>
               </div>
             </div>
           </CardContent>
@@ -442,10 +408,10 @@ export default function AdminFundraising() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-primary" />
+              <TrendingUp className="h-5 w-5 text-green-500" />
               <div>
-                <p className="text-2xl font-bold">$500K-$750K</p>
-                <p className="text-xs text-muted-foreground">Recommended Raise</p>
+                <p className="text-2xl font-bold">50%</p>
+                <p className="text-xs text-muted-foreground">Revenue → LP</p>
               </div>
             </div>
           </CardContent>
@@ -456,43 +422,35 @@ export default function AdminFundraising() {
       <motion.div variants={fadeIn}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="h-auto flex-wrap gap-1 p-1.5 bg-muted/50 rounded-xl">
-            <TabsTrigger value="rounds" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <TabsTrigger value="overview" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
               <Layers className="h-4 w-4" />
-              <span>Rounds</span>
+              <span>Phases</span>
             </TabsTrigger>
-            <TabsTrigger value="milestones" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              <Milestone className="h-4 w-4" />
-              <span>Milestones</span>
+            <TabsTrigger value="tokenrelease" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+              <Coins className="h-4 w-4" />
+              <span>Token Release</span>
             </TabsTrigger>
-            <TabsTrigger value="captable" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              <PieChart className="h-4 w-4" />
-              <span>Cap Table</span>
+            <TabsTrigger value="lpresilience" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+              <Shield className="h-4 w-4" />
+              <span>LP Resilience</span>
             </TabsTrigger>
-            <TabsTrigger value="scenarios" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              <Calculator className="h-4 w-4" />
-              <span>Scenarios</span>
-            </TabsTrigger>
-            <TabsTrigger value="patent" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              <Globe className="h-4 w-4" />
-              <span>Patent</span>
-            </TabsTrigger>
-            <TabsTrigger value="operations" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              <Fuel className="h-4 w-4" />
-              <span>Operations</span>
+            <TabsTrigger value="revenue" className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+              <BarChart3 className="h-4 w-4" />
+              <span>Revenue</span>
             </TabsTrigger>
           </TabsList>
 
-          {/* Fundraising Rounds Comparison Tab */}
-          <TabsContent value="rounds" className="space-y-6">
-            {/* Comparison Table */}
+          {/* === PHASES TAB === */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Master Comparison Table */}
             <Card className="overflow-hidden border-primary/20">
               <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
                 <CardTitle className="flex items-center gap-2">
                   <Layers className="h-5 w-5 text-primary" />
-                  Fundraising Rounds Comparison
+                  Phased Fundraising Model
                 </CardTitle>
                 <CardDescription>
-                  Side-by-side comparison of all funding stages from Pre-Seed to Series C+
+                  From testnet beta to global infrastructure. Each phase deepens the permanent liquidity foundation.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -501,88 +459,45 @@ export default function AdminFundraising() {
                     <TableHeader>
                       <TableRow className="bg-muted/30">
                         <TableHead className="font-semibold w-40">Metric</TableHead>
-                        {fundraisingRounds.map((round) => (
-                          <TableHead key={round.stage} className={`text-center min-w-[140px] ${round.recommended ? 'bg-primary/10' : ''}`}>
+                        {phases.map((p) => (
+                          <TableHead key={p.id} className={`text-center min-w-[140px] ${p.status === 'active' ? 'bg-primary/10' : ''}`}>
                             <div className="flex flex-col items-center gap-1">
-                              <span className="font-bold">{round.stage}</span>
-                              {round.recommended && (
-                                <Badge className="bg-primary text-primary-foreground text-xs">Current</Badge>
-                              )}
+                              <span className="font-bold text-xs">{p.name}</span>
+                              {p.status === 'active' && <Badge className="bg-primary text-primary-foreground text-[10px]">Current</Badge>}
                             </div>
                           </TableHead>
                         ))}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium bg-muted/20">Raise Amount</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center font-semibold text-primary ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.amount}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium bg-muted/20">Valuation</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.valuation}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium bg-muted/20">Dilution</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.dilution}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium bg-muted/20">Runway</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.runway}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium bg-muted/20">Timeline</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center text-sm ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.timeline}
-                          </TableCell>
-                        ))}
-                      </TableRow>
+                      {[
+                        { label: "Raise", key: "raise", highlight: true },
+                        { label: "Valuation", key: "valuation" },
+                        { label: "Timeline", key: "timeline" },
+                        { label: "Users", key: "users", format: (p: typeof phases[0]) => `${p.users.start.toLocaleString()} → ${p.users.end.toLocaleString()}` },
+                        { label: "LP Locked", key: "lpLocked", highlight: true },
+                        { label: "LP from Revenue", key: "lpFromRevenue" },
+                        { label: "Total LP Depth", key: "totalLP", highlight: true },
+                        { label: "Circulating Supply", key: "circulatingSupply" },
+                        { label: "% of 10B Supply", key: "supplyPercent" },
+                        { label: "Price Target", key: "priceTarget", highlight: true },
+                        { label: "Cumulative Revenue", key: "cumulativeRevenue" },
+                        { label: "ARR", key: "arr" },
+                      ].map((row) => (
+                        <TableRow key={row.key} className={row.highlight ? 'bg-primary/[0.02]' : ''}>
+                          <TableCell className="font-medium bg-muted/20 text-xs">{row.label}</TableCell>
+                          {phases.map((p) => (
+                            <TableCell key={p.id} className={`text-center text-xs ${p.status === 'active' ? 'bg-primary/5' : ''} ${row.highlight ? 'font-semibold' : ''}`}>
+                              {row.format ? row.format(p) : (p as any)[row.key]}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
                       <TableRow className="border-t-2">
-                        <TableCell className="font-medium bg-green-500/10">Founder Salary</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center text-sm text-green-600 dark:text-green-400 ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.founderCompensation.annualSalary}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium bg-amber-500/10">Secondary Sale</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center text-sm text-amber-600 dark:text-amber-400 ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.founderCompensation.secondarySale}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium bg-blue-500/10">Total Year 1</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center font-semibold text-blue-600 dark:text-blue-400 ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.founderCompensation.totalCashYear1}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      <TableRow className="border-t-2">
-                        <TableCell className="font-medium bg-muted/20">Investor Focus</TableCell>
-                        {fundraisingRounds.map((round) => (
-                          <TableCell key={round.stage} className={`text-center text-xs text-muted-foreground ${round.recommended ? 'bg-primary/5' : ''}`}>
-                            {round.investorFocus}
+                        <TableCell className="font-medium bg-blue-500/10 text-xs">LP Tier</TableCell>
+                        {phases.map((p) => (
+                          <TableCell key={p.id} className={`text-center font-bold ${p.lpTierColor} ${p.status === 'active' ? 'bg-primary/5' : ''}`}>
+                            {p.lpTier}
                           </TableCell>
                         ))}
                       </TableRow>
@@ -592,666 +507,383 @@ export default function AdminFundraising() {
               </CardContent>
             </Card>
 
-            {/* Founder Compensation Progression Chart */}
-            <Card className="overflow-hidden border-green-500/20">
-              <CardHeader className="bg-gradient-to-r from-green-500/10 to-transparent">
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                  Founder Compensation Progression
-                </CardTitle>
-                <CardDescription>
-                  Visual breakdown of salary, secondary sales, and total cash across funding rounds
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="h-[350px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={(() => {
-                        // Parse monetary strings like "$120K - $150K" or "$500K - $1.5M" to get midpoint in thousands
-                        const parseMoneyRange = (s: string): number => {
-                          if (!s || s === "$0") return 0;
-                          
-                          // Extract all numbers with their suffixes
-                          const matches = s.match(/\$?([\d.]+)(K|M)?/gi) || [];
-                          const values = matches.map(match => {
-                            const numMatch = match.match(/\$?([\d.]+)(K|M)?/i);
-                            if (!numMatch) return 0;
-                            const num = parseFloat(numMatch[1]);
-                            const suffix = numMatch[2]?.toUpperCase();
-                            if (suffix === 'M') return num * 1000; // Convert to thousands
-                            if (suffix === 'K') return num;
-                            // If no suffix, assume it's already in the right scale for the context
-                            return num >= 1000 ? num / 1000 : num;
-                          });
-                          
-                          if (values.length >= 2) return (values[0] + values[1]) / 2;
-                          if (values.length === 1) return values[0];
-                          return 0;
-                        };
-                        
-                        return fundraisingRounds.map(round => {
-                          const salary = parseMoneyRange(round.founderCompensation.annualSalary);
-                          const bonus = parseMoneyRange(round.founderCompensation.signingBonus);
-                          const secondary = parseMoneyRange(round.founderCompensation.secondarySale);
-                          
-                          return {
-                            stage: round.stage,
-                            salary: salary,
-                            bonus: bonus,
-                            secondary: secondary,
-                            total: salary + bonus + secondary,
-                          };
-                        });
-                      })()}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="stage" tick={{ fontSize: 12 }} />
-                      <YAxis 
-                        tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(1)}M` : `${value}K`}`}
-                        tick={{ fontSize: 12 }}
-                        domain={[0, 'auto']}
-                      />
-                      <Tooltip 
-                        formatter={(value: number, name: string) => [
-                          `$${value >= 1000 ? `${(value / 1000).toFixed(1)}M` : `${value.toFixed(0)}K`}`,
-                          name
-                        ]}
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--background))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
-                        }}
-                      />
-                      <Legend />
-                      <Bar dataKey="salary" name="Annual Salary" stackId="a" fill="hsl(142, 76%, 36%)" radius={[0, 0, 0, 0]} />
-                      <Bar dataKey="bonus" name="Signing Bonus" stackId="a" fill="hsl(45, 93%, 47%)" radius={[0, 0, 0, 0]} />
-                      <Bar dataKey="secondary" name="Secondary Sale" stackId="a" fill="hsl(221, 83%, 53%)" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
-                  <div className="text-center">
-                    <div className="w-4 h-4 rounded mx-auto mb-1" style={{ backgroundColor: 'hsl(142, 76%, 36%)' }} />
-                    <p className="text-xs text-muted-foreground">Annual Salary</p>
-                    <p className="text-sm font-medium">Recurring Cash</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-4 h-4 rounded mx-auto mb-1" style={{ backgroundColor: 'hsl(45, 93%, 47%)' }} />
-                    <p className="text-xs text-muted-foreground">Signing Bonus</p>
-                    <p className="text-sm font-medium">One-Time</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-4 h-4 rounded mx-auto mb-1" style={{ backgroundColor: 'hsl(221, 83%, 53%)' }} />
-                    <p className="text-xs text-muted-foreground">Secondary Sale</p>
-                    <p className="text-sm font-medium">Liquidity Event</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Key Milestones Per Round */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {fundraisingRounds.slice(0, 3).map((round, index) => (
+            {/* Phase Detail Cards */}
+            <div className="space-y-4">
+              {phases.map((phase, idx) => (
                 <motion.div
-                  key={round.stage}
+                  key={phase.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: idx * 0.05 }}
                 >
-                  <Card className={`h-full ${round.recommended ? 'border-primary shadow-lg shadow-primary/10' : 'border-border/50'}`}>
-                    <CardHeader className={`pb-3 ${round.recommended ? 'bg-gradient-to-r from-primary/10 to-transparent' : ''}`}>
-                      <div className="flex items-center justify-between">
+                  <Card className={`${phase.status === 'active' ? 'border-primary shadow-lg shadow-primary/10' : 'border-border/50'}`}>
+                    <CardHeader className={`pb-3 ${phase.status === 'active' ? 'bg-gradient-to-r from-primary/10 to-transparent' : ''}`}>
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <CardTitle className="text-lg flex items-center gap-2">
-                          {round.stage}
-                          {round.recommended && <Zap className="h-4 w-4 text-primary" />}
+                          {phase.status === 'active' && <Zap className="h-4 w-4 text-primary" />}
+                          {phase.name}
+                          <span className="text-sm font-normal text-muted-foreground">({phase.timeline})</span>
                         </CardTitle>
-                        <Badge variant={round.recommended ? "default" : "outline"}>
-                          {round.amount}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{phase.raise}</Badge>
+                          {phase.valuation !== "N/A" && <Badge variant="secondary" className="text-xs">{phase.valuation}</Badge>}
+                        </div>
                       </div>
-                      <CardDescription className="text-xs">{round.runway} runway</CardDescription>
+                      <p className="text-sm text-muted-foreground italic">"{phase.investorNarrative}"</p>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-2">KEY MILESTONES</p>
-                        <ul className="space-y-1.5">
-                          {round.keyMilestones.map((milestone, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm">
-                              <ArrowRight className="h-3.5 w-3.5 mt-0.5 text-primary flex-shrink-0" />
-                              <span>{milestone}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-2">USE OF FUNDS</p>
-                        <div className="space-y-2">
-                          {round.useOfFunds.slice(0, 4).map((fund, i) => (
-                            <div key={i} className="flex items-center gap-2">
-                              <div className="flex-1">
-                                <div className="flex justify-between text-xs mb-0.5">
-                                  <span>{fund.category}</span>
-                                  <span className="text-muted-foreground">{fund.percentage}%</span>
-                                </div>
-                                <Progress value={fund.percentage} className="h-1.5" />
-                              </div>
-                            </div>
-                          ))}
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {/* Milestones */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Key Milestones</p>
+                          <ul className="space-y-1.5">
+                            {phase.milestones.map((m, i) => (
+                              <li key={i} className="flex items-start gap-2 text-sm">
+                                {m.done ? (
+                                  <CheckCircle2 className="h-4 w-4 mt-0.5 text-green-500 flex-shrink-0" />
+                                ) : (
+                                  <Circle className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                                )}
+                                <span className={m.done ? 'text-muted-foreground line-through' : ''}>{m.text}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
+
+                        {/* Use of Funds */}
+                        {phase.useOfFunds.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Use of Funds</p>
+                            <div className="space-y-2">
+                              {phase.useOfFunds.map((f, i) => (
+                                <div key={i}>
+                                  <div className="flex justify-between text-xs mb-0.5">
+                                    <span>{f.category}</span>
+                                    <span className="text-muted-foreground">{f.amount} ({f.percentage}%)</span>
+                                  </div>
+                                  <Progress value={f.percentage} className="h-1.5" />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
             </div>
+          </TabsContent>
 
-            {/* Late Stage Rounds */}
-            <Card className="bg-muted/20">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Late-Stage Rounds (Series B+)
+          {/* === TOKEN RELEASE TAB === */}
+          <TabsContent value="tokenrelease" className="space-y-6">
+            {/* Supply Release Summary */}
+            <Card className="overflow-hidden border-yellow-500/20">
+              <CardHeader className="bg-gradient-to-r from-yellow-500/10 to-transparent">
+                <CardTitle className="flex items-center gap-2">
+                  <Coins className="h-5 w-5 text-yellow-500" />
+                  10B Supply Release Schedule
                 </CardTitle>
-                <CardDescription>Future funding stages contingent on growth metrics</CardDescription>
+                <CardDescription>
+                  Managed supply curve: token supply matches real demand, not flooding the market.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30">
+                        <TableHead>Phase</TableHead>
+                        <TableHead className="text-right">Released</TableHead>
+                        <TableHead className="text-right">Cumulative</TableHead>
+                        <TableHead className="text-right">% of 10B</TableHead>
+                        <TableHead className="text-right">Price Target</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {tokenReleaseSummary.map((row) => (
+                        <TableRow key={row.phase}>
+                          <TableCell className="font-medium">{row.phase}</TableCell>
+                          <TableCell className="text-right">{formatTokens(row.tokens)}</TableCell>
+                          <TableCell className="text-right font-semibold">{formatTokens(row.cumulative)}</TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant="outline" className="font-mono">{row.percent}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right text-primary font-medium">{row.price}</TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="border-t-2 bg-muted/20">
+                        <TableCell className="font-bold">Remaining (Year 10+)</TableCell>
+                        <TableCell className="text-right">—</TableCell>
+                        <TableCell className="text-right font-bold">6.0B</TableCell>
+                        <TableCell className="text-right"><Badge variant="outline" className="font-mono">60%</Badge></TableCell>
+                        <TableCell className="text-right text-muted-foreground">Long-term ecosystem</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Supply Release Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Cumulative Token Release
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {fundraisingRounds.slice(3).map((round) => (
-                    <div key={round.stage} className="p-4 rounded-lg border bg-background/50 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-semibold">{round.stage}</h4>
-                        <Badge variant="outline">{round.amount}</Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Valuation:</span>
-                          <span className="ml-1 font-medium">{round.valuation}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Runway:</span>
-                          <span className="ml-1 font-medium">{round.runway}</span>
-                        </div>
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">Trigger:</span>
-                        <span className="ml-1">{round.timeline}</span>
-                      </div>
-                      <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                        <strong>Focus:</strong> {round.investorFocus}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Milestones Tab */}
-          <TabsContent value="milestones" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Fundraising Readiness
-                </CardTitle>
-                <CardDescription>
-                  Track key milestones for investor conversations
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Progress to Pre-Seed Ready</span>
-                    <span className="font-medium">{Math.round(milestoneProgress)}%</span>
-                  </div>
-                  <Progress value={milestoneProgress} className="h-3" />
-                </div>
-
-                <Separator />
-
-                <div className="grid gap-3">
-                  {milestones.map((milestone) => (
-                    <div 
-                      key={milestone.id}
-                      className={`flex items-start gap-3 p-3 rounded-lg border ${
-                        milestone.completed 
-                          ? "bg-green-500/10 border-green-500/30" 
-                          : "bg-muted/50 border-border"
-                      }`}
-                    >
-                      {milestone.completed ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className={`font-medium ${milestone.completed ? "text-green-700 dark:text-green-400" : ""}`}>
-                            {milestone.title}
-                          </p>
-                          <Badge variant={milestone.completed ? "default" : "secondary"} className="shrink-0">
-                            {milestone.date}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{milestone.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Cap Table Tab */}
-          <TabsContent value="captable" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5" />
-                  Token Allocation
-                </CardTitle>
-                <CardDescription>
-                  $ZSOLAR supply distribution (50 billion total)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid gap-4">
-                  {capTable.allocations.map((allocation, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Coins className="h-4 w-4 text-primary" />
-                          <span className="font-medium">{allocation.name}</span>
-                        </div>
-                        <Badge variant="outline">{allocation.percentage}%</Badge>
-                      </div>
-                      <Progress value={allocation.percentage} className="h-2" />
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>{(allocation.tokens / 1_000_000_000).toFixed(2)}B tokens</span>
-                        <span>{allocation.vesting}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <Separator />
-
-                <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Founder Vesting Schedule
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    The 2.5% founder allocation (1.25B tokens) is subject to a 4-year linear vesting schedule, 
-                    demonstrating long-term commitment and alignment with the community.
-                  </p>
-                  <div className="grid grid-cols-4 gap-2 mt-3">
-                    {[1, 2, 3, 4].map((year) => (
-                      <div key={year} className="text-center p-2 bg-background rounded border">
-                        <p className="text-lg font-bold">312.5M</p>
-                        <p className="text-xs text-muted-foreground">Year {year}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Scenarios Tab */}
-          <TabsContent value="scenarios" className="space-y-6">
-            {raiseScenarios.map((scenario, index) => (
-              <Card key={index} className={scenario.recommended ? "border-primary" : ""}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      {scenario.stage}
-                    </CardTitle>
-                    {scenario.recommended && (
-                      <Badge className="bg-primary">Recommended</Badge>
-                    )}
-                  </div>
-                  <CardDescription>
-                    {scenario.amount} at {scenario.valuation} valuation
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="p-3 bg-muted/50 rounded-lg">
-                      <p className="text-lg font-bold">{scenario.amount}</p>
-                      <p className="text-xs text-muted-foreground">Raise Amount</p>
-                    </div>
-                    <div className="p-3 bg-muted/50 rounded-lg">
-                      <p className="text-lg font-bold">{scenario.dilution}</p>
-                      <p className="text-xs text-muted-foreground">Dilution</p>
-                    </div>
-                    <div className="p-3 bg-muted/50 rounded-lg">
-                      <p className="text-lg font-bold">{scenario.timeline}</p>
-                      <p className="text-xs text-muted-foreground">Timeline</p>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Founder Compensation Section */}
-                  <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg space-y-3">
-                    <h4 className="font-medium text-sm flex items-center gap-2">
-                      <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
-                      Founder Compensation (Cash)
-                    </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                      <div className="p-2 bg-background rounded border">
-                        <p className="text-sm font-bold text-green-600 dark:text-green-400">{scenario.founderCompensation.annualSalary}</p>
-                        <p className="text-xs text-muted-foreground">Annual Salary</p>
-                      </div>
-                      <div className="p-2 bg-background rounded border">
-                        <p className="text-sm font-bold">{scenario.founderCompensation.signingBonus}</p>
-                        <p className="text-xs text-muted-foreground">Signing Bonus</p>
-                      </div>
-                      <div className="p-2 bg-background rounded border">
-                        <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{scenario.founderCompensation.secondarySale}</p>
-                        <p className="text-xs text-muted-foreground">Secondary Sale</p>
-                      </div>
-                      <div className="p-2 bg-background rounded border border-green-500">
-                        <p className="text-sm font-bold text-green-600 dark:text-green-400">{scenario.founderCompensation.totalCashYear1}</p>
-                        <p className="text-xs text-muted-foreground">Total Year 1</p>
-                      </div>
-                    </div>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p><span className="font-medium">Salary:</span> {scenario.founderCompensation.salaryNote}</p>
-                      <p><span className="font-medium">Secondary:</span> {scenario.founderCompensation.secondaryNote}</p>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Use of Funds</h4>
-                    {scenario.useOfFunds.map((fund, i) => (
-                      <div key={i} className="flex items-center justify-between text-sm p-2 bg-muted/30 rounded">
-                        <div>
-                          <span className="font-medium">{fund.category}</span>
-                          <p className="text-xs text-muted-foreground">{fund.description}</p>
-                        </div>
-                        <Badge variant="outline">{fund.amount}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-
-          {/* Patent Tab */}
-          <TabsContent value="patent" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Current Patent Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-3 bg-muted/50 rounded-lg text-center">
-                    <p className="text-sm font-medium">Type</p>
-                    <p className="text-xs text-muted-foreground">{patentStrategy.current.type}</p>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg text-center">
-                    <p className="text-sm font-medium">Filed</p>
-                    <p className="text-xs text-muted-foreground">{patentStrategy.current.filingDate}</p>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg text-center">
-                    <p className="text-sm font-medium">Jurisdiction</p>
-                    <p className="text-xs text-muted-foreground">{patentStrategy.current.jurisdiction}</p>
-                  </div>
-                  <div className="p-3 bg-green-500/10 rounded-lg text-center border border-green-500/30">
-                    <p className="text-sm font-medium text-green-600 dark:text-green-400">Status</p>
-                    <p className="text-xs text-green-600 dark:text-green-400">{patentStrategy.current.status}</p>
-                  </div>
-                </div>
-
-                <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <Clock className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-amber-700 dark:text-amber-400">Conversion Deadline</p>
-                      <p className="text-sm text-muted-foreground">
-                        Must file utility patent by <span className="font-medium">{patentStrategy.current.expiryForConversion}</span> to 
-                        maintain priority date.
-                      </p>
-                    </div>
-                  </div>
+                <div className="h-[350px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={tokenReleaseSummary.filter(r => r.tokens > 0)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="phase" tick={{ fontSize: 12 }} />
+                      <YAxis tickFormatter={(v) => `${v}M`} tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        formatter={(value: number) => [`${formatTokens(value)} tokens`, "Released"]}
+                        contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      />
+                      <Bar dataKey="cumulative" name="Cumulative Supply" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
-                  Global Patent Strategy
-                </CardTitle>
-                <CardDescription>
-                  International protection via PCT and direct filings
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* PCT Route */}
-                <div className="bg-primary/10 border border-primary/30 p-4 rounded-lg space-y-2">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-primary" />
-                    {patentStrategy.pctRoute.description}
-                  </h4>
-                  <p className="text-sm text-muted-foreground">{patentStrategy.pctRoute.benefit}</p>
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <Badge variant="outline">{patentStrategy.pctRoute.cost}</Badge>
-                    <span className="text-muted-foreground">Deadline: {patentStrategy.pctRoute.deadline}</span>
-                  </div>
-                </div>
-
-                {/* Country-specific filings */}
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">National Phase / Direct Filings</h4>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2">Jurisdiction</th>
-                          <th className="text-left py-2">Method</th>
-                          <th className="text-left py-2">Cost Est.</th>
-                          <th className="text-left py-2">Timeline</th>
-                          <th className="text-left py-2">Priority</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {patentStrategy.globalStrategy.map((country, i) => (
-                          <tr key={i} className="border-b">
-                            <td className="py-2 font-medium">{country.jurisdiction}</td>
-                            <td className="py-2 text-muted-foreground">{country.method}</td>
-                            <td className="py-2">{country.cost}</td>
-                            <td className="py-2 text-muted-foreground">{country.timeline}</td>
-                            <td className="py-2">
-                              <Badge variant={
-                                country.priority === "High" ? "default" : 
-                                country.priority === "Medium" ? "secondary" : "outline"
-                              }>
-                                {country.priority}
-                              </Badge>
-                            </td>
-                          </tr>
+            {/* Detailed Release per Phase */}
+            <div className="space-y-4">
+              {phases.filter(p => p.tokenRelease.some(t => t.tokens > 0)).map((phase) => (
+                <Card key={phase.id}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">{phase.name}: Token Release Detail</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/20">
+                          <TableHead>Event</TableHead>
+                          <TableHead className="text-right">Tokens</TableHead>
+                          <TableHead>Destination</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {phase.tokenRelease.filter(t => t.tokens > 0).map((t, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-medium text-sm">{t.event}</TableCell>
+                            <TableCell className="text-right font-mono text-sm">{t.tokens.toLocaleString()}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{t.destination}</TableCell>
+                          </TableRow>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Estimated Total Global Patent Budget:</strong> $75K - $150K over 3-4 years, 
-                    including prosecution costs and translations.
-                  </p>
+            {/* Remaining 6B Explanation */}
+            <Card className="border-muted bg-muted/20">
+              <CardContent className="p-5">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                  Remaining 6B Tokens (60% of supply)
+                </h4>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2"><ArrowRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />Long-term user reward runway (decades of growth)</li>
+                  <li className="flex items-start gap-2"><ArrowRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />Future LP expansion for new exchanges</li>
+                  <li className="flex items-start gap-2"><ArrowRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />Strategic partnership allocations</li>
+                  <li className="flex items-start gap-2"><ArrowRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />Acquisition currency</li>
+                  <li className="flex items-start gap-2"><ArrowRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />Community governance incentives</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* === LP RESILIENCE TAB === */}
+          <TabsContent value="lpresilience" className="space-y-6">
+            {/* Resilience Tiers */}
+            <Card className="border-blue-500/20">
+              <CardHeader className="bg-gradient-to-r from-blue-500/10 to-transparent">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-blue-500" />
+                  LP Resilience Tiers
+                </CardTitle>
+                <CardDescription>
+                  Price impact when 25% of all users sell everything at once
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {lpTiers.map((tier) => (
+                    <Card key={tier.name} className="text-center">
+                      <CardContent className="pt-5 pb-4">
+                        <p className="text-3xl mb-1">{tier.emoji}</p>
+                        <p className="font-bold text-lg">{tier.name}</p>
+                        <p className="text-2xl font-bold text-primary mt-1">{tier.lp}</p>
+                        <p className="text-sm text-muted-foreground mt-1">25% dump impact: <span className="font-semibold text-foreground">{tier.impact}</span></p>
+                        <Badge variant="outline" className="mt-2">{tier.phase}</Badge>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Price Impact Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Price Impact vs LP Depth
+                </CardTitle>
+                <CardDescription>% price drop at different sell scenarios (10K users, 50M circulating)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={priceImpactData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="lp" tick={{ fontSize: 11 }} label={{ value: "LP Depth", position: "insideBottom", offset: -5 }} />
+                      <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12 }} label={{ value: "Price Drop", angle: -90, position: "insideLeft" }} />
+                      <Tooltip
+                        formatter={(value: number, name: string) => [`${value}%`, name]}
+                        contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="sell10" name="10% sell" fill="hsl(142, 76%, 36%)" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="sell25" name="25% sell" fill="hsl(45, 93%, 47%)" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="sell50" name="50% sell" fill="hsl(0, 84%, 60%)" radius={[2, 2, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Detailed Impact Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Detailed Price Impact Analysis</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30">
+                        <TableHead>LP Depth</TableHead>
+                        <TableHead className="text-center">10% sell all</TableHead>
+                        <TableHead className="text-center">25% sell all</TableHead>
+                        <TableHead className="text-center">50% sell all</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {priceImpactData.map((row) => (
+                        <TableRow key={row.lp}>
+                          <TableCell className="font-semibold">{row.lp}</TableCell>
+                          <TableCell className={`text-center font-mono ${row.sell10 > 20 ? 'text-destructive' : row.sell10 > 5 ? 'text-yellow-500' : 'text-green-500'}`}>
+                            -{row.sell10}%
+                          </TableCell>
+                          <TableCell className={`text-center font-mono ${row.sell25 > 20 ? 'text-destructive' : row.sell25 > 10 ? 'text-yellow-500' : 'text-green-500'}`}>
+                            -{row.sell25}%
+                          </TableCell>
+                          <TableCell className={`text-center font-mono ${row.sell50 > 30 ? 'text-destructive' : row.sell50 > 15 ? 'text-yellow-500' : 'text-green-500'}`}>
+                            -{row.sell50}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Operations Tab */}
-          <TabsContent value="operations" className="space-y-6">
+          {/* === REVENUE TAB === */}
+          <TabsContent value="revenue" className="space-y-6">
+            {/* Revenue & LP Growth Chart */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Fuel className="h-5 w-5" />
-                  Gas Sponsorship Model
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                  Revenue & LP Depth Growth
                 </CardTitle>
-                <CardDescription>
-                  Minter wallet covers all user transaction fees
-                </CardDescription>
+                <CardDescription>Cumulative revenue and total LP depth over time ($K)</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-green-700 dark:text-green-400">Implemented</p>
-                      <p className="text-sm text-muted-foreground">
-                        The minter wallet pays gas fees for all users, removing friction from the onboarding 
-                        and reward claiming experience.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg space-y-2">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      User Experience
-                    </h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• No ETH/Base required in user wallets</li>
-                      <li>• One-click minting experience</li>
-                      <li>• Lower barrier to entry</li>
-                      <li>• Better conversion rates</li>
-                    </ul>
-                  </div>
-                  <div className="p-4 border rounded-lg space-y-2">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Calculator className="h-4 w-4" />
-                      Cost Projections
-                    </h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• Testnet: $0 (free transactions)</li>
-                      <li>• Mainnet: ~$0.01-0.05 per mint</li>
-                      <li>• 10K users: ~$500-2,500/month</li>
-                      <li>• 100K users: ~$5K-25K/month</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4" />
-                    ChargePoint Integration Decision
-                  </h4>
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Status:</strong> Not proceeding. ChargePoint's API is designed for fleet management 
-                      rather than individual consumers, making it incompatible with our peer-to-peer reward model. 
-                      Our existing integrations (Tesla, Enphase, SolarEdge, Wallbox) provide comprehensive coverage 
-                      for the residential clean energy market.
-                    </p>
-                  </div>
+              <CardContent>
+                <div className="h-[400px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={revenueChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                      <YAxis tickFormatter={(v) => v >= 1000 ? `$${(v/1000).toFixed(0)}M` : `$${v}K`} tick={{ fontSize: 11 }} />
+                      <Tooltip
+                        formatter={(value: number, name: string) => [value >= 1000 ? `$${(value/1000).toFixed(1)}M` : `$${value}K`, name]}
+                        contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      />
+                      <Legend />
+                      <Area dataKey="revenue" name="Cumulative Revenue" fill="hsl(142, 76%, 36%)" fillOpacity={0.1} stroke="hsl(142, 76%, 36%)" />
+                      <Line dataKey="lpDepth" name="Total LP Depth" stroke="hsl(221, 83%, 53%)" strokeWidth={2} dot={{ r: 4 }} />
+                      <Line dataKey="arr" name="ARR" stroke="hsl(45, 93%, 47%)" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 3 }} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Revenue Table */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Subscription Revenue Model
+                  <DollarSign className="h-5 w-5" />
+                  Revenue & Cash Projections
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-4 text-center">
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-2xl font-bold">$9.99</p>
-                    <p className="text-sm text-muted-foreground">/month subscription</p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-2xl font-bold">50%</p>
-                    <p className="text-sm text-muted-foreground">→ Liquidity Pool</p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-2xl font-bold">50%</p>
-                    <p className="text-sm text-muted-foreground">→ Operations</p>
-                  </div>
-                </div>
-
+              <CardContent className="p-0">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-2">Users</th>
-                        <th className="text-left py-2">MRR</th>
-                        <th className="text-left py-2">Annual LP Injection</th>
-                        <th className="text-left py-2">Annual Operations</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b">
-                        <td className="py-2">1,000</td>
-                        <td className="py-2">$10K</td>
-                        <td className="py-2 text-green-600 dark:text-green-400">$60K</td>
-                        <td className="py-2">$60K</td>
-                      </tr>
-                      <tr className="border-b">
-                        <td className="py-2">10,000</td>
-                        <td className="py-2">$100K</td>
-                        <td className="py-2 text-green-600 dark:text-green-400">$600K</td>
-                        <td className="py-2">$600K</td>
-                      </tr>
-                      <tr className="border-b">
-                        <td className="py-2">100,000</td>
-                        <td className="py-2">$1M</td>
-                        <td className="py-2 text-green-600 dark:text-green-400">$6M</td>
-                        <td className="py-2">$6M</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2">1,000,000</td>
-                        <td className="py-2">$10M</td>
-                        <td className="py-2 text-green-600 dark:text-green-400">$60M</td>
-                        <td className="py-2">$60M</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30">
+                        <TableHead>Phase</TableHead>
+                        <TableHead className="text-right">Users</TableHead>
+                        <TableHead className="text-right">Monthly Revenue</TableHead>
+                        <TableHead className="text-right">Cumulative Revenue</TableHead>
+                        <TableHead className="text-right">Revenue → LP (50%)</TableHead>
+                        <TableHead className="text-right">ARR</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {phases.map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell className="font-medium">{p.name}</TableCell>
+                          <TableCell className="text-right">{p.users.end.toLocaleString()}</TableCell>
+                          <TableCell className="text-right">{p.monthlyRevenue}</TableCell>
+                          <TableCell className="text-right font-semibold">{p.cumulativeRevenue}</TableCell>
+                          <TableCell className="text-right text-primary">{p.lpFromRevenue}</TableCell>
+                          <TableCell className="text-right font-semibold">{p.arr}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Key Insight */}
+            <Card className="border-green-500/20 bg-green-500/5">
+              <CardContent className="p-5">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-green-500" />
+                  The Flywheel Takeover
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  By Series B, subscription revenue alone injects <span className="text-foreground font-semibold">$2.5M/month</span> into the LP. 
+                  By Year 10, it's <span className="text-foreground font-semibold">$20M/month</span>. The locked base becomes a small fraction of total LP depth. 
+                  The flywheel takes over, and the infrastructure becomes self-sustaining, independent of any future fundraising.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-      </motion.div>
-
-      {/* Disclaimer */}
-      <motion.div variants={fadeIn}>
-        <Card className="bg-muted/30">
-          <CardContent className="pt-4">
-            <p className="text-xs text-muted-foreground text-center">
-              This fundraising dashboard is for internal planning purposes only. All projections are 
-              estimates and subject to change. Consult with legal and financial advisors before 
-              engaging in any fundraising activities.
-            </p>
-          </CardContent>
-        </Card>
       </motion.div>
     </motion.div>
   );
