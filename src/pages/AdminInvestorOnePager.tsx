@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ExportButtons } from "@/components/admin/ExportButtons";
+import { DEVICE_MIX, WEIGHTED_AVG_RAW_TOKENS, WEIGHTED_AVG_NET_TOKENS } from "@/data/deviceMixAssumptions";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -246,6 +247,32 @@ export default function AdminInvestorOnePager() {
                   <step.icon className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
                   <p className="font-medium text-xs">{step.title}</p>
                   <p className="text-xs text-muted-foreground mt-1">{step.description}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Device Mix & Mint Rate */}
+      <motion.div {...fadeIn} transition={{ delay: 0.22 }}>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Users className="h-5 w-5 text-blue-500" />
+              Device Mix & Mint Rate Assumptions
+              <Badge variant="outline" className="text-xs">Conservative</Badge>
+            </CardTitle>
+            <CardDescription>Weighted average: ~{Math.round(WEIGHTED_AVG_RAW_TOKENS)} raw tokens/mo → ~{WEIGHTED_AVG_NET_TOKENS} net (after 20% burn + tax)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-4">
+              {DEVICE_MIX.map((segment) => (
+                <div key={segment.id} className="p-3 rounded-lg border bg-card/50 text-center space-y-1">
+                  <p className="text-2xl font-bold text-primary">{segment.percentage}%</p>
+                  <p className="font-medium text-sm">{segment.label}</p>
+                  <p className="text-xs text-muted-foreground">{segment.breakdown}</p>
+                  <p className="font-mono text-xs text-emerald-600 font-bold">~{segment.monthlyTokensRaw.toLocaleString()} tokens/mo</p>
                 </div>
               ))}
             </div>
