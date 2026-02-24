@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { ExportButtons } from "@/components/admin/ExportButtons";
+import { DEVICE_MIX, WEIGHTED_AVG_RAW_TOKENS, WEIGHTED_AVG_NET_TOKENS, NET_MULTIPLIER } from "@/data/deviceMixAssumptions";
 import {
   LineChart,
   Line,
@@ -105,7 +106,9 @@ export default function AdminGrowthProjections() {
   const [startUsers, setStartUsers] = useState(500);
   const [monthlyGrowth, setMonthlyGrowth] = useState(15); // 15%
   const [subRate, setSubRate] = useState(40); // 40%
-  const [tokensPerUser, setTokensPerUser] = useState(500);
+  
+  // Device mix driven — from centralized assumptions
+  const tokensPerUser = Math.round(WEIGHTED_AVG_RAW_TOKENS);
   
   // Fixed parameters from strategy
   const subscriptionPrice = 9.99;
@@ -301,21 +304,41 @@ export default function AdminGrowthProjections() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="text-sm font-medium">Tokens/User/Month</label>
-                  <Badge variant="secondary">{tokensPerUser}</Badge>
+                  <Badge variant="secondary">~{tokensPerUser} raw</Badge>
                 </div>
-                <Slider
-                  value={[tokensPerUser]}
-                  onValueChange={([v]) => setTokensPerUser(v)}
-                  min={100}
-                  max={2000}
-                  step={50}
-                />
+                <p className="text-xs text-muted-foreground">
+                  Driven by device mix assumptions (~{WEIGHTED_AVG_NET_TOKENS} net after burns)
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Key Metrics Summary */}
+        {/* Device Mix Breakdown */}
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Device Mix Assumptions
+              <Badge variant="outline" className="text-xs">Conservative</Badge>
+            </CardTitle>
+            <CardDescription>
+              Weighted avg: ~{Math.round(WEIGHTED_AVG_RAW_TOKENS)} raw tokens/mo → ~{WEIGHTED_AVG_NET_TOKENS} net (after 20% burn + 5% tax)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {DEVICE_MIX.map((seg) => (
+                <div key={seg.id} className="p-3 rounded-lg border bg-muted/50 text-center space-y-1">
+                  <p className="text-2xl font-bold text-primary">{seg.percentage}%</p>
+                  <p className="font-medium text-sm">{seg.label}</p>
+                  <p className="text-xs text-muted-foreground">{seg.breakdown}</p>
+                  <p className="font-mono text-xs font-bold text-primary">~{seg.monthlyTokensRaw.toLocaleString()} tokens/mo</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {metricsAtPoints.map((point, idx) => (
             <Card key={point.label} className={idx === 4 ? "border-primary/50" : ""}>
