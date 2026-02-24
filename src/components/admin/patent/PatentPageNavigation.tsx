@@ -15,6 +15,7 @@ const patentPages: PatentPage[] = [
   { path: '/admin/patent/mint-on-proof', title: 'Mint-on-Proof™ Documentation', shortTitle: 'Mint-on-Proof™', icon: Sparkles },
   { path: '/admin/patent/proof-of-delta', title: 'Proof-of-Delta™ Documentation', shortTitle: 'Proof-of-Delta™', icon: Scale },
   { path: '/admin/patent/comparison', title: 'Provisional → Utility Comparison', shortTitle: 'Comparison', icon: GitCompare },
+  { path: '/admin/patent/utility-draft', title: 'Utility Patent Application Draft', shortTitle: 'Utility Draft', icon: Scale },
 ];
 
 export function PatentPageNavigation() {
