@@ -127,34 +127,33 @@ export default function AdminInvestorOnePager() {
         />
       </motion.div>
 
-      {/* Tokenization Supercycle Banner */}
+      {/* Why Now */}
       <motion.div {...fadeIn} transition={{ delay: 0.08 }}>
-        <Card className="border-blue-500/20 bg-gradient-to-r from-blue-500/5 via-background to-primary/5">
+        <Card className="border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-background to-primary/5">
           <CardContent className="pt-5 pb-5">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-              <div className="p-2.5 rounded-xl bg-blue-500/10 shrink-0">
-                <Globe className="h-5 w-5 text-blue-500" />
+              <div className="p-2.5 rounded-xl bg-amber-500/10 shrink-0">
+                <Zap className="h-5 w-5 text-amber-500" />
               </div>
-              <div className="flex-1 space-y-1 min-w-0">
+              <div className="flex-1 space-y-2 min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  External Validation · Coinbase / Bernstein · Feb 19, 2026
+                  Why Now · Market Catalyst · 2026
                 </p>
                 <p className="text-sm font-medium text-foreground leading-snug">
-                  Tokenized assets hit a record{' '}
-                  <span className="text-primary font-bold">$24.5B</span>.
-                  {' '}Bernstein calls 2026 the start of a tokenization "supercycle" — 
-                  BlackRock, JPMorgan &amp; Franklin Templeton are racing to tokenize treasuries, gold &amp; real estate.
+                  The <span className="text-primary font-bold">"One Big Beautiful Bill"</span> eliminates the 30% solar ITC and $7,500 EV tax credit — 
+                  removing the primary financial incentive for millions of clean energy adopters. $ZSOLAR becomes the <strong>market-driven replacement</strong>.
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  $ZSOLAR tokenizes clean energy at the kWh level — an entirely uncaptured category. 
-                  <em className="ml-1">Bitcoin is scarce because of math. $ZSOLAR is scarce because of physics + math.</em>
+                  Simultaneously, tokenized assets hit a record <span className="font-bold text-foreground">$24.5B</span> (Bernstein, Feb 2026). 
+                  BlackRock, JPMorgan &amp; Franklin Templeton are racing to tokenize real-world assets. 
+                  <em className="ml-1">$ZSOLAR tokenizes clean energy at the kWh level — an entirely uncaptured category.</em>
                 </p>
               </div>
               <div className="flex gap-3 shrink-0">
                 {[
-                  { val: '$24.5B', lbl: 'Market' },
-                  { val: '2,800%', lbl: 'Stock growth' },
-                  { val: '$432M', lbl: 'VC in 2026' },
+                  { val: '$0', lbl: 'Solar ITC' },
+                  { val: '$24.5B', lbl: 'RWA Market' },
+                  { val: '1.5B', lbl: 'Solar homes by 2040' },
                 ].map(({ val, lbl }) => (
                   <div key={lbl} className="text-center">
                     <p className="text-lg font-bold text-primary leading-none">{val}</p>
