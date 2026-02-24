@@ -140,6 +140,7 @@ const adminMenuGroups = {
     { title: "Proof-of-Delta™", url: "/admin/patent/proof-of-delta", icon: Shield, highlight: true },
     { title: "Patent Application", url: "/admin/patent/application", icon: FileText, highlight: true },
     { title: "Updated Language", url: "/admin/patent/updated-language", icon: FileText, highlight: true },
+    { title: "Provisional → Utility", url: "/admin/patent/comparison", icon: FileText, highlight: true },
     { title: "Patent Mapping", url: "/admin/patent-mapping", icon: FileText },
   ],
   marketing: [

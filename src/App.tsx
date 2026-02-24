@@ -82,6 +82,7 @@ const AdminPatentMintOnProof = lazy(() => import("./pages/AdminPatentMintOnProof
 const AdminPatentProofOfDelta = lazy(() => import("./pages/AdminPatentProofOfDelta"));
 const AdminPatentApplication = lazy(() => import("./pages/AdminPatentApplication"));
 const AdminPatentUpdatedLanguage = lazy(() => import("./pages/AdminPatentUpdatedLanguage"));
+const AdminPatentComparison = lazy(() => import("./pages/AdminPatentComparison"));
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
@@ -769,6 +770,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminPatentUpdatedLanguage />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/patent/comparison" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminPatentComparison />
                           </AppLayout>
                         </ProtectedRoute>
                       } 

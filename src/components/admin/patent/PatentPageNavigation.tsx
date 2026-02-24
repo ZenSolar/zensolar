@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, FileText, RefreshCw, Sparkles, Scale } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, RefreshCw, Sparkles, Scale, GitCompare } from 'lucide-react';
 
 interface PatentPage {
   path: string;
@@ -14,6 +14,7 @@ const patentPages: PatentPage[] = [
   { path: '/admin/patent/updated-language', title: 'Updated Patent Language', shortTitle: 'Updated Language', icon: RefreshCw },
   { path: '/admin/patent/mint-on-proof', title: 'Mint-on-Proof™ Documentation', shortTitle: 'Mint-on-Proof™', icon: Sparkles },
   { path: '/admin/patent/proof-of-delta', title: 'Proof-of-Delta™ Documentation', shortTitle: 'Proof-of-Delta™', icon: Scale },
+  { path: '/admin/patent/comparison', title: 'Provisional → Utility Comparison', shortTitle: 'Comparison', icon: GitCompare },
 ];
 
 export function PatentPageNavigation() {
