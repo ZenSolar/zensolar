@@ -4,6 +4,12 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 
+// Suppress the browser's native PWA install prompt on all pages.
+// The Install page captures and re-triggers it when the user explicitly visits /install.
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+});
+
 // Register our custom push service worker on app load
 // This is critical for iOS PWA - the SW must be registered early
 // and stay active, otherwise push notifications won't work
