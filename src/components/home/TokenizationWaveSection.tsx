@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sun, Shield, TrendingUp, Building2, Zap, ExternalLink } from 'lucide-react';
+import { Sun, Shield, TrendingUp, Building2, Zap, ExternalLink, Globe, BarChart3, Landmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const wallStreetAssets = [
@@ -17,6 +17,72 @@ const zenSolarAssets = [
   { label: '1 EV mile driven', icon: Shield, proof: 'Device Watermark Registry' },
   { label: '1 kWh EV charged', icon: TrendingUp, proof: 'Immutable on-chain record' },
 ];
+
+const institutionalQuotes = [
+  {
+    name: 'Larry Fink',
+    title: 'CEO of BlackRock',
+    source: 'CNBC · October 14, 2025',
+    quote: 'We are at the beginning of the tokenization of all assets.',
+    detail: 'BlackRock\'s digital holdings surpassed $107.4 billion, with a strategy to "repot" traditional financial products into digital formats and access $4.1 trillion held in digital wallets globally.',
+    icon: Building2,
+    color: 'amber',
+  },
+  {
+    name: 'Dr. Leemon Baird',
+    title: 'Co-founder of Hedera',
+    source: 'Benzinga · Consensus 2025',
+    quote: 'Everything of value in the world will be tokenized within five years.',
+    detail: 'Baird predicts AI will accelerate blockchain adoption, making tokenization accessible to non-technical users and driving mass institutional adoption.',
+    icon: Globe,
+    color: 'emerald',
+  },
+  {
+    name: 'Coinbase Bytes · Bernstein Research',
+    title: '',
+    source: 'February 19, 2026',
+    quote: 'Tokenized assets hit a record $24.5 billion. The tokenization of everything creates a tangible use case that attracts traditional capital.',
+    detail: 'Bernstein predicts a tokenization "supercycle" beginning in 2026, driven by BlackRock, Franklin Templeton, JPMorgan, and $432M in new VC funding entering the space.',
+    icon: ExternalLink,
+    color: 'blue',
+  },
+  {
+    name: 'Boston Consulting Group',
+    title: 'BCG / ADDX Report',
+    source: 'September 2022 (reaffirmed 2025)',
+    quote: 'Asset tokenization is projected to grow 50x into a $16 trillion opportunity by 2030.',
+    detail: 'Tokenized assets could represent 10% of global GDP by the end of the decade, driven by investor demand for access to private markets like PE, hedge funds, and real estate.',
+    icon: BarChart3,
+    color: 'violet',
+  },
+  {
+    name: 'CoinDesk',
+    title: 'News Analysis',
+    source: 'January 17, 2026',
+    quote: 'Tokenized assets could become a $400 billion market in 2026.',
+    detail: 'After stablecoins proved product-market fit, crypto founders and executives say 2026 is when banks and asset managers will push tokenized assets into mainstream markets.',
+    icon: TrendingUp,
+    color: 'cyan',
+  },
+  {
+    name: 'JPMorgan',
+    title: 'Global Investment Bank',
+    source: '2026',
+    quote: 'JPMorgan launched its tokenized money market fund on Ethereum, signaling Wall Street\'s full commitment to on-chain finance.',
+    detail: 'The world\'s largest bank by assets is actively deploying tokenized financial products on public blockchains, validating the infrastructure ZenSolar builds on.',
+    icon: Landmark,
+    color: 'sky',
+  },
+];
+
+const colorMap: Record<string, { border: string; bg: string; iconBg: string; iconText: string }> = {
+  amber:   { border: 'border-amber-500/20',   bg: 'from-amber-500/5',   iconBg: 'bg-amber-500/10',   iconText: 'text-amber-500' },
+  emerald: { border: 'border-emerald-500/20', bg: 'from-emerald-500/5', iconBg: 'bg-emerald-500/10', iconText: 'text-emerald-500' },
+  blue:    { border: 'border-blue-500/20',    bg: 'from-blue-500/5',    iconBg: 'bg-blue-500/10',    iconText: 'text-blue-500' },
+  violet:  { border: 'border-violet-500/20',  bg: 'from-violet-500/5',  iconBg: 'bg-violet-500/10',  iconText: 'text-violet-500' },
+  cyan:    { border: 'border-cyan-500/20',    bg: 'from-cyan-500/5',    iconBg: 'bg-cyan-500/10',    iconText: 'text-cyan-500' },
+  sky:     { border: 'border-sky-500/20',     bg: 'from-sky-500/5',     iconBg: 'bg-sky-500/10',     iconText: 'text-sky-500' },
+};
 
 export function TokenizationWaveSection() {
   return (
@@ -48,69 +114,71 @@ export function TokenizationWaveSection() {
             className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed"
           >
             Wall Street is racing to tokenize financial assets. ZenSolar is tokenizing 
-            something more defensible — the physical reality of clean energy production at the kilowatt-hour level.
+            something more defensible: the physical reality of clean energy production at the kilowatt-hour level.
           </motion.p>
         </div>
 
-        {/* Industry quotes */}
-        <div className="space-y-4">
-          {/* BlackRock / Larry Fink quote */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-card">
-              <CardContent className="p-6 flex items-start gap-4">
-                <div className="p-2.5 rounded-xl bg-amber-500/10 shrink-0 mt-0.5">
-                  <Building2 className="h-4 w-4 text-amber-500" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Larry Fink, CEO of BlackRock · CNBC · October 14, 2025
-                  </p>
-                  <blockquote className="text-foreground font-medium leading-relaxed">
-                    "We are at the beginning of the{' '}
-                    <span className="text-primary">tokenization of all assets</span>."
-                  </blockquote>
-                  <p className="text-xs text-muted-foreground">
-                    BlackRock's digital holdings surpassed <span className="font-medium text-foreground/80">$107.4 billion</span>, 
-                    with a strategy to "repot" traditional financial products into digital formats and access 
-                    $4.1 trillion held in digital wallets globally.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+        {/* RWA Utility Token callout */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <Card className="border-primary/30 bg-gradient-to-r from-primary/10 via-card to-secondary/10">
+            <CardContent className="p-6 text-center space-y-2">
+              <Badge className="bg-primary/15 text-primary border-primary/30 text-xs font-bold uppercase tracking-widest">
+                Real-World Asset · Utility Token
+              </Badge>
+              <p className="text-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+                $ZSOLAR is a <strong>Real-World Asset (RWA) utility token</strong>. Unlike tokenized bonds or equities, 
+                each $ZSOLAR represents a cryptographically retired kilowatt-hour of clean energy. 
+                Governed by physics, not financial intermediaries.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          {/* Coinbase/Bernstein quote */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-card">
-              <CardContent className="p-6 flex items-start gap-4">
-                <div className="p-2.5 rounded-xl bg-blue-500/10 shrink-0 mt-0.5">
-                  <ExternalLink className="h-4 w-4 text-blue-500" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Coinbase Bytes · Bernstein Research · February 19, 2026
-                  </p>
-                  <blockquote className="text-foreground font-medium leading-relaxed">
-                    "The tokenization of everything creates a tangible use case that attracts traditional capital.
-                    This provides the fundamental bedrock for the next cycle. Tokenized assets hit a record{' '}
-                    <span className="text-primary">$24.5 billion</span>."
-                  </blockquote>
-                  <p className="text-xs text-muted-foreground">
-                    Bernstein predicts a tokenization "supercycle" beginning in 2026, driven by BlackRock, 
-                    Franklin Templeton, JPMorgan, and $432M in new VC funding entering the space.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+        {/* Industry quotes grid */}
+        <div className="space-y-3">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground text-center">
+            What the world's largest institutions are saying
+          </p>
+          <div className="grid md:grid-cols-2 gap-3">
+            {institutionalQuotes.map((q, i) => {
+              const colors = colorMap[q.color];
+              const Icon = q.icon;
+              return (
+                <motion.div
+                  key={q.name}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Card className={`h-full ${colors.border} bg-gradient-to-br ${colors.bg} to-card`}>
+                    <CardContent className="p-5 flex items-start gap-3">
+                      <div className={`p-2 rounded-xl ${colors.iconBg} shrink-0 mt-0.5`}>
+                        <Icon className={`h-4 w-4 ${colors.iconText}`} />
+                      </div>
+                      <div className="space-y-1 min-w-0">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          {q.name}{q.title ? `, ${q.title}` : ''} · {q.source}
+                        </p>
+                        <blockquote className="text-foreground font-medium leading-relaxed text-sm">
+                          "{q.quote.split('$').map((part, pi, arr) => 
+                            pi < arr.length - 1 ? (
+                              <span key={pi}>{part}<span className="text-primary">$</span></span>
+                            ) : part
+                          )}"
+                        </blockquote>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{q.detail}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
 
         {/* The comparison */}
@@ -127,7 +195,7 @@ export function TokenizationWaveSection() {
                   <Building2 className="h-5 w-5 text-muted-foreground" />
                   <h3 className="font-semibold text-muted-foreground">Wall Street Tokenizes</h3>
                 </div>
-                <p className="text-xs text-muted-foreground">Financial claims — subject to counterparty, custody, and regulatory risk</p>
+                <p className="text-xs text-muted-foreground">Financial claims: subject to counterparty, custody, and regulatory risk</p>
                 <div className="space-y-2">
                   {wallStreetAssets.map((a) => (
                     <div key={a.label} className="flex items-center justify-between p-3 rounded-lg bg-background/60 border border-border/40">
@@ -155,7 +223,7 @@ export function TokenizationWaveSection() {
                   <Sun className="h-5 w-5 text-primary" />
                   <h3 className="font-semibold text-primary">ZenSolar Tokenizes</h3>
                 </div>
-                <p className="text-xs text-muted-foreground">Physical reality — permanently retired at mint, verifiable on any chain</p>
+                <p className="text-xs text-muted-foreground">Physical reality: permanently retired at mint, verifiable on any chain</p>
                 <div className="space-y-2">
                   {zenSolarAssets.map(({ label, icon: Icon, proof }) => (
                     <div key={label} className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
