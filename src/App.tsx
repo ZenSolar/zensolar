@@ -97,6 +97,7 @@ const EnergyLog = lazy(() => import("./pages/EnergyLog"));
 const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataArchitecture"));
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
+const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 import Home from "./pages/Home";
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -483,6 +484,14 @@ const App = () => {
                             <AdminInvestorOnePager />
                       </AppLayout>
                     </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/investor-pitch" 
+                      element={
+                        <ProtectedRoute>
+                          <AdminInvestorPitch />
+                        </ProtectedRoute>
                       } 
                     />
                     <Route 
