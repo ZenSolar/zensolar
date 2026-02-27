@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface SlideLayoutProps {
   children: ReactNode;
@@ -38,7 +37,7 @@ export function SlideHeader({ label, number }: { label: string; number: number }
 export function SlideFooter() {
   return (
     <div className="absolute bottom-8 left-16 right-16 flex items-center justify-between">
-      <img src={zenLogo} alt="ZenSolar" className="h-5 w-auto opacity-25" />
+      <span className="text-[13px] font-medium tracking-wider text-white/25">ZENSOLAR</span>
       <span className="text-[13px] text-white/20">CONFIDENTIAL</span>
     </div>
   );
