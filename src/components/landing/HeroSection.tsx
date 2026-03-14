@@ -191,9 +191,10 @@ function HeroTrustBadges() {
       className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-6"
     >
       {[
-        { icon: '🛡️', label: 'Patent Pending', colors: 'from-primary/10 to-secondary/10 border-primary/30 hover:border-primary/50' },
+        { icon: '🛡️', label: 'Patent Pending · Est. 2025', colors: 'from-primary/10 to-secondary/10 border-primary/30 hover:border-primary/50' },
         { icon: '🌐', label: 'Built on Base L2', colors: 'from-energy/10 to-primary/10 border-energy/30 hover:border-energy/50' },
         { icon: '⬡', label: 'In-App Minting', colors: 'from-solar/10 to-accent/10 border-solar/30 hover:border-solar/50' },
+        { icon: '⚡', label: 'VPP Ready · All US Grids', colors: 'from-token/10 to-energy/10 border-token/30 hover:border-token/50' },
       ].map((badge) => (
         <div
           key={badge.label}

@@ -92,10 +92,32 @@ export function HomeHero() {
             </ul>
           </motion.div>
 
+          {/* VPP / Texas differentiator */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
+            transition={{ delay: 0.25, duration: 0.5 }}
+            className="flex flex-wrap items-center justify-center gap-2 pt-2"
+          >
+            {[
+              { icon: '⚡', label: 'Virtual Power Plant Ready', colors: 'from-energy/15 to-primary/15 border-energy/40 hover:border-energy/60' },
+              { icon: '🇺🇸', label: 'Nationwide · Not Just Texas', colors: 'from-primary/15 to-secondary/15 border-primary/40 hover:border-primary/60' },
+              { icon: '🔒', label: 'Patent Pending · Est. 2025', colors: 'from-solar/15 to-accent/15 border-solar/40 hover:border-solar/60' },
+            ].map((badge) => (
+              <div
+                key={badge.label}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r ${badge.colors} shadow-sm hover:shadow-md transition-all cursor-default text-sm`}
+              >
+                <span>{badge.icon}</span>
+                <span className="font-medium text-foreground text-xs">{badge.label}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2"
           >
             <Link to="/demo">
