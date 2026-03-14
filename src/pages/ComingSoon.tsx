@@ -358,6 +358,45 @@ export default function ComingSoon() {
             </div>
             <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More partners coming soon…</p>
           </motion.div>
+          {/* VPP / Texas Grid differentiator */}
+          <motion.div
+            className="w-full max-w-lg mb-10"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+          >
+            <div className="relative overflow-hidden rounded-2xl border border-energy/30 bg-gradient-to-br from-energy/[0.08] via-card/60 to-primary/[0.06] backdrop-blur-sm p-5">
+              <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-40 h-40 bg-energy/10 rounded-full blur-[80px] pointer-events-none" />
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-energy to-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-energy/30">
+                  <Zap className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-foreground text-base tracking-tight">Virtual Power Plant Ready</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    Manufacturer-agnostic grid demand response. Tesla, Enphase, SolarEdge, and more.
+                    <span className="text-primary font-semibold"> Nationwide coverage</span>. Not limited to a single grid operator.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                {[
+                  { label: 'ERCOT · CAISO · PJM · All ISOs', color: 'energy' },
+                  { label: 'Patent Pending · Est. Q1 2025', color: 'primary' },
+                  { label: 'Hardware Agnostic', color: 'secondary' },
+                ].map(({ label, color }) => (
+                  <div
+                    key={label}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-${color}/10 border border-${color}/20`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full bg-${color} animate-pulse`} />
+                    <span className="text-[10px] font-medium text-foreground">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
           {/* Mint-on-Proof — holographic card */}
           <motion.div
             className="relative w-full max-w-md mb-12"
