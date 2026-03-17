@@ -12,12 +12,13 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
 import { useServiceWorkerMessages } from "@/hooks/useServiceWorkerMessages";
+import { RootRoute } from "./components/RootRoute";
+import Home from "./pages/Home";
 
 // Lazy load layout and auth components to reduce main bundle size
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
 const AppLayout = lazy(() => import("@/components/layout/AppLayout").then(m => ({ default: m.AppLayout })));
 const Auth = lazy(() => import("./pages/Auth"));
-import { RootRoute } from "./components/RootRoute";
 
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
@@ -53,6 +54,7 @@ const Technology = lazy(() => import("./pages/Technology"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
+const GridPayCompetition = lazy(() => import("./pages/GridPayCompetition"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
 const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
 const AdminTokenEstimator = lazy(() => import("./pages/AdminTokenEstimator"));
@@ -87,7 +89,6 @@ const AdminUtilityPatentDraft = lazy(() => import("./pages/AdminUtilityPatentDra
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
-
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
 const AdminSeoStrategy = lazy(() => import("./pages/admin/SeoStrategy"));
@@ -98,7 +99,6 @@ const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataA
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
-import Home from "./pages/Home";
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
@@ -183,6 +183,7 @@ const App = () => {
                       <Route path="feedback" element={<Feedback />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
+                    <Route path="/competition/gridpay" element={<GridPayCompetition />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/what-is-solar-energy-blockchain-rewards" element={<BlogWhatIsSolar />} />
                     <Route path="/blog/how-to-earn-crypto-from-solar-panels" element={<BlogHowToEarn />} />
