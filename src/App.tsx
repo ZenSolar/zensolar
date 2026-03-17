@@ -12,12 +12,13 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
 import { useServiceWorkerMessages } from "@/hooks/useServiceWorkerMessages";
+import { RootRoute } from "./components/RootRoute";
+import Home from "./pages/Home";
 
 // Lazy load layout and auth components to reduce main bundle size
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
 const AppLayout = lazy(() => import("@/components/layout/AppLayout").then(m => ({ default: m.AppLayout })));
 const Auth = lazy(() => import("./pages/Auth"));
-import { RootRoute } from "./components/RootRoute";
 
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
@@ -88,7 +89,6 @@ const AdminUtilityPatentDraft = lazy(() => import("./pages/AdminUtilityPatentDra
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
-
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
 const AdminSeoStrategy = lazy(() => import("./pages/admin/SeoStrategy"));
@@ -99,7 +99,6 @@ const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataA
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
-import Home from "./pages/Home";
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
@@ -114,7 +113,75 @@ const BlogV2H = lazy(() => import("./pages/blog/V2HVehicleToHome"));
 const BlogV2X = lazy(() => import("./pages/blog/V2XVehicleToEverything"));
 const BlogV2L = lazy(() => import("./pages/blog/V2LVehicleToLoad"));
 const BlogVPP = lazy(() => import("./pages/blog/VirtualPowerPlantVPP"));
-...
+
+// Minimal loading fallback
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
+}
+
+const App = () => {
+  // iOS standalone PWAs can briefly (or persistently) show the underlying page background
+  // when the system theme is light while the UI is styled dark. Force dark theme tokens
+  // in standalone display mode to prevent white safe-area/overscroll artifacts.
+  const isStandalone =
+    typeof window !== "undefined" &&
+    (
+      window.matchMedia?.("(display-mode: standalone)")?.matches ||
+      // iOS Safari legacy standalone flag
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (navigator as any)?.standalone === true
+    );
+
+  // Foreground fallback: surface push notifications as in-app toasts
+  useServiceWorkerMessages();
+
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      forcedTheme={undefined}
+    >
+      <AuthProvider>
+        <ViewAsUserProvider>
+          <LazyWeb3Provider>
+            <TooltipProvider>
+            <ErrorBoundary>
+              <BotProtection blockBots>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <GoogleAnalytics />
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/install" element={<Install />} />
+                    <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
+                    
+                    {/* Demo routes with full sidebar */}
+                    <Route path="/demo" element={<DemoLayout />}>
+                      <Route index element={<DemoDashboard />} />
+                      <Route path="energy-log" element={<DemoEnergyLog />} />
+                      <Route path="nft-collection" element={<DemoNftCollection />} />
+                      <Route path="how-it-works" element={<HowItWorks />} />
+                      <Route path="white-paper" element={<WhitePaper />} />
+                      <Route path="technology" element={<Technology />} />
+                      <Route path="store" element={<Store />} />
+                      <Route path="tokenomics" element={<Tokenomics />} />
+                      <Route path="mint-history" element={<MintHistory />} />
+                      <Route path="referrals" element={<Referrals />} />
+                      <Route path="notifications" element={<Notifications />} />
+                      <Route path="profile" element={<Profile />} />
+                      <Route path="wallet" element={<DemoWallet />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="about" element={<About />} />
+                      <Route path="help" element={<Help />} />
+                      <Route path="feedback" element={<Feedback />} />
+                    </Route>
                     <Route path="/home" element={<Home />} />
                     <Route path="/competition/gridpay" element={<GridPayCompetition />} />
                     <Route path="/blog" element={<Blog />} />
