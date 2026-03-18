@@ -297,9 +297,9 @@ export default function WhitePaper() {
         margin: [10, 10, 10, 10] as [number, number, number, number],
         filename: fileName,
         image: { type: "jpeg" as const, quality: 0.9 },
-        html2canvas: { 
-          scale: isMobile ? 1.5 : 2, 
-          useCORS: true, 
+        html2canvas: {
+          scale: isMobile ? 1.5 : 2,
+          useCORS: true,
           logging: false,
           allowTaint: true,
           scrollY: -window.scrollY,
@@ -309,61 +309,46 @@ export default function WhitePaper() {
       };
 
       if (isMobile) {
-        // Mobile: generate blob and try multiple download methods
+        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+        const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
         try {
-          const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
-          const blobUrl = URL.createObjectURL(pdfBlob);
-          
-          // Try using navigator.share for iOS/Android
-          if (navigator.share && navigator.canShare?.({ files: [new File([pdfBlob], fileName, { type: "application/pdf" })] })) {
-            const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+          if (navigator.share && navigator.canShare?.({ files: [file] })) {
             await navigator.share({ files: [file], title: "ZenSolar White Paper" });
-            toast({ title: "PDF ready to share!" });
+            toast({ title: "PDF ready", description: "Opened your device share sheet." });
           } else {
-            // Fallback: open in new tab (works better on iOS Safari)
-            const newTab = window.open(blobUrl, "_blank");
+            const newTab = window.open(blobUrl, "_blank", "noopener,noreferrer");
+            if (!newTab) {
+              throw new Error("Unable to open PDF preview tab");
+            }
+            toast({ title: "PDF preview opened", description: "Save or share it only if you choose." });
+          }
+        } catch (mobileError) {
+          if ((mobileError as Error).name === "AbortError") {
+            toast({ title: "Share canceled", description: "No file was downloaded." });
+          } else {
+            console.error("Mobile PDF error:", mobileError);
+            const newTab = window.open(blobUrl, "_blank", "noopener,noreferrer");
             if (newTab) {
-              toast({ title: "PDF opened in new tab", description: "Use your browser's share/save option." });
+              toast({ title: "PDF preview opened", description: "Save or share it only if you choose." });
             } else {
-              // Last resort: create download link
-              const link = document.createElement("a");
-              link.href = blobUrl;
-              link.download = fileName;
-              link.style.display = "none";
-              document.body.appendChild(link);
-              link.click();
-              setTimeout(() => {
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
-              }, 1000);
-              toast({ title: "PDF downloading...", description: "Check your Downloads folder." });
+              toast({ title: "Could not open PDF preview", description: "Please try again from desktop." });
             }
           }
-          
-          // Cleanup after delay
+        } finally {
           setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-        } catch (mobileError) {
-          console.error("Mobile PDF error:", mobileError);
-          // Ultimate fallback: use browser print
-          toast({ 
-            title: "Opening print dialog", 
-            description: "Select 'Save as PDF' from the options." 
-          });
-          setTimeout(() => window.print(), 500);
         }
       } else {
-        // Desktop: standard save
         await html2pdf().set(opt).from(element).save();
         toast({ title: "PDF downloaded!", description: fileName });
       }
     } catch (error) {
       console.error("PDF export error:", error);
-      // Fallback to browser print for all errors
-      toast({ 
-        title: "Opening print dialog", 
-        description: "Select 'Save as PDF' to download." 
+      toast({
+        title: "PDF export failed",
+        description: isMobile ? "No file was downloaded." : "Please try again."
       });
-      setTimeout(() => window.print(), 500);
     } finally {
       setIsExportingPDF(false);
     }
