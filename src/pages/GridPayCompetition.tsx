@@ -64,6 +64,79 @@ const headToHeadRows = [
   },
 ];
 
+const patentOverlapRows = [
+  {
+    phrase: 'Tokenized',
+    provisional:
+      'Already supported by “System and Method for Tokenizing and Gamifying Sustainable Behaviors Using Blockchain Technology” plus token minting concepts in the provisional.',
+    architecture:
+      'Mint-on-Proof™ gates issuance until verified kWh, battery export, EV charging, or EV miles data is confirmed through the SEGI flow.',
+    addition:
+      'Explicitly claim verification-gated token issuance, atomic mint-after-proof logic, and no-pre-minted-pool embodiments.',
+  },
+  {
+    phrase: 'Distributed energy',
+    provisional:
+      'Supported broadly through solar production, batteries, and connected sustainability behavior framing, but not yet broken into a modern multi-device system architecture.',
+    architecture:
+      'SEGI normalizes data from solar inverters, batteries, EV charging systems, and mobility signals into a single verification pipeline.',
+    addition:
+      'Add claims covering a plurality of distributed energy resources, including solar generation, battery discharge/export, EV charging, and vehicle-to-grid events.',
+  },
+  {
+    phrase: 'Export rewards',
+    provisional:
+      'Partially supported through token rewards tied to measurable energy activity, but export-to-grid and battery discharge should be stated more explicitly.',
+    architecture:
+      'The product now contemplates battery-export rewards, EV discharge rewards, and event-based multipliers for grid-support behavior.',
+    addition:
+      'Add dependent claims for export verification, battery discharge settlement, behind-the-meter energy export, and event-triggered reward multipliers.',
+  },
+  {
+    phrase: 'Smart-meter data',
+    provisional:
+      'Provisional references smart meters, APIs, and inverter-linked data collection through SEGI, but the disclosure can be sharpened around meter-specific embodiments.',
+    architecture:
+      'Current design is hardware-agnostic: SEGI can ingest utility meter, inverter, charger, battery, and OEM API data through the same normalization layer.',
+    addition:
+      'Add embodiments covering smart-meter data as one input class among multiple data sources, preserving broader hardware-agnostic protection.',
+  },
+  {
+    phrase: 'Blockchain technology',
+    provisional: 'Explicitly supported in the provisional title and reward design.',
+    architecture:
+      'Blockchain is used for immutable reward issuance, audit trails, proof anchoring, and device-bound anti-double-mint enforcement.',
+    addition:
+      'Tighten claims around cryptographic proof publication, hash-chain verification, and on-chain watermark or checkpoint updates tied to issuance events.',
+  },
+  {
+    phrase: 'AI-powered',
+    provisional:
+      'Only lightly implied, if at all; this looks more like new utility-stage detail than core provisional support.',
+    architecture:
+      'Current roadmap supports optimization, dispatch forecasting, and cross-provider orchestration, but AI is not the core moat compared with proof-based verification.',
+    addition:
+      'Treat AI as an optional dependent embodiment for dispatch optimization, anomaly detection, or reward calibration—not the broadest independent claim anchor.',
+  },
+  {
+    phrase: 'Virtual power plant',
+    provisional:
+      'Not the dominant framing in the provisional, but consistent with the broader concept of aggregating verified energy behavior into blockchain rewards.',
+    architecture:
+      'ZenSolar has already brainstormed and product-mapped a future VPP layer where SEGI coordinates distributed batteries and EVs while issuing crypto rewards for verified dispatch participation.',
+    addition:
+      'Add utility claims for verified dispatch signaling, multi-device aggregation, demand-response event participation, and reward issuance tied to verified VPP performance.',
+  },
+];
+
+const vppUtilityAdditions = [
+  'A method for aggregating distributed energy devices into a software-coordinated virtual power plant using the same SEGI ingestion and verification layers.',
+  'Verified dispatch signaling embodiments where a utility, ISO, aggregator, or platform triggers discharge or curtailment events across enrolled devices.',
+  'Reward issuance tied not only to raw kWh generation, but also to verified export, dispatch participation, demand-response compliance, and event completion.',
+  'Smart-meter, inverter, battery, EV, and charger data as interchangeable or complementary verification inputs for VPP settlement.',
+  'Optional AI-based optimization as a dependent feature for dispatch prediction or orchestration, while preserving the broader claim on verification-before-issuance.',
+];
+
 const zensolarTokenomics = [
   ['Max supply', '10,000,000,000 $ZSOLAR'],
   ['Community rewards', '9,000,000,000 tokens (90%)'],
@@ -299,6 +372,94 @@ export default function GridPayCompetition() {
               </Table>
             </CardContent>
           </Card>
+        </section>
+
+        <section className="container mx-auto px-4 pb-12 md:pb-16">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileBadge className="h-5 w-5 text-primary" />
+                Patent overlap matrix
+              </CardTitle>
+              <CardDescription>
+                Maps GridPay’s disclosed title language to ZenSolar’s provisional, current architecture, and utility-filing additions worth tightening now.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-xl border border-border bg-muted/20 p-4 text-sm leading-6 text-muted-foreground">
+                This is a strategic overlap matrix based on public title language and ZenSolar’s existing product record—not a legal opinion or a final claim chart.
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[180px]">GridPay title phrase</TableHead>
+                    <TableHead className="min-w-[240px]">ZenSolar provisional language</TableHead>
+                    <TableHead className="min-w-[260px]">Current ZenSolar architecture</TableHead>
+                    <TableHead className="min-w-[280px]">Recommended utility claim additions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {patentOverlapRows.map((row) => (
+                    <TableRow key={row.phrase}>
+                      <TableCell className="font-medium text-foreground">{row.phrase}</TableCell>
+                      <TableCell className="text-muted-foreground">{row.provisional}</TableCell>
+                      <TableCell className="text-muted-foreground">{row.architecture}</TableCell>
+                      <TableCell className="text-muted-foreground">{row.addition}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="container mx-auto px-4 pb-12 md:pb-16">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  VPP overlap section
+                </CardTitle>
+                <CardDescription>
+                  Where the two stories may converge—and how ZenSolar should frame its broader architecture.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
+                <p>
+                  <strong className="text-foreground">Yes—the overlap is real.</strong> If GridPay is publicly signaling tokenized distributed energy export rewards plus AI-driven VPP coordination,
+                  and ZenSolar has already brainstormed a VPP built on SEGI that rewards users in crypto for verified grid participation, then both narratives can converge around the same future market lane.
+                </p>
+                <p>
+                  <strong className="text-foreground">The difference is architecture breadth.</strong> GridPay reads like a VPP-specific export rewards system.
+                  ZenSolar reads like a broader verification infrastructure that can start with solar production, battery export, EV charging, and EV miles—then extend into VPP dispatch as one embodiment.
+                </p>
+                <p>
+                  <strong className="text-foreground">That framing matters for the utility filing.</strong> VPP should be added as an explicit supported embodiment of the existing SEGI stack,
+                  not as a totally separate invention. The message is: the same gateway, normalization, verification, and minting architecture can also coordinate and reward aggregated dispatch events.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Recommended VPP utility additions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {vppUtilityAdditions.map((item) => (
+                  <div key={item} className="rounded-xl border border-border bg-muted/20 p-4 text-sm leading-6 text-muted-foreground">
+                    <div className="flex items-start gap-3">
+                      <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <p>{item}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </section>
 
         <section className="container mx-auto px-4 pb-12 md:pb-16">
