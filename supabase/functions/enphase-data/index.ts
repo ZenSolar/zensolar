@@ -97,6 +97,45 @@ async function refreshEnphaseToken(
 // Cache duration in minutes - Enphase Watt plan has very limited API calls
 const CACHE_DURATION_MINUTES = 15;
 
+// Recalculate pending_solar_wh from current baselines to avoid stale post-mint values
+async function recalcPendingFromBaselines(
+  supabaseClient: any,
+  userId: string,
+  cachedResponse: Record<string, unknown>
+): Promise<Record<string, unknown>> {
+  try {
+    const { data: devices } = await supabaseClient
+      .from("connected_devices")
+      .select("device_id, lifetime_totals, baseline_data")
+      .eq("user_id", userId)
+      .eq("provider", "enphase");
+
+    if (!devices || devices.length === 0) return cachedResponse;
+
+    let recalcPending = 0;
+    for (const dev of devices) {
+      const lt = (dev.lifetime_totals as Record<string, number>) || {};
+      const bl = (dev.baseline_data as Record<string, number>) || {};
+      const lifetimeWh = lt.solar_wh || lt.lifetime_solar_wh || 0;
+      const baselineWh = bl.solar_wh || bl.solar_production_wh || 0;
+      recalcPending += Math.max(0, lifetimeWh - baselineWh);
+    }
+
+    const cachedTotals = (cachedResponse.totals as Record<string, unknown>) || {};
+    const oldPending = cachedTotals.pending_solar_wh;
+    if (oldPending !== recalcPending) {
+      console.log(`Recalculated pending from baselines: ${recalcPending} Wh (cached was ${oldPending})`);
+    }
+    return {
+      ...cachedResponse,
+      totals: { ...cachedTotals, pending_solar_wh: recalcPending },
+    };
+  } catch (err) {
+    console.error("Failed to recalculate pending from baselines:", err);
+    return cachedResponse;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -182,8 +221,9 @@ Deno.serve(async (req) => {
       
       if (cacheAge < cacheMaxAge) {
         console.log(`Returning cached Enphase data (${Math.round(cacheAge / 1000)}s old)`);
+        const correctedData = await recalcPendingFromBaselines(supabaseClient, targetUserId, cachedData);
         return new Response(JSON.stringify({
-          ...cachedData,
+          ...correctedData,
           cached: true,
           cache_age_seconds: Math.round(cacheAge / 1000),
         }), {
@@ -257,8 +297,9 @@ Deno.serve(async (req) => {
         // If rate limited, return cached data if available
         if (systemsResponse.status === 429 && cachedData) {
           console.log("Rate limited, returning stale cached data");
+          const correctedData = await recalcPendingFromBaselines(supabaseClient, targetUserId, cachedData);
           return new Response(JSON.stringify({
-            ...cachedData,
+            ...correctedData,
             cached: true,
             stale: true,
             rate_limited: true,
@@ -481,8 +522,9 @@ Deno.serve(async (req) => {
     if (perSystem.length === 0) {
       if (cachedData) {
         console.log("Enphase rate limited, returning cached data");
+        const correctedData = await recalcPendingFromBaselines(supabaseClient, targetUserId, cachedData);
         return new Response(JSON.stringify({
-          ...cachedData,
+          ...correctedData,
           cached: true,
           stale: true,
           rate_limited: true,
