@@ -297,8 +297,9 @@ Deno.serve(async (req) => {
         // If rate limited, return cached data if available
         if (systemsResponse.status === 429 && cachedData) {
           console.log("Rate limited, returning stale cached data");
+          const correctedData = await recalcPendingFromBaselines(supabaseClient, targetUserId, cachedData);
           return new Response(JSON.stringify({
-            ...cachedData,
+            ...correctedData,
             cached: true,
             stale: true,
             rate_limited: true,
