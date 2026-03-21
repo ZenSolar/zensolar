@@ -182,8 +182,34 @@ Deno.serve(async (req) => {
       
       if (cacheAge < cacheMaxAge) {
         console.log(`Returning cached Enphase data (${Math.round(cacheAge / 1000)}s old)`);
+        
+        // Recalculate pending from current baselines to avoid stale post-mint values
+        const { data: currentDevices } = await supabaseClient
+          .from("connected_devices")
+          .select("device_id, lifetime_totals, baseline_data")
+          .eq("user_id", targetUserId)
+          .eq("provider", "enphase");
+        
+        let responsePayload = { ...cachedData };
+        if (currentDevices && currentDevices.length > 0) {
+          let recalcPending = 0;
+          for (const dev of currentDevices) {
+            const lt = (dev.lifetime_totals as Record<string, number>) || {};
+            const bl = (dev.baseline_data as Record<string, number>) || {};
+            const lifetimeWh = lt.solar_wh || lt.lifetime_solar_wh || 0;
+            const baselineWh = bl.solar_wh || bl.solar_production_wh || 0;
+            recalcPending += Math.max(0, lifetimeWh - baselineWh);
+          }
+          const cachedTotals = (cachedData.totals as Record<string, unknown>) || {};
+          responsePayload = {
+            ...cachedData,
+            totals: { ...cachedTotals, pending_solar_wh: recalcPending },
+          };
+          console.log(`Recalculated pending from baselines: ${recalcPending} Wh (cached was ${cachedTotals.pending_solar_wh})`);
+        }
+        
         return new Response(JSON.stringify({
-          ...cachedData,
+          ...responsePayload,
           cached: true,
           cache_age_seconds: Math.round(cacheAge / 1000),
         }), {
