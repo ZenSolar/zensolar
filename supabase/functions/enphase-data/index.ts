@@ -522,8 +522,9 @@ Deno.serve(async (req) => {
     if (perSystem.length === 0) {
       if (cachedData) {
         console.log("Enphase rate limited, returning cached data");
+        const correctedData = await recalcPendingFromBaselines(supabaseClient, targetUserId, cachedData);
         return new Response(JSON.stringify({
-          ...cachedData,
+          ...correctedData,
           cached: true,
           stale: true,
           rate_limited: true,
