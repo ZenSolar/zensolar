@@ -113,7 +113,8 @@ export const REWARD_RATES = {
   batteryDischarge: BASE_REWARD_RATES.batteryDischarge * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   evMiles: BASE_REWARD_RATES.evMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   evCharging: BASE_REWARD_RATES.evCharging * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
-  fsdMiles: BASE_REWARD_RATES.fsdMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  fsdSupervisedMiles: BASE_REWARD_RATES.fsdSupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  fsdUnsupervisedMiles: BASE_REWARD_RATES.fsdUnsupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
 } as const;
 
 // === SUBSCRIPTION ===

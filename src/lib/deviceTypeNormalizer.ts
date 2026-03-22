@@ -114,15 +114,30 @@ export function canHaveBatteryData(deviceType: string): boolean {
  */
 export function canHaveEvMilesData(deviceType: string): boolean {
   const normalized = normalizeDeviceType(deviceType);
-  return normalized === 'vehicle' || normalized === 'fsd_vehicle';
+  return normalized === 'vehicle' || isFsdDevice(normalized);
 }
 
 /**
- * Check if a device can have FSD (Full Self-Driving) miles data
- * Future-proofing for when Tesla exposes autonomous driving telemetry
+ * Check if a device is any FSD type (supervised or unsupervised)
  */
-export function canHaveFsdMilesData(deviceType: string): boolean {
-  return normalizeDeviceType(deviceType) === 'fsd_vehicle';
+export function isFsdDevice(deviceType: string): boolean {
+  const normalized = normalizeDeviceType(deviceType);
+  return normalized === 'fsd_supervised_vehicle' || normalized === 'fsd_unsupervised_vehicle';
+}
+
+/**
+ * Check if a device can have FSD Supervised miles data
+ */
+export function canHaveFsdSupervisedData(deviceType: string): boolean {
+  const normalized = normalizeDeviceType(deviceType);
+  return normalized === 'fsd_supervised_vehicle' || normalized === 'fsd_unsupervised_vehicle';
+}
+
+/**
+ * Check if a device can have FSD Unsupervised (fully autonomous) miles data
+ */
+export function canHaveFsdUnsupervisedData(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'fsd_unsupervised_vehicle';
 }
 
 /**
@@ -130,5 +145,5 @@ export function canHaveFsdMilesData(deviceType: string): boolean {
  */
 export function canHaveChargingData(deviceType: string): boolean {
   const normalized = normalizeDeviceType(deviceType);
-  return normalized === 'vehicle' || normalized === 'wall_connector' || normalized === 'fsd_vehicle';
+  return normalized === 'vehicle' || normalized === 'wall_connector' || isFsdDevice(normalized);
 }
