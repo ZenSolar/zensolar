@@ -728,6 +728,7 @@ export function useDashboardData() {
         pendingChargingKwh: pendingCharging,
         pendingSuperchargerKwh: pendingSupercharger,
         pendingHomeChargerKwh: pendingHomeCharger,
+        pendingFsdMiles: 0,
         tokensEarned,
         pendingTokens,
         referralTokens,
