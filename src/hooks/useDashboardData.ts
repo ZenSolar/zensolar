@@ -721,6 +721,7 @@ export function useDashboardData() {
         batteryStorageDischarged: batteryDischarge,
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh,
+        fsdMilesDriven: 0,
         pendingSolarKwh: pendingSolar,
         pendingEvMiles,
         pendingBatteryKwh: pendingBattery,

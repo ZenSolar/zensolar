@@ -35,6 +35,7 @@ const createDemoActivityData = (): ActivityData => ({
   pendingChargingKwh: Math.round(5019 * 0.3),
   pendingSuperchargerKwh: Math.round(892 * 0.3),
   pendingHomeChargerKwh: Math.round(4127 * 0.3),
+  pendingFsdMiles: 0,
   // Reward totals
   tokensEarned: 45616,
   pendingTokens: Math.round(45616 * 0.3),
