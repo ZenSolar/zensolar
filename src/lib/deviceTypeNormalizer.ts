@@ -14,7 +14,7 @@
  * - "wall_connector" - Home EV chargers (Tesla Wall Connector, Wallbox, etc.)
  */
 
-export type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'unknown';
+export type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'fsd_vehicle' | 'unknown';
 
 const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   // Solar types
