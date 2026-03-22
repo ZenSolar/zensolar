@@ -52,6 +52,7 @@ const DRAWINGS_BRIEF = [
   { fig: 'FIG. 6', desc: 'is a diagram illustrating the milestone NFT issuance system, showing cumulative activity threshold monitoring and achievement-based non-fungible token generation.' },
   { fig: 'FIG. 7', desc: 'is a system diagram illustrating the multi-provider API aggregation layer, showing authenticated connections to a plurality of energy providers (Tesla, Enphase, SolarEdge, Wallbox) and transportation data sources.' },
   { fig: 'FIG. 8', desc: 'is a diagram illustrating the cross-platform double-mint prevention mechanism, showing how the Device Watermark Registry prevents the same physical energy unit from being tokenized across competing platforms.' },
+  { fig: 'FIG. 9', desc: 'is a flowchart illustrating the dual-mode autonomous driving telemetry verification system, showing separate watermark tracking and delta computation for FSD Supervised and FSD Unsupervised driving miles obtained via manufacturer API endpoints.' },
 ];
 
 const DETAILED_DESCRIPTION = {
@@ -96,6 +97,15 @@ const DETAILED_DESCRIPTION = {
     title: 'V. Milestone NFT Issuance',
     paragraphs: [
       `Referring to FIG. 6, the system monitors cumulative verified activity for each user against configurable threshold values. Upon crossing a threshold (e.g., 1,000 kWh produced, 10,000 EV miles driven), the system triggers a non-fungible token (NFT) minting transaction encoding achievement metadata including: activity type, threshold value, verification timestamp, cumulative activity at time of achievement, and the hash of the most recent Proof-of-Delta™ proof at the time of threshold crossing.`,
+    ],
+  },
+  autonomousDriving: {
+    title: 'VI. Autonomous Driving Telemetry Verification',
+    paragraphs: [
+      `Referring now to FIG. 9, the present invention further provides methods for tokenizing verified autonomous driving miles obtained from manufacturer API telemetry endpoints. The system distinguishes between two distinct autonomous driving operational modes, each constituting a separately verifiable and tokenizable activity type.`,
+      `FSD Supervised Mode: In the supervised autonomous driving mode, the vehicle operates with autonomous steering, acceleration, and braking capabilities while requiring a human driver to maintain attentiveness and readiness to intervene. The system retrieves supervised driving telemetry from the vehicle manufacturer's API endpoint, said telemetry comprising: miles driven in supervised autonomous mode, engagement timestamps, disengagement events, and route metadata. The verification engine applies the Proof-of-Delta™ method to supervised miles independently, maintaining a separate device-bound watermark W_supervised for each vehicle identified by its manufacturer-assigned VIN via the Proof-of-Origin™ device hash.`,
+      `FSD Unsupervised Mode: In the unsupervised autonomous driving mode, the vehicle operates with full autonomous capability without requiring human driver attention or intervention readiness. The system retrieves unsupervised driving telemetry through a distinct API endpoint or data field classification provided by the vehicle manufacturer. A separate device-bound watermark W_unsupervised is maintained for each vehicle, enabling independent delta computation and token issuance for unsupervised miles. This separation ensures that supervised and unsupervised miles are never conflated and each driving mode maintains its own tamper-evident SHA-256 hash chain.`,
+      `The dual-mode architecture additionally supports future robotaxi fleet telemetry, wherein vehicles operating in commercial autonomous ride-hailing service generate tokenizable miles classified under the unsupervised mode with additional fleet operator metadata. The system's hardware-agnostic design requires no aftermarket sensors—all telemetry is obtained through the vehicle manufacturer's authenticated API endpoints using the same OAuth 2.0 protocols employed by the SEGI API aggregation layer.`,
     ],
   },
 };
@@ -153,7 +163,7 @@ enable third-party verification that any claimed activity range for a specific d
   {
     number: 6,
     type: 'dependent' as const,
-    text: `The system of claim 1, wherein said activity data comprises one or more of: energy production measured in kilowatt-hours, electric vehicle miles driven, battery storage energy exported, electric vehicle charging session energy delivered, physical exercise metrics, educational achievement data, gaming progress data, environmental action metrics, or any other measurable activity verifiable through a third-party API or sensor data source.`,
+    text: `The system of claim 1, wherein said activity data comprises one or more of: energy production measured in kilowatt-hours, electric vehicle miles driven, battery storage energy exported, electric vehicle charging session energy delivered, autonomous driving miles in supervised mode, autonomous driving miles in unsupervised mode, physical exercise metrics, educational achievement data, gaming progress data, environmental action metrics, or any other measurable activity verifiable through a third-party API or sensor data source.`,
   },
   {
     number: 7,
@@ -176,6 +186,29 @@ computing an incremental delta between a current reading and said watermark;
 generating a SHA-256 hash chain proof linking said delta to a tamper-evident provenance trail;
 minting blockchain tokens exclusively for positive delta values upon successful cryptographic verification; and
 atomically updating said watermark upon successful minting.`,
+  },
+  {
+    number: 9,
+    type: 'dependent' as const,
+    text: `The system of claim 1, further comprising a supervised autonomous driving verification subsystem configured to:
+retrieve driving telemetry data classified as supervised autonomous mode from a vehicle manufacturer's API endpoint, wherein said supervised mode requires a human driver to maintain attentiveness and intervention readiness;
+identify the vehicle by computing a deterministic device hash from the manufacturer-assigned Vehicle Identification Number (VIN) using keccak256;
+maintain a dedicated supervised-mode watermark W_supervised for each vehicle device hash, said watermark representing cumulative supervised autonomous miles previously tokenized;
+compute a supervised delta D_supervised = R_supervised − W_supervised, where R_supervised is the current cumulative supervised autonomous miles reported by the manufacturer API;
+generate a cryptographic proof P_supervised = SHA-256(device_hash | timestamp | D_supervised | P_prev_supervised) exclusively when D_supervised > 0, maintaining a hash chain independent from other activity types for the same device; and
+atomically update W_supervised upon successful token issuance.`,
+  },
+  {
+    number: 10,
+    type: 'dependent' as const,
+    text: `The system of claim 1, further comprising an unsupervised autonomous driving verification subsystem configured to:
+retrieve driving telemetry data classified as unsupervised autonomous mode from a vehicle manufacturer's API endpoint, wherein said unsupervised mode operates with full autonomous capability without requiring human driver attention;
+identify the vehicle by computing a deterministic device hash from the manufacturer-assigned Vehicle Identification Number (VIN) using keccak256;
+maintain a dedicated unsupervised-mode watermark W_unsupervised for each vehicle device hash, said watermark being independent of any supervised-mode watermark maintained for the same device;
+compute an unsupervised delta D_unsupervised = R_unsupervised − W_unsupervised, where R_unsupervised is the current cumulative unsupervised autonomous miles reported by the manufacturer API;
+generate a cryptographic proof P_unsupervised = SHA-256(device_hash | timestamp | D_unsupervised | P_prev_unsupervised) exclusively when D_unsupervised > 0, maintaining a hash chain independent from supervised-mode proofs and other activity types; and
+atomically update W_unsupervised upon successful token issuance;
+wherein said system further supports classification of commercial robotaxi fleet miles under the unsupervised mode with additional fleet operator metadata encoded in the cryptographic proof.`,
   },
 ];
 
@@ -247,7 +280,7 @@ export default function AdminUtilityPatentDraft() {
                 { item: 'Detailed Description', done: true },
                 { item: 'Claims (Independent + Dependent)', done: true },
                 { item: 'Abstract of the Disclosure', done: true },
-                { item: 'Formal Drawings (8 Figures)', done: false },
+                { item: 'Formal Drawings (9 Figures)', done: false },
                 { item: 'Oath/Declaration', done: false },
                 { item: 'Filing Fees (USPTO)', done: false },
               ].map(({ item, done }) => (
@@ -370,7 +403,7 @@ export default function AdminUtilityPatentDraft() {
             <div className="flex items-center gap-2">
               <ImageIcon className="h-4 w-4 text-primary" />
               <span className="font-semibold">Brief Description of the Drawings</span>
-              <Badge variant="outline" className="text-xs">8 Figures</Badge>
+              <Badge variant="outline" className="text-xs">9 Figures</Badge>
             </div>
           </AccordionTrigger>
           <AccordionContent>
@@ -462,6 +495,8 @@ export default function AdminUtilityPatentDraft() {
                   {claim.number === 2 && <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs">Mint-on-Proof™</Badge>}
                   {claim.number === 3 && <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs">Proof-of-Delta™</Badge>}
                   {(claim.number === 4 || claim.number === 5) && <Badge className="bg-violet-500/20 text-violet-600 dark:text-violet-400 border-violet-500/30 text-xs">Proof-of-Origin™</Badge>}
+                  {claim.number === 9 && <Badge className="bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-500/30 text-xs">FSD Supervised</Badge>}
+                  {claim.number === 10 && <Badge className="bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30 text-xs">FSD Unsupervised</Badge>}
                 </div>
                 <p className="text-sm whitespace-pre-line leading-relaxed">{claim.text}</p>
               </div>
