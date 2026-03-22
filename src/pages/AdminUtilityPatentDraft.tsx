@@ -280,7 +280,7 @@ export default function AdminUtilityPatentDraft() {
                 { item: 'Detailed Description', done: true },
                 { item: 'Claims (Independent + Dependent)', done: true },
                 { item: 'Abstract of the Disclosure', done: true },
-                { item: 'Formal Drawings (8 Figures)', done: false },
+                { item: 'Formal Drawings (9 Figures)', done: false },
                 { item: 'Oath/Declaration', done: false },
                 { item: 'Filing Fees (USPTO)', done: false },
               ].map(({ item, done }) => (
