@@ -27,6 +27,7 @@ const createDemoActivityData = (): ActivityData => ({
   batteryStorageDischarged: DEMO_BATTERY_KWH,
   teslaSuperchargerKwh: 892,
   homeChargerKwh: 4127,
+  fsdMilesDriven: 0,
   // Pending rewards (simulating 30% pending since last mint)
   pendingSolarKwh: Math.round(DEMO_SOLAR_KWH * 0.3),
   pendingEvMiles: Math.round(DEMO_EV_MILES * 0.3),
