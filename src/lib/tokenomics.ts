@@ -103,7 +103,8 @@ export const BASE_REWARD_RATES = {
   batteryDischarge: 1, // 1 $ZSOLAR per kWh discharged
   evMiles: 1, // 1 $ZSOLAR per mile driven
   evCharging: 1, // 1 $ZSOLAR per kWh charged
-  fsdMiles: 1, // 1 $ZSOLAR per Full Self-Driving mile (future Tesla API)
+  fsdSupervisedMiles: 1, // 1 $ZSOLAR per FSD Supervised mile (future Tesla API)
+  fsdUnsupervisedMiles: 1, // 1 $ZSOLAR per FSD Unsupervised/autonomous mile (future Tesla API)
 } as const;
 
 // Active reward rates (applies multiplier in Live Beta)
@@ -112,7 +113,8 @@ export const REWARD_RATES = {
   batteryDischarge: BASE_REWARD_RATES.batteryDischarge * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   evMiles: BASE_REWARD_RATES.evMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   evCharging: BASE_REWARD_RATES.evCharging * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
-  fsdMiles: BASE_REWARD_RATES.fsdMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  fsdSupervisedMiles: BASE_REWARD_RATES.fsdSupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  fsdUnsupervisedMiles: BASE_REWARD_RATES.fsdUnsupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
 } as const;
 
 // === SUBSCRIPTION ===

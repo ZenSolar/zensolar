@@ -14,7 +14,10 @@
  * - "wall_connector" - Home EV chargers (Tesla Wall Connector, Wallbox, etc.)
  */
 
-export type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'fsd_vehicle' | 'unknown';
+export type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'fsd_supervised_vehicle' | 'fsd_unsupervised_vehicle' | 'unknown';
+
+// Helper type for any FSD mode
+export type FsdDeviceType = 'fsd_supervised_vehicle' | 'fsd_unsupervised_vehicle';
 
 const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   // Solar types
@@ -35,10 +38,16 @@ const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   'ev': 'vehicle',
   'car': 'vehicle',
   
-  // FSD/Autonomous vehicle types (future Tesla API)
-  'fsd_vehicle': 'fsd_vehicle',
-  'autopilot_vehicle': 'fsd_vehicle',
-  'autonomous': 'fsd_vehicle',
+  // FSD Supervised vehicle types (future Tesla API)
+  'fsd_supervised_vehicle': 'fsd_supervised_vehicle',
+  'fsd_supervised': 'fsd_supervised_vehicle',
+  'autopilot_vehicle': 'fsd_supervised_vehicle',
+  
+  // FSD Unsupervised (fully autonomous) vehicle types
+  'fsd_unsupervised_vehicle': 'fsd_unsupervised_vehicle',
+  'fsd_unsupervised': 'fsd_unsupervised_vehicle',
+  'autonomous': 'fsd_unsupervised_vehicle',
+  'robotaxi': 'fsd_unsupervised_vehicle',
   
   // Charger types
   'wall_connector': 'wall_connector',
@@ -105,15 +114,30 @@ export function canHaveBatteryData(deviceType: string): boolean {
  */
 export function canHaveEvMilesData(deviceType: string): boolean {
   const normalized = normalizeDeviceType(deviceType);
-  return normalized === 'vehicle' || normalized === 'fsd_vehicle';
+  return normalized === 'vehicle' || isFsdDevice(normalized);
 }
 
 /**
- * Check if a device can have FSD (Full Self-Driving) miles data
- * Future-proofing for when Tesla exposes autonomous driving telemetry
+ * Check if a device is any FSD type (supervised or unsupervised)
  */
-export function canHaveFsdMilesData(deviceType: string): boolean {
-  return normalizeDeviceType(deviceType) === 'fsd_vehicle';
+export function isFsdDevice(deviceType: string): boolean {
+  const normalized = normalizeDeviceType(deviceType);
+  return normalized === 'fsd_supervised_vehicle' || normalized === 'fsd_unsupervised_vehicle';
+}
+
+/**
+ * Check if a device can have FSD Supervised miles data
+ */
+export function canHaveFsdSupervisedData(deviceType: string): boolean {
+  const normalized = normalizeDeviceType(deviceType);
+  return normalized === 'fsd_supervised_vehicle' || normalized === 'fsd_unsupervised_vehicle';
+}
+
+/**
+ * Check if a device can have FSD Unsupervised (fully autonomous) miles data
+ */
+export function canHaveFsdUnsupervisedData(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'fsd_unsupervised_vehicle';
 }
 
 /**
@@ -121,5 +145,5 @@ export function canHaveFsdMilesData(deviceType: string): boolean {
  */
 export function canHaveChargingData(deviceType: string): boolean {
   const normalized = normalizeDeviceType(deviceType);
-  return normalized === 'vehicle' || normalized === 'wall_connector' || normalized === 'fsd_vehicle';
+  return normalized === 'vehicle' || normalized === 'wall_connector' || isFsdDevice(normalized);
 }

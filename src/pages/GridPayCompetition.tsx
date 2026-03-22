@@ -134,7 +134,7 @@ const patentOverlapRows = [
     architecture:
       'SEGI already normalizes EV odometer data via Tesla Fleet API with Proof-of-Delta™ hash chains. Tesla displays FSD miles on-screen in 2023+ vehicles, indicating manufacturer telemetry tracks autonomous vs. manual driving — a future API endpoint is anticipated.',
     addition:
-      'Add dependent claims for tokenizing verified autonomous driving miles sourced from manufacturer API telemetry, including: (1) distinguishing FSD/Autopilot miles from manual driving via OEM-reported driving-mode classification, (2) applying Proof-of-Delta™ verification to autonomous mileage deltas, (3) device-bound anti-double-mint enforcement via the Device Watermark Registry for autonomous driving activity, and (4) configurable reward rates for autonomous vs. manual driving miles.',
+      'Add dependent claims for tokenizing verified autonomous driving miles sourced from manufacturer API telemetry, including: (1) distinguishing FSD Supervised miles from FSD Unsupervised (fully autonomous) miles via OEM-reported driving-mode classification, (2) separate reward rate configuration for supervised vs. unsupervised autonomous driving, (3) applying Proof-of-Delta™ verification to autonomous mileage deltas for each driving mode independently, (4) device-bound anti-double-mint enforcement via the Device Watermark Registry for autonomous driving activity, and (5) future-proofed claim coverage for robotaxi fleet telemetry tokenization.',
   },
 ];
 
