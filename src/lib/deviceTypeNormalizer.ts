@@ -38,10 +38,16 @@ const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   'ev': 'vehicle',
   'car': 'vehicle',
   
-  // FSD/Autonomous vehicle types (future Tesla API)
-  'fsd_vehicle': 'fsd_vehicle',
-  'autopilot_vehicle': 'fsd_vehicle',
-  'autonomous': 'fsd_vehicle',
+  // FSD Supervised vehicle types (future Tesla API)
+  'fsd_supervised_vehicle': 'fsd_supervised_vehicle',
+  'fsd_supervised': 'fsd_supervised_vehicle',
+  'autopilot_vehicle': 'fsd_supervised_vehicle',
+  
+  // FSD Unsupervised (fully autonomous) vehicle types
+  'fsd_unsupervised_vehicle': 'fsd_unsupervised_vehicle',
+  'fsd_unsupervised': 'fsd_unsupervised_vehicle',
+  'autonomous': 'fsd_unsupervised_vehicle',
+  'robotaxi': 'fsd_unsupervised_vehicle',
   
   // Charger types
   'wall_connector': 'wall_connector',
