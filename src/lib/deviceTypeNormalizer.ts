@@ -104,7 +104,16 @@ export function canHaveBatteryData(deviceType: string): boolean {
  * Check if a device can have EV miles data
  */
 export function canHaveEvMilesData(deviceType: string): boolean {
-  return normalizeDeviceType(deviceType) === 'vehicle';
+  const normalized = normalizeDeviceType(deviceType);
+  return normalized === 'vehicle' || normalized === 'fsd_vehicle';
+}
+
+/**
+ * Check if a device can have FSD (Full Self-Driving) miles data
+ * Future-proofing for when Tesla exposes autonomous driving telemetry
+ */
+export function canHaveFsdMilesData(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'fsd_vehicle';
 }
 
 /**
@@ -112,5 +121,5 @@ export function canHaveEvMilesData(deviceType: string): boolean {
  */
 export function canHaveChargingData(deviceType: string): boolean {
   const normalized = normalizeDeviceType(deviceType);
-  return normalized === 'vehicle' || normalized === 'wall_connector';
+  return normalized === 'vehicle' || normalized === 'wall_connector' || normalized === 'fsd_vehicle';
 }
