@@ -163,7 +163,7 @@ enable third-party verification that any claimed activity range for a specific d
   {
     number: 6,
     type: 'dependent' as const,
-    text: `The system of claim 1, wherein said activity data comprises one or more of: energy production measured in kilowatt-hours, electric vehicle miles driven, battery storage energy exported, electric vehicle charging session energy delivered, physical exercise metrics, educational achievement data, gaming progress data, environmental action metrics, or any other measurable activity verifiable through a third-party API or sensor data source.`,
+    text: `The system of claim 1, wherein said activity data comprises one or more of: energy production measured in kilowatt-hours, electric vehicle miles driven, battery storage energy exported, electric vehicle charging session energy delivered, autonomous driving miles in supervised mode, autonomous driving miles in unsupervised mode, physical exercise metrics, educational achievement data, gaming progress data, environmental action metrics, or any other measurable activity verifiable through a third-party API or sensor data source.`,
   },
   {
     number: 7,
@@ -186,6 +186,29 @@ computing an incremental delta between a current reading and said watermark;
 generating a SHA-256 hash chain proof linking said delta to a tamper-evident provenance trail;
 minting blockchain tokens exclusively for positive delta values upon successful cryptographic verification; and
 atomically updating said watermark upon successful minting.`,
+  },
+  {
+    number: 9,
+    type: 'dependent' as const,
+    text: `The system of claim 1, further comprising a supervised autonomous driving verification subsystem configured to:
+retrieve driving telemetry data classified as supervised autonomous mode from a vehicle manufacturer's API endpoint, wherein said supervised mode requires a human driver to maintain attentiveness and intervention readiness;
+identify the vehicle by computing a deterministic device hash from the manufacturer-assigned Vehicle Identification Number (VIN) using keccak256;
+maintain a dedicated supervised-mode watermark W_supervised for each vehicle device hash, said watermark representing cumulative supervised autonomous miles previously tokenized;
+compute a supervised delta D_supervised = R_supervised − W_supervised, where R_supervised is the current cumulative supervised autonomous miles reported by the manufacturer API;
+generate a cryptographic proof P_supervised = SHA-256(device_hash | timestamp | D_supervised | P_prev_supervised) exclusively when D_supervised > 0, maintaining a hash chain independent from other activity types for the same device; and
+atomically update W_supervised upon successful token issuance.`,
+  },
+  {
+    number: 10,
+    type: 'dependent' as const,
+    text: `The system of claim 1, further comprising an unsupervised autonomous driving verification subsystem configured to:
+retrieve driving telemetry data classified as unsupervised autonomous mode from a vehicle manufacturer's API endpoint, wherein said unsupervised mode operates with full autonomous capability without requiring human driver attention;
+identify the vehicle by computing a deterministic device hash from the manufacturer-assigned Vehicle Identification Number (VIN) using keccak256;
+maintain a dedicated unsupervised-mode watermark W_unsupervised for each vehicle device hash, said watermark being independent of any supervised-mode watermark maintained for the same device;
+compute an unsupervised delta D_unsupervised = R_unsupervised − W_unsupervised, where R_unsupervised is the current cumulative unsupervised autonomous miles reported by the manufacturer API;
+generate a cryptographic proof P_unsupervised = SHA-256(device_hash | timestamp | D_unsupervised | P_prev_unsupervised) exclusively when D_unsupervised > 0, maintaining a hash chain independent from supervised-mode proofs and other activity types; and
+atomically update W_unsupervised upon successful token issuance;
+wherein said system further supports classification of commercial robotaxi fleet miles under the unsupervised mode with additional fleet operator metadata encoded in the cryptographic proof.`,
   },
 ];
 
