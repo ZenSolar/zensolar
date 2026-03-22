@@ -41,6 +41,9 @@ export interface EVDeviceData {
   pendingChargingKwh: number;
   lifetimeSuperchargerKwh: number;
   pendingSuperchargerKwh: number;
+  // FSD/Autonomous driving (future Tesla API)
+  lifetimeFsdMiles?: number;
+  pendingFsdMiles?: number;
 }
 
 /**
@@ -78,6 +81,7 @@ export interface ActivityData {
   batteryStorageDischarged: number;
   teslaSuperchargerKwh: number;
   homeChargerKwh: number;
+  fsdMilesDriven: number; // Full Self-Driving miles (future Tesla API)
   
   // Pending rewards (since last mint, eligible for token issuance)
   pendingSolarKwh: number;
@@ -86,6 +90,7 @@ export interface ActivityData {
   pendingChargingKwh: number;      // Combined total for minting (supercharger + home)
   pendingSuperchargerKwh: number;  // Tesla Supercharger kWh since last mint
   pendingHomeChargerKwh: number;   // Home Charger kWh since last mint
+  pendingFsdMiles: number;         // FSD miles since last mint (future)
   
   // Reward totals
   tokensEarned: number;         // Total lifetime tokens earned

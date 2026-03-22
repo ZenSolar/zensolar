@@ -27,6 +27,7 @@ const createDemoActivityData = (): ActivityData => ({
   batteryStorageDischarged: DEMO_BATTERY_KWH,
   teslaSuperchargerKwh: 892,
   homeChargerKwh: 4127,
+  fsdMilesDriven: 0,
   // Pending rewards (simulating 30% pending since last mint)
   pendingSolarKwh: Math.round(DEMO_SOLAR_KWH * 0.3),
   pendingEvMiles: Math.round(DEMO_EV_MILES * 0.3),
@@ -34,6 +35,7 @@ const createDemoActivityData = (): ActivityData => ({
   pendingChargingKwh: Math.round(5019 * 0.3),
   pendingSuperchargerKwh: Math.round(892 * 0.3),
   pendingHomeChargerKwh: Math.round(4127 * 0.3),
+  pendingFsdMiles: 0,
   // Reward totals
   tokensEarned: 45616,
   pendingTokens: Math.round(45616 * 0.3),

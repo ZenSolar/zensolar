@@ -32,6 +32,7 @@ const defaultActivityData: ActivityData = {
   batteryStorageDischarged: 0,
   teslaSuperchargerKwh: 0,
   homeChargerKwh: 0,
+  fsdMilesDriven: 0,
   // Pending rewards (since last mint)
   pendingSolarKwh: 0,
   pendingEvMiles: 0,
@@ -39,6 +40,7 @@ const defaultActivityData: ActivityData = {
   pendingChargingKwh: 0,
   pendingSuperchargerKwh: 0,
   pendingHomeChargerKwh: 0,
+  pendingFsdMiles: 0,
   // Reward totals
   tokensEarned: 0,
   pendingTokens: 0,
@@ -719,12 +721,14 @@ export function useDashboardData() {
         batteryStorageDischarged: batteryDischarge,
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh,
+        fsdMilesDriven: 0,
         pendingSolarKwh: pendingSolar,
         pendingEvMiles,
         pendingBatteryKwh: pendingBattery,
         pendingChargingKwh: pendingCharging,
         pendingSuperchargerKwh: pendingSupercharger,
         pendingHomeChargerKwh: pendingHomeCharger,
+        pendingFsdMiles: 0,
         tokensEarned,
         pendingTokens,
         referralTokens,
@@ -1223,6 +1227,7 @@ export function useDashboardData() {
         batteryStorageDischarged: batteryDischarge,
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh: homeChargerKwh,
+        fsdMilesDriven: 0,
         // Pending (since last mint, eligible for token rewards)
         pendingSolarKwh: pendingSolar,
         pendingEvMiles: pendingEvMiles,
@@ -1230,6 +1235,7 @@ export function useDashboardData() {
         pendingChargingKwh: pendingCharging,
         pendingSuperchargerKwh: pendingSupercharger,
         pendingHomeChargerKwh: pendingHomeCharger,
+        pendingFsdMiles: 0,
         // Totals
         tokensEarned,
         pendingTokens,

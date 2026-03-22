@@ -14,7 +14,7 @@
  * - "wall_connector" - Home EV chargers (Tesla Wall Connector, Wallbox, etc.)
  */
 
-export type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'unknown';
+export type CanonicalDeviceType = 'solar' | 'battery' | 'vehicle' | 'wall_connector' | 'fsd_vehicle' | 'unknown';
 
 const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   // Solar types
@@ -34,6 +34,11 @@ const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   'vehicle': 'vehicle',
   'ev': 'vehicle',
   'car': 'vehicle',
+  
+  // FSD/Autonomous vehicle types (future Tesla API)
+  'fsd_vehicle': 'fsd_vehicle',
+  'autopilot_vehicle': 'fsd_vehicle',
+  'autonomous': 'fsd_vehicle',
   
   // Charger types
   'wall_connector': 'wall_connector',
@@ -99,7 +104,16 @@ export function canHaveBatteryData(deviceType: string): boolean {
  * Check if a device can have EV miles data
  */
 export function canHaveEvMilesData(deviceType: string): boolean {
-  return normalizeDeviceType(deviceType) === 'vehicle';
+  const normalized = normalizeDeviceType(deviceType);
+  return normalized === 'vehicle' || normalized === 'fsd_vehicle';
+}
+
+/**
+ * Check if a device can have FSD (Full Self-Driving) miles data
+ * Future-proofing for when Tesla exposes autonomous driving telemetry
+ */
+export function canHaveFsdMilesData(deviceType: string): boolean {
+  return normalizeDeviceType(deviceType) === 'fsd_vehicle';
 }
 
 /**
@@ -107,5 +121,5 @@ export function canHaveEvMilesData(deviceType: string): boolean {
  */
 export function canHaveChargingData(deviceType: string): boolean {
   const normalized = normalizeDeviceType(deviceType);
-  return normalized === 'vehicle' || normalized === 'wall_connector';
+  return normalized === 'vehicle' || normalized === 'wall_connector' || normalized === 'fsd_vehicle';
 }

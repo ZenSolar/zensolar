@@ -127,6 +127,15 @@ const patentOverlapRows = [
     addition:
       'Add utility claims for verified dispatch signaling, multi-device aggregation, demand-response event participation, and reward issuance tied to verified VPP performance.',
   },
+  {
+    phrase: 'Autonomous driving telemetry',
+    provisional:
+      'Not explicitly disclosed in the provisional, but consistent with the broader concept of tokenizing verified sustainable mobility behaviors.',
+    architecture:
+      'SEGI already normalizes EV odometer data via Tesla Fleet API with Proof-of-Delta™ hash chains. Tesla displays FSD miles on-screen in 2023+ vehicles, indicating manufacturer telemetry tracks autonomous vs. manual driving — a future API endpoint is anticipated.',
+    addition:
+      'Add dependent claims for tokenizing verified autonomous driving miles sourced from manufacturer API telemetry, including: (1) distinguishing FSD/Autopilot miles from manual driving via OEM-reported driving-mode classification, (2) applying Proof-of-Delta™ verification to autonomous mileage deltas, (3) device-bound anti-double-mint enforcement via the Device Watermark Registry for autonomous driving activity, and (4) configurable reward rates for autonomous vs. manual driving miles.',
+  },
 ];
 
 const vppUtilityAdditions = [
@@ -135,6 +144,7 @@ const vppUtilityAdditions = [
   'Reward issuance tied not only to raw kWh generation, but also to verified export, dispatch participation, demand-response compliance, and event completion.',
   'Smart-meter, inverter, battery, EV, and charger data as interchangeable or complementary verification inputs for VPP settlement.',
   'Optional AI-based optimization as a dependent feature for dispatch prediction or orchestration, while preserving the broader claim on verification-before-issuance.',
+  'A method for tokenizing verified autonomous driving miles via manufacturer API telemetry, where the SEGI gateway ingests OEM-reported driving-mode classifications (e.g., Full Self-Driving, Autopilot, manual) and applies Proof-of-Delta™ verification to each mileage delta before token issuance — extending the verification-gated mint architecture beyond energy production into verified autonomous mobility.',
 ];
 
 const zensolarTokenomics = [
