@@ -41,9 +41,12 @@ export interface EVDeviceData {
   pendingChargingKwh: number;
   lifetimeSuperchargerKwh: number;
   pendingSuperchargerKwh: number;
-  // FSD/Autonomous driving (future Tesla API)
-  lifetimeFsdMiles?: number;
-  pendingFsdMiles?: number;
+  // FSD Supervised (future Tesla API)
+  lifetimeFsdSupervisedMiles?: number;
+  pendingFsdSupervisedMiles?: number;
+  // FSD Unsupervised / fully autonomous (future Tesla API)
+  lifetimeFsdUnsupervisedMiles?: number;
+  pendingFsdUnsupervisedMiles?: number;
 }
 
 /**
