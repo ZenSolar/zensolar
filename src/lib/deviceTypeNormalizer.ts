@@ -35,6 +35,11 @@ const DEVICE_TYPE_MAP: Record<string, CanonicalDeviceType> = {
   'ev': 'vehicle',
   'car': 'vehicle',
   
+  // FSD/Autonomous vehicle types (future Tesla API)
+  'fsd_vehicle': 'fsd_vehicle',
+  'autopilot_vehicle': 'fsd_vehicle',
+  'autonomous': 'fsd_vehicle',
+  
   // Charger types
   'wall_connector': 'wall_connector',
   'charger': 'wall_connector',
