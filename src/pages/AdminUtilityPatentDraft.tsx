@@ -495,6 +495,8 @@ export default function AdminUtilityPatentDraft() {
                   {claim.number === 2 && <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs">Mint-on-Proof™</Badge>}
                   {claim.number === 3 && <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs">Proof-of-Delta™</Badge>}
                   {(claim.number === 4 || claim.number === 5) && <Badge className="bg-violet-500/20 text-violet-600 dark:text-violet-400 border-violet-500/30 text-xs">Proof-of-Origin™</Badge>}
+                  {claim.number === 9 && <Badge className="bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-500/30 text-xs">FSD Supervised</Badge>}
+                  {claim.number === 10 && <Badge className="bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30 text-xs">FSD Unsupervised</Badge>}
                 </div>
                 <p className="text-sm whitespace-pre-line leading-relaxed">{claim.text}</p>
               </div>
