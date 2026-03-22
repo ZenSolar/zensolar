@@ -40,6 +40,7 @@ const defaultActivityData: ActivityData = {
   pendingChargingKwh: 0,
   pendingSuperchargerKwh: 0,
   pendingHomeChargerKwh: 0,
+  pendingFsdMiles: 0,
   // Reward totals
   tokensEarned: 0,
   pendingTokens: 0,
