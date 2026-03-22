@@ -32,7 +32,8 @@ const defaultActivityData: ActivityData = {
   batteryStorageDischarged: 0,
   teslaSuperchargerKwh: 0,
   homeChargerKwh: 0,
-  fsdMilesDriven: 0,
+  fsdSupervisedMiles: 0,
+  fsdUnsupervisedMiles: 0,
   // Pending rewards (since last mint)
   pendingSolarKwh: 0,
   pendingEvMiles: 0,
@@ -40,7 +41,8 @@ const defaultActivityData: ActivityData = {
   pendingChargingKwh: 0,
   pendingSuperchargerKwh: 0,
   pendingHomeChargerKwh: 0,
-  pendingFsdMiles: 0,
+  pendingFsdSupervisedMiles: 0,
+  pendingFsdUnsupervisedMiles: 0,
   // Reward totals
   tokensEarned: 0,
   pendingTokens: 0,
