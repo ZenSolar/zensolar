@@ -403,7 +403,7 @@ export default function AdminUtilityPatentDraft() {
             <div className="flex items-center gap-2">
               <ImageIcon className="h-4 w-4 text-primary" />
               <span className="font-semibold">Brief Description of the Drawings</span>
-              <Badge variant="outline" className="text-xs">8 Figures</Badge>
+              <Badge variant="outline" className="text-xs">9 Figures</Badge>
             </div>
           </AccordionTrigger>
           <AccordionContent>
