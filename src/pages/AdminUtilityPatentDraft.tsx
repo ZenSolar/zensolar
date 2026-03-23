@@ -482,6 +482,32 @@ export default function AdminUtilityPatentDraft() {
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howImproves}</p>
               </div>
             </div>
+
+            {/* Page 3: Items or Steps */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 3 — Items or Steps that Make Up Your Invention</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Numbered components list (copy each into a field)</p>
+                <CopyButton 
+                  text={USPTO_FORM_RESPONSES.componentList.map(c => `Item #${c.number}: ${c.name} — ${c.description}`).join('\n')} 
+                  label="Component list copied" 
+                />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60 space-y-2 max-h-96 overflow-y-auto">
+                {USPTO_FORM_RESPONSES.componentList.map(c => (
+                  <div key={c.number} className="flex items-start gap-3 py-1.5 border-b border-border/30 last:border-0">
+                    <Badge variant="outline" className="text-xs font-mono flex-shrink-0 mt-0.5">#{c.number}</Badge>
+                    <div>
+                      <p className="text-sm font-medium">{c.name}</p>
+                      <p className="text-xs text-muted-foreground">{c.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground italic">Items 1-21 maintain continuity with provisional filing numbering. Items 22-31 are new components added in the non-provisional.</p>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
