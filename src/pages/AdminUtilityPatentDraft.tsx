@@ -55,6 +55,9 @@ const DRAWINGS_BRIEF = [
   { fig: 'FIG. 7', desc: 'is a system diagram illustrating the multi-provider API aggregation layer, showing authenticated connections to a plurality of energy providers (Tesla, Enphase, SolarEdge, Wallbox) and transportation data sources.' },
   { fig: 'FIG. 8', desc: 'is a diagram illustrating the cross-platform double-mint prevention mechanism, showing how the Device Watermark Registry prevents the same physical energy unit from being tokenized across competing platforms.' },
   { fig: 'FIG. 9', desc: 'is a flowchart illustrating the dual-mode autonomous driving telemetry verification system, showing separate watermark tracking and delta computation for FSD Supervised and FSD Unsupervised driving miles obtained via manufacturer API endpoints.' },
+  { fig: 'FIG. 10', desc: 'is a system diagram illustrating the alternative hardware embodiment, showing IoT sensors, smart meters, and dedicated measurement devices providing activity data to the verification engine as an alternative or supplement to API-based data collection.' },
+  { fig: 'FIG. 11', desc: 'is a system diagram illustrating the token exchange integration architecture, showing the flow of verified tokens from user wallets through exchange APIs to decentralized and centralized trading platforms for liquidity and monetization.' },
+  { fig: 'FIG. 12', desc: 'is a system diagram illustrating the NFT marketplace integration, showing how milestone NFTs with embedded provenance metadata are listed, transferred, and traded on compatible marketplace platforms.' },
 ];
 
 const DETAILED_DESCRIPTION = {
@@ -108,6 +111,31 @@ const DETAILED_DESCRIPTION = {
       `FSD Supervised Mode: In the supervised autonomous driving mode, the vehicle operates with autonomous steering, acceleration, and braking capabilities while requiring a human driver to maintain attentiveness and readiness to intervene. The system retrieves supervised driving telemetry from the vehicle manufacturer's API endpoint, said telemetry comprising: miles driven in supervised autonomous mode, engagement timestamps, disengagement events, and route metadata. The verification engine applies the Proof-of-Delta™ method to supervised miles independently, maintaining a separate device-bound watermark W_supervised for each vehicle identified by its manufacturer-assigned VIN via the Proof-of-Origin™ device hash.`,
       `FSD Unsupervised Mode: In the unsupervised autonomous driving mode, the vehicle operates with full autonomous capability without requiring human driver attention or intervention readiness. The system retrieves unsupervised driving telemetry through a distinct API endpoint or data field classification provided by the vehicle manufacturer. A separate device-bound watermark W_unsupervised is maintained for each vehicle, enabling independent delta computation and token issuance for unsupervised miles. This separation ensures that supervised and unsupervised miles are never conflated and each driving mode maintains its own tamper-evident SHA-256 hash chain.`,
       `The dual-mode architecture additionally supports future robotaxi fleet telemetry, wherein vehicles operating in commercial autonomous ride-hailing service generate tokenizable miles classified under the unsupervised mode with additional fleet operator metadata. The system's hardware-agnostic design requires no aftermarket sensors—all telemetry is obtained through the vehicle manufacturer's authenticated API endpoints using the same OAuth 2.0 protocols employed by the SEGI API aggregation layer.`,
+    ],
+  },
+  hardwareFallback: {
+    title: 'VII. Alternative Hardware Embodiment',
+    paragraphs: [
+      `Referring now to FIG. 10, in an alternative embodiment, the system's API aggregation layer is supplemented or replaced by direct hardware-based data collection. In this embodiment, one or more measurement devices—including but not limited to IoT sensors, smart meters, dedicated energy monitors, or manufacturer-installed telemetry units—are installed in or connected to the physical energy system, electric vehicle, battery storage unit, or EV charging station to directly measure activity data.`,
+      `The measurement device transmits activity readings to the SEGI data normalization layer via a local network connection (e.g., Wi-Fi, Bluetooth, Zigbee, or wired Ethernet), a cellular data connection, or a manufacturer-provided cloud relay. The data normalization layer processes hardware-sourced readings using the same conversion factors and normalization logic applied to API-sourced data, producing an equivalent normalized impact score.`,
+      `Critically, the verification engine applies identical Proof-of-Delta™ and Proof-of-Origin™ methods to hardware-sourced data as to API-sourced data. The device-bound watermark, SHA-256 hash chain, and Device Watermark Registry operate identically regardless of the data source. This ensures that a device may transition between API-based and hardware-based data collection (e.g., if a manufacturer discontinues API access) without disrupting the cryptographic proof chain or requiring re-registration of the device.`,
+      `In a hybrid embodiment, the system receives data from both API endpoints and hardware sensors for the same device, applying a configurable conflict resolution policy (e.g., preferring manufacturer API data when available, falling back to hardware sensor data during API outages) to maintain continuous verification coverage.`,
+    ],
+  },
+  tokenExchange: {
+    title: 'VIII. Token Exchange Integration',
+    paragraphs: [
+      `Referring now to FIG. 11, the system provides integration pathways enabling users and entities to monetize, trade, or redeem their verified tokens through external exchange platforms. The smart contract bridge (Layer 4) implements standard token interfaces (e.g., ERC-20 for fungible tokens) ensuring compatibility with decentralized exchanges (DEXs) and centralized cryptocurrency exchanges.`,
+      `The system includes an embedded wallet interface providing users with secure custody of earned tokens without requiring external browser extensions, seed phrase management, or third-party wallet software. When a user or entity elects to monetize their tokens, the wallet interface facilitates transfer to connected exchange platforms where tokens may be traded against other digital assets or fiat currency through supported on-ramp/off-ramp providers.`,
+      `For decentralized exchange integration, the system supports automated market maker (AMM) liquidity pools wherein token holders may provide liquidity and earn additional yield. The token's verification-backed scarcity—arising from the Mint-on-Proof™ method's demand-driven supply—creates an inherent value proposition distinct from speculatively-issued tokens.`,
+    ],
+  },
+  nftMarketplace: {
+    title: 'IX. NFT Marketplace Integration',
+    paragraphs: [
+      `Referring now to FIG. 12, milestone NFTs minted by the system (as described in Section V) are implemented using standard non-fungible token interfaces (e.g., ERC-721 or ERC-1155) ensuring compatibility with existing NFT marketplace platforms. Each milestone NFT contains embedded metadata comprising: the activity type, cumulative threshold value, verification timestamp, the hash of the Proof-of-Delta™ proof at the time of achievement, and the Proof-of-Origin™ device hash linking the achievement to a specific physical device.`,
+      `This embedded provenance metadata distinguishes milestone NFTs from conventional digital collectibles by providing cryptographically verifiable proof that the NFT represents a real-world achievement backed by verified physical activity. Users and entities may list, transfer, sell, or auction their milestone NFTs on compatible marketplace platforms, with the embedded metadata serving as immutable proof of authenticity and provenance.`,
+      `The system further supports organizational and fleet-level NFT achievements, wherein a commercial entity operating multiple devices across multiple sites may earn aggregate milestone NFTs representing collective verified activity across their entire portfolio of clean energy assets.`,
     ],
   },
 };
@@ -212,6 +240,31 @@ generate a cryptographic proof P_unsupervised = SHA-256(device_hash | timestamp 
 atomically update W_unsupervised upon successful token issuance;
 wherein said system further supports classification of commercial robotaxi fleet miles under the unsupervised mode with additional fleet operator metadata encoded in the cryptographic proof.`,
   },
+  {
+    number: 11,
+    type: 'dependent' as const,
+    text: `The system of claim 1, wherein said API aggregation layer is alternatively or additionally configured to receive activity data from one or more hardware measurement devices comprising IoT sensors, smart meters, or dedicated energy monitors connected to the physical device, said hardware measurement devices transmitting activity readings via local network, cellular, or manufacturer cloud relay connections;
+wherein said verification engine applies identical Proof-of-Delta and Proof-of-Origin methods to hardware-sourced activity data as to API-sourced data;
+wherein said device-bound watermark and SHA-256 hash chain operate identically regardless of data source; and
+wherein a device may transition between API-based and hardware-based data collection without disrupting said cryptographic proof chain.`,
+  },
+  {
+    number: 12,
+    type: 'dependent' as const,
+    text: `The system of claim 1, further comprising an exchange integration subsystem configured to:
+enable transfer of minted tokens from an embedded user wallet to external decentralized or centralized exchange platforms via standard token interfaces;
+facilitate monetization of verified tokens through supported trading pairs and fiat on-ramp/off-ramp providers; and
+support automated market maker (AMM) liquidity pool participation wherein token holders may provide liquidity.`,
+  },
+  {
+    number: 13,
+    type: 'dependent' as const,
+    text: `The system of claim 7, further comprising an NFT marketplace integration subsystem configured to:
+implement milestone NFTs using standard non-fungible token interfaces compatible with existing marketplace platforms;
+embed within each milestone NFT provenance metadata comprising activity type, cumulative threshold value, verification timestamp, the hash of the most recent Proof-of-Delta cryptographic proof, and the Proof-of-Origin device hash;
+enable listing, transfer, sale, or auction of milestone NFTs on compatible marketplace platforms; and
+support organizational and fleet-level aggregate milestone NFTs representing collective verified activity across a plurality of devices operated by a single entity.`,
+  },
 ];
 
 const ABSTRACT = `A computer-implemented system and method for tokenizing verified real-world activity using a four-layer Software-Enabled Gateway Interface (SEGI) architecture. The system comprises an API aggregation layer connecting to third-party data sources via OAuth 2.0 without proprietary hardware, a data normalization layer producing unified impact scores, a verification engine implementing SHA-256 hash chain proofs with device-bound watermarks, and a smart contract bridge for conditional blockchain token minting. The system employs three novel verification methods: Mint-on-Proof (verification-gated issuance preventing pre-minted pools), Proof-of-Delta (incremental cryptographic verification preventing double-tokenization), and Proof-of-Origin (a Device Watermark Registry using keccak256 hardware hashes with Merkle root snapshots for cross-platform auditability). The invention is domain-agnostic and applicable to both residential and commercial deployments, supporting any measurable real-world activity verifiable through third-party APIs.`;
@@ -302,7 +355,7 @@ export default function AdminUtilityPatentDraft() {
                 { item: 'Detailed Description', done: true },
                 { item: 'Claims (Independent + Dependent)', done: true },
                 { item: 'Abstract of the Disclosure', done: true },
-                { item: 'Formal Drawings (9 Figures)', done: false },
+                { item: 'Formal Drawings (12 Figures)', done: false },
                 { item: 'Oath/Declaration', done: false },
                 { item: 'Filing Fees (USPTO)', done: false },
               ].map(({ item, done }) => (
