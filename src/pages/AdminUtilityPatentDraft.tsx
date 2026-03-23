@@ -152,7 +152,7 @@ atomically updating said watermark W ← R upon successful token issuance.`,
   {
     number: 4,
     type: 'dependent' as const,
-    text: `The system of claim 1, wherein said deterministic cryptographic hash for each physical device is computed as keccak256(manufacturer_id | device_id), wherein manufacturer_id comprises a manufacturer-assigned identifier and device_id comprises a unique device serial number, VIN, or site identifier, and wherein said watermark persists against said device hash independently of user account ownership.`,
+    text: `The system of claim 1, wherein said deterministic cryptographic hash for each physical device is computed as keccak256(manufacturer_id | device_id), wherein manufacturer_id comprises a manufacturer-assigned identifier and device_id comprises a unique device serial number, VIN, or site identifier, and wherein said watermark persists against said device hash independently of user account or business entity ownership.`,
   },
   {
     number: 5,
