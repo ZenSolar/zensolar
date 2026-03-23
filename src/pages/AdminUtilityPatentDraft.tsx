@@ -276,6 +276,39 @@ const USPTO_FORM_RESPONSES = {
   existingProblems: `No existing system provides ongoing, market-driven financial rewards for the sustained use of clean energy assets after initial purchase incentives expire. Existing blockchain reward and carbon credit systems (e.g., SunContract, Power Ledger, Toucan, Flowcarbon) rely on pre-minted token pools disconnected from real-time activity, use trusted-oracle models without cryptographic verification, require proprietary IoT hardware creating vendor lock-in and adoption barriers, and provide no mechanism to prevent the same kilowatt-hour or mile from being tokenized multiple times across competing platforms. Conventional loyalty and rewards programs (e.g., ChargePoint, EVgo) use centralized points systems that are non-transferable and have no provenance trail.`,
   whyDontWork: `These systems fail because no financial incentive layer exists to reward consumers and businesses for ongoing clean energy utilization once government programs end. Pre-minted tokens sever the provenance link between real activity and digital assets, enabling inflation and speculation. Trusted-oracle verification models are susceptible to data manipulation without cryptographic proof chains. Proprietary hardware requirements create cost barriers and limit adoption to specific device ecosystems. Without device-bound watermark registries, the same physical energy production can be claimed by multiple platforms simultaneously, undermining the integrity of the entire tokenized energy market.`,
   howImproves: `Our invention improves on existing systems by: (1) creating an entirely new, ongoing financial incentive layer for clean energy users that is independent of government tax credits or utility programs; (2) minting tokens exclusively upon cryptographic verification with SHA-256 hash chain proofs, ensuring every token has a 1:1 provenance link to verified activity; (3) preventing double-tokenization through Proof-of-Delta™ incremental watermarks that track cumulative tokenized activity per physical device; (4) binding all records to hardware identifiers via Proof-of-Origin™ device hashes that persist across ownership changes; (5) operating entirely through existing manufacturer APIs without proprietary hardware; and (6) publishing periodic Merkle root snapshots on-chain enabling any third party to independently verify that claimed activity has not been previously tokenized.`,
+  componentList: [
+    { number: 1, name: 'API Communication Module', description: 'OAuth 2.0 authenticated connection handler for third-party manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox)' },
+    { number: 2, name: 'Application Software (SEGI Platform)', description: 'Software-Enabled Gateway Interface application coordinating all system layers' },
+    { number: 3, name: 'Blockchain Network', description: 'Base Layer 2 network on Ethereum for token and NFT transactions' },
+    { number: 4, name: 'Blockchain Smart Contract (Token Minting Contract)', description: 'Smart contract executing conditional, verification-gated token issuance (Mint-on-Proof™)' },
+    { number: 5, name: 'Activity Data Storage Unit', description: 'Database storing raw and normalized activity readings, proof chains, and watermark states' },
+    { number: 6, name: 'Milestone Tracking Algorithm', description: 'Cumulative threshold monitor triggering NFT minting at configurable achievement levels' },
+    { number: 7, name: 'NFT Minting Step', description: 'Process for creating non-fungible tokens encoding achievement metadata and proof hashes' },
+    { number: 8, name: 'User Wallet Interface', description: 'Embedded wallet providing token/NFT custody without external browser extensions or seed phrases' },
+    { number: 9, name: 'Real-Time Data Collection Step', description: 'Process retrieving current activity readings from authenticated API endpoints or hardware sensors' },
+    { number: 10, name: 'Exchange Integration Module', description: 'Interface enabling token transfer to decentralized (DEX) and centralized exchanges for monetization' },
+    { number: 11, name: 'Software-Enabled Gateway Interface (SEGI)', description: 'Four-layer architecture: API Aggregation → Data Normalization → Verification Engine → Smart Contract Bridge' },
+    { number: 12, name: 'Solar Inverter Unit / Energy Production Device', description: 'Residential or commercial solar inverter producing energy data (kWh produced, kWh exported)' },
+    { number: 13, name: 'Security Encryption Layer', description: 'TLS/SSL and OAuth 2.0 session security for API communications and data integrity' },
+    { number: 14, name: 'Token Minting Step (Mint-on-Proof™)', description: 'Verification-gated process minting tokens exclusively upon cryptographic proof validation' },
+    { number: 15, name: 'User/Entity Registration System', description: 'Account creation and device onboarding for residential consumers and commercial entities' },
+    { number: 16, name: 'Business/Homeowner Inverter Gateway', description: 'Manufacturer cloud API endpoint providing energy production and consumption data' },
+    { number: 17, name: 'Third-Party API Integration Layer', description: 'Aggregation interface connecting to Tesla, Enphase, SolarEdge, Wallbox, and future provider APIs' },
+    { number: 18, name: 'Electric Vehicle (EV) Onboard System', description: 'Vehicle telemetry system providing miles driven, charging data, and autonomous driving metrics' },
+    { number: 19, name: 'Battery Storage System', description: 'Residential or commercial battery providing discharge/export data (kWh exported to grid)' },
+    { number: 20, name: 'EV Charger System', description: 'Home or commercial charging station providing session energy data (kWh delivered)' },
+    { number: 21, name: 'NFT Marketplace Integration', description: 'Interface for listing, transferring, and trading milestone NFTs on compatible marketplace platforms' },
+    { number: 22, name: 'Data Normalization Layer', description: 'Conversion engine applying domain-specific factors to produce unified impact scores from heterogeneous metrics' },
+    { number: 23, name: 'Verification Engine (Proof-of-Delta™)', description: 'SHA-256 hash chain generator computing incremental deltas and preventing double-tokenization' },
+    { number: 24, name: 'Device Watermark Registry (Proof-of-Origin™)', description: 'Smart contract mapping device hashes (keccak256) to cumulative tokenized amounts with Merkle root snapshots' },
+    { number: 25, name: 'Device Hash Generator', description: 'Deterministic hash computation: keccak256(manufacturer_id | device_id) binding records to physical hardware' },
+    { number: 26, name: 'Merkle Root Snapshot Publisher', description: 'Periodic on-chain publication of Merkle roots of all device watermarks for cross-platform auditability' },
+    { number: 27, name: 'FSD Supervised Telemetry Module', description: 'Subsystem retrieving and verifying supervised autonomous driving miles with independent watermark W_supervised' },
+    { number: 28, name: 'FSD Unsupervised Telemetry Module', description: 'Subsystem retrieving and verifying unsupervised/robotaxi autonomous driving miles with independent watermark W_unsupervised' },
+    { number: 29, name: 'Hardware Measurement Device (IoT Sensor / Smart Meter)', description: 'Alternative data source: physical sensors directly measuring energy production, consumption, or miles' },
+    { number: 30, name: 'AMM Liquidity Pool Interface', description: 'Automated market maker integration enabling token liquidity provision and trading' },
+    { number: 31, name: 'Mint Burn Mechanism', description: 'Deflationary mechanism applying percentage burn on each mint and transfer transaction' },
+  ],
 };
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
@@ -448,6 +481,32 @@ export default function AdminUtilityPatentDraft() {
               <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howImproves}</p>
               </div>
+            </div>
+
+            {/* Page 3: Items or Steps */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 3 — Items or Steps that Make Up Your Invention</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Numbered components list (copy each into a field)</p>
+                <CopyButton 
+                  text={USPTO_FORM_RESPONSES.componentList.map(c => `Item #${c.number}: ${c.name} — ${c.description}`).join('\n')} 
+                  label="Component list copied" 
+                />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60 space-y-2 max-h-96 overflow-y-auto">
+                {USPTO_FORM_RESPONSES.componentList.map(c => (
+                  <div key={c.number} className="flex items-start gap-3 py-1.5 border-b border-border/30 last:border-0">
+                    <Badge variant="outline" className="text-xs font-mono flex-shrink-0 mt-0.5">#{c.number}</Badge>
+                    <div>
+                      <p className="text-sm font-medium">{c.name}</p>
+                      <p className="text-xs text-muted-foreground">{c.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground italic">Items 1-21 maintain continuity with provisional filing numbering. Items 22-31 are new components added in the non-provisional.</p>
             </div>
           </CardContent>
         </Card>
