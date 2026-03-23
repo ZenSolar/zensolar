@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-const TITLE = "System and Method for Tokenizing and Gamifying Verified Real-World Activity Using Blockchain Technology";
+const TITLE = "System and Method for Tokenizing and Gamifying Verified Clean Energy and Real-World Activity Using Blockchain Technology";
 
 const CROSS_REFERENCE = `This application claims the benefit of U.S. Provisional Application No. 63/XXXXXX, filed [FILING DATE], entitled "Gamifying and Tokenizing Sustainable Behaviors," the entire disclosure of which is incorporated herein by reference.`;
 
