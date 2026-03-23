@@ -316,6 +316,41 @@ export default function AdminUtilityPatentDraft() {
         </Card>
       </motion.div>
 
+      {/* USPTO Form Responses */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }}>
+        <Card className="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-background">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BookOpen className="h-5 w-5 text-blue-500" />
+              USPTO Form Responses
+            </CardTitle>
+            <CardDescription>
+              Ready-to-paste answers for the Patent Center / LegalZoom "Purpose of Your Invention" section.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">What problem does your invention solve?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.problem} label="Problem statement copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.problem}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How does your invention solve the problem?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.solution} label="Solution statement copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.solution}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Application Content */}
       <Accordion type="multiple" defaultValue={['title', 'claims', 'abstract']} className="space-y-4">
         
