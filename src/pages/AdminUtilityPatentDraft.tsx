@@ -326,7 +326,7 @@ const DRAWING_COMPONENT_MAP = [
   { fig: 'FIG. 12', title: 'NFT Marketplace Integration', components: ['#21 NFT Marketplace Integration', '#7 NFT Minting Step', '#8 User Wallet'] },
 ];
 
-
+function CopyButton({ text, label }: { text: string; label?: string }) {
   const { toast } = useToast();
   return (
     <Button
