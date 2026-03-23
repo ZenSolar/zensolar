@@ -272,6 +272,10 @@ const ABSTRACT = `A computer-implemented system and method for tokenizing verifi
 const USPTO_FORM_RESPONSES = {
   problem: `Consumers and businesses that adopt clean energy technologies—solar panels, battery storage, electric vehicle fleets, and autonomous driving platforms—have no ongoing financial incentive to maximize their use after initial government incentives (Solar Investment Tax Credit, EV tax credits, net-metering programs) expire or are repealed. This applies equally to residential homeowners with rooftop solar and commercial operators with large-scale installations or vehicle fleets. Additionally, existing blockchain-based reward systems use pre-minted token pools disconnected from real activity, lack cryptographic mechanisms to prevent the same energy unit from being tokenized twice, require proprietary hardware sensors for data collection, and provide no device-bound audit trail that persists across ownership changes—whether from home sales or business acquisitions.`,
   solution: `The invention provides a hardware-agnostic software gateway (SEGI) that connects to existing manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox) without proprietary hardware, creating ongoing market-driven token rewards for both residential consumers and commercial operators independent of government programs. It mints blockchain tokens only upon cryptographic verification of real activity (Mint-on-Proof™), prevents double-tokenization through incremental device-bound watermarks with SHA-256 hash chains (Proof-of-Delta™), and binds all tokenization records to physical hardware identifiers rather than user or entity accounts using a publicly auditable Device Watermark Registry with on-chain Merkle root snapshots (Proof-of-Origin™). The system scales from individual residential users to large commercial and industrial deployments without architectural modification, supporting multiple activity types including solar production, battery export, EV miles, fleet vehicle telemetry, supervised and unsupervised autonomous driving miles, and charging sessions.`,
+  howDifferent: `Unlike any existing system, our invention cryptographically binds every token to a verified physical activity event at the moment of minting (Mint-on-Proof™), with no pre-minted token pools. It is the only system that prevents cross-platform double-tokenization through device-bound watermarks tracked against hardware identifiers rather than user accounts (Proof-of-Origin™), and it achieves this entirely through existing manufacturer APIs without requiring proprietary hardware—supporting both residential and commercial deployments across solar, battery, EV, and autonomous driving activity types.`,
+  existingProblems: `Existing blockchain reward and carbon credit systems (e.g., SunContract, Power Ledger, Toucan, Flowcarbon) rely on pre-minted token pools disconnected from real-time activity, use trusted-oracle models without cryptographic verification, require proprietary IoT hardware creating vendor lock-in and adoption barriers, and provide no mechanism to prevent the same kilowatt-hour or mile from being tokenized multiple times across competing platforms. Conventional loyalty and rewards programs (e.g., ChargePoint, EVgo) use centralized points systems that are non-transferable and have no provenance trail.`,
+  whyDontWork: `These systems fail because pre-minted tokens sever the provenance link between real activity and digital assets, enabling inflation and speculation. Trusted-oracle verification models are susceptible to data manipulation without cryptographic proof chains. Proprietary hardware requirements create cost barriers and limit adoption to specific device ecosystems. Without device-bound watermark registries, the same physical energy production can be claimed by multiple platforms simultaneously, undermining the integrity of the entire tokenized energy market.`,
+  howImproves: `Our invention improves on existing systems by: (1) minting tokens exclusively upon cryptographic verification with SHA-256 hash chain proofs, ensuring every token has a 1:1 provenance link to verified activity; (2) preventing double-tokenization through Proof-of-Delta™ incremental watermarks that track cumulative tokenized activity per physical device; (3) binding all records to hardware identifiers via Proof-of-Origin™ device hashes that persist across ownership changes; (4) operating entirely through existing manufacturer APIs without proprietary hardware; and (5) publishing periodic Merkle root snapshots on-chain enabling any third party to independently verify that claimed activity has not been previously tokenized.`,
 };
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
@@ -378,10 +382,14 @@ export default function AdminUtilityPatentDraft() {
               USPTO Form Responses
             </CardTitle>
             <CardDescription>
-              Ready-to-paste answers for the Patent Center / LegalZoom "Purpose of Your Invention" section.
+              Ready-to-paste answers for Patent Center / LegalZoom form fields.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Page 1: Purpose of Your Invention */}
+            <div className="space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 1 — Purpose of Your Invention</Badge>
+            </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">What problem does your invention solve?</p>
@@ -398,6 +406,47 @@ export default function AdminUtilityPatentDraft() {
               </div>
               <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.solution}</p>
+              </div>
+            </div>
+
+            {/* Page 2: How Your Invention is an Improvement */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 2 — How Your Invention is an Improvement</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How is your invention different from and better than anything that exists?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howDifferent} label="Differentiation copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howDifferent}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">What are the problems with other devices or systems in the field?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.existingProblems} label="Existing problems copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.existingProblems}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Why don't these devices or systems work well?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.whyDontWork} label="Why they fail copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.whyDontWork}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How does your invention improve on them?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howImproves} label="Improvements copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howImproves}</p>
               </div>
             </div>
           </CardContent>
