@@ -165,7 +165,7 @@ enable third-party verification that any claimed activity range for a specific d
   {
     number: 6,
     type: 'dependent' as const,
-    text: `The system of claim 1, wherein said activity data comprises one or more of: energy production measured in kilowatt-hours, electric vehicle miles driven, battery storage energy exported, electric vehicle charging session energy delivered, autonomous driving miles in supervised mode, autonomous driving miles in unsupervised mode, physical exercise metrics, educational achievement data, gaming progress data, environmental action metrics, or any other measurable activity verifiable through a third-party API or sensor data source.`,
+    text: `The system of claim 1, wherein said activity data comprises one or more of: residential or commercial energy production measured in kilowatt-hours, electric vehicle miles driven, fleet vehicle telemetry, battery storage energy exported, electric vehicle charging session energy delivered, autonomous driving miles in supervised mode, autonomous driving miles in unsupervised mode, physical exercise metrics, educational achievement data, gaming progress data, environmental action metrics, or any other measurable activity verifiable through a third-party API or sensor data source.`,
   },
   {
     number: 7,
