@@ -55,6 +55,9 @@ const DRAWINGS_BRIEF = [
   { fig: 'FIG. 7', desc: 'is a system diagram illustrating the multi-provider API aggregation layer, showing authenticated connections to a plurality of energy providers (Tesla, Enphase, SolarEdge, Wallbox) and transportation data sources.' },
   { fig: 'FIG. 8', desc: 'is a diagram illustrating the cross-platform double-mint prevention mechanism, showing how the Device Watermark Registry prevents the same physical energy unit from being tokenized across competing platforms.' },
   { fig: 'FIG. 9', desc: 'is a flowchart illustrating the dual-mode autonomous driving telemetry verification system, showing separate watermark tracking and delta computation for FSD Supervised and FSD Unsupervised driving miles obtained via manufacturer API endpoints.' },
+  { fig: 'FIG. 10', desc: 'is a system diagram illustrating the alternative hardware embodiment, showing IoT sensors, smart meters, and dedicated measurement devices providing activity data to the verification engine as an alternative or supplement to API-based data collection.' },
+  { fig: 'FIG. 11', desc: 'is a system diagram illustrating the token exchange integration architecture, showing the flow of verified tokens from user wallets through exchange APIs to decentralized and centralized trading platforms for liquidity and monetization.' },
+  { fig: 'FIG. 12', desc: 'is a system diagram illustrating the NFT marketplace integration, showing how milestone NFTs with embedded provenance metadata are listed, transferred, and traded on compatible marketplace platforms.' },
 ];
 
 const DETAILED_DESCRIPTION = {
