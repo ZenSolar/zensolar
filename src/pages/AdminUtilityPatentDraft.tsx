@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PatentPageNavigation } from '@/components/admin/patent/PatentPageNavigation';
+import { PatentDocxExport } from '@/components/admin/patent/PatentDocxExport';
 import { 
   FileText, 
   Scale, 
@@ -252,11 +253,26 @@ export default function AdminUtilityPatentDraft() {
             DRAFT — Not Yet Filed
           </Badge>
         </div>
-        <h1 className="text-3xl font-bold">Utility Patent Application Draft</h1>
-        <p className="text-muted-foreground">
-          Complete non-provisional utility patent application based on provisional filing + current system architecture. 
-          All sections formatted per USPTO requirements (DOCX format required for filing).
-        </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold">Utility Patent Application Draft</h1>
+            <p className="text-muted-foreground mt-1">
+              Complete non-provisional utility patent application based on provisional filing + current system architecture. 
+              All sections formatted per USPTO requirements (DOCX format required for filing).
+            </p>
+          </div>
+          <PatentDocxExport
+            title={TITLE}
+            crossReference={CROSS_REFERENCE}
+            field={FIELD}
+            background={BACKGROUND}
+            summary={SUMMARY}
+            drawingsBrief={DRAWINGS_BRIEF}
+            detailedDescription={DETAILED_DESCRIPTION}
+            claims={CLAIMS}
+            abstract={ABSTRACT}
+          />
+        </div>
       </motion.div>
 
       {/* Filing Checklist */}
