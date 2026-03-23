@@ -277,40 +277,45 @@ const USPTO_FORM_RESPONSES = {
   whyDontWork: `These systems fail because no financial incentive layer exists to reward consumers and businesses for ongoing clean energy utilization once government programs end. Pre-minted tokens sever the provenance link between real activity and digital assets, enabling inflation and speculation. Trusted-oracle verification models are susceptible to data manipulation without cryptographic proof chains. Proprietary hardware requirements create cost barriers and limit adoption to specific device ecosystems. Without device-bound watermark registries, the same physical energy production can be claimed by multiple platforms simultaneously, undermining the integrity of the entire tokenized energy market.`,
   howImproves: `Our invention improves on existing systems by: (1) creating an entirely new, ongoing financial incentive layer for clean energy users that is independent of government tax credits or utility programs; (2) minting tokens exclusively upon cryptographic verification with SHA-256 hash chain proofs, ensuring every token has a 1:1 provenance link to verified activity; (3) preventing double-tokenization through Proof-of-Delta™ incremental watermarks that track cumulative tokenized activity per physical device; (4) binding all records to hardware identifiers via Proof-of-Origin™ device hashes that persist across ownership changes; (5) operating entirely through existing manufacturer APIs without proprietary hardware; and (6) publishing periodic Merkle root snapshots on-chain enabling any third party to independently verify that claimed activity has not been previously tokenized.`,
   componentList: [
-    // === HARDWARE / DATA SOURCES (Physical Layer) ===
-    { number: 1, name: 'Solar Inverter Unit / Energy Production Device', description: 'Residential or commercial solar inverter producing energy data (kWh produced, kWh exported)' },
-    { number: 2, name: 'Battery Storage System', description: 'Residential or commercial battery providing discharge/export data (kWh exported to grid)' },
-    { number: 3, name: 'Electric Vehicle (EV) Onboard System', description: 'Vehicle telemetry system providing miles driven, charging data, and autonomous driving metrics' },
-    { number: 4, name: 'EV Charger System', description: 'Home or commercial charging station providing session energy data (kWh delivered)' },
-    { number: 5, name: 'Hardware Measurement Device (IoT Sensor / Smart Meter)', description: 'Alternative data source: physical sensors directly measuring energy production, consumption, or miles when API access is unavailable' },
-    // === DATA COLLECTION & COMMUNICATION ===
-    { number: 6, name: 'Business/Homeowner Inverter Gateway', description: 'Manufacturer cloud API endpoint providing energy production and consumption data' },
-    { number: 7, name: 'API Communication Module', description: 'OAuth 2.0 authenticated connection handler for third-party manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox)' },
-    { number: 8, name: 'Security Encryption Layer', description: 'TLS/SSL and OAuth 2.0 session security for API communications and data integrity' },
-    { number: 9, name: 'Real-Time Data Collection Step', description: 'Process retrieving current activity readings from authenticated API endpoints or hardware sensors' },
-    { number: 10, name: 'Third-Party API Integration Layer', description: 'Aggregation interface connecting to Tesla, Enphase, SolarEdge, Wallbox, and future provider APIs' },
-    // === SEGI PLATFORM (Processing Layer) ===
-    { number: 11, name: 'Application Software (SEGI Platform)', description: 'Software-Enabled Gateway Interface application coordinating all system layers' },
-    { number: 12, name: 'Software-Enabled Gateway Interface (SEGI)', description: 'Four-layer architecture: API Aggregation → Data Normalization → Verification Engine → Smart Contract Bridge' },
-    { number: 13, name: 'Data Normalization Layer', description: 'Conversion engine applying domain-specific factors to produce unified impact scores from heterogeneous metrics' },
-    { number: 14, name: 'Activity Data Storage Unit', description: 'Database storing raw and normalized activity readings, proof chains, and watermark states' },
-    // === VERIFICATION (Proof Layer) ===
-    { number: 15, name: 'Verification Engine (Proof-of-Delta™)', description: 'SHA-256 hash chain generator computing incremental deltas and preventing double-tokenization' },
-    { number: 16, name: 'Device Hash Generator', description: 'Deterministic hash computation: keccak256(manufacturer_id | device_id) binding records to physical hardware' },
-    { number: 17, name: 'Device Watermark Registry (Proof-of-Origin™)', description: 'Smart contract mapping device hashes (keccak256) to cumulative tokenized amounts with Merkle root snapshots' },
-    { number: 18, name: 'Merkle Root Snapshot Publisher', description: 'Periodic on-chain publication of Merkle roots of all device watermarks for cross-platform auditability' },
-    { number: 19, name: 'FSD Supervised Telemetry Module', description: 'Subsystem retrieving and verifying supervised autonomous driving miles with independent watermark W_supervised' },
-    { number: 20, name: 'FSD Unsupervised Telemetry Module', description: 'Subsystem retrieving and verifying unsupervised/robotaxi autonomous driving miles with independent watermark W_unsupervised' },
-    // === BLOCKCHAIN & MINTING (Output Layer) ===
-    { number: 21, name: 'Blockchain Network', description: 'Base Layer 2 network on Ethereum for token and NFT transactions' },
-    { number: 22, name: 'Blockchain Smart Contract (Token Minting Contract)', description: 'Smart contract executing conditional, verification-gated token issuance (Mint-on-Proof™)' },
-    { number: 23, name: 'Token Minting Step (Mint-on-Proof™)', description: 'Verification-gated process minting tokens exclusively upon cryptographic proof validation' },
-    { number: 24, name: 'Milestone Tracking Algorithm', description: 'Cumulative threshold monitor triggering NFT minting at configurable achievement levels' },
-    { number: 25, name: 'NFT Minting Step', description: 'Process for creating non-fungible tokens encoding achievement metadata and proof hashes, triggered alongside or immediately after token minting' },
-    { number: 26, name: 'Mint Burn Mechanism', description: 'Deflationary mechanism applying percentage burn on each mint and transfer transaction' },
-    // === USER-FACING & MONETIZATION ===
-    { number: 27, name: 'User/Entity Registration System', description: 'Account creation and device onboarding for residential consumers and commercial entities' },
-    { number: 28, name: 'User Wallet Interface', description: 'Embedded wallet providing token/NFT custody without external browser extensions or seed phrases' },
+    // === STEP 1: USER REGISTRATION ===
+    { number: 1, name: 'User/Entity Registration System', description: 'Account creation and device onboarding for residential consumers and commercial entities' },
+    { number: 2, name: 'User Wallet Interface', description: 'Embedded wallet (Coinbase Smart Wallet) auto-created at signup providing token/NFT custody without external browser extensions or seed phrases' },
+    // === STEP 2: DEVICE CONNECTION (Hardware + OAuth) ===
+    { number: 3, name: 'Solar Inverter Unit / Energy Production Device', description: 'Residential or commercial solar inverter producing energy data (kWh produced, kWh exported)' },
+    { number: 4, name: 'Battery Storage System', description: 'Residential or commercial battery providing discharge/export data (kWh exported to grid)' },
+    { number: 5, name: 'Electric Vehicle (EV) Onboard System', description: 'Vehicle telemetry system providing miles driven, charging data, and autonomous driving metrics' },
+    { number: 6, name: 'EV Charger System', description: 'Home or commercial charging station providing session energy data (kWh delivered)' },
+    { number: 7, name: 'Hardware Measurement Device (IoT Sensor / Smart Meter)', description: 'Alternative data source: physical sensors directly measuring energy production, consumption, or miles when API access is unavailable' },
+    { number: 8, name: 'Business/Homeowner Inverter Gateway', description: 'Manufacturer cloud API endpoint providing energy production and consumption data' },
+    { number: 9, name: 'API Communication Module', description: 'OAuth 2.0 authenticated connection handler for third-party manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox)' },
+    { number: 10, name: 'Security Encryption Layer', description: 'TLS/SSL and OAuth 2.0 session security for API communications and data integrity' },
+    { number: 11, name: 'Third-Party API Integration Layer', description: 'Aggregation interface connecting to Tesla, Enphase, SolarEdge, Wallbox, and future provider APIs' },
+    // === STEP 3: BASELINE CAPTURE ===
+    { number: 12, name: 'Activity Data Storage Unit', description: 'Database storing raw and normalized activity readings, baseline snapshots, proof chains, and watermark states' },
+    // === STEP 4: REAL-TIME DATA COLLECTION VIA SEGI ===
+    { number: 13, name: 'Real-Time Data Collection Step', description: 'Process retrieving current activity readings from authenticated API endpoints or hardware sensors' },
+    { number: 14, name: 'Application Software (SEGI Platform)', description: 'Software-Enabled Gateway Interface application coordinating all system layers' },
+    { number: 15, name: 'Software-Enabled Gateway Interface (SEGI)', description: 'Four-layer architecture: API Aggregation → Data Normalization → Verification Engine → Smart Contract Bridge' },
+    // === STEP 5: DATA NORMALIZATION ===
+    { number: 16, name: 'Data Normalization Layer', description: 'Conversion engine applying domain-specific factors to produce unified impact scores (kWh, miles) from heterogeneous manufacturer metrics' },
+    // === STEP 6: VERIFICATION (Proof Layer) ===
+    { number: 17, name: 'Verification Engine (Proof-of-Delta™)', description: 'SHA-256 hash chain generator computing incremental deltas between current readings and baseline, preventing double-tokenization' },
+    { number: 18, name: 'Device Hash Generator', description: 'Deterministic hash computation: keccak256(manufacturer_id | device_id) binding records to physical hardware (VIN, Site ID, serial number)' },
+    { number: 19, name: 'Device Watermark Registry (Proof-of-Origin™)', description: 'Smart contract mapping device hashes (keccak256) to cumulative tokenized amounts with Merkle root snapshots' },
+    { number: 20, name: 'Merkle Root Snapshot Publisher', description: 'Periodic on-chain publication of Merkle roots of all device watermarks for cross-platform auditability' },
+    { number: 21, name: 'FSD Supervised Telemetry Module', description: 'Subsystem retrieving and verifying supervised autonomous driving miles with independent watermark W_supervised' },
+    { number: 22, name: 'FSD Unsupervised Telemetry Module', description: 'Subsystem retrieving and verifying unsupervised/robotaxi autonomous driving miles with independent watermark W_unsupervised' },
+    // === STEP 7-8: TOKEN MINTING ===
+    { number: 23, name: 'Blockchain Network', description: 'Base Layer 2 network on Ethereum for token and NFT transactions' },
+    { number: 24, name: 'Blockchain Smart Contract (Token Minting Contract)', description: 'Smart contract executing conditional, verification-gated token issuance (Mint-on-Proof™)' },
+    { number: 25, name: 'Token Minting Step (Mint-on-Proof™)', description: 'Verification-gated process minting tokens exclusively upon cryptographic proof validation; 1 kWh = 1 $ZSOLAR, 1 mile = 1 $ZSOLAR' },
+    { number: 26, name: 'Mint Burn Mechanism', description: 'Deflationary mechanism applying 20% burn on each mint and 3.5% transfer tax on transactions' },
+    // === STEP 9: NFT MINTING (alongside token minting) ===
+    { number: 27, name: 'Milestone Tracking Algorithm', description: 'Cumulative threshold monitor evaluating lifetime totals against configurable achievement levels across 4 categories' },
+    { number: 28, name: 'NFT Minting Step', description: 'Process for creating non-fungible tokens encoding achievement metadata and proof hashes, triggered alongside token minting when milestones are reached' },
+    // === STEP 10: BASELINE RESET (cycle restarts at Step 4) ===
+    // (Handled within Activity Data Storage Unit #12 — baselines reset to current values after successful mint)
+    // === STEP 11-12: MONETIZATION ===
     { number: 29, name: 'Exchange Integration Module', description: 'Interface enabling token transfer to decentralized (DEX) and centralized exchanges for monetization' },
     { number: 30, name: 'NFT Marketplace Integration', description: 'Interface for listing, transferring, and trading milestone NFTs on compatible marketplace platforms' },
     { number: 31, name: 'AMM Liquidity Pool Interface', description: 'Automated market maker integration enabling token liquidity provision and trading' },
@@ -318,18 +323,18 @@ const USPTO_FORM_RESPONSES = {
 };
 
 const DRAWING_COMPONENT_MAP = [
-  { fig: 'FIG. 1', title: 'SEGI 4-Layer Architecture Block Diagram', components: ['#11 SEGI Platform', '#12 SEGI Architecture', '#7 API Communication Module', '#13 Data Normalization Layer', '#15 Verification Engine', '#22 Smart Contract', '#21 Blockchain Network', '#17 Device Watermark Registry'] },
-  { fig: 'FIG. 2', title: 'Mint-on-Proof™ Token Issuance Flowchart', components: ['#9 Real-Time Data Collection', '#13 Data Normalization', '#15 Verification Engine', '#23 Token Minting Step', '#22 Smart Contract', '#28 User Wallet'] },
-  { fig: 'FIG. 3', title: 'Proof-of-Delta™ Verification Data Flow', components: ['#15 Verification Engine', '#16 Device Hash Generator', '#14 Activity Data Storage', '#23 Token Minting Step'] },
-  { fig: 'FIG. 4', title: 'Proof-of-Origin™ Device Watermark Registry', components: ['#17 Device Watermark Registry', '#16 Device Hash Generator', '#18 Merkle Root Publisher', '#21 Blockchain Network'] },
-  { fig: 'FIG. 5', title: 'End-to-End User Flow (Connect → Mint)', components: ['#27 Registration System', '#7 API Communication', '#8 Security Layer', '#9 Data Collection', '#13 Normalization', '#15 Verification', '#23 Token Minting', '#25 NFT Minting', '#28 Wallet'] },
-  { fig: 'FIG. 6', title: 'Milestone NFT Issuance System', components: ['#24 Milestone Tracking Algorithm', '#25 NFT Minting Step', '#14 Activity Data Storage', '#28 User Wallet'] },
-  { fig: 'FIG. 7', title: 'Multi-Provider API Aggregation Layer', components: ['#7 API Communication Module', '#10 Third-Party API Layer', '#6 Inverter Gateway', '#3 EV Onboard System', '#2 Battery Storage', '#4 EV Charger', '#1 Solar Inverter'] },
-  { fig: 'FIG. 8', title: 'Cross-Platform Double-Mint Prevention', components: ['#17 Device Watermark Registry', '#15 Verification Engine', '#16 Device Hash Generator', '#18 Merkle Root Publisher'] },
-  { fig: 'FIG. 9', title: 'FSD Dual-Mode Telemetry Verification', components: ['#19 FSD Supervised Module', '#20 FSD Unsupervised Module', '#3 EV Onboard System', '#15 Verification Engine', '#23 Token Minting'] },
-  { fig: 'FIG. 10', title: 'Hardware Fallback (IoT/Smart Meter)', components: ['#5 Hardware Measurement Device', '#1 Solar Inverter', '#2 Battery Storage', '#15 Verification Engine'] },
-  { fig: 'FIG. 11', title: 'Token Exchange Integration', components: ['#29 Exchange Integration Module', '#31 AMM Liquidity Pool', '#28 User Wallet', '#26 Mint Burn Mechanism'] },
-  { fig: 'FIG. 12', title: 'NFT Marketplace Integration', components: ['#30 NFT Marketplace Integration', '#25 NFT Minting Step', '#28 User Wallet'] },
+  { fig: 'FIG. 1', title: 'SEGI 4-Layer Architecture Block Diagram', components: ['#14 SEGI Platform', '#15 SEGI Architecture', '#9 API Communication Module', '#16 Data Normalization Layer', '#17 Verification Engine', '#24 Smart Contract', '#23 Blockchain Network', '#19 Device Watermark Registry'] },
+  { fig: 'FIG. 2', title: 'Mint-on-Proof™ Token Issuance Flowchart', components: ['#13 Real-Time Data Collection', '#16 Data Normalization', '#17 Verification Engine', '#25 Token Minting Step', '#24 Smart Contract', '#2 User Wallet'] },
+  { fig: 'FIG. 3', title: 'Proof-of-Delta™ Verification Data Flow', components: ['#17 Verification Engine', '#18 Device Hash Generator', '#12 Activity Data Storage', '#25 Token Minting Step'] },
+  { fig: 'FIG. 4', title: 'Proof-of-Origin™ Device Watermark Registry', components: ['#19 Device Watermark Registry', '#18 Device Hash Generator', '#20 Merkle Root Publisher', '#23 Blockchain Network'] },
+  { fig: 'FIG. 5', title: 'End-to-End User Flow (Register → Connect → Mint → Wallet)', components: ['#1 Registration System', '#9 API Communication', '#10 Security Layer', '#13 Data Collection', '#16 Normalization', '#17 Verification', '#25 Token Minting', '#28 NFT Minting', '#2 Wallet'] },
+  { fig: 'FIG. 6', title: 'Milestone NFT Issuance System', components: ['#27 Milestone Tracking Algorithm', '#28 NFT Minting Step', '#12 Activity Data Storage', '#2 User Wallet'] },
+  { fig: 'FIG. 7', title: 'Multi-Provider API Aggregation Layer', components: ['#9 API Communication Module', '#11 Third-Party API Layer', '#8 Inverter Gateway', '#5 EV Onboard System', '#4 Battery Storage', '#6 EV Charger', '#3 Solar Inverter'] },
+  { fig: 'FIG. 8', title: 'Cross-Platform Double-Mint Prevention', components: ['#19 Device Watermark Registry', '#17 Verification Engine', '#18 Device Hash Generator', '#20 Merkle Root Publisher'] },
+  { fig: 'FIG. 9', title: 'FSD Dual-Mode Telemetry Verification', components: ['#21 FSD Supervised Module', '#22 FSD Unsupervised Module', '#5 EV Onboard System', '#17 Verification Engine', '#25 Token Minting'] },
+  { fig: 'FIG. 10', title: 'Hardware Fallback (IoT/Smart Meter)', components: ['#7 Hardware Measurement Device', '#3 Solar Inverter', '#4 Battery Storage', '#17 Verification Engine'] },
+  { fig: 'FIG. 11', title: 'Token Exchange Integration', components: ['#29 Exchange Integration Module', '#31 AMM Liquidity Pool', '#2 User Wallet', '#26 Mint Burn Mechanism'] },
+  { fig: 'FIG. 12', title: 'NFT Marketplace Integration', components: ['#30 NFT Marketplace Integration', '#28 NFT Minting Step', '#2 User Wallet'] },
 ];
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
