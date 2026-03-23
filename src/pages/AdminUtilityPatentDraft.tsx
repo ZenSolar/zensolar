@@ -98,7 +98,7 @@ const DETAILED_DESCRIPTION = {
   milestoneNFT: {
     title: 'V. Milestone NFT Issuance',
     paragraphs: [
-      `Referring to FIG. 6, the system monitors cumulative verified activity for each user against configurable threshold values. Upon crossing a threshold (e.g., 1,000 kWh produced, 10,000 EV miles driven), the system triggers a non-fungible token (NFT) minting transaction encoding achievement metadata including: activity type, threshold value, verification timestamp, cumulative activity at time of achievement, and the hash of the most recent Proof-of-Delta™ proof at the time of threshold crossing.`,
+      `Referring to FIG. 6, the system monitors cumulative verified activity for each user or entity against configurable threshold values. Upon crossing a threshold (e.g., 1,000 kWh produced for a residential user, 100,000 kWh for a commercial installation, 10,000 EV miles driven for an individual or fleet vehicle), the system triggers a non-fungible token (NFT) minting transaction encoding achievement metadata including: activity type, threshold value, verification timestamp, cumulative activity at time of achievement, and the hash of the most recent Proof-of-Delta™ proof at the time of threshold crossing.`,
     ],
   },
   autonomousDriving: {
