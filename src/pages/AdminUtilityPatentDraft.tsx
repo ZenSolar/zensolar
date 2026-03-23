@@ -171,7 +171,7 @@ enable third-party verification that any claimed activity range for a specific d
     number: 7,
     type: 'dependent' as const,
     text: `The system of claim 1, further comprising a milestone monitoring subsystem configured to:
-monitor cumulative verified activity for each user against configurable threshold values;
+monitor cumulative verified activity for each user or entity against configurable threshold values;
 trigger a non-fungible token (NFT) minting transaction upon a threshold crossing; and
 encode within said NFT achievement metadata including activity type, threshold value, verification timestamp, and the hash of the most recent cryptographic proof at the time of threshold crossing.`,
   },
