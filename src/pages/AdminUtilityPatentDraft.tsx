@@ -318,18 +318,18 @@ const USPTO_FORM_RESPONSES = {
 };
 
 const DRAWING_COMPONENT_MAP = [
-  { fig: 'FIG. 1', title: 'SEGI 4-Layer Architecture Block Diagram', components: ['#2 SEGI Platform', '#11 SEGI Architecture', '#1 API Communication Module', '#22 Data Normalization Layer', '#23 Verification Engine', '#4 Smart Contract', '#3 Blockchain Network', '#24 Device Watermark Registry'] },
-  { fig: 'FIG. 2', title: 'Mint-on-Proof™ Token Issuance Flowchart', components: ['#9 Real-Time Data Collection', '#22 Data Normalization', '#23 Verification Engine', '#14 Token Minting Step', '#4 Smart Contract', '#8 User Wallet'] },
-  { fig: 'FIG. 3', title: 'Proof-of-Delta™ Verification Data Flow', components: ['#23 Verification Engine', '#25 Device Hash Generator', '#5 Activity Data Storage', '#14 Token Minting Step'] },
-  { fig: 'FIG. 4', title: 'Proof-of-Origin™ Device Watermark Registry', components: ['#24 Device Watermark Registry', '#25 Device Hash Generator', '#26 Merkle Root Publisher', '#3 Blockchain Network'] },
-  { fig: 'FIG. 5', title: 'End-to-End User Flow (Connect → Mint)', components: ['#15 Registration System', '#1 API Communication', '#13 Security Layer', '#9 Data Collection', '#22 Normalization', '#23 Verification', '#14 Minting', '#8 Wallet'] },
-  { fig: 'FIG. 6', title: 'Milestone NFT Issuance System', components: ['#6 Milestone Tracking Algorithm', '#7 NFT Minting Step', '#5 Activity Data Storage', '#8 User Wallet'] },
-  { fig: 'FIG. 7', title: 'Multi-Provider API Aggregation Layer', components: ['#1 API Communication Module', '#17 Third-Party API Layer', '#16 Inverter Gateway', '#18 EV Onboard System', '#19 Battery Storage', '#20 EV Charger', '#12 Solar Inverter'] },
-  { fig: 'FIG. 8', title: 'Cross-Platform Double-Mint Prevention', components: ['#24 Device Watermark Registry', '#23 Verification Engine', '#25 Device Hash Generator', '#26 Merkle Root Publisher'] },
-  { fig: 'FIG. 9', title: 'FSD Dual-Mode Telemetry Verification', components: ['#27 FSD Supervised Module', '#28 FSD Unsupervised Module', '#18 EV Onboard System', '#23 Verification Engine', '#14 Token Minting'] },
-  { fig: 'FIG. 10', title: 'Hardware Fallback (IoT/Smart Meter)', components: ['#29 Hardware Measurement Device', '#12 Solar Inverter', '#19 Battery Storage', '#23 Verification Engine'] },
-  { fig: 'FIG. 11', title: 'Token Exchange Integration', components: ['#10 Exchange Integration Module', '#30 AMM Liquidity Pool', '#8 User Wallet', '#31 Mint Burn Mechanism'] },
-  { fig: 'FIG. 12', title: 'NFT Marketplace Integration', components: ['#21 NFT Marketplace Integration', '#7 NFT Minting Step', '#8 User Wallet'] },
+  { fig: 'FIG. 1', title: 'SEGI 4-Layer Architecture Block Diagram', components: ['#11 SEGI Platform', '#12 SEGI Architecture', '#7 API Communication Module', '#13 Data Normalization Layer', '#15 Verification Engine', '#22 Smart Contract', '#21 Blockchain Network', '#17 Device Watermark Registry'] },
+  { fig: 'FIG. 2', title: 'Mint-on-Proof™ Token Issuance Flowchart', components: ['#9 Real-Time Data Collection', '#13 Data Normalization', '#15 Verification Engine', '#23 Token Minting Step', '#22 Smart Contract', '#28 User Wallet'] },
+  { fig: 'FIG. 3', title: 'Proof-of-Delta™ Verification Data Flow', components: ['#15 Verification Engine', '#16 Device Hash Generator', '#14 Activity Data Storage', '#23 Token Minting Step'] },
+  { fig: 'FIG. 4', title: 'Proof-of-Origin™ Device Watermark Registry', components: ['#17 Device Watermark Registry', '#16 Device Hash Generator', '#18 Merkle Root Publisher', '#21 Blockchain Network'] },
+  { fig: 'FIG. 5', title: 'End-to-End User Flow (Connect → Mint)', components: ['#27 Registration System', '#7 API Communication', '#8 Security Layer', '#9 Data Collection', '#13 Normalization', '#15 Verification', '#23 Token Minting', '#25 NFT Minting', '#28 Wallet'] },
+  { fig: 'FIG. 6', title: 'Milestone NFT Issuance System', components: ['#24 Milestone Tracking Algorithm', '#25 NFT Minting Step', '#14 Activity Data Storage', '#28 User Wallet'] },
+  { fig: 'FIG. 7', title: 'Multi-Provider API Aggregation Layer', components: ['#7 API Communication Module', '#10 Third-Party API Layer', '#6 Inverter Gateway', '#3 EV Onboard System', '#2 Battery Storage', '#4 EV Charger', '#1 Solar Inverter'] },
+  { fig: 'FIG. 8', title: 'Cross-Platform Double-Mint Prevention', components: ['#17 Device Watermark Registry', '#15 Verification Engine', '#16 Device Hash Generator', '#18 Merkle Root Publisher'] },
+  { fig: 'FIG. 9', title: 'FSD Dual-Mode Telemetry Verification', components: ['#19 FSD Supervised Module', '#20 FSD Unsupervised Module', '#3 EV Onboard System', '#15 Verification Engine', '#23 Token Minting'] },
+  { fig: 'FIG. 10', title: 'Hardware Fallback (IoT/Smart Meter)', components: ['#5 Hardware Measurement Device', '#1 Solar Inverter', '#2 Battery Storage', '#15 Verification Engine'] },
+  { fig: 'FIG. 11', title: 'Token Exchange Integration', components: ['#29 Exchange Integration Module', '#31 AMM Liquidity Pool', '#28 User Wallet', '#26 Mint Burn Mechanism'] },
+  { fig: 'FIG. 12', title: 'NFT Marketplace Integration', components: ['#30 NFT Marketplace Integration', '#25 NFT Minting Step', '#28 User Wallet'] },
 ];
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
