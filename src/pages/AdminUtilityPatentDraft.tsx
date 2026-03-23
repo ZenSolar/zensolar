@@ -216,6 +216,11 @@ wherein said system further supports classification of commercial robotaxi fleet
 
 const ABSTRACT = `A computer-implemented system and method for tokenizing verified real-world activity using a four-layer Software-Enabled Gateway Interface (SEGI) architecture. The system comprises an API aggregation layer connecting to third-party data sources via OAuth 2.0 without proprietary hardware, a data normalization layer producing unified impact scores, a verification engine implementing SHA-256 hash chain proofs with device-bound watermarks, and a smart contract bridge for conditional blockchain token minting. The system employs three novel verification methods: Mint-on-Proof (verification-gated issuance preventing pre-minted pools), Proof-of-Delta (incremental cryptographic verification preventing double-tokenization), and Proof-of-Origin (a Device Watermark Registry using keccak256 hardware hashes with Merkle root snapshots for cross-platform auditability). The invention is domain-agnostic and applicable to any measurable real-world activity verifiable through third-party APIs.`;
 
+const USPTO_FORM_RESPONSES = {
+  problem: `Consumers who adopt clean energy technologies—solar panels, battery storage, electric vehicles, and autonomous driving platforms—have no ongoing financial incentive to maximize their use after initial government incentives (Solar Investment Tax Credit, EV tax credits, net-metering programs) expire or are repealed. Additionally, existing blockchain-based reward systems use pre-minted token pools disconnected from real activity, lack cryptographic mechanisms to prevent the same energy unit from being tokenized twice, require proprietary hardware sensors for data collection, and provide no device-bound audit trail that persists across ownership changes.`,
+  solution: `The invention provides a hardware-agnostic software gateway (SEGI) that connects to existing manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox) without proprietary hardware, creating ongoing market-driven token rewards independent of government programs. It mints blockchain tokens only upon cryptographic verification of real activity (Mint-on-Proof™), prevents double-tokenization through incremental device-bound watermarks with SHA-256 hash chains (Proof-of-Delta™), and binds all tokenization records to physical hardware identifiers rather than user accounts using a publicly auditable Device Watermark Registry with on-chain Merkle root snapshots (Proof-of-Origin™). The system supports multiple activity types including solar production, battery export, EV miles, supervised and unsupervised autonomous driving miles, and charging sessions.`,
+};
+
 function CopyButton({ text, label }: { text: string; label?: string }) {
   const { toast } = useToast();
   return (
@@ -306,6 +311,41 @@ export default function AdminUtilityPatentDraft() {
                   {item}
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* USPTO Form Responses */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }}>
+        <Card className="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-background">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BookOpen className="h-5 w-5 text-blue-500" />
+              USPTO Form Responses
+            </CardTitle>
+            <CardDescription>
+              Ready-to-paste answers for the Patent Center / LegalZoom "Purpose of Your Invention" section.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">What problem does your invention solve?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.problem} label="Problem statement copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.problem}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How does your invention solve the problem?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.solution} label="Solution statement copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.solution}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
