@@ -113,6 +113,31 @@ const DETAILED_DESCRIPTION = {
       `The dual-mode architecture additionally supports future robotaxi fleet telemetry, wherein vehicles operating in commercial autonomous ride-hailing service generate tokenizable miles classified under the unsupervised mode with additional fleet operator metadata. The system's hardware-agnostic design requires no aftermarket sensors—all telemetry is obtained through the vehicle manufacturer's authenticated API endpoints using the same OAuth 2.0 protocols employed by the SEGI API aggregation layer.`,
     ],
   },
+  hardwareFallback: {
+    title: 'VII. Alternative Hardware Embodiment',
+    paragraphs: [
+      `Referring now to FIG. 10, in an alternative embodiment, the system's API aggregation layer is supplemented or replaced by direct hardware-based data collection. In this embodiment, one or more measurement devices—including but not limited to IoT sensors, smart meters, dedicated energy monitors, or manufacturer-installed telemetry units—are installed in or connected to the physical energy system, electric vehicle, battery storage unit, or EV charging station to directly measure activity data.`,
+      `The measurement device transmits activity readings to the SEGI data normalization layer via a local network connection (e.g., Wi-Fi, Bluetooth, Zigbee, or wired Ethernet), a cellular data connection, or a manufacturer-provided cloud relay. The data normalization layer processes hardware-sourced readings using the same conversion factors and normalization logic applied to API-sourced data, producing an equivalent normalized impact score.`,
+      `Critically, the verification engine applies identical Proof-of-Delta™ and Proof-of-Origin™ methods to hardware-sourced data as to API-sourced data. The device-bound watermark, SHA-256 hash chain, and Device Watermark Registry operate identically regardless of the data source. This ensures that a device may transition between API-based and hardware-based data collection (e.g., if a manufacturer discontinues API access) without disrupting the cryptographic proof chain or requiring re-registration of the device.`,
+      `In a hybrid embodiment, the system receives data from both API endpoints and hardware sensors for the same device, applying a configurable conflict resolution policy (e.g., preferring manufacturer API data when available, falling back to hardware sensor data during API outages) to maintain continuous verification coverage.`,
+    ],
+  },
+  tokenExchange: {
+    title: 'VIII. Token Exchange Integration',
+    paragraphs: [
+      `Referring now to FIG. 11, the system provides integration pathways enabling users and entities to monetize, trade, or redeem their verified tokens through external exchange platforms. The smart contract bridge (Layer 4) implements standard token interfaces (e.g., ERC-20 for fungible tokens) ensuring compatibility with decentralized exchanges (DEXs) and centralized cryptocurrency exchanges.`,
+      `The system includes an embedded wallet interface providing users with secure custody of earned tokens without requiring external browser extensions, seed phrase management, or third-party wallet software. When a user or entity elects to monetize their tokens, the wallet interface facilitates transfer to connected exchange platforms where tokens may be traded against other digital assets or fiat currency through supported on-ramp/off-ramp providers.`,
+      `For decentralized exchange integration, the system supports automated market maker (AMM) liquidity pools wherein token holders may provide liquidity and earn additional yield. The token's verification-backed scarcity—arising from the Mint-on-Proof™ method's demand-driven supply—creates an inherent value proposition distinct from speculatively-issued tokens.`,
+    ],
+  },
+  nftMarketplace: {
+    title: 'IX. NFT Marketplace Integration',
+    paragraphs: [
+      `Referring now to FIG. 12, milestone NFTs minted by the system (as described in Section V) are implemented using standard non-fungible token interfaces (e.g., ERC-721 or ERC-1155) ensuring compatibility with existing NFT marketplace platforms. Each milestone NFT contains embedded metadata comprising: the activity type, cumulative threshold value, verification timestamp, the hash of the Proof-of-Delta™ proof at the time of achievement, and the Proof-of-Origin™ device hash linking the achievement to a specific physical device.`,
+      `This embedded provenance metadata distinguishes milestone NFTs from conventional digital collectibles by providing cryptographically verifiable proof that the NFT represents a real-world achievement backed by verified physical activity. Users and entities may list, transfer, sell, or auction their milestone NFTs on compatible marketplace platforms, with the embedded metadata serving as immutable proof of authenticity and provenance.`,
+      `The system further supports organizational and fleet-level NFT achievements, wherein a commercial entity operating multiple devices across multiple sites may earn aggregate milestone NFTs representing collective verified activity across their entire portfolio of clean energy assets.`,
+    ],
+  },
 };
 
 const CLAIMS = [
