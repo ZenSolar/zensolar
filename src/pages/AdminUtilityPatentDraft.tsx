@@ -311,6 +311,21 @@ const USPTO_FORM_RESPONSES = {
   ],
 };
 
+const DRAWING_COMPONENT_MAP = [
+  { fig: 'FIG. 1', title: 'SEGI 4-Layer Architecture Block Diagram', components: ['#2 SEGI Platform', '#11 SEGI Architecture', '#1 API Communication Module', '#22 Data Normalization Layer', '#23 Verification Engine', '#4 Smart Contract', '#3 Blockchain Network', '#24 Device Watermark Registry'] },
+  { fig: 'FIG. 2', title: 'Mint-on-Proof™ Token Issuance Flowchart', components: ['#9 Real-Time Data Collection', '#22 Data Normalization', '#23 Verification Engine', '#14 Token Minting Step', '#4 Smart Contract', '#8 User Wallet'] },
+  { fig: 'FIG. 3', title: 'Proof-of-Delta™ Verification Data Flow', components: ['#23 Verification Engine', '#25 Device Hash Generator', '#5 Activity Data Storage', '#14 Token Minting Step'] },
+  { fig: 'FIG. 4', title: 'Proof-of-Origin™ Device Watermark Registry', components: ['#24 Device Watermark Registry', '#25 Device Hash Generator', '#26 Merkle Root Publisher', '#3 Blockchain Network'] },
+  { fig: 'FIG. 5', title: 'End-to-End User Flow (Connect → Mint)', components: ['#15 Registration System', '#1 API Communication', '#13 Security Layer', '#9 Data Collection', '#22 Normalization', '#23 Verification', '#14 Minting', '#8 Wallet'] },
+  { fig: 'FIG. 6', title: 'Milestone NFT Issuance System', components: ['#6 Milestone Tracking Algorithm', '#7 NFT Minting Step', '#5 Activity Data Storage', '#8 User Wallet'] },
+  { fig: 'FIG. 7', title: 'Multi-Provider API Aggregation Layer', components: ['#1 API Communication Module', '#17 Third-Party API Layer', '#16 Inverter Gateway', '#18 EV Onboard System', '#19 Battery Storage', '#20 EV Charger', '#12 Solar Inverter'] },
+  { fig: 'FIG. 8', title: 'Cross-Platform Double-Mint Prevention', components: ['#24 Device Watermark Registry', '#23 Verification Engine', '#25 Device Hash Generator', '#26 Merkle Root Publisher'] },
+  { fig: 'FIG. 9', title: 'FSD Dual-Mode Telemetry Verification', components: ['#27 FSD Supervised Module', '#28 FSD Unsupervised Module', '#18 EV Onboard System', '#23 Verification Engine', '#14 Token Minting'] },
+  { fig: 'FIG. 10', title: 'Hardware Fallback (IoT/Smart Meter)', components: ['#29 Hardware Measurement Device', '#12 Solar Inverter', '#19 Battery Storage', '#23 Verification Engine'] },
+  { fig: 'FIG. 11', title: 'Token Exchange Integration', components: ['#10 Exchange Integration Module', '#30 AMM Liquidity Pool', '#8 User Wallet', '#31 Mint Burn Mechanism'] },
+  { fig: 'FIG. 12', title: 'NFT Marketplace Integration', components: ['#21 NFT Marketplace Integration', '#7 NFT Minting Step', '#8 User Wallet'] },
+];
+
 function CopyButton({ text, label }: { text: string; label?: string }) {
   const { toast } = useToast();
   return (
@@ -506,7 +521,34 @@ export default function AdminUtilityPatentDraft() {
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground italic">Items 1-21 maintain continuity with provisional filing numbering. Items 22-31 are new components added in the non-provisional.</p>
+              <p className="text-xs text-muted-foreground italic">
+                ⚠️ This is UTILITY APPLICATION numbering — independent of the provisional. Drawings will be created from this list. Ensure all items here match the Brief Description of Drawings and Detailed Description references.
+              </p>
+            </div>
+
+            {/* Drawing-to-Component Cross-Reference */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Drawing → Component Cross-Reference (for drawing company)</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Which items appear in each drawing</p>
+                <CopyButton 
+                  text={DRAWING_COMPONENT_MAP.map(d => `${d.fig}: ${d.title}\nComponents shown: ${d.components.join(', ')}`).join('\n\n')} 
+                  label="Drawing map copied" 
+                />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60 space-y-3 max-h-96 overflow-y-auto">
+                {DRAWING_COMPONENT_MAP.map(d => (
+                  <div key={d.fig} className="py-2 border-b border-border/30 last:border-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className="text-xs font-mono flex-shrink-0">{d.fig}</Badge>
+                      <p className="text-sm font-medium">{d.title}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground ml-14">Items shown: {d.components.join(', ')}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
