@@ -382,10 +382,14 @@ export default function AdminUtilityPatentDraft() {
               USPTO Form Responses
             </CardTitle>
             <CardDescription>
-              Ready-to-paste answers for the Patent Center / LegalZoom "Purpose of Your Invention" section.
+              Ready-to-paste answers for Patent Center / LegalZoom form fields.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Page 1: Purpose of Your Invention */}
+            <div className="space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 1 — Purpose of Your Invention</Badge>
+            </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">What problem does your invention solve?</p>
@@ -402,6 +406,47 @@ export default function AdminUtilityPatentDraft() {
               </div>
               <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.solution}</p>
+              </div>
+            </div>
+
+            {/* Page 2: How Your Invention is an Improvement */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 2 — How Your Invention is an Improvement</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How is your invention different from and better than anything that exists?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howDifferent} label="Differentiation copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howDifferent}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">What are the problems with other devices or systems in the field?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.existingProblems} label="Existing problems copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.existingProblems}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Why don't these devices or systems work well?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.whyDontWork} label="Why they fail copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.whyDontWork}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How does your invention improve on them?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howImproves} label="Improvements copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howImproves}</p>
               </div>
             </div>
           </CardContent>
