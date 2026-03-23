@@ -240,6 +240,31 @@ generate a cryptographic proof P_unsupervised = SHA-256(device_hash | timestamp 
 atomically update W_unsupervised upon successful token issuance;
 wherein said system further supports classification of commercial robotaxi fleet miles under the unsupervised mode with additional fleet operator metadata encoded in the cryptographic proof.`,
   },
+  {
+    number: 11,
+    type: 'dependent' as const,
+    text: `The system of claim 1, wherein said API aggregation layer is alternatively or additionally configured to receive activity data from one or more hardware measurement devices comprising IoT sensors, smart meters, or dedicated energy monitors connected to the physical device, said hardware measurement devices transmitting activity readings via local network, cellular, or manufacturer cloud relay connections;
+wherein said verification engine applies identical Proof-of-Delta and Proof-of-Origin methods to hardware-sourced activity data as to API-sourced data;
+wherein said device-bound watermark and SHA-256 hash chain operate identically regardless of data source; and
+wherein a device may transition between API-based and hardware-based data collection without disrupting said cryptographic proof chain.`,
+  },
+  {
+    number: 12,
+    type: 'dependent' as const,
+    text: `The system of claim 1, further comprising an exchange integration subsystem configured to:
+enable transfer of minted tokens from an embedded user wallet to external decentralized or centralized exchange platforms via standard token interfaces;
+facilitate monetization of verified tokens through supported trading pairs and fiat on-ramp/off-ramp providers; and
+support automated market maker (AMM) liquidity pool participation wherein token holders may provide liquidity.`,
+  },
+  {
+    number: 13,
+    type: 'dependent' as const,
+    text: `The system of claim 7, further comprising an NFT marketplace integration subsystem configured to:
+implement milestone NFTs using standard non-fungible token interfaces compatible with existing marketplace platforms;
+embed within each milestone NFT provenance metadata comprising activity type, cumulative threshold value, verification timestamp, the hash of the most recent Proof-of-Delta cryptographic proof, and the Proof-of-Origin device hash;
+enable listing, transfer, sale, or auction of milestone NFTs on compatible marketplace platforms; and
+support organizational and fleet-level aggregate milestone NFTs representing collective verified activity across a plurality of devices operated by a single entity.`,
+  },
 ];
 
 const ABSTRACT = `A computer-implemented system and method for tokenizing verified real-world activity using a four-layer Software-Enabled Gateway Interface (SEGI) architecture. The system comprises an API aggregation layer connecting to third-party data sources via OAuth 2.0 without proprietary hardware, a data normalization layer producing unified impact scores, a verification engine implementing SHA-256 hash chain proofs with device-bound watermarks, and a smart contract bridge for conditional blockchain token minting. The system employs three novel verification methods: Mint-on-Proof (verification-gated issuance preventing pre-minted pools), Proof-of-Delta (incremental cryptographic verification preventing double-tokenization), and Proof-of-Origin (a Device Watermark Registry using keccak256 hardware hashes with Merkle root snapshots for cross-platform auditability). The invention is domain-agnostic and applicable to both residential and commercial deployments, supporting any measurable real-world activity verifiable through third-party APIs.`;
