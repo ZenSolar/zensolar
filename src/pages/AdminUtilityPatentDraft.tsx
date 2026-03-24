@@ -623,6 +623,29 @@ export default function AdminUtilityPatentDraft() {
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howItWorksOverflow}</p>
               </div>
             </div>
+
+            {/* Page 6: How to Make the Invention */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 6 — How to Make the Invention</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How would a person make the invention?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howToMake} label="How to make (Box 1) copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howToMake}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Which elements are necessary? Which are optional? What could be added?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howToMakeElements} label="Elements answer copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howToMakeElements}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
