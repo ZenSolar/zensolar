@@ -682,6 +682,15 @@ export default function AdminUtilityPatentDraft() {
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.canBeUsedDifferently}</p>
               </div>
             </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Can the invention produce a product, device, composition, or other useful item?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.producesProduct} label="Product answer copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.producesProduct}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
