@@ -598,6 +598,29 @@ export default function AdminUtilityPatentDraft() {
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.requiresLogic}</p>
               </div>
             </div>
+
+            {/* Page 5: How Does Your Invention Work? */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 5 — How Does Your Invention Work?</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How do the components work individually and together to perform its desired function?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howItWorks} label="How it works (Box 1) copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howItWorks}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">If you need more space (overflow box)</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howItWorksOverflow} label="How it works (Box 2) copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howItWorksOverflow}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
