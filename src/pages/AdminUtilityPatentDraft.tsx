@@ -564,6 +564,38 @@ export default function AdminUtilityPatentDraft() {
                 ))}
               </div>
             </div>
+
+            {/* Page 4: Relationship Between the Components */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 4 — Relationship Between the Components</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Describe the relationship between your invention's components, elements or steps (use Item Numbers)</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.componentRelationship} label="Relationship (Box 1) copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.componentRelationship}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">If you need more space (overflow box)</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.componentRelationshipOverflow} label="Relationship (Box 2) copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.componentRelationshipOverflow}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Does your invention require logic (gates, if-then relationships, subroutines, etc.)?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.requiresLogic} label="Logic answer copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.requiresLogic}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
