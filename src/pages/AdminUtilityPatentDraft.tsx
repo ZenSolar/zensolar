@@ -649,6 +649,38 @@ export default function AdminUtilityPatentDraft() {
                 <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howToMakeElements}</p>
               </div>
             </div>
+
+            {/* Page 7: How to Use the Invention */}
+            <div className="border-t border-border/60 pt-6 space-y-1 mb-2">
+              <Badge variant="outline" className="text-xs">Page 7 — How to Use the Invention</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">How would a person use the invention to solve the problem?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howToUse} label="How to use (Box 1) copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howToUse}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">If you need more space (overflow box)</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.howToUseOverflow} label="How to use (Box 2) copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.howToUseOverflow}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Can this invention be used in a different way or in another field of technology?</p>
+                <CopyButton text={USPTO_FORM_RESPONSES.canBeUsedDifferently} label="Different use answer copied" />
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/60">
+                <p className="text-sm leading-relaxed">{USPTO_FORM_RESPONSES.canBeUsedDifferently}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
