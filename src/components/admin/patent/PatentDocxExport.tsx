@@ -51,11 +51,12 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
         });
       };
 
-      const sectionHeading = (text: string, level: typeof HeadingLevel[keyof typeof HeadingLevel]) =>
+      // Section heading WITHOUT HeadingLevel to avoid bookmark generation (USPTO warns about bookmarks)
+      const sectionHeading = (text: string, isH1: boolean = true) =>
         new Paragraph({
-          heading: level,
           spacing: { before: 360, after: 200, line: LINE_SPACING },
-          children: [new TextRun({ text, bold: true, font: 'Times New Roman', size: level === HeadingLevel.HEADING_1 ? 28 : 24 })],
+          alignment: isH1 ? AlignmentType.CENTER : AlignmentType.LEFT,
+          children: [new TextRun({ text, bold: true, font: 'Times New Roman', size: isH1 ? 28 : 24 })],
         });
 
       // Build document sections
