@@ -134,18 +134,7 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
               run: { font: 'Times New Roman', size: 24 },
             },
           },
-          paragraphStyles: [
-            {
-              id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-              run: { size: 28, bold: true, font: 'Times New Roman' },
-              paragraph: { spacing: { before: 360, after: 200 }, outlineLevel: 0 },
-            },
-            {
-              id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-              run: { size: 24, bold: true, font: 'Times New Roman' },
-              paragraph: { spacing: { before: 240, after: 200 }, outlineLevel: 1 },
-            },
-          ],
+        
         },
         sections: [{
           properties: {
