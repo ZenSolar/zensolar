@@ -28,18 +28,33 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
       const { saveAs } = await import('file-saver');
 
       const DATE_STR = new Date().toISOString().split('T')[0];
+      const LINE_SPACING = 360; // 1.5x line spacing (USPTO standard)
 
-      // Helper to create a styled paragraph
-      const textPara = (text: string, opts?: { bold?: boolean; spacing?: number }) =>
-        new Paragraph({
-          spacing: { after: opts?.spacing ?? 200, line: 276 },
-          children: [new TextRun({ text, bold: opts?.bold, font: 'Times New Roman', size: 24 })],
+      // Auto-incrementing paragraph counter for [0001] numbering
+      let paraCounter = 0;
+      const nextParaNum = () => {
+        paraCounter++;
+        return `[${String(paraCounter).padStart(4, '0')}]`;
+      };
+
+      // Helper to create a numbered specification paragraph
+      const textPara = (text: string, opts?: { bold?: boolean; spacing?: number; numbered?: boolean }) => {
+        const numbered = opts?.numbered !== false; // default true
+        const children = [];
+        if (numbered) {
+          children.push(new TextRun({ text: `${nextParaNum()}  `, bold: true, font: 'Times New Roman', size: 24 }));
+        }
+        children.push(new TextRun({ text, bold: opts?.bold, font: 'Times New Roman', size: 24 }));
+        return new Paragraph({
+          spacing: { after: opts?.spacing ?? 200, line: LINE_SPACING },
+          children,
         });
+      };
 
       const sectionHeading = (text: string, level: typeof HeadingLevel[keyof typeof HeadingLevel]) =>
         new Paragraph({
           heading: level,
-          spacing: { before: 360, after: 200 },
+          spacing: { before: 360, after: 200, line: LINE_SPACING },
           children: [new TextRun({ text, bold: true, font: 'Times New Roman', size: level === HeadingLevel.HEADING_1 ? 28 : 24 })],
         });
 
@@ -49,7 +64,7 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
       // Title
       children.push(new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 400 },
+        spacing: { after: 400, line: LINE_SPACING },
         children: [new TextRun({ text: props.title.toUpperCase(), bold: true, font: 'Times New Roman', size: 28 })],
       }));
 
@@ -84,15 +99,15 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
         section.paragraphs.forEach(p => children.push(textPara(p)));
       });
 
-      // Claims
+      // Claims (NOT numbered with [0001] — claims use their own numbering)
       children.push(new Paragraph({ children: [new PageBreak()] }));
       children.push(sectionHeading('CLAIMS', HeadingLevel.HEADING_1));
-      children.push(textPara('What is claimed is:'));
+      children.push(textPara('What is claimed is:', { numbered: false }));
 
       props.claims.forEach(claim => {
         const prefix = `${claim.number}. `;
         children.push(new Paragraph({
-          spacing: { after: 240, line: 276 },
+          spacing: { after: 240, line: LINE_SPACING },
           indent: { left: 360 },
           children: [
             new TextRun({ text: prefix, bold: true, font: 'Times New Roman', size: 24 }),
@@ -101,10 +116,10 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
         }));
       });
 
-      // Abstract
+      // Abstract (NOT numbered — standalone section)
       children.push(new Paragraph({ children: [new PageBreak()] }));
       children.push(sectionHeading('ABSTRACT OF THE DISCLOSURE', HeadingLevel.HEADING_1));
-      children.push(textPara(props.abstract));
+      children.push(textPara(props.abstract, { numbered: false }));
 
       const doc = new Document({
         styles: {
