@@ -22,7 +22,7 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
     setIsExporting(true);
     try {
       const {
-        Document, Packer, Paragraph, TextRun, HeadingLevel,
+        Document, Packer, Paragraph, TextRun,
         AlignmentType, Header, Footer, PageNumber, PageBreak,
       } = await import('docx');
       const { saveAs } = await import('file-saver');
