@@ -22,7 +22,7 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
     setIsExporting(true);
     try {
       const {
-        Document, Packer, Paragraph, TextRun, HeadingLevel,
+        Document, Packer, Paragraph, TextRun,
         AlignmentType, Header, Footer, PageNumber, PageBreak,
       } = await import('docx');
       const { saveAs } = await import('file-saver');
@@ -51,11 +51,12 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
         });
       };
 
-      const sectionHeading = (text: string, level: typeof HeadingLevel[keyof typeof HeadingLevel]) =>
+      // Section heading WITHOUT HeadingLevel to avoid bookmark generation (USPTO warns about bookmarks)
+      const sectionHeading = (text: string, isH1: boolean = true) =>
         new Paragraph({
-          heading: level,
           spacing: { before: 360, after: 200, line: LINE_SPACING },
-          children: [new TextRun({ text, bold: true, font: 'Times New Roman', size: level === HeadingLevel.HEADING_1 ? 28 : 24 })],
+          alignment: isH1 ? AlignmentType.CENTER : AlignmentType.LEFT,
+          children: [new TextRun({ text, bold: true, font: 'Times New Roman', size: isH1 ? 28 : 24 })],
         });
 
       // Build document sections
@@ -69,39 +70,39 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
       }));
 
       // Cross-Reference
-      children.push(sectionHeading('CROSS-REFERENCE TO RELATED APPLICATIONS', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('CROSS-REFERENCE TO RELATED APPLICATIONS'));
       children.push(textPara(props.crossReference));
 
       // Field
-      children.push(sectionHeading('FIELD OF THE INVENTION', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('FIELD OF THE INVENTION'));
       children.push(textPara(props.field));
 
       // Background
-      children.push(sectionHeading('BACKGROUND OF THE INVENTION', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('BACKGROUND OF THE INVENTION'));
       props.background.forEach(p => children.push(textPara(p)));
 
       // Summary
-      children.push(sectionHeading('BRIEF SUMMARY OF THE INVENTION', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('BRIEF SUMMARY OF THE INVENTION'));
       props.summary.forEach(p => children.push(textPara(p)));
 
       // Brief Description of Drawings
-      children.push(sectionHeading('BRIEF DESCRIPTION OF THE DRAWINGS', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('BRIEF DESCRIPTION OF THE DRAWINGS'));
       props.drawingsBrief.forEach(d =>
         children.push(textPara(`${d.fig} ${d.desc}`))
       );
 
       // Detailed Description
       children.push(new Paragraph({ children: [new PageBreak()] }));
-      children.push(sectionHeading('DETAILED DESCRIPTION OF THE INVENTION', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('DETAILED DESCRIPTION OF THE INVENTION'));
 
       Object.values(props.detailedDescription).forEach(section => {
-        children.push(sectionHeading(section.title, HeadingLevel.HEADING_2));
+        children.push(sectionHeading(section.title, false));
         section.paragraphs.forEach(p => children.push(textPara(p)));
       });
 
       // Claims (NOT numbered with [0001] — claims use their own numbering)
       children.push(new Paragraph({ children: [new PageBreak()] }));
-      children.push(sectionHeading('CLAIMS', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('CLAIMS'));
       children.push(textPara('What is claimed is:', { numbered: false }));
 
       props.claims.forEach(claim => {
@@ -116,9 +117,14 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
         }));
       });
 
-      // Abstract (NOT numbered — standalone section)
+      // Abstract — validate 150-word limit per USPTO rules
+      const abstractWordCount = props.abstract.trim().split(/\s+/).filter(Boolean).length;
+      if (abstractWordCount > 150) {
+        toast.warning(`Abstract is ${abstractWordCount} words — USPTO limit is 150. Please shorten before filing.`);
+      }
+
       children.push(new Paragraph({ children: [new PageBreak()] }));
-      children.push(sectionHeading('ABSTRACT OF THE DISCLOSURE', HeadingLevel.HEADING_1));
+      children.push(sectionHeading('ABSTRACT OF THE DISCLOSURE'));
       children.push(textPara(props.abstract, { numbered: false }));
 
       const doc = new Document({
@@ -128,18 +134,7 @@ export function PatentDocxExport(props: PatentDocxExportProps) {
               run: { font: 'Times New Roman', size: 24 },
             },
           },
-          paragraphStyles: [
-            {
-              id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-              run: { size: 28, bold: true, font: 'Times New Roman' },
-              paragraph: { spacing: { before: 360, after: 200 }, outlineLevel: 0 },
-            },
-            {
-              id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-              run: { size: 24, bold: true, font: 'Times New Roman' },
-              paragraph: { spacing: { before: 240, after: 200 }, outlineLevel: 1 },
-            },
-          ],
+        
         },
         sections: [{
           properties: {
