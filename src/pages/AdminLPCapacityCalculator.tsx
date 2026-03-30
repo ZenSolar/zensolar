@@ -117,7 +117,7 @@ export default function AdminLPCapacityCalculator() {
     });
   }, [targetUsers, sellRate]);
 
-  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
+  if (isChecking) return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
   if (!isAdmin) return <div className="p-8 text-center text-muted-foreground">Admin access required.</div>;
 
   const healthStatus = target.coverageRatio >= 0.5 ? 'healthy' : target.coverageRatio >= 0.2 ? 'moderate' : 'critical';
