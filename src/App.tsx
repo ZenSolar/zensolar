@@ -657,6 +657,16 @@ const App = () => {
                       } 
                     />
                     <Route 
+                      path="/admin/lp-capacity" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminLPCapacityCalculator />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
                       path="/admin/beta-deployment" 
                       element={
                         <ProtectedRoute>
