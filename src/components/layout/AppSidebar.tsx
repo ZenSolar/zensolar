@@ -101,6 +101,7 @@ const adminMenuGroups = {
     { title: "Users", url: "/admin/users", icon: Users },
   ],
   economics: [
+    { title: "LP Capacity Calculator", url: "/admin/lp-capacity", icon: Gauge, highlight: true },
     { title: "Bootstrap Simulator", url: "/admin/bootstrap-simulator", icon: Sprout, highlight: true },
     { title: "Live Beta Economics", url: "/admin/live-beta-economics", icon: Flame, highlight: true },
     { title: "FINAL $ZSOLAR", url: "/admin/final-tokenomics", icon: Crown, highlight: true },

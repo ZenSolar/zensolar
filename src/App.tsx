@@ -73,6 +73,7 @@ const AdminCompetitiveIntel = lazy(() => import("./pages/AdminCompetitiveIntel")
 const AdminSecurityArchitecture = lazy(() => import("./pages/AdminSecurityArchitecture"));
 const AdminBootstrapCalculator = lazy(() => import("./pages/AdminBootstrapCalculator"));
 const AdminBootstrapSimulator = lazy(() => import("./pages/AdminBootstrapSimulator"));
+const AdminLPCapacityCalculator = lazy(() => import("./pages/AdminLPCapacityCalculator"));
 const AdminBetaDeployment = lazy(() => import("./pages/AdminBetaDeployment"));
 const AdminTodo = lazy(() => import("./pages/AdminTodo"));
 const AdminWalletProviders = lazy(() => import("./pages/AdminWalletProviders"));
