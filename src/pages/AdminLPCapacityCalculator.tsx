@@ -88,7 +88,7 @@ const usd = (n: number) => '$' + n.toLocaleString();
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AdminLPCapacityCalculator() {
-  const { isAdmin, isLoading } = useAdminCheck();
+  const { isAdmin, isChecking } = useAdminCheck();
 
   // Adjustable parameters
   const [targetUsers, setTargetUsers] = useState(1000);
