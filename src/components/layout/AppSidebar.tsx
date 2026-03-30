@@ -40,6 +40,7 @@ import {
   PenTool,
   Search,
   Sprout,
+  Gauge,
 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
