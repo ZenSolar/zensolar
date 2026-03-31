@@ -57,11 +57,27 @@ const patentTimeline = [
 // Original document links
 const originalDocuments = [
   {
+    title: 'USPTO Filing Receipt',
+    filename: 'ZenSolar_Utility_USPTO_Receipt.pdf',
+    path: '/documents/ZenSolar_Utility_USPTO_Receipt.pdf',
+    type: 'PDF',
+    description: 'Official USPTO electronic payment receipt for Application 19/634,402. Filed Mar 31, 2026.',
+    pages: 2,
+  },
+  {
+    title: 'Utility Patent Application (Filed)',
+    filename: 'ZenSolar_Utility_Patent_Application.docx',
+    path: '/documents/ZenSolar_Utility_Patent_Application.docx',
+    type: 'Word Document (.docx)',
+    description: '18-page utility specification with 13 claims, 12 figure descriptions, and 150-word abstract. Filed as Application 19/634,402.',
+    pages: 18,
+  },
+  {
     title: 'Provisional Patent Application',
     filename: 'ZenSolar_Provisional_Patent_Application.doc',
     path: '/documents/ZenSolar_Provisional_Patent_Application.doc',
     type: 'Word Document (.doc)',
-    description: 'Original 11-page provisional application covering "System and Method for Tokenizing and Gamifying Sustainable Behaviors Using Blockchain Technology".',
+    description: 'Original 11-page provisional application (63/782,397) covering SEGI, Mint-on-Proof™, and Token/NFT minting.',
     pages: 11,
   },
   {
@@ -71,6 +87,14 @@ const originalDocuments = [
     type: 'PDF (Landscape)',
     description: 'FIG 1: System Architecture, FIG 2: Process Flowchart, FIG 3: Dashboard UI Mockup.',
     pages: 3,
+  },
+  {
+    title: 'Micro Entity Certification (PTO/SB/15A)',
+    filename: 'PTO_SB_15A_Micro_Entity_Certification.docx',
+    path: '/documents/PTO_SB_15A_Micro_Entity_Certification.docx',
+    type: 'Word Document (.docx)',
+    description: 'Micro Entity certification form filed with utility application for 80% fee reduction.',
+    pages: 1,
   },
 ];
 
