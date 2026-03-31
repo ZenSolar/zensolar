@@ -1047,7 +1047,10 @@ export function useDashboardData() {
         pendingBattery = fallback.batteryPendingKwh;
         superchargerKwh = fallback.chargingKwhLifetime;
         pendingSupercharger = fallback.chargingKwhPending;
-        pendingCharging = fallback.chargingKwhPending;
+        // Include home charging monitor sessions in the fallback path
+        homeChargerKwh = homeChargingMonitorKwh;
+        pendingHomeCharger = homeChargingMonitorKwh;
+        pendingCharging = fallback.chargingKwhPending + homeChargingMonitorKwh;
 
         // Also apply Tesla solar fallback when no dedicated solar provider
         if (!hasDedicatedSolarProvider && solarEnergy <= 0 && fallback.solarLifetimeKwh > 0) {
