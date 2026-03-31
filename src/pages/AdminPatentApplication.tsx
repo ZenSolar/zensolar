@@ -12,7 +12,9 @@ import {
   Copy,
   Sparkles,
   Download,
-  FileImage
+  FileImage,
+  ShieldCheck,
+  Receipt
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -21,27 +23,33 @@ import { PatentClaimsDependencyDiagram } from '@/components/admin/patent/PatentC
 
 const patentTimeline = [
   {
-    date: 'Q1 2025',
+    date: 'Apr 2, 2025',
     title: 'Provisional Patent Application Filed',
-    description: 'USPTO provisional patent filed covering SEGI, Mint-on-Proof™, and Token/NFT minting system.',
+    description: 'USPTO provisional patent (63/782,397) filed covering SEGI, Mint-on-Proof™, and Token/NFT minting system.',
     status: 'complete',
   },
   {
-    date: 'Q1 2026',
-    title: 'Non-Provisional Filing',
-    description: 'Convert to non-provisional within 12-month window with full claims and updated language.',
+    date: 'Mar 31, 2026',
+    title: 'Utility (Non-Provisional) Patent Filed',
+    description: 'USPTO Application 19/634,402 (Confirmation #4783) filed as Micro Entity. 13 claims, 12 figures referenced.',
+    status: 'complete',
+  },
+  {
+    date: 'Jul 2, 2026',
+    title: 'Formal Drawings Deadline',
+    description: 'Submit formal patent drawings via Preliminary Amendment within 3-month safe harbor window.',
     status: 'pending',
   },
   {
-    date: 'Q2 2026',
+    date: 'Q3 2026',
     title: 'PCT International Application',
     description: 'File PCT for international protection in key markets (EU, UK, CA, AU).',
     status: 'future',
   },
   {
-    date: 'Q4 2027+',
-    title: 'Patent Examination',
-    description: 'Respond to office actions and negotiate claims with USPTO examiner.',
+    date: 'Q2–Q4 2027',
+    title: 'Patent Examination & Office Actions',
+    description: 'Respond to office actions and negotiate claims with USPTO examiner. Typical wait 12–18 months.',
     status: 'future',
   },
 ];
