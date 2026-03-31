@@ -813,7 +813,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {/* Tap indicator - hidden during loading */}
       {isTappable && !isLoading && (
         <div className={cn("flex items-center gap-1", styles.text)}>
-          <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">Mint</span>
+          <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
           <ChevronRight className="h-5 w-5" />
         </div>
       )}
