@@ -125,19 +125,72 @@ export default function AdminPatentApplication() {
         className="space-y-4"
       >
         <div className="flex items-center gap-3 flex-wrap">
-          <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0">
-            <Scale className="h-3.5 w-3.5 mr-2" />
-            Legal Documentation
+          <Badge className="bg-gradient-to-r from-emerald-600 to-green-600 text-white border-0">
+            <ShieldCheck className="h-3.5 w-3.5 mr-2" />
+            Filed — 19/634,402
           </Badge>
-          <Badge variant="outline" className="text-amber-600 dark:text-amber-400 border-amber-500/40">
-            <Clock className="h-3 w-3 mr-1" />
-            Draft Status
+          <Badge variant="outline" className="text-emerald-600 dark:text-emerald-400 border-emerald-500/40">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            Micro Entity • $400
           </Badge>
         </div>
         <h1 className="text-3xl font-bold">Patent Application Materials</h1>
         <p className="text-muted-foreground">
-          Draft language, timelines, and reference materials for patent filings.
+          Utility patent filed March 31, 2026. Application No. 19/634,402 • Confirmation #4783.
         </p>
+      </motion.div>
+
+      {/* Filing Status Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-background">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Receipt className="h-5 w-5 text-emerald-500" />
+              Filing Confirmed
+            </CardTitle>
+            <CardDescription>
+              Utility nonprovisional application under 35 USC 111(a)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="p-3 rounded-lg bg-muted/50 border border-border/60">
+                <p className="text-xs text-muted-foreground">Application #</p>
+                <p className="font-bold text-foreground">19/634,402</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 border border-border/60">
+                <p className="text-xs text-muted-foreground">Confirmation #</p>
+                <p className="font-bold text-foreground">4783</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 border border-border/60">
+                <p className="text-xs text-muted-foreground">Filing Date</p>
+                <p className="font-bold text-foreground">Mar 31, 2026</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 border border-border/60">
+                <p className="text-xs text-muted-foreground">Entity Status</p>
+                <p className="font-bold text-foreground">Micro • $400</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" asChild>
+                <a href="/documents/ZenSolar_Utility_USPTO_Receipt.pdf" download="ZenSolar_Utility_USPTO_Receipt.pdf">
+                  <Download className="h-4 w-4 mr-2" />
+                  USPTO Receipt
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <a href="https://patentcenter.uspto.gov" target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Patent Center
+                </a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Original Documents */}
