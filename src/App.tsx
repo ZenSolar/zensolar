@@ -352,6 +352,36 @@ const App = () => {
                       } 
                     />
                     <Route 
+                      path="/referrals" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Referrals />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/energy-log" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <EnergyLog />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/store" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Store />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route
                       path="/wallet" 
                       element={
                         <ProtectedRoute>
