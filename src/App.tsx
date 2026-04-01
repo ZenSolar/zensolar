@@ -171,8 +171,11 @@ const App = () => {
                     <Route path="/demo" element={<DemoLayout />}>
                       <Route index element={<DemoDashboard />} />
                       <Route path="energy-log" element={<DemoEnergyLog />} />
-                      <Route path="nfts" element={<NFTs />} />
+                      <Route path="nft-collection" element={<DemoNftCollection />} />
+                      <Route path="mint-history" element={<MintHistory />} />
                       <Route path="learn" element={<Learn />} />
+                      <Route path="white-paper" element={<WhitePaper />} />
+                      <Route path="technology" element={<Technology />} />
                       <Route path="store" element={<Store />} />
                       <Route path="referrals" element={<Referrals />} />
                       <Route path="notifications" element={<Notifications />} />
@@ -181,11 +184,7 @@ const App = () => {
                       <Route path="settings" element={<Settings />} />
                       <Route path="help-center" element={<HelpCenter />} />
                       {/* Legacy demo redirects */}
-                      <Route path="nft-collection" element={<Navigate to="/demo/nfts?tab=collection" replace />} />
-                      <Route path="mint-history" element={<Navigate to="/demo/nfts?tab=history" replace />} />
                       <Route path="how-it-works" element={<Navigate to="/demo/learn?tab=how-it-works" replace />} />
-                      <Route path="white-paper" element={<Navigate to="/demo/learn?tab=white-paper" replace />} />
-                      <Route path="technology" element={<Navigate to="/demo/learn?tab=technology" replace />} />
                       <Route path="tokenomics" element={<Navigate to="/demo/learn?tab=tokenomics" replace />} />
                       <Route path="help" element={<Navigate to="/demo/help-center?tab=help" replace />} />
                       <Route path="feedback" element={<Navigate to="/demo/help-center?tab=feedback" replace />} />
