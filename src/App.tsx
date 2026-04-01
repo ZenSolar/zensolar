@@ -280,36 +280,47 @@ const App = () => {
                     />
                     {/* Root route - shows Landing for guests, Dashboard for auth users */}
                     <Route path="/" element={<RootRoute />} />
+                    {/* New consolidated routes */}
                     <Route 
-                      path="/how-it-works" 
+                      path="/nfts" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
-                            <HowItWorks />
+                            <NFTs />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
                     />
                     <Route 
-                      path="/technology" 
+                      path="/learn" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
-                            <Technology />
+                            <Learn />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
                     />
                     <Route 
-                      path="/tokenomics"
+                      path="/help-center" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
-                            <Tokenomics />
+                            <HelpCenter />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
                     />
+                    {/* Redirects from old routes to new consolidated pages */}
+                    <Route path="/nft-collection" element={<Navigate to="/nfts?tab=collection" replace />} />
+                    <Route path="/mint-history" element={<Navigate to="/nfts?tab=history" replace />} />
+                    <Route path="/how-it-works" element={<Navigate to="/learn?tab=how-it-works" replace />} />
+                    <Route path="/white-paper" element={<Navigate to="/learn?tab=white-paper" replace />} />
+                    <Route path="/technology" element={<Navigate to="/learn?tab=technology" replace />} />
+                    <Route path="/tokenomics" element={<Navigate to="/learn?tab=tokenomics" replace />} />
+                    <Route path="/help" element={<Navigate to="/help-center?tab=help" replace />} />
+                    <Route path="/feedback" element={<Navigate to="/help-center?tab=feedback" replace />} />
+                    <Route path="/about" element={<Navigate to="/profile" replace />} />
                     <Route 
                       path="/profile" 
                       element={
@@ -331,93 +342,11 @@ const App = () => {
                       } 
                     />
                     <Route 
-                      path="/help" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <Help />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/mint-history" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <MintHistory />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
                       path="/notifications" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
                             <Notifications />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/referrals" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <Referrals />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/about" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <About />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    {/* White Paper - conditionally wrapped in AppLayout based on auth */}
-                    <Route path="/white-paper" element={<WhitePaperWrapper />} />
-                    <Route 
-                      path="/energy-log" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <EnergyLog />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/feedback" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <Feedback />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/store" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <Store />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/nft-collection" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <NftCollection />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
