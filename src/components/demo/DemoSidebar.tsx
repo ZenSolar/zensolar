@@ -1,20 +1,14 @@
 import { 
   LayoutDashboard, 
-  Coins, 
-  History,
   Settings, 
   User, 
-  HelpCircle,
   MessageSquarePlus,
-  Bell,
   Users,
   ShoppingBag,
   BookOpen,
-  Cpu,
   Award,
   Play,
   BarChart3,
-  FileText,
   Wallet,
   Sun,
   Moon,
@@ -42,24 +36,17 @@ import {
 const mainNavItems = [
   { title: "Dashboard", url: "/demo", icon: LayoutDashboard },
   { title: "Energy Log", url: "/demo/energy-log", icon: BarChart3 },
-  { title: "NFT Collection", url: "/demo/nft-collection", icon: Award },
+  { title: "NFTs", url: "/demo/nfts", icon: Award },
   { title: "$ZSOLAR Store", url: "/demo/store", icon: ShoppingBag },
-  { title: "How It Works", url: "/demo/how-it-works", icon: BookOpen },
-  { title: "White Paper", url: "/demo/white-paper", icon: FileText },
-  { title: "Patent Technology", url: "/demo/technology", icon: Cpu },
-  { title: "Tokenomics", url: "/demo/tokenomics", icon: Coins },
-  { title: "Mint History", url: "/demo/mint-history", icon: History },
+  { title: "Learn", url: "/demo/learn", icon: BookOpen },
   { title: "Referrals", url: "/demo/referrals", icon: Users },
-  { title: "Notifications", url: "/demo/notifications", icon: Bell },
 ];
 
 const secondaryNavItems = [
   { title: "Profile", url: "/demo/profile", icon: User },
   { title: "Wallet", url: "/demo/wallet", icon: Wallet },
   { title: "Settings", url: "/demo/settings", icon: Settings },
-  { title: "About", url: "/demo/about", icon: HelpCircle },
-  { title: "Help", url: "/demo/help", icon: MessageSquarePlus },
-  { title: "Feedback", url: "/demo/feedback", icon: MessageSquarePlus },
+  { title: "Help & Feedback", url: "/demo/help-center", icon: MessageSquarePlus },
 ];
 
 export function DemoSidebar() {

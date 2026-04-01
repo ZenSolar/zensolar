@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -53,6 +53,10 @@ const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Technology = lazy(() => import("./pages/Technology"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
+// Combined pages
+const NFTs = lazy(() => import("./pages/NFTs"));
+const Learn = lazy(() => import("./pages/Learn"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 const GridPayCompetition = lazy(() => import("./pages/GridPayCompetition"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
@@ -167,21 +171,25 @@ const App = () => {
                     <Route path="/demo" element={<DemoLayout />}>
                       <Route index element={<DemoDashboard />} />
                       <Route path="energy-log" element={<DemoEnergyLog />} />
-                      <Route path="nft-collection" element={<DemoNftCollection />} />
-                      <Route path="how-it-works" element={<HowItWorks />} />
-                      <Route path="white-paper" element={<WhitePaper />} />
-                      <Route path="technology" element={<Technology />} />
+                      <Route path="nfts" element={<NFTs />} />
+                      <Route path="learn" element={<Learn />} />
                       <Route path="store" element={<Store />} />
-                      <Route path="tokenomics" element={<Tokenomics />} />
-                      <Route path="mint-history" element={<MintHistory />} />
                       <Route path="referrals" element={<Referrals />} />
                       <Route path="notifications" element={<Notifications />} />
                       <Route path="profile" element={<Profile />} />
                       <Route path="wallet" element={<DemoWallet />} />
                       <Route path="settings" element={<Settings />} />
-                      <Route path="about" element={<About />} />
-                      <Route path="help" element={<Help />} />
-                      <Route path="feedback" element={<Feedback />} />
+                      <Route path="help-center" element={<HelpCenter />} />
+                      {/* Legacy demo redirects */}
+                      <Route path="nft-collection" element={<Navigate to="/demo/nfts?tab=collection" replace />} />
+                      <Route path="mint-history" element={<Navigate to="/demo/nfts?tab=history" replace />} />
+                      <Route path="how-it-works" element={<Navigate to="/demo/learn?tab=how-it-works" replace />} />
+                      <Route path="white-paper" element={<Navigate to="/demo/learn?tab=white-paper" replace />} />
+                      <Route path="technology" element={<Navigate to="/demo/learn?tab=technology" replace />} />
+                      <Route path="tokenomics" element={<Navigate to="/demo/learn?tab=tokenomics" replace />} />
+                      <Route path="help" element={<Navigate to="/demo/help-center?tab=help" replace />} />
+                      <Route path="feedback" element={<Navigate to="/demo/help-center?tab=feedback" replace />} />
+                      <Route path="about" element={<Navigate to="/demo/profile" replace />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
                     <Route path="/competition/gridpay" element={<GridPayCompetition />} />
@@ -276,36 +284,47 @@ const App = () => {
                     />
                     {/* Root route - shows Landing for guests, Dashboard for auth users */}
                     <Route path="/" element={<RootRoute />} />
+                    {/* New consolidated routes */}
                     <Route 
-                      path="/how-it-works" 
+                      path="/nfts" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
-                            <HowItWorks />
+                            <NFTs />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
                     />
                     <Route 
-                      path="/technology" 
+                      path="/learn" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
-                            <Technology />
+                            <Learn />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
                     />
                     <Route 
-                      path="/tokenomics"
+                      path="/help-center" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
-                            <Tokenomics />
+                            <HelpCenter />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
                     />
+                    {/* Redirects from old routes to new consolidated pages */}
+                    <Route path="/nft-collection" element={<Navigate to="/nfts?tab=collection" replace />} />
+                    <Route path="/mint-history" element={<Navigate to="/nfts?tab=history" replace />} />
+                    <Route path="/how-it-works" element={<Navigate to="/learn?tab=how-it-works" replace />} />
+                    <Route path="/white-paper" element={<Navigate to="/learn?tab=white-paper" replace />} />
+                    <Route path="/technology" element={<Navigate to="/learn?tab=technology" replace />} />
+                    <Route path="/tokenomics" element={<Navigate to="/learn?tab=tokenomics" replace />} />
+                    <Route path="/help" element={<Navigate to="/help-center?tab=help" replace />} />
+                    <Route path="/feedback" element={<Navigate to="/help-center?tab=feedback" replace />} />
+                    <Route path="/about" element={<Navigate to="/profile" replace />} />
                     <Route 
                       path="/profile" 
                       element={
@@ -322,26 +341,6 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <Settings />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/help" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <Help />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/mint-history" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <MintHistory />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
@@ -367,33 +366,11 @@ const App = () => {
                       } 
                     />
                     <Route 
-                      path="/about" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <About />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    {/* White Paper - conditionally wrapped in AppLayout based on auth */}
-                    <Route path="/white-paper" element={<WhitePaperWrapper />} />
-                    <Route 
                       path="/energy-log" 
                       element={
                         <ProtectedRoute>
                           <AppLayout>
                             <EnergyLog />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/feedback" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <Feedback />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
@@ -408,17 +385,7 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/nft-collection" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <NftCollection />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
+                    <Route
                       path="/wallet" 
                       element={
                         <ProtectedRoute>
