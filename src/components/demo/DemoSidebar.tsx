@@ -12,6 +12,9 @@ import {
   Wallet,
   Sun,
   Moon,
+  History,
+  FileText,
+  Cpu,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
