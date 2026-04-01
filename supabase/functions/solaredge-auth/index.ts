@@ -112,6 +112,36 @@ Deno.serve(async (req) => {
         .update({ solaredge_connected: true })
         .eq("user_id", user.id);
 
+      // Auto-create connected_devices record so rewards calculation and
+      // dashboard data can find this device. SolarEdge uses the site as 
+      // the "device" — no separate discovery step like Tesla/Enphase.
+      const { error: deviceError } = await supabaseClient
+        .from("connected_devices")
+        .upsert({
+          user_id: user.id,
+          provider: "solaredge",
+          device_id: siteId,
+          device_type: "solar",
+          device_name: siteDetails.details?.name || `SolarEdge Site ${siteId}`,
+          device_metadata: {
+            peak_power: siteDetails.details?.peakPower,
+            installation_date: siteDetails.details?.installationDate,
+            site_status: siteDetails.details?.status,
+          },
+          baseline_data: {
+            total_solar_produced_wh: 0, // First mint = ALL lifetime production
+            solar_wh: 0,
+            captured_at: new Date().toISOString(),
+          },
+        }, { onConflict: "user_id,provider,device_id" });
+
+      if (deviceError) {
+        console.error("Failed to create connected_devices record:", deviceError);
+        // Non-fatal — credentials are stored, device record is a bonus
+      } else {
+        console.log("Auto-claimed SolarEdge site as connected device:", siteId);
+      }
+
       console.log("SolarEdge credentials stored successfully for user:", user.id);
 
       // Notify admins of the new account connection
