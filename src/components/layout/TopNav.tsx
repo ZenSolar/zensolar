@@ -86,7 +86,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           </span>
         </Link>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Live Beta indicator for admins */}
           {!isDemo && isAdmin && isLiveBeta && (
             <Badge variant="outline" className="gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
@@ -97,6 +97,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           <div className="max-w-[120px] sm:max-w-none overflow-hidden">
             <WeatherWidget />
           </div>
+          {!isDemo && <NotificationBell />}
         </div>
       </div>
     </header>
