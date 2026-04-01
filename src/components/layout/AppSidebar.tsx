@@ -70,9 +70,12 @@ import {
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Energy Log", url: "/energy-log", icon: BarChart3 },
-  { title: "NFTs", url: "/nfts", icon: Award },
+  { title: "NFT Collection", url: "/nft-collection", icon: Award },
+  { title: "Mint History", url: "/mint-history", icon: History },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag },
   { title: "Learn", url: "/learn", icon: BookOpen },
+  { title: "White Paper", url: "/white-paper", icon: FileText },
+  { title: "Patent Technology", url: "/technology", icon: Cpu },
   { title: "Referrals", url: "/referrals", icon: Users },
 ];
 
