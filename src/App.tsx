@@ -171,21 +171,25 @@ const App = () => {
                     <Route path="/demo" element={<DemoLayout />}>
                       <Route index element={<DemoDashboard />} />
                       <Route path="energy-log" element={<DemoEnergyLog />} />
-                      <Route path="nft-collection" element={<DemoNftCollection />} />
-                      <Route path="how-it-works" element={<HowItWorks />} />
-                      <Route path="white-paper" element={<WhitePaper />} />
-                      <Route path="technology" element={<Technology />} />
+                      <Route path="nfts" element={<NFTs />} />
+                      <Route path="learn" element={<Learn />} />
                       <Route path="store" element={<Store />} />
-                      <Route path="tokenomics" element={<Tokenomics />} />
-                      <Route path="mint-history" element={<MintHistory />} />
                       <Route path="referrals" element={<Referrals />} />
                       <Route path="notifications" element={<Notifications />} />
                       <Route path="profile" element={<Profile />} />
                       <Route path="wallet" element={<DemoWallet />} />
                       <Route path="settings" element={<Settings />} />
-                      <Route path="about" element={<About />} />
-                      <Route path="help" element={<Help />} />
-                      <Route path="feedback" element={<Feedback />} />
+                      <Route path="help-center" element={<HelpCenter />} />
+                      {/* Legacy demo redirects */}
+                      <Route path="nft-collection" element={<Navigate to="/demo/nfts?tab=collection" replace />} />
+                      <Route path="mint-history" element={<Navigate to="/demo/nfts?tab=history" replace />} />
+                      <Route path="how-it-works" element={<Navigate to="/demo/learn?tab=how-it-works" replace />} />
+                      <Route path="white-paper" element={<Navigate to="/demo/learn?tab=white-paper" replace />} />
+                      <Route path="technology" element={<Navigate to="/demo/learn?tab=technology" replace />} />
+                      <Route path="tokenomics" element={<Navigate to="/demo/learn?tab=tokenomics" replace />} />
+                      <Route path="help" element={<Navigate to="/demo/help-center?tab=help" replace />} />
+                      <Route path="feedback" element={<Navigate to="/demo/help-center?tab=feedback" replace />} />
+                      <Route path="about" element={<Navigate to="/demo/profile" replace />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
                     <Route path="/competition/gridpay" element={<GridPayCompetition />} />
