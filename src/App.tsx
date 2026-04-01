@@ -284,17 +284,7 @@ const App = () => {
                     />
                     {/* Root route - shows Landing for guests, Dashboard for auth users */}
                     <Route path="/" element={<RootRoute />} />
-                    {/* New consolidated routes */}
-                    <Route 
-                      path="/nfts" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <NFTs />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    {/* Consolidated routes */}
                     <Route 
                       path="/learn" 
                       element={
@@ -315,12 +305,40 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    {/* Redirects from old routes to new consolidated pages */}
-                    <Route path="/nft-collection" element={<Navigate to="/nfts?tab=collection" replace />} />
-                    <Route path="/mint-history" element={<Navigate to="/nfts?tab=history" replace />} />
+                    {/* Standalone pages */}
+                    <Route 
+                      path="/nft-collection" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <NftCollection />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/mint-history" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <MintHistory />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route path="/white-paper" element={<WhitePaperWrapper />} />
+                    <Route 
+                      path="/technology" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Technology />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    {/* Redirects from old routes */}
                     <Route path="/how-it-works" element={<Navigate to="/learn?tab=how-it-works" replace />} />
-                    <Route path="/white-paper" element={<Navigate to="/learn?tab=white-paper" replace />} />
-                    <Route path="/technology" element={<Navigate to="/learn?tab=technology" replace />} />
                     <Route path="/tokenomics" element={<Navigate to="/learn?tab=tokenomics" replace />} />
                     <Route path="/help" element={<Navigate to="/help-center?tab=help" replace />} />
                     <Route path="/feedback" element={<Navigate to="/help-center?tab=feedback" replace />} />
