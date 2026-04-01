@@ -27,7 +27,23 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="$ZSOLAR" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      (function () {
+        var hostname = window.location.hostname;
+        var isPreviewHost = hostname.includes('id-preview--') || hostname.endsWith('.lovableproject.com');
+        var isInIframe = false;
+
+        try {
+          isInIframe = window.self !== window.top;
+        } catch (e) {
+          isInIframe = true;
+        }
+
+        if (!isPreviewHost && !isInIframe) {
+          document.write('<link rel="manifest" href="/manifest.webmanifest" />');
+        }
+      })();
+    </script>
     <!-- Preload LCP hero logo for faster Largest Contentful Paint -->
     <link rel="preload" as="image" href="/logos/zen-logo-horizontal-new.png" fetchpriority="high" />
     <!-- Preload critical assets for faster paint -->

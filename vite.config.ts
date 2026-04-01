@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -13,60 +12,6 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    VitePWA({
-      // IMPORTANT: We use a custom push Service Worker at /sw.js (public/sw.js).
-      // The PWA plugin must NOT auto-register or overwrite that file, otherwise
-      // iOS/Chrome may run a Workbox SW without a `push` handler -> Apple returns 201
-      // but no notification ever appears.
-      injectRegister: false,
-      // Generate a separate SW file so it never collides with public/sw.js
-      filename: "pwa-sw.js",
-      registerType: "autoUpdate",
-      includeAssets: [
-        "favicon.ico",
-        "robots.txt",
-        "apple-touch-icon.png",
-        "zs-icon-192.png",
-        "zs-icon-512.png",
-        "zs-icon-maskable-512.png",
-      ],
-      manifest: {
-        name: "$ZSOLAR",
-        short_name: "$ZSOLAR",
-        description:
-          "Earn blockchain rewards for sustainable energy actions. Track solar production, EV miles, and CO2 offsets.",
-        theme_color: "#0a1628",
-        background_color: "#0a1628",
-        display: "standalone",
-        orientation: "portrait",
-        scope: "/",
-        start_url: "/auth",
-        icons: [
-          {
-            src: "/zs-icon-192.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any",
-          },
-          {
-            src: "/zs-icon-512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any",
-          },
-          {
-            src: "/zs-icon-maskable-512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
-      },
-      // Disable workbox SW generation entirely — we use a custom /sw.js for push
-      // and don't need a separate caching SW (which can trigger download prompts
-      // in mobile browsers).
-      selfDestroying: true,
-    }),
   ].filter(Boolean),
   resolve: {
     alias: {
