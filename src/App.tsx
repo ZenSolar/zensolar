@@ -53,6 +53,10 @@ const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Technology = lazy(() => import("./pages/Technology"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
+// Combined pages
+const NFTs = lazy(() => import("./pages/NFTs"));
+const Learn = lazy(() => import("./pages/Learn"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 const GridPayCompetition = lazy(() => import("./pages/GridPayCompetition"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
