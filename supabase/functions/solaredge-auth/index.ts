@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
             solar_wh: 0,
             captured_at: new Date().toISOString(),
           },
-        }, { onConflict: "user_id,provider,device_id" });
+        }, { onConflict: "provider,device_id" });
 
       if (deviceError) {
         console.error("Failed to create connected_devices record:", deviceError);
