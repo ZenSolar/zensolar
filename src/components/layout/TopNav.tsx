@@ -65,9 +65,9 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            width="94"
-            height="28"
-            className="h-7 w-auto object-contain dark:brightness-150 dark:animate-logo-glow drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
+            width="84"
+            height="25"
+            className="h-[25px] sm:h-7 w-auto object-contain dark:brightness-150 dark:animate-logo-glow drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
           />
           <span 
             className={cn(
@@ -86,7 +86,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           </span>
         </Link>
         
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           {/* Live Beta indicator for admins */}
           {!isDemo && isAdmin && isLiveBeta && (
             <Badge variant="outline" className="gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
@@ -94,7 +94,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
               Beta 10x
             </Badge>
           )}
-          <div className="max-w-[120px] sm:max-w-none overflow-hidden">
+          <div className="max-w-[100px] sm:max-w-none overflow-hidden">
             <WeatherWidget />
           </div>
           {!isDemo && <NotificationBell />}
