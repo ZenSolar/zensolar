@@ -4,30 +4,49 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 
+const isPreviewHost = () => {
+  const hostname = window.location.hostname;
+  return hostname.includes("id-preview--") || hostname.endsWith(".lovableproject.com");
+};
+
+const isInIframe = () => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+};
+
 // Suppress the browser's native PWA install prompt on all pages.
 // The Install page captures and re-triggers it when the user explicitly visits /install.
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
 });
 
-// Register our custom push service worker on app load
-// This is critical for iOS PWA - the SW must be registered early
-// and stay active, otherwise push notifications won't work
+// Register our custom push service worker only outside Lovable preview/iframe contexts.
+// Preview-host SW registration can trigger zero-byte download prompts in mobile Safari.
 if ('serviceWorker' in navigator) {
-  // Wait for page load to avoid blocking initial render
   window.addEventListener('load', async () => {
     try {
-      // Unregister any legacy caching SWs (e.g. workbox/pwa-sw.js) so the UI can't get stuck on an old build.
+      const shouldRegisterPushSw = !isPreviewHost() && !isInIframe();
       const regs = await navigator.serviceWorker.getRegistrations();
+
       await Promise.all(
         regs.map(async (reg) => {
           const scriptURL = reg.active?.scriptURL || reg.waiting?.scriptURL || reg.installing?.scriptURL || '';
-          if (scriptURL && !scriptURL.endsWith('/sw.js')) {
+          const isPushSw = scriptURL.endsWith('/sw.js');
+
+          if (!shouldRegisterPushSw || (scriptURL && !isPushSw)) {
             const ok = await reg.unregister();
-            if (ok) console.log('[App] Unregistered legacy SW:', scriptURL);
+            if (ok) console.log('[App] Unregistered service worker:', scriptURL || '(unknown)');
           }
         })
       );
+
+      if (!shouldRegisterPushSw) {
+        console.log('[App] Skipping service worker registration in preview/iframe context');
+        return;
+      }
 
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
