@@ -70,24 +70,17 @@ import {
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Energy Log", url: "/energy-log", icon: BarChart3 },
-  { title: "NFT Collection", url: "/nft-collection", icon: Award },
+  { title: "NFTs", url: "/nfts", icon: Award },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag },
-  { title: "How It Works", url: "/how-it-works", icon: BookOpen },
-  { title: "White Paper", url: "/white-paper", icon: FileText },
-  { title: "Patent Technology", url: "/technology", icon: Cpu },
-  { title: "Tokenomics", url: "/tokenomics", icon: Coins },
-  { title: "Mint History", url: "/mint-history", icon: History },
+  { title: "Learn", url: "/learn", icon: BookOpen },
   { title: "Referrals", url: "/referrals", icon: Users },
-  { title: "Notifications", url: "/notifications", icon: Bell },
 ];
 
 const secondaryNavItems = [
   { title: "Profile", url: "/profile", icon: User },
   { title: "Wallet", url: "/wallet", icon: Wallet },
   { title: "Settings", url: "/settings", icon: Settings },
-  { title: "About", url: "/about", icon: HelpCircle },
-  { title: "Help", url: "/help", icon: MessageSquarePlus },
-  { title: "Feedback", url: "/feedback", icon: MessageSquarePlus },
+  { title: "Help & Feedback", url: "/help-center", icon: MessageSquarePlus },
 ];
 
 // Consolidated admin menu structure

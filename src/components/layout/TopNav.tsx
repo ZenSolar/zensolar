@@ -9,6 +9,7 @@ import { getLiveBetaMode } from "@/lib/tokenomics";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface TopNavProps {
   isDemo?: boolean;
