@@ -42,12 +42,12 @@ export function HomeHero() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-[clamp(2.5rem,7vw,5rem)] font-bold tracking-tight leading-[1.08]"
           >
-            Turn Your Clean Energy
-            <br />
-            Into{' '}
+            Creating{' '}
             <span className="bg-gradient-to-r from-eco via-primary to-secondary bg-clip-text text-transparent">
-              Digital Income
+              Currency
             </span>
+            <br />
+            From Energy
           </motion.h1>
 
           <motion.p
