@@ -146,6 +146,7 @@ const bulletItems = [
   { Icon: BatteryFull, iconColor: 'text-secondary', text: 'Every kWh your battery storage exports' },
   { Icon: Car, iconColor: 'text-energy', text: 'Every EV mile you drive' },
   { Icon: Zap, iconColor: 'text-token', text: 'Every kWh used to charge your EV' },
+  { Icon: Navigation, iconColor: 'text-primary', text: 'Every autonomous mile driven' },
 ];
 
 /* ── Bullet list that highlights as the scanner sweeps past ── */
