@@ -43,7 +43,7 @@ function ParticleField() {
 /* ── Hex grid background ── */
 function HexGrid() {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.08]">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.12]">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="hexagons" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(1.5)">
@@ -51,13 +51,13 @@ function HexGrid() {
               d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="0.5"
+              strokeWidth="0.7"
             />
             <path
               d="M28 0L56 16L56 50L28 66L0 50L0 16"
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="0.5"
+              strokeWidth="0.7"
             />
           </pattern>
         </defs>
@@ -221,7 +221,7 @@ export default function ComingSoon() {
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-center">
           {/* Logo */}
           <motion.div
-            className="relative mb-10"
+            className="relative mb-12 flex items-center justify-center w-full"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
