@@ -317,7 +317,7 @@ export default function ComingSoon() {
         ))}
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-8 text-center">
+        <div className="relative z-10 flex flex-col items-center px-6 pt-[calc(env(safe-area-inset-top)+3rem)] pb-8 text-center">
           {/* Logo */}
           <motion.div
             className="relative mb-6 flex items-center justify-center w-full"
