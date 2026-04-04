@@ -292,10 +292,10 @@ export default function ComingSoon() {
         ))}
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-8 text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-[calc(env(safe-area-inset-top)+2.5rem)] text-center">
           {/* Logo */}
           <motion.div
-            className="relative mb-12 flex items-center justify-center w-full"
+            className="relative mb-10 flex items-center justify-center w-full"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
