@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car, Navigation } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
