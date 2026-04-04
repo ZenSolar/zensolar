@@ -405,7 +405,7 @@ export default function ComingSoon() {
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
               />
-              <div className="relative grid grid-cols-2 gap-y-10 gap-x-8 place-items-center">
+              <div className="relative grid grid-cols-2 gap-y-6 gap-x-6 place-items-center">
                 {[
                   { src: teslaLogo, alt: 'Tesla', cls: 'max-h-20 md:max-h-32' },
                   { src: enphaseLogo, alt: 'Enphase', cls: 'max-h-10 md:max-h-14' },
