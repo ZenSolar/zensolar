@@ -102,6 +102,13 @@ function ScannerLine() {
 
   return (
     <div className="fixed inset-x-0 top-0 z-20 pointer-events-none" style={{ transform: `translateY(${translateY})` }}>
+      {/* Ambient glow that follows the scanner */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[120px] rounded-full blur-[80px]"
+        style={{
+          background: 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.12) 0%, hsl(var(--secondary) / 0.06) 40%, transparent 70%)',
+        }}
+      />
       {/* Main scanner line */}
       <div
         className="w-full h-[2px]"
