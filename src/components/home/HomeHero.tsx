@@ -89,6 +89,10 @@ export function HomeHero() {
                 <Zap className="h-4 w-4 text-token flex-shrink-0" />
                 <span>Every kWh used to charge your EV</span>
               </li>
+              <li className="flex items-center gap-2.5">
+                <Navigation className="h-4 w-4 text-primary flex-shrink-0" />
+                <span>Every autonomous mile driven</span>
+              </li>
             </ul>
           </motion.div>
 
