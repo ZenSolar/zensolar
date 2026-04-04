@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sun, Zap, BatteryFull, Car, Check, Loader2, Shield, Hexagon } from 'lucide-react';
 import { SEO } from '@/components/SEO';
@@ -141,6 +141,79 @@ const floatingIcons = [
   { Icon: Shield, delay: 2.5, x: '20%', y: '50%', color: 'text-primary/10' },
 ];
 
+const bulletItems = [
+  { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
+  { Icon: BatteryFull, iconColor: 'text-secondary', text: 'Every kWh your battery storage exports' },
+  { Icon: Car, iconColor: 'text-energy', text: 'Every EV mile you drive' },
+  { Icon: Zap, iconColor: 'text-token', text: 'Every kWh used to charge your EV' },
+];
+
+/* ── Bullet list that highlights as the scanner sweeps past ── */
+function ScannerHighlightList() {
+  const [activeIdx, setActiveIdx] = useState(-1);
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
+
+  useEffect(() => {
+    const SCANNER_DURATION = 10000; // matches CSS animation
+    let raf: number;
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = (now - startTime) % SCANNER_DURATION;
+      const progress = elapsed / SCANNER_DURATION;
+      const scannerFraction = progress < 0.5 ? progress * 2 : 2 - progress * 2;
+      const scannerY = scannerFraction * window.innerHeight;
+
+      let closest = -1;
+      let closestDist = 60;
+      itemRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const mid = rect.top + rect.height / 2;
+        const dist = Math.abs(mid - scannerY);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = i;
+        }
+      });
+
+      setActiveIdx(closest);
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <ul className="space-y-1 text-left inline-block text-base md:text-lg">
+      {bulletItems.map(({ Icon, iconColor, text }, idx) => (
+        <motion.li
+          key={idx}
+          ref={(el) => { itemRefs.current[idx] = el; }}
+          className="flex items-center gap-3 group"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
+        >
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Icon className={`h-5 w-5 ${iconColor} transition-all duration-300 ${activeIdx === idx ? 'scale-110 drop-shadow-[0_0_6px_currentColor]' : ''}`} />
+          </div>
+          <span
+            className={`transition-all duration-300 ${
+              activeIdx === idx
+                ? 'text-foreground drop-shadow-[0_0_8px_hsl(var(--primary)/0.3)]'
+                : 'group-hover:text-foreground'
+            }`}
+          >
+            {text}
+          </span>
+        </motion.li>
+      ))}
+    </ul>
+  );
+}
+
 /* ── Typing cursor for tagline ── */
 function BlinkingCursor() {
   return (
@@ -218,7 +291,7 @@ export default function ComingSoon() {
         ))}
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-8 text-center">
           {/* Logo */}
           <motion.div
             className="relative mb-12 flex items-center justify-center w-full"
@@ -275,27 +348,7 @@ export default function ComingSoon() {
               <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary/30" />
             </div>
 
-            <ul className="space-y-1 text-left inline-block text-base md:text-lg">
-              {[
-                { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
-                { Icon: BatteryFull, iconColor: 'text-secondary', text: 'Every kWh your battery storage exports' },
-                { Icon: Car, iconColor: 'text-energy', text: 'Every EV mile you drive' },
-                { Icon: Zap, iconColor: 'text-token', text: 'Every kWh used to charge your EV' },
-              ].map(({ Icon, iconColor, text }, idx) => (
-                <motion.li
-                  key={idx}
-                  className="flex items-center gap-3 group"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
-                >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon className={`h-5 w-5 ${iconColor}`} />
-                  </div>
-                  <span className="group-hover:text-foreground transition-colors">{text}</span>
-                </motion.li>
-              ))}
-            </ul>
+            <ScannerHighlightList />
           </motion.div>
 
           {/* Divider between KPIs and pill */}
