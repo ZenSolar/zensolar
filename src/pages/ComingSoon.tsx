@@ -67,16 +67,16 @@ function HexGrid() {
   );
 }
 
-/* ── Scanner line (pure CSS for smooth GPU animation) ── */
+/* ── Scanner line (pure CSS for smooth GPU animation, brightens at center) ── */
 function ScannerLine() {
   return (
     <div
       className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20"
       style={{
-        background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.3) 30%, hsl(var(--secondary) / 0.35) 50%, hsl(var(--primary) / 0.3) 70%, transparent 95%)',
-        boxShadow: '0 0 30px 8px hsl(var(--primary) / 0.08), 0 0 60px 16px hsl(var(--secondary) / 0.04)',
+        background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.4) 25%, hsl(var(--secondary) / 0.6) 50%, hsl(var(--primary) / 0.4) 75%, transparent 95%)',
+        boxShadow: '0 0 40px 12px hsl(var(--primary) / 0.12), 0 0 80px 24px hsl(var(--secondary) / 0.06)',
         animation: 'scanner-sweep 14s linear infinite',
-        willChange: 'transform',
+        willChange: 'transform, opacity',
       }}
     />
   );
