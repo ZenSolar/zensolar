@@ -300,6 +300,8 @@ export default function ComingSoon() {
     e.preventDefault();
     if (!name.trim() || !email.trim()) return;
 
+    trackEvent('beta_signup_attempt', { method: 'form' });
+
     setLoading(true);
     const { error } = await supabase
       .from('beta_signups')
@@ -311,14 +313,17 @@ export default function ComingSoon() {
       if (error.code === '23505') {
         toast.info("You're already on the list! We'll be in touch soon.");
         setSubmitted(true);
+        trackEvent('beta_signup_duplicate', { email: email.trim().toLowerCase() });
       } else {
         toast.error('Something went wrong. Please try again.');
+        trackEvent('beta_signup_error', { error_code: error.code });
       }
       return;
     }
 
     setSubmitted(true);
     toast.success("You're in! We'll reach out when your spot is ready.");
+    trackEvent('beta_signup_success', { method: 'form' });
   };
 
   return (
