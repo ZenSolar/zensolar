@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Zap, BatteryFull, Car, Check, Loader2, Shield, Hexagon } from 'lucide-react';
+import { Sun, Zap, BatteryFull, Car, Check, Loader2, Shield, Hexagon, Navigation } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
