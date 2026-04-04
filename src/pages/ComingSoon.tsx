@@ -493,7 +493,7 @@ export default function ComingSoon() {
 
           {/* Mint-on-Proof — holographic card */}
           <motion.div
-            className="relative w-full max-w-md mb-12"
+            className="relative w-full max-w-md mb-8"
             initial={{ opacity: 0, scale: 0.9, rotateX: 10 }}
             animate={{ opacity: 1, scale: 1, rotateX: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
