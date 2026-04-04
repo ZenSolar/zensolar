@@ -11,9 +11,9 @@ import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import solarEdgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
-/* ── Animated particle field ── */
+/* ── Animated particle field (reduced count for performance) ── */
 function ParticleField() {
-  const particles = Array.from({ length: 30 }, (_, i) => ({
+  const particles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -27,11 +27,10 @@ function ParticleField() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-primary/20"
+          className="absolute rounded-full bg-primary/20 will-change-transform"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{
             y: [0, -60, 0],
-            x: [0, Math.random() * 30 - 15, 0],
             opacity: [0, 0.6, 0],
           }}
           transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
