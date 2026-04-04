@@ -67,18 +67,31 @@ function HexGrid() {
   );
 }
 
-/* ── Scanner line (pure CSS for smooth GPU animation, brightens at center) ── */
+/* ── Scanner line with trailing reflection ── */
 function ScannerLine() {
   return (
-    <div
-      className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20"
-      style={{
-        background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.4) 25%, hsl(var(--secondary) / 0.6) 50%, hsl(var(--primary) / 0.4) 75%, transparent 95%)',
-        boxShadow: '0 0 40px 12px hsl(var(--primary) / 0.12), 0 0 80px 24px hsl(var(--secondary) / 0.06)',
-        animation: 'scanner-sweep 14s linear infinite',
-        willChange: 'transform, opacity',
-      }}
-    />
+    <>
+      {/* Main scanner line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20"
+        style={{
+          background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.4) 25%, hsl(var(--secondary) / 0.6) 50%, hsl(var(--primary) / 0.4) 75%, transparent 95%)',
+          boxShadow: '0 0 40px 12px hsl(var(--primary) / 0.12), 0 0 80px 24px hsl(var(--secondary) / 0.06)',
+          animation: 'scanner-sweep 10s linear infinite',
+          willChange: 'transform, opacity',
+        }}
+      />
+      {/* Trailing reflection — follows slightly behind */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none z-19"
+        style={{
+          background: 'linear-gradient(90deg, transparent 10%, hsl(var(--primary) / 0.2) 35%, hsl(var(--secondary) / 0.25) 50%, hsl(var(--primary) / 0.2) 65%, transparent 90%)',
+          boxShadow: '0 0 20px 6px hsl(var(--primary) / 0.04)',
+          animation: 'scanner-trail 10s linear 0.4s infinite',
+          willChange: 'transform, opacity',
+        }}
+      />
+    </>
   );
 }
 
