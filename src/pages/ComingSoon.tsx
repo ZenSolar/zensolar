@@ -82,33 +82,25 @@ function ScannerLine() {
   );
 }
 
-/* ── Glowing orbs ── */
+/* ── Glowing orbs (simplified for performance) ── */
 function GlowOrbs() {
   return (
     <>
-      <motion.div
-        className="absolute top-1/4 left-1/6 w-[500px] h-[500px] rounded-full blur-[150px]"
+      <div
+        className="absolute top-1/4 left-[16%] w-[500px] h-[500px] rounded-full blur-[150px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)' }}
-        animate={{ scale: [1, 1.3, 1], x: [0, 60, 0], y: [0, -40, 0] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <motion.div
-        className="absolute bottom-1/4 right-1/6 w-[400px] h-[400px] rounded-full blur-[130px]"
+      <div
+        className="absolute bottom-1/4 right-[16%] w-[400px] h-[400px] rounded-full blur-[130px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--secondary) / 0.1), transparent 70%)' }}
-        animate={{ scale: [1.2, 0.9, 1.2], x: [0, -50, 0], y: [0, 50, 0] }}
-        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <motion.div
+      <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[180px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--solar) / 0.06), transparent 70%)' }}
-        animate={{ scale: [1, 1.15, 1], rotate: [0, 180, 360] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
       />
-      <motion.div
+      <div
         className="absolute top-[10%] right-[20%] w-[250px] h-[250px] rounded-full blur-[100px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--token) / 0.08), transparent 70%)' }}
-        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
       />
     </>
   );
