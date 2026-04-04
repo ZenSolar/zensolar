@@ -231,3 +231,8 @@
   50% { transform: translateY(100vh); }
   100% { transform: translateY(0); }
 }
+
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.7; }
+}
