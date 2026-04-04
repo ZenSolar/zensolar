@@ -292,10 +292,10 @@ export default function ComingSoon() {
         ))}
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-[calc(env(safe-area-inset-top)+2.5rem)] text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-8 text-center">
           {/* Logo */}
           <motion.div
-            className="relative mb-10 flex items-center justify-center w-full"
+            className="relative mb-6 flex items-center justify-center w-full"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -310,7 +310,7 @@ export default function ComingSoon() {
 
           {/* Heading */}
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -329,21 +329,21 @@ export default function ComingSoon() {
             is coming…
           </motion.h1>
 
-          {/* Value prop — mirrors landing hero copy */}
+          {/* Value prop */}
           <motion.div
-            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-3"
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <p className="mb-1">
+            <p className="mb-0">
               ZenSolar tokenizes your clean energy into{' '}
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
               <span className="text-primary font-semibold">NFTs</span> at the kilowatt-hour level:
             </p>
 
             {/* Decorative divider */}
-            <div className="flex items-center justify-center gap-3 my-3">
+            <div className="flex items-center justify-center gap-3 my-2.5">
               <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-primary/30" />
               <Hexagon className="w-3 h-3 text-primary/40" />
               <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary/30" />
@@ -353,7 +353,7 @@ export default function ComingSoon() {
           </motion.div>
 
           {/* Divider between KPIs and pill */}
-          <div className="flex items-center justify-center gap-3 mb-3">
+          <div className="flex items-center justify-center gap-3 mb-2">
             <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-secondary/25" />
             <Shield className="w-3 h-3 text-secondary/30" />
             <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-secondary/25" />
