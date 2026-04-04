@@ -11,9 +11,9 @@ import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import solarEdgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
-/* ── Animated particle field ── */
+/* ── Animated particle field (reduced count for performance) ── */
 function ParticleField() {
-  const particles = Array.from({ length: 30 }, (_, i) => ({
+  const particles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -27,11 +27,10 @@ function ParticleField() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-primary/20"
+          className="absolute rounded-full bg-primary/20 will-change-transform"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{
             y: [0, -60, 0],
-            x: [0, Math.random() * 30 - 15, 0],
             opacity: [0, 0.6, 0],
           }}
           transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
@@ -68,48 +67,40 @@ function HexGrid() {
   );
 }
 
-/* ── Scanner line ── */
+/* ── Scanner line (pure CSS for smooth GPU animation) ── */
 function ScannerLine() {
   return (
-    <motion.div
-      className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20 will-change-transform"
+    <div
+      className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20"
       style={{
         background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.3) 30%, hsl(var(--secondary) / 0.35) 50%, hsl(var(--primary) / 0.3) 70%, transparent 95%)',
         boxShadow: '0 0 30px 8px hsl(var(--primary) / 0.08), 0 0 60px 16px hsl(var(--secondary) / 0.04)',
+        animation: 'scanner-sweep 14s linear infinite',
+        willChange: 'transform',
       }}
-      animate={{ y: ['0vh', '100vh', '0vh'] }}
-      transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
     />
   );
 }
 
-/* ── Glowing orbs ── */
+/* ── Glowing orbs (simplified for performance) ── */
 function GlowOrbs() {
   return (
     <>
-      <motion.div
-        className="absolute top-1/4 left-1/6 w-[500px] h-[500px] rounded-full blur-[150px]"
+      <div
+        className="absolute top-1/4 left-[16%] w-[500px] h-[500px] rounded-full blur-[150px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)' }}
-        animate={{ scale: [1, 1.3, 1], x: [0, 60, 0], y: [0, -40, 0] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <motion.div
-        className="absolute bottom-1/4 right-1/6 w-[400px] h-[400px] rounded-full blur-[130px]"
+      <div
+        className="absolute bottom-1/4 right-[16%] w-[400px] h-[400px] rounded-full blur-[130px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--secondary) / 0.1), transparent 70%)' }}
-        animate={{ scale: [1.2, 0.9, 1.2], x: [0, -50, 0], y: [0, 50, 0] }}
-        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <motion.div
+      <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[180px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--solar) / 0.06), transparent 70%)' }}
-        animate={{ scale: [1, 1.15, 1], rotate: [0, 180, 360] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
       />
-      <motion.div
+      <div
         className="absolute top-[10%] right-[20%] w-[250px] h-[250px] rounded-full blur-[100px]"
         style={{ background: 'radial-gradient(circle, hsl(var(--token) / 0.08), transparent 70%)' }}
-        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
       />
     </>
   );
@@ -187,15 +178,14 @@ export default function ComingSoon() {
         {floatingIcons.map(({ Icon, delay, x, y, color }, i) => (
           <motion.div
             key={i}
-            className={`absolute ${color}`}
+            className={`absolute ${color} will-change-transform`}
             style={{ left: x, top: y }}
             initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1, y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
+            animate={{ opacity: 1, scale: 1, y: [0, -15, 0] }}
             transition={{
               opacity: { delay: delay + 0.5, duration: 0.8 },
               scale: { delay: delay + 0.5, duration: 0.8 },
               y: { delay: delay + 1.3, duration: 5 + i, repeat: Infinity, ease: 'easeInOut' },
-              rotate: { delay: delay + 1.3, duration: 8, repeat: Infinity, ease: 'easeInOut' },
             }}
           >
             <Icon className="w-8 h-8 md:w-12 md:h-12" strokeWidth={1} />
