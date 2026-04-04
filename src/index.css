@@ -227,9 +227,13 @@
 }
 
 @keyframes scanner-sweep {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(100vh); }
-  100% { transform: translateY(0); }
+  0%   { transform: translateY(0);      opacity: 0.4; }
+  15%  { opacity: 0.6; }
+  40%  { opacity: 0.9; }
+  50%  { transform: translateY(100vh);  opacity: 1; }
+  60%  { opacity: 0.9; }
+  85%  { opacity: 0.6; }
+  100% { transform: translateY(0);      opacity: 0.4; }
 }
 
 @keyframes orb-pulse {
