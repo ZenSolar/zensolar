@@ -57,7 +57,7 @@ function HexGrid() {
               d="M28 0L56 16L56 50L28 66L0 50L0 16"
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="0.5"
+              strokeWidth="0.7"
             />
           </pattern>
         </defs>
