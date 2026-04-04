@@ -292,10 +292,10 @@ export default function ComingSoon() {
         ))}
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-[calc(env(safe-area-inset-top)+2.5rem)] text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-8 text-center">
           {/* Logo */}
           <motion.div
-            className="relative mb-10 flex items-center justify-center w-full"
+            className="relative mb-6 flex items-center justify-center w-full"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -310,7 +310,7 @@ export default function ComingSoon() {
 
           {/* Heading */}
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -329,21 +329,21 @@ export default function ComingSoon() {
             is coming…
           </motion.h1>
 
-          {/* Value prop — mirrors landing hero copy */}
+          {/* Value prop */}
           <motion.div
-            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-3"
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mb-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <p className="mb-1">
+            <p className="mb-0">
               ZenSolar tokenizes your clean energy into{' '}
               <span className="text-primary font-semibold">$ZSOLAR tokens</span> and{' '}
               <span className="text-primary font-semibold">NFTs</span> at the kilowatt-hour level:
             </p>
 
             {/* Decorative divider */}
-            <div className="flex items-center justify-center gap-3 my-3">
+            <div className="flex items-center justify-center gap-3 my-2.5">
               <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-primary/30" />
               <Hexagon className="w-3 h-3 text-primary/40" />
               <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary/30" />
@@ -353,7 +353,7 @@ export default function ComingSoon() {
           </motion.div>
 
           {/* Divider between KPIs and pill */}
-          <div className="flex items-center justify-center gap-3 mb-3">
+          <div className="flex items-center justify-center gap-3 mb-2">
             <div className="h-[1px] w-10 bg-gradient-to-r from-transparent to-secondary/25" />
             <Shield className="w-3 h-3 text-secondary/30" />
             <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-secondary/25" />
@@ -361,7 +361,7 @@ export default function ComingSoon() {
 
           {/* Digital income pill */}
           <motion.div
-            className="mb-6"
+            className="mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.55 }}
@@ -389,13 +389,13 @@ export default function ComingSoon() {
 
           {/* Connects With logos */}
           <motion.div
-            className="w-full max-w-2xl mb-10"
+            className="w-full max-w-2xl mb-6"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.55 }}
           >
-            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="relative overflow-hidden rounded-2xl py-10 px-8 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
+            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-3">Connects with</p>
+            <div className="relative overflow-hidden rounded-2xl py-6 px-6 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
               {/* Ambient glow spots */}
               <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
               <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
@@ -405,7 +405,7 @@ export default function ComingSoon() {
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
               />
-              <div className="relative grid grid-cols-2 gap-y-10 gap-x-8 place-items-center">
+              <div className="relative grid grid-cols-2 gap-y-6 gap-x-6 place-items-center">
                 {[
                   { src: teslaLogo, alt: 'Tesla', cls: 'max-h-20 md:max-h-32' },
                   { src: enphaseLogo, alt: 'Enphase', cls: 'max-h-10 md:max-h-14' },
@@ -425,11 +425,11 @@ export default function ComingSoon() {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More partners coming soon…</p>
+            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-3">More partners coming soon…</p>
           </motion.div>
           {/* VPP / Texas Grid differentiator */}
           <motion.div
-            className="w-full max-w-lg mb-10"
+            className="w-full max-w-lg mb-6"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
