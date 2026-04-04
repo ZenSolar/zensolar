@@ -425,11 +425,11 @@ export default function ComingSoon() {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More partners coming soon…</p>
+            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-3">More partners coming soon…</p>
           </motion.div>
           {/* VPP / Texas Grid differentiator */}
           <motion.div
-            className="w-full max-w-lg mb-10"
+            className="w-full max-w-lg mb-6"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
