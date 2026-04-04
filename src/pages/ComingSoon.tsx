@@ -67,31 +67,59 @@ function HexGrid() {
   );
 }
 
-/* ── Scanner line with trailing reflection ── */
+/* ── Scroll-driven scanner line ── */
 function ScannerLine() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    let raf: number;
+    let currentY = 0;
+    let targetY = 0;
+
+    const onScroll = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      targetY = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
+    };
+
+    const animate = () => {
+      // Smooth lerp for buttery feel
+      currentY += (targetY - currentY) * 0.08;
+      setScrollY(currentY);
+      raf = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    raf = requestAnimationFrame(animate);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // Map 0-100 scroll progress to full document height
+  const translateY = `${scrollY}vh`;
+
   return (
-    <>
+    <div className="fixed inset-x-0 top-0 z-20 pointer-events-none" style={{ transform: `translateY(${translateY})` }}>
       {/* Main scanner line */}
       <div
-        className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20"
+        className="w-full h-[2px]"
         style={{
           background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.4) 25%, hsl(var(--secondary) / 0.6) 50%, hsl(var(--primary) / 0.4) 75%, transparent 95%)',
           boxShadow: '0 0 40px 12px hsl(var(--primary) / 0.12), 0 0 80px 24px hsl(var(--secondary) / 0.06)',
-          animation: 'scanner-sweep 10s linear infinite',
-          willChange: 'transform, opacity',
         }}
       />
-      {/* Trailing reflection — follows slightly behind */}
+      {/* Trailing reflection */}
       <div
-        className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none z-19"
+        className="w-full h-[1px] mt-2"
         style={{
           background: 'linear-gradient(90deg, transparent 10%, hsl(var(--primary) / 0.2) 35%, hsl(var(--secondary) / 0.25) 50%, hsl(var(--primary) / 0.2) 65%, transparent 90%)',
           boxShadow: '0 0 20px 6px hsl(var(--primary) / 0.04)',
-          animation: 'scanner-trail 10s linear 0.4s infinite',
-          willChange: 'transform, opacity',
+          opacity: 0.6,
         }}
       />
-    </>
+    </div>
   );
 }
 
@@ -155,15 +183,12 @@ function ScannerHighlightList() {
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
-    const SCANNER_DURATION = 10000; // matches CSS animation
     let raf: number;
-    const startTime = performance.now();
 
-    const tick = (now: number) => {
-      const elapsed = (now - startTime) % SCANNER_DURATION;
-      const progress = elapsed / SCANNER_DURATION;
-      const scannerFraction = progress < 0.5 ? progress * 2 : 2 - progress * 2;
-      const scannerY = scannerFraction * window.innerHeight;
+    const tick = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollProgress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      const scannerY = scrollProgress * window.innerHeight;
 
       let closest = -1;
       let closestDist = 60;
@@ -292,7 +317,7 @@ export default function ComingSoon() {
         ))}
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-8 text-center">
+        <div className="relative z-10 flex flex-col items-center px-6 pt-[calc(env(safe-area-inset-top)+3rem)] pb-8 text-center">
           {/* Logo */}
           <motion.div
             className="relative mb-6 flex items-center justify-center w-full"
@@ -301,9 +326,6 @@ export default function ComingSoon() {
             transition={{ duration: 0.8 }}
           >
             <div className="absolute inset-0 blur-2xl bg-primary/10 rounded-full scale-150" />
-            {/* Glow ring */}
-            <div className="absolute w-32 h-32 md:w-36 md:h-36 rounded-full border border-primary/20 animate-[pulse_3s_ease-in-out_infinite] shadow-[0_0_20px_hsl(var(--primary)/0.15),inset_0_0_20px_hsl(var(--primary)/0.05)]" />
-            <div className="absolute w-40 h-40 md:w-44 md:h-44 rounded-full border border-primary/10 animate-[pulse_3s_ease-in-out_1.5s_infinite]" />
             <img
               src="/logos/zen-stacked.png"
               alt="ZenSolar"
@@ -471,7 +493,7 @@ export default function ComingSoon() {
 
           {/* Mint-on-Proof — holographic card */}
           <motion.div
-            className="relative w-full max-w-md mb-12"
+            className="relative w-full max-w-md mb-8"
             initial={{ opacity: 0, scale: 0.9, rotateX: 10 }}
             animate={{ opacity: 1, scale: 1, rotateX: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
@@ -613,7 +635,7 @@ export default function ComingSoon() {
 
           {/* Bottom tagline */}
           <motion.p
-            className="mt-16 text-xs text-muted-foreground/50 tracking-[0.3em] uppercase font-mono"
+            className="mt-10 mb-6 text-xs text-muted-foreground/50 tracking-[0.3em] uppercase font-mono"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.2 }}
