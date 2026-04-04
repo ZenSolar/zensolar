@@ -635,7 +635,7 @@ export default function ComingSoon() {
 
           {/* Bottom tagline */}
           <motion.p
-            className="mt-16 text-xs text-muted-foreground/50 tracking-[0.3em] uppercase font-mono"
+            className="mt-10 mb-6 text-xs text-muted-foreground/50 tracking-[0.3em] uppercase font-mono"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.2 }}
