@@ -67,31 +67,59 @@ function HexGrid() {
   );
 }
 
-/* ── Scanner line with trailing reflection ── */
+/* ── Scroll-driven scanner line ── */
 function ScannerLine() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    let raf: number;
+    let currentY = 0;
+    let targetY = 0;
+
+    const onScroll = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      targetY = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
+    };
+
+    const animate = () => {
+      // Smooth lerp for buttery feel
+      currentY += (targetY - currentY) * 0.08;
+      setScrollY(currentY);
+      raf = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    raf = requestAnimationFrame(animate);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // Map 0-100 scroll progress to full document height
+  const translateY = `${scrollY}vh`;
+
   return (
-    <>
+    <div className="fixed inset-x-0 top-0 z-20 pointer-events-none" style={{ transform: `translateY(${translateY})` }}>
       {/* Main scanner line */}
       <div
-        className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20"
+        className="w-full h-[2px]"
         style={{
           background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.4) 25%, hsl(var(--secondary) / 0.6) 50%, hsl(var(--primary) / 0.4) 75%, transparent 95%)',
           boxShadow: '0 0 40px 12px hsl(var(--primary) / 0.12), 0 0 80px 24px hsl(var(--secondary) / 0.06)',
-          animation: 'scanner-sweep 10s linear infinite',
-          willChange: 'transform, opacity',
         }}
       />
-      {/* Trailing reflection — follows slightly behind */}
+      {/* Trailing reflection */}
       <div
-        className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none z-19"
+        className="w-full h-[1px] mt-2"
         style={{
           background: 'linear-gradient(90deg, transparent 10%, hsl(var(--primary) / 0.2) 35%, hsl(var(--secondary) / 0.25) 50%, hsl(var(--primary) / 0.2) 65%, transparent 90%)',
           boxShadow: '0 0 20px 6px hsl(var(--primary) / 0.04)',
-          animation: 'scanner-trail 10s linear 0.4s infinite',
-          willChange: 'transform, opacity',
+          opacity: 0.6,
         }}
       />
-    </>
+    </div>
   );
 }
 
