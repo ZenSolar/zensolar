@@ -275,27 +275,7 @@ export default function ComingSoon() {
               <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary/30" />
             </div>
 
-            <ul className="space-y-1 text-left inline-block text-base md:text-lg">
-              {[
-                { Icon: Sun, iconColor: 'text-solar', text: 'Every kWh your solar panels produce' },
-                { Icon: BatteryFull, iconColor: 'text-secondary', text: 'Every kWh your battery storage exports' },
-                { Icon: Car, iconColor: 'text-energy', text: 'Every EV mile you drive' },
-                { Icon: Zap, iconColor: 'text-token', text: 'Every kWh used to charge your EV' },
-              ].map(({ Icon, iconColor, text }, idx) => (
-                <motion.li
-                  key={idx}
-                  className="flex items-center gap-3 group"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
-                >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon className={`h-5 w-5 ${iconColor}`} />
-                  </div>
-                  <span className="group-hover:text-foreground transition-colors">{text}</span>
-                </motion.li>
-              ))}
-            </ul>
+            <ScannerHighlightList />
           </motion.div>
 
           {/* Divider between KPIs and pill */}
