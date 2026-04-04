@@ -183,15 +183,12 @@ function ScannerHighlightList() {
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
-    const SCANNER_DURATION = 10000; // matches CSS animation
     let raf: number;
-    const startTime = performance.now();
 
-    const tick = (now: number) => {
-      const elapsed = (now - startTime) % SCANNER_DURATION;
-      const progress = elapsed / SCANNER_DURATION;
-      const scannerFraction = progress < 0.5 ? progress * 2 : 2 - progress * 2;
-      const scannerY = scannerFraction * window.innerHeight;
+    const tick = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollProgress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      const scannerY = scrollProgress * window.innerHeight;
 
       let closest = -1;
       let closestDist = 60;
