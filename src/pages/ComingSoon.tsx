@@ -186,15 +186,14 @@ export default function ComingSoon() {
         {floatingIcons.map(({ Icon, delay, x, y, color }, i) => (
           <motion.div
             key={i}
-            className={`absolute ${color}`}
+            className={`absolute ${color} will-change-transform`}
             style={{ left: x, top: y }}
             initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1, y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
+            animate={{ opacity: 1, scale: 1, y: [0, -15, 0] }}
             transition={{
               opacity: { delay: delay + 0.5, duration: 0.8 },
               scale: { delay: delay + 0.5, duration: 0.8 },
               y: { delay: delay + 1.3, duration: 5 + i, repeat: Infinity, ease: 'easeInOut' },
-              rotate: { delay: delay + 1.3, duration: 8, repeat: Infinity, ease: 'easeInOut' },
             }}
           >
             <Icon className="w-8 h-8 md:w-12 md:h-12" strokeWidth={1} />
