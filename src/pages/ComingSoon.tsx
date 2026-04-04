@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sun, Zap, BatteryFull, Car, Check, Loader2, Shield, Hexagon, Navigation } from 'lucide-react';
 import { SEO } from '@/components/SEO';
@@ -11,16 +11,23 @@ import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import solarEdgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
-/* ── Animated particle field (reduced count for performance) ── */
+/* ── Shared scanner position (avoids prop-drilling, zero re-renders) ── */
+const scannerState = { posY: 0 };
+
+/* ── Animated particle field (stable positions via useMemo) ── */
 function ParticleField() {
-  const particles = Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 2.5 + 0.5,
-    duration: Math.random() * 25 + 15,
-    delay: Math.random() * 8,
-  }));
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 2.5 + 0.5,
+        duration: Math.random() * 25 + 15,
+        delay: Math.random() * 8,
+      })),
+    []
+  );
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -67,9 +74,9 @@ function HexGrid() {
   );
 }
 
-/* ── Scanner line: auto-sweeps + shifts with scroll ── */
+/* ── Scanner line: auto-sweeps + shifts with scroll (ref-based, zero re-renders) ── */
 function ScannerLine() {
-  const [posY, setPosY] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let raf: number;
@@ -77,17 +84,23 @@ function ScannerLine() {
     const startTime = performance.now();
 
     const animate = (now: number) => {
-      // Auto-sweep: oscillates 0-100 over ~6s
       const elapsed = (now - startTime) / 1000;
       const autoY = (Math.sin(elapsed * 0.5) * 0.5 + 0.5) * 100;
 
-      // Scroll offset: adds scroll progress on top
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const scrollOffset = maxScroll > 10 ? (window.scrollY / maxScroll) * 30 : 0;
 
       const targetY = Math.min(autoY + scrollOffset, 100);
       currentY += (targetY - currentY) * 0.12;
-      setPosY(currentY);
+
+      // Write to shared state for ScannerHighlightList
+      scannerState.posY = currentY;
+
+      // Direct DOM update — no React re-render
+      if (ref.current) {
+        ref.current.style.transform = `translateY(${currentY}vh)`;
+      }
+
       raf = requestAnimationFrame(animate);
     };
 
@@ -95,10 +108,8 @@ function ScannerLine() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  const translateY = `${posY}vh`;
-
   return (
-    <div className="fixed inset-x-0 top-0 z-20 pointer-events-none" style={{ transform: `translateY(${translateY})` }}>
+    <div ref={ref} className="fixed inset-x-0 top-0 z-20 pointer-events-none">
       {/* Ambient glow that follows the scanner */}
       <div
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[120px] rounded-full blur-[80px]"
@@ -181,33 +192,38 @@ const bulletItems = [
   { Icon: Navigation, iconColor: 'text-primary', text: 'Every autonomous mile driven' },
 ];
 
-/* ── Bullet list that highlights as the scanner sweeps past ── */
+/* ── Bullet list that highlights as the scanner sweeps past (synced with auto-sweep) ── */
 function ScannerHighlightList() {
   const [activeIdx, setActiveIdx] = useState(-1);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const lastActiveRef = useRef(-1);
 
   useEffect(() => {
     let raf: number;
 
     const tick = () => {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollProgress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-      const scannerY = scrollProgress * window.innerHeight;
+      // Read scanner position from shared state (matches auto-sweep)
+      const scannerScreenY = (scannerState.posY / 100) * window.innerHeight;
 
       let closest = -1;
-      let closestDist = 60;
+      let closestDist = 80; // proximity threshold in px
       itemRefs.current.forEach((el, i) => {
         if (!el) return;
         const rect = el.getBoundingClientRect();
         const mid = rect.top + rect.height / 2;
-        const dist = Math.abs(mid - scannerY);
+        const dist = Math.abs(mid - scannerScreenY);
         if (dist < closestDist) {
           closestDist = dist;
           closest = i;
         }
       });
 
-      setActiveIdx(closest);
+      // Only update state when value changes (avoids 60fps re-renders)
+      if (closest !== lastActiveRef.current) {
+        lastActiveRef.current = closest;
+        setActiveIdx(closest);
+      }
+
       raf = requestAnimationFrame(tick);
     };
 
@@ -252,6 +268,25 @@ function BlinkingCursor() {
       animate={{ opacity: [1, 0, 1] }}
       transition={{ duration: 1, repeat: Infinity }}
     />
+  );
+}
+
+/* ── Tailwind-safe color maps (dynamic classes don't survive purge) ── */
+const pillColorMap: Record<string, { bg: string; border: string; dot: string }> = {
+  primary: { bg: 'bg-primary/10', border: 'border-primary/20', dot: 'bg-primary' },
+  secondary: { bg: 'bg-secondary/10', border: 'border-secondary/20', dot: 'bg-secondary' },
+  token: { bg: 'bg-token/10', border: 'border-token/20', dot: 'bg-token' },
+  solar: { bg: 'bg-solar/10', border: 'border-solar/20', dot: 'bg-solar' },
+  energy: { bg: 'bg-energy/10', border: 'border-energy/20', dot: 'bg-energy' },
+};
+
+function StatusPill({ label, color }: { label: string; color: string }) {
+  const c = pillColorMap[color] ?? pillColorMap.primary;
+  return (
+    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${c.bg} border ${c.border}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${c.dot} animate-pulse`} />
+      <span className="text-[10px] font-medium text-foreground">{label}</span>
+    </div>
   );
 }
 
@@ -456,6 +491,7 @@ export default function ComingSoon() {
             </div>
             <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-3">More partners coming soon…</p>
           </motion.div>
+
           {/* VPP / Texas Grid differentiator */}
           <motion.div
             className="w-full max-w-lg mb-6"
@@ -478,19 +514,9 @@ export default function ComingSoon() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2 mt-4">
-                {[
-                  { label: 'ERCOT · CAISO · PJM · All ISOs', color: 'energy' },
-                  { label: 'Patent Pending · Est. Q1 2025', color: 'primary' },
-                  { label: 'Hardware Agnostic', color: 'secondary' },
-                ].map(({ label, color }) => (
-                  <div
-                    key={label}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-${color}/10 border border-${color}/20`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full bg-${color} animate-pulse`} />
-                    <span className="text-[10px] font-medium text-foreground">{label}</span>
-                  </div>
-                ))}
+                <StatusPill label="ERCOT · CAISO · PJM · All ISOs" color="energy" />
+                <StatusPill label="Patent Pending" color="primary" />
+                <StatusPill label="Hardware Agnostic" color="secondary" />
               </div>
             </div>
           </motion.div>
@@ -550,20 +576,10 @@ export default function ComingSoon() {
 
               {/* Feature pills */}
               <div className="flex flex-wrap items-center justify-center gap-2">
-                {[
-                  { label: 'Verified on-chain', color: 'primary' },
-                  { label: 'Base Blockchain L2', color: 'secondary' },
-                  { label: 'One-tap minting', color: 'token' },
-                  { label: 'Anti-gaming', color: 'solar' },
-                ].map(({ label, color }) => (
-                  <div
-                    key={label}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-${color}/10 border border-${color}/20`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full bg-${color} animate-pulse`} />
-                    <span className="text-xs font-medium text-foreground">{label}</span>
-                  </div>
-                ))}
+                <StatusPill label="Verified on-chain" color="primary" />
+                <StatusPill label="Base Blockchain L2" color="secondary" />
+                <StatusPill label="One-tap minting" color="token" />
+                <StatusPill label="Anti-gaming" color="solar" />
               </div>
             </div>
           </motion.div>
