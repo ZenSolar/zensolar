@@ -304,7 +304,7 @@ export default function ComingSoon() {
             <img
               src="/logos/zen-stacked.png"
               alt="ZenSolar"
-              className="relative w-auto h-20 md:h-28 object-contain drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]"
+              className="relative w-auto h-24 md:h-28 object-contain drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]"
             />
           </motion.div>
 
