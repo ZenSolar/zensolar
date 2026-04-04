@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { trackEvent } from '@/hooks/useGoogleAnalytics';
 import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import solarEdgeLogo from '@/assets/logos/solaredge-cropped.svg';
