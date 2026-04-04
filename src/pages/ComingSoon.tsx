@@ -301,9 +301,6 @@ export default function ComingSoon() {
             transition={{ duration: 0.8 }}
           >
             <div className="absolute inset-0 blur-2xl bg-primary/10 rounded-full scale-150" />
-            {/* Glow ring */}
-            <div className="absolute w-32 h-32 md:w-36 md:h-36 rounded-full border border-primary/20 animate-[pulse_3s_ease-in-out_infinite] shadow-[0_0_20px_hsl(var(--primary)/0.15),inset_0_0_20px_hsl(var(--primary)/0.05)]" />
-            <div className="absolute w-40 h-40 md:w-44 md:h-44 rounded-full border border-primary/10 animate-[pulse_3s_ease-in-out_1.5s_infinite]" />
             <img
               src="/logos/zen-stacked.png"
               alt="ZenSolar"
