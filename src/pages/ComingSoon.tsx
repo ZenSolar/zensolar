@@ -297,7 +297,7 @@ export default function ComingSoon() {
         url="https://zensolar.com"
         image="https://zensolar.com/og-image.png"
       />
-      <div className="relative min-h-screen overflow-hidden bg-background">
+      <div className="relative min-h-screen overflow-x-hidden bg-background">
         {/* Layered backgrounds */}
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-primary/5" />
         <HexGrid />
