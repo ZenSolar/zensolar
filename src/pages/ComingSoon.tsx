@@ -67,17 +67,17 @@ function HexGrid() {
   );
 }
 
-/* ── Scanner line ── */
+/* ── Scanner line (pure CSS for smooth GPU animation) ── */
 function ScannerLine() {
   return (
-    <motion.div
-      className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20 will-change-transform"
+    <div
+      className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20"
       style={{
         background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.3) 30%, hsl(var(--secondary) / 0.35) 50%, hsl(var(--primary) / 0.3) 70%, transparent 95%)',
         boxShadow: '0 0 30px 8px hsl(var(--primary) / 0.08), 0 0 60px 16px hsl(var(--secondary) / 0.04)',
+        animation: 'scanner-sweep 14s linear infinite',
+        willChange: 'transform',
       }}
-      animate={{ y: ['0vh', '100vh', '0vh'] }}
-      transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
     />
   );
 }
