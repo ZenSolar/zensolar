@@ -72,13 +72,13 @@ function HexGrid() {
 function ScannerLine() {
   return (
     <motion.div
-      className="absolute left-0 right-0 h-[2px] pointer-events-none z-20"
+      className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none z-20 will-change-transform"
       style={{
         background: 'linear-gradient(90deg, transparent 5%, hsl(var(--primary) / 0.3) 30%, hsl(var(--secondary) / 0.35) 50%, hsl(var(--primary) / 0.3) 70%, transparent 95%)',
         boxShadow: '0 0 30px 8px hsl(var(--primary) / 0.08), 0 0 60px 16px hsl(var(--secondary) / 0.04)',
       }}
-      animate={{ top: ['0%', '100%', '0%'] }}
-      transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+      animate={{ y: ['0vh', '100vh', '0vh'] }}
+      transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
     />
   );
 }
