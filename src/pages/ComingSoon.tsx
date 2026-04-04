@@ -82,25 +82,37 @@ function ScannerLine() {
   );
 }
 
-/* ── Glowing orbs (simplified for performance) ── */
+/* ── Glowing orbs (CSS-only pulse for performance) ── */
 function GlowOrbs() {
   return (
     <>
       <div
         className="absolute top-1/4 left-[16%] w-[500px] h-[500px] rounded-full blur-[150px]"
-        style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)' }}
+        style={{
+          background: 'radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)',
+          animation: 'orb-pulse 12s ease-in-out infinite',
+        }}
       />
       <div
         className="absolute bottom-1/4 right-[16%] w-[400px] h-[400px] rounded-full blur-[130px]"
-        style={{ background: 'radial-gradient(circle, hsl(var(--secondary) / 0.1), transparent 70%)' }}
+        style={{
+          background: 'radial-gradient(circle, hsl(var(--secondary) / 0.1), transparent 70%)',
+          animation: 'orb-pulse 15s ease-in-out 3s infinite',
+        }}
       />
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[180px]"
-        style={{ background: 'radial-gradient(circle, hsl(var(--solar) / 0.06), transparent 70%)' }}
+        style={{
+          background: 'radial-gradient(circle, hsl(var(--solar) / 0.06), transparent 70%)',
+          animation: 'orb-pulse 20s ease-in-out 6s infinite',
+        }}
       />
       <div
         className="absolute top-[10%] right-[20%] w-[250px] h-[250px] rounded-full blur-[100px]"
-        style={{ background: 'radial-gradient(circle, hsl(var(--token) / 0.08), transparent 70%)' }}
+        style={{
+          background: 'radial-gradient(circle, hsl(var(--token) / 0.08), transparent 70%)',
+          animation: 'orb-pulse 9s ease-in-out 1.5s infinite',
+        }}
       />
     </>
   );
