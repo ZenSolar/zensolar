@@ -83,7 +83,7 @@ function ScannerLine() {
 
     const animate = () => {
       // Smooth lerp for buttery feel
-      currentY += (targetY - currentY) * 0.08;
+      currentY += (targetY - currentY) * 0.18;
       setScrollY(currentY);
       raf = requestAnimationFrame(animate);
     };
