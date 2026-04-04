@@ -67,38 +67,35 @@ function HexGrid() {
   );
 }
 
-/* ── Scroll-driven scanner line ── */
+/* ── Scanner line: auto-sweeps + shifts with scroll ── */
 function ScannerLine() {
-  const [scrollY, setScrollY] = useState(0);
+  const [posY, setPosY] = useState(0);
 
   useEffect(() => {
     let raf: number;
     let currentY = 0;
-    let targetY = 0;
+    const startTime = performance.now();
 
-    const onScroll = () => {
+    const animate = (now: number) => {
+      // Auto-sweep: oscillates 0-100 over ~6s
+      const elapsed = (now - startTime) / 1000;
+      const autoY = (Math.sin(elapsed * 0.5) * 0.5 + 0.5) * 100;
+
+      // Scroll offset: adds scroll progress on top
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      targetY = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
-    };
+      const scrollOffset = maxScroll > 10 ? (window.scrollY / maxScroll) * 30 : 0;
 
-    const animate = () => {
-      // Smooth lerp for buttery feel
-      currentY += (targetY - currentY) * 0.18;
-      setScrollY(currentY);
+      const targetY = Math.min(autoY + scrollOffset, 100);
+      currentY += (targetY - currentY) * 0.12;
+      setPosY(currentY);
       raf = requestAnimationFrame(animate);
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
     raf = requestAnimationFrame(animate);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      cancelAnimationFrame(raf);
-    };
+    return () => cancelAnimationFrame(raf);
   }, []);
 
-  // Map 0-100 scroll progress to full document height
-  const translateY = `${scrollY}vh`;
+  const translateY = `${posY}vh`;
 
   return (
     <div className="fixed inset-x-0 top-0 z-20 pointer-events-none" style={{ transform: `translateY(${translateY})` }}>
