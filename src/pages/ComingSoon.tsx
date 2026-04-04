@@ -389,13 +389,13 @@ export default function ComingSoon() {
 
           {/* Connects With logos */}
           <motion.div
-            className="w-full max-w-2xl mb-10"
+            className="w-full max-w-2xl mb-6"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.55 }}
           >
-            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="relative overflow-hidden rounded-2xl py-10 px-8 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
+            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-3">Connects with</p>
+            <div className="relative overflow-hidden rounded-2xl py-6 px-6 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
               {/* Ambient glow spots */}
               <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
               <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
