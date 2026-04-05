@@ -153,7 +153,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAdmin } = useAdminCheck();
+  const { isAdmin, isViewer, hasDashboardAccess } = useAdminCheck();
   const { theme, setTheme } = useTheme();
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
