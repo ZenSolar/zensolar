@@ -52,7 +52,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     setIsAutoSyncing,
   } = useDashboardData();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { isAdmin, isAdminView } = useAdminCheck();
+  const { isAdmin, isAdminView, isViewer } = useAdminCheck();
   const { triggerConfetti } = useConfetti();
   const { 
     hiddenFields, 
