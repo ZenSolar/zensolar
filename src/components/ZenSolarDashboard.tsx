@@ -240,25 +240,27 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        <AnimatedItem>
-          <RewardActions 
-            ref={rewardActionsRef}
-            onRefresh={refreshDashboard} 
-            isLoading={dataLoading}
-            walletAddress={isNewUserView ? undefined : profile?.wallet_address}
-            pendingRewards={isNewUserView ? {
-              solar: 0,
-              evMiles: 0,
-              battery: 0,
-              charging: 0,
-            } : {
-              solar: currentActivity.solarKwh,
-              evMiles: currentActivity.evMiles,
-              battery: currentActivity.batteryKwh,
-              charging: currentActivity.chargingKwh,
-            }}
-          />
-        </AnimatedItem>
+        {!isViewer && (
+          <AnimatedItem>
+            <RewardActions 
+              ref={rewardActionsRef}
+              onRefresh={refreshDashboard} 
+              isLoading={dataLoading}
+              walletAddress={isNewUserView ? undefined : profile?.wallet_address}
+              pendingRewards={isNewUserView ? {
+                solar: 0,
+                evMiles: 0,
+                battery: 0,
+                charging: 0,
+              } : {
+                solar: currentActivity.solarKwh,
+                evMiles: currentActivity.evMiles,
+                battery: currentActivity.batteryKwh,
+                charging: currentActivity.chargingKwh,
+              }}
+            />
+          </AnimatedItem>
+        )}
 
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
