@@ -109,8 +109,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const hasWalletConnected = !!profile?.wallet_address;
   
   // In New User View mode, always show onboarding cards
-  const showWalletPrompt = isNewUserView || !hasWalletConnected;
-  const showEnergyPrompt = isNewUserView || !hasEnergyConnected;
+  const showWalletPrompt = !isViewer && (isNewUserView || !hasWalletConnected);
+  const showEnergyPrompt = !isViewer && (isNewUserView || !hasEnergyConnected);
   
   // Show wallet setup modal for users without wallet (not in demo/new user view mode)
   const [showWalletModal, setShowWalletModal] = useState(false);
