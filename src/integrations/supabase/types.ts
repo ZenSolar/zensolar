@@ -948,6 +948,8 @@ export type Database = {
     }
     Functions: {
       get_schema_snapshot: { Args: never; Returns: Json }
+      get_viewer_target_admin: { Args: never; Returns: string }
+      has_dashboard_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -965,10 +967,11 @@ export type Database = {
         }
         Returns: Json
       }
+      is_viewer: { Args: { _user_id: string }; Returns: boolean }
       lookup_referral_code: { Args: { code: string }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "user" | "editor"
+      app_role: "admin" | "user" | "editor" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1096,7 +1099,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "editor"],
+      app_role: ["admin", "user", "editor", "viewer"],
     },
   },
 } as const

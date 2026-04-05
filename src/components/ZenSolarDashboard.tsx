@@ -52,7 +52,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     setIsAutoSyncing,
   } = useDashboardData();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { isAdmin, isAdminView } = useAdminCheck();
+  const { isAdmin, isAdminView, isViewer } = useAdminCheck();
   const { triggerConfetti } = useConfetti();
   const { 
     hiddenFields, 
@@ -109,15 +109,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const hasWalletConnected = !!profile?.wallet_address;
   
   // In New User View mode, always show onboarding cards
-  const showWalletPrompt = isNewUserView || !hasWalletConnected;
-  const showEnergyPrompt = isNewUserView || !hasEnergyConnected;
+  const showWalletPrompt = !isViewer && (isNewUserView || !hasWalletConnected);
+  const showEnergyPrompt = !isViewer && (isNewUserView || !hasEnergyConnected);
   
   // Show wallet setup modal for users without wallet (not in demo/new user view mode)
   const [showWalletModal, setShowWalletModal] = useState(false);
   
   useEffect(() => {
     // Show modal after a brief delay if user has no wallet and isn't in demo/new user view
-    if (!isDemo && !isNewUserView && !hasWalletConnected && !profileLoading) {
+    if (!isDemo && !isNewUserView && !isViewer && !hasWalletConnected && !profileLoading) {
       const timer = setTimeout(() => setShowWalletModal(true), 500);
       return () => clearTimeout(timer);
     }
@@ -226,7 +226,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             currentActivity={currentActivity}
             refreshInfo={{ lastUpdatedAt }}
             connectedProviders={connectedProviders}
-            onMintRequest={profile?.wallet_address ? handleMintRequest : undefined}
+            onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
             onMintSuccess={handleMintSuccess}
             tokenPrice={tokenPrice}
             lifetimeMinted={activityData.lifetimeMinted}
@@ -240,25 +240,27 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        <AnimatedItem>
-          <RewardActions 
-            ref={rewardActionsRef}
-            onRefresh={refreshDashboard} 
-            isLoading={dataLoading}
-            walletAddress={isNewUserView ? undefined : profile?.wallet_address}
-            pendingRewards={isNewUserView ? {
-              solar: 0,
-              evMiles: 0,
-              battery: 0,
-              charging: 0,
-            } : {
-              solar: currentActivity.solarKwh,
-              evMiles: currentActivity.evMiles,
-              battery: currentActivity.batteryKwh,
-              charging: currentActivity.chargingKwh,
-            }}
-          />
-        </AnimatedItem>
+        {!isViewer && (
+          <AnimatedItem>
+            <RewardActions 
+              ref={rewardActionsRef}
+              onRefresh={refreshDashboard} 
+              isLoading={dataLoading}
+              walletAddress={isNewUserView ? undefined : profile?.wallet_address}
+              pendingRewards={isNewUserView ? {
+                solar: 0,
+                evMiles: 0,
+                battery: 0,
+                charging: 0,
+              } : {
+                solar: currentActivity.solarKwh,
+                evMiles: currentActivity.evMiles,
+                battery: currentActivity.batteryKwh,
+                charging: currentActivity.chargingKwh,
+              }}
+            />
+          </AnimatedItem>
+        )}
 
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
@@ -296,40 +298,42 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
-        <AnimatedItem className="space-y-3">
-          <Button
-            onClick={() => nftQuickMintRef.current?.openDialog()}
-            disabled={dataLoading}
-            className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
-            size="lg"
-          >
-            <Images className="mr-2 h-4 w-4" />
-            MINT ZENSOLAR NFTs
-            <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
-              {totalNftsAvailable}
-            </Badge>
-          </Button>
-          
-          <Button
-            onClick={refreshDashboard}
-            disabled={dataLoading || isAutoSyncing}
-            variant="outline"
-            className="w-full"
-            size="lg"
-          >
-            {dataLoading || isAutoSyncing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isAutoSyncing ? 'SYNCING DATA...' : 'REFRESHING...'}
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                REFRESH DASHBOARD
-              </>
-            )}
-          </Button>
-        </AnimatedItem>
+        {!isViewer && (
+          <AnimatedItem className="space-y-3">
+            <Button
+              onClick={() => nftQuickMintRef.current?.openDialog()}
+              disabled={dataLoading}
+              className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
+              size="lg"
+            >
+              <Images className="mr-2 h-4 w-4" />
+              MINT ZENSOLAR NFTs
+              <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
+                {totalNftsAvailable}
+              </Badge>
+            </Button>
+            
+            <Button
+              onClick={refreshDashboard}
+              disabled={dataLoading || isAutoSyncing}
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              {dataLoading || isAutoSyncing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isAutoSyncing ? 'SYNCING DATA...' : 'REFRESHING...'}
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  REFRESH DASHBOARD
+                </>
+              )}
+            </Button>
+          </AnimatedItem>
+        )}
 
         {/* NFT Quick Mint Dialog */}
         <NFTQuickMintDialog

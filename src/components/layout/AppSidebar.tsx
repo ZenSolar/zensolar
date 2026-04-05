@@ -153,7 +153,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAdmin } = useAdminCheck();
+  const { isAdmin, isViewer, hasDashboardAccess } = useAdminCheck();
   const { theme, setTheme } = useTheme();
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -285,8 +285,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Admin Navigation - Only visible to admins */}
-        {isAdmin && (
+        {/* Admin Navigation - Visible to admins, editors, and viewers (read-only for viewers) */}
+        {hasDashboardAccess && (
           <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
