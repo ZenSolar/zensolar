@@ -117,7 +117,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   
   useEffect(() => {
     // Show modal after a brief delay if user has no wallet and isn't in demo/new user view
-    if (!isDemo && !isNewUserView && !hasWalletConnected && !profileLoading) {
+    if (!isDemo && !isNewUserView && !isViewer && !hasWalletConnected && !profileLoading) {
       const timer = setTimeout(() => setShowWalletModal(true), 500);
       return () => clearTimeout(timer);
     }
