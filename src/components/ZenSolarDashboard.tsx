@@ -298,40 +298,42 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
-        <AnimatedItem className="space-y-3">
-          <Button
-            onClick={() => nftQuickMintRef.current?.openDialog()}
-            disabled={dataLoading}
-            className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
-            size="lg"
-          >
-            <Images className="mr-2 h-4 w-4" />
-            MINT ZENSOLAR NFTs
-            <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
-              {totalNftsAvailable}
-            </Badge>
-          </Button>
-          
-          <Button
-            onClick={refreshDashboard}
-            disabled={dataLoading || isAutoSyncing}
-            variant="outline"
-            className="w-full"
-            size="lg"
-          >
-            {dataLoading || isAutoSyncing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isAutoSyncing ? 'SYNCING DATA...' : 'REFRESHING...'}
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                REFRESH DASHBOARD
-              </>
-            )}
-          </Button>
-        </AnimatedItem>
+        {!isViewer && (
+          <AnimatedItem className="space-y-3">
+            <Button
+              onClick={() => nftQuickMintRef.current?.openDialog()}
+              disabled={dataLoading}
+              className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
+              size="lg"
+            >
+              <Images className="mr-2 h-4 w-4" />
+              MINT ZENSOLAR NFTs
+              <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
+                {totalNftsAvailable}
+              </Badge>
+            </Button>
+            
+            <Button
+              onClick={refreshDashboard}
+              disabled={dataLoading || isAutoSyncing}
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              {dataLoading || isAutoSyncing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isAutoSyncing ? 'SYNCING DATA...' : 'REFRESHING...'}
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  REFRESH DASHBOARD
+                </>
+              )}
+            </Button>
+          </AnimatedItem>
+        )}
 
         {/* NFT Quick Mint Dialog */}
         <NFTQuickMintDialog
