@@ -285,8 +285,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Admin Navigation - Only visible to admins */}
-        {isAdmin && (
+        {/* Admin Navigation - Visible to admins, editors, and viewers (read-only for viewers) */}
+        {hasDashboardAccess && (
           <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
