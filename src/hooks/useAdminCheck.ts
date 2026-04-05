@@ -33,16 +33,15 @@ export function useAdminCheck() {
       console.log('[AdminCheck] Checking admin status for user:', user.id, user.email);
       
       try {
-        // Server-side admin check using the has_role RPC function
-        const { data, error } = await supabase.rpc('has_role', {
+        // Server-side check: admin OR editor role grants dashboard access
+        const { data, error } = await supabase.rpc('is_admin_or_editor', {
           _user_id: user.id,
-          _role: 'admin'
         });
 
-        console.log('[AdminCheck] RPC result:', { data, error });
+        console.log('[AdminCheck] RPC is_admin_or_editor result:', { data, error });
 
         if (error) {
-          console.error('[AdminCheck] Error checking admin status:', error);
+          console.error('[AdminCheck] Error checking admin/editor status:', error);
           setIsAdmin(false);
         } else {
           console.log('[AdminCheck] Setting isAdmin to:', data === true);
