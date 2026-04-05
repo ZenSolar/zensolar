@@ -948,6 +948,7 @@ export type Database = {
     }
     Functions: {
       get_schema_snapshot: { Args: never; Returns: Json }
+      get_viewer_target_admin: { Args: never; Returns: string }
       has_dashboard_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
