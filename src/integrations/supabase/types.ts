@@ -948,6 +948,7 @@ export type Database = {
     }
     Functions: {
       get_schema_snapshot: { Args: never; Returns: Json }
+      has_dashboard_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -965,6 +966,7 @@ export type Database = {
         }
         Returns: Json
       }
+      is_viewer: { Args: { _user_id: string }; Returns: boolean }
       lookup_referral_code: { Args: { code: string }; Returns: string }
     }
     Enums: {
