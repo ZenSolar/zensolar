@@ -956,6 +956,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_admin_or_editor: { Args: { _user_id: string }; Returns: boolean }
       is_device_claimed: {
         Args: {
           _current_user_id?: string
@@ -967,7 +968,7 @@ export type Database = {
       lookup_referral_code: { Args: { code: string }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1095,7 +1096,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "editor"],
     },
   },
 } as const
