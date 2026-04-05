@@ -968,7 +968,7 @@ export type Database = {
       lookup_referral_code: { Args: { code: string }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "user" | "editor"
+      app_role: "admin" | "user" | "editor" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1096,7 +1096,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "editor"],
+      app_role: ["admin", "user", "editor", "viewer"],
     },
   },
 } as const
