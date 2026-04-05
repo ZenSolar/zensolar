@@ -956,6 +956,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_admin_or_editor: { Args: { _user_id: string }; Returns: boolean }
       is_device_claimed: {
         Args: {
           _current_user_id?: string
