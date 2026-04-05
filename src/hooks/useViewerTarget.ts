@@ -17,18 +17,12 @@ export function useViewerTarget(): string | null {
       return;
     }
 
-    // Find the first admin user to mirror
     const fetchAdmin = async () => {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', 'admin')
-        .limit(1)
-        .single();
+      const { data, error } = await supabase.rpc('get_viewer_target_admin');
 
       if (!error && data) {
-        console.log('[ViewerTarget] Viewer will mirror admin:', data.user_id);
-        setAdminUserId(data.user_id);
+        console.log('[ViewerTarget] Viewer will mirror admin:', data);
+        setAdminUserId(data as string);
       }
     };
 
