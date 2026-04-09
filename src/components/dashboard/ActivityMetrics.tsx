@@ -856,7 +856,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 <span className={cn(
                   "transition-all duration-300",
                   active ? "text-foreground" : "text-muted-foreground"
-                )}>
+                )} style={isBursting ? { textShadow: styles.textGlow, transition: 'text-shadow 200ms ease-out' } : { transition: 'text-shadow 200ms ease-out' }}>
                   {value.toLocaleString()}
                 </span>
                 <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
