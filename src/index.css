@@ -265,11 +265,14 @@
 
 @keyframes zenFlareParticle {
   0% {
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1) rotate(0deg);
     opacity: 1;
   }
+  60% {
+    opacity: 0.8;
+  }
   100% {
-    transform: translate(var(--tx), var(--ty)) scale(0.3);
+    transform: translate(var(--tx), var(--ty)) scale(0.2) rotate(180deg);
     opacity: 0;
   }
 }
@@ -277,14 +280,14 @@
 @keyframes zenFlareFlash {
   0% {
     transform: scale(0.5);
-    opacity: 0.8;
+    opacity: 0.9;
   }
-  50% {
-    transform: scale(2);
-    opacity: 0.4;
+  40% {
+    transform: scale(2.5);
+    opacity: 0.5;
   }
   100% {
-    transform: scale(3);
+    transform: scale(4);
     opacity: 0;
   }
 }
