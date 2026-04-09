@@ -717,6 +717,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTapTimeRef = React.useRef<number>(0);
+  const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const DOUBLE_TAP_WINDOW = 400; // ms window for second tap
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
     if (relX !== undefined && relY !== undefined) {
@@ -725,7 +728,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     setIsChargingUp(false);
     setIsBursting(true);
     playMintSound(color);
-    // Haptic burst — the big release
+    // Haptic burst
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(haptic); } catch { /* silent */ }
     }
@@ -733,6 +736,30 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
+    }).catch(() => {});
+
+    setTimeout(() => {
+      setIsBursting(false);
+      setTouchPoint(null);
+    }, 1400);
+  }, [haptic, playMintSound, color]);
+
+  // Double-tap burst — stronger, triggers confirm
+  const triggerDoubleBurst = useCallback((relX?: number, relY?: number) => {
+    if (relX !== undefined && relY !== undefined) {
+      setTouchPoint({ x: relX, y: relY });
+    }
+    setIsChargingUp(false);
+    setIsBursting(true);
+    playMintSound(color);
+    // Stronger haptic for double tap
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate([20, 50, 30]); } catch { /* silent */ }
+    }
+    import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 100);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 250);
     }).catch(() => {});
 
     setTimeout(() => {
@@ -750,14 +777,37 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     };
   };
 
-  // Click handler for desktop — immediate burst + delayed confirm
+  /** Process a confirmed tap — detect single vs double */
+  const processTap = useCallback((posX: number, posY: number) => {
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapTimeRef.current;
+
+    if (timeSinceLastTap < DOUBLE_TAP_WINDOW) {
+      // ⚡ DOUBLE TAP — trigger confirm
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      lastTapTimeRef.current = 0;
+      triggerDoubleBurst(posX, posY);
+      if (onTap) {
+        setTimeout(() => onTap(), 2500);
+      }
+    } else {
+      // First tap — just the experience, wait to see if second tap comes
+      lastTapTimeRef.current = now;
+      triggerBurst(posX, posY);
+      // Clear any pending timer
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = setTimeout(() => {
+        // Single tap confirmed — no action needed, burst already played
+        lastTapTimeRef.current = 0;
+      }, DOUBLE_TAP_WINDOW);
+    }
+  }, [triggerBurst, triggerDoubleBurst, onTap]);
+
+  // Click handler for desktop
   const handleClick = (e: React.MouseEvent) => {
     if (!isTappable || !onTap) return;
-    // Skip if touch already handled it
-    if (touchStartRef.current !== null) return;
     const pos = getTouchRelativePos(e.clientX, e.clientY);
-    triggerBurst(pos.x, pos.y);
-    setTimeout(() => onTap(), 2500);
+    processTap(pos.x, pos.y);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -768,15 +818,13 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       y: touch.clientY,
       time: Date.now(),
     };
-    // Immediate press-down visual
     setIsPressing(true);
     const pos = getTouchRelativePos(touch.clientX, touch.clientY);
     setTouchPoint(pos);
 
-    // Start charging up after a short hold (200ms)
+    // Charge-up glow after short hold
     chargeTimerRef.current = setTimeout(() => {
       setIsChargingUp(true);
-      // Subtle haptic pulse when charge begins
       import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
         Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
       }).catch(() => {});
@@ -801,15 +849,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
     const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
     
-    // Allow taps — no time limit, just check finger didn't move (scroll)
     const isTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD;
     
-    if (isTap && onTap) {
+    if (isTap) {
       e.preventDefault();
       const pos = getTouchRelativePos(touch.clientX, touch.clientY);
-      triggerBurst(pos.x, pos.y);
-      // Delay before confirm appears — let the burst play out
-      setTimeout(() => onTap(), 2500);
+      processTap(pos.x, pos.y);
     } else {
       setIsChargingUp(false);
       setTouchPoint(null);
@@ -820,7 +865,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
 
   const handleTouchCancel = () => {
     setIsPressing(false);
+    setIsChargingUp(false);
     setTouchPoint(null);
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
     touchStartRef.current = null;
   };
 
