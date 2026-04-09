@@ -54,19 +54,33 @@ export function useMintSound() {
       master.gain.value = 0.8;
       master.connect(ctx.destination);
 
-      // Subtle echo — single soft repeat for spatial depth
-      const echoDelay = ctx.createDelay(1.0);
-      echoDelay.delayTime.value = 0.18;
-      const echoGain = ctx.createGain();
-      echoGain.gain.value = 0.15;
-      const echoLP = ctx.createBiquadFilter();
-      echoLP.type = 'lowpass';
-      echoLP.frequency.value = 200;
-      echoLP.Q.value = 0.1;
-      master.connect(echoDelay);
-      echoDelay.connect(echoLP);
-      echoLP.connect(echoGain);
-      echoGain.connect(ctx.destination);
+      // Echo bus — two taps for reverb-like spatial depth
+      const echo1Delay = ctx.createDelay(1.0);
+      echo1Delay.delayTime.value = 0.18;
+      const echo1Gain = ctx.createGain();
+      echo1Gain.gain.value = 0.15;
+      const echo1LP = ctx.createBiquadFilter();
+      echo1LP.type = 'lowpass';
+      echo1LP.frequency.value = 200;
+      echo1LP.Q.value = 0.1;
+      master.connect(echo1Delay);
+      echo1Delay.connect(echo1LP);
+      echo1LP.connect(echo1Gain);
+      echo1Gain.connect(ctx.destination);
+
+      // Second echo — darker, further away
+      const echo2Delay = ctx.createDelay(2.0);
+      echo2Delay.delayTime.value = 0.38;
+      const echo2Gain = ctx.createGain();
+      echo2Gain.gain.value = 0.07;
+      const echo2LP = ctx.createBiquadFilter();
+      echo2LP.type = 'lowpass';
+      echo2LP.frequency.value = 140;
+      echo2LP.Q.value = 0.05;
+      master.connect(echo2Delay);
+      echo2Delay.connect(echo2LP);
+      echo2LP.connect(echo2Gain);
+      echo2Gain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
       //  ZenSolar™ Tap-to-Mint Signature Sound
@@ -337,19 +351,33 @@ export function useMintSound() {
       master.gain.value = 0.8;
       master.connect(ctx.destination);
 
-      // Subtle echo — single soft repeat for spatial depth
-      const echoDelay = ctx.createDelay(1.0);
-      echoDelay.delayTime.value = 0.22;
-      const echoGain = ctx.createGain();
-      echoGain.gain.value = 0.12;
-      const echoLP = ctx.createBiquadFilter();
-      echoLP.type = 'lowpass';
-      echoLP.frequency.value = 180;
-      echoLP.Q.value = 0.1;
-      master.connect(echoDelay);
-      echoDelay.connect(echoLP);
-      echoLP.connect(echoGain);
-      echoGain.connect(ctx.destination);
+      // Echo bus — two taps for reverb-like spatial depth
+      const echo1Delay = ctx.createDelay(1.0);
+      echo1Delay.delayTime.value = 0.22;
+      const echo1Gain = ctx.createGain();
+      echo1Gain.gain.value = 0.12;
+      const echo1LP = ctx.createBiquadFilter();
+      echo1LP.type = 'lowpass';
+      echo1LP.frequency.value = 180;
+      echo1LP.Q.value = 0.1;
+      master.connect(echo1Delay);
+      echo1Delay.connect(echo1LP);
+      echo1LP.connect(echo1Gain);
+      echo1Gain.connect(ctx.destination);
+
+      // Second echo — darker, further away
+      const echo2Delay = ctx.createDelay(2.0);
+      echo2Delay.delayTime.value = 0.45;
+      const echo2Gain = ctx.createGain();
+      echo2Gain.gain.value = 0.06;
+      const echo2LP = ctx.createBiquadFilter();
+      echo2LP.type = 'lowpass';
+      echo2LP.frequency.value = 120;
+      echo2LP.Q.value = 0.05;
+      master.connect(echo2Delay);
+      echo2Delay.connect(echo2LP);
+      echo2LP.connect(echo2Gain);
+      echo2Gain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
       //  ZenSolar™ Confirm Sound — Meditative Bass
