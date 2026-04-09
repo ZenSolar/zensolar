@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { useMintSound } from '@/hooks/useMintSound';
