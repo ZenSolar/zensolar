@@ -303,7 +303,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             <Button
               onClick={() => nftQuickMintRef.current?.openDialog()}
               disabled={dataLoading}
-              className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
+              className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow zen-btn-glow shadow-lg shadow-primary/20"
               size="lg"
             >
               <Images className="mr-2 h-4 w-4" />
@@ -317,7 +317,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               onClick={refreshDashboard}
               disabled={dataLoading || isAutoSyncing}
               variant="outline"
-              className="w-full"
+              className="w-full zen-btn-glow shadow-sm"
               size="lg"
             >
               {dataLoading || isAutoSyncing ? (

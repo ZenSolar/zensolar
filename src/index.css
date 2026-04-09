@@ -251,6 +251,40 @@
   50% { transform: scale(1.15); opacity: 0.7; }
 }
 
+/* Ambient idle glow — subtle breathing shadow on tappable KPI rows */
+.zen-glow-idle {
+  animation: zenIdleGlow 3s ease-in-out infinite;
+}
+@keyframes zenIdleGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.04); }
+}
+
+/* Dashboard button glow hover/active states */
+.zen-btn-glow {
+  position: relative;
+  transition: box-shadow 0.3s ease-out, transform 0.15s ease-out;
+}
+.zen-btn-glow::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+  background: inherit;
+  filter: blur(12px);
+  z-index: -1;
+}
+.zen-btn-glow:hover::after,
+.zen-btn-glow:active::after {
+  opacity: 0.4;
+}
+.zen-btn-glow:active {
+  transform: scale(0.97);
+}
+
 /* ZenSolar Flare Burst — KPI tap effect */
 @keyframes zenFlareRing {
   0% {
