@@ -767,8 +767,13 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       onClick={handleTap}
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
-      whileTap={isTappable ? { scale: 0.98 } : undefined}
+      whileTap={isTappable ? { scale: 0.95 } : undefined}
       whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
+      animate={isBursting ? { 
+        scale: [0.95, 1.03, 1],
+        borderColor: [`rgba(${styles.rgba}, 0.8)`, `rgba(${styles.rgba}, 0.3)`, 'rgba(255,255,255,0.1)'],
+      } : {}}
+      transition={isBursting ? { duration: 0.4, ease: 'easeOut' } : { duration: 0.15 }}
       className={cn(
         "p-3.5 rounded-xl border-l-[3px] border border-border/50 transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
         styles.leftBorder,
