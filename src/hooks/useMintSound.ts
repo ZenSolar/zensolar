@@ -306,38 +306,38 @@ export function useMintSound() {
       tech.start(t0);
       tech.stop(t0 + 0.8);
 
-      // ─── Electric hum buzz — 60Hz mains hum that swells in the middle ───
+      // ─── Electric hum buzz — intertwined with gong, same start/end ───
       const humGain = ctx.createGain();
       humGain.gain.setValueAtTime(0, t0);
-      humGain.gain.linearRampToValueAtTime(0.0, t0 + 0.15);
+      humGain.gain.linearRampToValueAtTime(0.02, t0 + 0.004);
       humGain.gain.linearRampToValueAtTime(0.035, t0 + 0.5);
       humGain.gain.linearRampToValueAtTime(0.04, t0 + 0.8);
-      humGain.gain.exponentialRampToValueAtTime(0.012, t0 + 1.4);
-      humGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.2);
+      humGain.gain.exponentialRampToValueAtTime(0.012, t0 + 1.8);
+      humGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.6);
       humGain.connect(master);
 
       const hum = ctx.createOscillator();
       hum.type = 'sawtooth';
       hum.frequency.setValueAtTime(60, t0);
 
-      // Heavy lowpass to keep only the buzzy fundamental, no harshness
       const humLP = ctx.createBiquadFilter();
       humLP.type = 'lowpass';
       humLP.frequency.value = 120;
       humLP.Q.value = 1.5;
 
-      // Second harmonic for that transformer-hum character
+      // Second harmonic — same envelope shape
       const hum2Gain = ctx.createGain();
       hum2Gain.gain.setValueAtTime(0, t0);
-      hum2Gain.gain.linearRampToValueAtTime(0.0, t0 + 0.2);
+      hum2Gain.gain.linearRampToValueAtTime(0.01, t0 + 0.004);
       hum2Gain.gain.linearRampToValueAtTime(0.015, t0 + 0.6);
       hum2Gain.gain.linearRampToValueAtTime(0.018, t0 + 0.9);
-      hum2Gain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.0);
+      hum2Gain.gain.exponentialRampToValueAtTime(0.005, t0 + 1.8);
+      hum2Gain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.6);
       hum2Gain.connect(master);
 
       const hum2 = ctx.createOscillator();
       hum2.type = 'sine';
-      hum2.frequency.setValueAtTime(120, t0); // 2nd harmonic of 60Hz
+      hum2.frequency.setValueAtTime(120, t0);
 
       const hum2LP = ctx.createBiquadFilter();
       hum2LP.type = 'lowpass';
@@ -347,12 +347,12 @@ export function useMintSound() {
       hum.connect(humLP);
       humLP.connect(humGain);
       hum.start(t0);
-      hum.stop(t0 + 2.4);
+      hum.stop(t0 + 2.6);
 
       hum2.connect(hum2LP);
       hum2LP.connect(hum2Gain);
       hum2.start(t0);
-      hum2.stop(t0 + 2.2);
+      hum2.stop(t0 + 2.6);
 
       // ─── Coin weight — low rumble ───
       const coinTime = t0 + 0.015;
