@@ -279,7 +279,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             </div>
-            <div className="relative flex items-center gap-2 px-4 bg-background">
+            <div className="relative flex items-center gap-2 px-4 bg-background/80 backdrop-blur-sm rounded-full">
               <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
               <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
               <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
