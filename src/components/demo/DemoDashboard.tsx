@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
+import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
@@ -113,15 +114,16 @@ export function DemoDashboard() {
   return (
     <div 
       ref={containerRef}
-      className="bg-background min-h-full w-full max-w-full overflow-x-hidden"
+      className="bg-background min-h-full w-full max-w-full overflow-x-hidden relative"
     >
+      <DashboardHexBackground />
       <PullToRefreshIndicator 
         pullDistance={pullDistance} 
         isRefreshing={isRefreshing}
         isReady={isReady}
       />
       
-      <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-[max(0.75rem,env(safe-area-inset-left))] sm:px-[max(1rem,env(safe-area-inset-left))] py-6 space-y-6 box-border overflow-x-hidden">
+      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-[max(0.75rem,env(safe-area-inset-left))] sm:px-[max(1rem,env(safe-area-inset-left))] py-6 space-y-6 box-border overflow-x-hidden">
         {/* Dashboard Header - matches real dashboard exactly */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
           <div className="space-y-1.5">

@@ -18,6 +18,7 @@ import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { AnimatedEnergyFlow } from './dashboard/AnimatedEnergyFlow';
+import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 
 import { NFTQuickMintDialog, NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
@@ -164,24 +165,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   return (
     <div 
       ref={containerRef}
-      className="min-h-full w-full relative"
+      className="bg-background min-h-full w-full relative"
     >
-      {/* Hex grid background — covers entire scrollable area */}
-      <div 
-        className="absolute inset-0 pointer-events-none overflow-hidden"
-        aria-hidden="true"
-        style={{ zIndex: 0 }}
-      >
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="hex-grid" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(1)">
-              <path d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100" fill="none" stroke="rgba(45,185,140,0.10)" strokeWidth="0.75"/>
-              <path d="M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34" fill="none" stroke="rgba(45,185,140,0.05)" strokeWidth="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#hex-grid)" />
-        </svg>
-      </div>
+      <DashboardHexBackground />
       {isDemo && <DashboardHeader isDemo={isDemo} />}
       
       <PullToRefreshIndicator 
