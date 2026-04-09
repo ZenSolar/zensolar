@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, AlertCircle, Sun, Car, BatteryFull, Zap, Wallet, Image } from 'lucide-react';
 import { useState, forwardRef, useImperativeHandle } from 'react';
+import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -438,10 +439,13 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
             <Button variant="outline" onClick={() => setConfirmMintDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleConfirmMint} className="gap-2">
+            <MintEffectButton
+              onClick={handleConfirmMint}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
               <Zap className="h-4 w-4" />
               Mint Now
-            </Button>
+            </MintEffectButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
