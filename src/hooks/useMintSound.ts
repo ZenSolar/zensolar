@@ -48,195 +48,228 @@ export function useMintSound() {
     try {
       const ctx = getCtx();
       const now = ctx.currentTime;
-      const duration = 0.3;
 
-      // --- Layer 1: Low sine hum (gentle foundation) ---
-      const humGain = ctx.createGain();
-      humGain.gain.setValueAtTime(0, now);
-      humGain.gain.linearRampToValueAtTime(0.07, now + 0.01);
-      humGain.gain.setValueAtTime(0.07, now + duration * 0.4);
-      humGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-      humGain.connect(ctx.destination);
+      // --- Layer 1: Coin STRIKE — metal-on-metal stamp impact ---
+      // Sharp sine burst with rapid pitch drop simulates die hitting blank
+      const strikeGain = ctx.createGain();
+      strikeGain.gain.setValueAtTime(0.22, now);
+      strikeGain.gain.exponentialRampToValueAtTime(0.06, now + 0.006);
+      strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      strikeGain.connect(ctx.destination);
 
-      const hum = ctx.createOscillator();
-      hum.type = 'sine';
-      hum.frequency.setValueAtTime(65, now); // Very low — like a transformer hum
-      hum.frequency.exponentialRampToValueAtTime(55, now + duration);
-      hum.connect(humGain);
-      hum.start(now);
-      hum.stop(now + duration + 0.05);
+      const strike = ctx.createOscillator();
+      strike.type = 'sine';
+      strike.frequency.setValueAtTime(1200, now);       // High metallic impact
+      strike.frequency.exponentialRampToValueAtTime(400, now + 0.015); // Fast pitch drop = stamp
+      strike.connect(strikeGain);
+      strike.start(now);
+      strike.stop(now + 0.09);
 
-      // --- Layer 2: Soft triangle overtone (warmth) ---
-      const warmGain = ctx.createGain();
-      warmGain.gain.setValueAtTime(0, now);
-      warmGain.gain.linearRampToValueAtTime(0.03, now + 0.015);
-      warmGain.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.7);
-      warmGain.connect(ctx.destination);
+      // --- Layer 2: Coin RING — the metallic shimmer after the strike ---
+      const ringGain = ctx.createGain();
+      ringGain.gain.setValueAtTime(0, now);
+      ringGain.gain.linearRampToValueAtTime(0.08, now + 0.005);
+      ringGain.gain.setValueAtTime(0.08, now + 0.04);
+      ringGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      ringGain.connect(ctx.destination);
 
-      const warm = ctx.createOscillator();
-      warm.type = 'triangle';
-      warm.frequency.setValueAtTime(130, now); // Octave above
-      warm.frequency.exponentialRampToValueAtTime(110, now + duration * 0.6);
-      warm.connect(warmGain);
-      warm.start(now);
-      warm.stop(now + duration);
+      const ring = ctx.createOscillator();
+      ring.type = 'sine';
+      ring.frequency.setValueAtTime(2400, now);  // High coin ring
+      ring.frequency.exponentialRampToValueAtTime(1800, now + 0.3);
+      ring.connect(ringGain);
+      ring.start(now);
+      ring.stop(now + 0.4);
 
-      // --- Layer 3: Very subtle electric texture (filtered noise) ---
-      const texLen = 0.06;
-      const bufSize = Math.ceil(ctx.sampleRate * texLen);
-      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) {
-        // Very sparse, gentle crackle
-        data[i] = Math.random() < 0.15
-          ? (Math.random() * 2 - 1) * (1 - i / bufSize) * 0.4
-          : 0;
+      // Second harmonic — gives the ring body
+      const ring2Gain = ctx.createGain();
+      ring2Gain.gain.setValueAtTime(0, now);
+      ring2Gain.gain.linearRampToValueAtTime(0.04, now + 0.005);
+      ring2Gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      ring2Gain.connect(ctx.destination);
+
+      const ring2 = ctx.createOscillator();
+      ring2.type = 'sine';
+      ring2.frequency.setValueAtTime(3600, now); // Overtone shimmer
+      ring2.frequency.exponentialRampToValueAtTime(2800, now + 0.2);
+      ring2.connect(ring2Gain);
+      ring2.start(now);
+      ring2.stop(now + 0.3);
+
+      // --- Layer 3: Sub-bass THUMP — the physical weight of the press ---
+      const bassGain = ctx.createGain();
+      bassGain.gain.setValueAtTime(0.12, now);
+      bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      bassGain.connect(ctx.destination);
+
+      const bass = ctx.createOscillator();
+      bass.type = 'sine';
+      bass.frequency.setValueAtTime(60, now);
+      bass.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+      bass.connect(bassGain);
+      bass.start(now);
+      bass.stop(now + 0.15);
+
+      // --- Layer 4: Metal transient — the "clink" texture ---
+      const clinkLen = 0.008;
+      const clinkSize = Math.ceil(ctx.sampleRate * clinkLen);
+      const clinkBuf = ctx.createBuffer(1, clinkSize, ctx.sampleRate);
+      const clinkData = clinkBuf.getChannelData(0);
+      for (let i = 0; i < clinkSize; i++) {
+        const env = Math.exp(-i / (clinkSize * 0.08));
+        clinkData[i] = (Math.random() * 2 - 1) * env;
       }
-      const tex = ctx.createBufferSource();
-      tex.buffer = buf;
+      const clinkSrc = ctx.createBufferSource();
+      clinkSrc.buffer = clinkBuf;
 
-      const texGain = ctx.createGain();
-      texGain.gain.setValueAtTime(0.025, now);
-      texGain.gain.exponentialRampToValueAtTime(0.001, now + texLen);
+      const clinkBP = ctx.createBiquadFilter();
+      clinkBP.type = 'bandpass';
+      clinkBP.frequency.value = 4000; // Bright metallic
+      clinkBP.Q.value = 4;
 
-      // Low-pass keeps it muffled/warm, not sharp
-      const lp = ctx.createBiquadFilter();
-      lp.type = 'lowpass';
-      lp.frequency.value = 2000;
-      lp.Q.value = 0.7;
+      const clinkGain = ctx.createGain();
+      clinkGain.gain.setValueAtTime(0.15, now);
+      clinkGain.gain.exponentialRampToValueAtTime(0.001, now + clinkLen);
 
-      tex.connect(lp);
-      lp.connect(texGain);
-      texGain.connect(ctx.destination);
-      tex.start(now);
-      tex.stop(now + texLen);
+      clinkSrc.connect(clinkBP);
+      clinkBP.connect(clinkGain);
+      clinkGain.connect(ctx.destination);
+      clinkSrc.start(now);
+      clinkSrc.stop(now + clinkLen + 0.002);
 
-      // --- Layer 4: Wood-knock (organic tactile thunk) ---
-      // Resonant body tone — like knuckle on warm wood
-      const knockGain = ctx.createGain();
-      knockGain.gain.setValueAtTime(0.15, now);
-      knockGain.gain.exponentialRampToValueAtTime(0.04, now + 0.008);
-      knockGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-      knockGain.connect(ctx.destination);
-
-      const knock = ctx.createOscillator();
-      knock.type = 'sine';
-      knock.frequency.setValueAtTime(180, now); // Wood body resonance
-      knock.frequency.exponentialRampToValueAtTime(120, now + 0.03); // Quick pitch drop = hollow wood
-      knock.connect(knockGain);
-      knock.start(now);
-      knock.stop(now + 0.07);
-
-      // Wood attack transient — band-passed noise burst for the "tap" texture
-      const woodLen = 0.012;
-      const woodBufSize = Math.ceil(ctx.sampleRate * woodLen);
-      const woodBuf = ctx.createBuffer(1, woodBufSize, ctx.sampleRate);
-      const woodData = woodBuf.getChannelData(0);
-      for (let i = 0; i < woodBufSize; i++) {
-        const env = Math.exp(-i / (woodBufSize * 0.15)); // Sharp exponential decay
-        woodData[i] = (Math.random() * 2 - 1) * env;
-      }
-      const woodSrc = ctx.createBufferSource();
-      woodSrc.buffer = woodBuf;
-
-      const woodBP = ctx.createBiquadFilter();
-      woodBP.type = 'bandpass';
-      woodBP.frequency.value = 800; // Mid-range — warm, not clicky
-      woodBP.Q.value = 2.5;
-
-      const woodGain = ctx.createGain();
-      woodGain.gain.setValueAtTime(0.12, now);
-      woodGain.gain.exponentialRampToValueAtTime(0.001, now + woodLen);
-
-      woodSrc.connect(woodBP);
-      woodBP.connect(woodGain);
-      woodGain.connect(ctx.destination);
-      woodSrc.start(now);
-      woodSrc.stop(now + woodLen + 0.002);
-
-      // --- Haptic: light tap synchronized with sound ---
       triggerHaptic('light');
     } catch {
-      // Silent fail — sound is enhancement, not critical
+      // Silent fail
     }
   }, [getCtx, triggerHaptic]);
 
-  /** Heavier haptic + sound for confirmation screen */
+  /** Confirm mint: futuristic digital CHA-CHING — coin stamp + reward fanfare */
   const playConfirmSound = useCallback(() => {
     try {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
-      // Deeper, slightly longer version
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.09, now + 0.008);
-      gain.gain.setValueAtTime(0.09, now + 0.15);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-      gain.connect(ctx.destination);
+      // --- Phase 1: Heavy coin STAMP (t=0) — the press hits ---
+      const stampGain = ctx.createGain();
+      stampGain.gain.setValueAtTime(0.25, now);
+      stampGain.gain.exponentialRampToValueAtTime(0.08, now + 0.008);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      stampGain.connect(ctx.destination);
 
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(55, now);
-      osc.frequency.exponentialRampToValueAtTime(45, now + 0.4);
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.45);
+      const stamp = ctx.createOscillator();
+      stamp.type = 'sine';
+      stamp.frequency.setValueAtTime(900, now);
+      stamp.frequency.exponentialRampToValueAtTime(200, now + 0.02); // Deep stamp
+      stamp.connect(stampGain);
+      stamp.start(now);
+      stamp.stop(now + 0.12);
 
-      // Warm overtone
-      const g2 = ctx.createGain();
-      g2.gain.setValueAtTime(0, now);
-      g2.gain.linearRampToValueAtTime(0.04, now + 0.01);
-      g2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      g2.connect(ctx.destination);
+      // Heavy sub-bass impact
+      const impactGain = ctx.createGain();
+      impactGain.gain.setValueAtTime(0.15, now);
+      impactGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      impactGain.connect(ctx.destination);
 
-      const o2 = ctx.createOscillator();
-      o2.type = 'triangle';
-      o2.frequency.setValueAtTime(110, now);
-      o2.connect(g2);
-      o2.start(now);
-      o2.stop(now + 0.35);
+      const impact = ctx.createOscillator();
+      impact.type = 'sine';
+      impact.frequency.setValueAtTime(50, now);
+      impact.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+      impact.connect(impactGain);
+      impact.start(now);
+      impact.stop(now + 0.18);
 
-      // Wood-knock — deeper, heavier for confirm
-      const knockGain = ctx.createGain();
-      knockGain.gain.setValueAtTime(0.2, now);
-      knockGain.gain.exponentialRampToValueAtTime(0.05, now + 0.01);
-      knockGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-      knockGain.connect(ctx.destination);
+      // --- Phase 2: CHA-CHING two-note (t=0.08) — digital cash register ---
+      const chaTime = now + 0.08;
 
-      const knock = ctx.createOscillator();
-      knock.type = 'sine';
-      knock.frequency.setValueAtTime(160, now); // Slightly lower = deeper wood
-      knock.frequency.exponentialRampToValueAtTime(95, now + 0.04);
-      knock.connect(knockGain);
-      knock.start(now);
-      knock.stop(now + 0.09);
+      // Note 1: "CHA" — mid tone
+      const cha1Gain = ctx.createGain();
+      cha1Gain.gain.setValueAtTime(0, chaTime);
+      cha1Gain.gain.linearRampToValueAtTime(0.1, chaTime + 0.003);
+      cha1Gain.gain.exponentialRampToValueAtTime(0.02, chaTime + 0.06);
+      cha1Gain.gain.exponentialRampToValueAtTime(0.001, chaTime + 0.12);
+      cha1Gain.connect(ctx.destination);
 
-      // Attack transient
-      const woodLen = 0.015;
-      const woodBufSize = Math.ceil(ctx.sampleRate * woodLen);
-      const woodBuf = ctx.createBuffer(1, woodBufSize, ctx.sampleRate);
-      const woodData = woodBuf.getChannelData(0);
-      for (let i = 0; i < woodBufSize; i++) {
-        woodData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (woodBufSize * 0.12));
+      const cha1 = ctx.createOscillator();
+      cha1.type = 'triangle';
+      cha1.frequency.setValueAtTime(523, chaTime); // C5
+      cha1.connect(cha1Gain);
+      cha1.start(chaTime);
+      cha1.stop(chaTime + 0.15);
+
+      // Note 2: "CHING" — higher, brighter, rings longer
+      const chingTime = now + 0.15;
+      const chingGain = ctx.createGain();
+      chingGain.gain.setValueAtTime(0, chingTime);
+      chingGain.gain.linearRampToValueAtTime(0.12, chingTime + 0.003);
+      chingGain.gain.setValueAtTime(0.12, chingTime + 0.05);
+      chingGain.gain.exponentialRampToValueAtTime(0.001, chingTime + 0.4);
+      chingGain.connect(ctx.destination);
+
+      const ching = ctx.createOscillator();
+      ching.type = 'triangle';
+      ching.frequency.setValueAtTime(784, chingTime); // G5 — ascending = "winner"
+      ching.connect(chingGain);
+      ching.start(chingTime);
+      ching.stop(chingTime + 0.45);
+
+      // "CHING" shimmer overtone
+      const shimGain = ctx.createGain();
+      shimGain.gain.setValueAtTime(0, chingTime);
+      shimGain.gain.linearRampToValueAtTime(0.05, chingTime + 0.005);
+      shimGain.gain.exponentialRampToValueAtTime(0.001, chingTime + 0.3);
+      shimGain.connect(ctx.destination);
+
+      const shim = ctx.createOscillator();
+      shim.type = 'sine';
+      shim.frequency.setValueAtTime(1568, chingTime); // G6 — octave shimmer
+      shim.connect(shimGain);
+      shim.start(chingTime);
+      shim.stop(chingTime + 0.35);
+
+      // --- Phase 3: Digital low-freq sustain (the "futuristic" tail) ---
+      const tailGain = ctx.createGain();
+      tailGain.gain.setValueAtTime(0, now + 0.1);
+      tailGain.gain.linearRampToValueAtTime(0.06, now + 0.18);
+      tailGain.gain.setValueAtTime(0.06, now + 0.3);
+      tailGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      tailGain.connect(ctx.destination);
+
+      const tail = ctx.createOscillator();
+      tail.type = 'sine';
+      tail.frequency.setValueAtTime(80, now + 0.1); // Low digital hum
+      tail.frequency.exponentialRampToValueAtTime(55, now + 0.6);
+      tail.connect(tailGain);
+      tail.start(now + 0.1);
+      tail.stop(now + 0.65);
+
+      // --- Phase 4: Metallic coin scatter texture ---
+      const scatterLen = 0.04;
+      const scatterSize = Math.ceil(ctx.sampleRate * scatterLen);
+      const scatterBuf = ctx.createBuffer(1, scatterSize, ctx.sampleRate);
+      const scatterData = scatterBuf.getChannelData(0);
+      for (let i = 0; i < scatterSize; i++) {
+        const env = Math.exp(-i / (scatterSize * 0.2));
+        scatterData[i] = Math.random() < 0.3
+          ? (Math.random() * 2 - 1) * env
+          : 0;
       }
-      const woodSrc = ctx.createBufferSource();
-      woodSrc.buffer = woodBuf;
+      const scatterSrc = ctx.createBufferSource();
+      scatterSrc.buffer = scatterBuf;
 
-      const woodBP = ctx.createBiquadFilter();
-      woodBP.type = 'bandpass';
-      woodBP.frequency.value = 600; // Warmer for confirm
-      woodBP.Q.value = 2.0;
+      const scatterHP = ctx.createBiquadFilter();
+      scatterHP.type = 'highpass';
+      scatterHP.frequency.value = 3000;
+      scatterHP.Q.value = 1;
 
-      const woodGain = ctx.createGain();
-      woodGain.gain.setValueAtTime(0.14, now);
-      woodGain.gain.exponentialRampToValueAtTime(0.001, now + woodLen);
+      const scatterGain = ctx.createGain();
+      scatterGain.gain.setValueAtTime(0.08, now + 0.14);
+      scatterGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14 + scatterLen);
 
-      woodSrc.connect(woodBP);
-      woodBP.connect(woodGain);
-      woodGain.connect(ctx.destination);
-      woodSrc.start(now);
-      woodSrc.stop(now + woodLen + 0.002);
+      scatterSrc.connect(scatterHP);
+      scatterHP.connect(scatterGain);
+      scatterGain.connect(ctx.destination);
+      scatterSrc.start(now + 0.14);
+      scatterSrc.stop(now + 0.14 + scatterLen + 0.002);
 
       triggerHaptic('confirm');
     } catch {
