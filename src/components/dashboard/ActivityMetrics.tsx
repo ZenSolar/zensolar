@@ -881,6 +881,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   };
 
   const processTap = useCallback((posX: number, posY: number) => {
+    primeAudio();
     const now = Date.now();
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
@@ -902,7 +903,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [triggerBurst, triggerDoubleBurst, updateState]);
+  }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (!isTappable || !onTap) return;

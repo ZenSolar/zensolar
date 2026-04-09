@@ -132,6 +132,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
   }, [playMintSound, updateState]);
 
   const processTap = useCallback((posX: number, posY: number) => {
+    primeAudio();
     const now = Date.now();
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
 
@@ -158,7 +159,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
       lastTapTimeRef.current = 0;
       updateState({ showTapAgain: false });
     }, DOUBLE_TAP_WINDOW);
-  }, [scheduleConfirm, triggerBurst, updateState]);
+  }, [primeAudio, scheduleConfirm, triggerBurst, updateState]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (disabled) return;
