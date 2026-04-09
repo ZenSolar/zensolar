@@ -20,17 +20,17 @@ type SoundProfile = {
   click: boolean;
 };
 
-const profiles: Record<string, SoundProfile> = {
-  // Solar: warm chime — bright rising tone
-  gold: { freq: 880, freq2: 1320, wave: 'sine', attack: 0.005, decay: 0.25, click: true },
-  // Battery: deep thump — low resonant pulse
-  teal: { freq: 220, freq2: 330, wave: 'triangle', attack: 0.003, decay: 0.2, click: true },
-  // EV Miles: electric whir — mid sweep
-  green: { freq: 440, freq2: 660, wave: 'sine', attack: 0.01, decay: 0.18, click: true },
-  // Supercharger: electric zap — sharp crackling
-  cyan: { freq: 1200, freq2: 600, wave: 'sawtooth', attack: 0.002, decay: 0.12, click: true },
-  // Home charger: soft hum — gentle pulse
-  greenGold: { freq: 520, freq2: 780, wave: 'sine', attack: 0.008, decay: 0.2, click: true },
+/**
+ * Unified "electric buzz" — a low rhythmic pulse with crackling overtones.
+ * Feels like touching a live energy conduit.
+ */
+const BUZZ: SoundProfile = {
+  freq: 90,       // Deep sub-bass foundation
+  freq2: 180,     // Octave harmonic
+  wave: 'sawtooth',
+  attack: 0.003,
+  decay: 0.35,
+  click: true,
 };
 
 export function useMintSound() {
@@ -46,76 +46,83 @@ export function useMintSound() {
     return ctxRef.current;
   }, []);
 
-  const playMintSound = useCallback((color: string) => {
+  const playMintSound = useCallback((_color?: string) => {
     try {
       const ctx = getCtx();
-      const profile = profiles[color] || profiles.gold;
+      const p = BUZZ;
       const now = ctx.currentTime;
 
-      // Master gain — keep it subtle
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(0, now);
-      master.gain.linearRampToValueAtTime(0.12, now + profile.attack);
-      master.gain.exponentialRampToValueAtTime(0.001, now + profile.attack + profile.decay);
-      master.connect(ctx.destination);
+      // --- Layer 1: Deep sawtooth pulse (the "body") ---
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(0.10, now + p.attack);
+      // Rhythmic amplitude modulation — 3 quick pulses
+      const pulseRate = 0.045;
+      for (let i = 0; i < 3; i++) {
+        const t = now + p.attack + i * pulseRate * 2;
+        masterGain.gain.setValueAtTime(0.10, t);
+        masterGain.gain.linearRampToValueAtTime(0.03, t + pulseRate);
+        masterGain.gain.linearRampToValueAtTime(0.10, t + pulseRate * 1.8);
+      }
+      masterGain.gain.exponentialRampToValueAtTime(0.001, now + p.decay);
+      masterGain.connect(ctx.destination);
 
-      // Primary tone
       const osc1 = ctx.createOscillator();
-      osc1.type = profile.wave;
-      osc1.frequency.setValueAtTime(profile.freq, now);
-      // Slight pitch rise for that "energy release" feel
-      osc1.frequency.exponentialRampToValueAtTime(profile.freq * 1.15, now + profile.decay * 0.6);
-      osc1.connect(master);
+      osc1.type = p.wave;
+      osc1.frequency.setValueAtTime(p.freq, now);
+      // Slight downward sweep for weight
+      osc1.frequency.exponentialRampToValueAtTime(p.freq * 0.7, now + p.decay);
+      osc1.connect(masterGain);
       osc1.start(now);
-      osc1.stop(now + profile.attack + profile.decay + 0.05);
+      osc1.stop(now + p.decay + 0.05);
 
-      // Harmonic layer (quieter)
+      // --- Layer 2: Octave harmonic (adds "electric" edge) ---
       const harmGain = ctx.createGain();
       harmGain.gain.setValueAtTime(0, now);
-      harmGain.gain.linearRampToValueAtTime(0.05, now + profile.attack);
-      harmGain.gain.exponentialRampToValueAtTime(0.001, now + profile.attack + profile.decay * 0.7);
+      harmGain.gain.linearRampToValueAtTime(0.04, now + p.attack);
+      harmGain.gain.exponentialRampToValueAtTime(0.001, now + p.decay * 0.6);
       harmGain.connect(ctx.destination);
 
       const osc2 = ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(profile.freq2, now);
+      osc2.type = 'square'; // Buzzy square wave
+      osc2.frequency.setValueAtTime(p.freq2, now);
+      osc2.frequency.exponentialRampToValueAtTime(p.freq2 * 0.8, now + p.decay * 0.5);
       osc2.connect(harmGain);
       osc2.start(now);
-      osc2.stop(now + profile.attack + profile.decay);
+      osc2.stop(now + p.decay);
 
-      // Click transient — very short noise burst for tactile "snap"
-      if (profile.click) {
-        const clickLen = 0.015;
-        const bufferSize = Math.ceil(ctx.sampleRate * clickLen);
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          // Decaying noise
-          data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-        }
-        const clickNode = ctx.createBufferSource();
-        clickNode.buffer = buffer;
-
-        const clickGain = ctx.createGain();
-        clickGain.gain.setValueAtTime(0.08, now);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, now + clickLen);
-
-        // Bandpass to keep it crisp, not hissy
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.value = 3000;
-        filter.Q.value = 1.5;
-
-        clickNode.connect(filter);
-        filter.connect(clickGain);
-        clickGain.connect(ctx.destination);
-        clickNode.start(now);
-        clickNode.stop(now + clickLen);
+      // --- Layer 3: High crackle transient (the "zap") ---
+      const crackleLen = 0.04;
+      const bufSize = Math.ceil(ctx.sampleRate * crackleLen);
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) {
+        // Sparse crackle — only ~30% of samples have signal
+        data[i] = Math.random() < 0.3
+          ? (Math.random() * 2 - 1) * (1 - i / bufSize) * 0.8
+          : 0;
       }
+      const crackle = ctx.createBufferSource();
+      crackle.buffer = buf;
+
+      const crackleGain = ctx.createGain();
+      crackleGain.gain.setValueAtTime(0.06, now);
+      crackleGain.gain.exponentialRampToValueAtTime(0.001, now + crackleLen);
+
+      // Bandpass keeps it sizzly, not hissy
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 4500;
+      bp.Q.value = 2;
+
+      crackle.connect(bp);
+      bp.connect(crackleGain);
+      crackleGain.connect(ctx.destination);
+      crackle.start(now);
+      crackle.stop(now + crackleLen);
     } catch {
       // Silent fail — sound is enhancement, not critical
     }
   }, [getCtx]);
-
   return { playMintSound };
 }
