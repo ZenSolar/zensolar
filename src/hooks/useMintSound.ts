@@ -20,19 +20,19 @@ const createSharedAudioContext = () => {
 
 const fireSilentUnlockPulse = (ctx: AudioContext) => {
   const silentGain = ctx.createGain();
-  silentGain.gain.value = 0.00001;
+  silentGain.gain.setValueAtTime(0.00001, ctx.currentTime);
   silentGain.connect(ctx.destination);
 
-  const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  src.connect(silentGain);
-  src.onended = () => {
-    src.disconnect();
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(440, ctx.currentTime);
+  osc.connect(silentGain);
+  osc.onended = () => {
+    osc.disconnect();
     silentGain.disconnect();
   };
-  src.start(0);
-  src.stop(ctx.currentTime + 0.001);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.03);
 };
 
 const installGlobalUnlockListeners = () => {
@@ -110,7 +110,7 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
-      const now = ctx.currentTime;
+      const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
       const master = ctx.createGain();
@@ -408,7 +408,7 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
-      const now = ctx.currentTime;
+      const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
       const master = ctx.createGain();
