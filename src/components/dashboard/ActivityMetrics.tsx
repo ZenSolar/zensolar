@@ -681,12 +681,19 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const navigate = useNavigate();
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
+  const [isBursting, setIsBursting] = useState(false);
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
+  const triggerBurst = useCallback(() => {
+    setIsBursting(true);
+    setTimeout(() => setIsBursting(false), 700);
+  }, []);
+
   const handleTap = () => {
     if (isTappable && onTap) {
+      triggerBurst();
       onTap();
     }
   };
