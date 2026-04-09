@@ -20,6 +20,14 @@ export function useMintSound() {
     return ctxRef.current;
   }, []);
 
+  const primeAudio = useCallback(() => {
+    try {
+      getCtx();
+    } catch {
+      // Silent fail
+    }
+  }, [getCtx]);
+
   /** Trigger haptic feedback — falls back silently on web */
   const triggerHaptic = useCallback(async (style: 'light' | 'confirm' = 'light') => {
     try {
@@ -588,5 +596,5 @@ export function useMintSound() {
     }
   }, [getCtx, triggerHaptic]);
 
-  return { playMintSound, playConfirmSound, triggerHaptic };
+  return { primeAudio, playMintSound, playConfirmSound, triggerHaptic };
 }

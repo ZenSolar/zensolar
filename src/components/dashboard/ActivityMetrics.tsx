@@ -791,7 +791,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
   const cardRef = React.useRef<HTMLDivElement>(null);
-  const { playMintSound } = useMintSound();
+  const { primeAudio, playMintSound } = useMintSound();
 
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);

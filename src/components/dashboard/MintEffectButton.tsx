@@ -62,7 +62,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
   const lastTapTimeRef = useRef<number>(0);
   const ignoreClickUntilRef = useRef<number>(0);
 
-  const { playMintSound } = useMintSound();
+  const { primeAudio, playMintSound } = useMintSound();
 
   const particles = useMemo(
     () => generateParticleLayout(),
