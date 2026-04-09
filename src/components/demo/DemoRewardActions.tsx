@@ -131,10 +131,10 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
   const getCategoryLabelWithUnit = (category: MintCategory): string => {
     if (category === 'all') return 'All Clean Energy Activity';
-    if (category === 'solar') return 'Solar Energy Produced kWh';
+    if (category === 'solar') return 'Solar Energy Produced — kWh';
     if (category === 'ev_miles') return 'EV Miles Driven';
-    if (category === 'battery') return 'Battery Storage kWh';
-    if (category === 'charging') return 'EV Charging kWh';
+    if (category === 'battery') return 'Battery Storage — kWh';
+    if (category === 'charging') return 'EV Charging — kWh';
     return category;
   };
 
@@ -451,7 +451,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
               {/* Subtitle */}
               <p className="text-center text-sm text-muted-foreground">
-                You are about to mint
+                You are about to mint tokens
               </p>
               <p className="text-center text-base font-semibold text-primary">
                 {getCategoryLabelWithUnit(pendingMintCategory)}
@@ -462,19 +462,19 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
               {/* Token card — center stacked */}
               <div className="rounded-xl border border-border/60 p-4 space-y-2">
-                <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                  <div className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${
+                <div className="flex flex-col items-center gap-1.5 pb-2 border-b border-border/40">
+                  <div className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${
                     pendingMintCategory === 'solar' ? 'bg-amber-500/15 text-amber-500' :
                     pendingMintCategory === 'ev_miles' ? 'bg-blue-500/15 text-blue-500' :
                     pendingMintCategory === 'battery' ? 'bg-emerald-500/15 text-emerald-500' :
                     pendingMintCategory === 'charging' ? 'bg-purple-500/15 text-purple-500' :
                     'bg-primary/15 text-primary'
                   }`}>
-                    {pendingMintCategory === 'solar' && <Sun className="h-3.5 w-3.5" />}
-                    {pendingMintCategory === 'ev_miles' && <Car className="h-3.5 w-3.5" />}
-                    {pendingMintCategory === 'battery' && <BatteryFull className="h-3.5 w-3.5" />}
-                    {pendingMintCategory === 'charging' && <Zap className="h-3.5 w-3.5" />}
-                    {pendingMintCategory === 'all' && <Coins className="h-3.5 w-3.5" />}
+                    {pendingMintCategory === 'solar' && <Sun className="h-4 w-4" />}
+                    {pendingMintCategory === 'ev_miles' && <Car className="h-4 w-4" />}
+                    {pendingMintCategory === 'battery' && <BatteryFull className="h-4 w-4" />}
+                    {pendingMintCategory === 'charging' && <Zap className="h-4 w-4" />}
+                    {pendingMintCategory === 'all' && <Coins className="h-4 w-4" />}
                   </div>
                   <span className="font-semibold text-sm">{getCategoryLabel(pendingMintCategory)}</span>
                 </div>
@@ -508,9 +508,8 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                   <span className="text-xs text-muted-foreground">Tokens to<br />receive:</span>
                   <div className="text-right">
                     <div className="text-xl font-bold text-primary tabular-nums leading-tight">
-                      {getCategoryTokens(pendingMintCategory).toLocaleString()}
+                      {getCategoryTokens(pendingMintCategory).toLocaleString()} — $ZSOLAR
                     </div>
-                    <div className="text-sm font-bold text-primary/70">$ZSOLAR</div>
                   </div>
                 </div>
 
