@@ -606,6 +606,29 @@ export function ActivityMetrics({
 }
 
 // Color mapping - ZenSolar logo-themed palette (gold, teal, green)
+// Particle shape clip-paths per energy category
+const particleShapes: Record<string, string> = {
+  // Sun ray — 4-pointed starburst
+  gold: 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)',
+  // Leaf shape — organic teardrop
+  green: 'polygon(50% 0%, 80% 30%, 90% 70%, 50% 100%, 10% 70%, 20% 30%)',
+  // Lightning bolt
+  cyan: 'polygon(30% 0%, 70% 0%, 55% 40%, 80% 40%, 25% 100%, 40% 55%, 15% 55%)',
+  // Battery / energy cell
+  teal: 'polygon(20% 10%, 80% 10%, 80% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 20% 0%)',
+  // Lightning bolt (charging)
+  greenGold: 'polygon(30% 0%, 70% 0%, 55% 40%, 80% 40%, 25% 100%, 40% 55%, 15% 55%)',
+};
+
+// Haptic intensity per category for distinct feel
+const hapticPattern: Record<string, number[]> = {
+  gold: [15, 30, 10],        // Solar: warm double-pulse
+  teal: [25],                // Battery: solid thump
+  green: [8, 20, 8, 20, 8], // EV Miles: rapid road-rumble
+  cyan: [30, 15, 30],       // Supercharger: electric zap
+  greenGold: [20, 10, 20],  // Home charger: steady pulse
+};
+
 const colorStyles = {
   gold: { 
     gradient: 'from-amber-500 to-yellow-500',
