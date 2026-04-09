@@ -731,6 +731,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const BURST_DURATION = 750;
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     if (relX !== undefined && relY !== undefined) {
       setTouchPoint({ x: relX, y: relY });
     }
@@ -747,7 +748,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
     }).catch(() => {});
 
-    setTimeout(() => {
+    burstTimerRef.current = setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
     }, BURST_DURATION);
