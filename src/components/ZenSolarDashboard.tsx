@@ -268,7 +268,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
-          <div className="rounded-xl overflow-hidden border border-border/50 shadow-lg">
+          <div className="rounded-xl overflow-hidden border border-border/50 bg-card/5">
             <AnimatedEnergyFlow className="w-full" />
           </div>
         </AnimatedItem>

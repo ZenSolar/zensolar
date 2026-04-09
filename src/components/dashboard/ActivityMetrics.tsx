@@ -257,8 +257,8 @@ export function ActivityMetrics({
         <div 
           className="absolute inset-0 pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 50% 15% at 50% 10%, hsl(160 100% 10% / 0.12), transparent 45%)',
-            animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
+            background: 'radial-gradient(ellipse 25% 8% at 50% 8%, hsl(160 100% 10% / 0.06), transparent 40%)',
+            animation: 'zenChargeUpPulse 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate',
           }}
         />
       )}
@@ -267,7 +267,7 @@ export function ActivityMetrics({
           "relative z-10 overflow-hidden transition-all bg-card/5",
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
-        style={activityUnits > 0 ? { boxShadow: '0 0 8px hsl(160 100% 10% / 0.1), 0 0 3px hsl(158 95% 8% / 0.08)' } : undefined}
+        style={activityUnits > 0 ? { boxShadow: '0 0 4px hsl(160 100% 10% / 0.05), 0 0 2px hsl(158 95% 8% / 0.04)' } : undefined}
       >
       <CardContent className="p-2.5 pt-0 space-y-2">
         {/* Header — Clean Energy Center Hero */}

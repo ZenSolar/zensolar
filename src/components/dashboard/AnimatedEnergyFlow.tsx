@@ -577,7 +577,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             return (
               <g>
                 {/* Card background */}
-                <rect x={sx} y={sy - 2} width={cardW} height={cardH} rx={6} fill="hsl(var(--background))" fillOpacity={0.5} stroke="hsl(var(--border))" strokeWidth={0.5} />
+                <rect x={sx} y={sy - 2} width={cardW} height={cardH} rx={6} fill="none" stroke="hsl(var(--border))" strokeWidth={0.5} strokeOpacity={0.3} />
                 {/* Header */}
                 <text x={sx + 8} y={sy + 10} fill="#6b7280" fontSize={headerFs} fontWeight="700" letterSpacing="1.5">
                   TODAY&apos;S ENERGY
