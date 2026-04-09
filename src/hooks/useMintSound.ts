@@ -198,7 +198,7 @@ export function useMintSound() {
       for (let i = 0; i < breathSize; i++) {
         const t = i / breathSize;
         // Smooth exponential fade — like a soft exhale
-        const env = Math.pow(1 - t, 2.5);
+        const env = Math.pow(1 - t, 3.5);
         breathData[i] = (Math.random() * 2 - 1) * env;
       }
       const breathSrc = ctx.createBufferSource();
@@ -206,12 +206,12 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(90, now + 0.15);  // Even darker
-      breathLP.frequency.exponentialRampToValueAtTime(25, now + 0.15 + breathLen);
-      breathLP.Q.value = 0.2; // Ultra soft
+      breathLP.frequency.setValueAtTime(60, now + 0.15);
+      breathLP.frequency.exponentialRampToValueAtTime(18, now + 0.15 + breathLen);
+      breathLP.Q.value = 0.1;
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.09, now + 0.12);
+      breathGain.gain.setValueAtTime(0.05, now + 0.12);
       breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12 + breathLen);
 
       breathSrc.connect(breathLP);
@@ -427,7 +427,7 @@ export function useMintSound() {
       const breathData = breathBuf.getChannelData(0);
       for (let i = 0; i < breathSize; i++) {
         const t = i / breathSize;
-        const env = Math.pow(1 - t, 2.2);
+        const env = Math.pow(1 - t, 3.2);
         breathData[i] = (Math.random() * 2 - 1) * env;
       }
       const breathSrc = ctx.createBufferSource();
@@ -435,12 +435,12 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(80, now + 0.2);  // Even darker
-      breathLP.frequency.exponentialRampToValueAtTime(20, now + 0.2 + breathLen);
-      breathLP.Q.value = 0.2;
+      breathLP.frequency.setValueAtTime(55, now + 0.2);
+      breathLP.frequency.exponentialRampToValueAtTime(15, now + 0.2 + breathLen);
+      breathLP.Q.value = 0.1;
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.07, now + 0.2);
+      breathGain.gain.setValueAtTime(0.045, now + 0.2);
       breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + breathLen);
 
       breathSrc.connect(breathLP);
