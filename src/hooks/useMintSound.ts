@@ -49,83 +49,86 @@ export function useMintSound() {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
-      // --- Layer 1: STAMP IMPACT — heavy, decisive downward hit ---
+      // --- Layer 1: DULL STAMP — soft attack, heavy bass drop ---
       const stampGain = ctx.createGain();
-      stampGain.gain.setValueAtTime(0.28, now);
-      stampGain.gain.exponentialRampToValueAtTime(0.06, now + 0.015);
-      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      stampGain.gain.setValueAtTime(0, now);
+      stampGain.gain.linearRampToValueAtTime(0.22, now + 0.02); // Soft attack, not sharp
+      stampGain.gain.exponentialRampToValueAtTime(0.08, now + 0.08);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
       stampGain.connect(ctx.destination);
 
       const stamp = ctx.createOscillator();
       stamp.type = 'sine';
-      stamp.frequency.setValueAtTime(120, now);        // Starts mid-low
-      stamp.frequency.exponentialRampToValueAtTime(35, now + 0.04); // Drops FAST — heavy stamp
+      stamp.frequency.setValueAtTime(65, now);         // Starts low
+      stamp.frequency.exponentialRampToValueAtTime(28, now + 0.1); // Drops into sub-bass
       stamp.connect(stampGain);
       stamp.start(now);
-      stamp.stop(now + 0.15);
+      stamp.stop(now + 0.28);
 
-      // --- Layer 2: Metal press contact — sharp transient noise burst ---
-      const clickLen = 0.012;
-      const clickSize = Math.ceil(ctx.sampleRate * clickLen);
-      const clickBuf = ctx.createBuffer(1, clickSize, ctx.sampleRate);
-      const clickData = clickBuf.getChannelData(0);
-      for (let i = 0; i < clickSize; i++) {
-        const env = Math.exp(-i / (clickSize * 0.15));
-        clickData[i] = (Math.random() * 2 - 1) * env;
+      // --- Layer 2: Muffled contact — heavily filtered noise, no click ---
+      const thudLen = 0.03;
+      const thudSize = Math.ceil(ctx.sampleRate * thudLen);
+      const thudBuf = ctx.createBuffer(1, thudSize, ctx.sampleRate);
+      const thudData = thudBuf.getChannelData(0);
+      for (let i = 0; i < thudSize; i++) {
+        const env = Math.exp(-i / (thudSize * 0.4)); // Slower decay = duller
+        thudData[i] = (Math.random() * 2 - 1) * env;
       }
-      const clickSrc = ctx.createBufferSource();
-      clickSrc.buffer = clickBuf;
+      const thudSrc = ctx.createBufferSource();
+      thudSrc.buffer = thudBuf;
 
-      const clickBP = ctx.createBiquadFilter();
-      clickBP.type = 'bandpass';
-      clickBP.frequency.value = 800;
-      clickBP.Q.value = 2;
+      const thudLP = ctx.createBiquadFilter();
+      thudLP.type = 'lowpass';
+      thudLP.frequency.value = 300; // Very muffled
+      thudLP.Q.value = 0.5;
 
-      const clickGain = ctx.createGain();
-      clickGain.gain.setValueAtTime(0.18, now);
-      clickGain.gain.exponentialRampToValueAtTime(0.001, now + clickLen);
+      const thudGain = ctx.createGain();
+      thudGain.gain.setValueAtTime(0.14, now);
 
-      clickSrc.connect(clickBP);
-      clickBP.connect(clickGain);
-      clickGain.connect(ctx.destination);
-      clickSrc.start(now);
-      clickSrc.stop(now + clickLen + 0.002);
+      thudSrc.connect(thudLP);
+      thudLP.connect(thudGain);
+      thudGain.connect(ctx.destination);
+      thudSrc.start(now);
+      thudSrc.stop(now + thudLen + 0.002);
 
-      // --- Layer 3: Sub-bass weight — the physical mass behind the stamp ---
+      // --- Layer 3: Deep sub-bass body — sustained weight ---
       const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0.22, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      subGain.gain.setValueAtTime(0, now);
+      subGain.gain.linearRampToValueAtTime(0.25, now + 0.015);
+      subGain.gain.setValueAtTime(0.25, now + 0.06);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
       subGain.connect(ctx.destination);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
-      sub.frequency.setValueAtTime(50, now);
-      sub.frequency.exponentialRampToValueAtTime(25, now + 0.08);
+      sub.frequency.setValueAtTime(38, now);
+      sub.frequency.exponentialRampToValueAtTime(22, now + 0.2);
       sub.connect(subGain);
       sub.start(now);
-      sub.stop(now + 0.12);
+      sub.stop(now + 0.32);
 
-      // --- Layer 4: Brief electric hum tail — short, not bouncy ---
+      // --- Layer 4: Electric hum — warm, filtered sawtooth ---
       const humGain = ctx.createGain();
       humGain.gain.setValueAtTime(0, now);
-      humGain.gain.linearRampToValueAtTime(0.04, now + 0.02);
-      humGain.gain.setValueAtTime(0.04, now + 0.06);
-      humGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      humGain.gain.linearRampToValueAtTime(0.06, now + 0.03);
+      humGain.gain.setValueAtTime(0.06, now + 0.1);
+      humGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
       humGain.connect(ctx.destination);
 
       const hum = ctx.createOscillator();
       hum.type = 'sawtooth';
-      hum.frequency.setValueAtTime(60, now);
+      hum.frequency.setValueAtTime(50, now);
+      hum.frequency.exponentialRampToValueAtTime(40, now + 0.3);
 
       const humLP = ctx.createBiquadFilter();
       humLP.type = 'lowpass';
-      humLP.frequency.value = 200;
-      humLP.Q.value = 1;
+      humLP.frequency.value = 150; // Very warm, no brightness
+      humLP.Q.value = 0.7;
 
       hum.connect(humLP);
       humLP.connect(humGain);
       hum.start(now);
-      hum.stop(now + 0.2);
+      hum.stop(now + 0.38);
 
       triggerHaptic('light');
     } catch {
