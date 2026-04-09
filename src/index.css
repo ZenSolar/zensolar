@@ -291,3 +291,91 @@
     opacity: 0;
   }
 }
+
+/* Touch-point ripple — expands from where the finger lands */
+@keyframes zenTouchRipple {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Pressure shockwave — a bright ring expanding from touch point */
+@keyframes zenPressureWave {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.9;
+    border-width: 3px;
+  }
+  60% {
+    opacity: 0.4;
+    border-width: 1px;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+    border-width: 0.5px;
+  }
+}
+
+/* Mint text stamp effect */
+@keyframes zenMintStamp {
+  0% {
+    transform: scale(1);
+    letter-spacing: 0.05em;
+  }
+  25% {
+    transform: scale(0.85);
+    letter-spacing: 0em;
+  }
+  50% {
+    transform: scale(1.15);
+    letter-spacing: 0.15em;
+  }
+  100% {
+    transform: scale(1);
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Card surface depression — like pressing a real button */
+@keyframes zenButtonPress {
+  0% {
+    box-shadow: var(--zen-shadow-rest);
+    transform: translateY(0);
+  }
+  30% {
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.3), 0 0 0 rgba(0,0,0,0);
+    transform: translateY(1px);
+  }
+  60% {
+    box-shadow: var(--zen-shadow-glow);
+    transform: translateY(-1px);
+  }
+  100% {
+    box-shadow: var(--zen-shadow-rest);
+    transform: translateY(0);
+  }
+}
+
+/* Energy release burst from touch point */
+@keyframes zenEnergyRelease {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.8;
+  }
+  30% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
