@@ -1097,8 +1097,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             </DialogTitle>
             <DialogDescription className="pt-4">
               <div className="space-y-4">
-                <p className="text-base text-foreground">
-                  You are about to mint <span className="font-bold text-primary">{getCategoryLabel(pendingMintRequest?.category || 'all')}</span> tokens:
+                <p className="text-base text-foreground text-center">
+                  You are about to mint
+                </p>
+                <p className="text-lg font-bold text-primary text-center">
+                  {getCategoryLabel(pendingMintRequest?.category || 'all')}
+                </p>
+                <p className="text-base text-foreground text-center">
+                  tokens:
                 </p>
                 
                 {pendingMintRequest && (

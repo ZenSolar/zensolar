@@ -433,9 +433,13 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
               </div>
 
               {/* Subtitle */}
+               <p className="text-center text-sm text-muted-foreground">
+                You are about to mint
+              </p>
+              <p className="text-center text-lg font-semibold text-primary">
+                {getCategoryLabel(pendingMintCategory)}
+              </p>
               <p className="text-center text-sm text-muted-foreground">
-                You are about to mint{' '}
-                <span className="font-semibold text-primary">{getCategoryLabel(pendingMintCategory)}</span>{' '}
                 tokens:
               </p>
 
