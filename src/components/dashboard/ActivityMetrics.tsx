@@ -924,15 +924,6 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           : "bg-muted/30"
       )}
     >
-      {/* Tap-to-Mint™ badge — top-right corner */}
-      {showBadge && (
-        <span className="absolute top-1.5 right-2 z-20 text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
-          style={{ color: '#39FF14', textShadow: '0 0 6px rgba(57,255,20,0.5), 0 0 12px rgba(57,255,20,0.25)' }}
-        >
-          Tap-to-Mint™
-        </span>
-      )}
-
       {/* Subtle gradient overlay for active cards */}
       {active && (
         <div className={cn(
