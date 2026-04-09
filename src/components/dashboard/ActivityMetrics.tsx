@@ -258,49 +258,81 @@ export function ActivityMetrics({
       )}
       style={activityUnits > 0 ? { boxShadow: '0 0 20px hsl(var(--primary) / 0.25), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.08)' } : undefined}
     >
-      <CardContent className="p-2.5 pt-2 space-y-2">
-        {/* Header Row */}
-        <div className="space-y-1">
-          <div className="flex items-start justify-between">
-            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1">
-              <Gauge className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-              Clean Energy Center
-              {isLoading && (
-                <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Updating…
-                </span>
-              )}
-            </h2>
-            {filteredProviders.length > 0 && (
-              <div className="flex items-center gap-1 mt-px">
-                {filteredProviders.map((provider) => (
-                  <div 
-                    key={provider}
-                    className="h-6 w-6 rounded-md flex items-center justify-center overflow-hidden"
-                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                  >
-                    <img 
-                      src={providerLogos[provider]} 
-                      alt={provider}
-                      className={cn(
-                        "object-contain",
-                        provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
-                      )}
-                    />
-                  </div>
-                ))}
+      <CardContent className="p-2.5 pt-0 space-y-2">
+        {/* Header — Clean Energy Center Hero */}
+        <div 
+          className="relative -mx-2.5 px-4 py-3.5 overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--card)) 50%, hsl(142 76% 36% / 0.08) 100%)',
+            borderBottom: '1px solid hsl(var(--primary) / 0.15)',
+          }}
+        >
+          {/* Animated ambient glow */}
+          {activityUnits > 0 && (
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse 80% 60% at 30% 50%, hsl(var(--primary) / 0.08), transparent 70%)',
+                animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
+              }}
+            />
+          )}
+
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div 
+                className="h-9 w-9 rounded-lg flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
+                  boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
+                }}
+              >
+                <Gauge className="h-5 w-5 text-white" />
               </div>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
-            <span 
-              className="text-[9px] font-medium tracking-widest uppercase text-secondary"
-              style={{ textShadow: '0 0 6px hsl(142 76% 36% / 0.6), 0 0 14px hsl(142 76% 36% / 0.3)' }}
-            >
-              Tap-to-Mint™
-            </span>
+              <div>
+                <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
+                  Clean Energy Center
+                </h2>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+                  {isLoading && (
+                    <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Updating…
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {filteredProviders.length > 0 && (
+                <div className="flex items-center gap-1">
+                  {filteredProviders.map((provider) => (
+                    <div 
+                      key={provider}
+                      className="h-6 w-6 rounded-md flex items-center justify-center overflow-hidden"
+                      title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                    >
+                      <img 
+                        src={providerLogos[provider]} 
+                        alt={provider}
+                        className={cn(
+                          "object-contain",
+                          provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
+                        )}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <span 
+                className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary"
+                style={{ textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)' }}
+              >
+                Tap-to-Mint™
+              </span>
+            </div>
           </div>
         </div>
 
