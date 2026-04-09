@@ -9,12 +9,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { useHaptics } from '@/hooks/useHaptics';
+import { useMintSound } from '@/hooks/useMintSound';
 
 // Touch threshold constants
 const TOUCH_DELTA_THRESHOLD = 15;
 const TOUCH_TIME_THRESHOLD = 400;
 const DOUBLE_TAP_WINDOW = 800;
+const BURST_DURATION = 900;
+const DOUBLE_BURST_DURATION = 550;
+
+// Wallet-specific color (primary/indigo theme)
+const WALLET_RGBA = '139, 92, 246'; // violet-500
+const WALLET_PARTICLE_SHAPE = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
+const WALLET_HAPTIC = [15, 30, 10];
 
 interface TokenPriceCardProps {
   tokensHeld: number;
@@ -35,42 +42,22 @@ export function TokenPriceCard({
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [showTapAgain, setShowTapAgain] = useState(false);
-  const [firstTapScale, setFirstTapScale] = useState(false);
 
+  // Burst effect state
+  const [isBursting, setIsBursting] = useState(false);
+  const [isPressing, setIsPressing] = useState(false);
+  const [isChargingUp, setIsChargingUp] = useState(false);
+  const [showTapAgain, setShowTapAgain] = useState(false);
+  const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
+
+  const cardRef = useRef<HTMLDivElement>(null);
   const lastTapTimeRef = useRef<number>(0);
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const haptic = useHaptics();
+  const chargeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { playMintSound } = useMintSound();
 
   const totalValueUSD = tokensHeld * tokenPrice;
-
-  // Double-tap to expand
-  const handleDoubleTapExpand = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastTap = now - lastTapTimeRef.current;
-
-    if (timeSinceLastTap < DOUBLE_TAP_WINDOW) {
-      // Second tap — expand!
-      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      lastTapTimeRef.current = 0;
-      setShowTapAgain(false);
-      setFirstTapScale(false);
-      haptic.mediumTap();
-      setIsCollapsed(false);
-    } else {
-      // First tap — show hint
-      lastTapTimeRef.current = now;
-      haptic.lightTap();
-      setFirstTapScale(true);
-      setTimeout(() => setFirstTapScale(false), 150);
-      setShowTapAgain(true);
-      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      doubleTapTimerRef.current = setTimeout(() => {
-        lastTapTimeRef.current = 0;
-        setShowTapAgain(false);
-      }, DOUBLE_TAP_WINDOW);
-    }
-  }, [haptic]);
 
   const updatePrice = (newPrice: number) => {
     setTokenPrice(newPrice);
@@ -107,6 +94,143 @@ export function TokenPriceCard({
 
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
+  const getTouchRelativePos = (clientX: number, clientY: number) => {
+    if (!cardRef.current) return { x: 0.5, y: 0.5 };
+    const rect = cardRef.current.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) / rect.width,
+      y: (clientY - rect.top) / rect.height,
+    };
+  };
+
+  const triggerBurst = useCallback((relX?: number, relY?: number) => {
+    if (relX !== undefined && relY !== undefined) {
+      setTouchPoint({ x: relX, y: relY });
+    }
+    setIsChargingUp(false);
+    setIsBursting(true);
+    playMintSound('gold');
+    // Haptic burst
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(WALLET_HAPTIC); } catch { /* silent */ }
+    }
+    import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
+    }).catch(() => {});
+
+    setTimeout(() => {
+      setIsBursting(false);
+      setTouchPoint(null);
+    }, BURST_DURATION);
+  }, [playMintSound]);
+
+  const triggerDoubleBurst = useCallback((relX?: number, relY?: number) => {
+    if (relX !== undefined && relY !== undefined) {
+      setTouchPoint({ x: relX, y: relY });
+    }
+    setIsChargingUp(false);
+    setIsBursting(true);
+    playMintSound('gold');
+    // Stronger haptic
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate([20, 50, 30]); } catch { /* silent */ }
+    }
+    import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 100);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 250);
+    }).catch(() => {});
+
+    setTimeout(() => {
+      setIsBursting(false);
+      setTouchPoint(null);
+    }, DOUBLE_BURST_DURATION);
+  }, [playMintSound]);
+
+  const processTap = useCallback((posX: number, posY: number) => {
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapTimeRef.current;
+
+    if (timeSinceLastTap < DOUBLE_TAP_WINDOW) {
+      // ⚡ DOUBLE TAP — expand wallet
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      lastTapTimeRef.current = 0;
+      setShowTapAgain(false);
+      triggerDoubleBurst(posX, posY);
+      setTimeout(() => setIsCollapsed(false), 550);
+    } else {
+      // First tap — sensory experience + hint
+      lastTapTimeRef.current = now;
+      triggerBurst(posX, posY);
+      setShowTapAgain(true);
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = setTimeout(() => {
+        lastTapTimeRef.current = 0;
+        setShowTapAgain(false);
+      }, 2000);
+    }
+  }, [triggerBurst, triggerDoubleBurst]);
+
+  const handleCollapsedClick = (e: React.MouseEvent) => {
+    const pos = getTouchRelativePos(e.clientX, e.clientY);
+    processTap(pos.x, pos.y);
+  };
+
+  const handleCollapsedTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    setIsPressing(true);
+    const pos = getTouchRelativePos(touch.clientX, touch.clientY);
+    setTouchPoint(pos);
+
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+    chargeTimerRef.current = setTimeout(() => {
+      setIsChargingUp(true);
+      import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+      }).catch(() => {});
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate(8); } catch { /* silent */ }
+      }
+    }, 200);
+  };
+
+  const handleCollapsedTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) {
+      setIsPressing(false);
+      setIsChargingUp(false);
+      if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+      return;
+    }
+    setIsPressing(false);
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+
+    if (deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD) {
+      e.preventDefault();
+      const pos = getTouchRelativePos(touch.clientX, touch.clientY);
+      processTap(pos.x, pos.y);
+    } else {
+      setIsChargingUp(false);
+      setTouchPoint(null);
+    }
+    touchStartRef.current = null;
+  };
+
+  const handleCollapsedTouchCancel = () => {
+    setIsPressing(false);
+    setIsChargingUp(false);
+    setTouchPoint(null);
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+    touchStartRef.current = null;
+  };
+
+  // For expanded view simple touch handling
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
@@ -127,75 +251,209 @@ export function TokenPriceCard({
 
   const formattedValue = totalValueUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // ── Collapsed view ──
+  // Dynamic shadows
+  const shadowRest = '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)';
+
+  const ox = touchPoint ? `${touchPoint.x * 100}%` : '50%';
+  const oy = touchPoint ? `${touchPoint.y * 100}%` : '50%';
+
+  // ── Collapsed view — Full KPI-style double-tap effect ──
   if (isCollapsed) {
     return (
       <motion.div
+        ref={cardRef}
+        onClick={handleCollapsedClick}
+        onTouchStart={handleCollapsedTouchStart}
+        onTouchEnd={handleCollapsedTouchEnd}
+        onTouchCancel={handleCollapsedTouchCancel}
         initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0, scale: firstTapScale ? 0.97 : 1 }}
-        transition={{ duration: firstTapScale ? 0.08 : 0.4, ease: 'easeOut' }}
+        animate={isBursting ? { 
+          opacity: 1,
+          scale: [0.90, 1.06, 1.02, 1],
+          y: [2, -3, -1, 0],
+        } : isChargingUp ? {
+          opacity: 1,
+          scale: [1, 1.015, 1, 1.015, 1],
+          y: 0,
+        } : isPressing ? {
+          opacity: 1,
+          scale: 0.93,
+          y: 2,
+        } : {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+        }}
+        transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.12, ease: 'easeOut' }}
+        style={{
+          boxShadow: isBursting 
+            ? `0 0 30px rgba(${WALLET_RGBA}, 0.5), 0 0 60px rgba(${WALLET_RGBA}, 0.25), 0 0 90px rgba(${WALLET_RGBA}, 0.1)` 
+            : isChargingUp
+              ? `0 0 20px rgba(${WALLET_RGBA}, 0.4), 0 0 40px rgba(${WALLET_RGBA}, 0.2)`
+            : isPressing 
+              ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${WALLET_RGBA}, 0.3)` 
+              : shadowRest,
+          transition: 'box-shadow 0.4s ease-out',
+          borderRadius: 'var(--radius)',
+        } as React.CSSProperties}
+        className="cursor-pointer touch-manipulation select-none"
       >
-        <Card className="wallet-card-glass relative overflow-hidden border-primary/30 select-none" style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)' }}>
+        <Card className="wallet-card-glass relative overflow-hidden border-primary/30">
           {/* Shimmer band */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.06] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
           </div>
 
-          {/* Double-tap glow ring on first tap */}
-          <AnimatePresence>
-            {showTapAgain && (
-              <motion.div
-                className="absolute inset-0 rounded-[inherit] pointer-events-none"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                style={{ boxShadow: '0 0 30px hsl(var(--primary) / 0.35), 0 0 15px hsl(var(--primary) / 0.25), inset 0 0 20px hsl(var(--primary) / 0.08)' }}
-              />
-            )}
-          </AnimatePresence>
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 opacity-[0.03] bg-gradient-to-r from-violet-500 to-purple-500 pointer-events-none" />
 
-          <CardContent className="relative p-3.5">
-            <button
-              onClick={handleDoubleTapExpand}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={createTouchEndHandler(handleDoubleTapExpand)}
-              className="w-full flex items-center justify-between gap-3 group touch-manipulation"
-            >
+          {/* 🔵 Touch-point ripple */}
+          {(isPressing || isBursting) && touchPoint && (
+            <div
+              className="absolute pointer-events-none rounded-full z-10"
+              style={{
+                left: ox, top: oy,
+                width: '200%', height: '200%',
+                background: `radial-gradient(circle, rgba(${WALLET_RGBA}, 0.35) 0%, transparent 70%)`,
+                animation: isBursting ? 'zenTouchRipple 900ms ease-out forwards' : undefined,
+                transform: isPressing && !isBursting ? 'translate(-50%, -50%) scale(0.3)' : undefined,
+                opacity: isPressing && !isBursting ? 0.4 : undefined,
+                transition: !isBursting ? 'transform 0.15s ease-out, opacity 0.15s ease-out' : undefined,
+                willChange: 'transform, opacity',
+              }}
+            />
+          )}
+
+          {/* ⚡ Pressure shockwave ring */}
+          {isBursting && touchPoint && (
+            <div
+              className="absolute pointer-events-none rounded-full z-10"
+              style={{
+                left: ox, top: oy,
+                width: '300%', height: '300%',
+                border: `3px solid rgba(${WALLET_RGBA}, 1)`,
+                animation: 'zenPressureWave 800ms ease-out forwards',
+                willChange: 'transform, opacity',
+              }}
+            />
+          )}
+
+          {/* ⚡ Flare rings + particles */}
+          {isBursting && (
+            <>
+              {[0, 1, 2, 3].map(i => (
+                <div
+                  key={`ring-${i}`}
+                  className="absolute pointer-events-none z-10"
+                  style={{
+                    left: ox, top: oy,
+                    width: 20, height: 20,
+                    marginLeft: -10, marginTop: -10,
+                    borderRadius: '50%',
+                    border: `3px solid rgba(${WALLET_RGBA}, ${1 - i * 0.12})`,
+                    animation: `zenFlareRing 900ms ${i * 120}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
+              {/* Particles */}
+              {Array.from({ length: 14 }).map((_, i) => {
+                const angle = (i / 14) * 360 + (Math.random() * 20 - 10);
+                const rad = (angle * Math.PI) / 180;
+                const dist = 50 + Math.random() * 60;
+                const tx = Math.cos(rad) * dist;
+                const ty = Math.sin(rad) * (18 + Math.random() * 25);
+                const size = 6 + Math.random() * 5;
+                const rotation = Math.random() * 360;
+                return (
+                  <div
+                    key={`p-${i}`}
+                    className="absolute pointer-events-none z-10"
+                    style={{
+                      left: ox, top: oy,
+                      width: size, height: size,
+                      background: `rgba(${WALLET_RGBA}, 1)`,
+                      boxShadow: `0 0 16px rgba(${WALLET_RGBA}, 1), 0 0 32px rgba(${WALLET_RGBA}, 0.5)`,
+                      clipPath: WALLET_PARTICLE_SHAPE,
+                      transform: `rotate(${rotation}deg)`,
+                      animation: `zenFlareParticle 900ms ${i * 30}ms ease-out forwards`,
+                      willChange: 'transform, opacity',
+                      '--tx': `${tx}px`,
+                      '--ty': `${ty}px`,
+                    } as React.CSSProperties}
+                  />
+                );
+              })}
+              {/* Energy release glow */}
+              <div
+                className="absolute pointer-events-none rounded-full z-10"
+                style={{
+                  left: ox, top: oy,
+                  width: 90, height: 90,
+                  marginLeft: -45, marginTop: -45,
+                  background: `radial-gradient(circle, rgba(${WALLET_RGBA}, 0.9) 0%, rgba(${WALLET_RGBA}, 0.4) 40%, transparent 70%)`,
+                  animation: 'zenEnergyRelease 800ms ease-out forwards',
+                  willChange: 'transform, opacity',
+                }}
+              />
+              {/* Diagonal energy sweep */}
+              <div
+                className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, transparent 25%, rgba(${WALLET_RGBA}, 0.3) 42%, rgba(${WALLET_RGBA}, 0.5) 50%, rgba(${WALLET_RGBA}, 0.3) 58%, transparent 75%)`,
+                  backgroundSize: '300% 300%',
+                  animation: 'zenGridSweep 800ms ease-out forwards',
+                  willChange: 'opacity, background-position',
+                }}
+              />
+            </>
+          )}
+
+          {/* ✨ Charging-up glow */}
+          {isChargingUp && (
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-10"
+              style={{
+                border: `2px solid rgba(${WALLET_RGBA}, 0.5)`,
+                animation: 'zenChargeUpPulse 600ms ease-in-out infinite alternate',
+                willChange: 'opacity, box-shadow',
+                boxShadow: `inset 0 0 20px rgba(${WALLET_RGBA}, 0.1), 0 0 25px rgba(${WALLET_RGBA}, 0.3)`,
+              }}
+            />
+          )}
+
+          <CardContent className="relative p-3.5 z-[1]">
+            <div className="w-full flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="relative">
+                {/* Wallet icon with glow effect during burst */}
+                <div className="relative" style={(isBursting || isChargingUp) ? {
+                  filter: `drop-shadow(0 0 ${isBursting ? 8 : 5}px rgba(${WALLET_RGBA}, ${isBursting ? 0.8 : 0.5}))`,
+                  transition: 'all 200ms ease-out',
+                } : isPressing ? {
+                  filter: `drop-shadow(0 0 4px rgba(${WALLET_RGBA}, 0.4))`,
+                  transition: 'all 100ms ease-out',
+                } : { transition: 'all 200ms ease-out' }}>
                   <div className="p-2 rounded-xl bg-gradient-to-br from-primary/25 to-primary/10 backdrop-blur-sm">
-                    <Wallet className="h-4 w-4 text-primary" />
+                    <Wallet className={`h-4 w-4 text-primary transition-all ${isBursting ? 'scale-125' : ''}`} />
                   </div>
                   {/* Tiny verified dot */}
                   <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-eco border-2 border-card" />
                 </div>
                 <div className="flex flex-col items-start min-w-0">
-                  <AnimatePresence mode="wait">
-                    {showTapAgain ? (
-                      <motion.span
-                        key="tap-again"
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 4 }}
-                        transition={{ duration: 0.15 }}
-                        className="font-semibold text-sm text-primary leading-tight"
-                      >
-                        Tap again to open
-                      </motion.span>
-                    ) : (
-                      <motion.span
-                        key="my-wallet"
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.15 }}
-                        className="font-semibold text-sm text-foreground leading-tight"
-                      >
-                        My Wallet
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
+                  {/* Label with tap-again hint */}
+                  <div className="relative h-4 min-w-[80px] flex items-center">
+                    <span 
+                      className={`font-semibold text-sm text-foreground leading-tight absolute left-0 transition-all duration-300 ease-out ${showTapAgain ? 'opacity-0 scale-90 blur-[2px]' : 'opacity-100 scale-100 blur-0'}`}
+                    >
+                      My Wallet
+                    </span>
+                    <span 
+                      className={`font-semibold text-sm text-primary leading-tight absolute left-0 transition-all duration-300 ease-out ${showTapAgain ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-[2px]'}`}
+                      style={showTapAgain ? { animation: 'zenTapAgainPulse 1.2s ease-in-out infinite' } : undefined}
+                    >
+                      tap again
+                    </span>
+                  </div>
                   <span className="text-[11px] text-muted-foreground leading-tight">
                     {tokensHeld.toLocaleString()} tokens · ${tokenPrice.toFixed(2)}
                   </span>
@@ -207,11 +465,19 @@ export function TokenPriceCard({
                   animate={showPulse ? { scale: [1, 1.05, 1] } : {}}
                   transition={{ duration: 0.3 }}
                 >
-                  <span className="text-lg font-bold text-foreground tabular-nums">${formattedValue}</span>
+                  <span 
+                    className="text-lg font-bold text-foreground tabular-nums"
+                    style={isBursting ? { textShadow: `0 0 8px rgba(${WALLET_RGBA}, 0.5), 0 0 16px rgba(${WALLET_RGBA}, 0.25)`, transition: 'text-shadow 200ms ease-out' } : { transition: 'text-shadow 200ms ease-out' }}
+                  >
+                    ${formattedValue}
+                  </span>
                 </motion.div>
-                <ChevronDown className={`h-4 w-4 transition-colors flex-shrink-0 ${showTapAgain ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+                {/* Chevron with stamp animation during burst */}
+                <div style={isBursting ? { animation: 'zenMintStamp 400ms ease-out' } : isPressing ? { transform: 'scale(0.9)', opacity: 0.7, transition: 'all 0.1s ease-out' } : { transition: 'all 0.2s ease-out' }}>
+                  <ChevronDown className={`h-4 w-4 transition-colors flex-shrink-0 ${showTapAgain ? 'text-primary animate-pulse' : 'text-muted-foreground'}`} />
+                </div>
               </div>
-            </button>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
