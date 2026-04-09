@@ -541,39 +541,121 @@ export function useMintSound() {
       echo2Gain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
-      //  ZenSolar™ Confirm Sound — Meditative Bass
-      //  No metallic chimes. Deep bowls + bass only.
+      //  ZenSolar™ Confirm Sound — Gong strike → Meditative Bass
       // ══════════════════════════════════════════════════════════
 
-      // --- Phase 1: STAMP (t=0) — the seal ---
+      // ─── Layer 0: ZEN GONG STRIKE (confirm version — deeper, longer) ───
+      const gongTime = now;
+
+      // Gong fundamental — C2 (65Hz)
+      const gongFundGain = ctx.createGain();
+      gongFundGain.gain.setValueAtTime(0, gongTime);
+      gongFundGain.gain.linearRampToValueAtTime(0.35, gongTime + 0.004);
+      gongFundGain.gain.setValueAtTime(0.35, gongTime + 0.1);
+      gongFundGain.gain.exponentialRampToValueAtTime(0.15, gongTime + 0.5);
+      gongFundGain.gain.exponentialRampToValueAtTime(0.001, gongTime + 2.2);
+      gongFundGain.connect(master);
+
+      const gongFund = ctx.createOscillator();
+      gongFund.type = 'sine';
+      gongFund.frequency.setValueAtTime(65, gongTime);
+      gongFund.frequency.exponentialRampToValueAtTime(62, gongTime + 1.8);
+      gongFund.connect(gongFundGain);
+      gongFund.start(gongTime);
+      gongFund.stop(gongTime + 2.4);
+
+      // Gong second partial
+      const gong2Gain = ctx.createGain();
+      gong2Gain.gain.setValueAtTime(0, gongTime);
+      gong2Gain.gain.linearRampToValueAtTime(0.15, gongTime + 0.003);
+      gong2Gain.gain.exponentialRampToValueAtTime(0.05, gongTime + 0.2);
+      gong2Gain.gain.exponentialRampToValueAtTime(0.001, gongTime + 1.2);
+      gong2Gain.connect(master);
+
+      const gong2 = ctx.createOscillator();
+      gong2.type = 'sine';
+      gong2.frequency.setValueAtTime(179, gongTime);
+      gong2.frequency.exponentialRampToValueAtTime(174, gongTime + 1.0);
+      gong2.connect(gong2Gain);
+      gong2.start(gongTime);
+      gong2.stop(gongTime + 1.4);
+
+      // Gong metallic attack noise
+      const gongNoiseLen = 0.15;
+      const gongNoiseSize = Math.ceil(ctx.sampleRate * gongNoiseLen);
+      const gongNoiseBuf = ctx.createBuffer(1, gongNoiseSize, ctx.sampleRate);
+      const gongNoiseData = gongNoiseBuf.getChannelData(0);
+      for (let i = 0; i < gongNoiseSize; i++) {
+        const t = i / gongNoiseSize;
+        gongNoiseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 6);
+      }
+      const gongNoiseSrc = ctx.createBufferSource();
+      gongNoiseSrc.buffer = gongNoiseBuf;
+
+      const gongNoiseBP = ctx.createBiquadFilter();
+      gongNoiseBP.type = 'bandpass';
+      gongNoiseBP.frequency.setValueAtTime(2000, gongTime);
+      gongNoiseBP.frequency.exponentialRampToValueAtTime(350, gongTime + 0.1);
+      gongNoiseBP.Q.value = 1.5;
+
+      const gongNoiseGain = ctx.createGain();
+      gongNoiseGain.gain.setValueAtTime(0.2, gongTime);
+      gongNoiseGain.gain.exponentialRampToValueAtTime(0.001, gongTime + gongNoiseLen);
+
+      gongNoiseSrc.connect(gongNoiseBP);
+      gongNoiseBP.connect(gongNoiseGain);
+      gongNoiseGain.connect(master);
+      gongNoiseSrc.start(gongTime);
+      gongNoiseSrc.stop(gongTime + gongNoiseLen + 0.01);
+
+      // Gong sub-bass bloom
+      const gongSubGain = ctx.createGain();
+      gongSubGain.gain.setValueAtTime(0, gongTime);
+      gongSubGain.gain.linearRampToValueAtTime(0.18, gongTime + 0.01);
+      gongSubGain.gain.setValueAtTime(0.18, gongTime + 0.12);
+      gongSubGain.gain.exponentialRampToValueAtTime(0.001, gongTime + 1.6);
+      gongSubGain.connect(master);
+
+      const gongSub = ctx.createOscillator();
+      gongSub.type = 'sine';
+      gongSub.frequency.setValueAtTime(32, gongTime);
+      gongSub.frequency.exponentialRampToValueAtTime(26, gongTime + 1.4);
+      gongSub.connect(gongSubGain);
+      gongSub.start(gongTime);
+      gongSub.stop(gongTime + 1.8);
+
+      // ─── Existing confirm layers shifted 120ms after gong attack ───
+      const mintStart = now + 0.12;
+
+      // --- Phase 1: STAMP (the seal) ---
       const stampGain = ctx.createGain();
-      stampGain.gain.setValueAtTime(0, now);
-      stampGain.gain.linearRampToValueAtTime(0.26, now + 0.012);
-      stampGain.gain.exponentialRampToValueAtTime(0.05, now + 0.06);
-      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      stampGain.gain.setValueAtTime(0, mintStart);
+      stampGain.gain.linearRampToValueAtTime(0.26, mintStart + 0.012);
+      stampGain.gain.exponentialRampToValueAtTime(0.05, mintStart + 0.06);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.22);
       stampGain.connect(master);
 
       const stamp = ctx.createOscillator();
       stamp.type = 'sine';
-      stamp.frequency.setValueAtTime(70, now);
-      stamp.frequency.exponentialRampToValueAtTime(22, now + 0.1);
+      stamp.frequency.setValueAtTime(70, mintStart);
+      stamp.frequency.exponentialRampToValueAtTime(22, mintStart + 0.1);
       stamp.connect(stampGain);
-      stamp.start(now);
-      stamp.stop(now + 0.25);
+      stamp.start(mintStart);
+      stamp.stop(mintStart + 0.25);
 
       // Sub-bass weight
       const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0.2, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      subGain.gain.setValueAtTime(0.2, mintStart);
+      subGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.25);
       subGain.connect(master);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
-      sub.frequency.setValueAtTime(36, now);
-      sub.frequency.exponentialRampToValueAtTime(16, now + 0.18);
+      sub.frequency.setValueAtTime(36, mintStart);
+      sub.frequency.exponentialRampToValueAtTime(16, mintStart + 0.18);
       sub.connect(subGain);
-      sub.start(now);
-      sub.stop(now + 0.27);
+      sub.start(mintStart);
+      sub.stop(mintStart + 0.27);
 
       // --- Phase 2: DEEP ZEN BOWL (t=0.05) — low meditative resonance ---
       // Much lower than before — feels like a Tibetan bowl, not a bell
