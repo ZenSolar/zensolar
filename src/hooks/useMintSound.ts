@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 /**
@@ -7,38 +7,78 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
  * through the screen into your fingertip.
  */
 
-export function useMintSound() {
-  const ctxRef = useRef<AudioContext | null>(null);
+let sharedAudioContext: AudioContext | null = null;
+let unlockListenersInstalled = false;
 
-  const getCtx = useCallback(() => {
-    if (!ctxRef.current || ctxRef.current.state === 'closed') {
-      ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+const createSharedAudioContext = () => {
+  if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
+    const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+    sharedAudioContext = new AudioContextCtor();
+  }
+  return sharedAudioContext;
+};
+
+const fireSilentUnlockPulse = (ctx: AudioContext) => {
+  const silentGain = ctx.createGain();
+  silentGain.gain.setValueAtTime(0.00001, ctx.currentTime);
+  silentGain.connect(ctx.destination);
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(440, ctx.currentTime);
+  osc.connect(silentGain);
+  osc.onended = () => {
+    osc.disconnect();
+    silentGain.disconnect();
+  };
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.03);
+};
+
+const installGlobalUnlockListeners = () => {
+  if (unlockListenersInstalled || typeof window === 'undefined') return;
+
+  const unlock = () => {
+    try {
+      const ctx = createSharedAudioContext();
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      fireSilentUnlockPulse(ctx);
+    } catch {
+      // Silent fail
     }
-    return ctxRef.current;
+  };
+
+  const passiveCapture: AddEventListenerOptions = { capture: true, passive: true };
+  window.addEventListener('touchstart', unlock, passiveCapture);
+  window.addEventListener('pointerdown', unlock, passiveCapture);
+  window.addEventListener('mousedown', unlock, passiveCapture);
+  window.addEventListener('keydown', unlock, { capture: true });
+  unlockListenersInstalled = true;
+};
+
+export function useMintSound() {
+  const getCtx = useCallback(() => createSharedAudioContext(), []);
+
+  useEffect(() => {
+    installGlobalUnlockListeners();
   }, []);
 
   /** Must be called synchronously inside a touch/click handler to unlock
-   *  the AudioContext on iOS Safari. We always attempt a resume + silent pulse
-   *  so the very first hold-release can still play audio on release. */
+   *  the AudioContext on iOS Safari. Uses native capture listeners plus a
+   *  same-gesture silent pulse so the first hold-release can play reliably. */
   const primeAudio = useCallback(() => {
+    installGlobalUnlockListeners();
     try {
       const ctx = getCtx();
       if (ctx.state === 'suspended') {
         ctx.resume().catch(() => {});
       }
-
-      const silentGain = ctx.createGain();
-      silentGain.gain.value = 0.00001;
-      silentGain.connect(ctx.destination);
-
-      const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(silentGain);
-      src.start(0);
-      src.stop(ctx.currentTime + 0.001);
+      fireSilentUnlockPulse(ctx);
+      return ctx;
     } catch {
-      // Silent fail
+      return null;
     }
   }, [getCtx]);
 
@@ -68,9 +108,9 @@ export function useMintSound() {
 
   const playMintSound = useCallback((_color?: string) => {
     try {
-      primeAudio();
-      const ctx = getCtx();
-      const now = ctx.currentTime;
+      const ctx = primeAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
       const master = ctx.createGain();
@@ -362,13 +402,13 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [getCtx, primeAudio, triggerHaptic]);
+  }, [primeAudio, triggerHaptic]);
   /** Confirm mint: ZenSolar™ — stamp → deep meditative bowl bloom → bass sustain */
   const playConfirmSound = useCallback(() => {
     try {
-      primeAudio();
-      const ctx = getCtx();
-      const now = ctx.currentTime;
+      const ctx = primeAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
       const master = ctx.createGain();
@@ -610,7 +650,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [getCtx, primeAudio, triggerHaptic]);
+  }, [primeAudio, triggerHaptic]);
 
   return { primeAudio, playMintSound, playConfirmSound, triggerHaptic };
 }
