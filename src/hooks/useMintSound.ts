@@ -9,33 +9,34 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export function useMintSound() {
   const ctxRef = useRef<AudioContext | null>(null);
-  const primedRef = useRef(false);
 
   const getCtx = useCallback(() => {
     if (!ctxRef.current || ctxRef.current.state === 'closed') {
       ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-    if (ctxRef.current.state === 'suspended') {
-      ctxRef.current.resume().catch(() => {});
-    }
     return ctxRef.current;
   }, []);
 
   /** Must be called synchronously inside a touch/click handler to unlock
-   *  the AudioContext on iOS Safari. Plays a silent buffer so the browser
-   *  considers the context "user-gesture-activated". Safe to call repeatedly. */
+   *  the AudioContext on iOS Safari. We always attempt a resume + silent pulse
+   *  so the very first hold-release can still play audio on release. */
   const primeAudio = useCallback(() => {
     try {
       const ctx = getCtx();
-      if (!primedRef.current) {
-        // Play a tiny silent buffer to unlock the context within the gesture
-        const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
-        const src = ctx.createBufferSource();
-        src.buffer = buf;
-        src.connect(ctx.destination);
-        src.start(0);
-        primedRef.current = true;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
       }
+
+      const silentGain = ctx.createGain();
+      silentGain.gain.value = 0.00001;
+      silentGain.connect(ctx.destination);
+
+      const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(silentGain);
+      src.start(0);
+      src.stop(ctx.currentTime + 0.001);
     } catch {
       // Silent fail
     }
@@ -67,6 +68,7 @@ export function useMintSound() {
 
   const playMintSound = useCallback((_color?: string) => {
     try {
+      primeAudio();
       const ctx = getCtx();
       const now = ctx.currentTime;
 
@@ -360,10 +362,11 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [getCtx, triggerHaptic]);
+  }, [getCtx, primeAudio, triggerHaptic]);
   /** Confirm mint: ZenSolar™ — stamp → deep meditative bowl bloom → bass sustain */
   const playConfirmSound = useCallback(() => {
     try {
+      primeAudio();
       const ctx = getCtx();
       const now = ctx.currentTime;
 
@@ -607,7 +610,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [getCtx, triggerHaptic]);
+  }, [getCtx, primeAudio, triggerHaptic]);
 
   return { primeAudio, playMintSound, playConfirmSound, triggerHaptic };
 }
