@@ -62,7 +62,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
   const lastTapTimeRef = useRef<number>(0);
   const ignoreClickUntilRef = useRef<number>(0);
 
-  const { playMintSound } = useMintSound();
+  const { primeAudio, playMintSound } = useMintSound();
 
   const particles = useMemo(
     () => generateParticleLayout(),
@@ -173,6 +173,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (disabled) return;
+    primeAudio();
     ignoreClickUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
@@ -253,6 +254,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
+      onContextMenu={(e) => e.preventDefault()}
       disabled={disabled}
       className={cn(
         'relative overflow-hidden touch-manipulation select-none zen-mint-contain',

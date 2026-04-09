@@ -791,7 +791,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
   const cardRef = React.useRef<HTMLDivElement>(null);
-  const { playMintSound } = useMintSound();
+  const { primeAudio, playMintSound } = useMintSound();
 
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -917,6 +917,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!isTappable) return;
+    primeAudio();
     ignoreClickUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
@@ -984,6 +985,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
       onTouchCancel={isTappable ? handleTouchCancel : undefined}
+      onContextMenu={isTappable ? (e) => e.preventDefault() : undefined}
       animate={isBursting ? { 
         scale: [0.90, 1.06, 1.02, 1],
         y: [2, -3, -1, 0],
