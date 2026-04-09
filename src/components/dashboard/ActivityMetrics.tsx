@@ -834,14 +834,16 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           ? shadowGlow 
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
-            : shadowRest,
-        transition: 'box-shadow 0.2s ease-out',
+            : isTappable
+              ? `0 0 12px rgba(${styles.rgba}, 0.15), 0 0 4px rgba(${styles.rgba}, 0.1)`
+              : shadowRest,
+        transition: 'box-shadow 0.3s ease-out',
       } as React.CSSProperties}
       className={cn(
         "p-3.5 rounded-xl border-l-[3px] border border-border/50 flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
         styles.leftBorder,
         isTappable
-          ? cn("cursor-pointer bg-card hover:bg-muted/20", `hover:shadow-lg ${styles.glow}`)
+          ? cn("cursor-pointer bg-card hover:bg-muted/20 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
           : "bg-muted/30"
       )}
     >
