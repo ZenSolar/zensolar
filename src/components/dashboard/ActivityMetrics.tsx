@@ -139,6 +139,13 @@ export function ActivityMetrics({
   const hasMultipleEvDevices = evDevices.length > 1;
   const hasMultipleChargerDevices = chargerDevices.length > 1;
 
+  // First-load shimmer burst → idle transition
+  const [shimmerBurstDone, setShimmerBurstDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setShimmerBurstDone(true), 4000);
+    return () => clearTimeout(t);
+  }, []);
+
   // Swipe hint for first-time users
   const { shouldShowHint, markHintSeen } = useSwipeHintShown();
 
