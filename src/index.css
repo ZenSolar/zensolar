@@ -409,13 +409,13 @@
 @keyframes zenEnergyRelease {
   0% {
     transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  20% {
     opacity: 0.8;
   }
-  30% {
-    opacity: 0.6;
-  }
   100% {
-    transform: translate(-50%, -50%) scale(3);
+    transform: translate(-50%, -50%) scale(4);
     opacity: 0;
   }
 }
