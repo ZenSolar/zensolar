@@ -284,6 +284,11 @@ export function useMintSound() {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
+      // Master volume — scale entire sound package
+      const master = ctx.createGain();
+      master.gain.value = 0.8;
+      master.connect(ctx.destination);
+
       // ══════════════════════════════════════════════════════════
       //  ZenSolar™ Confirm Sound — Meditative Bass
       //  No metallic chimes. Deep bowls + bass only.
@@ -295,7 +300,7 @@ export function useMintSound() {
       stampGain.gain.linearRampToValueAtTime(0.26, now + 0.012);
       stampGain.gain.exponentialRampToValueAtTime(0.05, now + 0.06);
       stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-      stampGain.connect(ctx.destination);
+      stampGain.connect(master);
 
       const stamp = ctx.createOscillator();
       stamp.type = 'sine';
