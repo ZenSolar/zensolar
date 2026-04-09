@@ -757,7 +757,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         ? getTouchRelativePos(clientX, clientY) 
         : { x: 0.85, y: 0.5 }; // Default to MINT button area
       triggerBurst(pos.x, pos.y);
-      onTap();
+      // Intentional delay — let the user feel the burst, sound, and glow
+      // before the confirmation screen appears. This is the "moment of proof."
+      setTimeout(() => {
+        onTap();
+      }, 900);
     }
   };
 
