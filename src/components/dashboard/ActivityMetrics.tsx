@@ -264,7 +264,7 @@ export function ActivityMetrics({
       )}
       <Card 
         className={cn(
-          "relative z-10 overflow-hidden transition-all bg-card/8 backdrop-blur-[2px]",
+          "relative z-10 overflow-hidden transition-all bg-card/5",
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
         style={activityUnits > 0 ? { boxShadow: '0 0 12px hsl(160 100% 10% / 0.2), 0 0 4px hsl(158 95% 8% / 0.15)' } : undefined}
