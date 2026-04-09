@@ -205,9 +205,9 @@ export function useMintSound() {
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(200, now + 0.08);  // Darker filter
-      derezLP.frequency.exponentialRampToValueAtTime(30, now + 0.8);
-      derezLP.Q.value = 0.6; // Very soft resonance
+      derezLP.frequency.setValueAtTime(120, now + 0.08);
+      derezLP.frequency.exponentialRampToValueAtTime(20, now + 0.8);
+      derezLP.Q.value = 0.3;
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
@@ -245,12 +245,12 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(60, now + 0.15);
-      breathLP.frequency.exponentialRampToValueAtTime(18, now + 0.15 + breathLen);
-      breathLP.Q.value = 0.1;
+      breathLP.frequency.setValueAtTime(40, now + 0.15);
+      breathLP.frequency.exponentialRampToValueAtTime(12, now + 0.15 + breathLen);
+      breathLP.Q.value = 0.05;
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.05, now + 0.12);
+      breathGain.gain.setValueAtTime(0.03, now + 0.12);
       breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12 + breathLen);
 
       breathSrc.connect(breathLP);
@@ -274,8 +274,8 @@ export function useMintSound() {
 
       const techLP = ctx.createBiquadFilter();
       techLP.type = 'lowpass';
-      techLP.frequency.value = 110;
-      techLP.Q.value = 0.6;
+      techLP.frequency.value = 70;
+      techLP.Q.value = 0.3;
 
       tech.connect(techLP);
       techLP.connect(techGain);
@@ -472,9 +472,9 @@ export function useMintSound() {
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(220, now + 0.1);  // Darker
-      derezLP.frequency.exponentialRampToValueAtTime(25, now + 1.0);
-      derezLP.Q.value = 0.6;
+      derezLP.frequency.setValueAtTime(130, now + 0.1);
+      derezLP.frequency.exponentialRampToValueAtTime(18, now + 1.0);
+      derezLP.Q.value = 0.3;
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
@@ -511,12 +511,12 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(55, now + 0.2);
-      breathLP.frequency.exponentialRampToValueAtTime(15, now + 0.2 + breathLen);
-      breathLP.Q.value = 0.1;
+      breathLP.frequency.setValueAtTime(35, now + 0.2);
+      breathLP.frequency.exponentialRampToValueAtTime(10, now + 0.2 + breathLen);
+      breathLP.Q.value = 0.05;
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.045, now + 0.2);
+      breathGain.gain.setValueAtTime(0.03, now + 0.2);
       breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + breathLen);
 
       breathSrc.connect(breathLP);
