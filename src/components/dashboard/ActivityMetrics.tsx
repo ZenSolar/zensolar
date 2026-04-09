@@ -791,19 +791,19 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
     if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
-      // ⚡ DOUBLE TAP — trigger confirm
+      // ⚡ SECOND TAP — complementary visual only, no confirm
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      lastTapTimeRef.current = 0;
-      setShowTapAgain(false);
-      triggerDoubleBurst(posX, posY);
-      if (onTap) {
-        setTimeout(() => onTap(), BURST_DURATION);
-      }
-    } else {
-      // First tap — just the experience
       lastTapTimeRef.current = now;
+      setShowTapAgain(false);
+      setIsSecondTap(true);
+      triggerDoubleBurst(posX, posY);
+      // Reset isSecondTap after burst ends
+      setTimeout(() => setIsSecondTap(false), BURST_DURATION);
+    } else {
+      // First tap — original visual
+      lastTapTimeRef.current = now;
+      setIsSecondTap(false);
       triggerBurst(posX, posY);
-      // Show subtle "tap again" hint only during the real double-tap window
       setShowTapAgain(true);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
@@ -811,7 +811,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         setShowTapAgain(false);
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [triggerBurst, triggerDoubleBurst, onTap]);
+  }, [triggerBurst, triggerDoubleBurst]);
 
   // Click handler for desktop
   const handleClick = (e: React.MouseEvent) => {
