@@ -254,15 +254,15 @@ export function ActivityMetrics({
     <Card 
       className={cn(
         "overflow-hidden transition-all bg-card",
-        activityUnits > 0 ? 'border-primary/30' : 'border-border/50'
+        activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
       )}
-      style={activityUnits > 0 ? { boxShadow: '0 0 16px hsl(var(--primary) / 0.15), 0 0 6px hsl(var(--primary) / 0.1)' } : undefined}
+      style={activityUnits > 0 ? { boxShadow: '0 0 20px hsl(var(--primary) / 0.25), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.08)' } : undefined}
     >
-      <CardContent className="p-4 space-y-3">
+      <CardContent className="p-3 pt-2.5 space-y-2.5">
         {/* Header Row */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+        <div className="space-y-1.5">
+          <div className="flex items-start justify-between">
+            <h2 className="text-base font-semibold text-foreground flex items-center gap-1.5 -ml-0.5">
               <Gauge className="h-4 w-4 text-primary" />
               Clean Energy Center
               {isLoading && (
@@ -273,7 +273,7 @@ export function ActivityMetrics({
               )}
             </h2>
             {filteredProviders.length > 0 && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 -mr-0.5 -mt-0.5">
                 {filteredProviders.map((provider) => (
                   <div 
                     key={provider}
