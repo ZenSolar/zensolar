@@ -1,13 +1,27 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useQuery, useQueryClient, QueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
+import { useWeb3Ready } from '@/components/providers/LazyWeb3Provider';
 
 /**
  * Returns true if there's at least one home_charging_session with status='charging'.
  * Uses Realtime subscription for instant updates + 30s polling fallback.
+ * Safe to call before QueryClientProvider is mounted.
  */
 export function useActiveChargingSession() {
+  const web3Ready = useWeb3Ready();
+
+  if (!web3Ready) {
+    // Return a static result that matches useQuery's shape
+    return { data: false, isLoading: false, isError: false } as ReturnType<typeof useQuery<boolean>>;
+  }
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useActiveChargingSessionInner();
+}
+
+function useActiveChargingSessionInner() {
   const viewAsUserId = useViewAsUserId();
   const queryClient = useQueryClient();
   const queryKey = ['active-charging-session', viewAsUserId];
