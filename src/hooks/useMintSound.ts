@@ -233,104 +233,75 @@ export function useMintSound() {
       shim.start(t0);
       shim.stop(t0 + 0.55);
 
-      // ─── Metallic attack noise — the bright "TANG" of the mallet ───
-      const atkLen = 0.08;
+      // ─── Metallic attack — soft mallet tap, heavily filtered for roundness ───
+      const atkLen = 0.06;
       const atkSize = Math.ceil(ctx.sampleRate * atkLen);
       const atkBuf = ctx.createBuffer(1, atkSize, ctx.sampleRate);
       const atkData = atkBuf.getChannelData(0);
       for (let i = 0; i < atkSize; i++) {
         const t = i / atkSize;
-        const env = Math.pow(1 - t, 8); // Very sharp attack
+        const env = Math.pow(1 - t, 12); // Ultra-sharp, gone before you hear grit
         atkData[i] = (Math.random() * 2 - 1) * env;
       }
       const atkSrc = ctx.createBufferSource();
       atkSrc.buffer = atkBuf;
 
+      // Narrow bandpass → only the warm "tok" comes through, no hiss
       const atkBP = ctx.createBiquadFilter();
       atkBP.type = 'bandpass';
-      atkBP.frequency.setValueAtTime(1800, t0);
-      atkBP.frequency.exponentialRampToValueAtTime(300, t0 + 0.06);
-      atkBP.Q.value = 1.2;
+      atkBP.frequency.setValueAtTime(800, t0);
+      atkBP.frequency.exponentialRampToValueAtTime(200, t0 + 0.03);
+      atkBP.Q.value = 2.5;
+
+      // Extra lowpass to kill any remaining static
+      const atkSmooth = ctx.createBiquadFilter();
+      atkSmooth.type = 'lowpass';
+      atkSmooth.frequency.value = 600;
+      atkSmooth.Q.value = 0.5;
 
       const atkGain = ctx.createGain();
-      atkGain.gain.setValueAtTime(0.15, t0);
+      atkGain.gain.setValueAtTime(0.08, t0);
       atkGain.gain.exponentialRampToValueAtTime(0.001, t0 + atkLen);
 
       atkSrc.connect(atkBP);
-      atkBP.connect(atkGain);
+      atkBP.connect(atkSmooth);
+      atkSmooth.connect(atkGain);
       atkGain.connect(master);
       atkSrc.start(t0);
       atkSrc.stop(t0 + atkLen + 0.01);
 
-      // ─── Low resonance sweep — Tron-style energy dissolve into sustain ───
+      // ─── Low resonance hum — sine instead of sawtooth for smoothness ───
       const sweepGain = ctx.createGain();
       sweepGain.gain.setValueAtTime(0, t0 + 0.02);
-      sweepGain.gain.linearRampToValueAtTime(0.045, t0 + 0.08);
+      sweepGain.gain.linearRampToValueAtTime(0.04, t0 + 0.08);
       sweepGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.7);
       sweepGain.connect(master);
 
       const sweep = ctx.createOscillator();
-      sweep.type = 'sawtooth';
-      sweep.frequency.setValueAtTime(120, t0 + 0.02);
-      sweep.frequency.exponentialRampToValueAtTime(18, t0 + 0.7);
-
-      const sweepLP = ctx.createBiquadFilter();
-      sweepLP.type = 'lowpass';
-      sweepLP.frequency.setValueAtTime(100, t0 + 0.02);
-      sweepLP.frequency.exponentialRampToValueAtTime(20, t0 + 0.7);
-      sweepLP.Q.value = 0.3;
-
-      sweep.connect(sweepLP);
-      sweepLP.connect(sweepGain);
+      sweep.type = 'sine';
+      sweep.frequency.setValueAtTime(90, t0 + 0.02);
+      sweep.frequency.exponentialRampToValueAtTime(28, t0 + 0.7);
+      sweep.connect(sweepGain);
       sweep.start(t0 + 0.02);
       sweep.stop(t0 + 0.8);
 
-      // Airy dissolve tail
-      const breathLen = 0.7;
-      const breathSize = Math.ceil(ctx.sampleRate * breathLen);
-      const breathBuf = ctx.createBuffer(1, breathSize, ctx.sampleRate);
-      const breathData = breathBuf.getChannelData(0);
-      for (let i = 0; i < breathSize; i++) {
-        const t = i / breathSize;
-        const env = Math.pow(1 - t, 3.5);
-        breathData[i] = (Math.random() * 2 - 1) * env;
-      }
-      const breathSrc = ctx.createBufferSource();
-      breathSrc.buffer = breathBuf;
-
-      const breathLP = ctx.createBiquadFilter();
-      breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(40, t0 + 0.15);
-      breathLP.frequency.exponentialRampToValueAtTime(12, t0 + 0.15 + breathLen);
-      breathLP.Q.value = 0.05;
-
-      const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.03, t0 + 0.12);
-      breathGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.12 + breathLen);
-
-      breathSrc.connect(breathLP);
-      breathLP.connect(breathGain);
-      breathGain.connect(master);
-      breathSrc.start(t0 + 0.15);
-      breathSrc.stop(t0 + 0.15 + breathLen + 0.01);
-
-      // --- Layer 4: ELECTRIC WARMTH ---
+      // ─── Electric warmth — triangle wave (smooth harmonics) instead of sawtooth ───
       const techGain = ctx.createGain();
       techGain.gain.setValueAtTime(0, t0);
-      techGain.gain.linearRampToValueAtTime(0.045, t0 + 0.03);
-      techGain.gain.setValueAtTime(0.045, t0 + 0.12);
+      techGain.gain.linearRampToValueAtTime(0.035, t0 + 0.03);
+      techGain.gain.setValueAtTime(0.035, t0 + 0.12);
       techGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.5);
       techGain.connect(master);
 
       const tech = ctx.createOscillator();
-      tech.type = 'sawtooth';
+      tech.type = 'triangle';
       tech.frequency.setValueAtTime(50, t0);
       tech.frequency.exponentialRampToValueAtTime(38, t0 + 0.55);
 
       const techLP = ctx.createBiquadFilter();
       techLP.type = 'lowpass';
-      techLP.frequency.value = 70;
-      techLP.Q.value = 0.3;
+      techLP.frequency.value = 60;
+      techLP.Q.value = 0.2;
 
       tech.connect(techLP);
       techLP.connect(techGain);
