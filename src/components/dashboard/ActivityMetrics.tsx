@@ -914,7 +914,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
             : isTappable
-              ? `0 0 12px rgba(${styles.rgba}, 0.15), 0 0 4px rgba(${styles.rgba}, 0.1)`
+              ? `0 0 12px rgba(${styles.rgba}, 0.18), 0 0 5px rgba(${styles.rgba}, 0.12), 0 0 24px rgba(${styles.rgba}, 0.06)`
               : shadowRest,
         transition: 'box-shadow 0.4s ease-out',
       } as React.CSSProperties}
@@ -925,12 +925,6 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           ? cn("cursor-pointer bg-card hover:bg-muted/20 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
           : "bg-muted/30"
       )}
-      style={{
-        ...((isBursting || isChargingUp || isPressing) ? {} : isTappable ? {
-          boxShadow: `0 0 10px rgba(${styles.rgba}, 0.12), 0 0 4px rgba(${styles.rgba}, 0.08)`,
-        } : {}),
-        ...(typeof (arguments as any)[0]?.style === 'object' ? {} : {}),
-      } as React.CSSProperties}
     >
       {/* Subtle gradient overlay for active cards */}
       {active && (
