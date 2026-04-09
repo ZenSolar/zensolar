@@ -2,6 +2,7 @@ import { useAccount, useSwitchChain } from 'wagmi';
 import { useMemo, useCallback } from 'react';
 import { CHAIN_ID } from '@/lib/wagmi';
 import { baseSepolia } from 'viem/chains';
+import { useWeb3Ready } from '@/components/providers/LazyWeb3Provider';
 
 export type WalletType = 'metamask' | 'coinbase' | 'walletconnect' | 'unknown';
 
@@ -14,11 +15,36 @@ interface WalletInfo {
   appStoreUrl: string | null;
 }
 
+const DISCONNECTED_FALLBACK: WalletInfo & { switchToBaseSepolia: () => Promise<boolean>; isOnCorrectNetwork: boolean } = {
+  type: 'unknown',
+  name: 'Wallet',
+  supportsWatchAsset: false,
+  supportsNetworkSwitch: false,
+  deepLinkBase: null,
+  appStoreUrl: null,
+  switchToBaseSepolia: async () => false,
+  isOnCorrectNetwork: false,
+};
+
 /**
  * Hook to detect which wallet type is connected
  * Uses wagmi's connector info to identify MetaMask, Coinbase/Base Wallet, etc.
  */
 export function useWalletType(): WalletInfo & {
+  switchToBaseSepolia: () => Promise<boolean>;
+  isOnCorrectNetwork: boolean;
+} {
+  const web3Ready = useWeb3Ready();
+
+  if (!web3Ready) {
+    return DISCONNECTED_FALLBACK;
+  }
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useWalletTypeInner();
+}
+
+function useWalletTypeInner(): WalletInfo & {
   switchToBaseSepolia: () => Promise<boolean>;
   isOnCorrectNetwork: boolean;
 } {
