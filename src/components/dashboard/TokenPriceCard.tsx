@@ -313,7 +313,7 @@ export function TokenPriceCard({
               style={{
                 background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)',
                 animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
-                animationDelay: '1s',
+                animationDelay: '0s',
                 willChange: 'transform',
               }}
             />
@@ -523,7 +523,7 @@ export function TokenPriceCard({
             style={{
               background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)',
               animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
-              animationDelay: '1s',
+              animationDelay: '0s',
               willChange: 'transform',
             }}
           />
