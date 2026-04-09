@@ -258,12 +258,12 @@ export function ActivityMetrics({
       )}
       style={activityUnits > 0 ? { boxShadow: '0 0 20px hsl(var(--primary) / 0.25), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.08)' } : undefined}
     >
-      <CardContent className="p-3 pt-2.5 space-y-2.5">
+      <CardContent className="p-2.5 pt-2 space-y-2">
         {/* Header Row */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="flex items-start justify-between">
-            <h2 className="text-base font-semibold text-foreground flex items-center gap-1.5 -ml-0.5">
-              <Gauge className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1">
+              <Gauge className="h-3.5 w-3.5 text-primary flex-shrink-0" />
               Clean Energy Center
               {isLoading && (
                 <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
@@ -273,11 +273,11 @@ export function ActivityMetrics({
               )}
             </h2>
             {filteredProviders.length > 0 && (
-              <div className="flex items-center gap-1.5 -mr-0.5 -mt-0.5">
+              <div className="flex items-center gap-1">
                 {filteredProviders.map((provider) => (
                   <div 
                     key={provider}
-                    className="h-8 w-8 rounded-lg flex items-center justify-center bg-muted/40 border border-border/30 overflow-hidden"
+                    className="h-7 w-7 rounded-md flex items-center justify-center bg-muted/40 border border-border/30 overflow-hidden"
                     title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                   >
                     <img 
@@ -285,7 +285,7 @@ export function ActivityMetrics({
                       alt={provider}
                       className={cn(
                         "object-contain",
-                        provider === 'tesla' ? "h-6 w-6" : "h-4 w-4"
+                        provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
                       )}
                     />
                   </div>
@@ -914,11 +914,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
             : isTappable
-              ? `0 0 12px rgba(${styles.rgba}, 0.15), 0 0 4px rgba(${styles.rgba}, 0.1)`
+              ? `0 0 12px rgba(${styles.rgba}, 0.18), 0 0 5px rgba(${styles.rgba}, 0.12), 0 0 24px rgba(${styles.rgba}, 0.06)`
               : shadowRest,
         transition: 'box-shadow 0.4s ease-out',
       } as React.CSSProperties}
-      className={cn(
+       className={cn(
         "p-3.5 rounded-xl border-l-[3px] border border-border/50 flex items-center gap-3.5 relative overflow-hidden touch-manipulation select-none",
         styles.leftBorder,
         isTappable
