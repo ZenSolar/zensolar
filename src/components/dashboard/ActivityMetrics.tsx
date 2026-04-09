@@ -345,6 +345,7 @@ export function ActivityMetrics({
                     color="gold"
                     active={pendingKwh > 0}
                     isLoading={isLoading}
+                    showBadge={index === 0}
                     onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
                       category: 'solar', 
                       deviceId: device.deviceId,
@@ -378,7 +379,7 @@ export function ActivityMetrics({
                   color="gold"
                   active={current.solarKwh > 0}
                   isLoading={isLoading}
-                  
+                  showBadge
                   onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
                 />
               </SwipeableActivityField>
