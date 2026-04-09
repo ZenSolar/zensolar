@@ -717,29 +717,24 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
-    // Set touch point for ripple origin
     if (relX !== undefined && relY !== undefined) {
       setTouchPoint({ x: relX, y: relY });
     }
     setIsBursting(true);
-    // 🔊 Category-specific synthesised sound
     playMintSound(color);
-    // Haptic feedback — category-specific vibration pattern
+    // Haptic feedback
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(haptic); } catch { /* silent */ }
     }
-    // Also try Capacitor Haptics for native — heavier impact for that "button click" feel
     import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
-      // Second lighter pulse 100ms later for "release" feel
-      setTimeout(() => {
-        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-      }, 100);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
     }).catch(() => {});
     setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
-    }, 800);
+    }, 1400);
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
@@ -757,11 +752,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         ? getTouchRelativePos(clientX, clientY) 
         : { x: 0.85, y: 0.5 }; // Default to MINT button area
       triggerBurst(pos.x, pos.y);
-      // Intentional delay — let the user feel the burst, sound, and glow
-      // before the confirmation screen appears. This is the "moment of proof."
+      // Intentional delay — let the full burst play out.
+      // The user feels the energy, sees it radiate, then the confirm appears.
       setTimeout(() => {
         onTap();
-      }, 900);
+      }, 1600);
     }
   };
 
@@ -821,21 +816,21 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
       onTouchCancel={isTappable ? handleTouchCancel : undefined}
       animate={isBursting ? { 
-        scale: [0.93, 1.04, 1],
-        y: [1, -2, 0],
+        scale: [0.90, 1.06, 1.02, 1],
+        y: [2, -3, -1, 0],
       } : isPressing ? {
-        scale: 0.95,
-        y: 1,
+        scale: 0.93,
+        y: 2,
       } : {
         scale: 1,
         y: 0,
       }}
-      transition={isBursting ? { duration: 0.5, ease: [0.22, 1, 0.36, 1] } : { duration: 0.12, ease: 'easeOut' }}
+      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : { duration: 0.12, ease: 'easeOut' }}
       style={{
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,
         boxShadow: isBursting 
-          ? shadowGlow 
+          ? `0 0 30px rgba(${styles.rgba}, 0.5), 0 0 60px rgba(${styles.rgba}, 0.25), 0 0 90px rgba(${styles.rgba}, 0.1)` 
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
             : isTappable
@@ -870,7 +865,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             height: '200%',
             background: `radial-gradient(circle, rgba(${styles.rgba}, 0.15) 0%, transparent 70%)`,
             animation: isBursting 
-              ? 'zenTouchRipple 600ms ease-out forwards' 
+              ? 'zenTouchRipple 900ms ease-out forwards' 
               : undefined,
             transform: isPressing && !isBursting 
               ? 'translate(-50%, -50%) scale(0.3)' 
@@ -892,7 +887,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             width: '300%',
             height: '300%',
             border: `2px solid rgba(${styles.rgba}, 0.8)`,
-            animation: 'zenPressureWave 500ms ease-out forwards',
+            animation: 'zenPressureWave 800ms ease-out forwards',
             willChange: 'transform, opacity',
           }}
         />
@@ -901,8 +896,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {/* ⚡ Solar Flare Burst — radiating rings + particles on tap */}
       {isBursting && (
         <>
-          {/* Expanding energy rings */}
-          {[0, 1, 2].map(i => (
+          {/* Expanding energy rings — 4 staggered waves */}
+          {[0, 1, 2, 3].map(i => (
             <div
               key={`ring-${i}`}
               className="absolute pointer-events-none"
@@ -914,20 +909,20 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 marginLeft: touchPoint ? -10 : 0,
                 marginTop: -10,
                 borderRadius: '50%',
-                border: `2px solid rgba(${styles.rgba}, ${0.7 - i * 0.2})`,
-                animation: `zenFlareRing 600ms ${i * 80}ms ease-out forwards`,
+                border: `2px solid rgba(${styles.rgba}, ${0.8 - i * 0.15})`,
+                animation: `zenFlareRing 900ms ${i * 120}ms ease-out forwards`,
                 willChange: 'transform, opacity',
               }}
             />
           ))}
-          {/* Shaped energy particles — unique per category, burst from touch point */}
-          {Array.from({ length: 10 }).map((_, i) => {
-            const angle = (i / 10) * 360 + (Math.random() * 20 - 10);
+          {/* Shaped energy particles — 16 particles, larger spread */}
+          {Array.from({ length: 16 }).map((_, i) => {
+            const angle = (i / 16) * 360 + (Math.random() * 20 - 10);
             const rad = (angle * Math.PI) / 180;
-            const dist = 40 + Math.random() * 50;
+            const dist = 50 + Math.random() * 70;
             const tx = Math.cos(rad) * dist;
-            const ty = Math.sin(rad) * (15 + Math.random() * 20);
-            const size = 6 + Math.random() * 5;
+            const ty = Math.sin(rad) * (20 + Math.random() * 30);
+            const size = 7 + Math.random() * 6;
             const rotation = Math.random() * 360;
             return (
               <div
@@ -938,11 +933,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                   top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
                   width: size,
                   height: size,
-                  background: `rgba(${styles.rgba}, ${0.8 + Math.random() * 0.2})`,
-                  boxShadow: `0 0 8px rgba(${styles.rgba}, 0.7)`,
+                  background: `rgba(${styles.rgba}, ${0.85 + Math.random() * 0.15})`,
+                  boxShadow: `0 0 12px rgba(${styles.rgba}, 0.8), 0 0 24px rgba(${styles.rgba}, 0.3)`,
                   clipPath: shape,
                   transform: `rotate(${rotation}deg)`,
-                  animation: `zenFlareParticle 600ms ${i * 25}ms ease-out forwards`,
+                  animation: `zenFlareParticle 900ms ${i * 30}ms ease-out forwards`,
                   willChange: 'transform, opacity',
                   '--tx': `${tx}px`,
                   '--ty': `${ty}px`,
@@ -950,18 +945,18 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               />
             );
           })}
-          {/* Energy release glow from touch point */}
+          {/* Energy release glow — larger, more intense */}
           <div
             className="absolute pointer-events-none rounded-full"
             style={{
               left: touchPoint ? `${touchPoint.x * 100}%` : 28,
               top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
-              width: 60,
-              height: 60,
-              marginLeft: touchPoint ? -30 : -2,
-              marginTop: -30,
-              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.5) 0%, transparent 70%)`,
-              animation: 'zenEnergyRelease 500ms ease-out forwards',
+              width: 80,
+              height: 80,
+              marginLeft: touchPoint ? -40 : -12,
+              marginTop: -40,
+              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.6) 0%, rgba(${styles.rgba}, 0.2) 40%, transparent 70%)`,
+              animation: 'zenEnergyRelease 800ms ease-out forwards',
               willChange: 'transform, opacity',
             }}
           />
