@@ -130,8 +130,9 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
       updateState({ showTapAgain: false });
-      triggerBurst(posX, posY, DOUBLE_BURST_DURATION);
-      setTimeout(() => onClick(), 550);
+      // Use same full burst duration as first tap so visuals match
+      triggerBurst(posX, posY, BURST_DURATION);
+      setTimeout(() => onClick(), BURST_DURATION);
     } else {
       lastTapTimeRef.current = now;
       triggerBurst(posX, posY, BURST_DURATION);
