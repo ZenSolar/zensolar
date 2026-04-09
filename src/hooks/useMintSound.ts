@@ -146,278 +146,144 @@ export function useMintSound() {
       echo2Gain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
-      //  ZenSolar™ Tap-to-Mint Signature Sound
-      //  Concept: Gong strike → Zen calm × Solar radiance × Coin stamp × Tech
+      //  ZenSolar™ Tap-to-Mint — Single Unified Gong Strike
+      //  All partials hit simultaneously as one cohesive metallic tone
       // ══════════════════════════════════════════════════════════
 
-      // ─── Layer 0: ZEN GONG STRIKE — the initial contact sound ───
-      // A real gong has: bright metallic attack → rapid high-freq decay →
-      // long sustaining low-mid resonance with slight pitch wobble
-      const gongTime = now;
+      const t0 = now; // Everything starts together — one strike
 
-      // Gong fundamental — C2 (65Hz), the deep body of the gong
-      const gongFundGain = ctx.createGain();
-      gongFundGain.gain.setValueAtTime(0, gongTime);
-      gongFundGain.gain.linearRampToValueAtTime(0.32, gongTime + 0.004);
-      gongFundGain.gain.setValueAtTime(0.32, gongTime + 0.08);
-      gongFundGain.gain.exponentialRampToValueAtTime(0.12, gongTime + 0.4);
-      gongFundGain.gain.exponentialRampToValueAtTime(0.001, gongTime + 1.8);
-      gongFundGain.connect(master);
-
-      const gongFund = ctx.createOscillator();
-      gongFund.type = 'sine';
-      gongFund.frequency.setValueAtTime(65, gongTime);
-      // Slight downward pitch drift — gong physics
-      gongFund.frequency.exponentialRampToValueAtTime(63, gongTime + 1.5);
-      gongFund.connect(gongFundGain);
-      gongFund.start(gongTime);
-      gongFund.stop(gongTime + 2.0);
-
-      // Gong second partial — ~2.76x fundamental (inharmonic, characteristic of gongs)
-      const gong2Gain = ctx.createGain();
-      gong2Gain.gain.setValueAtTime(0, gongTime);
-      gong2Gain.gain.linearRampToValueAtTime(0.14, gongTime + 0.003);
-      gong2Gain.gain.exponentialRampToValueAtTime(0.04, gongTime + 0.15);
-      gong2Gain.gain.exponentialRampToValueAtTime(0.001, gongTime + 1.0);
-      gong2Gain.connect(master);
-
-      const gong2 = ctx.createOscillator();
-      gong2.type = 'sine';
-      gong2.frequency.setValueAtTime(179, gongTime); // ~2.76 × 65
-      gong2.frequency.exponentialRampToValueAtTime(175, gongTime + 0.8);
-      gong2.connect(gong2Gain);
-      gong2.start(gongTime);
-      gong2.stop(gongTime + 1.2);
-
-      // Gong third partial — ~5.4x fundamental (the shimmer)
-      const gong3Gain = ctx.createGain();
-      gong3Gain.gain.setValueAtTime(0, gongTime);
-      gong3Gain.gain.linearRampToValueAtTime(0.07, gongTime + 0.002);
-      gong3Gain.gain.exponentialRampToValueAtTime(0.02, gongTime + 0.08);
-      gong3Gain.gain.exponentialRampToValueAtTime(0.001, gongTime + 0.5);
-      gong3Gain.connect(master);
-
-      const gong3 = ctx.createOscillator();
-      gong3.type = 'sine';
-      gong3.frequency.setValueAtTime(351, gongTime); // ~5.4 × 65
-      gong3.connect(gong3Gain);
-      gong3.start(gongTime);
-      gong3.stop(gongTime + 0.6);
-
-      // Gong metallic attack — filtered noise burst for that bright "TANG"
-      const gongNoiseLen = 0.12;
-      const gongNoiseSize = Math.ceil(ctx.sampleRate * gongNoiseLen);
-      const gongNoiseBuf = ctx.createBuffer(1, gongNoiseSize, ctx.sampleRate);
-      const gongNoiseData = gongNoiseBuf.getChannelData(0);
-      for (let i = 0; i < gongNoiseSize; i++) {
-        const t = i / gongNoiseSize;
-        const env = Math.pow(1 - t, 6); // Very fast decay
-        gongNoiseData[i] = (Math.random() * 2 - 1) * env;
-      }
-      const gongNoiseSrc = ctx.createBufferSource();
-      gongNoiseSrc.buffer = gongNoiseBuf;
-
-      const gongNoiseBP = ctx.createBiquadFilter();
-      gongNoiseBP.type = 'bandpass';
-      gongNoiseBP.frequency.setValueAtTime(2200, gongTime);
-      gongNoiseBP.frequency.exponentialRampToValueAtTime(400, gongTime + 0.08);
-      gongNoiseBP.Q.value = 1.5;
-
-      const gongNoiseGain = ctx.createGain();
-      gongNoiseGain.gain.setValueAtTime(0.18, gongTime);
-      gongNoiseGain.gain.exponentialRampToValueAtTime(0.001, gongTime + gongNoiseLen);
-
-      gongNoiseSrc.connect(gongNoiseBP);
-      gongNoiseBP.connect(gongNoiseGain);
-      gongNoiseGain.connect(master);
-      gongNoiseSrc.start(gongTime);
-      gongNoiseSrc.stop(gongTime + gongNoiseLen + 0.01);
-
-      // Gong sub-bass bloom — felt more than heard
-      const gongSubGain = ctx.createGain();
-      gongSubGain.gain.setValueAtTime(0, gongTime);
-      gongSubGain.gain.linearRampToValueAtTime(0.15, gongTime + 0.01);
-      gongSubGain.gain.setValueAtTime(0.15, gongTime + 0.1);
-      gongSubGain.gain.exponentialRampToValueAtTime(0.001, gongTime + 1.4);
-      gongSubGain.connect(master);
-
-      const gongSub = ctx.createOscillator();
-      gongSub.type = 'sine';
-      gongSub.frequency.setValueAtTime(32, gongTime); // Sub-bass
-      gongSub.frequency.exponentialRampToValueAtTime(28, gongTime + 1.2);
-      gongSub.connect(gongSubGain);
-      gongSub.start(gongTime);
-      gongSub.stop(gongTime + 1.6);
-
-      // ─── Existing layers shifted 120ms to bloom AFTER the gong attack ───
-      const mintStart = now + 0.12;
-
-      // --- Layer 1: THE STAMP — weighted coin-press impact ---
-      const stampGain = ctx.createGain();
-      stampGain.gain.setValueAtTime(0, mintStart);
-      stampGain.gain.linearRampToValueAtTime(0.28, mintStart + 0.01);
-      stampGain.gain.exponentialRampToValueAtTime(0.06, mintStart + 0.06);
-      stampGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.22);
-      stampGain.connect(master);
-
-      const stamp = ctx.createOscillator();
-      stamp.type = 'sine';
-      stamp.frequency.setValueAtTime(70, mintStart);
-      stamp.frequency.exponentialRampToValueAtTime(24, mintStart + 0.1);
-      stamp.connect(stampGain);
-      stamp.start(mintStart);
-      stamp.stop(mintStart + 0.28);
-
-      // Sub-bass weight
+      // ─── Sub-bass foundation (32Hz) — felt more than heard ───
       const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0, mintStart);
-      subGain.gain.linearRampToValueAtTime(0.25, mintStart + 0.008);
-      subGain.gain.setValueAtTime(0.25, mintStart + 0.05);
-      subGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.26);
+      subGain.gain.setValueAtTime(0, t0);
+      subGain.gain.linearRampToValueAtTime(0.2, t0 + 0.008);
+      subGain.gain.setValueAtTime(0.2, t0 + 0.1);
+      subGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.6);
       subGain.connect(master);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
-      sub.frequency.setValueAtTime(36, mintStart);
-      sub.frequency.exponentialRampToValueAtTime(18, mintStart + 0.22);
+      sub.frequency.setValueAtTime(32, t0);
+      sub.frequency.exponentialRampToValueAtTime(28, t0 + 1.4);
       sub.connect(subGain);
-      sub.start(mintStart);
-      sub.stop(mintStart + 0.32);
+      sub.start(t0);
+      sub.stop(t0 + 1.8);
 
-      // --- Layer 2: DEEP ZEN BOWL — louder, longer, more meditative ---
-      const zenTime = mintStart + 0.04;
-      const zenGain = ctx.createGain();
-      zenGain.gain.setValueAtTime(0, zenTime);
-      zenGain.gain.linearRampToValueAtTime(0.15, zenTime + 0.08);
-      zenGain.gain.setValueAtTime(0.15, zenTime + 0.3);
-      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.9);
-      zenGain.connect(master);
+      // ─── Deep fundamental (65Hz C2) — the body of the gong ───
+      const fundGain = ctx.createGain();
+      fundGain.gain.setValueAtTime(0, t0);
+      fundGain.gain.linearRampToValueAtTime(0.30, t0 + 0.004);
+      fundGain.gain.setValueAtTime(0.30, t0 + 0.08);
+      fundGain.gain.exponentialRampToValueAtTime(0.10, t0 + 0.5);
+      fundGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.8);
+      fundGain.connect(master);
 
-      const zen = ctx.createOscillator();
-      zen.type = 'sine';
-      zen.frequency.setValueAtTime(110, zenTime); // A2 — deep om
-      zen.connect(zenGain);
-      zen.start(zenTime);
-      zen.stop(zenTime + 1.05);
+      const fund = ctx.createOscillator();
+      fund.type = 'sine';
+      fund.frequency.setValueAtTime(65, t0);
+      fund.frequency.exponentialRampToValueAtTime(63, t0 + 1.5);
+      fund.connect(fundGain);
+      fund.start(t0);
+      fund.stop(t0 + 2.0);
 
-      // Bowl harmonic fifth — louder presence
-      const zen2Gain = ctx.createGain();
-      zen2Gain.gain.setValueAtTime(0, zenTime + 0.05);
-      zen2Gain.gain.linearRampToValueAtTime(0.08, zenTime + 0.12);
-      zen2Gain.gain.setValueAtTime(0.08, zenTime + 0.35);
-      zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.8);
-      zen2Gain.connect(master);
+      // ─── Warm mid partial (110Hz A2) — the singing bowl "om" ───
+      const midGain = ctx.createGain();
+      midGain.gain.setValueAtTime(0, t0);
+      midGain.gain.linearRampToValueAtTime(0.14, t0 + 0.006);
+      midGain.gain.setValueAtTime(0.14, t0 + 0.06);
+      midGain.gain.exponentialRampToValueAtTime(0.04, t0 + 0.4);
+      midGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.2);
+      midGain.connect(master);
 
-      const zen2 = ctx.createOscillator();
-      zen2.type = 'sine';
-      zen2.frequency.setValueAtTime(165, zenTime + 0.06); // E3 — perfect fifth
-      zen2.connect(zen2Gain);
-      zen2.start(zenTime + 0.06);
-      zen2.stop(zenTime + 0.95);
+      const mid = ctx.createOscillator();
+      mid.type = 'sine';
+      mid.frequency.setValueAtTime(110, t0);
+      mid.frequency.exponentialRampToValueAtTime(108, t0 + 1.0);
+      mid.connect(midGain);
+      mid.start(t0);
+      mid.stop(t0 + 1.4);
 
-      // Third bowl voice — sub-octave for extra depth
-      const zen3Gain = ctx.createGain();
-      zen3Gain.gain.setValueAtTime(0, zenTime + 0.02);
-      zen3Gain.gain.linearRampToValueAtTime(0.07, zenTime + 0.1);
-      zen3Gain.gain.setValueAtTime(0.07, zenTime + 0.25);
-      zen3Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.75);
-      zen3Gain.connect(master);
+      // ─── Upper partial (179Hz) — inharmonic gong character ───
+      const up1Gain = ctx.createGain();
+      up1Gain.gain.setValueAtTime(0, t0);
+      up1Gain.gain.linearRampToValueAtTime(0.10, t0 + 0.003);
+      up1Gain.gain.exponentialRampToValueAtTime(0.03, t0 + 0.12);
+      up1Gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.8);
+      up1Gain.connect(master);
 
-      const zen3 = ctx.createOscillator();
-      zen3.type = 'sine';
-      zen3.frequency.setValueAtTime(55, zenTime + 0.02); // A1 — sub-octave om
-      zen3.connect(zen3Gain);
-      zen3.start(zenTime + 0.02);
-      zen3.stop(zenTime + 0.9);
+      const up1 = ctx.createOscillator();
+      up1.type = 'sine';
+      up1.frequency.setValueAtTime(179, t0);
+      up1.frequency.exponentialRampToValueAtTime(175, t0 + 0.6);
+      up1.connect(up1Gain);
+      up1.start(t0);
+      up1.stop(t0 + 1.0);
 
-      // --- Layer 2b: SINGING BOWL CHIME — crystalline strike in the center ---
-      const chimeTime = mintStart + 0.15;
+      // ─── Shimmer partial (330Hz) — bright presence, fast decay ───
+      const shimGain = ctx.createGain();
+      shimGain.gain.setValueAtTime(0, t0);
+      shimGain.gain.linearRampToValueAtTime(0.06, t0 + 0.003);
+      shimGain.gain.exponentialRampToValueAtTime(0.015, t0 + 0.08);
+      shimGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.45);
+      shimGain.connect(master);
 
-      // Fundamental — A3 (220Hz) singing bowl strike
-      const chimeGain = ctx.createGain();
-      chimeGain.gain.setValueAtTime(0, chimeTime);
-      chimeGain.gain.linearRampToValueAtTime(0.09, chimeTime + 0.005);
-      chimeGain.gain.exponentialRampToValueAtTime(0.04, chimeTime + 0.08);
-      chimeGain.gain.exponentialRampToValueAtTime(0.001, chimeTime + 0.7);
-      chimeGain.connect(master);
+      const shim = ctx.createOscillator();
+      shim.type = 'sine';
+      shim.frequency.setValueAtTime(330, t0);
+      shim.connect(shimGain);
+      shim.start(t0);
+      shim.stop(t0 + 0.55);
 
-      const chime = ctx.createOscillator();
-      chime.type = 'sine';
-      chime.frequency.setValueAtTime(220, chimeTime);
-      chime.frequency.exponentialRampToValueAtTime(218, chimeTime + 0.6);
-      chime.connect(chimeGain);
-      chime.start(chimeTime);
-      chime.stop(chimeTime + 0.75);
+      // ─── Metallic attack noise — the bright "TANG" of the mallet ───
+      const atkLen = 0.08;
+      const atkSize = Math.ceil(ctx.sampleRate * atkLen);
+      const atkBuf = ctx.createBuffer(1, atkSize, ctx.sampleRate);
+      const atkData = atkBuf.getChannelData(0);
+      for (let i = 0; i < atkSize; i++) {
+        const t = i / atkSize;
+        const env = Math.pow(1 - t, 8); // Very sharp attack
+        atkData[i] = (Math.random() * 2 - 1) * env;
+      }
+      const atkSrc = ctx.createBufferSource();
+      atkSrc.buffer = atkBuf;
 
-      // Overtone — E4 (330Hz) perfect fifth shimmer
-      const chime2Gain = ctx.createGain();
-      chime2Gain.gain.setValueAtTime(0, chimeTime + 0.01);
-      chime2Gain.gain.linearRampToValueAtTime(0.04, chimeTime + 0.015);
-      chime2Gain.gain.exponentialRampToValueAtTime(0.015, chimeTime + 0.1);
-      chime2Gain.gain.exponentialRampToValueAtTime(0.001, chimeTime + 0.5);
-      chime2Gain.connect(master);
+      const atkBP = ctx.createBiquadFilter();
+      atkBP.type = 'bandpass';
+      atkBP.frequency.setValueAtTime(1800, t0);
+      atkBP.frequency.exponentialRampToValueAtTime(300, t0 + 0.06);
+      atkBP.Q.value = 1.2;
 
-      const chime2 = ctx.createOscillator();
-      chime2.type = 'sine';
-      chime2.frequency.setValueAtTime(330, chimeTime + 0.01);
-      chime2.connect(chime2Gain);
-      chime2.start(chimeTime + 0.01);
-      chime2.stop(chimeTime + 0.55);
+      const atkGain = ctx.createGain();
+      atkGain.gain.setValueAtTime(0.15, t0);
+      atkGain.gain.exponentialRampToValueAtTime(0.001, t0 + atkLen);
 
-      // --- Layer 3: BASS DESCENT ---
-      const swellGain = ctx.createGain();
-      swellGain.gain.setValueAtTime(0, mintStart + 0.06);
-      swellGain.gain.linearRampToValueAtTime(0.1, mintStart + 0.12);
-      swellGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.6);
-      swellGain.connect(master);
+      atkSrc.connect(atkBP);
+      atkBP.connect(atkGain);
+      atkGain.connect(master);
+      atkSrc.start(t0);
+      atkSrc.stop(t0 + atkLen + 0.01);
 
-      const swell = ctx.createOscillator();
-      swell.type = 'sine';
-      swell.frequency.setValueAtTime(55, mintStart + 0.08);
-      swell.frequency.exponentialRampToValueAtTime(28, mintStart + 0.65);
-      swell.connect(swellGain);
-      swell.start(mintStart + 0.08);
-      swell.stop(mintStart + 0.72);
+      // ─── Low resonance sweep — Tron-style energy dissolve into sustain ───
+      const sweepGain = ctx.createGain();
+      sweepGain.gain.setValueAtTime(0, t0 + 0.02);
+      sweepGain.gain.linearRampToValueAtTime(0.045, t0 + 0.08);
+      sweepGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.7);
+      sweepGain.connect(master);
 
-      // --- Layer 3b: TRON DISSOLVE — energy being PUSHED DOWN into the grid ---
-      const derezGain = ctx.createGain();
-      derezGain.gain.setValueAtTime(0, mintStart + 0.06);
-      derezGain.gain.linearRampToValueAtTime(0.06, mintStart + 0.1);
-      derezGain.gain.setValueAtTime(0.06, mintStart + 0.18);
-      derezGain.gain.linearRampToValueAtTime(0.035, mintStart + 0.45);
-      derezGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.75);
-      derezGain.connect(master);
+      const sweep = ctx.createOscillator();
+      sweep.type = 'sawtooth';
+      sweep.frequency.setValueAtTime(120, t0 + 0.02);
+      sweep.frequency.exponentialRampToValueAtTime(18, t0 + 0.7);
 
-      const derez = ctx.createOscillator();
-      derez.type = 'sawtooth';
-      derez.frequency.setValueAtTime(140, mintStart + 0.08);
-      derez.frequency.exponentialRampToValueAtTime(18, mintStart + 0.8);
+      const sweepLP = ctx.createBiquadFilter();
+      sweepLP.type = 'lowpass';
+      sweepLP.frequency.setValueAtTime(100, t0 + 0.02);
+      sweepLP.frequency.exponentialRampToValueAtTime(20, t0 + 0.7);
+      sweepLP.Q.value = 0.3;
 
-      const derezLP = ctx.createBiquadFilter();
-      derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(120, mintStart + 0.08);
-      derezLP.frequency.exponentialRampToValueAtTime(20, mintStart + 0.8);
-      derezLP.Q.value = 0.3;
-
-      derez.connect(derezLP);
-      derezLP.connect(derezGain);
-      derez.start(mintStart + 0.08);
-      derez.stop(mintStart + 0.88);
-
-      // Sub-pressure
-      const pressGain = ctx.createGain();
-      pressGain.gain.setValueAtTime(0, mintStart + 0.08);
-      pressGain.gain.linearRampToValueAtTime(0.08, mintStart + 0.12);
-      pressGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.6);
-      pressGain.connect(master);
-
-      const press = ctx.createOscillator();
-      press.type = 'sine';
-      press.frequency.setValueAtTime(80, mintStart + 0.1);
-      press.frequency.exponentialRampToValueAtTime(12, mintStart + 0.65);
-      press.connect(pressGain);
-      press.start(mintStart + 0.1);
-      press.stop(mintStart + 0.72);
+      sweep.connect(sweepLP);
+      sweepLP.connect(sweepGain);
+      sweep.start(t0 + 0.02);
+      sweep.stop(t0 + 0.8);
 
       // Airy dissolve tail
       const breathLen = 0.7;
