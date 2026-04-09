@@ -1039,6 +1039,53 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </>
       )}
 
+      {/* ⚡ Energy grid lines — circuit pattern flash on tap */}
+      {isBursting && (
+        <>
+          {/* Horizontal scan lines */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+            style={{
+              backgroundImage: `
+                repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(${styles.rgba}, 0.12) 8px, rgba(${styles.rgba}, 0.12) 9px),
+                repeating-linear-gradient(90deg, transparent, transparent 12px, rgba(${styles.rgba}, 0.08) 12px, rgba(${styles.rgba}, 0.08) 13px)
+              `,
+              animation: 'zenGridFlash 1200ms ease-out forwards',
+              willChange: 'opacity',
+            }}
+          />
+          {/* Diagonal energy sweep */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+            style={{
+              backgroundImage: `linear-gradient(135deg, transparent 30%, rgba(${styles.rgba}, 0.15) 45%, rgba(${styles.rgba}, 0.25) 50%, rgba(${styles.rgba}, 0.15) 55%, transparent 70%)`,
+              backgroundSize: '300% 300%',
+              animation: 'zenGridSweep 800ms ease-out forwards',
+              willChange: 'opacity, background-position',
+            }}
+          />
+          {/* Corner node dots */}
+          {[[0, 0], [100, 0], [0, 100], [100, 100]].map(([x, y], i) => (
+            <div
+              key={`node-${i}`}
+              className="absolute pointer-events-none z-[6]"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                width: 4,
+                height: 4,
+                marginLeft: -2,
+                marginTop: -2,
+                borderRadius: '50%',
+                background: `rgba(${styles.rgba}, 0.8)`,
+                boxShadow: `0 0 6px rgba(${styles.rgba}, 0.6)`,
+                animation: `zenGridFlash 900ms ${i * 80}ms ease-out forwards`,
+              }}
+            />
+          ))}
+        </>
+      )}
+
       {/* ✨ Charging-up phase — pulsing border glow after burst settles */}
       {isChargingUp && (
         <div
