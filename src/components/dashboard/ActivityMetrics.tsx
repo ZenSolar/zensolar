@@ -972,13 +972,6 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const isPressing = phase === 'pressing';
   const isChargingUp = phase === 'charging';
 
-  const handleTouchCancel = () => {
-    setIsPressing(false);
-    setIsChargingUp(false);
-    setTouchPoint(null);
-    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
-    touchStartRef.current = null;
-  };
 
   // CSS custom properties for dynamic shadow based on color
   const shadowRest = `0 1px 3px rgba(0,0,0,0.1)`;
