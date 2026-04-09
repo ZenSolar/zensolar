@@ -128,14 +128,14 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
   if (compact) {
     return (
       <g>
-        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.5" />
+        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.2" />
         {/* House body */}
         <rect x="150" y="180" width="100" height="73" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.6" />
-        <rect x="150" y="180" width="3" height="73" fill="#151b2a" />
-        <rect x="247" y="180" width="3" height="73" fill="#151b2a" />
+        <rect x="150" y="180" width="3" height="73" fill="#151b2a" opacity="0.3" />
+        <rect x="247" y="180" width="3" height="73" fill="#151b2a" opacity="0.3" />
         {/* Roof */}
-        <polygon points="132,183 200,118 268,183" fill="#111827" stroke="#2a3448" strokeWidth="0.6" />
-        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.5" />
+        <polygon points="132,183 200,118 268,183" fill="#111827" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.3" />
         {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
         {(() => {
           const peakY = 121, eaveY = 180, cx = 200;
@@ -160,6 +160,7 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
                     height={ph}
                     rx={1}
                     fill="#1a3a60"
+                    fillOpacity={0.4}
                     stroke="#2d6090"
                     strokeWidth="0.5"
                   />
@@ -172,24 +173,24 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
           );
         })()}
         {/* Windows */}
-        <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
-        <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
         <rect x="163" y="196" width="8" height="10" fill="#1a1800" opacity="0.5">
           <animate attributeName="fill" values="#1a1800;#221e00;#1a1800" dur="6s" repeatCount="indefinite" />
         </rect>
         {/* Door */}
-        <rect x="190" y="222" width="18" height="30" rx="1" fill="#0c1018" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="190" y="222" width="18" height="30" rx="1" fill="#0c1018" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
         <circle cx="205" cy="238" r="0.8" fill="#4a5568" />
         {/* Powerwall */}
-        <rect x="127" y="212" width="16" height="30" rx="2" fill="#141e30" stroke="#2a4060" strokeWidth="0.6" />
+        <rect x="127" y="212" width="16" height="30" rx="2" fill="#141e30" fillOpacity="0.3" stroke="#2a4060" strokeWidth="0.6" />
         <rect x="129.5" y="215" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.25">
           <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
         </rect>
         <rect x="129.5" y="219" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.15" />
         <text x="135" y="234" textAnchor="middle" fill="#4a6080" fontSize="4" fontWeight="700">PW</text>
         {/* Utility meter */}
-        <rect x="256" y="210" width="14" height="18" rx="1.5" fill="#141e30" stroke="#2a4060" strokeWidth="0.5" />
-        <circle cx="263" cy="217" r="4" fill="#0a1018" stroke="#3a5070" strokeWidth="0.3" />
+        <rect x="256" y="210" width="14" height="18" rx="1.5" fill="#141e30" fillOpacity="0.3" stroke="#2a4060" strokeWidth="0.5" />
+        <circle cx="263" cy="217" r="4" fill="#0a1018" fillOpacity="0.3" stroke="#3a5070" strokeWidth="0.3" />
         <line x1="263" y1="217" x2="265.5" y2="215.5" stroke="#8B5CF6" strokeWidth="0.4" opacity="0.7">
           <animateTransform attributeName="transform" type="rotate" from="0 263 217" to="360 263 217" dur="8s" repeatCount="indefinite" />
         </line>
