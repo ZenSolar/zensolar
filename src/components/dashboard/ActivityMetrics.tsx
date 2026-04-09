@@ -257,26 +257,30 @@ export function ActivityMetrics({
     )}>
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
-         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Gauge className="h-4 w-4 text-primary" />
-            Clean Energy Center
-            {isLoading && (
-              <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Updating…
-              </span>
-            )}
-          </h2>
-          <div className="flex items-center gap-2">
-          
-          {/* Connected Provider Logos */}
-          {filteredProviders.length > 0 && (
-            <div className="flex items-center gap-1.5">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <Gauge className="h-4 w-4 text-primary" />
+              Clean Energy Center
+              {isLoading && (
+                <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Updating…
+                </span>
+              )}
+            </h2>
+            <span className="text-[9px] font-medium tracking-widest uppercase text-secondary">
+              Tap-to-Mint™
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+            {filteredProviders.length > 0 && (
+              <div className="flex items-center gap-1.5">
                 {filteredProviders.map((provider) => (
                   <div 
                     key={provider}
-                    className="h-8 w-8 rounded-lg flex items-center justify-center bg-muted/80 border border-border/50 overflow-hidden"
+                    className="h-7 w-7 rounded-lg flex items-center justify-center bg-muted/60 border border-border/40 overflow-hidden"
                     title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                   >
                     <img 
@@ -284,18 +288,15 @@ export function ActivityMetrics({
                       alt={provider}
                       className={cn(
                         "object-contain",
-                        provider === 'tesla' ? "h-6 w-6" : "h-4 w-4"
+                        provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
                       )}
                     />
                   </div>
                 ))}
-            </div>
-           )}
+              </div>
+            )}
           </div>
-         </div>
-
-        {/* Single last updated time */}
-        <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+        </div>
 
         {/* Tesla Reconnect CTA - shown when token expired */}
         {teslaNeedsReauth && (
@@ -331,63 +332,54 @@ export function ActivityMetrics({
         <div className="space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
-            <>
-              <div className="flex justify-end pr-1 -mb-1">
-                <span className="text-[9px] font-medium tracking-widest uppercase"
-                  style={{ color: '#7DF97D', textShadow: '0 0 8px rgba(125,249,125,0.3)' }}
-                >
-                  Tap-to-Mint™
-                </span>
-              </div>
-              {hasMultipleSolarDevices ? (
-                solarDevices.map((device, index) => {
-                  const pendingKwh = Math.floor(device.pendingKwh);
-                  const field = (
-                    <ActivityField
-                      key={device.deviceId}
-                      icon={Sun}
-                      label={`${device.deviceName} Solar Energy Produced`}
-                      value={pendingKwh}
-                      unit="kWh"
-                      color="gold"
-                      active={pendingKwh > 0}
-                      isLoading={isLoading}
-                      onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
-                        category: 'solar', 
-                        deviceId: device.deviceId,
-                        deviceName: device.deviceName 
-                      }) : undefined}
-                    />
-                  );
-                  return index === 0 && onHideField ? (
-                    <SwipeableActivityField 
-                      key={device.deviceId} 
-                      onHide={() => onHideField('solar')}
-                      locked={hasSolarConnected}
-                    >
-                      {field}
-                    </SwipeableActivityField>
-                  ) : field;
-                })
-              ) : (
-                <SwipeableActivityField 
-                  onHide={() => onHideField?.('solar')} 
-                  disabled={!onHideField}
-                  locked={hasSolarConnected}
-                >
+            hasMultipleSolarDevices ? (
+              solarDevices.map((device, index) => {
+                const pendingKwh = Math.floor(device.pendingKwh);
+                const field = (
                   <ActivityField
+                    key={device.deviceId}
                     icon={Sun}
-                    label={solarLabel}
-                    value={current.solarKwh}
+                    label={`${device.deviceName} Solar Energy Produced`}
+                    value={pendingKwh}
                     unit="kWh"
                     color="gold"
-                    active={current.solarKwh > 0}
+                    active={pendingKwh > 0}
                     isLoading={isLoading}
-                    onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
+                    onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
+                      category: 'solar', 
+                      deviceId: device.deviceId,
+                      deviceName: device.deviceName 
+                    }) : undefined}
                   />
-                </SwipeableActivityField>
-              )}
-            </>
+                );
+                return index === 0 && onHideField ? (
+                  <SwipeableActivityField 
+                    key={device.deviceId} 
+                    onHide={() => onHideField('solar')}
+                    locked={hasSolarConnected}
+                  >
+                    {field}
+                  </SwipeableActivityField>
+                ) : field;
+              })
+            ) : (
+              <SwipeableActivityField 
+                onHide={() => onHideField?.('solar')} 
+                disabled={!onHideField}
+                locked={hasSolarConnected}
+              >
+                <ActivityField
+                  icon={Sun}
+                  label={solarLabel}
+                  value={current.solarKwh}
+                  unit="kWh"
+                  color="gold"
+                  active={current.solarKwh > 0}
+                  isLoading={isLoading}
+                  onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
+                />
+              </SwipeableActivityField>
+            )
           )}
           
           {/* 2. Battery - Show individual Powerwalls if multiple */}
