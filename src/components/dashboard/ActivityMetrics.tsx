@@ -293,7 +293,7 @@ export function ActivityMetrics({
           <div className="flex items-center justify-between">
             <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
             <span 
-              className="text-[9px] font-medium tracking-widest uppercase text-secondary animate-pulse"
+              className="text-[9px] font-medium tracking-widest uppercase text-secondary"
               style={{ textShadow: '0 0 6px hsl(142 76% 36% / 0.6), 0 0 14px hsl(142 76% 36% / 0.3)' }}
             >
               Tap-to-Mint™
