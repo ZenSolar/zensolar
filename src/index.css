@@ -522,7 +522,14 @@
   100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
-/* Header shimmer sweep — GPU-accelerated */
+/* First-load shimmer burst — stronger single sweep */
+@keyframes zenShimmerBurst {
+  0% { transform: translateX(-100%) skewX(-15deg); opacity: 1; }
+  60% { opacity: 0.9; }
+  100% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
+}
+
+/* Idle shimmer sweep — GPU-accelerated */
 @keyframes zenHeaderShimmer {
   0% { transform: translateX(-100%) skewX(-15deg); }
   100% { transform: translateX(200%) skewX(-15deg); }
