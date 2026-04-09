@@ -1045,8 +1045,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </>
       )}
 
-      {/* ⚡ Category-specific burst overlay */}
-      {isBursting && (
+      {/* ⚡ Category-specific burst overlay — original on 1st tap, complementary on 2nd */}
+      {isBursting && !isSecondTap && (
         <>
           {color === 'gold' && (
             /* Solar — radial sunburst rays */
@@ -1065,16 +1065,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `
-                  repeating-linear-gradient(0deg, transparent, transparent 6px, rgba(${styles.rgba}, 0.3) 6px, rgba(${styles.rgba}, 0.3) 8px)
-                `,
+                backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 6px, rgba(${styles.rgba}, 0.3) 6px, rgba(${styles.rgba}, 0.3) 8px)`,
                 animation: 'zenGridFlash 1200ms ease-out forwards',
                 willChange: 'opacity',
               }}
             />
           )}
           {color === 'green' && (
-            /* EV Miles — diagonal speed lines */
+            /* EV Miles — diagonal speed lines (top-left to bottom-right) */
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
@@ -1107,7 +1105,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             </>
           )}
           {color === 'greenGold' && (
-            /* Home Charger — concentric circuit rings from touch point */
+            /* Home Charger — concentric circuit rings */
             <>
               {[1, 2, 3].map((ring) => (
                 <div
@@ -1134,6 +1132,100 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
             style={{
               backgroundImage: `linear-gradient(135deg, transparent 25%, rgba(${styles.rgba}, 0.3) 42%, rgba(${styles.rgba}, 0.5) 50%, rgba(${styles.rgba}, 0.3) 58%, transparent 75%)`,
+              backgroundSize: '300% 300%',
+              animation: 'zenGridSweep 800ms ease-out forwards',
+              willChange: 'opacity, background-position',
+            }}
+          />
+        </>
+      )}
+
+      {/* 🔄 Complementary burst overlay — opposite pattern on 2nd tap */}
+      {isBursting && isSecondTap && (
+        <>
+          {color === 'gold' && (
+            /* Solar complement — concentric pulsing circles (opposite of radial rays) */
+            <>
+              {[1, 2, 3, 4].map((ring) => (
+                <div
+                  key={`sun-ring-${ring}`}
+                  className="absolute pointer-events-none rounded-full z-[5]"
+                  style={{
+                    left: touchPoint ? `${touchPoint.x * 100}%` : '50%',
+                    top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+                    width: ring * 40,
+                    height: ring * 40,
+                    marginLeft: -(ring * 20),
+                    marginTop: -(ring * 20),
+                    border: `2px solid rgba(${styles.rgba}, ${0.8 - ring * 0.15})`,
+                    boxShadow: `0 0 10px rgba(${styles.rgba}, 0.4)`,
+                    animation: `zenFlareRing 900ms ${ring * 80}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {color === 'teal' && (
+            /* Battery complement — vertical energy bars (opposite of horizontal) */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 6px, rgba(${styles.rgba}, 0.3) 6px, rgba(${styles.rgba}, 0.3) 8px)`,
+                animation: 'zenGridFlash 1200ms ease-out forwards',
+                willChange: 'opacity',
+              }}
+            />
+          )}
+          {color === 'green' && (
+            /* EV complement — opposite diagonal lines (bottom-left to top-right) */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-linear-gradient(30deg, transparent, transparent 10px, rgba(${styles.rgba}, 0.3) 10px, rgba(${styles.rgba}, 0.3) 12px)`,
+                animation: 'zenGridSweep 800ms ease-out forwards',
+                backgroundSize: '300% 300%',
+                willChange: 'opacity, background-position',
+              }}
+            />
+          )}
+          {color === 'cyan' && (
+            /* Supercharger complement — horizontal lightning streaks (opposite of vertical) */
+            <>
+              {[25, 50, 75].map((yPos, i) => (
+                <div
+                  key={`h-bolt-${i}`}
+                  className="absolute pointer-events-none z-[5]"
+                  style={{
+                    top: `${yPos}%`,
+                    left: 0,
+                    height: 3,
+                    width: '100%',
+                    background: `linear-gradient(90deg, rgba(${styles.rgba}, 0.8), rgba(${styles.rgba}, 0) 80%)`,
+                    boxShadow: `0 0 8px rgba(${styles.rgba}, 0.6)`,
+                    animation: `zenGridFlash 700ms ${i * 100}ms ease-out forwards`,
+                    willChange: 'opacity',
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {color === 'greenGold' && (
+            /* Home Charger complement — radial spokes (opposite of concentric rings) */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-conic-gradient(from 0deg at ${touchPoint ? `${touchPoint.x * 100}% ${touchPoint.y * 100}%` : '50% 50%'}, rgba(${styles.rgba}, 0.3) 0deg, transparent 12deg, transparent 30deg)`,
+                animation: 'zenGridFlash 1000ms ease-out forwards',
+                willChange: 'opacity',
+              }}
+            />
+          )}
+          {/* Opposite diagonal sweep — sweeps the other direction */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+            style={{
+              backgroundImage: `linear-gradient(-135deg, transparent 25%, rgba(${styles.rgba}, 0.3) 42%, rgba(${styles.rgba}, 0.5) 50%, rgba(${styles.rgba}, 0.3) 58%, transparent 75%)`,
               backgroundSize: '300% 300%',
               animation: 'zenGridSweep 800ms ease-out forwards',
               willChange: 'opacity, background-position',
