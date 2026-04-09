@@ -125,7 +125,7 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
         "flex flex-col items-center gap-1 p-2 rounded-xl transition-all w-full touch-manipulation",
         isActive 
           ? cn("bg-gradient-to-br", styles.gradient, "shadow-lg", styles.glow)
-          : "bg-muted/50 hover:bg-muted"
+          : "bg-card/5 hover:bg-card/10"
       )}
     >
       <span className={cn(
@@ -294,7 +294,7 @@ export function RewardProgress({
   });
 
   return (
-    <Card className="overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
+    <Card className="overflow-hidden border-border/50 bg-card/5">
       <CardContent className="p-4 space-y-4">
         {/* Header: Title + Earned Badge */}
         <div className="flex items-center justify-between">
@@ -327,7 +327,7 @@ export function RewardProgress({
             onTouchEnd={handleTouchEnd}
             onClick={handleCycleCategory}
             whileTap={{ scale: 0.98 }}
-            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted group cursor-pointer touch-manipulation"
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-card/5 group cursor-pointer touch-manipulation"
           >
             <AnimatePresence mode="wait">
               {artwork && (
@@ -447,7 +447,7 @@ export function RewardProgress({
         <div className="pt-3 border-t border-border/50">
           <Link 
             to="/nft-collection" 
-            className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-all group"
+            className="flex items-center gap-2.5 p-2.5 rounded-xl bg-card/5 border border-border/50 hover:bg-card/10 transition-all group"
           >
             <div className="p-1.5 rounded-lg bg-primary/10">
               <Award className="h-4 w-4 text-primary" />
