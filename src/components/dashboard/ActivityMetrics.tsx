@@ -725,7 +725,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapTimeRef = React.useRef<number>(0);
   const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const DOUBLE_TAP_WINDOW = 800; // ms window for second tap
+  const DOUBLE_TAP_WINDOW = 500; // ms window for second tap
   const BURST_DURATION = 750;
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
@@ -1340,21 +1340,25 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
 
   if (isTappable) {
     return (
-      <MintEffectButton
-        onClick={handleMint}
-        className={cn(
-          "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden",
-          "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
-        )}
-      >
-        {content}
-      </MintEffectButton>
+      <div className="flex justify-center">
+        <MintEffectButton
+          onClick={handleMint}
+          className={cn(
+            "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden w-full",
+            "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
+          )}
+        >
+          {content}
+        </MintEffectButton>
+      </div>
     );
   }
 
   return (
-    <div className="p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden border-border/50 bg-muted/30">
-      {content}
+    <div className="flex justify-center">
+      <div className="p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden border-border/50 bg-muted/30 w-full">
+        {content}
+      </div>
     </div>
   );
 }

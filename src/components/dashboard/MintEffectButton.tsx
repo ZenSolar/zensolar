@@ -3,9 +3,9 @@ import { useMintSound } from '@/hooks/useMintSound';
 import { cn } from '@/lib/utils';
 
 const TOUCH_DELTA_THRESHOLD = 15;
-const DOUBLE_TAP_WINDOW = 800;
+const DOUBLE_TAP_WINDOW = 500;
 const BURST_DURATION = 750;
-const GHOST_CLICK_SUPPRESSION = 900;
+const GHOST_CLICK_SUPPRESSION = 700;
 
 const RGBA = '34, 197, 94';
 const PARTICLE_SHAPE = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
