@@ -302,7 +302,7 @@ export function TokenPriceCard({
         <div 
           className="absolute -inset-px pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(207 95% 58% / 0.14), transparent 70%)',
+            background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(142 76% 36% / 0.16), transparent 70%)',
             animation: 'zenChargeUpPulse 3.5s ease-in-out infinite alternate',
             filter: 'blur(2px)',
           }}
@@ -505,7 +505,7 @@ export function TokenPriceCard({
       <div 
         className="absolute -inset-px pointer-events-none rounded-xl z-0"
         style={{
-          background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(207 95% 58% / 0.14), transparent 70%)',
+          background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(142 76% 36% / 0.16), transparent 70%)',
           animation: 'zenChargeUpPulse 3.5s ease-in-out infinite alternate',
           filter: 'blur(2px)',
         }}
