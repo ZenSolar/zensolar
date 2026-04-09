@@ -425,3 +425,13 @@
     box-shadow: inset 0 0 25px currentColor, 0 0 35px currentColor;
   }
 }
+
+/* "tap again" hint — gentle brightness pulse */
+@keyframes zenTapAgainPulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
