@@ -55,122 +55,107 @@ export function useMintSound() {
       // ══════════════════════════════════════════════════════════
 
       // --- Layer 1: THE STAMP — weighted coin-press impact ---
-      // Dull, bassy, decisive. The physical "mint" moment.
       const stampGain = ctx.createGain();
       stampGain.gain.setValueAtTime(0, now);
-      stampGain.gain.linearRampToValueAtTime(0.24, now + 0.012);
-      stampGain.gain.exponentialRampToValueAtTime(0.06, now + 0.07);
-      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      stampGain.gain.linearRampToValueAtTime(0.22, now + 0.012);
+      stampGain.gain.exponentialRampToValueAtTime(0.05, now + 0.07);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
       stampGain.connect(ctx.destination);
 
       const stamp = ctx.createOscillator();
       stamp.type = 'sine';
       stamp.frequency.setValueAtTime(70, now);
-      stamp.frequency.exponentialRampToValueAtTime(28, now + 0.08);
+      stamp.frequency.exponentialRampToValueAtTime(24, now + 0.1);
       stamp.connect(stampGain);
       stamp.start(now);
-      stamp.stop(now + 0.25);
+      stamp.stop(now + 0.28);
 
-      // Sub-bass foundation — felt more than heard
+      // Sub-bass weight
       const subGain = ctx.createGain();
       subGain.gain.setValueAtTime(0, now);
       subGain.gain.linearRampToValueAtTime(0.2, now + 0.01);
-      subGain.gain.setValueAtTime(0.2, now + 0.05);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      subGain.gain.setValueAtTime(0.2, now + 0.06);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
       subGain.connect(ctx.destination);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
       sub.frequency.setValueAtTime(36, now);
-      sub.frequency.exponentialRampToValueAtTime(20, now + 0.2);
+      sub.frequency.exponentialRampToValueAtTime(18, now + 0.22);
       sub.connect(subGain);
       sub.start(now);
-      sub.stop(now + 0.3);
+      sub.stop(now + 0.32);
 
-      // --- Layer 2: ZEN BOWL — pure resonant harmonic that blooms after the press ---
-      // Like a singing bowl struck once — calm, clean, purposeful
-      const zenTime = now + 0.04; // Blooms just after stamp contact
+      // --- Layer 2: DEEP ZEN BOWL — low meditative resonance (matches confirm) ---
+      const zenTime = now + 0.04;
       const zenGain = ctx.createGain();
       zenGain.gain.setValueAtTime(0, zenTime);
-      zenGain.gain.linearRampToValueAtTime(0.07, zenTime + 0.06);
-      zenGain.gain.setValueAtTime(0.07, zenTime + 0.15);
-      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.55);
+      zenGain.gain.linearRampToValueAtTime(0.08, zenTime + 0.08);
+      zenGain.gain.setValueAtTime(0.08, zenTime + 0.25);
+      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.8);
       zenGain.connect(ctx.destination);
 
       const zen = ctx.createOscillator();
       zen.type = 'sine';
-      zen.frequency.setValueAtTime(174, zenTime); // F3 — warm, grounding "om" frequency
+      zen.frequency.setValueAtTime(110, zenTime); // A2 — deep om, same as confirm
       zen.connect(zenGain);
       zen.start(zenTime);
-      zen.stop(zenTime + 0.6);
+      zen.stop(zenTime + 0.85);
 
-      // Zen overtone — octave shimmer for that bell-like purity
-      const zenOvertoneGain = ctx.createGain();
-      zenOvertoneGain.gain.setValueAtTime(0, zenTime);
-      zenOvertoneGain.gain.linearRampToValueAtTime(0.025, zenTime + 0.08);
-      zenOvertoneGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.45);
-      zenOvertoneGain.connect(ctx.destination);
+      // Bowl harmonic fifth — warm, not metallic
+      const zen2Gain = ctx.createGain();
+      zen2Gain.gain.setValueAtTime(0, zenTime + 0.06);
+      zen2Gain.gain.linearRampToValueAtTime(0.04, zenTime + 0.15);
+      zen2Gain.gain.setValueAtTime(0.04, zenTime + 0.3);
+      zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.7);
+      zen2Gain.connect(ctx.destination);
 
-      const zenOvertone = ctx.createOscillator();
-      zenOvertone.type = 'sine';
-      zenOvertone.frequency.setValueAtTime(348, zenTime); // F4 — one octave up
-      zenOvertone.connect(zenOvertoneGain);
-      zenOvertone.start(zenTime);
-      zenOvertone.stop(zenTime + 0.5);
+      const zen2 = ctx.createOscillator();
+      zen2.type = 'sine';
+      zen2.frequency.setValueAtTime(165, zenTime + 0.06); // E3 — perfect fifth
+      zen2.connect(zen2Gain);
+      zen2.start(zenTime + 0.06);
+      zen2.stop(zenTime + 0.75);
 
-      // --- Layer 3: SOLAR WARMTH — gentle radiant energy that swells ---
-      // Warm filtered texture, like sunlight converting to energy
-      const solarTime = now + 0.02;
-      const solarLen = 0.15;
-      const solarSize = Math.ceil(ctx.sampleRate * solarLen);
-      const solarBuf = ctx.createBuffer(1, solarSize, ctx.sampleRate);
-      const solarData = solarBuf.getChannelData(0);
-      for (let i = 0; i < solarSize; i++) {
-        const t = i / solarSize;
-        // Smooth swell envelope — rises then fades like a solar flare
-        const env = Math.sin(t * Math.PI) * 0.6;
-        solarData[i] = (Math.random() * 2 - 1) * env;
-      }
-      const solarSrc = ctx.createBufferSource();
-      solarSrc.buffer = solarBuf;
+      // --- Layer 3: BASS SWELL — gentle rise and settle ---
+      const swellGain = ctx.createGain();
+      swellGain.gain.setValueAtTime(0, now + 0.08);
+      swellGain.gain.linearRampToValueAtTime(0.08, now + 0.2);
+      swellGain.gain.setValueAtTime(0.08, now + 0.35);
+      swellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+      swellGain.connect(ctx.destination);
 
-      const solarLP = ctx.createBiquadFilter();
-      solarLP.type = 'lowpass';
-      solarLP.frequency.value = 250; // Very warm, no harshness
-      solarLP.Q.value = 1.2;
+      const swell = ctx.createOscillator();
+      swell.type = 'sine';
+      swell.frequency.setValueAtTime(55, now + 0.08);
+      swell.frequency.linearRampToValueAtTime(62, now + 0.3);
+      swell.frequency.exponentialRampToValueAtTime(45, now + 0.7);
+      swell.connect(swellGain);
+      swell.start(now + 0.08);
+      swell.stop(now + 0.78);
 
-      const solarGain = ctx.createGain();
-      solarGain.gain.setValueAtTime(0.1, solarTime);
-
-      solarSrc.connect(solarLP);
-      solarLP.connect(solarGain);
-      solarGain.connect(ctx.destination);
-      solarSrc.start(solarTime);
-      solarSrc.stop(solarTime + solarLen + 0.01);
-
-      // --- Layer 4: TECH UNDERCURRENT — electric DNA, deeply filtered ---
-      // The cutting-edge tech signature — felt as texture, not heard as tone
+      // --- Layer 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const techGain = ctx.createGain();
       techGain.gain.setValueAtTime(0, now);
-      techGain.gain.linearRampToValueAtTime(0.04, now + 0.03);
-      techGain.gain.setValueAtTime(0.04, now + 0.12);
-      techGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      techGain.gain.linearRampToValueAtTime(0.035, now + 0.04);
+      techGain.gain.setValueAtTime(0.035, now + 0.15);
+      techGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
       techGain.connect(ctx.destination);
 
       const tech = ctx.createOscillator();
       tech.type = 'sawtooth';
-      tech.frequency.setValueAtTime(55, now); // Mains hum frequency
-      tech.frequency.exponentialRampToValueAtTime(42, now + 0.35);
+      tech.frequency.setValueAtTime(50, now);
+      tech.frequency.exponentialRampToValueAtTime(38, now + 0.55);
 
       const techLP = ctx.createBiquadFilter();
       techLP.type = 'lowpass';
-      techLP.frequency.value = 130; // Buried deep — subliminal electric presence
-      techLP.Q.value = 0.8;
+      techLP.frequency.value = 110;
+      techLP.Q.value = 0.6;
 
       tech.connect(techLP);
       techLP.connect(techGain);
       tech.start(now);
-      tech.stop(now + 0.42);
+      tech.stop(now + 0.62);
 
       triggerHaptic('light');
     } catch {
