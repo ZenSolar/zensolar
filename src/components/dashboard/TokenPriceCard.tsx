@@ -300,11 +300,11 @@ export function TokenPriceCard({
       >
         {/* Outer ambient glow */}
         <div 
-          className="absolute -inset-0.5 pointer-events-none rounded-xl z-0"
+          className="absolute -inset-px pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 80% 50% at 50% 70%, hsl(207 95% 58% / 0.18), hsl(207 90% 54% / 0.08), transparent 75%)',
+            background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(207 95% 58% / 0.14), transparent 70%)',
             animation: 'zenChargeUpPulse 3.5s ease-in-out infinite alternate',
-            filter: 'blur(3px)',
+            filter: 'blur(2px)',
           }}
         />
         <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10">
@@ -503,11 +503,11 @@ export function TokenPriceCard({
     >
       {/* Outer ambient glow */}
       <div 
-        className="absolute -inset-0.5 pointer-events-none rounded-xl z-0"
+        className="absolute -inset-px pointer-events-none rounded-xl z-0"
         style={{
-          background: 'radial-gradient(ellipse 80% 50% at 50% 70%, hsl(207 95% 58% / 0.18), hsl(207 90% 54% / 0.08), transparent 75%)',
+          background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(207 95% 58% / 0.14), transparent 70%)',
           animation: 'zenChargeUpPulse 3.5s ease-in-out infinite alternate',
-          filter: 'blur(3px)',
+          filter: 'blur(2px)',
         }}
       />
       <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10" style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)' }}>
