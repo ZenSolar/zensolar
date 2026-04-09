@@ -1178,6 +1178,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
 }
 
 // Touch threshold constants - shared across all tappable elements
+const TOUCH_DELTA_THRESHOLD = 15;
+
 interface TotalTokensCardProps {
   tokensToReceive: number;
   activityUnits: number;
