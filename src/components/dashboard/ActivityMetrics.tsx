@@ -708,6 +708,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const [isBursting, setIsBursting] = useState(false);
   const [isChargingUp, setIsChargingUp] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
+  const [showTapAgain, setShowTapAgain] = useState(false);
   const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
@@ -786,20 +787,22 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       // ⚡ DOUBLE TAP — trigger confirm
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
+      setShowTapAgain(false);
       triggerDoubleBurst(posX, posY);
       if (onTap) {
-        setTimeout(() => onTap(), 2500);
+        setTimeout(() => onTap(), 1500);
       }
     } else {
-      // First tap — just the experience, wait to see if second tap comes
+      // First tap — just the experience
       lastTapTimeRef.current = now;
       triggerBurst(posX, posY);
-      // Clear any pending timer
+      // Show subtle "tap again" hint on the MINT label
+      setShowTapAgain(true);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
-        // Single tap confirmed — no action needed, burst already played
         lastTapTimeRef.current = 0;
-      }, DOUBLE_TAP_WINDOW);
+        setShowTapAgain(false);
+      }, 2000); // Hint visible for 2s
     }
   }, [triggerBurst, triggerDoubleBurst, onTap]);
 
@@ -1128,7 +1131,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {/* Mint button — stamps on press */}
       {isTappable && !isLoading && (
         <div 
-          className={cn("flex items-center gap-1", styles.text)}
+          className={cn("flex items-center gap-1 relative", styles.text)}
           style={isBursting ? {
             animation: 'zenMintStamp 400ms ease-out',
           } : isPressing ? {
@@ -1139,8 +1142,34 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             transition: 'all 0.15s ease-out',
           }}
         >
-          <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
-          <ChevronRight className={cn("h-5 w-5 transition-transform", isBursting && "translate-x-1")} />
+          <span className="relative overflow-hidden">
+            {/* Default MINT text */}
+            <span 
+              className={cn(
+                "text-xs font-semibold uppercase tracking-wide block transition-all duration-300",
+                showTapAgain ? "opacity-0 -translate-y-3" : "opacity-100 translate-y-0"
+              )}
+            >
+              Mint
+            </span>
+            {/* "Tap again" hint — slides up into place */}
+            <span 
+              className={cn(
+                "text-[10px] font-medium absolute inset-0 flex items-center whitespace-nowrap transition-all duration-300",
+                showTapAgain ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+              )}
+              style={showTapAgain ? {
+                animation: 'pulse 1s ease-in-out infinite',
+              } : undefined}
+            >
+              tap again
+            </span>
+          </span>
+          <ChevronRight className={cn(
+            "h-5 w-5 transition-all duration-300",
+            isBursting && "translate-x-1",
+            showTapAgain && "animate-pulse"
+          )} />
         </div>
       )}
     </motion.div>
