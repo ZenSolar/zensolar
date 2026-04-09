@@ -15,7 +15,7 @@ import { useMintSound } from '@/hooks/useMintSound';
 const TOUCH_DELTA_THRESHOLD = 15;
 const TOUCH_TIME_THRESHOLD = 400;
 const DOUBLE_TAP_WINDOW = 800;
-const BURST_DURATION = 900;
+const BURST_DURATION = 1200;
 const DOUBLE_BURST_DURATION = 550;
 
 // Wallet-specific color (primary/indigo theme)
