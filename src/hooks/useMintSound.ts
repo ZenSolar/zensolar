@@ -657,9 +657,8 @@ export function useMintSound() {
       sub.start(mintStart);
       sub.stop(mintStart + 0.27);
 
-      // --- Phase 2: DEEP ZEN BOWL (t=0.05) — low meditative resonance ---
-      // Much lower than before — feels like a Tibetan bowl, not a bell
-      const zenTime = now + 0.05;
+      // --- Phase 2: DEEP ZEN BOWL ---
+      const zenTime = mintStart + 0.05;
       const zenGain = ctx.createGain();
       zenGain.gain.setValueAtTime(0, zenTime);
       zenGain.gain.linearRampToValueAtTime(0.1, zenTime + 0.1);
@@ -669,12 +668,11 @@ export function useMintSound() {
 
       const zen = ctx.createOscillator();
       zen.type = 'sine';
-      zen.frequency.setValueAtTime(110, zenTime); // A2 — deep, grounding om
+      zen.frequency.setValueAtTime(110, zenTime);
       zen.connect(zenGain);
       zen.start(zenTime);
       zen.stop(zenTime + 1.05);
 
-      // Second bowl harmonic — a fifth above, still low
       const zen2Gain = ctx.createGain();
       zen2Gain.gain.setValueAtTime(0, zenTime + 0.08);
       zen2Gain.gain.linearRampToValueAtTime(0.06, zenTime + 0.2);
@@ -684,12 +682,11 @@ export function useMintSound() {
 
       const zen2 = ctx.createOscillator();
       zen2.type = 'sine';
-      zen2.frequency.setValueAtTime(165, zenTime + 0.08); // E3 — perfect fifth, harmonic
+      zen2.frequency.setValueAtTime(165, zenTime + 0.08);
       zen2.connect(zen2Gain);
       zen2.start(zenTime + 0.08);
       zen2.stop(zenTime + 0.95);
 
-      // --- Phase 2b: Extra zen sub-octave voice ---
       const zen3Gain = ctx.createGain();
       zen3Gain.gain.setValueAtTime(0, zenTime + 0.03);
       zen3Gain.gain.linearRampToValueAtTime(0.06, zenTime + 0.15);
@@ -699,13 +696,13 @@ export function useMintSound() {
 
       const zen3 = ctx.createOscillator();
       zen3.type = 'sine';
-      zen3.frequency.setValueAtTime(55, zenTime + 0.03); // A1 — sub-octave depth
+      zen3.frequency.setValueAtTime(55, zenTime + 0.03);
       zen3.connect(zen3Gain);
       zen3.start(zenTime + 0.03);
       zen3.stop(zenTime + 1.05);
 
-      // --- Phase 2b: SINGING BOWL CHIME — crystalline strike ---
-      const chimeTime = now + 0.18;
+      // --- SINGING BOWL CHIME ---
+      const chimeTime = mintStart + 0.18;
 
       const chimeGain = ctx.createGain();
       chimeGain.gain.setValueAtTime(0, chimeTime);
@@ -738,64 +735,60 @@ export function useMintSound() {
 
       // --- Phase 3: BASS DESCENT ---
       const swellGain = ctx.createGain();
-      swellGain.gain.setValueAtTime(0, now + 0.1);
-      swellGain.gain.linearRampToValueAtTime(0.12, now + 0.2);
-      swellGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+      swellGain.gain.setValueAtTime(0, mintStart + 0.1);
+      swellGain.gain.linearRampToValueAtTime(0.12, mintStart + 0.2);
+      swellGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 1.0);
       swellGain.connect(master);
 
       const swell = ctx.createOscillator();
       swell.type = 'sine';
-      swell.frequency.setValueAtTime(55, now + 0.1);
-      swell.frequency.exponentialRampToValueAtTime(22, now + 0.9);
+      swell.frequency.setValueAtTime(55, mintStart + 0.1);
+      swell.frequency.exponentialRampToValueAtTime(22, mintStart + 0.9);
       swell.connect(swellGain);
-      swell.start(now + 0.1);
-      swell.stop(now + 1.05);
+      swell.start(mintStart + 0.1);
+      swell.stop(mintStart + 1.05);
 
-      // --- Phase 3b: TRON DISSOLVE — kWh derezzing into the blockchain ---
-      // Bigger, longer version — the full "energy becomes currency" moment
-
-      // Derez sweep — descending resonant sawtooth
-      // Pressure tone — crushed downward, longer
+      // --- Phase 3b: TRON DISSOLVE ---
       const derezGain = ctx.createGain();
-      derezGain.gain.setValueAtTime(0, now + 0.1);
-      derezGain.gain.linearRampToValueAtTime(0.06, now + 0.15);
-      derezGain.gain.setValueAtTime(0.06, now + 0.25);
-      derezGain.gain.linearRampToValueAtTime(0.03, now + 0.6);
-      derezGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+      derezGain.gain.setValueAtTime(0, mintStart + 0.1);
+      derezGain.gain.linearRampToValueAtTime(0.06, mintStart + 0.15);
+      derezGain.gain.setValueAtTime(0.06, mintStart + 0.25);
+      derezGain.gain.linearRampToValueAtTime(0.03, mintStart + 0.6);
+      derezGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 1.1);
       derezGain.connect(master);
 
       const derez = ctx.createOscillator();
       derez.type = 'sawtooth';
-      derez.frequency.setValueAtTime(160, now + 0.1);  // Much lower start
-      derez.frequency.exponentialRampToValueAtTime(15, now + 1.0);
+      derez.frequency.setValueAtTime(160, mintStart + 0.1);
+      derez.frequency.exponentialRampToValueAtTime(15, mintStart + 1.0);
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(130, now + 0.1);
-      derezLP.frequency.exponentialRampToValueAtTime(18, now + 1.0);
+      derezLP.frequency.setValueAtTime(130, mintStart + 0.1);
+      derezLP.frequency.exponentialRampToValueAtTime(18, mintStart + 1.0);
       derezLP.Q.value = 0.3;
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
-      derez.start(now + 0.1);
-      derez.stop(now + 1.12);
+      derez.start(mintStart + 0.1);
+      derez.stop(mintStart + 1.12);
 
-      // Sub-pressure — pushed below hearing
+      // Sub-pressure
       const pressGain = ctx.createGain();
-      pressGain.gain.setValueAtTime(0, now + 0.12);
-      pressGain.gain.linearRampToValueAtTime(0.07, now + 0.18);
-      pressGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      pressGain.gain.setValueAtTime(0, mintStart + 0.12);
+      pressGain.gain.linearRampToValueAtTime(0.07, mintStart + 0.18);
+      pressGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.9);
       pressGain.connect(master);
 
       const press = ctx.createOscillator();
       press.type = 'sine';
-      press.frequency.setValueAtTime(90, now + 0.12);
-      press.frequency.exponentialRampToValueAtTime(10, now + 0.85);
+      press.frequency.setValueAtTime(90, mintStart + 0.12);
+      press.frequency.exponentialRampToValueAtTime(10, mintStart + 0.85);
       press.connect(pressGain);
-      press.start(now + 0.12);
-      press.stop(now + 0.92);
+      press.start(mintStart + 0.12);
+      press.stop(mintStart + 0.92);
 
-      // Airy dissolve tail — smooth breath exhale, longer for confirm
+      // Airy dissolve tail
       const breathLen = 0.9;
       const breathSize = Math.ceil(ctx.sampleRate * breathLen);
       const breathBuf = ctx.createBuffer(1, breathSize, ctx.sampleRate);
@@ -810,19 +803,19 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(35, now + 0.2);
-      breathLP.frequency.exponentialRampToValueAtTime(10, now + 0.2 + breathLen);
+      breathLP.frequency.setValueAtTime(35, mintStart + 0.2);
+      breathLP.frequency.exponentialRampToValueAtTime(10, mintStart + 0.2 + breathLen);
       breathLP.Q.value = 0.05;
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.03, now + 0.2);
-      breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + breathLen);
+      breathGain.gain.setValueAtTime(0.03, mintStart + 0.2);
+      breathGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.2 + breathLen);
 
       breathSrc.connect(breathLP);
       breathLP.connect(breathGain);
       breathGain.connect(master);
-      breathSrc.start(now + 0.2);
-      breathSrc.stop(now + 0.2 + breathLen + 0.01);
+      breathSrc.start(mintStart + 0.2);
+      breathSrc.stop(mintStart + 0.2 + breathLen + 0.01);
 
 
       triggerHaptic('confirm');
