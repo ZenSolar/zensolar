@@ -726,6 +726,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapTimeRef = React.useRef<number>(0);
   const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const burstTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const DOUBLE_TAP_WINDOW = 500; // ms window for second tap
   const BURST_DURATION = 750;
 
