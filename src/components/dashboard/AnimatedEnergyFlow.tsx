@@ -366,10 +366,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
   return (
     <div className={`relative ${className}`}>
-      {/* Semi-transparent background — hex grid shows through */}
-      <div className="absolute inset-0 rounded-xl overflow-hidden">
-        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
-      </div>
+      {/* Fully transparent — hex grid shows through */}
 
       {/* Title header */}
       <div className="relative z-10 pt-4 pb-1 px-4 text-center">
@@ -397,8 +394,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             <stop offset="100%" stopColor={colors.solar} stopOpacity={0} />
           </radialGradient>
           <linearGradient id="houseFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a2235" />
-            <stop offset="100%" stopColor="#141a28" />
+            <stop offset="0%" stopColor="#1a2235" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#141a28" stopOpacity="0.3" />
           </linearGradient>
         </defs>
 
