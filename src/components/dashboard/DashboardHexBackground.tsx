@@ -155,7 +155,7 @@ export function DashboardHexBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.96, willChange: 'transform' }}
+      style={{ opacity: 0.92 }}
       aria-hidden="true"
     />
   );
