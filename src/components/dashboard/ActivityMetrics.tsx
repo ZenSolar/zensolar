@@ -705,28 +705,54 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
   const [isBursting, setIsBursting] = useState(false);
+  const [isPressing, setIsPressing] = useState(false);
+  const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
+  const cardRef = React.useRef<HTMLDivElement>(null);
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
-  const triggerBurst = useCallback(() => {
+  const triggerBurst = useCallback((relX?: number, relY?: number) => {
+    // Set touch point for ripple origin
+    if (relX !== undefined && relY !== undefined) {
+      setTouchPoint({ x: relX, y: relY });
+    }
     setIsBursting(true);
     // Haptic feedback — category-specific vibration pattern
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(haptic); } catch { /* silent */ }
     }
-    // Also try Capacitor Haptics for native
+    // Also try Capacitor Haptics for native — heavier impact for that "button click" feel
     import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+      // Second lighter pulse 100ms later for "release" feel
+      setTimeout(() => {
+        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+      }, 100);
     }).catch(() => {});
-    setTimeout(() => setIsBursting(false), 800);
+    setTimeout(() => {
+      setIsBursting(false);
+      setTouchPoint(null);
+    }, 800);
   }, [haptic]);
 
-  const handleTap = () => {
+  const getTouchRelativePos = (clientX: number, clientY: number) => {
+    if (!cardRef.current) return { x: 0.5, y: 0.5 };
+    const rect = cardRef.current.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) / rect.width,
+      y: (clientY - rect.top) / rect.height,
+    };
+  };
+
+  const handleTap = (clientX?: number, clientY?: number) => {
     if (isTappable && onTap) {
-      triggerBurst();
+      const pos = clientX !== undefined && clientY !== undefined 
+        ? getTouchRelativePos(clientX, clientY) 
+        : { x: 0.85, y: 0.5 }; // Default to MINT button area
+      triggerBurst(pos.x, pos.y);
       onTap();
     }
   };
@@ -739,43 +765,76 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       y: touch.clientY,
       time: Date.now(),
     };
+    // Immediate press-down visual
+    setIsPressing(true);
+    const pos = getTouchRelativePos(touch.clientX, touch.clientY);
+    setTouchPoint(pos);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isTappable || !touchStartRef.current) return;
+    if (!isTappable || !touchStartRef.current) {
+      setIsPressing(false);
+      return;
+    }
     
+    setIsPressing(false);
     const touch = e.changedTouches[0];
     const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
     const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
     const deltaTime = Date.now() - touchStartRef.current.time;
     
-    // Only trigger tap if:
-    // - Movement is less than threshold in any direction
-    // - Touch duration is less than threshold (not a long press or scroll)
     const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
     
     if (isQuickTap) {
       e.preventDefault();
-      handleTap();
+      handleTap(touch.clientX, touch.clientY);
+    } else {
+      setTouchPoint(null);
     }
     
     touchStartRef.current = null;
   };
 
+  const handleTouchCancel = () => {
+    setIsPressing(false);
+    setTouchPoint(null);
+    touchStartRef.current = null;
+  };
+
+  // CSS custom properties for dynamic shadow based on color
+  const shadowRest = `0 1px 3px rgba(0,0,0,0.1)`;
+  const shadowGlow = `0 0 20px rgba(${styles.rgba}, 0.4), 0 0 40px rgba(${styles.rgba}, 0.15)`;
+
   return (
     <motion.div
-      onClick={handleTap}
+      ref={cardRef}
+      onClick={(e) => handleTap(e.clientX, e.clientY)}
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
-      whileTap={isTappable ? { scale: 0.95 } : undefined}
-      whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
+      onTouchCancel={isTappable ? handleTouchCancel : undefined}
       animate={isBursting ? { 
-        scale: [0.95, 1.03, 1],
-        borderColor: [`rgba(${styles.rgba}, 0.8)`, `rgba(${styles.rgba}, 0.3)`, 'rgba(255,255,255,0.1)'],
-      } : {}}
-      transition={isBursting ? { duration: 0.4, ease: 'easeOut' } : { duration: 0.15 }}
+        scale: [0.93, 1.04, 1],
+        y: [1, -2, 0],
+      } : isPressing ? {
+        scale: 0.95,
+        y: 1,
+      } : {
+        scale: 1,
+        y: 0,
+      }}
+      transition={isBursting ? { duration: 0.5, ease: [0.22, 1, 0.36, 1] } : { duration: 0.12, ease: 'easeOut' }}
+      style={{
+        '--zen-shadow-rest': shadowRest,
+        '--zen-shadow-glow': shadowGlow,
+        boxShadow: isBursting 
+          ? shadowGlow 
+          : isPressing 
+            ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
+            : shadowRest,
+        transition: 'box-shadow 0.2s ease-out',
+      } as React.CSSProperties}
       className={cn(
-        "p-3.5 rounded-xl border-l-[3px] border border-border/50 transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
+        "p-3.5 rounded-xl border-l-[3px] border border-border/50 flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
         styles.leftBorder,
         isTappable
           ? cn("cursor-pointer bg-card hover:bg-muted/20", `hover:shadow-lg ${styles.glow}`)
@@ -790,6 +849,45 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         )} />
       )}
 
+      {/* 🔵 Touch-point ripple — expands from where finger lands */}
+      {(isPressing || isBursting) && touchPoint && (
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            left: `${touchPoint.x * 100}%`,
+            top: `${touchPoint.y * 100}%`,
+            width: '200%',
+            height: '200%',
+            background: `radial-gradient(circle, rgba(${styles.rgba}, 0.15) 0%, transparent 70%)`,
+            animation: isBursting 
+              ? 'zenTouchRipple 600ms ease-out forwards' 
+              : undefined,
+            transform: isPressing && !isBursting 
+              ? 'translate(-50%, -50%) scale(0.3)' 
+              : undefined,
+            opacity: isPressing && !isBursting ? 0.4 : undefined,
+            transition: !isBursting ? 'transform 0.15s ease-out, opacity 0.15s ease-out' : undefined,
+            willChange: 'transform, opacity',
+          }}
+        />
+      )}
+
+      {/* ⚡ Pressure shockwave ring — from touch point on release */}
+      {isBursting && touchPoint && (
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            left: `${touchPoint.x * 100}%`,
+            top: `${touchPoint.y * 100}%`,
+            width: '300%',
+            height: '300%',
+            border: `2px solid rgba(${styles.rgba}, 0.8)`,
+            animation: 'zenPressureWave 500ms ease-out forwards',
+            willChange: 'transform, opacity',
+          }}
+        />
+      )}
+
       {/* ⚡ Solar Flare Burst — radiating rings + particles on tap */}
       {isBursting && (
         <>
@@ -799,10 +897,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               key={`ring-${i}`}
               className="absolute pointer-events-none"
               style={{
-                left: 28,
-                top: '50%',
+                left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+                top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
                 width: 20,
                 height: 20,
+                marginLeft: touchPoint ? -10 : 0,
                 marginTop: -10,
                 borderRadius: '50%',
                 border: `2px solid rgba(${styles.rgba}, ${0.7 - i * 0.2})`,
@@ -811,7 +910,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               }}
             />
           ))}
-          {/* Shaped energy particles — unique per category */}
+          {/* Shaped energy particles — unique per category, burst from touch point */}
           {Array.from({ length: 10 }).map((_, i) => {
             const angle = (i / 10) * 360 + (Math.random() * 20 - 10);
             const rad = (angle * Math.PI) / 180;
@@ -825,8 +924,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 key={`particle-${i}`}
                 className="absolute pointer-events-none"
                 style={{
-                  left: 28,
-                  top: '50%',
+                  left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+                  top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
                   width: size,
                   height: size,
                   background: `rgba(${styles.rgba}, ${0.8 + Math.random() * 0.2})`,
@@ -841,17 +940,18 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               />
             );
           })}
-          {/* Flash glow behind icon */}
+          {/* Energy release glow from touch point */}
           <div
             className="absolute pointer-events-none rounded-full"
             style={{
-              left: 16,
-              top: '50%',
-              width: 44,
-              height: 44,
-              marginTop: -22,
-              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.4) 0%, transparent 70%)`,
-              animation: 'zenFlareFlash 400ms ease-out forwards',
+              left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+              top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+              width: 60,
+              height: 60,
+              marginLeft: touchPoint ? -30 : -2,
+              marginTop: -30,
+              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.5) 0%, transparent 70%)`,
+              animation: 'zenEnergyRelease 500ms ease-out forwards',
               willChange: 'transform, opacity',
             }}
           />
@@ -862,6 +962,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       <div className="relative p-3 rounded-xl" style={isBursting ? { 
         filter: `drop-shadow(0 0 8px rgba(${styles.rgba}, 0.8))`,
         transition: 'all 200ms ease-out',
+      } : isPressing ? {
+        filter: `drop-shadow(0 0 4px rgba(${styles.rgba}, 0.4))`,
+        transition: 'all 100ms ease-out',
       } : { transition: 'all 200ms ease-out' }}>
         <Icon className={cn(
           "h-5 w-5 transition-all",
@@ -932,11 +1035,22 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </button>
       )}
       
-      {/* Tap indicator - hidden during loading */}
+      {/* Mint button — stamps on press */}
       {isTappable && !isLoading && (
-        <div className={cn("flex items-center gap-1", styles.text)}>
+        <div 
+          className={cn("flex items-center gap-1", styles.text)}
+          style={isBursting ? {
+            animation: 'zenMintStamp 400ms ease-out',
+          } : isPressing ? {
+            transform: 'scale(0.9)',
+            opacity: 0.7,
+            transition: 'all 0.1s ease-out',
+          } : {
+            transition: 'all 0.15s ease-out',
+          }}
+        >
           <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className={cn("h-5 w-5 transition-transform", isBursting && "translate-x-1")} />
         </div>
       )}
     </motion.div>
