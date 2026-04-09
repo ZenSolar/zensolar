@@ -265,7 +265,7 @@ export function ActivityMetrics({
       )}
       <Card 
         className={cn(
-          "relative z-10 overflow-hidden transition-all bg-card",
+          "relative z-10 overflow-hidden transition-all bg-card/15 backdrop-blur-sm",
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
         style={activityUnits > 0 ? { boxShadow: '0 0 22px hsl(160 100% 10% / 0.5), 0 0 10px hsl(158 95% 8% / 0.4), 0 0 40px hsl(160 100% 10% / 0.22)' } : undefined}
@@ -275,7 +275,7 @@ export function ActivityMetrics({
         <div 
           className="relative -mx-2.5 px-4 py-3.5 overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--card)) 50%, hsl(142 76% 36% / 0.08) 100%)',
+            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08) 0%, transparent 50%, hsl(142 76% 36% / 0.05) 100%)',
             borderBottom: '1px solid hsl(142 76% 36% / 0.2)',
             boxShadow: 'inset 0 -1px 8px hsl(142 76% 36% / 0.06), inset 0 1px 8px hsl(142 76% 36% / 0.04)',
           }}
