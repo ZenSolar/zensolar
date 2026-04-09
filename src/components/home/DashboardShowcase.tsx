@@ -69,14 +69,14 @@ function LiveEnergyFlowSVG() {
           [230, 172], [245, 172], [260, 172],
           [215, 182], [230, 182], [245, 182], [260, 182], [275, 182],
         ].map(([px, py], i) => (
-          <rect key={i} x={px} y={py} width="12" height="8" rx="1" fill="#2a4a6b" stroke="#3a6a8b" strokeWidth="0.5" />
+          <rect key={i} x={px} y={py} width="12" height="8" rx="1" fill="none" stroke="#3a6a8b" strokeWidth="0.5" />
         ))}
         
         {/* House body */}
-        <rect x="180" y="195" width="140" height="80" fill="hsl(var(--background))" fillOpacity="0.4" stroke="#3a5068" strokeWidth="1.5" rx="2" />
+        <rect x="180" y="195" width="140" height="80" fill="none" stroke="#3a5068" strokeWidth="1.5" rx="2" />
         {/* Windows */}
-        <rect x="195" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
-        <rect x="285" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
+        <rect x="195" y="210" width="20" height="18" fill="none" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
+        <rect x="285" y="210" width="20" height="18" fill="none" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
         
         {/* HOME label */}
         <text x="250" y="252" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">0.7 kW</text>
@@ -89,7 +89,7 @@ function LiveEnergyFlowSVG() {
         <text x="80" y="296" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">2.5 kW</text>
         <text x="80" y="310" textAnchor="middle" fill="#22c55e" fontSize="9">73%</text>
         {/* Battery bar */}
-        <rect x="55" y="314" width="50" height="4" rx="2" fill="#1a2a3e" />
+        <rect x="55" y="314" width="50" height="4" rx="2" fill="none" stroke="#3a5068" strokeWidth="0.5" />
         <rect x="55" y="314" width="36" height="4" rx="2" fill="#22c55e" />
         
         {/* Flow: Powerwall → House */}
@@ -197,7 +197,7 @@ export function DashboardShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10">
+          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-transparent">
             <LiveEnergyFlowSVG />
           </Card>
         </motion.div>
