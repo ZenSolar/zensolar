@@ -411,6 +411,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return category;
   };
 
+  // Get the appropriate unit for a category
+  const getCategoryUnit = (category: MintCategory): string => {
+    if (category === 'ev_miles') return 'miles';
+    if (category === 'all') return 'units';
+    return 'kWh'; // solar, battery, charging all measured in kWh
+  };
+
   // Get icon for category
   const getCategoryIcon = (category: MintCategory) => {
     if (category === 'solar') return Sun;
@@ -1133,7 +1140,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         </span>
                       </div>
                       <p className="text-[11px] text-muted-foreground">
-                        You receive 75% of {getCategoryActivityUnits(pendingMintRequest.category).toLocaleString()} activity units (20% burn)
+                        You receive 75% of {getCategoryActivityUnits(pendingMintRequest.category).toLocaleString()} {getCategoryUnit(pendingMintRequest.category)} (20% burn)
                       </p>
                     </div>
                   </div>

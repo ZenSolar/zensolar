@@ -127,6 +127,12 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     return category;
   };
 
+  const getCategoryUnit = (category: MintCategory): string => {
+    if (category === 'ev_miles') return 'miles';
+    if (category === 'all') return 'units';
+    return 'kWh';
+  };
+
   const handleRequestMint = (category: MintCategory) => {
     if (!walletAddress) {
       toast.error("Please connect your wallet first to mint tokens.");
@@ -474,7 +480,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 </div>
 
                 <p className="text-[11px] text-muted-foreground text-center pt-1 border-t border-border/30">
-                  You receive 75% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} activity units (20% burn)
+                  You receive 75% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} {getCategoryUnit(pendingMintCategory)} (20% burn)
                 </p>
               </div>
 
