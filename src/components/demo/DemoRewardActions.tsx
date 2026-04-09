@@ -411,21 +411,21 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
         <DialogContent className="sm:max-w-sm p-0 overflow-hidden border-primary/20">
           {pendingMintCategory && (
-            <div className="px-6 pt-7 pb-6 space-y-5">
+            <div className="px-4 pt-5 pb-4 space-y-3">
               {/* Header — icon + title inline */}
-              <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              <div className="flex items-center gap-2.5">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   pendingMintCategory === 'solar' ? 'bg-amber-500/15 text-amber-500' :
                   pendingMintCategory === 'ev_miles' ? 'bg-blue-500/15 text-blue-500' :
                   pendingMintCategory === 'battery' ? 'bg-emerald-500/15 text-emerald-500' :
                   pendingMintCategory === 'charging' ? 'bg-purple-500/15 text-purple-500' :
                   'bg-primary/15 text-primary'
                 }`}>
-                  {pendingMintCategory === 'solar' && <Sun className="h-5 w-5" />}
-                  {pendingMintCategory === 'ev_miles' && <Car className="h-5 w-5" />}
-                  {pendingMintCategory === 'battery' && <BatteryFull className="h-5 w-5" />}
-                  {pendingMintCategory === 'charging' && <Zap className="h-5 w-5" />}
-                  {pendingMintCategory === 'all' && <Coins className="h-5 w-5" />}
+                  {pendingMintCategory === 'solar' && <Sun className="h-4 w-4" />}
+                  {pendingMintCategory === 'ev_miles' && <Car className="h-4 w-4" />}
+                  {pendingMintCategory === 'battery' && <BatteryFull className="h-4 w-4" />}
+                  {pendingMintCategory === 'charging' && <Zap className="h-4 w-4" />}
+                  {pendingMintCategory === 'all' && <Coins className="h-4 w-4" />}
                 </div>
                 <h3 className="text-base font-bold tracking-tight">
                   Mint {getCategoryLabel(pendingMintCategory)}
@@ -433,10 +433,10 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
               </div>
 
               {/* Subtitle */}
-               <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-sm text-muted-foreground">
                 You are about to mint
               </p>
-              <p className="text-center text-lg font-semibold text-primary">
+              <p className="text-center text-base font-semibold text-primary">
                 {getCategoryLabel(pendingMintCategory)}
               </p>
               <p className="text-center text-sm text-muted-foreground">
@@ -444,44 +444,44 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
               </p>
 
               {/* Token card — center stacked */}
-              <div className="rounded-xl border border-border/60 p-5 space-y-3">
-                <div className="flex items-center gap-2.5 pb-3 border-b border-border/40">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+              <div className="rounded-xl border border-border/60 p-4 space-y-2">
+                <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+                  <div className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${
                     pendingMintCategory === 'solar' ? 'bg-amber-500/15 text-amber-500' :
                     pendingMintCategory === 'ev_miles' ? 'bg-blue-500/15 text-blue-500' :
                     pendingMintCategory === 'battery' ? 'bg-emerald-500/15 text-emerald-500' :
                     pendingMintCategory === 'charging' ? 'bg-purple-500/15 text-purple-500' :
                     'bg-primary/15 text-primary'
                   }`}>
-                    {pendingMintCategory === 'solar' && <Sun className="h-4 w-4" />}
-                    {pendingMintCategory === 'ev_miles' && <Car className="h-4 w-4" />}
-                    {pendingMintCategory === 'battery' && <BatteryFull className="h-4 w-4" />}
-                    {pendingMintCategory === 'charging' && <Zap className="h-4 w-4" />}
-                    {pendingMintCategory === 'all' && <Coins className="h-4 w-4" />}
+                    {pendingMintCategory === 'solar' && <Sun className="h-3.5 w-3.5" />}
+                    {pendingMintCategory === 'ev_miles' && <Car className="h-3.5 w-3.5" />}
+                    {pendingMintCategory === 'battery' && <BatteryFull className="h-3.5 w-3.5" />}
+                    {pendingMintCategory === 'charging' && <Zap className="h-3.5 w-3.5" />}
+                    {pendingMintCategory === 'all' && <Coins className="h-3.5 w-3.5" />}
                   </div>
                   <span className="font-semibold text-sm">{getCategoryLabel(pendingMintCategory)}</span>
                 </div>
 
-                {/* Big token amount — center stacked */}
-                <div className="flex items-baseline justify-between py-1">
-                  <span className="text-sm text-muted-foreground">Tokens to<br />receive:</span>
+                {/* Big token amount */}
+                <div className="flex items-baseline justify-between py-0.5">
+                  <span className="text-xs text-muted-foreground">Tokens to<br />receive:</span>
                   <div className="text-right">
-                    <div className="text-3xl font-bold text-primary tabular-nums leading-tight">
+                    <div className="text-xl font-bold text-primary tabular-nums leading-tight">
                       {getCategoryTokens(pendingMintCategory).toLocaleString()}
                     </div>
-                    <div className="text-lg font-bold text-primary/70">$ZSOLAR</div>
+                    <div className="text-sm font-bold text-primary/70">$ZSOLAR</div>
                   </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground text-center pt-1 border-t border-border/30">
+                <p className="text-[11px] text-muted-foreground text-center pt-1 border-t border-border/30">
                   You receive 75% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} activity units (20% burn)
                 </p>
               </div>
 
               {/* Blockchain info note */}
-              <div className="rounded-xl bg-muted/40 p-4 flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Wallet className="h-4 w-4 text-primary" />
+              <div className="rounded-lg bg-muted/40 p-3 flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Wallet className="h-3.5 w-3.5 text-primary" />
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   This will submit a transaction to the Base Sepolia blockchain. The tokens will be minted directly to your connected wallet.
@@ -489,10 +489,10 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
               </div>
 
               {/* Stacked buttons */}
-              <div className="space-y-2.5 pt-1">
+              <div className="space-y-2 pt-0.5">
                 <MintEffectButton
                   onClick={handleConfirmMint}
-                  className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-4 py-2 text-sm"
+                  className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 text-sm"
                 >
                   <Zap className="h-4 w-4" />
                   Confirm Mint
@@ -500,7 +500,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 <Button 
                   variant="ghost" 
                   onClick={() => setConfirmMintDialog(false)}
-                  className="w-full h-11 text-sm text-muted-foreground"
+                  className="w-full h-10 text-sm text-muted-foreground"
                 >
                   Cancel
                 </Button>
