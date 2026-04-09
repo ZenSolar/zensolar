@@ -597,13 +597,15 @@ export function ActivityMetrics({
           />
         )}
 
-        {/* Total Available Tokens - Premium Hero Card */}
-        <TotalTokensCard 
-          tokensToReceive={tokensToReceive}
-          activityUnits={activityUnits}
-          tokenPrice={tokenPrice}
-          onMintRequest={onMintRequest}
-        />
+        {/* Total Available Tokens - Integrated summary row */}
+        <div className="pt-1.5 mt-1 border-t border-primary/15">
+          <TotalTokensCard 
+            tokensToReceive={tokensToReceive}
+            activityUnits={activityUnits}
+            tokenPrice={tokenPrice}
+            onMintRequest={onMintRequest}
+          />
+        </div>
 
       </CardContent>
     </Card>
@@ -1436,25 +1438,21 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
 
   if (isTappable) {
     return (
-      <div className="flex justify-center">
-        <MintEffectButton
-          onClick={handleMint}
-          className={cn(
-            "p-3.5 rounded-xl border flex items-center gap-3 transition-all relative overflow-hidden max-w-[280px] w-full",
-            "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
-          )}
-        >
-          {content}
-        </MintEffectButton>
-      </div>
+      <MintEffectButton
+        onClick={handleMint}
+        className={cn(
+          "p-3 rounded-lg border flex items-center gap-3 transition-all relative overflow-hidden w-full",
+          "border-primary/30 bg-primary/5 hover:border-primary/50"
+        )}
+      >
+        {content}
+      </MintEffectButton>
     );
   }
 
   return (
-    <div className="flex justify-center">
-      <div className="p-3.5 rounded-xl border flex items-center gap-3 transition-all relative overflow-hidden border-border/50 bg-muted/30 max-w-[280px] w-full">
-        {content}
-      </div>
+    <div className="p-3 rounded-lg border flex items-center gap-3 transition-all relative overflow-hidden border-border/30 bg-muted/20 w-full">
+      {content}
     </div>
   );
 }
