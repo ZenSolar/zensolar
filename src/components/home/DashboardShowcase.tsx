@@ -73,7 +73,7 @@ function LiveEnergyFlowSVG() {
         ))}
         
         {/* House body */}
-        <rect x="180" y="195" width="140" height="80" fill="#111d2e" stroke="#3a5068" strokeWidth="1.5" rx="2" />
+        <rect x="180" y="195" width="140" height="80" fill="hsl(var(--background))" fillOpacity="0.4" stroke="#3a5068" strokeWidth="1.5" rx="2" />
         {/* Windows */}
         <rect x="195" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
         <rect x="285" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
@@ -121,7 +121,7 @@ function LiveEnergyFlowSVG() {
       {/* Bottom stats + manufacturer badges */}
       <div className="px-4 pb-5 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
         {/* Today's Energy */}
-        <div className="border border-border/30 rounded-lg px-4 py-3 bg-[#0d1520]/80">
+        <div className="border border-border/30 rounded-lg px-4 py-3 bg-background/30">
           <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Today&apos;s Energy</span>
           <div className="mt-2 space-y-1.5">
             <div className="flex items-center gap-2">
