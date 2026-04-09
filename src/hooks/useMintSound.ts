@@ -300,32 +300,32 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(40, mintStart + 0.15);
-      breathLP.frequency.exponentialRampToValueAtTime(12, mintStart + 0.15 + breathLen);
+      breathLP.frequency.setValueAtTime(40, t0 + 0.15);
+      breathLP.frequency.exponentialRampToValueAtTime(12, t0 + 0.15 + breathLen);
       breathLP.Q.value = 0.05;
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.03, mintStart + 0.12);
-      breathGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.12 + breathLen);
+      breathGain.gain.setValueAtTime(0.03, t0 + 0.12);
+      breathGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.12 + breathLen);
 
       breathSrc.connect(breathLP);
       breathLP.connect(breathGain);
       breathGain.connect(master);
-      breathSrc.start(mintStart + 0.15);
-      breathSrc.stop(mintStart + 0.15 + breathLen + 0.01);
+      breathSrc.start(t0 + 0.15);
+      breathSrc.stop(t0 + 0.15 + breathLen + 0.01);
 
       // --- Layer 4: ELECTRIC WARMTH ---
       const techGain = ctx.createGain();
-      techGain.gain.setValueAtTime(0, mintStart);
-      techGain.gain.linearRampToValueAtTime(0.045, mintStart + 0.03);
-      techGain.gain.setValueAtTime(0.045, mintStart + 0.12);
-      techGain.gain.exponentialRampToValueAtTime(0.001, mintStart + 0.5);
+      techGain.gain.setValueAtTime(0, t0);
+      techGain.gain.linearRampToValueAtTime(0.045, t0 + 0.03);
+      techGain.gain.setValueAtTime(0.045, t0 + 0.12);
+      techGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.5);
       techGain.connect(master);
 
       const tech = ctx.createOscillator();
       tech.type = 'sawtooth';
-      tech.frequency.setValueAtTime(50, mintStart);
-      tech.frequency.exponentialRampToValueAtTime(38, mintStart + 0.55);
+      tech.frequency.setValueAtTime(50, t0);
+      tech.frequency.exponentialRampToValueAtTime(38, t0 + 0.55);
 
       const techLP = ctx.createBiquadFilter();
       techLP.type = 'lowpass';
@@ -334,11 +334,11 @@ export function useMintSound() {
 
       tech.connect(techLP);
       techLP.connect(techGain);
-      tech.start(mintStart);
-      tech.stop(mintStart + 0.62);
+      tech.start(t0);
+      tech.stop(t0 + 0.62);
 
       // --- Layer 5: COIN WEIGHT ---
-      const coinTime = mintStart + 0.015;
+      const coinTime = t0 + 0.015;
       const coinGain = ctx.createGain();
       coinGain.gain.setValueAtTime(0, coinTime);
       coinGain.gain.linearRampToValueAtTime(0.018, coinTime + 0.008);
