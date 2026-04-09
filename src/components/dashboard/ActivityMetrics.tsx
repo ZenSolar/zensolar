@@ -251,13 +251,25 @@ export function ActivityMetrics({
   const hasHideableFields = !hasSolarConnected || !hasBatteryConnected || !hasEvConnected || !hasSuperchargerConnected || !hasHomeChargerConnected;
 
   return (
-    <Card 
-      className={cn(
-        "overflow-hidden transition-all bg-card",
-        activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
+    <div className="relative">
+      {/* Outer ambient glow — lives outside the card */}
+      {activityUnits > 0 && (
+        <div 
+          className="absolute -inset-3 pointer-events-none rounded-2xl z-0"
+          style={{
+            background: 'radial-gradient(ellipse 90% 70% at 50% 40%, hsl(var(--primary) / 0.12), transparent 70%)',
+            animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
+            filter: 'blur(8px)',
+          }}
+        />
       )}
-      style={activityUnits > 0 ? { boxShadow: '0 0 20px hsl(var(--primary) / 0.25), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.08)' } : undefined}
-    >
+      <Card 
+        className={cn(
+          "relative z-10 overflow-hidden transition-all bg-card",
+          activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
+        )}
+        style={activityUnits > 0 ? { boxShadow: '0 0 20px hsl(var(--primary) / 0.25), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.08)' } : undefined}
+      >
       <CardContent className="p-2.5 pt-0 space-y-2">
         {/* Header — Clean Energy Center Hero */}
         <div 
@@ -267,16 +279,6 @@ export function ActivityMetrics({
             borderBottom: '1px solid hsl(var(--primary) / 0.15)',
           }}
         >
-          {/* Animated ambient glow */}
-          {activityUnits > 0 && (
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse 80% 60% at 30% 50%, hsl(var(--primary) / 0.08), transparent 70%)',
-                animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
-              }}
-            />
-          )}
 
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -641,6 +643,7 @@ export function ActivityMetrics({
 
       </CardContent>
     </Card>
+    </div>
   );
 }
 
