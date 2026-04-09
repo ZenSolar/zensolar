@@ -218,7 +218,7 @@ export function useMintSound() {
       grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
       grainSrc.connect(grainLP);
-      grainBP.connect(grainGain);
+      grainLP.connect(grainGain);
       grainGain.connect(ctx.destination);
       grainSrc.start(now + 0.2);
       grainSrc.stop(now + 0.2 + grainLen + 0.01);
@@ -449,7 +449,7 @@ export function useMintSound() {
       grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
       grainSrc.connect(grainLP);
-      grainBP.connect(grainGain);
+      grainLP.connect(grainGain);
       grainGain.connect(ctx.destination);
       grainSrc.start(now + 0.2);
       grainSrc.stop(now + 0.2 + grainLen + 0.01);
