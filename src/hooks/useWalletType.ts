@@ -1,8 +1,9 @@
-import { useAccount, useSwitchChain } from 'wagmi';
+import { useSwitchChain } from 'wagmi';
 import { useMemo, useCallback } from 'react';
 import { CHAIN_ID } from '@/lib/wagmi';
 import { baseSepolia } from 'viem/chains';
 import { useWeb3Ready } from '@/components/providers/LazyWeb3Provider';
+import { useSafeAccount } from '@/hooks/useSafeWagmi';
 
 export type WalletType = 'metamask' | 'coinbase' | 'walletconnect' | 'unknown';
 
@@ -15,41 +16,23 @@ interface WalletInfo {
   appStoreUrl: string | null;
 }
 
-const DISCONNECTED_FALLBACK: WalletInfo & { switchToBaseSepolia: () => Promise<boolean>; isOnCorrectNetwork: boolean } = {
-  type: 'unknown',
-  name: 'Wallet',
-  supportsWatchAsset: false,
-  supportsNetworkSwitch: false,
-  deepLinkBase: null,
-  appStoreUrl: null,
-  switchToBaseSepolia: async () => false,
-  isOnCorrectNetwork: false,
-};
-
 /**
- * Hook to detect which wallet type is connected
- * Uses wagmi's connector info to identify MetaMask, Coinbase/Base Wallet, etc.
+ * Hook to detect which wallet type is connected.
+ * Safe to call before WagmiProvider is mounted — returns disconnected defaults.
  */
 export function useWalletType(): WalletInfo & {
   switchToBaseSepolia: () => Promise<boolean>;
   isOnCorrectNetwork: boolean;
 } {
   const web3Ready = useWeb3Ready();
+  const { connector, isConnected, chainId } = useSafeAccount();
 
-  if (!web3Ready) {
-    return DISCONNECTED_FALLBACK;
+  // useSwitchChain will throw without WagmiProvider, so we need a safe wrapper
+  let switchChainAsync: ReturnType<typeof useSwitchChain>['switchChainAsync'] | undefined;
+  if (web3Ready) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    ({ switchChainAsync } = useSwitchChain());
   }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useWalletTypeInner();
-}
-
-function useWalletTypeInner(): WalletInfo & {
-  switchToBaseSepolia: () => Promise<boolean>;
-  isOnCorrectNetwork: boolean;
-} {
-  const { connector, isConnected, chainId } = useAccount();
-  const { switchChainAsync } = useSwitchChain();
 
   const walletInfo = useMemo((): WalletInfo => {
     if (!isConnected || !connector) {
@@ -75,7 +58,7 @@ function useWalletTypeInner(): WalletInfo & {
         type: 'metamask',
         name: 'MetaMask',
         supportsWatchAsset: true,
-        supportsNetworkSwitch: true, // MetaMask supports wallet_switchEthereumChain
+        supportsNetworkSwitch: true,
         deepLinkBase: 'metamask://',
         appStoreUrl: 'https://metamask.io/download/',
       };
@@ -90,8 +73,8 @@ function useWalletTypeInner(): WalletInfo & {
       return {
         type: 'coinbase',
         name: 'Base Wallet',
-        supportsWatchAsset: false, // Base Wallet doesn't support wallet_watchAsset via WalletConnect
-        supportsNetworkSwitch: true, // Enable - wagmi switchChain works via WalletConnect session
+        supportsWatchAsset: false,
+        supportsNetworkSwitch: true,
         deepLinkBase: 'cbwallet://',
         appStoreUrl: 'https://www.coinbase.com/wallet/downloads',
       };
@@ -104,9 +87,9 @@ function useWalletTypeInner(): WalletInfo & {
     ) {
       return {
         type: 'walletconnect',
-        name: connector.name || 'Wallet',
-        supportsWatchAsset: false, // Most WalletConnect wallets don't support it reliably
-        supportsNetworkSwitch: false,
+        name: connector.name || 'WalletConnect',
+        supportsWatchAsset: false,
+        supportsNetworkSwitch: true,
         deepLinkBase: null,
         appStoreUrl: null,
       };
@@ -205,19 +188,13 @@ function useWalletTypeInner(): WalletInfo & {
 
 /**
  * Generate a deep link to open the wallet app
- * Useful after minting to let users easily check their wallet
  */
 export function getWalletDeepLink(walletType: WalletType, action?: 'open' | 'assets'): string | null {
   switch (walletType) {
     case 'metamask':
-      // MetaMask deep link to open the app
       return 'metamask://';
-    
     case 'coinbase':
-      // Coinbase/Base Wallet deep link
-      // cbwallet://dapp opens the dApp browser, we just want to open the app
       return 'cbwallet://';
-    
     default:
       return null;
   }
@@ -225,7 +202,6 @@ export function getWalletDeepLink(walletType: WalletType, action?: 'open' | 'ass
 
 /**
  * Attempt to open the wallet app using deep links
- * Returns true if deep link was attempted, false if not possible
  */
 export function openWalletApp(walletType: WalletType): boolean {
   const deepLink = getWalletDeepLink(walletType);
@@ -235,7 +211,6 @@ export function openWalletApp(walletType: WalletType): boolean {
   }
 
   try {
-    // Use location.href for maximum compatibility on mobile
     window.location.href = deepLink;
     return true;
   } catch (error) {
