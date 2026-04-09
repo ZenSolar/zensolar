@@ -105,7 +105,7 @@ export function CleanEnergyCenterShowcase() {
                   <span className="text-xs text-muted-foreground">Last updated 11:19 PM</span>
                 </div>
                 <span className="text-[10px] tracking-wider uppercase text-primary/60 font-medium px-2 py-1 rounded-full border border-primary/20 bg-primary/5">
-                  Tap to Mint™
+                  Mint-on-Proof™
                 </span>
               </div>
 
