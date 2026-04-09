@@ -310,9 +310,9 @@ export function useMintSound() {
       const humGain = ctx.createGain();
       humGain.gain.setValueAtTime(0, t0);
       humGain.gain.linearRampToValueAtTime(0.0, t0 + 0.15);
-      humGain.gain.linearRampToValueAtTime(0.055, t0 + 0.5);  // swells into the middle
-      humGain.gain.linearRampToValueAtTime(0.06, t0 + 0.8);   // peak
-      humGain.gain.exponentialRampToValueAtTime(0.02, t0 + 1.4);
+      humGain.gain.linearRampToValueAtTime(0.035, t0 + 0.5);
+      humGain.gain.linearRampToValueAtTime(0.04, t0 + 0.8);
+      humGain.gain.exponentialRampToValueAtTime(0.012, t0 + 1.4);
       humGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.2);
       humGain.connect(master);
 
@@ -330,8 +330,8 @@ export function useMintSound() {
       const hum2Gain = ctx.createGain();
       hum2Gain.gain.setValueAtTime(0, t0);
       hum2Gain.gain.linearRampToValueAtTime(0.0, t0 + 0.2);
-      hum2Gain.gain.linearRampToValueAtTime(0.025, t0 + 0.6);
-      hum2Gain.gain.linearRampToValueAtTime(0.03, t0 + 0.9);
+      hum2Gain.gain.linearRampToValueAtTime(0.015, t0 + 0.6);
+      hum2Gain.gain.linearRampToValueAtTime(0.018, t0 + 0.9);
       hum2Gain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.0);
       hum2Gain.connect(master);
 
