@@ -29,7 +29,7 @@ import type { HideableField } from '@/hooks/useHiddenActivityFields';
 
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import teslaLogo from '@/assets/logos/tesla-t-logo.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.svg';
 
 const providerLogos: Record<string, string> = {
   enphase: enphaseLogo,
@@ -292,14 +292,7 @@ export function ActivityMetrics({
           </div>
           <div className="flex items-center justify-between">
             <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
-            <span 
-              className="text-[9px] font-medium tracking-widest uppercase"
-              style={{ 
-                backgroundImage: 'linear-gradient(135deg, #2d8f4e, #5ec269, #8adf80)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
+            <span className="text-[9px] font-medium tracking-widest uppercase text-secondary">
               Tap-to-Mint™
             </span>
           </div>
