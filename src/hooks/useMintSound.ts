@@ -190,38 +190,35 @@ export function useMintSound() {
       press.start(now + 0.1);
       press.stop(now + 0.72);
 
-      // Digital grain — particles that INCREASE as the tone breaks apart
-      // More fragments appear as the energy dissolves
-      const grainLen = 0.65;
-      const grainSize = Math.ceil(ctx.sampleRate * grainLen);
-      const grainBuf = ctx.createBuffer(1, grainSize, ctx.sampleRate);
-      const grainData = grainBuf.getChannelData(0);
-      for (let i = 0; i < grainSize; i++) {
-        const t = i / grainSize;
-        // Particles increase mid-way then fade — peak breakup at 60%
-        const density = Math.sin(t * Math.PI * 0.8) * 0.14;
-        const env = Math.pow(Math.max(0, 1 - t * 1.3), 1.5);
-        const isParticle = Math.random() < density;
-        grainData[i] = isParticle ? (Math.random() * 2 - 1) * env : 0;
+      // Airy dissolve tail — smooth breath-like exhale, not granular
+      const breathLen = 0.7;
+      const breathSize = Math.ceil(ctx.sampleRate * breathLen);
+      const breathBuf = ctx.createBuffer(1, breathSize, ctx.sampleRate);
+      const breathData = breathBuf.getChannelData(0);
+      for (let i = 0; i < breathSize; i++) {
+        const t = i / breathSize;
+        // Smooth exponential fade — like a soft exhale
+        const env = Math.pow(1 - t, 2.5);
+        breathData[i] = (Math.random() * 2 - 1) * env;
       }
-      const grainSrc = ctx.createBufferSource();
-      grainSrc.buffer = grainBuf;
+      const breathSrc = ctx.createBufferSource();
+      breathSrc.buffer = breathBuf;
 
-      const grainLP = ctx.createBiquadFilter();
-      grainLP.type = 'lowpass';
-      grainLP.frequency.setValueAtTime(180, now + 0.2);
-      grainLP.frequency.exponentialRampToValueAtTime(40, now + 0.2 + grainLen);
-      grainLP.Q.value = 0.5;
+      const breathLP = ctx.createBiquadFilter();
+      breathLP.type = 'lowpass';
+      breathLP.frequency.setValueAtTime(150, now + 0.15);
+      breathLP.frequency.exponentialRampToValueAtTime(30, now + 0.15 + breathLen);
+      breathLP.Q.value = 0.3; // Very soft, no resonance
 
-      const grainGain = ctx.createGain();
-      grainGain.gain.setValueAtTime(0.09, now + 0.2);
-      grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
+      const breathGain = ctx.createGain();
+      breathGain.gain.setValueAtTime(0.07, now + 0.15);
+      breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15 + breathLen);
 
-      grainSrc.connect(grainLP);
-      grainLP.connect(grainGain);
-      grainGain.connect(ctx.destination);
-      grainSrc.start(now + 0.2);
-      grainSrc.stop(now + 0.2 + grainLen + 0.01);
+      breathSrc.connect(breathLP);
+      breathLP.connect(breathGain);
+      breathGain.connect(ctx.destination);
+      breathSrc.start(now + 0.15);
+      breathSrc.stop(now + 0.15 + breathLen + 0.01);
 
       // --- Layer 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const techGain = ctx.createGain();
@@ -423,36 +420,34 @@ export function useMintSound() {
       press.start(now + 0.12);
       press.stop(now + 0.92);
 
-      // Digital grain — particles increase then vanish
-      const grainLen = 0.85;
-      const grainSize = Math.ceil(ctx.sampleRate * grainLen);
-      const grainBuf = ctx.createBuffer(1, grainSize, ctx.sampleRate);
-      const grainData = grainBuf.getChannelData(0);
-      for (let i = 0; i < grainSize; i++) {
-        const t = i / grainSize;
-        const density = Math.sin(t * Math.PI * 0.75) * 0.16;
-        const env = Math.pow(Math.max(0, 1 - t * 1.2), 1.5);
-        const isParticle = Math.random() < density;
-        grainData[i] = isParticle ? (Math.random() * 2 - 1) * env : 0;
+      // Airy dissolve tail — smooth breath exhale, longer for confirm
+      const breathLen = 0.9;
+      const breathSize = Math.ceil(ctx.sampleRate * breathLen);
+      const breathBuf = ctx.createBuffer(1, breathSize, ctx.sampleRate);
+      const breathData = breathBuf.getChannelData(0);
+      for (let i = 0; i < breathSize; i++) {
+        const t = i / breathSize;
+        const env = Math.pow(1 - t, 2.2);
+        breathData[i] = (Math.random() * 2 - 1) * env;
       }
-      const grainSrc = ctx.createBufferSource();
-      grainSrc.buffer = grainBuf;
+      const breathSrc = ctx.createBufferSource();
+      breathSrc.buffer = breathBuf;
 
-      const grainLP = ctx.createBiquadFilter();
-      grainLP.type = 'lowpass';
-      grainLP.frequency.setValueAtTime(160, now + 0.2);
-      grainLP.frequency.exponentialRampToValueAtTime(30, now + 0.2 + grainLen);
-      grainLP.Q.value = 0.5;
+      const breathLP = ctx.createBiquadFilter();
+      breathLP.type = 'lowpass';
+      breathLP.frequency.setValueAtTime(130, now + 0.2);
+      breathLP.frequency.exponentialRampToValueAtTime(25, now + 0.2 + breathLen);
+      breathLP.Q.value = 0.3;
 
-      const grainGain = ctx.createGain();
-      grainGain.gain.setValueAtTime(0.08, now + 0.2);
-      grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
+      const breathGain = ctx.createGain();
+      breathGain.gain.setValueAtTime(0.07, now + 0.2);
+      breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + breathLen);
 
-      grainSrc.connect(grainLP);
-      grainLP.connect(grainGain);
-      grainGain.connect(ctx.destination);
-      grainSrc.start(now + 0.2);
-      grainSrc.stop(now + 0.2 + grainLen + 0.01);
+      breathSrc.connect(breathLP);
+      breathLP.connect(breathGain);
+      breathGain.connect(ctx.destination);
+      breathSrc.start(now + 0.2);
+      breathSrc.stop(now + 0.2 + breathLen + 0.01);
 
 
       triggerHaptic('confirm');
