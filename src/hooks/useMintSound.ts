@@ -153,9 +153,9 @@ export function useMintSound() {
       const t0 = now; // Everything starts together — one strike
 
       // ══════════════════════════════════════════════════════════
-      //  All layers fit within 0.75s to match visual BURST_DURATION
+      //  All layers fit within 1.2s to match visual BURST_DURATION
       // ══════════════════════════════════════════════════════════
-      const END = 0.75;
+      const END = 1.2;
 
       // ─── Sub-bass foundation (24Hz) — deep chest vibration ───
       const subGain = ctx.createGain();
