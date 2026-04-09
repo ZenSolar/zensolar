@@ -42,6 +42,13 @@ export function TokenPriceCard({
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [shimmerBurstDone, setShimmerBurstDone] = useState(false);
+
+  // First-load burst → idle transition
+  useEffect(() => {
+    const t = setTimeout(() => setShimmerBurstDone(true), 2800);
+    return () => clearTimeout(t);
+  }, []);
 
   // Burst effect state
   const [isBursting, setIsBursting] = useState(false);
@@ -311,9 +318,12 @@ export function TokenPriceCard({
             <div 
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)',
-                animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
-                animationDelay: '0s',
+                background: shimmerBurstDone
+                  ? 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)'
+                  : 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.4) 25%, hsl(280 68% 70% / 0.7) 50%, hsl(280 68% 60% / 0.4) 75%, transparent 100%)',
+                animation: shimmerBurstDone
+                  ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
+                  : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
                 willChange: 'transform',
               }}
             />
@@ -521,9 +531,12 @@ export function TokenPriceCard({
           <div 
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)',
-              animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
-              animationDelay: '0s',
+              background: shimmerBurstDone
+                ? 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)'
+                : 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.4) 25%, hsl(280 68% 70% / 0.7) 50%, hsl(280 68% 60% / 0.4) 75%, transparent 100%)',
+              animation: shimmerBurstDone
+                ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
+                : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
               willChange: 'transform',
             }}
           />
