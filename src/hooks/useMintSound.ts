@@ -49,93 +49,95 @@ export function useMintSound() {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
-      // --- Layer 1: Deep electric HUM — transformer powering up ---
-      const humGain = ctx.createGain();
-      humGain.gain.setValueAtTime(0, now);
-      humGain.gain.linearRampToValueAtTime(0.14, now + 0.008);
-      humGain.gain.setValueAtTime(0.14, now + 0.06);
-      humGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-      humGain.connect(ctx.destination);
+      // --- Layer 1: DOLBY SWEEP — deep frequency rise that "fills the room" ---
+      // Starts sub-bass and sweeps up, then settles back down
+      const sweepGain = ctx.createGain();
+      sweepGain.gain.setValueAtTime(0, now);
+      sweepGain.gain.linearRampToValueAtTime(0.16, now + 0.03);
+      sweepGain.gain.setValueAtTime(0.16, now + 0.15);
+      sweepGain.gain.linearRampToValueAtTime(0.1, now + 0.3);
+      sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      sweepGain.connect(ctx.destination);
 
-      const hum = ctx.createOscillator();
-      hum.type = 'sine';
-      hum.frequency.setValueAtTime(55, now);
-      hum.frequency.exponentialRampToValueAtTime(42, now + 0.3);
-      hum.connect(humGain);
-      hum.start(now);
-      hum.stop(now + 0.4);
+      const sweep = ctx.createOscillator();
+      sweep.type = 'sine';
+      sweep.frequency.setValueAtTime(30, now);          // Starts rumbling sub-bass
+      sweep.frequency.exponentialRampToValueAtTime(80, now + 0.12);  // Swells up
+      sweep.frequency.exponentialRampToValueAtTime(50, now + 0.35);  // Settles into deep sustain
+      sweep.connect(sweepGain);
+      sweep.start(now);
+      sweep.stop(now + 0.55);
 
-      // --- Layer 2: Electric buzz overtone (gives the hum "electricity") ---
+      // --- Layer 2: Dolby rumble body — filtered noise for that "cinema shaking" ---
+      const rumbleLen = 0.3;
+      const rumbleSize = Math.ceil(ctx.sampleRate * rumbleLen);
+      const rumbleBuf = ctx.createBuffer(1, rumbleSize, ctx.sampleRate);
+      const rumbleData = rumbleBuf.getChannelData(0);
+      for (let i = 0; i < rumbleSize; i++) {
+        const t = i / rumbleSize;
+        // Envelope: swell up then fade
+        const env = Math.sin(t * Math.PI) * 0.8;
+        rumbleData[i] = (Math.random() * 2 - 1) * env;
+      }
+      const rumbleSrc = ctx.createBufferSource();
+      rumbleSrc.buffer = rumbleBuf;
+
+      const rumbleLP = ctx.createBiquadFilter();
+      rumbleLP.type = 'lowpass';
+      rumbleLP.frequency.value = 120; // Only deep rumble passes through
+      rumbleLP.Q.value = 2;
+
+      const rumbleGain = ctx.createGain();
+      rumbleGain.gain.setValueAtTime(0.12, now);
+
+      rumbleSrc.connect(rumbleLP);
+      rumbleLP.connect(rumbleGain);
+      rumbleGain.connect(ctx.destination);
+      rumbleSrc.start(now);
+      rumbleSrc.stop(now + rumbleLen + 0.01);
+
+      // --- Layer 3: Electric buzz overtone (the "electric" character) ---
       const buzzGain = ctx.createGain();
       buzzGain.gain.setValueAtTime(0, now);
-      buzzGain.gain.linearRampToValueAtTime(0.06, now + 0.01);
-      buzzGain.gain.setValueAtTime(0.06, now + 0.04);
-      buzzGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      buzzGain.gain.linearRampToValueAtTime(0.05, now + 0.02);
+      buzzGain.gain.setValueAtTime(0.05, now + 0.08);
+      buzzGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
       buzzGain.connect(ctx.destination);
 
       const buzz = ctx.createOscillator();
-      buzz.type = 'sawtooth'; // Harmonics-rich = electric buzz
-      buzz.frequency.setValueAtTime(110, now);
-      buzz.frequency.exponentialRampToValueAtTime(85, now + 0.2);
+      buzz.type = 'sawtooth';
+      buzz.frequency.setValueAtTime(100, now);
+      buzz.frequency.exponentialRampToValueAtTime(70, now + 0.25);
 
-      // Low-pass to keep it warm, not harsh
       const buzzLP = ctx.createBiquadFilter();
       buzzLP.type = 'lowpass';
-      buzzLP.frequency.value = 400;
+      buzzLP.frequency.value = 350;
       buzzLP.Q.value = 1.5;
 
       buzz.connect(buzzLP);
       buzzLP.connect(buzzGain);
       buzz.start(now);
-      buzz.stop(now + 0.3);
+      buzz.stop(now + 0.35);
 
-      // --- Layer 3: Sub-bass THUMP — coin press weight ---
+      // --- Layer 4: Sub-bass impact — the physical "hit" ---
       const bassGain = ctx.createGain();
-      bassGain.gain.setValueAtTime(0.18, now);
-      bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      bassGain.gain.setValueAtTime(0.2, now);
+      bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
       bassGain.connect(ctx.destination);
 
       const bass = ctx.createOscillator();
       bass.type = 'sine';
-      bass.frequency.setValueAtTime(48, now);
-      bass.frequency.exponentialRampToValueAtTime(32, now + 0.12);
+      bass.frequency.setValueAtTime(45, now);
+      bass.frequency.exponentialRampToValueAtTime(28, now + 0.12);
       bass.connect(bassGain);
       bass.start(now);
       bass.stop(now + 0.18);
-
-      // --- Layer 4: Muted coin tap — low-passed metal texture ---
-      const tapLen = 0.015;
-      const tapSize = Math.ceil(ctx.sampleRate * tapLen);
-      const tapBuf = ctx.createBuffer(1, tapSize, ctx.sampleRate);
-      const tapData = tapBuf.getChannelData(0);
-      for (let i = 0; i < tapSize; i++) {
-        const env = Math.exp(-i / (tapSize * 0.1));
-        tapData[i] = (Math.random() * 2 - 1) * env;
-      }
-      const tapSrc = ctx.createBufferSource();
-      tapSrc.buffer = tapBuf;
-
-      const tapLP = ctx.createBiquadFilter();
-      tapLP.type = 'lowpass';
-      tapLP.frequency.value = 1200; // Muted, not bright
-      tapLP.Q.value = 1;
-
-      const tapGain = ctx.createGain();
-      tapGain.gain.setValueAtTime(0.1, now);
-      tapGain.gain.exponentialRampToValueAtTime(0.001, now + tapLen);
-
-      tapSrc.connect(tapLP);
-      tapLP.connect(tapGain);
-      tapGain.connect(ctx.destination);
-      tapSrc.start(now);
-      tapSrc.stop(now + tapLen + 0.002);
 
       triggerHaptic('light');
     } catch {
       // Silent fail
     }
   }, [getCtx, triggerHaptic]);
-
   /** Confirm mint: futuristic digital CHA-CHING — coin stamp + reward fanfare */
   const playConfirmSound = useCallback(() => {
     try {
