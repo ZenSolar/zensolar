@@ -726,10 +726,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapTimeRef = React.useRef<number>(0);
   const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const burstTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const DOUBLE_TAP_WINDOW = 500; // ms window for second tap
   const BURST_DURATION = 750;
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     if (relX !== undefined && relY !== undefined) {
       setTouchPoint({ x: relX, y: relY });
     }
@@ -746,7 +748,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
     }).catch(() => {});
 
-    setTimeout(() => {
+    burstTimerRef.current = setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
     }, BURST_DURATION);
@@ -754,6 +756,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
 
   // Double-tap burst — stronger, triggers confirm
   const triggerDoubleBurst = useCallback((relX?: number, relY?: number) => {
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     if (relX !== undefined && relY !== undefined) {
       setTouchPoint({ x: relX, y: relY });
     }
@@ -770,7 +773,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 250);
     }).catch(() => {});
 
-    setTimeout(() => {
+    burstTimerRef.current = setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
     }, BURST_DURATION);
