@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { 
@@ -9,10 +9,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useHaptics } from '@/hooks/useHaptics';
 
 // Touch threshold constants
 const TOUCH_DELTA_THRESHOLD = 15;
 const TOUCH_TIME_THRESHOLD = 400;
+const DOUBLE_TAP_WINDOW = 800;
 
 interface TokenPriceCardProps {
   tokensHeld: number;
