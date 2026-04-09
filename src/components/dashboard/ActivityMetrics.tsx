@@ -379,7 +379,18 @@ export function ActivityMetrics({
 
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
-        <div className="space-y-2">
+        <div className="relative overflow-hidden rounded-lg">
+          {/* KPI area shimmer */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-10 rounded-lg"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.04) 30%, hsl(142 76% 65% / 0.09) 50%, hsl(142 76% 50% / 0.04) 70%, transparent 100%)',
+              animation: 'zenHeaderShimmer 7s ease-in-out infinite',
+              animationDelay: '2s',
+              willChange: 'transform',
+            }}
+          />
+          <div className="space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
             hasMultipleSolarDevices ? (
@@ -649,6 +660,7 @@ export function ActivityMetrics({
             tokenPrice={tokenPrice}
             onMintRequest={onMintRequest}
           />
+        </div>
         </div>
 
       </CardContent>
