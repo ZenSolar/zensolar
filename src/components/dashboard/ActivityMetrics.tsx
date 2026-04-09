@@ -597,13 +597,15 @@ export function ActivityMetrics({
           />
         )}
 
-        {/* Total Available Tokens - Premium Hero Card */}
-        <TotalTokensCard 
-          tokensToReceive={tokensToReceive}
-          activityUnits={activityUnits}
-          tokenPrice={tokenPrice}
-          onMintRequest={onMintRequest}
-        />
+        {/* Total Available Tokens - Integrated summary row */}
+        <div className="pt-1.5 mt-1 border-t border-primary/15">
+          <TotalTokensCard 
+            tokensToReceive={tokensToReceive}
+            activityUnits={activityUnits}
+            tokenPrice={tokenPrice}
+            onMintRequest={onMintRequest}
+          />
+        </div>
 
       </CardContent>
     </Card>
