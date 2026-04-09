@@ -720,7 +720,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapTimeRef = React.useRef<number>(0);
   const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const DOUBLE_TAP_WINDOW = 400; // ms window for second tap
+  const DOUBLE_TAP_WINDOW = 800; // ms window for second tap
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
     if (relX !== undefined && relY !== undefined) {
@@ -1162,7 +1162,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 animation: 'zenTapAgainPulse 1.2s ease-in-out infinite',
               } : undefined}
             >
-              tap again
+              tap twice
             </span>
           </div>
           <ChevronRight className={cn(
