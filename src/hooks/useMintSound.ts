@@ -177,133 +177,145 @@ export function useMintSound() {
       // Silent fail
     }
   }, [getCtx, triggerHaptic]);
-  /** Confirm mint: futuristic digital CHA-CHING — coin stamp + reward fanfare */
+  /** Confirm mint: ZenSolar™ branded confirmation — stamp → zen bowl bloom → reward chime */
   const playConfirmSound = useCallback(() => {
     try {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
-      // --- Phase 1: Heavy coin STAMP (t=0) — the press hits ---
+      // ══════════════════════════════════════════════════════════
+      //  ZenSolar™ Confirm Sound
+      //  Story: Stamp lands → zen bowl blooms → solar reward chime
+      // ══════════════════════════════════════════════════════════
+
+      // --- Phase 1: STAMP (t=0) — the mint is sealed ---
       const stampGain = ctx.createGain();
-      stampGain.gain.setValueAtTime(0.25, now);
-      stampGain.gain.exponentialRampToValueAtTime(0.08, now + 0.008);
-      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      stampGain.gain.setValueAtTime(0, now);
+      stampGain.gain.linearRampToValueAtTime(0.26, now + 0.01);
+      stampGain.gain.exponentialRampToValueAtTime(0.05, now + 0.06);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
       stampGain.connect(ctx.destination);
 
       const stamp = ctx.createOscillator();
       stamp.type = 'sine';
-      stamp.frequency.setValueAtTime(900, now);
-      stamp.frequency.exponentialRampToValueAtTime(200, now + 0.02); // Deep stamp
+      stamp.frequency.setValueAtTime(75, now);
+      stamp.frequency.exponentialRampToValueAtTime(25, now + 0.08);
       stamp.connect(stampGain);
       stamp.start(now);
-      stamp.stop(now + 0.12);
+      stamp.stop(now + 0.22);
 
-      // Heavy sub-bass impact
-      const impactGain = ctx.createGain();
-      impactGain.gain.setValueAtTime(0.15, now);
-      impactGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-      impactGain.connect(ctx.destination);
+      // Sub-bass weight
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.18, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      subGain.connect(ctx.destination);
 
-      const impact = ctx.createOscillator();
-      impact.type = 'sine';
-      impact.frequency.setValueAtTime(50, now);
-      impact.frequency.exponentialRampToValueAtTime(30, now + 0.12);
-      impact.connect(impactGain);
-      impact.start(now);
-      impact.stop(now + 0.18);
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(40, now);
+      sub.frequency.exponentialRampToValueAtTime(18, now + 0.15);
+      sub.connect(subGain);
+      sub.start(now);
+      sub.stop(now + 0.22);
 
-      // --- Phase 2: CHA-CHING two-note (t=0.08) — digital cash register ---
-      const chaTime = now + 0.08;
+      // --- Phase 2: ZEN BOWL BLOOM (t=0.06) — resonance opens up ---
+      const zenTime = now + 0.06;
+      const zenGain = ctx.createGain();
+      zenGain.gain.setValueAtTime(0, zenTime);
+      zenGain.gain.linearRampToValueAtTime(0.08, zenTime + 0.08);
+      zenGain.gain.setValueAtTime(0.08, zenTime + 0.2);
+      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.7);
+      zenGain.connect(ctx.destination);
 
-      // Note 1: "CHA" — mid tone
-      const cha1Gain = ctx.createGain();
-      cha1Gain.gain.setValueAtTime(0, chaTime);
-      cha1Gain.gain.linearRampToValueAtTime(0.1, chaTime + 0.003);
-      cha1Gain.gain.exponentialRampToValueAtTime(0.02, chaTime + 0.06);
-      cha1Gain.gain.exponentialRampToValueAtTime(0.001, chaTime + 0.12);
-      cha1Gain.connect(ctx.destination);
+      const zen = ctx.createOscillator();
+      zen.type = 'sine';
+      zen.frequency.setValueAtTime(174, zenTime); // F3 — same zen tone as tap
+      zen.connect(zenGain);
+      zen.start(zenTime);
+      zen.stop(zenTime + 0.75);
 
-      const cha1 = ctx.createOscillator();
-      cha1.type = 'triangle';
-      cha1.frequency.setValueAtTime(523, chaTime); // C5
-      cha1.connect(cha1Gain);
-      cha1.start(chaTime);
-      cha1.stop(chaTime + 0.15);
+      // Zen overtone — rings longer for confirmation weight
+      const zenOvGain = ctx.createGain();
+      zenOvGain.gain.setValueAtTime(0, zenTime);
+      zenOvGain.gain.linearRampToValueAtTime(0.035, zenTime + 0.1);
+      zenOvGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.6);
+      zenOvGain.connect(ctx.destination);
 
-      // Note 2: "CHING" — higher, brighter, rings longer
-      const chingTime = now + 0.15;
-      const chingGain = ctx.createGain();
-      chingGain.gain.setValueAtTime(0, chingTime);
-      chingGain.gain.linearRampToValueAtTime(0.12, chingTime + 0.003);
-      chingGain.gain.setValueAtTime(0.12, chingTime + 0.05);
-      chingGain.gain.exponentialRampToValueAtTime(0.001, chingTime + 0.4);
-      chingGain.connect(ctx.destination);
+      const zenOv = ctx.createOscillator();
+      zenOv.type = 'sine';
+      zenOv.frequency.setValueAtTime(348, zenTime); // F4
+      zenOv.connect(zenOvGain);
+      zenOv.start(zenTime);
+      zenOv.stop(zenTime + 0.65);
 
-      const ching = ctx.createOscillator();
-      ching.type = 'triangle';
-      ching.frequency.setValueAtTime(784, chingTime); // G5 — ascending = "winner"
-      ching.connect(chingGain);
-      ching.start(chingTime);
-      ching.stop(chingTime + 0.45);
+      // --- Phase 3: REWARD CHIME (t=0.18) — ascending two-note "success" ---
+      // Warm triangle tones, not sharp — zen-filtered reward
+      const chime1Time = now + 0.18;
+      const chime1Gain = ctx.createGain();
+      chime1Gain.gain.setValueAtTime(0, chime1Time);
+      chime1Gain.gain.linearRampToValueAtTime(0.07, chime1Time + 0.02);
+      chime1Gain.gain.exponentialRampToValueAtTime(0.015, chime1Time + 0.12);
+      chime1Gain.gain.exponentialRampToValueAtTime(0.001, chime1Time + 0.25);
+      chime1Gain.connect(ctx.destination);
 
-      // "CHING" shimmer overtone
+      const chime1 = ctx.createOscillator();
+      chime1.type = 'triangle';
+      chime1.frequency.setValueAtTime(262, chime1Time); // C4 — warm, grounded
+      chime1.connect(chime1Gain);
+      chime1.start(chime1Time);
+      chime1.stop(chime1Time + 0.28);
+
+      const chime2Time = now + 0.3;
+      const chime2Gain = ctx.createGain();
+      chime2Gain.gain.setValueAtTime(0, chime2Time);
+      chime2Gain.gain.linearRampToValueAtTime(0.09, chime2Time + 0.02);
+      chime2Gain.gain.setValueAtTime(0.09, chime2Time + 0.08);
+      chime2Gain.gain.exponentialRampToValueAtTime(0.001, chime2Time + 0.5);
+      chime2Gain.connect(ctx.destination);
+
+      const chime2 = ctx.createOscillator();
+      chime2.type = 'triangle';
+      chime2.frequency.setValueAtTime(392, chime2Time); // G4 — ascending = "earned it"
+      chime2.connect(chime2Gain);
+      chime2.start(chime2Time);
+      chime2.stop(chime2Time + 0.55);
+
+      // Chime 2 shimmer overtone — subtle brightness
       const shimGain = ctx.createGain();
-      shimGain.gain.setValueAtTime(0, chingTime);
-      shimGain.gain.linearRampToValueAtTime(0.05, chingTime + 0.005);
-      shimGain.gain.exponentialRampToValueAtTime(0.001, chingTime + 0.3);
+      shimGain.gain.setValueAtTime(0, chime2Time);
+      shimGain.gain.linearRampToValueAtTime(0.025, chime2Time + 0.03);
+      shimGain.gain.exponentialRampToValueAtTime(0.001, chime2Time + 0.35);
       shimGain.connect(ctx.destination);
 
       const shim = ctx.createOscillator();
       shim.type = 'sine';
-      shim.frequency.setValueAtTime(1568, chingTime); // G6 — octave shimmer
+      shim.frequency.setValueAtTime(784, chime2Time); // G5 — octave shimmer
       shim.connect(shimGain);
-      shim.start(chingTime);
-      shim.stop(chingTime + 0.35);
+      shim.start(chime2Time);
+      shim.stop(chime2Time + 0.4);
 
-      // --- Phase 3: Digital low-freq sustain (the "futuristic" tail) ---
+      // --- Phase 4: SOLAR SUSTAIN — warm electric tail ---
       const tailGain = ctx.createGain();
-      tailGain.gain.setValueAtTime(0, now + 0.1);
-      tailGain.gain.linearRampToValueAtTime(0.06, now + 0.18);
-      tailGain.gain.setValueAtTime(0.06, now + 0.3);
-      tailGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      tailGain.gain.setValueAtTime(0, now + 0.15);
+      tailGain.gain.linearRampToValueAtTime(0.045, now + 0.25);
+      tailGain.gain.setValueAtTime(0.045, now + 0.4);
+      tailGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
       tailGain.connect(ctx.destination);
 
       const tail = ctx.createOscillator();
-      tail.type = 'sine';
-      tail.frequency.setValueAtTime(80, now + 0.1); // Low digital hum
-      tail.frequency.exponentialRampToValueAtTime(55, now + 0.6);
-      tail.connect(tailGain);
-      tail.start(now + 0.1);
-      tail.stop(now + 0.65);
+      tail.type = 'sawtooth';
+      tail.frequency.setValueAtTime(55, now + 0.15);
+      tail.frequency.exponentialRampToValueAtTime(38, now + 0.8);
 
-      // --- Phase 4: Metallic coin scatter texture ---
-      const scatterLen = 0.04;
-      const scatterSize = Math.ceil(ctx.sampleRate * scatterLen);
-      const scatterBuf = ctx.createBuffer(1, scatterSize, ctx.sampleRate);
-      const scatterData = scatterBuf.getChannelData(0);
-      for (let i = 0; i < scatterSize; i++) {
-        const env = Math.exp(-i / (scatterSize * 0.2));
-        scatterData[i] = Math.random() < 0.3
-          ? (Math.random() * 2 - 1) * env
-          : 0;
-      }
-      const scatterSrc = ctx.createBufferSource();
-      scatterSrc.buffer = scatterBuf;
+      const tailLP = ctx.createBiquadFilter();
+      tailLP.type = 'lowpass';
+      tailLP.frequency.value = 120; // Deeply buried — warm electric presence
+      tailLP.Q.value = 0.7;
 
-      const scatterHP = ctx.createBiquadFilter();
-      scatterHP.type = 'highpass';
-      scatterHP.frequency.value = 3000;
-      scatterHP.Q.value = 1;
-
-      const scatterGain = ctx.createGain();
-      scatterGain.gain.setValueAtTime(0.08, now + 0.14);
-      scatterGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14 + scatterLen);
-
-      scatterSrc.connect(scatterHP);
-      scatterHP.connect(scatterGain);
-      scatterGain.connect(ctx.destination);
-      scatterSrc.start(now + 0.14);
-      scatterSrc.stop(now + 0.14 + scatterLen + 0.002);
+      tail.connect(tailLP);
+      tailLP.connect(tailGain);
+      tail.start(now + 0.15);
+      tail.stop(now + 0.85);
 
       triggerHaptic('confirm');
     } catch {
