@@ -152,78 +152,83 @@ export function useMintSound() {
 
       const t0 = now; // Everything starts together — one strike
 
+      // ══════════════════════════════════════════════════════════
+      //  All layers fit within 0.75s to match visual BURST_DURATION
+      // ══════════════════════════════════════════════════════════
+      const END = 0.75;
+
       // ─── Sub-bass foundation (24Hz) — deep chest vibration ───
       const subGain = ctx.createGain();
       subGain.gain.setValueAtTime(0, t0);
       subGain.gain.linearRampToValueAtTime(0.28, t0 + 0.01);
-      subGain.gain.setValueAtTime(0.28, t0 + 0.15);
-      subGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.4);
+      subGain.gain.setValueAtTime(0.28, t0 + 0.08);
+      subGain.gain.exponentialRampToValueAtTime(0.001, t0 + END);
       subGain.connect(master);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
       sub.frequency.setValueAtTime(24, t0);
-      sub.frequency.exponentialRampToValueAtTime(20, t0 + 2.0);
+      sub.frequency.exponentialRampToValueAtTime(20, t0 + END);
       sub.connect(subGain);
       sub.start(t0);
-      sub.stop(t0 + 2.6);
+      sub.stop(t0 + END + 0.05);
 
       // ─── Deep fundamental (55Hz A1) — the resonant body of the gong ───
       const fundGain = ctx.createGain();
       fundGain.gain.setValueAtTime(0, t0);
       fundGain.gain.linearRampToValueAtTime(0.34, t0 + 0.004);
-      fundGain.gain.setValueAtTime(0.34, t0 + 0.1);
-      fundGain.gain.exponentialRampToValueAtTime(0.12, t0 + 0.6);
-      fundGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.4);
+      fundGain.gain.setValueAtTime(0.34, t0 + 0.06);
+      fundGain.gain.exponentialRampToValueAtTime(0.08, t0 + 0.35);
+      fundGain.gain.exponentialRampToValueAtTime(0.001, t0 + END);
       fundGain.connect(master);
 
       const fund = ctx.createOscillator();
       fund.type = 'sine';
       fund.frequency.setValueAtTime(55, t0);
-      fund.frequency.exponentialRampToValueAtTime(52, t0 + 2.0);
+      fund.frequency.exponentialRampToValueAtTime(52, t0 + END);
       fund.connect(fundGain);
       fund.start(t0);
-      fund.stop(t0 + 2.6);
+      fund.stop(t0 + END + 0.05);
 
       // ─── Warm mid partial (98Hz) — singing bowl "om" ───
       const midGain = ctx.createGain();
       midGain.gain.setValueAtTime(0, t0);
       midGain.gain.linearRampToValueAtTime(0.16, t0 + 0.006);
-      midGain.gain.setValueAtTime(0.16, t0 + 0.08);
-      midGain.gain.exponentialRampToValueAtTime(0.05, t0 + 0.5);
-      midGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.6);
+      midGain.gain.setValueAtTime(0.16, t0 + 0.05);
+      midGain.gain.exponentialRampToValueAtTime(0.04, t0 + 0.3);
+      midGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.65);
       midGain.connect(master);
 
       const mid = ctx.createOscillator();
       mid.type = 'sine';
       mid.frequency.setValueAtTime(98, t0);
-      mid.frequency.exponentialRampToValueAtTime(95, t0 + 1.2);
+      mid.frequency.exponentialRampToValueAtTime(95, t0 + 0.5);
       mid.connect(midGain);
       mid.start(t0);
-      mid.stop(t0 + 1.8);
+      mid.stop(t0 + 0.7);
 
       // ─── Upper partial (155Hz) — inharmonic gong character ───
       const up1Gain = ctx.createGain();
       up1Gain.gain.setValueAtTime(0, t0);
       up1Gain.gain.linearRampToValueAtTime(0.10, t0 + 0.003);
-      up1Gain.gain.exponentialRampToValueAtTime(0.03, t0 + 0.15);
-      up1Gain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.0);
+      up1Gain.gain.exponentialRampToValueAtTime(0.03, t0 + 0.1);
+      up1Gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.45);
       up1Gain.connect(master);
 
       const up1 = ctx.createOscillator();
       up1.type = 'sine';
       up1.frequency.setValueAtTime(155, t0);
-      up1.frequency.exponentialRampToValueAtTime(150, t0 + 0.8);
+      up1.frequency.exponentialRampToValueAtTime(150, t0 + 0.35);
       up1.connect(up1Gain);
       up1.start(t0);
-      up1.stop(t0 + 1.2);
+      up1.stop(t0 + 0.5);
 
       // ─── Shimmer partial (275Hz) — presence, fast decay ───
       const shimGain = ctx.createGain();
       shimGain.gain.setValueAtTime(0, t0);
       shimGain.gain.linearRampToValueAtTime(0.05, t0 + 0.003);
-      shimGain.gain.exponentialRampToValueAtTime(0.012, t0 + 0.08);
-      shimGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.5);
+      shimGain.gain.exponentialRampToValueAtTime(0.012, t0 + 0.06);
+      shimGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.3);
       shimGain.connect(master);
 
       const shim = ctx.createOscillator();
@@ -231,10 +236,10 @@ export function useMintSound() {
       shim.frequency.setValueAtTime(275, t0);
       shim.connect(shimGain);
       shim.start(t0);
-      shim.stop(t0 + 0.6);
+      shim.stop(t0 + 0.35);
 
       // ─── Metallic attack — soft mallet tap, heavily filtered ───
-      const atkLen = 0.06;
+      const atkLen = 0.04;
       const atkSize = Math.ceil(ctx.sampleRate * atkLen);
       const atkBuf = ctx.createBuffer(1, atkSize, ctx.sampleRate);
       const atkData = atkBuf.getChannelData(0);
@@ -249,7 +254,7 @@ export function useMintSound() {
       const atkBP = ctx.createBiquadFilter();
       atkBP.type = 'bandpass';
       atkBP.frequency.setValueAtTime(600, t0);
-      atkBP.frequency.exponentialRampToValueAtTime(150, t0 + 0.03);
+      atkBP.frequency.exponentialRampToValueAtTime(150, t0 + 0.02);
       atkBP.Q.value = 2.5;
 
       const atkSmooth = ctx.createBiquadFilter();
@@ -270,31 +275,31 @@ export function useMintSound() {
 
       // ─── Low resonance hum — deep sine sweep ───
       const sweepGain = ctx.createGain();
-      sweepGain.gain.setValueAtTime(0, t0 + 0.02);
-      sweepGain.gain.linearRampToValueAtTime(0.05, t0 + 0.08);
-      sweepGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.0);
+      sweepGain.gain.setValueAtTime(0, t0 + 0.01);
+      sweepGain.gain.linearRampToValueAtTime(0.05, t0 + 0.05);
+      sweepGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.5);
       sweepGain.connect(master);
 
       const sweep = ctx.createOscillator();
       sweep.type = 'sine';
-      sweep.frequency.setValueAtTime(75, t0 + 0.02);
-      sweep.frequency.exponentialRampToValueAtTime(22, t0 + 1.0);
+      sweep.frequency.setValueAtTime(75, t0 + 0.01);
+      sweep.frequency.exponentialRampToValueAtTime(22, t0 + 0.5);
       sweep.connect(sweepGain);
-      sweep.start(t0 + 0.02);
-      sweep.stop(t0 + 1.2);
+      sweep.start(t0 + 0.01);
+      sweep.stop(t0 + 0.55);
 
       // ─── Electric warmth — deep triangle wave ───
       const techGain = ctx.createGain();
       techGain.gain.setValueAtTime(0, t0);
-      techGain.gain.linearRampToValueAtTime(0.04, t0 + 0.03);
-      techGain.gain.setValueAtTime(0.04, t0 + 0.15);
-      techGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.7);
+      techGain.gain.linearRampToValueAtTime(0.04, t0 + 0.02);
+      techGain.gain.setValueAtTime(0.04, t0 + 0.08);
+      techGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.45);
       techGain.connect(master);
 
       const tech = ctx.createOscillator();
       tech.type = 'triangle';
       tech.frequency.setValueAtTime(42, t0);
-      tech.frequency.exponentialRampToValueAtTime(30, t0 + 0.7);
+      tech.frequency.exponentialRampToValueAtTime(30, t0 + 0.45);
 
       const techLP = ctx.createBiquadFilter();
       techLP.type = 'lowpass';
@@ -304,16 +309,15 @@ export function useMintSound() {
       tech.connect(techLP);
       techLP.connect(techGain);
       tech.start(t0);
-      tech.stop(t0 + 0.8);
+      tech.stop(t0 + 0.5);
 
       // ─── Electric hum buzz — intertwined with gong, same start/end ───
       const humGain = ctx.createGain();
       humGain.gain.setValueAtTime(0, t0);
       humGain.gain.linearRampToValueAtTime(0.02, t0 + 0.004);
-      humGain.gain.linearRampToValueAtTime(0.035, t0 + 0.5);
-      humGain.gain.linearRampToValueAtTime(0.04, t0 + 0.8);
-      humGain.gain.exponentialRampToValueAtTime(0.012, t0 + 1.8);
-      humGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.6);
+      humGain.gain.linearRampToValueAtTime(0.04, t0 + 0.25);
+      humGain.gain.linearRampToValueAtTime(0.04, t0 + 0.4);
+      humGain.gain.exponentialRampToValueAtTime(0.001, t0 + END);
       humGain.connect(master);
 
       const hum = ctx.createOscillator();
@@ -325,14 +329,12 @@ export function useMintSound() {
       humLP.frequency.value = 120;
       humLP.Q.value = 1.5;
 
-      // Second harmonic — same envelope shape
       const hum2Gain = ctx.createGain();
       hum2Gain.gain.setValueAtTime(0, t0);
       hum2Gain.gain.linearRampToValueAtTime(0.01, t0 + 0.004);
-      hum2Gain.gain.linearRampToValueAtTime(0.015, t0 + 0.6);
-      hum2Gain.gain.linearRampToValueAtTime(0.018, t0 + 0.9);
-      hum2Gain.gain.exponentialRampToValueAtTime(0.005, t0 + 1.8);
-      hum2Gain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.6);
+      hum2Gain.gain.linearRampToValueAtTime(0.018, t0 + 0.3);
+      hum2Gain.gain.linearRampToValueAtTime(0.018, t0 + 0.45);
+      hum2Gain.gain.exponentialRampToValueAtTime(0.001, t0 + END);
       hum2Gain.connect(master);
 
       const hum2 = ctx.createOscillator();
@@ -347,26 +349,26 @@ export function useMintSound() {
       hum.connect(humLP);
       humLP.connect(humGain);
       hum.start(t0);
-      hum.stop(t0 + 2.6);
+      hum.stop(t0 + END + 0.05);
 
       hum2.connect(hum2LP);
       hum2LP.connect(hum2Gain);
       hum2.start(t0);
-      hum2.stop(t0 + 2.6);
+      hum2.stop(t0 + END + 0.05);
 
       // ─── Coin weight — low rumble ───
-      const coinTime = t0 + 0.015;
+      const coinTime = t0 + 0.01;
       const coinGain = ctx.createGain();
       coinGain.gain.setValueAtTime(0, coinTime);
       coinGain.gain.linearRampToValueAtTime(0.02, coinTime + 0.008);
-      coinGain.gain.exponentialRampToValueAtTime(0.008, coinTime + 0.08);
-      coinGain.gain.exponentialRampToValueAtTime(0.001, coinTime + 0.35);
+      coinGain.gain.exponentialRampToValueAtTime(0.008, coinTime + 0.06);
+      coinGain.gain.exponentialRampToValueAtTime(0.001, coinTime + 0.3);
       coinGain.connect(master);
 
       const coin = ctx.createOscillator();
       coin.type = 'sine';
       coin.frequency.setValueAtTime(120, coinTime);
-      coin.frequency.exponentialRampToValueAtTime(90, coinTime + 0.3);
+      coin.frequency.exponentialRampToValueAtTime(90, coinTime + 0.25);
 
       const coinLP = ctx.createBiquadFilter();
       coinLP.type = 'lowpass';
@@ -376,7 +378,7 @@ export function useMintSound() {
       coin.connect(coinLP);
       coinLP.connect(coinGain);
       coin.start(coinTime);
-      coin.stop(coinTime + 0.5);
+      coin.stop(coinTime + 0.35);
 
       triggerHaptic('light');
     } catch {
