@@ -168,9 +168,10 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     >
       {/* Hex grid background */}
       <div 
-        className="absolute inset-0 pointer-events-none z-0"
+        className="fixed inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='hsl(160 100%25 30%25)' stroke-opacity='0.07' stroke-width='0.75'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='hsl(160 100%25 25%25)' stroke-opacity='0.04' stroke-width='0.5'/%3E%3C/svg%3E")`,
+          zIndex: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='hsl(160 100%25 40%25)' stroke-opacity='0.12' stroke-width='0.75'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='hsl(160 100%25 35%25)' stroke-opacity='0.06' stroke-width='0.5'/%3E%3C/svg%3E")`,
           backgroundSize: '56px 100px',
         }}
       />
