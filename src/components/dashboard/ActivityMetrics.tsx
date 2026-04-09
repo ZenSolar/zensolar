@@ -1074,7 +1074,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           {/* Expanding energy rings — 4 staggered waves */}
           {[0, 1, 2, 3].map(i => (
             <div
-              key={`ring-${i}`}
+              key={`ring-${burstKey}-${i}`}
               className="absolute pointer-events-none"
               style={{
                 left: touchPoint ? `${touchPoint.x * 100}%` : 28,
