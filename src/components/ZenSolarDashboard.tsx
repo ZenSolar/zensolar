@@ -165,7 +165,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   return (
     <div 
       ref={containerRef}
-      className="bg-background min-h-full w-full relative"
+      className="bg-background min-h-full w-full relative overflow-x-hidden"
     >
       <DashboardHexBackground />
       {isDemo && <DashboardHeader isDemo={isDemo} />}
