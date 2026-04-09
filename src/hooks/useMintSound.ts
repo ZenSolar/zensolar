@@ -157,6 +157,31 @@ export function useMintSound() {
       tech.start(now);
       tech.stop(now + 0.62);
 
+      // --- Layer 5: COIN WEIGHT — heavy gold coin settling on stone ---
+      // Low-pitched filtered ring that subconsciously says "currency"
+      const coinTime = now + 0.015;
+      const coinGain = ctx.createGain();
+      coinGain.gain.setValueAtTime(0, coinTime);
+      coinGain.gain.linearRampToValueAtTime(0.05, coinTime + 0.008);
+      coinGain.gain.exponentialRampToValueAtTime(0.02, coinTime + 0.06);
+      coinGain.gain.exponentialRampToValueAtTime(0.001, coinTime + 0.4);
+      coinGain.connect(ctx.destination);
+
+      const coin = ctx.createOscillator();
+      coin.type = 'triangle';
+      coin.frequency.setValueAtTime(220, coinTime); // A3 — the "coin pitch"
+      coin.frequency.exponentialRampToValueAtTime(185, coinTime + 0.3);
+
+      const coinLP = ctx.createBiquadFilter();
+      coinLP.type = 'lowpass';
+      coinLP.frequency.value = 350; // Warm, no brightness
+      coinLP.Q.value = 1.5; // Slight resonance = coin ring
+
+      coin.connect(coinLP);
+      coinLP.connect(coinGain);
+      coin.start(coinTime);
+      coin.stop(coinTime + 0.45);
+
       triggerHaptic('light');
     } catch {
       // Silent fail
