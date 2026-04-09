@@ -766,7 +766,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
-    }, 1400);
+    }, 700); // Shorter — confirm appears at 750ms
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
@@ -790,7 +790,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       setShowTapAgain(false);
       triggerDoubleBurst(posX, posY);
       if (onTap) {
-        setTimeout(() => onTap(), 1500);
+        setTimeout(() => onTap(), 750);
       }
     } else {
       // First tap — just the experience
@@ -1131,7 +1131,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {/* Mint button — stamps on press */}
       {isTappable && !isLoading && (
         <div 
-          className={cn("flex items-center gap-1 relative", styles.text)}
+          className={cn("flex items-center gap-1 shrink-0", styles.text)}
           style={isBursting ? {
             animation: 'zenMintStamp 400ms ease-out',
           } : isPressing ? {
@@ -1139,36 +1139,36 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             opacity: 0.7,
             transition: 'all 0.1s ease-out',
           } : {
-            transition: 'all 0.15s ease-out',
+            transition: 'all 0.2s ease-out',
           }}
         >
-          <span className="relative overflow-hidden">
+          <div className="relative h-4 min-w-[52px] flex items-center justify-end">
             {/* Default MINT text */}
             <span 
               className={cn(
-                "text-xs font-semibold uppercase tracking-wide block transition-all duration-300",
-                showTapAgain ? "opacity-0 -translate-y-3" : "opacity-100 translate-y-0"
+                "text-xs font-semibold uppercase tracking-wider transition-all duration-400 ease-out absolute right-0",
+                showTapAgain ? "opacity-0 scale-90 blur-[2px]" : "opacity-100 scale-100 blur-0"
               )}
             >
               Mint
             </span>
-            {/* "Tap again" hint — slides up into place */}
+            {/* "Tap again" hint — fades in */}
             <span 
               className={cn(
-                "text-[10px] font-medium absolute inset-0 flex items-center whitespace-nowrap transition-all duration-300",
-                showTapAgain ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+                "text-[11px] font-medium tracking-wide absolute right-0 transition-all duration-400 ease-out",
+                showTapAgain ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-95 blur-[2px]"
               )}
               style={showTapAgain ? {
-                animation: 'pulse 1s ease-in-out infinite',
+                animation: 'zenTapAgainPulse 1.2s ease-in-out infinite',
               } : undefined}
             >
               tap again
             </span>
-          </span>
+          </div>
           <ChevronRight className={cn(
-            "h-5 w-5 transition-all duration-300",
+            "h-4 w-4 transition-all duration-300",
             isBursting && "translate-x-1",
-            showTapAgain && "animate-pulse"
+            showTapAgain && "animate-pulse opacity-70"
           )} />
         </div>
       )}
