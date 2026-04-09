@@ -153,22 +153,22 @@ export function useMintSound() {
       // Pressure tone — starts present, gets crushed downward
       const derezGain = ctx.createGain();
       derezGain.gain.setValueAtTime(0, now + 0.08);
-      derezGain.gain.linearRampToValueAtTime(0.07, now + 0.12);
-      derezGain.gain.setValueAtTime(0.07, now + 0.2);
-      derezGain.gain.linearRampToValueAtTime(0.04, now + 0.5); // Loses energy as it's pressed
+      derezGain.gain.linearRampToValueAtTime(0.05, now + 0.12);
+      derezGain.gain.setValueAtTime(0.05, now + 0.2);
+      derezGain.gain.linearRampToValueAtTime(0.03, now + 0.5);
       derezGain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
       derezGain.connect(ctx.destination);
 
       const derez = ctx.createOscillator();
       derez.type = 'sawtooth';
-      derez.frequency.setValueAtTime(300, now + 0.08);    // Starts higher
-      derez.frequency.exponentialRampToValueAtTime(18, now + 0.8); // Crushed way down
+      derez.frequency.setValueAtTime(140, now + 0.08);    // Much lower start
+      derez.frequency.exponentialRampToValueAtTime(18, now + 0.8);
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(450, now + 0.08);
-      derezLP.frequency.exponentialRampToValueAtTime(35, now + 0.8); // Smothered shut
-      derezLP.Q.value = 1.2;
+      derezLP.frequency.setValueAtTime(200, now + 0.08);  // Darker filter
+      derezLP.frequency.exponentialRampToValueAtTime(30, now + 0.8);
+      derezLP.Q.value = 0.6; // Very soft resonance
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
@@ -206,9 +206,9 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(150, now + 0.15);
-      breathLP.frequency.exponentialRampToValueAtTime(30, now + 0.15 + breathLen);
-      breathLP.Q.value = 0.3; // Very soft, no resonance
+      breathLP.frequency.setValueAtTime(90, now + 0.15);  // Even darker
+      breathLP.frequency.exponentialRampToValueAtTime(25, now + 0.15 + breathLen);
+      breathLP.Q.value = 0.2; // Ultra soft
 
       const breathGain = ctx.createGain();
       breathGain.gain.setValueAtTime(0.07, now + 0.15);
@@ -248,20 +248,20 @@ export function useMintSound() {
       const coinTime = now + 0.015;
       const coinGain = ctx.createGain();
       coinGain.gain.setValueAtTime(0, coinTime);
-      coinGain.gain.linearRampToValueAtTime(0.025, coinTime + 0.008);
-      coinGain.gain.exponentialRampToValueAtTime(0.01, coinTime + 0.06);
-      coinGain.gain.exponentialRampToValueAtTime(0.001, coinTime + 0.3);
+      coinGain.gain.linearRampToValueAtTime(0.018, coinTime + 0.008);
+      coinGain.gain.exponentialRampToValueAtTime(0.006, coinTime + 0.06);
+      coinGain.gain.exponentialRampToValueAtTime(0.001, coinTime + 0.25);
       coinGain.connect(ctx.destination);
 
       const coin = ctx.createOscillator();
-      coin.type = 'triangle';
-      coin.frequency.setValueAtTime(220, coinTime);
-      coin.frequency.exponentialRampToValueAtTime(185, coinTime + 0.3);
+      coin.type = 'sine';  // Sine instead of triangle — rounder, no harmonics
+      coin.frequency.setValueAtTime(140, coinTime);  // Much lower
+      coin.frequency.exponentialRampToValueAtTime(110, coinTime + 0.2);
 
       const coinLP = ctx.createBiquadFilter();
       coinLP.type = 'lowpass';
-      coinLP.frequency.value = 300;
-      coinLP.Q.value = 0.7;
+      coinLP.frequency.value = 180;  // Very dark
+      coinLP.Q.value = 0.3;
 
       coin.connect(coinLP);
       coinLP.connect(coinGain);
@@ -383,22 +383,22 @@ export function useMintSound() {
       // Pressure tone — crushed downward, longer
       const derezGain = ctx.createGain();
       derezGain.gain.setValueAtTime(0, now + 0.1);
-      derezGain.gain.linearRampToValueAtTime(0.08, now + 0.15);
-      derezGain.gain.setValueAtTime(0.08, now + 0.25);
-      derezGain.gain.linearRampToValueAtTime(0.04, now + 0.6);
+      derezGain.gain.linearRampToValueAtTime(0.06, now + 0.15);
+      derezGain.gain.setValueAtTime(0.06, now + 0.25);
+      derezGain.gain.linearRampToValueAtTime(0.03, now + 0.6);
       derezGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
       derezGain.connect(ctx.destination);
 
       const derez = ctx.createOscillator();
       derez.type = 'sawtooth';
-      derez.frequency.setValueAtTime(350, now + 0.1);
+      derez.frequency.setValueAtTime(160, now + 0.1);  // Much lower start
       derez.frequency.exponentialRampToValueAtTime(15, now + 1.0);
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(500, now + 0.1);
-      derezLP.frequency.exponentialRampToValueAtTime(30, now + 1.0);
-      derezLP.Q.value = 1.2;
+      derezLP.frequency.setValueAtTime(220, now + 0.1);  // Darker
+      derezLP.frequency.exponentialRampToValueAtTime(25, now + 1.0);
+      derezLP.Q.value = 0.6;
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
@@ -435,9 +435,9 @@ export function useMintSound() {
 
       const breathLP = ctx.createBiquadFilter();
       breathLP.type = 'lowpass';
-      breathLP.frequency.setValueAtTime(130, now + 0.2);
-      breathLP.frequency.exponentialRampToValueAtTime(25, now + 0.2 + breathLen);
-      breathLP.Q.value = 0.3;
+      breathLP.frequency.setValueAtTime(80, now + 0.2);  // Even darker
+      breathLP.frequency.exponentialRampToValueAtTime(20, now + 0.2 + breathLen);
+      breathLP.Q.value = 0.2;
 
       const breathGain = ctx.createGain();
       breathGain.gain.setValueAtTime(0.07, now + 0.2);
