@@ -706,6 +706,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
   const [isBursting, setIsBursting] = useState(false);
+  const [isChargingUp, setIsChargingUp] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
   const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
   const shape = particleShapes[color] || '';
@@ -730,11 +731,22 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
+      // Second haptic pulse during charge-up phase
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 1600);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 2200);
     }).catch(() => {});
+
+    // Phase 1: Burst (0–1.4s)
     setTimeout(() => {
       setIsBursting(false);
-      setTouchPoint(null);
+      setIsChargingUp(true);
     }, 1400);
+
+    // Phase 2: Charging-up glow (1.4s–2.4s)
+    setTimeout(() => {
+      setIsChargingUp(false);
+      setTouchPoint(null);
+    }, 2400);
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
@@ -750,13 +762,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     if (isTappable && onTap) {
       const pos = clientX !== undefined && clientY !== undefined 
         ? getTouchRelativePos(clientX, clientY) 
-        : { x: 0.85, y: 0.5 }; // Default to MINT button area
+        : { x: 0.85, y: 0.5 };
       triggerBurst(pos.x, pos.y);
-      // Intentional delay — let the full burst play out.
-      // The user feels the energy, sees it radiate, then the confirm appears.
+      // Long delay: burst → charge-up glow → confirm screen
       setTimeout(() => {
         onTap();
-      }, 1600);
+      }, 2500);
     }
   };
 
