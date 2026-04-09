@@ -273,11 +273,11 @@ export function ActivityMetrics({
               )}
             </h2>
             {filteredProviders.length > 0 && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 mt-px">
                 {filteredProviders.map((provider) => (
                   <div 
                     key={provider}
-                    className="h-7 w-7 rounded-md flex items-center justify-center bg-muted/40 border border-border/30 overflow-hidden"
+                    className="h-6 w-6 rounded-md flex items-center justify-center overflow-hidden"
                     title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                   >
                     <img 
