@@ -339,59 +339,54 @@ export function ActivityMetrics({
                   Tap-to-Mint™
                 </span>
               </div>
-            hasMultipleSolarDevices ? (
-              // Multiple solar devices - show each independently with per-device minting
-              solarDevices.map((device, index) => {
-                const pendingKwh = Math.floor(device.pendingKwh);
-                const field = (
+              {hasMultipleSolarDevices ? (
+                solarDevices.map((device, index) => {
+                  const pendingKwh = Math.floor(device.pendingKwh);
+                  const field = (
+                    <ActivityField
+                      key={device.deviceId}
+                      icon={Sun}
+                      label={`${device.deviceName} Solar Energy Produced`}
+                      value={pendingKwh}
+                      unit="kWh"
+                      color="gold"
+                      active={pendingKwh > 0}
+                      isLoading={isLoading}
+                      onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
+                        category: 'solar', 
+                        deviceId: device.deviceId,
+                        deviceName: device.deviceName 
+                      }) : undefined}
+                    />
+                  );
+                  return index === 0 && onHideField ? (
+                    <SwipeableActivityField 
+                      key={device.deviceId} 
+                      onHide={() => onHideField('solar')}
+                      locked={hasSolarConnected}
+                    >
+                      {field}
+                    </SwipeableActivityField>
+                  ) : field;
+                })
+              ) : (
+                <SwipeableActivityField 
+                  onHide={() => onHideField?.('solar')} 
+                  disabled={!onHideField}
+                  locked={hasSolarConnected}
+                >
                   <ActivityField
-                    key={device.deviceId}
                     icon={Sun}
-                    label={`${device.deviceName} Solar Energy Produced`}
-                    value={pendingKwh}
+                    label={solarLabel}
+                    value={current.solarKwh}
                     unit="kWh"
                     color="gold"
-                    active={pendingKwh > 0}
+                    active={current.solarKwh > 0}
                     isLoading={isLoading}
-                    showBadge={index === 0}
-                    onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
-                      category: 'solar', 
-                      deviceId: device.deviceId,
-                      deviceName: device.deviceName 
-                    }) : undefined}
+                    onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
                   />
-                );
-                // Only first solar device is swipeable (hides all solar)
-                return index === 0 && onHideField ? (
-                  <SwipeableActivityField 
-                    key={device.deviceId} 
-                    onHide={() => onHideField('solar')}
-                    locked={hasSolarConnected}
-                  >
-                    {field}
-                  </SwipeableActivityField>
-                ) : field;
-              })
-            ) : (
-              // Single solar device - use existing logic (no deviceId needed)
-              <SwipeableActivityField 
-                onHide={() => onHideField?.('solar')} 
-                disabled={!onHideField}
-                locked={hasSolarConnected}
-              >
-                <ActivityField
-                  icon={Sun}
-                  label={solarLabel}
-                  value={current.solarKwh}
-                  unit="kWh"
-                  color="gold"
-                  active={current.solarKwh > 0}
-                  isLoading={isLoading}
-                  showBadge
-                  onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
-                />
-              </SwipeableActivityField>
-            )
+                </SwipeableActivityField>
+              )}
             </>
           )}
           
