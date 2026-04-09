@@ -61,7 +61,6 @@ export default function Home() {
           <SectionDivider variant="diamond" />
           <PricingSection />
           <SectionDivider variant="chevron" />
-          <SectionDivider variant="diamond" />
           <TestimonialsSection />
           <SectionDivider variant="angle" />
           <FAQSection />

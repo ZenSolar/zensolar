@@ -75,7 +75,7 @@ export function DashboardFooter() {
             © {currentYear} ZenSolar. All rights reserved.
           </p>
           <p className="text-[10px] text-muted-foreground/50 font-mono">
-            v1.0.0-beta · Built Jan 2025
+            v1.0.0-beta · Base L2
           </p>
         </div>
       </div>

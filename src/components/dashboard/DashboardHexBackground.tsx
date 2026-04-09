@@ -33,6 +33,10 @@ export function DashboardHexBackground() {
     let w = 0;
     let h = 0;
 
+    const isMobile = window.innerWidth < 768;
+    const TARGET_FPS = isMobile ? 24 : 40;
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = window.innerWidth;
@@ -50,6 +54,11 @@ export function DashboardHexBackground() {
     const TAU = Math.PI * 2;
 
     const animate = (now: number) => {
+      // Throttle framerate for battery savings
+      if (lastFrameTime && (now - lastFrameTime) < FRAME_INTERVAL) {
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
       const dt = lastFrameTime ? Math.min((now - lastFrameTime) / 16.667, 2) : 1;
       lastFrameTime = now;
 
@@ -146,7 +155,7 @@ export function DashboardHexBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.96, willChange: 'transform' }}
+      style={{ opacity: 0.92 }}
       aria-hidden="true"
     />
   );

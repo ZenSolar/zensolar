@@ -114,7 +114,7 @@ export function DemoDashboard() {
   return (
     <div 
       ref={containerRef}
-      className="bg-background min-h-full w-full max-w-full overflow-x-hidden relative"
+      className="bg-background min-h-full w-full relative overflow-x-hidden"
     >
       <DashboardHexBackground />
       <PullToRefreshIndicator 
@@ -123,7 +123,7 @@ export function DemoDashboard() {
         isReady={isReady}
       />
       
-      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-[max(0.75rem,env(safe-area-inset-left))] sm:px-[max(1rem,env(safe-area-inset-left))] py-6 space-y-6 box-border overflow-x-hidden">
+      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
         {/* Dashboard Header - matches real dashboard exactly */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
           <div className="space-y-1.5">
@@ -216,7 +216,7 @@ export function DemoDashboard() {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             </div>
-            <div className="relative flex items-center gap-2 px-4 bg-background">
+            <div className="relative flex items-center gap-2 px-4 bg-background/80 backdrop-blur-sm rounded-full">
               <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
               <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
               <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
