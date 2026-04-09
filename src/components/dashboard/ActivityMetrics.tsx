@@ -706,6 +706,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
   const [isBursting, setIsBursting] = useState(false);
+  const [isChargingUp, setIsChargingUp] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
   const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
   const shape = particleShapes[color] || '';
@@ -730,11 +731,22 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
+      // Second haptic pulse during charge-up phase
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 1600);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 2200);
     }).catch(() => {});
+
+    // Phase 1: Burst (0–1.4s)
     setTimeout(() => {
       setIsBursting(false);
-      setTouchPoint(null);
+      setIsChargingUp(true);
     }, 1400);
+
+    // Phase 2: Charging-up glow (1.4s–2.4s)
+    setTimeout(() => {
+      setIsChargingUp(false);
+      setTouchPoint(null);
+    }, 2400);
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
@@ -750,13 +762,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     if (isTappable && onTap) {
       const pos = clientX !== undefined && clientY !== undefined 
         ? getTouchRelativePos(clientX, clientY) 
-        : { x: 0.85, y: 0.5 }; // Default to MINT button area
+        : { x: 0.85, y: 0.5 };
       triggerBurst(pos.x, pos.y);
-      // Intentional delay — let the full burst play out.
-      // The user feels the energy, sees it radiate, then the confirm appears.
+      // Long delay: burst → charge-up glow → confirm screen
       setTimeout(() => {
         onTap();
-      }, 1600);
+      }, 2500);
     }
   };
 
@@ -818,6 +829,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       animate={isBursting ? { 
         scale: [0.90, 1.06, 1.02, 1],
         y: [2, -3, -1, 0],
+      } : isChargingUp ? {
+        scale: [1, 1.015, 1, 1.015, 1],
+        y: 0,
       } : isPressing ? {
         scale: 0.93,
         y: 2,
@@ -825,18 +839,20 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         scale: 1,
         y: 0,
       }}
-      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : { duration: 0.12, ease: 'easeOut' }}
+      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.12, ease: 'easeOut' }}
       style={{
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,
         boxShadow: isBursting 
           ? `0 0 30px rgba(${styles.rgba}, 0.5), 0 0 60px rgba(${styles.rgba}, 0.25), 0 0 90px rgba(${styles.rgba}, 0.1)` 
+          : isChargingUp
+            ? `0 0 20px rgba(${styles.rgba}, 0.4), 0 0 40px rgba(${styles.rgba}, 0.2)`
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
             : isTappable
               ? `0 0 12px rgba(${styles.rgba}, 0.15), 0 0 4px rgba(${styles.rgba}, 0.1)`
               : shadowRest,
-        transition: 'box-shadow 0.3s ease-out',
+        transition: 'box-shadow 0.4s ease-out',
       } as React.CSSProperties}
       className={cn(
         "p-3.5 rounded-xl border-l-[3px] border border-border/50 flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
@@ -962,10 +978,23 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           />
         </>
       )}
+
+      {/* ✨ Charging-up phase — pulsing border glow after burst settles */}
+      {isChargingUp && (
+        <div
+          className="absolute inset-0 pointer-events-none rounded-xl"
+          style={{
+            border: `2px solid rgba(${styles.rgba}, 0.5)`,
+            animation: 'zenChargeUpPulse 600ms ease-in-out infinite alternate',
+            willChange: 'opacity, box-shadow',
+            boxShadow: `inset 0 0 20px rgba(${styles.rgba}, 0.1), 0 0 25px rgba(${styles.rgba}, 0.3)`,
+          }}
+        />
+      )}
       
       {/* Icon with gradient background */}
-      <div className="relative p-3 rounded-xl" style={isBursting ? { 
-        filter: `drop-shadow(0 0 8px rgba(${styles.rgba}, 0.8))`,
+      <div className="relative p-3 rounded-xl" style={(isBursting || isChargingUp) ? { 
+        filter: `drop-shadow(0 0 ${isBursting ? 8 : 5}px rgba(${styles.rgba}, ${isBursting ? 0.8 : 0.5}))`,
         transition: 'all 200ms ease-out',
       } : isPressing ? {
         filter: `drop-shadow(0 0 4px rgba(${styles.rgba}, 0.4))`,
