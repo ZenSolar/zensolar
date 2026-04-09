@@ -296,9 +296,18 @@ export function TokenPriceCard({
           transition: 'box-shadow 0.4s ease-out',
           borderRadius: 'var(--radius)',
         } as React.CSSProperties}
-        className="cursor-pointer touch-manipulation select-none"
+        className="cursor-pointer touch-manipulation select-none relative"
       >
-        <Card className="wallet-card-glass relative overflow-hidden border-primary/30">
+        {/* Outer ambient glow */}
+        <div 
+          className="absolute -inset-1.5 pointer-events-none rounded-xl z-0"
+          style={{
+            background: 'radial-gradient(ellipse 90% 70% at 50% 40%, hsl(var(--primary) / 0.1), transparent 70%)',
+            animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
+            filter: 'blur(6px)',
+          }}
+        />
+        <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10">
           {/* Shimmer band */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.06] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
