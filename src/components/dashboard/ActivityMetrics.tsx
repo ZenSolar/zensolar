@@ -1039,22 +1039,91 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </>
       )}
 
-      {/* ⚡ Energy grid lines — circuit pattern flash on tap */}
+      {/* ⚡ Category-specific burst overlay */}
       {isBursting && (
         <>
-          {/* Horizontal scan lines */}
-          <div
-            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
-            style={{
-              backgroundImage: `
-                repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(${styles.rgba}, 0.25) 8px, rgba(${styles.rgba}, 0.25) 9px),
-                repeating-linear-gradient(90deg, transparent, transparent 12px, rgba(${styles.rgba}, 0.18) 12px, rgba(${styles.rgba}, 0.18) 13px)
-              `,
-              animation: 'zenGridFlash 1200ms ease-out forwards',
-              willChange: 'opacity',
-            }}
-          />
-          {/* Diagonal energy sweep */}
+          {color === 'gold' && (
+            /* Solar — radial sunburst rays */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-conic-gradient(from 0deg, rgba(${styles.rgba}, 0.35) 0deg, transparent 8deg, transparent 22.5deg)`,
+                backgroundPosition: touchPoint ? `${touchPoint.x * 100}% ${touchPoint.y * 100}%` : 'center',
+                animation: 'zenGridFlash 1200ms ease-out forwards',
+                willChange: 'opacity',
+              }}
+            />
+          )}
+          {color === 'teal' && (
+            /* Battery — horizontal energy level bars */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `
+                  repeating-linear-gradient(0deg, transparent, transparent 6px, rgba(${styles.rgba}, 0.3) 6px, rgba(${styles.rgba}, 0.3) 8px)
+                `,
+                animation: 'zenGridFlash 1200ms ease-out forwards',
+                willChange: 'opacity',
+              }}
+            />
+          )}
+          {color === 'green' && (
+            /* EV Miles — diagonal speed lines */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-linear-gradient(-30deg, transparent, transparent 10px, rgba(${styles.rgba}, 0.3) 10px, rgba(${styles.rgba}, 0.3) 12px)`,
+                animation: 'zenGridSweep 800ms ease-out forwards',
+                backgroundSize: '300% 300%',
+                willChange: 'opacity, background-position',
+              }}
+            />
+          )}
+          {color === 'cyan' && (
+            /* Supercharger — vertical lightning streaks */
+            <>
+              {[20, 45, 70].map((xPos, i) => (
+                <div
+                  key={`bolt-${i}`}
+                  className="absolute pointer-events-none z-[5]"
+                  style={{
+                    left: `${xPos}%`,
+                    top: 0,
+                    width: 3,
+                    height: '100%',
+                    background: `linear-gradient(180deg, rgba(${styles.rgba}, 0.8), rgba(${styles.rgba}, 0) 80%)`,
+                    boxShadow: `0 0 8px rgba(${styles.rgba}, 0.6)`,
+                    animation: `zenGridFlash 700ms ${i * 100}ms ease-out forwards`,
+                    willChange: 'opacity',
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {color === 'greenGold' && (
+            /* Home Charger — concentric circuit rings from touch point */
+            <>
+              {[1, 2, 3].map((ring) => (
+                <div
+                  key={`circuit-${ring}`}
+                  className="absolute pointer-events-none rounded-full z-[5]"
+                  style={{
+                    left: touchPoint ? `${touchPoint.x * 100}%` : '50%',
+                    top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+                    width: ring * 50,
+                    height: ring * 50,
+                    marginLeft: -(ring * 25),
+                    marginTop: -(ring * 25),
+                    border: `1.5px dashed rgba(${styles.rgba}, ${0.7 - ring * 0.15})`,
+                    boxShadow: `0 0 6px rgba(${styles.rgba}, 0.3)`,
+                    animation: `zenGridFlash 1000ms ${ring * 100}ms ease-out forwards`,
+                    willChange: 'opacity',
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {/* Diagonal energy sweep — all categories */}
           <div
             className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
             style={{
@@ -1064,25 +1133,6 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               willChange: 'opacity, background-position',
             }}
           />
-          {/* Corner node dots */}
-          {[[0, 0], [100, 0], [0, 100], [100, 100]].map(([x, y], i) => (
-            <div
-              key={`node-${i}`}
-              className="absolute pointer-events-none z-[6]"
-              style={{
-                left: `${x}%`,
-                top: `${y}%`,
-                width: 6,
-                height: 6,
-                marginLeft: -3,
-                marginTop: -3,
-                borderRadius: '50%',
-                background: `rgba(${styles.rgba}, 1)`,
-                boxShadow: `0 0 10px rgba(${styles.rgba}, 0.9), 0 0 20px rgba(${styles.rgba}, 0.4)`,
-                animation: `zenGridFlash 900ms ${i * 80}ms ease-out forwards`,
-              }}
-            />
-          ))}
         </>
       )}
 
