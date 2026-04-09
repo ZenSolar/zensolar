@@ -962,7 +962,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         transition: 'box-shadow 0.4s ease-out',
       } as React.CSSProperties}
        className={cn(
-        "p-3.5 rounded-xl border-l-[3px] border border-border/50 flex items-center gap-3.5 relative overflow-hidden touch-manipulation select-none",
+        "p-3.5 rounded-xl border-l-[3px] flex items-center gap-3.5 relative overflow-hidden touch-manipulation select-none",
+        isTappable ? `border border-[rgba(${styles.rgba},0.2)]` : "border border-border/50",
         styles.leftBorder,
         isTappable
           ? cn("cursor-pointer bg-card hover:bg-muted/20 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
