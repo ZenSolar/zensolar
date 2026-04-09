@@ -978,10 +978,23 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           />
         </>
       )}
+
+      {/* ✨ Charging-up phase — pulsing border glow after burst settles */}
+      {isChargingUp && (
+        <div
+          className="absolute inset-0 pointer-events-none rounded-xl"
+          style={{
+            border: `2px solid rgba(${styles.rgba}, 0.5)`,
+            animation: 'zenChargeUpPulse 600ms ease-in-out infinite alternate',
+            willChange: 'opacity, box-shadow',
+            boxShadow: `inset 0 0 20px rgba(${styles.rgba}, 0.1), 0 0 25px rgba(${styles.rgba}, 0.3)`,
+          }}
+        />
+      )}
       
       {/* Icon with gradient background */}
-      <div className="relative p-3 rounded-xl" style={isBursting ? { 
-        filter: `drop-shadow(0 0 8px rgba(${styles.rgba}, 0.8))`,
+      <div className="relative p-3 rounded-xl" style={(isBursting || isChargingUp) ? { 
+        filter: `drop-shadow(0 0 ${isBursting ? 8 : 5}px rgba(${styles.rgba}, ${isBursting ? 0.8 : 0.5}))`,
         transition: 'all 200ms ease-out',
       } : isPressing ? {
         filter: `drop-shadow(0 0 4px rgba(${styles.rgba}, 0.4))`,
