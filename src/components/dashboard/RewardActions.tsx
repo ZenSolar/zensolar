@@ -1081,72 +1081,70 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       {/* Mint Confirmation Dialog */}
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
+        <DialogContent className="sm:max-w-sm p-4 sm:p-5">
+          <DialogHeader className="pb-0">
+            <DialogTitle className="flex items-center gap-2.5">
               {(() => {
                 const IconComponent = pendingMintRequest ? getCategoryIcon(pendingMintRequest.category) : Coins;
                 const colorClasses = pendingMintRequest ? getCategoryColor(pendingMintRequest.category) : 'from-primary/20 to-primary/10 text-primary';
                 return (
-                  <span className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${colorClasses.split(' ').slice(0, 2).join(' ')} shadow-lg ring-1 ring-current/20`}>
-                    <IconComponent className={`h-5 w-5 ${colorClasses.split(' ').slice(2).join(' ')}`} />
+                  <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${colorClasses.split(' ').slice(0, 2).join(' ')} shadow-md ring-1 ring-current/20`}>
+                    <IconComponent className={`h-4 w-4 ${colorClasses.split(' ').slice(2).join(' ')}`} />
                   </span>
                 );
               })()}
-              <span className="text-xl">Mint {getCategoryLabel(pendingMintRequest?.category || 'all')}</span>
+              <span className="text-base">Mint {getCategoryLabel(pendingMintRequest?.category || 'all')}</span>
             </DialogTitle>
-            <DialogDescription className="pt-4">
-              <div className="space-y-4">
-                <p className="text-base text-foreground text-center">
+            <DialogDescription asChild>
+              <div className="space-y-3 pt-3">
+                <p className="text-sm text-foreground text-center">
                   You are about to mint
                 </p>
-                <p className="text-lg font-bold text-primary text-center">
+                <p className="text-base font-bold text-primary text-center">
                   {getCategoryLabel(pendingMintRequest?.category || 'all')}
                 </p>
-                <p className="text-base text-foreground text-center">
+                <p className="text-sm text-foreground text-center">
                   tokens:
                 </p>
                 
                 {pendingMintRequest && (
-                  <div className="relative p-5 rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
+                  <div className="relative p-4 rounded-xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
-                    <div className="relative flex flex-col gap-2">
-                      {/* Activity Type - ALWAYS show prominently */}
-                      <div className="flex items-center gap-2 text-lg font-bold text-foreground">
+                    <div className="relative flex flex-col gap-1.5">
+                      <div className="flex items-center gap-2 text-base font-bold text-foreground">
                         {(() => {
                           const IconComponent = getCategoryIcon(pendingMintRequest.category);
                           const colorClasses = getCategoryColor(pendingMintRequest.category);
-                          return <IconComponent className={`h-5 w-5 ${colorClasses.split(' ').slice(2).join(' ')}`} />;
+                          return <IconComponent className={`h-4 w-4 ${colorClasses.split(' ').slice(2).join(' ')}`} />;
                         })()}
                         {getCategoryLabel(pendingMintRequest.category)}
                       </div>
                       
-                      {/* Device name if specific device selected */}
                       {pendingMintRequest.deviceName && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           Device: <span className="font-medium text-foreground">{pendingMintRequest.deviceName}</span>
                         </p>
                       )}
                       
-                      <div className="flex items-center justify-between pt-2 border-t border-primary/20">
-                        <span className="text-sm text-muted-foreground">Tokens to receive:</span>
-                        <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      <div className="flex items-center justify-between pt-1.5 border-t border-primary/20">
+                        <span className="text-xs text-muted-foreground">Tokens to<br/>receive:</span>
+                        <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent tabular-nums">
                           {getCategoryTokens(pendingMintRequest.category).toLocaleString()} $ZSOLAR
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground">
                         You receive 75% of {getCategoryActivityUnits(pendingMintRequest.category).toLocaleString()} activity units (20% burn)
                       </p>
                     </div>
                   </div>
                 )}
                 
-                <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-4 border border-border/60">
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Wallet className="h-4 w-4 text-primary" />
+                <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-lg p-3 border border-border/60">
+                  <div className="flex items-start gap-2.5">
+                    <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Wallet className="h-3.5 w-3.5 text-primary" />
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
                       This will submit a transaction to the Base Sepolia blockchain. 
                       The tokens will be minted directly to your connected wallet.
                     </p>
@@ -1155,7 +1153,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               </div>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="pt-4 gap-3">
+          <DialogFooter className="pt-3 gap-2.5">
             <Button
               variant="outline"
               onClick={() => {
