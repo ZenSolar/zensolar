@@ -769,74 +769,107 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const navigate = useNavigate();
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
-  const [isBursting, setIsBursting] = useState(false);
-  const [isChargingUp, setIsChargingUp] = useState(false);
-  const [isPressing, setIsPressing] = useState(false);
-  const [showTapAgain, setShowTapAgain] = useState(false);
-  const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
-  const [isSecondTap, setIsSecondTap] = useState(false);
+
+  // --- Consolidated interaction state via ref + single render tick ---
+  interface FieldState {
+    phase: 'idle' | 'pressing' | 'charging' | 'burst';
+    touchPoint: { x: number; y: number } | null;
+    showTapAgain: boolean;
+    isSecondTap: boolean;
+    burstKey: number;
+  }
+  const stateRef = React.useRef<FieldState>({
+    phase: 'idle', touchPoint: null, showTapAgain: false, isSecondTap: false, burstKey: 0,
+  });
+  const [, setRenderTick] = useState(0);
+  const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
+  const updateState = useCallback((patch: Partial<FieldState>) => {
+    Object.assign(stateRef.current, patch);
+    forceRender();
+  }, [forceRender]);
+
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
   const cardRef = React.useRef<HTMLDivElement>(null);
   const { playMintSound } = useMintSound();
-  
-  // Track touch start position to distinguish taps from scrolls
+
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapTimeRef = React.useRef<number>(0);
   const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const burstTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const DOUBLE_TAP_WINDOW = 500; // ms window for second tap
+  const ignoreClickUntilRef = React.useRef<number>(0);
+  const DOUBLE_TAP_WINDOW = 500;
   const BURST_DURATION = 750;
+  const GHOST_CLICK_SUPPRESSION = 700;
+
+  // Pre-compute particles — stable across renders, only regenerate on new burst
+  const particles = React.useMemo(() => {
+    return Array.from({ length: 16 }, (_, i) => {
+      const angle = (i / 16) * 360 + ((i * 7 + 3) % 20 - 10); // deterministic jitter
+      const rad = (angle * Math.PI) / 180;
+      const dist = 50 + ((i * 13 + 7) % 70);
+      return {
+        tx: Math.cos(rad) * dist,
+        ty: Math.sin(rad) * (20 + ((i * 11 + 5) % 30)),
+        size: 7 + ((i * 9 + 4) % 6),
+        rotation: (i * 37 + 11) % 360,
+        delay: i * 30,
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateRef.current.burstKey]);
+
+  // Cleanup all timers
+  React.useEffect(() => {
+    return () => {
+      if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+    };
+  }, []);
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
     if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
-    if (relX !== undefined && relY !== undefined) {
-      setTouchPoint({ x: relX, y: relY });
-    }
-    setIsChargingUp(false);
-    setIsBursting(true);
+    updateState({
+      phase: 'burst',
+      burstKey: stateRef.current.burstKey + 1,
+      isSecondTap: false,
+      ...(relX !== undefined && relY !== undefined ? { touchPoint: { x: relX, y: relY } } : {}),
+    });
     playMintSound(color);
-    // Haptic burst
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(haptic); } catch { /* silent */ }
     }
     import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
-      setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
     }).catch(() => {});
-
     burstTimerRef.current = setTimeout(() => {
-      setIsBursting(false);
-      setTouchPoint(null);
+      updateState({ phase: 'idle', touchPoint: null });
     }, BURST_DURATION);
-  }, [haptic, playMintSound, color]);
+  }, [haptic, playMintSound, color, updateState]);
 
-  // Double-tap burst — stronger, triggers confirm
   const triggerDoubleBurst = useCallback((relX?: number, relY?: number) => {
     if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
-    if (relX !== undefined && relY !== undefined) {
-      setTouchPoint({ x: relX, y: relY });
-    }
-    setIsChargingUp(false);
-    setIsBursting(true);
+    updateState({
+      phase: 'burst',
+      burstKey: stateRef.current.burstKey + 1,
+      isSecondTap: true,
+      ...(relX !== undefined && relY !== undefined ? { touchPoint: { x: relX, y: relY } } : {}),
+    });
     playMintSound(color);
-    // Stronger haptic for double tap
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate([20, 50, 30]); } catch { /* silent */ }
     }
     import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 100);
-      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 250);
     }).catch(() => {});
-
     burstTimerRef.current = setTimeout(() => {
-      setIsBursting(false);
-      setTouchPoint(null);
+      updateState({ phase: 'idle', touchPoint: null, isSecondTap: false });
     }, BURST_DURATION);
-  }, [haptic, playMintSound, color]);
+  }, [playMintSound, color, updateState]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
     if (!cardRef.current) return { x: 0.5, y: 0.5 };
@@ -847,56 +880,52 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     };
   };
 
-  /** Process a confirmed tap — detect single vs double */
   const processTap = useCallback((posX: number, posY: number) => {
     const now = Date.now();
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
     if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
-      // ⚡ SECOND TAP — complementary visual only, no confirm
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = now;
-      setShowTapAgain(false);
-      setIsSecondTap(true);
+      updateState({ showTapAgain: false });
       triggerDoubleBurst(posX, posY);
-      // Reset isSecondTap after burst ends
-      setTimeout(() => setIsSecondTap(false), BURST_DURATION);
+      doubleTapTimerRef.current = setTimeout(() => {
+        lastTapTimeRef.current = 0;
+      }, DOUBLE_TAP_WINDOW);
     } else {
-      // First tap — original visual
       lastTapTimeRef.current = now;
-      setIsSecondTap(false);
       triggerBurst(posX, posY);
-      setShowTapAgain(true);
+      updateState({ showTapAgain: true });
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
-        setShowTapAgain(false);
+        updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [triggerBurst, triggerDoubleBurst]);
+  }, [triggerBurst, triggerDoubleBurst, updateState]);
 
-  // Click handler for desktop
   const handleClick = (e: React.MouseEvent) => {
     if (!isTappable || !onTap) return;
+    if (Date.now() < ignoreClickUntilRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     const pos = getTouchRelativePos(e.clientX, e.clientY);
     processTap(pos.x, pos.y);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!isTappable) return;
+    ignoreClickUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
     const touch = e.touches[0];
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-    setIsPressing(true);
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
     const pos = getTouchRelativePos(touch.clientX, touch.clientY);
-    setTouchPoint(pos);
+    updateState({ phase: 'pressing', touchPoint: pos });
 
-    // Charge-up glow after short hold
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
     chargeTimerRef.current = setTimeout(() => {
-      setIsChargingUp(true);
+      updateState({ phase: 'charging' });
       import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
         Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
       }).catch(() => {});
@@ -907,41 +936,42 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    ignoreClickUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
     if (!isTappable || !touchStartRef.current) {
-      setIsPressing(false);
-      setIsChargingUp(false);
+      updateState({ phase: 'idle', touchPoint: null });
       if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
       return;
     }
-    
-    setIsPressing(false);
+
     if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
-    
+
     const touch = e.changedTouches[0];
     const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
     const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-    
-    const isTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD;
-    
-    if (isTap) {
+
+    if (deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD) {
       e.preventDefault();
       const pos = getTouchRelativePos(touch.clientX, touch.clientY);
       processTap(pos.x, pos.y);
     } else {
-      setIsChargingUp(false);
-      setTouchPoint(null);
+      updateState({ phase: 'idle', touchPoint: null });
     }
-    
+
     touchStartRef.current = null;
   };
 
   const handleTouchCancel = () => {
-    setIsPressing(false);
-    setIsChargingUp(false);
-    setTouchPoint(null);
+    updateState({ phase: 'idle', touchPoint: null, showTapAgain: false });
     if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
     touchStartRef.current = null;
   };
+
+  // Destructure current state for render
+  const { phase, touchPoint, showTapAgain, isSecondTap, burstKey } = stateRef.current;
+  const isBursting = phase === 'burst';
+  const isPressing = phase === 'pressing';
+  const isChargingUp = phase === 'charging';
+
 
   // CSS custom properties for dynamic shadow based on color
   const shadowRest = `0 1px 3px rgba(0,0,0,0.1)`;
@@ -1044,7 +1074,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           {/* Expanding energy rings — 4 staggered waves */}
           {[0, 1, 2, 3].map(i => (
             <div
-              key={`ring-${i}`}
+              key={`ring-${burstKey}-${i}`}
               className="absolute pointer-events-none"
               style={{
                 left: touchPoint ? `${touchPoint.x * 100}%` : 28,
@@ -1060,36 +1090,27 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               }}
             />
           ))}
-          {/* Shaped energy particles — 16 particles, larger spread */}
-          {Array.from({ length: 16 }).map((_, i) => {
-            const angle = (i / 16) * 360 + (Math.random() * 20 - 10);
-            const rad = (angle * Math.PI) / 180;
-            const dist = 50 + Math.random() * 70;
-            const tx = Math.cos(rad) * dist;
-            const ty = Math.sin(rad) * (20 + Math.random() * 30);
-            const size = 7 + Math.random() * 6;
-            const rotation = Math.random() * 360;
-            return (
-              <div
-                key={`particle-${i}`}
-                className="absolute pointer-events-none"
-                style={{
-                  left: touchPoint ? `${touchPoint.x * 100}%` : 28,
-                  top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
-                  width: size,
-                  height: size,
-                  background: `rgba(${styles.rgba}, 1)`,
-                  boxShadow: `0 0 16px rgba(${styles.rgba}, 1), 0 0 32px rgba(${styles.rgba}, 0.5)`,
-                  clipPath: shape,
-                  transform: `rotate(${rotation}deg)`,
-                  animation: `zenFlareParticle 900ms ${i * 30}ms ease-out forwards`,
-                  willChange: 'transform, opacity',
-                  '--tx': `${tx}px`,
-                  '--ty': `${ty}px`,
-                } as React.CSSProperties}
-              />
-            );
-          })}
+          {/* Shaped energy particles — 16 particles, pre-computed layout */}
+          {particles.map((p, i) => (
+            <div
+              key={`particle-${burstKey}-${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+                top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+                width: p.size,
+                height: p.size,
+                background: `rgba(${styles.rgba}, 1)`,
+                boxShadow: `0 0 16px rgba(${styles.rgba}, 1), 0 0 32px rgba(${styles.rgba}, 0.5)`,
+                clipPath: shape,
+                transform: `rotate(${p.rotation}deg)`,
+                animation: `zenFlareParticle 900ms ${p.delay}ms ease-out forwards`,
+                willChange: 'transform, opacity',
+                '--tx': `${p.tx}px`,
+                '--ty': `${p.ty}px`,
+              } as React.CSSProperties}
+            />
+          ))}
           {/* Energy release glow — larger, more intense */}
           <div
             className="absolute pointer-events-none rounded-full"
