@@ -818,6 +818,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       animate={isBursting ? { 
         scale: [0.90, 1.06, 1.02, 1],
         y: [2, -3, -1, 0],
+      } : isChargingUp ? {
+        scale: [1, 1.015, 1, 1.015, 1],
+        y: 0,
       } : isPressing ? {
         scale: 0.93,
         y: 2,
@@ -825,18 +828,20 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         scale: 1,
         y: 0,
       }}
-      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : { duration: 0.12, ease: 'easeOut' }}
+      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.12, ease: 'easeOut' }}
       style={{
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,
         boxShadow: isBursting 
           ? `0 0 30px rgba(${styles.rgba}, 0.5), 0 0 60px rgba(${styles.rgba}, 0.25), 0 0 90px rgba(${styles.rgba}, 0.1)` 
+          : isChargingUp
+            ? `0 0 20px rgba(${styles.rgba}, 0.4), 0 0 40px rgba(${styles.rgba}, 0.2)`
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
             : isTappable
               ? `0 0 12px rgba(${styles.rgba}, 0.15), 0 0 4px rgba(${styles.rgba}, 0.1)`
               : shadowRest,
-        transition: 'box-shadow 0.3s ease-out',
+        transition: 'box-shadow 0.4s ease-out',
       } as React.CSSProperties}
       className={cn(
         "p-3.5 rounded-xl border-l-[3px] border border-border/50 flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
