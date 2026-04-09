@@ -177,145 +177,118 @@ export function useMintSound() {
       // Silent fail
     }
   }, [getCtx, triggerHaptic]);
-  /** Confirm mint: ZenSolar™ branded confirmation — stamp → zen bowl bloom → reward chime */
+  /** Confirm mint: ZenSolar™ — stamp → deep meditative bowl bloom → bass sustain */
   const playConfirmSound = useCallback(() => {
     try {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
       // ══════════════════════════════════════════════════════════
-      //  ZenSolar™ Confirm Sound
-      //  Story: Stamp lands → zen bowl blooms → solar reward chime
+      //  ZenSolar™ Confirm Sound — Meditative Bass
+      //  No metallic chimes. Deep bowls + bass only.
       // ══════════════════════════════════════════════════════════
 
-      // --- Phase 1: STAMP (t=0) — the mint is sealed ---
+      // --- Phase 1: STAMP (t=0) — the seal ---
       const stampGain = ctx.createGain();
       stampGain.gain.setValueAtTime(0, now);
-      stampGain.gain.linearRampToValueAtTime(0.26, now + 0.01);
+      stampGain.gain.linearRampToValueAtTime(0.26, now + 0.012);
       stampGain.gain.exponentialRampToValueAtTime(0.05, now + 0.06);
-      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
       stampGain.connect(ctx.destination);
 
       const stamp = ctx.createOscillator();
       stamp.type = 'sine';
-      stamp.frequency.setValueAtTime(75, now);
-      stamp.frequency.exponentialRampToValueAtTime(25, now + 0.08);
+      stamp.frequency.setValueAtTime(70, now);
+      stamp.frequency.exponentialRampToValueAtTime(22, now + 0.1);
       stamp.connect(stampGain);
       stamp.start(now);
-      stamp.stop(now + 0.22);
+      stamp.stop(now + 0.25);
 
       // Sub-bass weight
       const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0.18, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      subGain.gain.setValueAtTime(0.2, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
       subGain.connect(ctx.destination);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
-      sub.frequency.setValueAtTime(40, now);
-      sub.frequency.exponentialRampToValueAtTime(18, now + 0.15);
+      sub.frequency.setValueAtTime(36, now);
+      sub.frequency.exponentialRampToValueAtTime(16, now + 0.18);
       sub.connect(subGain);
       sub.start(now);
-      sub.stop(now + 0.22);
+      sub.stop(now + 0.27);
 
-      // --- Phase 2: ZEN BOWL BLOOM (t=0.06) — resonance opens up ---
-      const zenTime = now + 0.06;
+      // --- Phase 2: DEEP ZEN BOWL (t=0.05) — low meditative resonance ---
+      // Much lower than before — feels like a Tibetan bowl, not a bell
+      const zenTime = now + 0.05;
       const zenGain = ctx.createGain();
       zenGain.gain.setValueAtTime(0, zenTime);
-      zenGain.gain.linearRampToValueAtTime(0.08, zenTime + 0.08);
-      zenGain.gain.setValueAtTime(0.08, zenTime + 0.2);
-      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.7);
+      zenGain.gain.linearRampToValueAtTime(0.1, zenTime + 0.1);
+      zenGain.gain.setValueAtTime(0.1, zenTime + 0.3);
+      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 1.0);
       zenGain.connect(ctx.destination);
 
       const zen = ctx.createOscillator();
       zen.type = 'sine';
-      zen.frequency.setValueAtTime(174, zenTime); // F3 — same zen tone as tap
+      zen.frequency.setValueAtTime(110, zenTime); // A2 — deep, grounding om
       zen.connect(zenGain);
       zen.start(zenTime);
-      zen.stop(zenTime + 0.75);
+      zen.stop(zenTime + 1.05);
 
-      // Zen overtone — rings longer for confirmation weight
-      const zenOvGain = ctx.createGain();
-      zenOvGain.gain.setValueAtTime(0, zenTime);
-      zenOvGain.gain.linearRampToValueAtTime(0.035, zenTime + 0.1);
-      zenOvGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.6);
-      zenOvGain.connect(ctx.destination);
+      // Second bowl harmonic — a fifth above, still low
+      const zen2Gain = ctx.createGain();
+      zen2Gain.gain.setValueAtTime(0, zenTime + 0.08);
+      zen2Gain.gain.linearRampToValueAtTime(0.06, zenTime + 0.2);
+      zen2Gain.gain.setValueAtTime(0.06, zenTime + 0.4);
+      zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.9);
+      zen2Gain.connect(ctx.destination);
 
-      const zenOv = ctx.createOscillator();
-      zenOv.type = 'sine';
-      zenOv.frequency.setValueAtTime(348, zenTime); // F4
-      zenOv.connect(zenOvGain);
-      zenOv.start(zenTime);
-      zenOv.stop(zenTime + 0.65);
+      const zen2 = ctx.createOscillator();
+      zen2.type = 'sine';
+      zen2.frequency.setValueAtTime(165, zenTime + 0.08); // E3 — perfect fifth, harmonic
+      zen2.connect(zen2Gain);
+      zen2.start(zenTime + 0.08);
+      zen2.stop(zenTime + 0.95);
 
-      // --- Phase 3: REWARD CHIME (t=0.18) — ascending two-note "success" ---
-      // Warm triangle tones, not sharp — zen-filtered reward
-      const chime1Time = now + 0.18;
-      const chime1Gain = ctx.createGain();
-      chime1Gain.gain.setValueAtTime(0, chime1Time);
-      chime1Gain.gain.linearRampToValueAtTime(0.07, chime1Time + 0.02);
-      chime1Gain.gain.exponentialRampToValueAtTime(0.015, chime1Time + 0.12);
-      chime1Gain.gain.exponentialRampToValueAtTime(0.001, chime1Time + 0.25);
-      chime1Gain.connect(ctx.destination);
+      // --- Phase 3: BASS SWELL — deep confirmation that rises gently ---
+      const swellGain = ctx.createGain();
+      swellGain.gain.setValueAtTime(0, now + 0.1);
+      swellGain.gain.linearRampToValueAtTime(0.12, now + 0.3);
+      swellGain.gain.setValueAtTime(0.12, now + 0.5);
+      swellGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+      swellGain.connect(ctx.destination);
 
-      const chime1 = ctx.createOscillator();
-      chime1.type = 'triangle';
-      chime1.frequency.setValueAtTime(262, chime1Time); // C4 — warm, grounded
-      chime1.connect(chime1Gain);
-      chime1.start(chime1Time);
-      chime1.stop(chime1Time + 0.28);
+      const swell = ctx.createOscillator();
+      swell.type = 'sine';
+      swell.frequency.setValueAtTime(55, now + 0.1); // A1 — deep bass foundation
+      swell.frequency.linearRampToValueAtTime(65, now + 0.5); // Gently rises
+      swell.frequency.exponentialRampToValueAtTime(45, now + 1.0); // Settles back
+      swell.connect(swellGain);
+      swell.start(now + 0.1);
+      swell.stop(now + 1.15);
 
-      const chime2Time = now + 0.3;
-      const chime2Gain = ctx.createGain();
-      chime2Gain.gain.setValueAtTime(0, chime2Time);
-      chime2Gain.gain.linearRampToValueAtTime(0.09, chime2Time + 0.02);
-      chime2Gain.gain.setValueAtTime(0.09, chime2Time + 0.08);
-      chime2Gain.gain.exponentialRampToValueAtTime(0.001, chime2Time + 0.5);
-      chime2Gain.connect(ctx.destination);
-
-      const chime2 = ctx.createOscillator();
-      chime2.type = 'triangle';
-      chime2.frequency.setValueAtTime(392, chime2Time); // G4 — ascending = "earned it"
-      chime2.connect(chime2Gain);
-      chime2.start(chime2Time);
-      chime2.stop(chime2Time + 0.55);
-
-      // Chime 2 shimmer overtone — subtle brightness
-      const shimGain = ctx.createGain();
-      shimGain.gain.setValueAtTime(0, chime2Time);
-      shimGain.gain.linearRampToValueAtTime(0.025, chime2Time + 0.03);
-      shimGain.gain.exponentialRampToValueAtTime(0.001, chime2Time + 0.35);
-      shimGain.connect(ctx.destination);
-
-      const shim = ctx.createOscillator();
-      shim.type = 'sine';
-      shim.frequency.setValueAtTime(784, chime2Time); // G5 — octave shimmer
-      shim.connect(shimGain);
-      shim.start(chime2Time);
-      shim.stop(chime2Time + 0.4);
-
-      // --- Phase 4: SOLAR SUSTAIN — warm electric tail ---
+      // --- Phase 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const tailGain = ctx.createGain();
       tailGain.gain.setValueAtTime(0, now + 0.15);
-      tailGain.gain.linearRampToValueAtTime(0.045, now + 0.25);
-      tailGain.gain.setValueAtTime(0.045, now + 0.4);
-      tailGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+      tailGain.gain.linearRampToValueAtTime(0.04, now + 0.3);
+      tailGain.gain.setValueAtTime(0.04, now + 0.5);
+      tailGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
       tailGain.connect(ctx.destination);
 
       const tail = ctx.createOscillator();
       tail.type = 'sawtooth';
-      tail.frequency.setValueAtTime(55, now + 0.15);
-      tail.frequency.exponentialRampToValueAtTime(38, now + 0.8);
+      tail.frequency.setValueAtTime(50, now + 0.15);
+      tail.frequency.exponentialRampToValueAtTime(35, now + 1.0);
 
       const tailLP = ctx.createBiquadFilter();
       tailLP.type = 'lowpass';
-      tailLP.frequency.value = 120; // Deeply buried — warm electric presence
-      tailLP.Q.value = 0.7;
+      tailLP.frequency.value = 100; // Very muffled — pure warmth
+      tailLP.Q.value = 0.5;
 
       tail.connect(tailLP);
       tailLP.connect(tailGain);
       tail.start(now + 0.15);
-      tail.stop(now + 0.85);
+      tail.stop(now + 1.05);
 
       triggerHaptic('confirm');
     } catch {
