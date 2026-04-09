@@ -73,7 +73,7 @@ function LiveEnergyFlowSVG() {
         ))}
         
         {/* House body */}
-        <rect x="180" y="195" width="140" height="80" fill="hsl(var(--background))" fillOpacity="0.4" stroke="#3a5068" strokeWidth="1.5" rx="2" />
+        <rect x="180" y="195" width="140" height="80" fill="none" stroke="#3a5068" strokeWidth="1.5" rx="2" />
         {/* Windows */}
         <rect x="195" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
         <rect x="285" y="210" width="20" height="18" fill="#1a2a3e" stroke="#2a4a6b" strokeWidth="0.8" rx="1" />
@@ -197,7 +197,7 @@ export function DashboardShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10">
+          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-transparent">
             <LiveEnergyFlowSVG />
           </Card>
         </motion.div>
