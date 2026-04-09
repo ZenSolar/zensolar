@@ -284,7 +284,7 @@ export function ActivityMetrics({
             className="absolute inset-0 pointer-events-none"
             style={{
               background: 'linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.25) 30%, hsl(210 90% 50% / 0.45) 50%, hsl(205 85% 45% / 0.25) 70%, transparent 100%)',
-              animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
+              animation: 'zenHeaderShimmer 3.5s ease-in-out 1.2s infinite',
               willChange: 'transform',
             }}
           />
@@ -385,7 +385,7 @@ export function ActivityMetrics({
             style={{
               background: 'linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.08) 30%, hsl(142 76% 65% / 0.18) 50%, hsl(142 76% 50% / 0.08) 70%, transparent 100%)',
               animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
-              animationDelay: '2s',
+              animationDelay: '2.4s',
               willChange: 'transform',
             }}
           />
