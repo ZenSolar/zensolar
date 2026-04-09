@@ -1090,36 +1090,27 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               }}
             />
           ))}
-          {/* Shaped energy particles — 16 particles, larger spread */}
-          {Array.from({ length: 16 }).map((_, i) => {
-            const angle = (i / 16) * 360 + (Math.random() * 20 - 10);
-            const rad = (angle * Math.PI) / 180;
-            const dist = 50 + Math.random() * 70;
-            const tx = Math.cos(rad) * dist;
-            const ty = Math.sin(rad) * (20 + Math.random() * 30);
-            const size = 7 + Math.random() * 6;
-            const rotation = Math.random() * 360;
-            return (
-              <div
-                key={`particle-${i}`}
-                className="absolute pointer-events-none"
-                style={{
-                  left: touchPoint ? `${touchPoint.x * 100}%` : 28,
-                  top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
-                  width: size,
-                  height: size,
-                  background: `rgba(${styles.rgba}, 1)`,
-                  boxShadow: `0 0 16px rgba(${styles.rgba}, 1), 0 0 32px rgba(${styles.rgba}, 0.5)`,
-                  clipPath: shape,
-                  transform: `rotate(${rotation}deg)`,
-                  animation: `zenFlareParticle 900ms ${i * 30}ms ease-out forwards`,
-                  willChange: 'transform, opacity',
-                  '--tx': `${tx}px`,
-                  '--ty': `${ty}px`,
-                } as React.CSSProperties}
-              />
-            );
-          })}
+          {/* Shaped energy particles — 16 particles, pre-computed layout */}
+          {particles.map((p, i) => (
+            <div
+              key={`particle-${burstKey}-${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+                top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+                width: p.size,
+                height: p.size,
+                background: `rgba(${styles.rgba}, 1)`,
+                boxShadow: `0 0 16px rgba(${styles.rgba}, 1), 0 0 32px rgba(${styles.rgba}, 0.5)`,
+                clipPath: shape,
+                transform: `rotate(${p.rotation}deg)`,
+                animation: `zenFlareParticle 900ms ${p.delay}ms ease-out forwards`,
+                willChange: 'transform, opacity',
+                '--tx': `${p.tx}px`,
+                '--ty': `${p.ty}px`,
+              } as React.CSSProperties}
+            />
+          ))}
           {/* Energy release glow — larger, more intense */}
           <div
             className="absolute pointer-events-none rounded-full"
