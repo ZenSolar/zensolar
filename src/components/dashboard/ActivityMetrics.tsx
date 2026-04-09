@@ -716,14 +716,16 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const chargeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
     if (relX !== undefined && relY !== undefined) {
       setTouchPoint({ x: relX, y: relY });
     }
+    setIsChargingUp(false);
     setIsBursting(true);
     playMintSound(color);
-    // Haptic feedback
+    // Haptic burst — the big release
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(haptic); } catch { /* silent */ }
     }
@@ -731,22 +733,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
       setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
-      // Second haptic pulse during charge-up phase
-      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 1600);
-      setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 2200);
     }).catch(() => {});
 
-    // Phase 1: Burst (0–1.4s)
     setTimeout(() => {
       setIsBursting(false);
-      setIsChargingUp(true);
-    }, 1400);
-
-    // Phase 2: Charging-up glow (1.4s–2.4s)
-    setTimeout(() => {
-      setIsChargingUp(false);
       setTouchPoint(null);
-    }, 2400);
+    }, 1400);
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
@@ -758,17 +750,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     };
   };
 
-  const handleTap = (clientX?: number, clientY?: number) => {
-    if (isTappable && onTap) {
-      const pos = clientX !== undefined && clientY !== undefined 
-        ? getTouchRelativePos(clientX, clientY) 
-        : { x: 0.85, y: 0.5 };
-      triggerBurst(pos.x, pos.y);
-      // Long delay: burst → charge-up glow → confirm screen
-      setTimeout(() => {
-        onTap();
-      }, 2500);
-    }
+  // Click handler for desktop — immediate burst + delayed confirm
+  const handleClick = (e: React.MouseEvent) => {
+    if (!isTappable || !onTap) return;
+    // Skip if touch already handled it
+    if (touchStartRef.current !== null) return;
+    const pos = getTouchRelativePos(e.clientX, e.clientY);
+    triggerBurst(pos.x, pos.y);
+    setTimeout(() => onTap(), 2500);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -783,26 +772,46 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     setIsPressing(true);
     const pos = getTouchRelativePos(touch.clientX, touch.clientY);
     setTouchPoint(pos);
+
+    // Start charging up after a short hold (200ms)
+    chargeTimerRef.current = setTimeout(() => {
+      setIsChargingUp(true);
+      // Subtle haptic pulse when charge begins
+      import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+      }).catch(() => {});
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate(8); } catch { /* silent */ }
+      }
+    }, 200);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!isTappable || !touchStartRef.current) {
       setIsPressing(false);
+      setIsChargingUp(false);
+      if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
       return;
     }
     
     setIsPressing(false);
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+    
     const touch = e.changedTouches[0];
     const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
     const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-    const deltaTime = Date.now() - touchStartRef.current.time;
     
-    const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
+    // Allow taps — no time limit, just check finger didn't move (scroll)
+    const isTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD;
     
-    if (isQuickTap) {
+    if (isTap && onTap) {
       e.preventDefault();
-      handleTap(touch.clientX, touch.clientY);
+      const pos = getTouchRelativePos(touch.clientX, touch.clientY);
+      triggerBurst(pos.x, pos.y);
+      // Delay before confirm appears — let the burst play out
+      setTimeout(() => onTap(), 2500);
     } else {
+      setIsChargingUp(false);
       setTouchPoint(null);
     }
     
@@ -822,7 +831,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   return (
     <motion.div
       ref={cardRef}
-      onClick={(e) => handleTap(e.clientX, e.clientY)}
+      onClick={handleClick}
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
       onTouchCancel={isTappable ? handleTouchCancel : undefined}
