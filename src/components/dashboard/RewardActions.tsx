@@ -1102,7 +1102,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
         <DialogContent className="sm:max-w-sm p-4 sm:p-5">
           <DialogHeader className="pb-0">
-            <DialogTitle className="flex items-center gap-2.5">
+            <DialogTitle className="flex flex-col items-center gap-2">
               {(() => {
                 const IconComponent = pendingMintRequest ? getCategoryIcon(pendingMintRequest.category) : Coins;
                 const colorClasses = pendingMintRequest ? getCategoryColor(pendingMintRequest.category) : 'from-primary/20 to-primary/10 text-primary';
