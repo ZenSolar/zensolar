@@ -332,54 +332,54 @@ export function ActivityMetrics({
         <div className="space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
-                solarDevices.map((device, index) => {
-                  const pendingKwh = Math.floor(device.pendingKwh);
-                  const field = (
-                    <ActivityField
-                      key={device.deviceId}
-                      icon={Sun}
-                      label={`${device.deviceName} Solar Energy Produced`}
-                      value={pendingKwh}
-                      unit="kWh"
-                      color="gold"
-                      active={pendingKwh > 0}
-                      isLoading={isLoading}
-                      onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
-                        category: 'solar', 
-                        deviceId: device.deviceId,
-                        deviceName: device.deviceName 
-                      }) : undefined}
-                    />
-                  );
-                  return index === 0 && onHideField ? (
-                    <SwipeableActivityField 
-                      key={device.deviceId} 
-                      onHide={() => onHideField('solar')}
-                      locked={hasSolarConnected}
-                    >
-                      {field}
-                    </SwipeableActivityField>
-                  ) : field;
-                })
-              ) : (
-                <SwipeableActivityField 
-                  onHide={() => onHideField?.('solar')} 
-                  disabled={!onHideField}
-                  locked={hasSolarConnected}
-                >
+            hasMultipleSolarDevices ? (
+              solarDevices.map((device, index) => {
+                const pendingKwh = Math.floor(device.pendingKwh);
+                const field = (
                   <ActivityField
+                    key={device.deviceId}
                     icon={Sun}
-                    label={solarLabel}
-                    value={current.solarKwh}
+                    label={`${device.deviceName} Solar Energy Produced`}
+                    value={pendingKwh}
                     unit="kWh"
                     color="gold"
-                    active={current.solarKwh > 0}
+                    active={pendingKwh > 0}
                     isLoading={isLoading}
-                    onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
+                    onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
+                      category: 'solar', 
+                      deviceId: device.deviceId,
+                      deviceName: device.deviceName 
+                    }) : undefined}
                   />
-                </SwipeableActivityField>
-              )}
-            </>
+                );
+                return index === 0 && onHideField ? (
+                  <SwipeableActivityField 
+                    key={device.deviceId} 
+                    onHide={() => onHideField('solar')}
+                    locked={hasSolarConnected}
+                  >
+                    {field}
+                  </SwipeableActivityField>
+                ) : field;
+              })
+            ) : (
+              <SwipeableActivityField 
+                onHide={() => onHideField?.('solar')} 
+                disabled={!onHideField}
+                locked={hasSolarConnected}
+              >
+                <ActivityField
+                  icon={Sun}
+                  label={solarLabel}
+                  value={current.solarKwh}
+                  unit="kWh"
+                  color="gold"
+                  active={current.solarKwh > 0}
+                  isLoading={isLoading}
+                  onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
+                />
+              </SwipeableActivityField>
+            )
           )}
           
           {/* 2. Battery - Show individual Powerwalls if multiple */}
