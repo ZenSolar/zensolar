@@ -811,26 +811,30 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               }}
             />
           ))}
-          {/* Scattered energy particles */}
-          {Array.from({ length: 8 }).map((_, i) => {
-            const angle = (i / 8) * 360;
+          {/* Shaped energy particles — unique per category */}
+          {Array.from({ length: 10 }).map((_, i) => {
+            const angle = (i / 10) * 360 + (Math.random() * 20 - 10);
             const rad = (angle * Math.PI) / 180;
-            const tx = Math.cos(rad) * (50 + Math.random() * 30);
-            const ty = Math.sin(rad) * (20 + Math.random() * 15);
+            const dist = 40 + Math.random() * 50;
+            const tx = Math.cos(rad) * dist;
+            const ty = Math.sin(rad) * (15 + Math.random() * 20);
+            const size = 6 + Math.random() * 5;
+            const rotation = Math.random() * 360;
             return (
               <div
                 key={`particle-${i}`}
-                className="absolute pointer-events-none rounded-full"
+                className="absolute pointer-events-none"
                 style={{
                   left: 28,
                   top: '50%',
-                  width: 4 + Math.random() * 3,
-                  height: 4 + Math.random() * 3,
+                  width: size,
+                  height: size,
                   background: `rgba(${styles.rgba}, ${0.8 + Math.random() * 0.2})`,
-                  boxShadow: `0 0 6px rgba(${styles.rgba}, 0.6)`,
-                  animation: `zenFlareParticle 500ms ${i * 30}ms ease-out forwards`,
+                  boxShadow: `0 0 8px rgba(${styles.rgba}, 0.7)`,
+                  clipPath: shape,
+                  transform: `rotate(${rotation}deg)`,
+                  animation: `zenFlareParticle 600ms ${i * 25}ms ease-out forwards`,
                   willChange: 'transform, opacity',
-                  // @ts-ignore custom properties for animation
                   '--tx': `${tx}px`,
                   '--ty': `${ty}px`,
                 } as React.CSSProperties}
