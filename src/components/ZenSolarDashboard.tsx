@@ -182,7 +182,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         isReady={isReady}
       />
       
-      <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
+      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
            <div className="space-y-1.5">
