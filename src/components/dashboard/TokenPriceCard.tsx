@@ -99,7 +99,7 @@ export function TokenPriceCard({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
       >
-        <Card className="wallet-card-glass relative overflow-hidden border-primary/15 shadow-lg shadow-primary/5">
+        <Card className="wallet-card-glass relative overflow-hidden border-primary/25 shadow-lg shadow-primary/10" style={{ boxShadow: '0 0 12px hsl(var(--primary) / 0.15), 0 0 4px hsl(var(--primary) / 0.1)' }}>
           {/* Shimmer band */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.06] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
@@ -151,7 +151,7 @@ export function TokenPriceCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
     >
-      <Card className="wallet-card-glass relative overflow-hidden border-primary/15 shadow-xl shadow-primary/5">
+      <Card className="wallet-card-glass relative overflow-hidden border-primary/25 shadow-xl shadow-primary/10" style={{ boxShadow: '0 0 12px hsl(var(--primary) / 0.15), 0 0 4px hsl(var(--primary) / 0.1)' }}>
         {/* Background effects */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />

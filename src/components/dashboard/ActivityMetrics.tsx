@@ -251,10 +251,13 @@ export function ActivityMetrics({
   const hasHideableFields = !hasSolarConnected || !hasBatteryConnected || !hasEvConnected || !hasSuperchargerConnected || !hasHomeChargerConnected;
 
   return (
-    <Card className={cn(
-      "overflow-hidden transition-all bg-card",
-      activityUnits > 0 ? 'border-primary/30 shadow-lg shadow-primary/10' : 'border-border/50'
-    )}>
+    <Card 
+      className={cn(
+        "overflow-hidden transition-all bg-card",
+        activityUnits > 0 ? 'border-primary/30' : 'border-border/50'
+      )}
+      style={activityUnits > 0 ? { boxShadow: '0 0 16px hsl(var(--primary) / 0.15), 0 0 6px hsl(var(--primary) / 0.1)' } : undefined}
+    >
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
         <div className="space-y-2">
