@@ -257,9 +257,9 @@ export function ActivityMetrics({
         <div 
           className="absolute -inset-px pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 70% 40% at 50% 25%, hsl(160 100% 10% / 0.7), hsl(158 95% 8% / 0.35), transparent 70%)',
+            background: 'radial-gradient(ellipse 60% 30% at 50% 25%, hsl(160 100% 10% / 0.7), hsl(158 95% 8% / 0.35), transparent 60%)',
             animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
-            filter: 'blur(2px)',
+            filter: 'blur(1px)',
           }}
         />
       )}
