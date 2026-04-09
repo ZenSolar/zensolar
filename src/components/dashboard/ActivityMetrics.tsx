@@ -1189,62 +1189,16 @@ interface TotalTokensCardProps {
 }
 
 function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
-  const isTappable = activityUnits > 0 && onMintRequest;
-  
-  // Track touch start position to distinguish taps from scrolls
-  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const isTappable = activityUnits > 0 && !!onMintRequest;
 
-  const handleTap = () => {
-    if (isTappable && onMintRequest) {
+  const handleMint = () => {
+    if (onMintRequest) {
       onMintRequest({ category: 'all' });
     }
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!isTappable) return;
-    const touch = e.touches[0];
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isTappable || !touchStartRef.current) return;
-    
-    const touch = e.changedTouches[0];
-    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
-    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-    const deltaTime = Date.now() - touchStartRef.current.time;
-    
-    // Only trigger tap if:
-    // - Movement is less than threshold in any direction
-    // - Touch duration is less than threshold (not a long press or scroll)
-    const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
-    
-    if (isQuickTap) {
-      e.preventDefault();
-      handleTap();
-    }
-    
-    touchStartRef.current = null;
-  };
-
-  return (
-    <motion.div
-      onClick={handleTap}
-      onTouchStart={isTappable ? handleTouchStart : undefined}
-      onTouchEnd={isTappable ? handleTouchEnd : undefined}
-      whileTap={isTappable ? { scale: 0.98 } : undefined}
-      whileHover={isTappable ? { scale: 1.01 } : undefined}
-      className={cn(
-        "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden touch-manipulation",
-        isTappable
-          ? "cursor-pointer border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
-          : "border-border/50 bg-muted/30"
-      )}
-    >
+  const content = (
+    <>
       {/* Animated background glow for active state */}
       {activityUnits > 0 && (
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-emerald-500/5 animate-pulse-glow" />
@@ -1280,6 +1234,26 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
           <ChevronRight className="h-5 w-5" />
         </div>
       )}
-    </motion.div>
+    </>
+  );
+
+  if (isTappable) {
+    return (
+      <MintEffectButton
+        onClick={handleMint}
+        className={cn(
+          "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden",
+          "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
+        )}
+      >
+        {content}
+      </MintEffectButton>
+    );
+  }
+
+  return (
+    <div className="p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden border-border/50 bg-muted/30">
+      {content}
+    </div>
   );
 }
