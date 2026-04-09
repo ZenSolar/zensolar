@@ -9,6 +9,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export function useMintSound() {
   const ctxRef = useRef<AudioContext | null>(null);
+  const primedRef = useRef(false);
 
   const getCtx = useCallback(() => {
     if (!ctxRef.current || ctxRef.current.state === 'closed') {
@@ -20,9 +21,21 @@ export function useMintSound() {
     return ctxRef.current;
   }, []);
 
+  /** Must be called synchronously inside a touch/click handler to unlock
+   *  the AudioContext on iOS Safari. Plays a silent buffer so the browser
+   *  considers the context "user-gesture-activated". Safe to call repeatedly. */
   const primeAudio = useCallback(() => {
     try {
-      getCtx();
+      const ctx = getCtx();
+      if (!primedRef.current) {
+        // Play a tiny silent buffer to unlock the context within the gesture
+        const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+        primedRef.current = true;
+      }
     } catch {
       // Silent fail
     }
