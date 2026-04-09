@@ -306,9 +306,17 @@ export function TokenPriceCard({
           }}
         />
         <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10">
-          {/* Shimmer band */}
+          {/* Purple shimmer sweep */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.06] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+            <div 
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)',
+                animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
+                animationDelay: '1s',
+                willChange: 'transform',
+              }}
+            />
           </div>
 
           {/* Subtle gradient overlay */}
@@ -510,7 +518,15 @@ export function TokenPriceCard({
         {/* Background effects */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.04] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)',
+              animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
+              animationDelay: '1s',
+              willChange: 'transform',
+            }}
+          />
           {/* Corner accent */}
           <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/[0.06] blur-2xl" />
           <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-eco/[0.06] blur-2xl" />
