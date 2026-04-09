@@ -37,7 +37,7 @@ function FlowDots({
 
 function LiveEnergyFlowSVG() {
   return (
-    <div className="relative w-full bg-gradient-to-b from-[#0d1520] via-[#111d2e] to-[#0d1520] rounded-xl border border-border/30 overflow-hidden">
+    <div className="relative w-full bg-background/30 backdrop-blur-sm rounded-xl border border-border/30 overflow-hidden">
       {/* Header */}
       <div className="text-center pt-6 pb-2 relative z-10">
         <div className="flex items-center justify-center gap-2 mb-1">
