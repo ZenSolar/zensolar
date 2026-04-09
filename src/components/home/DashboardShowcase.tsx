@@ -37,7 +37,7 @@ function FlowDots({
 
 function LiveEnergyFlowSVG() {
   return (
-    <div className="relative w-full bg-background/30 backdrop-blur-sm rounded-xl border border-border/30 overflow-hidden">
+    <div className="relative w-full rounded-xl border border-border/30 overflow-hidden">
       {/* Header */}
       <div className="text-center pt-6 pb-2 relative z-10">
         <div className="flex items-center justify-center gap-2 mb-1">
@@ -121,7 +121,7 @@ function LiveEnergyFlowSVG() {
       {/* Bottom stats + manufacturer badges */}
       <div className="px-4 pb-5 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
         {/* Today's Energy */}
-        <div className="border border-border/30 rounded-lg px-4 py-3 bg-background/30">
+        <div className="border border-border/30 rounded-lg px-4 py-3 bg-background/10">
           <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Today&apos;s Energy</span>
           <div className="mt-2 space-y-1.5">
             <div className="flex items-center gap-2">
