@@ -486,39 +486,46 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
       {/* Minting Progress Dialog */}
       <Dialog open={mintingProgressDialog} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-lg">
-              {mintingProgress.step === 'complete' ? '🎉 Transaction Complete!' : 
-               mintingProgress.step === 'error' ? '❌ Transaction Failed' : 
-               '⛓️ Minting to Blockchain...'}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-6 py-4">
-            <div className="flex flex-col items-center gap-4">
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden border-primary/20">
+          <div className="px-6 pt-8 pb-6 text-center">
+            {/* Animated icon */}
+            <div className="mx-auto mb-5">
               {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
-                <div className="relative">
-                  <Loader2 className="h-14 w-14 animate-spin text-primary" />
+                <div className="relative w-16 h-16 mx-auto">
+                  <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+                  <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Zap className="h-6 w-6 text-primary animate-pulse" />
                   </div>
                 </div>
               )}
               {mintingProgress.step === 'complete' && (
-                <CheckCircle2 className="h-14 w-14 text-green-500" />
+                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg">
+                  <CheckCircle2 className="h-8 w-8 text-white" />
+                </div>
               )}
               {mintingProgress.step === 'error' && (
-                <AlertCircle className="h-14 w-14 text-destructive" />
-              )}
-              <p className="text-center text-base font-medium">{mintingProgress.message}</p>
-              {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
-                <p className="text-xs text-muted-foreground text-center">
-                  Securing your rewards on Base Sepolia testnet
-                </p>
+                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg">
+                  <AlertCircle className="h-8 w-8 text-white" />
+                </div>
               )}
             </div>
+
+            <h3 className="text-lg font-bold tracking-tight mb-1">
+              {mintingProgress.step === 'complete' ? 'Transaction Complete' : 
+               mintingProgress.step === 'error' ? 'Transaction Failed' : 
+               'Minting to Blockchain'}
+            </h3>
+            <p className="text-sm text-muted-foreground">{mintingProgress.message}</p>
             
+            {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
+              <p className="text-xs text-muted-foreground/60 mt-2">
+                Securing your rewards on Base Sepolia
+              </p>
+            )}
+          </div>
+
+          <div className="px-6 pb-6">
             <Progress 
               value={
                 mintingProgress.step === 'preparing' ? 20 :
@@ -526,7 +533,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 mintingProgress.step === 'confirming' ? 80 :
                 mintingProgress.step === 'complete' ? 100 : 0
               } 
-              className="h-3"
+              className="h-2 rounded-full"
             />
           </div>
         </DialogContent>
