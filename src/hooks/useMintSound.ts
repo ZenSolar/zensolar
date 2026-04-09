@@ -49,89 +49,83 @@ export function useMintSound() {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
-      // --- Layer 1: DOLBY SWEEP — deep frequency rise that "fills the room" ---
-      // Starts sub-bass and sweeps up, then settles back down
-      const sweepGain = ctx.createGain();
-      sweepGain.gain.setValueAtTime(0, now);
-      sweepGain.gain.linearRampToValueAtTime(0.16, now + 0.03);
-      sweepGain.gain.setValueAtTime(0.16, now + 0.15);
-      sweepGain.gain.linearRampToValueAtTime(0.1, now + 0.3);
-      sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-      sweepGain.connect(ctx.destination);
+      // --- Layer 1: STAMP IMPACT — heavy, decisive downward hit ---
+      const stampGain = ctx.createGain();
+      stampGain.gain.setValueAtTime(0.28, now);
+      stampGain.gain.exponentialRampToValueAtTime(0.06, now + 0.015);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      stampGain.connect(ctx.destination);
 
-      const sweep = ctx.createOscillator();
-      sweep.type = 'sine';
-      sweep.frequency.setValueAtTime(30, now);          // Starts rumbling sub-bass
-      sweep.frequency.exponentialRampToValueAtTime(80, now + 0.12);  // Swells up
-      sweep.frequency.exponentialRampToValueAtTime(50, now + 0.35);  // Settles into deep sustain
-      sweep.connect(sweepGain);
-      sweep.start(now);
-      sweep.stop(now + 0.55);
+      const stamp = ctx.createOscillator();
+      stamp.type = 'sine';
+      stamp.frequency.setValueAtTime(120, now);        // Starts mid-low
+      stamp.frequency.exponentialRampToValueAtTime(35, now + 0.04); // Drops FAST — heavy stamp
+      stamp.connect(stampGain);
+      stamp.start(now);
+      stamp.stop(now + 0.15);
 
-      // --- Layer 2: Dolby rumble body — filtered noise for that "cinema shaking" ---
-      const rumbleLen = 0.3;
-      const rumbleSize = Math.ceil(ctx.sampleRate * rumbleLen);
-      const rumbleBuf = ctx.createBuffer(1, rumbleSize, ctx.sampleRate);
-      const rumbleData = rumbleBuf.getChannelData(0);
-      for (let i = 0; i < rumbleSize; i++) {
-        const t = i / rumbleSize;
-        // Envelope: swell up then fade
-        const env = Math.sin(t * Math.PI) * 0.8;
-        rumbleData[i] = (Math.random() * 2 - 1) * env;
+      // --- Layer 2: Metal press contact — sharp transient noise burst ---
+      const clickLen = 0.012;
+      const clickSize = Math.ceil(ctx.sampleRate * clickLen);
+      const clickBuf = ctx.createBuffer(1, clickSize, ctx.sampleRate);
+      const clickData = clickBuf.getChannelData(0);
+      for (let i = 0; i < clickSize; i++) {
+        const env = Math.exp(-i / (clickSize * 0.15));
+        clickData[i] = (Math.random() * 2 - 1) * env;
       }
-      const rumbleSrc = ctx.createBufferSource();
-      rumbleSrc.buffer = rumbleBuf;
+      const clickSrc = ctx.createBufferSource();
+      clickSrc.buffer = clickBuf;
 
-      const rumbleLP = ctx.createBiquadFilter();
-      rumbleLP.type = 'lowpass';
-      rumbleLP.frequency.value = 120; // Only deep rumble passes through
-      rumbleLP.Q.value = 2;
+      const clickBP = ctx.createBiquadFilter();
+      clickBP.type = 'bandpass';
+      clickBP.frequency.value = 800;
+      clickBP.Q.value = 2;
 
-      const rumbleGain = ctx.createGain();
-      rumbleGain.gain.setValueAtTime(0.12, now);
+      const clickGain = ctx.createGain();
+      clickGain.gain.setValueAtTime(0.18, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + clickLen);
 
-      rumbleSrc.connect(rumbleLP);
-      rumbleLP.connect(rumbleGain);
-      rumbleGain.connect(ctx.destination);
-      rumbleSrc.start(now);
-      rumbleSrc.stop(now + rumbleLen + 0.01);
+      clickSrc.connect(clickBP);
+      clickBP.connect(clickGain);
+      clickGain.connect(ctx.destination);
+      clickSrc.start(now);
+      clickSrc.stop(now + clickLen + 0.002);
 
-      // --- Layer 3: Electric buzz overtone (the "electric" character) ---
-      const buzzGain = ctx.createGain();
-      buzzGain.gain.setValueAtTime(0, now);
-      buzzGain.gain.linearRampToValueAtTime(0.05, now + 0.02);
-      buzzGain.gain.setValueAtTime(0.05, now + 0.08);
-      buzzGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      buzzGain.connect(ctx.destination);
+      // --- Layer 3: Sub-bass weight — the physical mass behind the stamp ---
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.22, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      subGain.connect(ctx.destination);
 
-      const buzz = ctx.createOscillator();
-      buzz.type = 'sawtooth';
-      buzz.frequency.setValueAtTime(100, now);
-      buzz.frequency.exponentialRampToValueAtTime(70, now + 0.25);
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(50, now);
+      sub.frequency.exponentialRampToValueAtTime(25, now + 0.08);
+      sub.connect(subGain);
+      sub.start(now);
+      sub.stop(now + 0.12);
 
-      const buzzLP = ctx.createBiquadFilter();
-      buzzLP.type = 'lowpass';
-      buzzLP.frequency.value = 350;
-      buzzLP.Q.value = 1.5;
+      // --- Layer 4: Brief electric hum tail — short, not bouncy ---
+      const humGain = ctx.createGain();
+      humGain.gain.setValueAtTime(0, now);
+      humGain.gain.linearRampToValueAtTime(0.04, now + 0.02);
+      humGain.gain.setValueAtTime(0.04, now + 0.06);
+      humGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      humGain.connect(ctx.destination);
 
-      buzz.connect(buzzLP);
-      buzzLP.connect(buzzGain);
-      buzz.start(now);
-      buzz.stop(now + 0.35);
+      const hum = ctx.createOscillator();
+      hum.type = 'sawtooth';
+      hum.frequency.setValueAtTime(60, now);
 
-      // --- Layer 4: Sub-bass impact — the physical "hit" ---
-      const bassGain = ctx.createGain();
-      bassGain.gain.setValueAtTime(0.2, now);
-      bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-      bassGain.connect(ctx.destination);
+      const humLP = ctx.createBiquadFilter();
+      humLP.type = 'lowpass';
+      humLP.frequency.value = 200;
+      humLP.Q.value = 1;
 
-      const bass = ctx.createOscillator();
-      bass.type = 'sine';
-      bass.frequency.setValueAtTime(45, now);
-      bass.frequency.exponentialRampToValueAtTime(28, now + 0.12);
-      bass.connect(bassGain);
-      bass.start(now);
-      bass.stop(now + 0.18);
+      hum.connect(humLP);
+      humLP.connect(humGain);
+      hum.start(now);
+      hum.stop(now + 0.2);
 
       triggerHaptic('light');
     } catch {
