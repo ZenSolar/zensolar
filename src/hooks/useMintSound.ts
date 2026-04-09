@@ -111,19 +111,48 @@ export function useMintSound() {
       tex.start(now);
       tex.stop(now + texLen);
 
-      // --- Layer 4: Pseudo-haptic click burst (iPhone tactile trick) ---
-      // Ultra-short 5ms sine at 150Hz — through speakers it feels almost physical
-      const clickGain = ctx.createGain();
-      clickGain.gain.setValueAtTime(0.18, now);
-      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.005);
-      clickGain.connect(ctx.destination);
+      // --- Layer 4: Wood-knock (organic tactile thunk) ---
+      // Resonant body tone — like knuckle on warm wood
+      const knockGain = ctx.createGain();
+      knockGain.gain.setValueAtTime(0.15, now);
+      knockGain.gain.exponentialRampToValueAtTime(0.04, now + 0.008);
+      knockGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      knockGain.connect(ctx.destination);
 
-      const click = ctx.createOscillator();
-      click.type = 'sine';
-      click.frequency.setValueAtTime(150, now);
-      click.connect(clickGain);
-      click.start(now);
-      click.stop(now + 0.008);
+      const knock = ctx.createOscillator();
+      knock.type = 'sine';
+      knock.frequency.setValueAtTime(180, now); // Wood body resonance
+      knock.frequency.exponentialRampToValueAtTime(120, now + 0.03); // Quick pitch drop = hollow wood
+      knock.connect(knockGain);
+      knock.start(now);
+      knock.stop(now + 0.07);
+
+      // Wood attack transient — band-passed noise burst for the "tap" texture
+      const woodLen = 0.012;
+      const woodBufSize = Math.ceil(ctx.sampleRate * woodLen);
+      const woodBuf = ctx.createBuffer(1, woodBufSize, ctx.sampleRate);
+      const woodData = woodBuf.getChannelData(0);
+      for (let i = 0; i < woodBufSize; i++) {
+        const env = Math.exp(-i / (woodBufSize * 0.15)); // Sharp exponential decay
+        woodData[i] = (Math.random() * 2 - 1) * env;
+      }
+      const woodSrc = ctx.createBufferSource();
+      woodSrc.buffer = woodBuf;
+
+      const woodBP = ctx.createBiquadFilter();
+      woodBP.type = 'bandpass';
+      woodBP.frequency.value = 800; // Mid-range — warm, not clicky
+      woodBP.Q.value = 2.5;
+
+      const woodGain = ctx.createGain();
+      woodGain.gain.setValueAtTime(0.12, now);
+      woodGain.gain.exponentialRampToValueAtTime(0.001, now + woodLen);
+
+      woodSrc.connect(woodBP);
+      woodBP.connect(woodGain);
+      woodGain.connect(ctx.destination);
+      woodSrc.start(now);
+      woodSrc.stop(now + woodLen + 0.002);
 
       // --- Haptic: light tap synchronized with sound ---
       triggerHaptic('light');
@@ -168,18 +197,46 @@ export function useMintSound() {
       o2.start(now);
       o2.stop(now + 0.35);
 
-      // Pseudo-haptic click burst — heavier for confirm
-      const clickGain = ctx.createGain();
-      clickGain.gain.setValueAtTime(0.22, now);
-      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.006);
-      clickGain.connect(ctx.destination);
+      // Wood-knock — deeper, heavier for confirm
+      const knockGain = ctx.createGain();
+      knockGain.gain.setValueAtTime(0.2, now);
+      knockGain.gain.exponentialRampToValueAtTime(0.05, now + 0.01);
+      knockGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      knockGain.connect(ctx.destination);
 
-      const click = ctx.createOscillator();
-      click.type = 'sine';
-      click.frequency.setValueAtTime(150, now);
-      click.connect(clickGain);
-      click.start(now);
-      click.stop(now + 0.009);
+      const knock = ctx.createOscillator();
+      knock.type = 'sine';
+      knock.frequency.setValueAtTime(160, now); // Slightly lower = deeper wood
+      knock.frequency.exponentialRampToValueAtTime(95, now + 0.04);
+      knock.connect(knockGain);
+      knock.start(now);
+      knock.stop(now + 0.09);
+
+      // Attack transient
+      const woodLen = 0.015;
+      const woodBufSize = Math.ceil(ctx.sampleRate * woodLen);
+      const woodBuf = ctx.createBuffer(1, woodBufSize, ctx.sampleRate);
+      const woodData = woodBuf.getChannelData(0);
+      for (let i = 0; i < woodBufSize; i++) {
+        woodData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (woodBufSize * 0.12));
+      }
+      const woodSrc = ctx.createBufferSource();
+      woodSrc.buffer = woodBuf;
+
+      const woodBP = ctx.createBiquadFilter();
+      woodBP.type = 'bandpass';
+      woodBP.frequency.value = 600; // Warmer for confirm
+      woodBP.Q.value = 2.0;
+
+      const woodGain = ctx.createGain();
+      woodGain.gain.setValueAtTime(0.14, now);
+      woodGain.gain.exponentialRampToValueAtTime(0.001, now + woodLen);
+
+      woodSrc.connect(woodBP);
+      woodBP.connect(woodGain);
+      woodGain.connect(ctx.destination);
+      woodSrc.start(now);
+      woodSrc.stop(now + woodLen + 0.002);
 
       triggerHaptic('confirm');
     } catch {
