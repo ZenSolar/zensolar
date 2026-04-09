@@ -132,14 +132,15 @@ export function useMintSound() {
       swell.start(now + 0.08);
       swell.stop(now + 0.72);
 
-      // --- Layer 3b: DISSIPATION — filtered noise tail, energy dispersing ---
-      const dissLen = 0.25;
+      // --- Layer 3b: DISSIPATION — energy converting to digital currency ---
+      // The sound of energy transforming into on-chain value
+      const dissLen = 0.5;
       const dissSize = Math.ceil(ctx.sampleRate * dissLen);
       const dissBuf = ctx.createBuffer(1, dissSize, ctx.sampleRate);
       const dissData = dissBuf.getChannelData(0);
       for (let i = 0; i < dissSize; i++) {
         const t = i / dissSize;
-        const env = Math.pow(1 - t, 3); // Cubic decay — fast start, long tail
+        const env = Math.pow(1 - t, 2.5); // Smooth energy release curve
         dissData[i] = (Math.random() * 2 - 1) * env;
       }
       const dissSrc = ctx.createBufferSource();
@@ -147,17 +148,18 @@ export function useMintSound() {
 
       const dissLP = ctx.createBiquadFilter();
       dissLP.type = 'lowpass';
-      dissLP.frequency.setValueAtTime(200, now + 0.4);
-      dissLP.frequency.exponentialRampToValueAtTime(60, now + 0.4 + dissLen); // Filter closes as it fades
+      dissLP.frequency.setValueAtTime(350, now + 0.15); // Starts warm
+      dissLP.frequency.exponentialRampToValueAtTime(40, now + 0.15 + dissLen); // Closes down to nothing
 
       const dissGain = ctx.createGain();
-      dissGain.gain.setValueAtTime(0.06, now + 0.4);
+      dissGain.gain.setValueAtTime(0.15, now + 0.15); // Much louder — this is the signature
+      dissGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15 + dissLen);
 
       dissSrc.connect(dissLP);
       dissLP.connect(dissGain);
       dissGain.connect(ctx.destination);
-      dissSrc.start(now + 0.4);
-      dissSrc.stop(now + 0.4 + dissLen + 0.01);
+      dissSrc.start(now + 0.15);
+      dissSrc.stop(now + 0.15 + dissLen + 0.01);
 
       // --- Layer 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const techGain = ctx.createGain();
