@@ -49,6 +49,11 @@ export function useMintSound() {
       const ctx = getCtx();
       const now = ctx.currentTime;
 
+      // Master volume — scale entire sound package
+      const master = ctx.createGain();
+      master.gain.value = 0.8;
+      master.connect(ctx.destination);
+
       // ══════════════════════════════════════════════════════════
       //  ZenSolar™ Tap-to-Mint Signature Sound
       //  Concept: Zen calm × Solar radiance × Coin stamp × Tech
@@ -60,7 +65,7 @@ export function useMintSound() {
       stampGain.gain.linearRampToValueAtTime(0.28, now + 0.01);
       stampGain.gain.exponentialRampToValueAtTime(0.06, now + 0.06);
       stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-      stampGain.connect(ctx.destination);
+      stampGain.connect(master);
 
       const stamp = ctx.createOscillator();
       stamp.type = 'sine';
