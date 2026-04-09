@@ -104,6 +104,9 @@ export function CleanEnergyCenterShowcase() {
                   <h3 className="text-lg font-bold text-foreground">Clean Energy Center</h3>
                   <span className="text-xs text-muted-foreground">Last updated 11:19 PM</span>
                 </div>
+                <span className="text-[10px] tracking-wider uppercase text-primary/60 font-medium px-2 py-1 rounded-full border border-primary/20 bg-primary/5">
+                  Tap to Mint™
+                </span>
               </div>
 
               {/* KPI cards */}
