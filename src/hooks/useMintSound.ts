@@ -147,43 +147,61 @@ export function useMintSound() {
       swell.start(now + 0.08);
       swell.stop(now + 0.72);
 
-      // --- Layer 3b: TRON DISSOLVE — kWh derezzing into the grid ---
-      // A descending digital tone that fragments into granular noise
-      // Like energy literally pixelating and dissolving on-chain
+      // --- Layer 3b: TRON DISSOLVE — energy being PUSHED DOWN into the grid ---
+      // Feels negative: descending pressure → breaks into particles → gone
 
-      // Derez tone — descending sawtooth that "breaks apart"
+      // Pressure tone — starts present, gets crushed downward
       const derezGain = ctx.createGain();
-      derezGain.gain.setValueAtTime(0, now + 0.1);
-      derezGain.gain.linearRampToValueAtTime(0.06, now + 0.15);
-      derezGain.gain.setValueAtTime(0.06, now + 0.25);
-      derezGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+      derezGain.gain.setValueAtTime(0, now + 0.08);
+      derezGain.gain.linearRampToValueAtTime(0.07, now + 0.12);
+      derezGain.gain.setValueAtTime(0.07, now + 0.2);
+      derezGain.gain.linearRampToValueAtTime(0.04, now + 0.5); // Loses energy as it's pressed
+      derezGain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
       derezGain.connect(ctx.destination);
 
       const derez = ctx.createOscillator();
       derez.type = 'sawtooth';
-      derez.frequency.setValueAtTime(200, now + 0.1);
-      derez.frequency.exponentialRampToValueAtTime(30, now + 0.75);
+      derez.frequency.setValueAtTime(300, now + 0.08);    // Starts higher
+      derez.frequency.exponentialRampToValueAtTime(18, now + 0.8); // Crushed way down
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(400, now + 0.1);
-      derezLP.frequency.exponentialRampToValueAtTime(60, now + 0.75);
-      derezLP.Q.value = 1; // Softer resonance
+      derezLP.frequency.setValueAtTime(450, now + 0.08);
+      derezLP.frequency.exponentialRampToValueAtTime(35, now + 0.8); // Smothered shut
+      derezLP.Q.value = 1.2;
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
-      derez.start(now + 0.1);
-      derez.stop(now + 0.82);
+      derez.start(now + 0.08);
+      derez.stop(now + 0.88);
 
-      // Digital grain — softer, sparser
-      const grainLen = 0.6;
+      // Sub-pressure — a sine that drops below hearing, "pushed into the floor"
+      const pressGain = ctx.createGain();
+      pressGain.gain.setValueAtTime(0, now + 0.1);
+      pressGain.gain.linearRampToValueAtTime(0.06, now + 0.15);
+      pressGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+      pressGain.connect(ctx.destination);
+
+      const press = ctx.createOscillator();
+      press.type = 'sine';
+      press.frequency.setValueAtTime(80, now + 0.1);
+      press.frequency.exponentialRampToValueAtTime(12, now + 0.65); // Below hearing = gone
+      press.connect(pressGain);
+      press.start(now + 0.1);
+      press.stop(now + 0.72);
+
+      // Digital grain — particles that INCREASE as the tone breaks apart
+      // More fragments appear as the energy dissolves
+      const grainLen = 0.65;
       const grainSize = Math.ceil(ctx.sampleRate * grainLen);
       const grainBuf = ctx.createBuffer(1, grainSize, ctx.sampleRate);
       const grainData = grainBuf.getChannelData(0);
       for (let i = 0; i < grainSize; i++) {
         const t = i / grainSize;
-        const env = Math.pow(1 - t, 2.2);
-        const isParticle = Math.random() < (0.1 * (1 - t * 0.7));
+        // Particles increase mid-way then fade — peak breakup at 60%
+        const density = Math.sin(t * Math.PI * 0.8) * 0.14;
+        const env = Math.pow(Math.max(0, 1 - t * 1.3), 1.5);
+        const isParticle = Math.random() < density;
         grainData[i] = isParticle ? (Math.random() * 2 - 1) * env : 0;
       }
       const grainSrc = ctx.createBufferSource();
@@ -191,19 +209,19 @@ export function useMintSound() {
 
       const grainBP = ctx.createBiquadFilter();
       grainBP.type = 'bandpass';
-      grainBP.frequency.setValueAtTime(350, now + 0.15);
-      grainBP.frequency.exponentialRampToValueAtTime(80, now + 0.15 + grainLen);
+      grainBP.frequency.setValueAtTime(300, now + 0.2);
+      grainBP.frequency.exponentialRampToValueAtTime(50, now + 0.2 + grainLen); // Descends with everything
       grainBP.Q.value = 0.8;
 
       const grainGain = ctx.createGain();
-      grainGain.gain.setValueAtTime(0.08, now + 0.15);
-      grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15 + grainLen);
+      grainGain.gain.setValueAtTime(0.09, now + 0.2);
+      grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
       grainSrc.connect(grainBP);
       grainBP.connect(grainGain);
       grainGain.connect(ctx.destination);
-      grainSrc.start(now + 0.15);
-      grainSrc.stop(now + 0.15 + grainLen + 0.01);
+      grainSrc.start(now + 0.2);
+      grainSrc.stop(now + 0.2 + grainLen + 0.01);
 
       // --- Layer 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const techGain = ctx.createGain();
@@ -365,38 +383,56 @@ export function useMintSound() {
       // Bigger, longer version — the full "energy becomes currency" moment
 
       // Derez sweep — descending resonant sawtooth
+      // Pressure tone — crushed downward, longer
       const derezGain = ctx.createGain();
-      derezGain.gain.setValueAtTime(0, now + 0.12);
-      derezGain.gain.linearRampToValueAtTime(0.07, now + 0.18);
-      derezGain.gain.setValueAtTime(0.07, now + 0.3);
+      derezGain.gain.setValueAtTime(0, now + 0.1);
+      derezGain.gain.linearRampToValueAtTime(0.08, now + 0.15);
+      derezGain.gain.setValueAtTime(0.08, now + 0.25);
+      derezGain.gain.linearRampToValueAtTime(0.04, now + 0.6);
       derezGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
       derezGain.connect(ctx.destination);
 
       const derez = ctx.createOscillator();
       derez.type = 'sawtooth';
-      derez.frequency.setValueAtTime(250, now + 0.12);
-      derez.frequency.exponentialRampToValueAtTime(25, now + 1.0);
+      derez.frequency.setValueAtTime(350, now + 0.1);
+      derez.frequency.exponentialRampToValueAtTime(15, now + 1.0);
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(450, now + 0.12);
-      derezLP.frequency.exponentialRampToValueAtTime(40, now + 1.0);
-      derezLP.Q.value = 1.2; // Softer resonance
+      derezLP.frequency.setValueAtTime(500, now + 0.1);
+      derezLP.frequency.exponentialRampToValueAtTime(30, now + 1.0);
+      derezLP.Q.value = 1.2;
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
-      derez.start(now + 0.12);
+      derez.start(now + 0.1);
       derez.stop(now + 1.12);
 
-      // Digital grain — softer, sparser
-      const grainLen = 0.8;
+      // Sub-pressure — pushed below hearing
+      const pressGain = ctx.createGain();
+      pressGain.gain.setValueAtTime(0, now + 0.12);
+      pressGain.gain.linearRampToValueAtTime(0.07, now + 0.18);
+      pressGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      pressGain.connect(ctx.destination);
+
+      const press = ctx.createOscillator();
+      press.type = 'sine';
+      press.frequency.setValueAtTime(90, now + 0.12);
+      press.frequency.exponentialRampToValueAtTime(10, now + 0.85);
+      press.connect(pressGain);
+      press.start(now + 0.12);
+      press.stop(now + 0.92);
+
+      // Digital grain — particles increase then vanish
+      const grainLen = 0.85;
       const grainSize = Math.ceil(ctx.sampleRate * grainLen);
       const grainBuf = ctx.createBuffer(1, grainSize, ctx.sampleRate);
       const grainData = grainBuf.getChannelData(0);
       for (let i = 0; i < grainSize; i++) {
         const t = i / grainSize;
-        const env = Math.pow(1 - t, 2);
-        const isParticle = Math.random() < (0.12 * (1 - t * 0.6));
+        const density = Math.sin(t * Math.PI * 0.75) * 0.16;
+        const env = Math.pow(Math.max(0, 1 - t * 1.2), 1.5);
+        const isParticle = Math.random() < density;
         grainData[i] = isParticle ? (Math.random() * 2 - 1) * env : 0;
       }
       const grainSrc = ctx.createBufferSource();
@@ -404,12 +440,12 @@ export function useMintSound() {
 
       const grainBP = ctx.createBiquadFilter();
       grainBP.type = 'bandpass';
-      grainBP.frequency.setValueAtTime(400, now + 0.2);
-      grainBP.frequency.exponentialRampToValueAtTime(60, now + 0.2 + grainLen);
-      grainBP.Q.value = 1;
+      grainBP.frequency.setValueAtTime(350, now + 0.2);
+      grainBP.frequency.exponentialRampToValueAtTime(40, now + 0.2 + grainLen);
+      grainBP.Q.value = 0.9;
 
       const grainGain = ctx.createGain();
-      grainGain.gain.setValueAtTime(0.07, now + 0.2);
+      grainGain.gain.setValueAtTime(0.08, now + 0.2);
       grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
       grainSrc.connect(grainBP);
