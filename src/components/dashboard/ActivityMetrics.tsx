@@ -264,7 +264,7 @@ export function ActivityMetrics({
       )}
       <Card 
         className={cn(
-          "relative z-10 overflow-hidden transition-all bg-card/8 backdrop-blur-[2px]",
+          "relative z-10 overflow-hidden transition-all bg-card/5",
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
         style={activityUnits > 0 ? { boxShadow: '0 0 12px hsl(160 100% 10% / 0.2), 0 0 4px hsl(158 95% 8% / 0.15)' } : undefined}
@@ -1019,8 +1019,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         isTappable ? `border border-[rgba(${styles.rgba},0.2)]` : "border border-border/50",
         styles.leftBorder,
         isTappable
-          ? cn("cursor-pointer bg-card/20 hover:bg-card/30 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
-          : "bg-muted/10"
+          ? cn("cursor-pointer bg-card/5 hover:bg-card/12 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
+          : "bg-card/3"
       )}
     >
       {/* Subtle gradient overlay for active cards */}
