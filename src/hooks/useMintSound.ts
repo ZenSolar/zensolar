@@ -405,6 +405,38 @@ export function useMintSound() {
       zen3.start(zenTime + 0.03);
       zen3.stop(zenTime + 1.05);
 
+      // --- Phase 2b: SINGING BOWL CHIME — crystalline strike ---
+      const chimeTime = now + 0.18;
+
+      const chimeGain = ctx.createGain();
+      chimeGain.gain.setValueAtTime(0, chimeTime);
+      chimeGain.gain.linearRampToValueAtTime(0.1, chimeTime + 0.005);
+      chimeGain.gain.exponentialRampToValueAtTime(0.045, chimeTime + 0.1);
+      chimeGain.gain.exponentialRampToValueAtTime(0.001, chimeTime + 0.85);
+      chimeGain.connect(master);
+
+      const chime = ctx.createOscillator();
+      chime.type = 'sine';
+      chime.frequency.setValueAtTime(220, chimeTime);
+      chime.frequency.exponentialRampToValueAtTime(218, chimeTime + 0.7);
+      chime.connect(chimeGain);
+      chime.start(chimeTime);
+      chime.stop(chimeTime + 0.9);
+
+      const chime2Gain = ctx.createGain();
+      chime2Gain.gain.setValueAtTime(0, chimeTime + 0.01);
+      chime2Gain.gain.linearRampToValueAtTime(0.045, chimeTime + 0.015);
+      chime2Gain.gain.exponentialRampToValueAtTime(0.018, chimeTime + 0.12);
+      chime2Gain.gain.exponentialRampToValueAtTime(0.001, chimeTime + 0.6);
+      chime2Gain.connect(master);
+
+      const chime2 = ctx.createOscillator();
+      chime2.type = 'sine';
+      chime2.frequency.setValueAtTime(330, chimeTime + 0.01);
+      chime2.connect(chime2Gain);
+      chime2.start(chimeTime + 0.01);
+      chime2.stop(chimeTime + 0.65);
+
       // --- Phase 3: BASS DESCENT ---
       const swellGain = ctx.createGain();
       swellGain.gain.setValueAtTime(0, now + 0.1);
