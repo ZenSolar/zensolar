@@ -305,7 +305,7 @@ export function TokenPriceCard({
           </div>
 
           {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 opacity-[0.03] bg-gradient-to-r from-violet-500 to-purple-500 pointer-events-none" />
+          <div className="absolute inset-0 opacity-[0.03] bg-gradient-to-r from-primary/50 to-primary/30 pointer-events-none" />
 
           {/* 🔵 Touch-point ripple */}
           {(isPressing || isBursting) && touchPoint && (
