@@ -288,7 +288,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* NFT Milestones - Beta */}
-        <AnimatedItem>
+        <AnimatedItem id="reward-progress">
           <RewardProgress
             tokensEarned={isNewUserView ? 0 : activityData.tokensEarned}
             solarKwh={isNewUserView ? 0 : activityData.solarEnergyProduced}
