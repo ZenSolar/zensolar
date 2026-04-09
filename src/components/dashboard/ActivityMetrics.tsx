@@ -257,7 +257,7 @@ export function ActivityMetrics({
         <div 
           className="absolute -inset-px pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 75% 40% at 50% 25%, hsl(207 95% 58% / 0.14), transparent 70%)',
+            background: 'radial-gradient(ellipse 75% 40% at 50% 25%, hsl(142 76% 36% / 0.16), transparent 70%)',
             animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
             filter: 'blur(2px)',
           }}
@@ -276,10 +276,19 @@ export function ActivityMetrics({
           className="relative -mx-2.5 px-4 py-3.5 overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--card)) 50%, hsl(142 76% 36% / 0.08) 100%)',
-            borderBottom: '1px solid hsl(207 95% 58% / 0.25)',
-            boxShadow: 'inset 0 -1px 8px hsl(207 95% 58% / 0.08), inset 0 1px 8px hsl(207 95% 58% / 0.06)',
+            borderBottom: '1px solid hsl(142 76% 36% / 0.2)',
+            boxShadow: 'inset 0 -1px 8px hsl(142 76% 36% / 0.06), inset 0 1px 8px hsl(142 76% 36% / 0.04)',
           }}
         >
+          {/* Shimmer sweep */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, hsl(142 76% 36% / 0.06) 40%, hsl(142 76% 60% / 0.1) 50%, hsl(142 76% 36% / 0.06) 60%, transparent 100%)',
+              animation: 'zenHeaderShimmer 4s ease-in-out infinite',
+              willChange: 'transform',
+            }}
+          />
 
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-2.5">
