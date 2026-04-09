@@ -81,7 +81,7 @@ export function useMintSound() {
       subGain.gain.linearRampToValueAtTime(0.25, now + 0.008);
       subGain.gain.setValueAtTime(0.25, now + 0.05);
       subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
-      subGain.connect(ctx.destination);
+      subGain.connect(master);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
@@ -98,7 +98,7 @@ export function useMintSound() {
       zenGain.gain.linearRampToValueAtTime(0.15, zenTime + 0.08);
       zenGain.gain.setValueAtTime(0.15, zenTime + 0.3);
       zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.9);
-      zenGain.connect(ctx.destination);
+      zenGain.connect(master);
 
       const zen = ctx.createOscillator();
       zen.type = 'sine';
@@ -113,7 +113,7 @@ export function useMintSound() {
       zen2Gain.gain.linearRampToValueAtTime(0.08, zenTime + 0.12);
       zen2Gain.gain.setValueAtTime(0.08, zenTime + 0.35);
       zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.8);
-      zen2Gain.connect(ctx.destination);
+      zen2Gain.connect(master);
 
       const zen2 = ctx.createOscillator();
       zen2.type = 'sine';
@@ -128,7 +128,7 @@ export function useMintSound() {
       zen3Gain.gain.linearRampToValueAtTime(0.07, zenTime + 0.1);
       zen3Gain.gain.setValueAtTime(0.07, zenTime + 0.25);
       zen3Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.75);
-      zen3Gain.connect(ctx.destination);
+      zen3Gain.connect(master);
 
       const zen3 = ctx.createOscillator();
       zen3.type = 'sine';
@@ -142,7 +142,7 @@ export function useMintSound() {
       swellGain.gain.setValueAtTime(0, now + 0.06);
       swellGain.gain.linearRampToValueAtTime(0.1, now + 0.12);
       swellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-      swellGain.connect(ctx.destination);
+      swellGain.connect(master);
 
       const swell = ctx.createOscillator();
       swell.type = 'sine';
@@ -162,7 +162,7 @@ export function useMintSound() {
       derezGain.gain.setValueAtTime(0.06, now + 0.18);
       derezGain.gain.linearRampToValueAtTime(0.035, now + 0.45);
       derezGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
-      derezGain.connect(ctx.destination);
+      derezGain.connect(master);
 
       const derez = ctx.createOscillator();
       derez.type = 'sawtooth';
@@ -185,7 +185,7 @@ export function useMintSound() {
       pressGain.gain.setValueAtTime(0, now + 0.08);
       pressGain.gain.linearRampToValueAtTime(0.08, now + 0.12);
       pressGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-      pressGain.connect(ctx.destination);
+      pressGain.connect(master);
 
       const press = ctx.createOscillator();
       press.type = 'sine';
@@ -221,7 +221,7 @@ export function useMintSound() {
 
       breathSrc.connect(breathLP);
       breathLP.connect(breathGain);
-      breathGain.connect(ctx.destination);
+      breathGain.connect(master);
       breathSrc.start(now + 0.15);
       breathSrc.stop(now + 0.15 + breathLen + 0.01);
 
@@ -231,7 +231,7 @@ export function useMintSound() {
       techGain.gain.linearRampToValueAtTime(0.045, now + 0.03);
       techGain.gain.setValueAtTime(0.045, now + 0.12);
       techGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-      techGain.connect(ctx.destination);
+      techGain.connect(master);
 
       const tech = ctx.createOscillator();
       tech.type = 'sawtooth';
@@ -256,7 +256,7 @@ export function useMintSound() {
       coinGain.gain.linearRampToValueAtTime(0.018, coinTime + 0.008);
       coinGain.gain.exponentialRampToValueAtTime(0.006, coinTime + 0.06);
       coinGain.gain.exponentialRampToValueAtTime(0.001, coinTime + 0.25);
-      coinGain.connect(ctx.destination);
+      coinGain.connect(master);
 
       const coin = ctx.createOscillator();
       coin.type = 'sine';  // Sine instead of triangle — rounder, no harmonics
