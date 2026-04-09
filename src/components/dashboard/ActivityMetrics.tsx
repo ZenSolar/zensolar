@@ -800,7 +800,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const burstTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignoreClickUntilRef = React.useRef<number>(0);
   const DOUBLE_TAP_WINDOW = 500;
-  const BURST_DURATION = 750;
+  const BURST_DURATION = 1200;
   const GHOST_CLICK_SUPPRESSION = 700;
 
   // Pre-compute particles — stable across renders, only regenerate on new burst

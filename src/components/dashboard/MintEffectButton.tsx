@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 const TOUCH_DELTA_THRESHOLD = 15;
 const DOUBLE_TAP_WINDOW = 500;
-const BURST_DURATION = 750;
+const BURST_DURATION = 1200;
 const GHOST_CLICK_SUPPRESSION = 700;
 
 const RGBA = '34, 197, 94';
