@@ -423,12 +423,16 @@
 /* Charging-up pulsing glow — plays after burst settles, before confirm */
 @keyframes zenChargeUpPulse {
   0% {
-    opacity: 0.4;
-    box-shadow: inset 0 0 10px currentColor, 0 0 15px currentColor;
+    opacity: 0.3;
+    box-shadow: inset 0 0 4px currentColor, 0 0 6px currentColor;
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: inset 0 0 8px currentColor, 0 0 12px currentColor;
   }
   100% {
-    opacity: 1;
-    box-shadow: inset 0 0 25px currentColor, 0 0 35px currentColor;
+    opacity: 0.3;
+    box-shadow: inset 0 0 4px currentColor, 0 0 6px currentColor;
   }
 }
 
