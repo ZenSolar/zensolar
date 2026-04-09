@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { useMintSound } from '@/hooks/useMintSound';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
@@ -1038,6 +1039,53 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </>
       )}
 
+      {/* ⚡ Energy grid lines — circuit pattern flash on tap */}
+      {isBursting && (
+        <>
+          {/* Horizontal scan lines */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+            style={{
+              backgroundImage: `
+                repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(${styles.rgba}, 0.12) 8px, rgba(${styles.rgba}, 0.12) 9px),
+                repeating-linear-gradient(90deg, transparent, transparent 12px, rgba(${styles.rgba}, 0.08) 12px, rgba(${styles.rgba}, 0.08) 13px)
+              `,
+              animation: 'zenGridFlash 1200ms ease-out forwards',
+              willChange: 'opacity',
+            }}
+          />
+          {/* Diagonal energy sweep */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+            style={{
+              backgroundImage: `linear-gradient(135deg, transparent 30%, rgba(${styles.rgba}, 0.15) 45%, rgba(${styles.rgba}, 0.25) 50%, rgba(${styles.rgba}, 0.15) 55%, transparent 70%)`,
+              backgroundSize: '300% 300%',
+              animation: 'zenGridSweep 800ms ease-out forwards',
+              willChange: 'opacity, background-position',
+            }}
+          />
+          {/* Corner node dots */}
+          {[[0, 0], [100, 0], [0, 100], [100, 100]].map(([x, y], i) => (
+            <div
+              key={`node-${i}`}
+              className="absolute pointer-events-none z-[6]"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                width: 4,
+                height: 4,
+                marginLeft: -2,
+                marginTop: -2,
+                borderRadius: '50%',
+                background: `rgba(${styles.rgba}, 0.8)`,
+                boxShadow: `0 0 6px rgba(${styles.rgba}, 0.6)`,
+                animation: `zenGridFlash 900ms ${i * 80}ms ease-out forwards`,
+              }}
+            />
+          ))}
+        </>
+      )}
+
       {/* ✨ Charging-up phase — pulsing border glow after burst settles */}
       {isChargingUp && (
         <div
@@ -1177,8 +1225,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
 }
 
 // Touch threshold constants - shared across all tappable elements
-const TOUCH_DELTA_THRESHOLD = 15; // pixels - increased for better scroll detection
-const TOUCH_TIME_THRESHOLD = 400; // ms - increased to allow more deliberate taps
+const TOUCH_DELTA_THRESHOLD = 15;
 
 interface TotalTokensCardProps {
   tokensToReceive: number;
@@ -1188,62 +1235,16 @@ interface TotalTokensCardProps {
 }
 
 function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
-  const isTappable = activityUnits > 0 && onMintRequest;
-  
-  // Track touch start position to distinguish taps from scrolls
-  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const isTappable = activityUnits > 0 && !!onMintRequest;
 
-  const handleTap = () => {
-    if (isTappable && onMintRequest) {
+  const handleMint = () => {
+    if (onMintRequest) {
       onMintRequest({ category: 'all' });
     }
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!isTappable) return;
-    const touch = e.touches[0];
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isTappable || !touchStartRef.current) return;
-    
-    const touch = e.changedTouches[0];
-    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
-    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-    const deltaTime = Date.now() - touchStartRef.current.time;
-    
-    // Only trigger tap if:
-    // - Movement is less than threshold in any direction
-    // - Touch duration is less than threshold (not a long press or scroll)
-    const isQuickTap = deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD && deltaTime < TOUCH_TIME_THRESHOLD;
-    
-    if (isQuickTap) {
-      e.preventDefault();
-      handleTap();
-    }
-    
-    touchStartRef.current = null;
-  };
-
-  return (
-    <motion.div
-      onClick={handleTap}
-      onTouchStart={isTappable ? handleTouchStart : undefined}
-      onTouchEnd={isTappable ? handleTouchEnd : undefined}
-      whileTap={isTappable ? { scale: 0.98 } : undefined}
-      whileHover={isTappable ? { scale: 1.01 } : undefined}
-      className={cn(
-        "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden touch-manipulation",
-        isTappable
-          ? "cursor-pointer border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
-          : "border-border/50 bg-muted/30"
-      )}
-    >
+  const content = (
+    <>
       {/* Animated background glow for active state */}
       {activityUnits > 0 && (
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-emerald-500/5 animate-pulse-glow" />
@@ -1279,6 +1280,26 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
           <ChevronRight className="h-5 w-5" />
         </div>
       )}
-    </motion.div>
+    </>
+  );
+
+  if (isTappable) {
+    return (
+      <MintEffectButton
+        onClick={handleMint}
+        className={cn(
+          "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden",
+          "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
+        )}
+      >
+        {content}
+      </MintEffectButton>
+    );
+  }
+
+  return (
+    <div className="p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden border-border/50 bg-muted/30">
+      {content}
+    </div>
   );
 }
