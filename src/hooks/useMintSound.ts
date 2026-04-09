@@ -207,17 +207,17 @@ export function useMintSound() {
       const grainSrc = ctx.createBufferSource();
       grainSrc.buffer = grainBuf;
 
-      const grainBP = ctx.createBiquadFilter();
-      grainBP.type = 'bandpass';
-      grainBP.frequency.setValueAtTime(300, now + 0.2);
-      grainBP.frequency.exponentialRampToValueAtTime(50, now + 0.2 + grainLen); // Descends with everything
-      grainBP.Q.value = 0.8;
+      const grainLP = ctx.createBiquadFilter();
+      grainLP.type = 'lowpass';
+      grainLP.frequency.setValueAtTime(180, now + 0.2);
+      grainLP.frequency.exponentialRampToValueAtTime(40, now + 0.2 + grainLen);
+      grainLP.Q.value = 0.5;
 
       const grainGain = ctx.createGain();
       grainGain.gain.setValueAtTime(0.09, now + 0.2);
       grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
-      grainSrc.connect(grainBP);
+      grainSrc.connect(grainLP);
       grainBP.connect(grainGain);
       grainGain.connect(ctx.destination);
       grainSrc.start(now + 0.2);
@@ -438,17 +438,17 @@ export function useMintSound() {
       const grainSrc = ctx.createBufferSource();
       grainSrc.buffer = grainBuf;
 
-      const grainBP = ctx.createBiquadFilter();
-      grainBP.type = 'bandpass';
-      grainBP.frequency.setValueAtTime(350, now + 0.2);
-      grainBP.frequency.exponentialRampToValueAtTime(40, now + 0.2 + grainLen);
-      grainBP.Q.value = 0.9;
+      const grainLP = ctx.createBiquadFilter();
+      grainLP.type = 'lowpass';
+      grainLP.frequency.setValueAtTime(160, now + 0.2);
+      grainLP.frequency.exponentialRampToValueAtTime(30, now + 0.2 + grainLen);
+      grainLP.Q.value = 0.5;
 
       const grainGain = ctx.createGain();
       grainGain.gain.setValueAtTime(0.08, now + 0.2);
       grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
-      grainSrc.connect(grainBP);
+      grainSrc.connect(grainLP);
       grainBP.connect(grainGain);
       grainGain.connect(ctx.destination);
       grainSrc.start(now + 0.2);
