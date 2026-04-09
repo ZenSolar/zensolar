@@ -416,10 +416,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   // Get label with unit appended naturally (no parens)
   const getCategoryLabelWithUnit = (category: MintCategory): string => {
     if (category === 'all') return 'All Clean Energy Activity';
-    if (category === 'solar') return 'Solar Energy Produced kWh';
+    if (category === 'solar') return 'Solar Energy Produced — kWh';
     if (category === 'ev_miles') return 'EV Miles Driven';
-    if (category === 'battery') return 'Battery Storage kWh';
-    if (category === 'charging') return 'EV Charging kWh';
+    if (category === 'battery') return 'Battery Storage — kWh';
+    if (category === 'charging') return 'EV Charging — kWh';
     return category;
   };
 
@@ -1117,7 +1117,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             <DialogDescription asChild>
               <div className="space-y-3 pt-3">
                 <p className="text-sm text-foreground text-center">
-                  You are about to mint
+                  You are about to mint tokens
                 </p>
                 <p className="text-base font-bold text-primary text-center">
                   {getCategoryLabelWithUnit(pendingMintRequest?.category || 'all')}
@@ -1130,11 +1130,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   <div className="relative p-4 rounded-xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
                     <div className="relative flex flex-col gap-1.5">
-                      <div className="flex items-center gap-2 text-base font-bold text-foreground">
+                      <div className="flex flex-col items-center gap-1.5 text-base font-bold text-foreground">
                         {(() => {
                           const IconComponent = getCategoryIcon(pendingMintRequest.category);
                           const colorClasses = getCategoryColor(pendingMintRequest.category);
-                          return <IconComponent className={`h-4 w-4 ${colorClasses.split(' ').slice(2).join(' ')}`} />;
+                          return <IconComponent className={`h-5 w-5 ${colorClasses.split(' ').slice(2).join(' ')}`} />;
                         })()}
                         {getCategoryLabel(pendingMintRequest.category)}
                       </div>
@@ -1172,7 +1172,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       <div className="flex items-center justify-between pt-1.5 border-t border-primary/20">
                         <span className="text-xs text-muted-foreground">Tokens to<br/>receive:</span>
                         <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent tabular-nums">
-                          {getCategoryTokens(pendingMintRequest.category).toLocaleString()} $ZSOLAR
+                          {getCategoryTokens(pendingMintRequest.category).toLocaleString()} — $ZSOLAR
                         </span>
                       </div>
                       <p className="text-[11px] text-muted-foreground">
