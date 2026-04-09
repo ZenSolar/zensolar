@@ -284,7 +284,7 @@ export function ActivityMetrics({
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.1) 35%, hsl(142 76% 65% / 0.18) 50%, hsl(142 76% 50% / 0.1) 65%, transparent 100%)',
+              background: 'linear-gradient(90deg, transparent 0%, hsl(142 76% 55% / 0.14) 30%, hsl(142 76% 70% / 0.26) 50%, hsl(142 76% 55% / 0.14) 70%, transparent 100%)',
               animation: 'zenHeaderShimmer 6s ease-in-out infinite',
               willChange: 'transform',
             }}
