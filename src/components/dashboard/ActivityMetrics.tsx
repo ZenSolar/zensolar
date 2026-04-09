@@ -1019,8 +1019,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         isTappable ? `border border-[rgba(${styles.rgba},0.2)]` : "border border-border/50",
         styles.leftBorder,
         isTappable
-          ? cn("cursor-pointer bg-card hover:bg-muted/20 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
-          : "bg-muted/30"
+          ? cn("cursor-pointer bg-card/20 hover:bg-card/30 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
+          : "bg-muted/10"
       )}
     >
       {/* Subtle gradient overlay for active cards */}
