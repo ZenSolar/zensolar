@@ -237,18 +237,17 @@ export function DemoDashboard() {
 
         {/* NFT Mint Button + Refresh - matches real dashboard */}
         <AnimatedItem className="space-y-3">
-          <Button
+          <MintEffectButton
             onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
             disabled={isLoading}
-            className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow"
-            size="lg"
+            className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"
           >
             <Images className="mr-2 h-4 w-4" />
             MINT ZENSOLAR NFTs
             <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
               {totalNftsAvailable}
             </Badge>
-          </Button>
+          </MintEffectButton>
           
           <Button
             onClick={refreshDashboard}
