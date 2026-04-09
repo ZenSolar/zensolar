@@ -54,6 +54,20 @@ export function useMintSound() {
       master.gain.value = 0.8;
       master.connect(ctx.destination);
 
+      // Subtle echo — single soft repeat for spatial depth
+      const echoDelay = ctx.createDelay(1.0);
+      echoDelay.delayTime.value = 0.18;
+      const echoGain = ctx.createGain();
+      echoGain.gain.value = 0.15;
+      const echoLP = ctx.createBiquadFilter();
+      echoLP.type = 'lowpass';
+      echoLP.frequency.value = 200;
+      echoLP.Q.value = 0.1;
+      master.connect(echoDelay);
+      echoDelay.connect(echoLP);
+      echoLP.connect(echoGain);
+      echoGain.connect(ctx.destination);
+
       // ══════════════════════════════════════════════════════════
       //  ZenSolar™ Tap-to-Mint Signature Sound
       //  Concept: Zen calm × Solar radiance × Coin stamp × Tech
@@ -322,6 +336,20 @@ export function useMintSound() {
       const master = ctx.createGain();
       master.gain.value = 0.8;
       master.connect(ctx.destination);
+
+      // Subtle echo — single soft repeat for spatial depth
+      const echoDelay = ctx.createDelay(1.0);
+      echoDelay.delayTime.value = 0.22;
+      const echoGain = ctx.createGain();
+      echoGain.gain.value = 0.12;
+      const echoLP = ctx.createBiquadFilter();
+      echoLP.type = 'lowpass';
+      echoLP.frequency.value = 180;
+      echoLP.Q.value = 0.1;
+      master.connect(echoDelay);
+      echoDelay.connect(echoLP);
+      echoLP.connect(echoGain);
+      echoGain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
       //  ZenSolar™ Confirm Sound — Meditative Bass
