@@ -392,6 +392,7 @@ export function ActivityMetrics({
                 />
               </SwipeableActivityField>
             )
+            </>
           )}
           
           {/* 2. Battery - Show individual Powerwalls if multiple */}
