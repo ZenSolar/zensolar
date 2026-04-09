@@ -157,7 +157,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
     doubleTapTimerRef.current = setTimeout(() => {
       lastTapTimeRef.current = 0;
       updateState({ showTapAgain: false });
-    }, 2000);
+    }, DOUBLE_TAP_WINDOW);
   }, [scheduleConfirm, triggerBurst, updateState]);
 
   const handleClick = (e: React.MouseEvent) => {
