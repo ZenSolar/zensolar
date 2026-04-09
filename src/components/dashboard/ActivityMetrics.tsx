@@ -717,29 +717,24 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
-    // Set touch point for ripple origin
     if (relX !== undefined && relY !== undefined) {
       setTouchPoint({ x: relX, y: relY });
     }
     setIsBursting(true);
-    // 🔊 Category-specific synthesised sound
     playMintSound(color);
-    // Haptic feedback — category-specific vibration pattern
+    // Haptic feedback
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(haptic); } catch { /* silent */ }
     }
-    // Also try Capacitor Haptics for native — heavier impact for that "button click" feel
     import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
-      // Second lighter pulse 100ms later for "release" feel
-      setTimeout(() => {
-        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-      }, 100);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}), 300);
     }).catch(() => {});
     setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
-    }, 800);
+    }, 1400);
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
@@ -757,11 +752,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         ? getTouchRelativePos(clientX, clientY) 
         : { x: 0.85, y: 0.5 }; // Default to MINT button area
       triggerBurst(pos.x, pos.y);
-      // Intentional delay — let the user feel the burst, sound, and glow
-      // before the confirmation screen appears. This is the "moment of proof."
+      // Intentional delay — let the full burst play out.
+      // The user feels the energy, sees it radiate, then the confirm appears.
       setTimeout(() => {
         onTap();
-      }, 900);
+      }, 1600);
     }
   };
 
@@ -821,16 +816,16 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
       onTouchCancel={isTappable ? handleTouchCancel : undefined}
       animate={isBursting ? { 
-        scale: [0.93, 1.04, 1],
-        y: [1, -2, 0],
+        scale: [0.90, 1.06, 1.02, 1],
+        y: [2, -3, -1, 0],
       } : isPressing ? {
-        scale: 0.95,
-        y: 1,
+        scale: 0.93,
+        y: 2,
       } : {
         scale: 1,
         y: 0,
       }}
-      transition={isBursting ? { duration: 0.5, ease: [0.22, 1, 0.36, 1] } : { duration: 0.12, ease: 'easeOut' }}
+      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : { duration: 0.12, ease: 'easeOut' }}
       style={{
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,
