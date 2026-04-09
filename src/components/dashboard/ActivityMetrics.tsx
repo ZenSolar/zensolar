@@ -705,14 +705,24 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
   const [isBursting, setIsBursting] = useState(false);
+  const shape = particleShapes[color] || '';
+  const haptic = hapticPattern[color] || [15];
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
   const triggerBurst = useCallback(() => {
     setIsBursting(true);
-    setTimeout(() => setIsBursting(false), 700);
-  }, []);
+    // Haptic feedback — category-specific vibration pattern
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(haptic); } catch { /* silent */ }
+    }
+    // Also try Capacitor Haptics for native
+    import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+    }).catch(() => {});
+    setTimeout(() => setIsBursting(false), 800);
+  }, [haptic]);
 
   const handleTap = () => {
     if (isTappable && onTap) {
