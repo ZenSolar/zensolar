@@ -715,6 +715,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const [isPressing, setIsPressing] = useState(false);
   const [showTapAgain, setShowTapAgain] = useState(false);
   const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
+  const [isSecondTap, setIsSecondTap] = useState(false);
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
   const cardRef = React.useRef<HTMLDivElement>(null);
@@ -790,19 +791,19 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
     if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
-      // ⚡ DOUBLE TAP — trigger confirm
+      // ⚡ SECOND TAP — complementary visual only, no confirm
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      lastTapTimeRef.current = 0;
-      setShowTapAgain(false);
-      triggerDoubleBurst(posX, posY);
-      if (onTap) {
-        setTimeout(() => onTap(), BURST_DURATION);
-      }
-    } else {
-      // First tap — just the experience
       lastTapTimeRef.current = now;
+      setShowTapAgain(false);
+      setIsSecondTap(true);
+      triggerDoubleBurst(posX, posY);
+      // Reset isSecondTap after burst ends
+      setTimeout(() => setIsSecondTap(false), BURST_DURATION);
+    } else {
+      // First tap — original visual
+      lastTapTimeRef.current = now;
+      setIsSecondTap(false);
       triggerBurst(posX, posY);
-      // Show subtle "tap again" hint only during the real double-tap window
       setShowTapAgain(true);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
@@ -810,7 +811,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         setShowTapAgain(false);
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [triggerBurst, triggerDoubleBurst, onTap]);
+  }, [triggerBurst, triggerDoubleBurst]);
 
   // Click handler for desktop
   const handleClick = (e: React.MouseEvent) => {
@@ -1044,8 +1045,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </>
       )}
 
-      {/* ⚡ Category-specific burst overlay */}
-      {isBursting && (
+      {/* ⚡ Category-specific burst overlay — original on 1st tap, complementary on 2nd */}
+      {isBursting && !isSecondTap && (
         <>
           {color === 'gold' && (
             /* Solar — radial sunburst rays */
@@ -1064,16 +1065,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `
-                  repeating-linear-gradient(0deg, transparent, transparent 6px, rgba(${styles.rgba}, 0.3) 6px, rgba(${styles.rgba}, 0.3) 8px)
-                `,
+                backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 6px, rgba(${styles.rgba}, 0.3) 6px, rgba(${styles.rgba}, 0.3) 8px)`,
                 animation: 'zenGridFlash 1200ms ease-out forwards',
                 willChange: 'opacity',
               }}
             />
           )}
           {color === 'green' && (
-            /* EV Miles — diagonal speed lines */
+            /* EV Miles — diagonal speed lines (top-left to bottom-right) */
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
@@ -1106,7 +1105,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             </>
           )}
           {color === 'greenGold' && (
-            /* Home Charger — concentric circuit rings from touch point */
+            /* Home Charger — concentric circuit rings */
             <>
               {[1, 2, 3].map((ring) => (
                 <div
@@ -1133,6 +1132,100 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
             style={{
               backgroundImage: `linear-gradient(135deg, transparent 25%, rgba(${styles.rgba}, 0.3) 42%, rgba(${styles.rgba}, 0.5) 50%, rgba(${styles.rgba}, 0.3) 58%, transparent 75%)`,
+              backgroundSize: '300% 300%',
+              animation: 'zenGridSweep 800ms ease-out forwards',
+              willChange: 'opacity, background-position',
+            }}
+          />
+        </>
+      )}
+
+      {/* 🔄 Complementary burst overlay — opposite pattern on 2nd tap */}
+      {isBursting && isSecondTap && (
+        <>
+          {color === 'gold' && (
+            /* Solar complement — concentric pulsing circles (opposite of radial rays) */
+            <>
+              {[1, 2, 3, 4].map((ring) => (
+                <div
+                  key={`sun-ring-${ring}`}
+                  className="absolute pointer-events-none rounded-full z-[5]"
+                  style={{
+                    left: touchPoint ? `${touchPoint.x * 100}%` : '50%',
+                    top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+                    width: ring * 40,
+                    height: ring * 40,
+                    marginLeft: -(ring * 20),
+                    marginTop: -(ring * 20),
+                    border: `2px solid rgba(${styles.rgba}, ${0.8 - ring * 0.15})`,
+                    boxShadow: `0 0 10px rgba(${styles.rgba}, 0.4)`,
+                    animation: `zenFlareRing 900ms ${ring * 80}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {color === 'teal' && (
+            /* Battery complement — vertical energy bars (opposite of horizontal) */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 6px, rgba(${styles.rgba}, 0.3) 6px, rgba(${styles.rgba}, 0.3) 8px)`,
+                animation: 'zenGridFlash 1200ms ease-out forwards',
+                willChange: 'opacity',
+              }}
+            />
+          )}
+          {color === 'green' && (
+            /* EV complement — opposite diagonal lines (bottom-left to top-right) */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-linear-gradient(30deg, transparent, transparent 10px, rgba(${styles.rgba}, 0.3) 10px, rgba(${styles.rgba}, 0.3) 12px)`,
+                animation: 'zenGridSweep 800ms ease-out forwards',
+                backgroundSize: '300% 300%',
+                willChange: 'opacity, background-position',
+              }}
+            />
+          )}
+          {color === 'cyan' && (
+            /* Supercharger complement — horizontal lightning streaks (opposite of vertical) */
+            <>
+              {[25, 50, 75].map((yPos, i) => (
+                <div
+                  key={`h-bolt-${i}`}
+                  className="absolute pointer-events-none z-[5]"
+                  style={{
+                    top: `${yPos}%`,
+                    left: 0,
+                    height: 3,
+                    width: '100%',
+                    background: `linear-gradient(90deg, rgba(${styles.rgba}, 0.8), rgba(${styles.rgba}, 0) 80%)`,
+                    boxShadow: `0 0 8px rgba(${styles.rgba}, 0.6)`,
+                    animation: `zenGridFlash 700ms ${i * 100}ms ease-out forwards`,
+                    willChange: 'opacity',
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {color === 'greenGold' && (
+            /* Home Charger complement — radial spokes (opposite of concentric rings) */
+            <div
+              className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+              style={{
+                backgroundImage: `repeating-conic-gradient(from 0deg at ${touchPoint ? `${touchPoint.x * 100}% ${touchPoint.y * 100}%` : '50% 50%'}, rgba(${styles.rgba}, 0.3) 0deg, transparent 12deg, transparent 30deg)`,
+                animation: 'zenGridFlash 1000ms ease-out forwards',
+                willChange: 'opacity',
+              }}
+            />
+          )}
+          {/* Opposite diagonal sweep — sweeps the other direction */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+            style={{
+              backgroundImage: `linear-gradient(-135deg, transparent 25%, rgba(${styles.rgba}, 0.3) 42%, rgba(${styles.rgba}, 0.5) 50%, rgba(${styles.rgba}, 0.3) 58%, transparent 75%)`,
               backgroundSize: '300% 300%',
               animation: 'zenGridSweep 800ms ease-out forwards',
               willChange: 'opacity, background-position',
@@ -1344,7 +1437,7 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
         <MintEffectButton
           onClick={handleMint}
           className={cn(
-            "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden w-full",
+            "p-3.5 rounded-xl border flex items-center gap-3 transition-all relative overflow-hidden max-w-[280px] w-full",
             "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
           )}
         >
@@ -1356,7 +1449,7 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
 
   return (
     <div className="flex justify-center">
-      <div className="p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden border-border/50 bg-muted/30 w-full">
+      <div className="p-3.5 rounded-xl border flex items-center gap-3 transition-all relative overflow-hidden border-border/50 bg-muted/30 max-w-[280px] w-full">
         {content}
       </div>
     </div>
