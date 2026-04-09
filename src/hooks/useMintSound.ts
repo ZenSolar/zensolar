@@ -168,6 +168,19 @@ export function useMintSound() {
       o2.start(now);
       o2.stop(now + 0.35);
 
+      // Pseudo-haptic click burst — heavier for confirm
+      const clickGain = ctx.createGain();
+      clickGain.gain.setValueAtTime(0.22, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.006);
+      clickGain.connect(ctx.destination);
+
+      const click = ctx.createOscillator();
+      click.type = 'sine';
+      click.frequency.setValueAtTime(150, now);
+      click.connect(clickGain);
+      click.start(now);
+      click.stop(now + 0.009);
+
       triggerHaptic('confirm');
     } catch {
       // Silent fail
