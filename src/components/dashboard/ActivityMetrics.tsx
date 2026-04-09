@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
+import { useMintSound } from '@/hooks/useMintSound';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
@@ -710,6 +711,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
   const cardRef = React.useRef<HTMLDivElement>(null);
+  const { playMintSound } = useMintSound();
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
@@ -720,6 +722,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       setTouchPoint({ x: relX, y: relY });
     }
     setIsBursting(true);
+    // 🔊 Category-specific synthesised sound
+    playMintSound(color);
     // Haptic feedback — category-specific vibration pattern
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(haptic); } catch { /* silent */ }
@@ -736,7 +740,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       setIsBursting(false);
       setTouchPoint(null);
     }, 800);
-  }, [haptic]);
+  }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
     if (!cardRef.current) return { x: 0.5, y: 0.5 };
