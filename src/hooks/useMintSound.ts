@@ -57,9 +57,9 @@ export function useMintSound() {
       // --- Layer 1: THE STAMP — weighted coin-press impact ---
       const stampGain = ctx.createGain();
       stampGain.gain.setValueAtTime(0, now);
-      stampGain.gain.linearRampToValueAtTime(0.22, now + 0.012);
-      stampGain.gain.exponentialRampToValueAtTime(0.05, now + 0.07);
-      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      stampGain.gain.linearRampToValueAtTime(0.28, now + 0.01);
+      stampGain.gain.exponentialRampToValueAtTime(0.06, now + 0.06);
+      stampGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
       stampGain.connect(ctx.destination);
 
       const stamp = ctx.createOscillator();
@@ -73,9 +73,9 @@ export function useMintSound() {
       // Sub-bass weight
       const subGain = ctx.createGain();
       subGain.gain.setValueAtTime(0, now);
-      subGain.gain.linearRampToValueAtTime(0.2, now + 0.01);
-      subGain.gain.setValueAtTime(0.2, now + 0.06);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      subGain.gain.linearRampToValueAtTime(0.25, now + 0.008);
+      subGain.gain.setValueAtTime(0.25, now + 0.05);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
       subGain.connect(ctx.destination);
 
       const sub = ctx.createOscillator();
@@ -90,9 +90,9 @@ export function useMintSound() {
       const zenTime = now + 0.04;
       const zenGain = ctx.createGain();
       zenGain.gain.setValueAtTime(0, zenTime);
-      zenGain.gain.linearRampToValueAtTime(0.12, zenTime + 0.1);
-      zenGain.gain.setValueAtTime(0.12, zenTime + 0.35);
-      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 1.0);
+      zenGain.gain.linearRampToValueAtTime(0.15, zenTime + 0.08);
+      zenGain.gain.setValueAtTime(0.15, zenTime + 0.3);
+      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.9);
       zenGain.connect(ctx.destination);
 
       const zen = ctx.createOscillator();
@@ -104,10 +104,10 @@ export function useMintSound() {
 
       // Bowl harmonic fifth — louder presence
       const zen2Gain = ctx.createGain();
-      zen2Gain.gain.setValueAtTime(0, zenTime + 0.06);
-      zen2Gain.gain.linearRampToValueAtTime(0.06, zenTime + 0.15);
-      zen2Gain.gain.setValueAtTime(0.06, zenTime + 0.4);
-      zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.9);
+      zen2Gain.gain.setValueAtTime(0, zenTime + 0.05);
+      zen2Gain.gain.linearRampToValueAtTime(0.08, zenTime + 0.12);
+      zen2Gain.gain.setValueAtTime(0.08, zenTime + 0.35);
+      zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.8);
       zen2Gain.connect(ctx.destination);
 
       const zen2 = ctx.createOscillator();
@@ -120,9 +120,9 @@ export function useMintSound() {
       // Third bowl voice — sub-octave for extra depth
       const zen3Gain = ctx.createGain();
       zen3Gain.gain.setValueAtTime(0, zenTime + 0.02);
-      zen3Gain.gain.linearRampToValueAtTime(0.05, zenTime + 0.12);
-      zen3Gain.gain.setValueAtTime(0.05, zenTime + 0.3);
-      zen3Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.85);
+      zen3Gain.gain.linearRampToValueAtTime(0.07, zenTime + 0.1);
+      zen3Gain.gain.setValueAtTime(0.07, zenTime + 0.25);
+      zen3Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.75);
       zen3Gain.connect(ctx.destination);
 
       const zen3 = ctx.createOscillator();
@@ -134,9 +134,9 @@ export function useMintSound() {
 
       // --- Layer 3: BASS DESCENT ---
       const swellGain = ctx.createGain();
-      swellGain.gain.setValueAtTime(0, now + 0.08);
-      swellGain.gain.linearRampToValueAtTime(0.08, now + 0.15);
-      swellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+      swellGain.gain.setValueAtTime(0, now + 0.06);
+      swellGain.gain.linearRampToValueAtTime(0.1, now + 0.12);
+      swellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
       swellGain.connect(ctx.destination);
 
       const swell = ctx.createOscillator();
@@ -152,11 +152,11 @@ export function useMintSound() {
 
       // Pressure tone — starts present, gets crushed downward
       const derezGain = ctx.createGain();
-      derezGain.gain.setValueAtTime(0, now + 0.08);
-      derezGain.gain.linearRampToValueAtTime(0.05, now + 0.12);
-      derezGain.gain.setValueAtTime(0.05, now + 0.2);
-      derezGain.gain.linearRampToValueAtTime(0.03, now + 0.5);
-      derezGain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+      derezGain.gain.setValueAtTime(0, now + 0.06);
+      derezGain.gain.linearRampToValueAtTime(0.06, now + 0.1);
+      derezGain.gain.setValueAtTime(0.06, now + 0.18);
+      derezGain.gain.linearRampToValueAtTime(0.035, now + 0.45);
+      derezGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
       derezGain.connect(ctx.destination);
 
       const derez = ctx.createOscillator();
@@ -177,9 +177,9 @@ export function useMintSound() {
 
       // Sub-pressure — a sine that drops below hearing, "pushed into the floor"
       const pressGain = ctx.createGain();
-      pressGain.gain.setValueAtTime(0, now + 0.1);
-      pressGain.gain.linearRampToValueAtTime(0.06, now + 0.15);
-      pressGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+      pressGain.gain.setValueAtTime(0, now + 0.08);
+      pressGain.gain.linearRampToValueAtTime(0.08, now + 0.12);
+      pressGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
       pressGain.connect(ctx.destination);
 
       const press = ctx.createOscillator();
@@ -211,8 +211,8 @@ export function useMintSound() {
       breathLP.Q.value = 0.2; // Ultra soft
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.07, now + 0.15);
-      breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15 + breathLen);
+      breathGain.gain.setValueAtTime(0.09, now + 0.12);
+      breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12 + breathLen);
 
       breathSrc.connect(breathLP);
       breathLP.connect(breathGain);
@@ -223,9 +223,9 @@ export function useMintSound() {
       // --- Layer 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const techGain = ctx.createGain();
       techGain.gain.setValueAtTime(0, now);
-      techGain.gain.linearRampToValueAtTime(0.035, now + 0.04);
-      techGain.gain.setValueAtTime(0.035, now + 0.15);
-      techGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      techGain.gain.linearRampToValueAtTime(0.045, now + 0.03);
+      techGain.gain.setValueAtTime(0.045, now + 0.12);
+      techGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
       techGain.connect(ctx.destination);
 
       const tech = ctx.createOscillator();
