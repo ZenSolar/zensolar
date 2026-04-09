@@ -268,7 +268,7 @@ export function ActivityMetrics({
           "relative z-10 overflow-hidden transition-all bg-card",
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
-        style={activityUnits > 0 ? { boxShadow: '0 0 20px hsl(var(--primary) / 0.25), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.08)' } : undefined}
+        style={activityUnits > 0 ? { boxShadow: '0 0 18px hsl(145 95% 45% / 0.2), 0 0 8px hsl(142 90% 42% / 0.15), 0 0 35px hsl(145 95% 45% / 0.08)' } : undefined}
       >
       <CardContent className="p-2.5 pt-0 space-y-2">
         {/* Header — Clean Energy Center Hero */}
