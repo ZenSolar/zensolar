@@ -407,46 +407,80 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Mint Dialog */}
+      {/* Confirm Mint Dialog — ZenSolar branded */}
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Mint</DialogTitle>
-            <DialogDescription>
-              You're about to mint {pendingMintCategory && getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR tokens
-              for {pendingMintCategory && getCategoryLabel(pendingMintCategory)}.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Activity Units</span>
-              <span>{pendingMintCategory && getCategoryActivityUnits(pendingMintCategory).toLocaleString()}</span>
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden border-primary/20">
+          {/* Category header band */}
+          {pendingMintCategory && (
+            <div className={`relative px-6 pt-8 pb-6 text-center ${
+              pendingMintCategory === 'solar' ? 'bg-gradient-to-br from-amber-500/15 to-orange-500/5' :
+              pendingMintCategory === 'ev_miles' ? 'bg-gradient-to-br from-blue-500/15 to-cyan-500/5' :
+              pendingMintCategory === 'battery' ? 'bg-gradient-to-br from-emerald-500/15 to-green-500/5' :
+              pendingMintCategory === 'charging' ? 'bg-gradient-to-br from-purple-500/15 to-violet-500/5' :
+              'bg-gradient-to-br from-primary/15 to-primary/5'
+            }`}>
+              {/* Decorative ring */}
+              <div className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg ${
+                pendingMintCategory === 'solar' ? 'bg-gradient-to-br from-amber-400 to-orange-500' :
+                pendingMintCategory === 'ev_miles' ? 'bg-gradient-to-br from-blue-400 to-cyan-500' :
+                pendingMintCategory === 'battery' ? 'bg-gradient-to-br from-emerald-400 to-green-500' :
+                pendingMintCategory === 'charging' ? 'bg-gradient-to-br from-purple-400 to-violet-500' :
+                'bg-gradient-to-br from-primary to-primary/80'
+              }`}>
+                {pendingMintCategory === 'solar' && <Sun className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'ev_miles' && <Car className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'battery' && <BatteryFull className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'charging' && <Zap className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'all' && <Coins className="h-7 w-7 text-white" />}
+              </div>
+              <h3 className="text-lg font-bold tracking-tight">Confirm Mint</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {getCategoryLabel(pendingMintCategory)}
+              </p>
             </div>
-            <div className="flex justify-between text-sm">
-              <span>You Receive (75%)</span>
-              <span className="font-medium text-primary">
-                {pendingMintCategory && getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR
-              </span>
+          )}
+
+          {/* Token breakdown */}
+          <div className="px-6 pb-6 space-y-4">
+            <div className="rounded-xl border border-border/60 divide-y divide-border/40 overflow-hidden">
+              <div className="flex justify-between items-center px-4 py-3 bg-muted/30">
+                <span className="text-sm text-muted-foreground">Activity Units</span>
+                <span className="text-sm font-semibold tabular-nums">
+                  {pendingMintCategory && getCategoryActivityUnits(pendingMintCategory).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-3">
+                <span className="text-sm font-medium">You Receive</span>
+                <span className="text-base font-bold text-primary tabular-nums">
+                  {pendingMintCategory && getCategoryTokens(pendingMintCategory).toLocaleString()} <span className="text-xs font-semibold opacity-70">$ZSOLAR</span>
+                </span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-2.5 bg-muted/20">
+                <span className="text-xs text-muted-foreground">Burn 20% · LP 3% · Treasury 2%</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {pendingMintCategory && Math.floor(getCategoryActivityUnits(pendingMintCategory) * 0.25).toLocaleString()}
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Burn (20%) + LP (3%) + Treasury (2%)</span>
-              <span>{pendingMintCategory && Math.floor(getCategoryActivityUnits(pendingMintCategory) * 0.25).toLocaleString()}</span>
+
+            {/* Action buttons */}
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setConfirmMintDialog(false)}
+                className="flex-1 h-12 text-sm"
+              >
+                Cancel
+              </Button>
+              <MintEffectButton
+                onClick={handleConfirmMint}
+                className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-4 py-2 text-sm"
+              >
+                <Zap className="h-4 w-4" />
+                Mint Now
+              </MintEffectButton>
             </div>
           </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setConfirmMintDialog(false)}>
-              Cancel
-            </Button>
-            <MintEffectButton
-              onClick={handleConfirmMint}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              <Zap className="h-4 w-4" />
-              Mint Now
-            </MintEffectButton>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
