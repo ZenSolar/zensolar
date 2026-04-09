@@ -830,7 +830,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,
         boxShadow: isBursting 
-          ? shadowGlow 
+          ? `0 0 30px rgba(${styles.rgba}, 0.5), 0 0 60px rgba(${styles.rgba}, 0.25), 0 0 90px rgba(${styles.rgba}, 0.1)` 
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
             : isTappable
