@@ -35,8 +35,42 @@ export function TokenPriceCard({
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [showTapAgain, setShowTapAgain] = useState(false);
+  const [firstTapScale, setFirstTapScale] = useState(false);
+
+  const lastTapTimeRef = useRef<number>(0);
+  const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const haptic = useHaptics();
 
   const totalValueUSD = tokensHeld * tokenPrice;
+
+  // Double-tap to expand
+  const handleDoubleTapExpand = useCallback(() => {
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapTimeRef.current;
+
+    if (timeSinceLastTap < DOUBLE_TAP_WINDOW) {
+      // Second tap — expand!
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      lastTapTimeRef.current = 0;
+      setShowTapAgain(false);
+      setFirstTapScale(false);
+      haptic.mediumTap();
+      setIsCollapsed(false);
+    } else {
+      // First tap — show hint
+      lastTapTimeRef.current = now;
+      haptic.lightTap();
+      setFirstTapScale(true);
+      setTimeout(() => setFirstTapScale(false), 150);
+      setShowTapAgain(true);
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = setTimeout(() => {
+        lastTapTimeRef.current = 0;
+        setShowTapAgain(false);
+      }, DOUBLE_TAP_WINDOW);
+    }
+  }, [haptic]);
 
   const updatePrice = (newPrice: number) => {
     setTokenPrice(newPrice);
