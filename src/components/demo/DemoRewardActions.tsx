@@ -129,6 +129,15 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     return category;
   };
 
+  const getCategoryLabelWithUnit = (category: MintCategory): string => {
+    if (category === 'all') return 'All Clean Energy Activity';
+    if (category === 'solar') return 'Solar Energy Produced kWh';
+    if (category === 'ev_miles') return 'EV Miles Driven';
+    if (category === 'battery') return 'Battery Storage kWh';
+    if (category === 'charging') return 'EV Charging kWh';
+    return category;
+  };
+
   const getCategoryUnit = (category: MintCategory): string => {
     if (category === 'ev_miles') return 'miles';
     if (category === 'all') return 'units';
@@ -445,7 +454,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 You are about to mint
               </p>
               <p className="text-center text-base font-semibold text-primary">
-                {getCategoryLabel(pendingMintCategory)} ({getCategoryUnit(pendingMintCategory)})
+                {getCategoryLabelWithUnit(pendingMintCategory)}
               </p>
               <p className="text-center text-sm text-muted-foreground">
                 tokens:
