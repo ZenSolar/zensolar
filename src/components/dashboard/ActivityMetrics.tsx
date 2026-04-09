@@ -276,7 +276,8 @@ export function ActivityMetrics({
           className="relative -mx-2.5 px-4 py-3.5 overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--card)) 50%, hsl(142 76% 36% / 0.08) 100%)',
-            borderBottom: '1px solid hsl(var(--primary) / 0.15)',
+            borderBottom: '1px solid hsl(207 95% 58% / 0.25)',
+            boxShadow: 'inset 0 -1px 8px hsl(207 95% 58% / 0.08), inset 0 1px 8px hsl(207 95% 58% / 0.06)',
           }}
         >
 
@@ -956,7 +957,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           : isPressing 
             ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${styles.rgba}, 0.3)` 
             : isTappable
-              ? `0 0 12px rgba(${styles.rgba}, 0.18), 0 0 5px rgba(${styles.rgba}, 0.12), 0 0 24px rgba(${styles.rgba}, 0.06)`
+              ? `0 0 12px rgba(${styles.rgba}, 0.18), 0 0 5px rgba(${styles.rgba}, 0.12), 0 0 24px rgba(${styles.rgba}, 0.06), inset 0 0 6px rgba(${styles.rgba}, 0.06)`
               : shadowRest,
         transition: 'box-shadow 0.4s ease-out',
       } as React.CSSProperties}
