@@ -1160,13 +1160,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 setConfirmMintDialog(false);
                 setPendingMintRequest(null);
               }}
-              className="flex-1 h-11 rounded-xl border-border/60 hover:bg-muted/60"
+              className="flex-1 h-10 rounded-xl border-border/60 hover:bg-muted/60 text-sm"
             >
               Cancel
             </Button>
             <MintEffectButton
               onClick={handleConfirmMint}
-              className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200 text-primary-foreground font-medium text-sm"
+              className="flex-1 h-10 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200 text-primary-foreground font-medium text-sm"
             >
               <Coins className="mr-2 h-4 w-4" />
               Confirm Mint
