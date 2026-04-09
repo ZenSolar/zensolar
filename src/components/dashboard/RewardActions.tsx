@@ -1108,7 +1108,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   You are about to mint
                 </p>
                 <p className="text-base font-bold text-primary text-center">
-                  {getCategoryLabel(pendingMintRequest?.category || 'all')}
+                  {getCategoryLabel(pendingMintRequest?.category || 'all')} ({getCategoryUnit(pendingMintRequest?.category || 'all')})
                 </p>
                 <p className="text-sm text-foreground text-center">
                   tokens:

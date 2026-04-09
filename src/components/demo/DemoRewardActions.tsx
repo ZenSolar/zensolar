@@ -443,7 +443,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 You are about to mint
               </p>
               <p className="text-center text-base font-semibold text-primary">
-                {getCategoryLabel(pendingMintCategory)}
+                {getCategoryLabel(pendingMintCategory)} ({getCategoryUnit(pendingMintCategory)})
               </p>
               <p className="text-center text-sm text-muted-foreground">
                 tokens:
