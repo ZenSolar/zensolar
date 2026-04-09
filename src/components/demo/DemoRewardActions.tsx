@@ -479,6 +479,30 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                   <span className="font-semibold text-sm">{getCategoryLabel(pendingMintCategory)}</span>
                 </div>
 
+                {/* Supercharger vs Home Charger breakdown for charging category */}
+                {pendingMintCategory === 'charging' && (pendingRewards.superchargerKwh || pendingRewards.homeChargerKwh) ? (
+                  <div className="flex flex-col gap-1 text-xs text-muted-foreground pt-1">
+                    {(pendingRewards.superchargerKwh ?? 0) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Zap className="h-3 w-3 text-purple-500" />
+                          Tesla Supercharger
+                        </span>
+                        <span className="font-medium text-foreground tabular-nums">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} kWh</span>
+                      </div>
+                    )}
+                    {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Zap className="h-3 w-3 text-emerald-500" />
+                          Home Charger
+                        </span>
+                        <span className="font-medium text-foreground tabular-nums">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} kWh</span>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
                 {/* Big token amount */}
                 <div className="flex items-baseline justify-between py-0.5">
                   <span className="text-xs text-muted-foreground">Tokens to<br />receive:</span>
