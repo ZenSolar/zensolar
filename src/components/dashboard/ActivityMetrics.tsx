@@ -257,26 +257,30 @@ export function ActivityMetrics({
     )}>
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
-         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Gauge className="h-4 w-4 text-primary" />
-            Clean Energy Center
-            {isLoading && (
-              <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Updating…
-              </span>
-            )}
-          </h2>
-          <div className="flex items-center gap-2">
-          
-          {/* Connected Provider Logos */}
-          {filteredProviders.length > 0 && (
-            <div className="flex items-center gap-1.5">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <Gauge className="h-4 w-4 text-primary" />
+              Clean Energy Center
+              {isLoading && (
+                <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Updating…
+                </span>
+              )}
+            </h2>
+            <span className="text-[9px] font-medium tracking-widest uppercase text-secondary">
+              Tap-to-Mint™
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+            {filteredProviders.length > 0 && (
+              <div className="flex items-center gap-1.5">
                 {filteredProviders.map((provider) => (
                   <div 
                     key={provider}
-                    className="h-8 w-8 rounded-lg flex items-center justify-center bg-muted/80 border border-border/50 overflow-hidden"
+                    className="h-7 w-7 rounded-lg flex items-center justify-center bg-muted/60 border border-border/40 overflow-hidden"
                     title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                   >
                     <img 
@@ -284,18 +288,15 @@ export function ActivityMetrics({
                       alt={provider}
                       className={cn(
                         "object-contain",
-                        provider === 'tesla' ? "h-6 w-6" : "h-4 w-4"
+                        provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
                       )}
                     />
                   </div>
                 ))}
-            </div>
-           )}
+              </div>
+            )}
           </div>
-         </div>
-
-        {/* Single last updated time */}
-        <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+        </div>
 
         {/* Tesla Reconnect CTA - shown when token expired */}
         {teslaNeedsReauth && (
