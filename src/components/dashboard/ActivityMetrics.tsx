@@ -726,6 +726,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const lastTapTimeRef = React.useRef<number>(0);
   const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const DOUBLE_TAP_WINDOW = 800; // ms window for second tap
+  const BURST_DURATION = 750;
 
   const triggerBurst = useCallback((relX?: number, relY?: number) => {
     if (relX !== undefined && relY !== undefined) {
@@ -747,7 +748,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
-    }, 1400);
+    }, BURST_DURATION);
   }, [haptic, playMintSound, color]);
 
   // Double-tap burst — stronger, triggers confirm
@@ -771,7 +772,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
-    }, 700); // Shorter — confirm appears at 750ms
+    }, BURST_DURATION);
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
@@ -788,26 +789,26 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     const now = Date.now();
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
-    if (timeSinceLastTap < DOUBLE_TAP_WINDOW) {
+    if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
       // ⚡ DOUBLE TAP — trigger confirm
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
       setShowTapAgain(false);
       triggerDoubleBurst(posX, posY);
       if (onTap) {
-        setTimeout(() => onTap(), 750);
+        setTimeout(() => onTap(), BURST_DURATION);
       }
     } else {
       // First tap — just the experience
       lastTapTimeRef.current = now;
       triggerBurst(posX, posY);
-      // Show subtle "tap again" hint on the MINT label
+      // Show subtle "tap again" hint only during the real double-tap window
       setShowTapAgain(true);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
         setShowTapAgain(false);
-      }, 2000); // Hint visible for 2s
+      }, DOUBLE_TAP_WINDOW);
     }
   }, [triggerBurst, triggerDoubleBurst, onTap]);
 
