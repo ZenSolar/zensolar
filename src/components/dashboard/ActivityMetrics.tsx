@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
@@ -616,6 +616,7 @@ const colorStyles = {
     border: 'border-amber-500/30',
     leftBorder: 'border-l-amber-500',
     textGlow: '0 0 8px rgba(245, 158, 11, 0.5), 0 0 16px rgba(245, 158, 11, 0.25)',
+    rgba: '245, 158, 11',
   },
   teal: { 
     gradient: 'from-cyan-600 to-teal-500',
@@ -626,6 +627,7 @@ const colorStyles = {
     border: 'border-teal-500/30',
     leftBorder: 'border-l-teal-500',
     textGlow: '0 0 8px rgba(20, 184, 166, 0.5), 0 0 16px rgba(20, 184, 166, 0.25)',
+    rgba: '20, 184, 166',
   },
   green: { 
     gradient: 'from-emerald-500 to-green-500',
@@ -636,6 +638,7 @@ const colorStyles = {
     border: 'border-emerald-500/30',
     leftBorder: 'border-l-emerald-500',
     textGlow: '0 0 8px rgba(16, 185, 129, 0.5), 0 0 16px rgba(16, 185, 129, 0.25)',
+    rgba: '16, 185, 129',
   },
   cyan: { 
     gradient: 'from-sky-400 to-cyan-500',
@@ -646,6 +649,7 @@ const colorStyles = {
     border: 'border-cyan-500/30',
     leftBorder: 'border-l-cyan-500',
     textGlow: '0 0 8px rgba(6, 182, 212, 0.5), 0 0 16px rgba(6, 182, 212, 0.25)',
+    rgba: '6, 182, 212',
   },
   greenGold: { 
     gradient: 'from-lime-500 to-amber-500',
@@ -656,6 +660,7 @@ const colorStyles = {
     border: 'border-lime-500/30',
     leftBorder: 'border-l-lime-500',
     textGlow: '0 0 8px rgba(132, 204, 22, 0.5), 0 0 16px rgba(132, 204, 22, 0.25)',
+    rgba: '132, 204, 22',
   },
 };
 
@@ -676,12 +681,19 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const navigate = useNavigate();
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
+  const [isBursting, setIsBursting] = useState(false);
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
+  const triggerBurst = useCallback(() => {
+    setIsBursting(true);
+    setTimeout(() => setIsBursting(false), 700);
+  }, []);
+
   const handleTap = () => {
     if (isTappable && onTap) {
+      triggerBurst();
       onTap();
     }
   };
@@ -739,12 +751,80 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           styles.gradient
         )} />
       )}
+
+      {/* ⚡ Solar Flare Burst — radiating rings + particles on tap */}
+      {isBursting && (
+        <>
+          {/* Expanding energy rings */}
+          {[0, 1, 2].map(i => (
+            <div
+              key={`ring-${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: 28,
+                top: '50%',
+                width: 20,
+                height: 20,
+                marginTop: -10,
+                borderRadius: '50%',
+                border: `2px solid rgba(${styles.rgba}, ${0.7 - i * 0.2})`,
+                animation: `zenFlareRing 600ms ${i * 80}ms ease-out forwards`,
+                willChange: 'transform, opacity',
+              }}
+            />
+          ))}
+          {/* Scattered energy particles */}
+          {Array.from({ length: 8 }).map((_, i) => {
+            const angle = (i / 8) * 360;
+            const rad = (angle * Math.PI) / 180;
+            const tx = Math.cos(rad) * (50 + Math.random() * 30);
+            const ty = Math.sin(rad) * (20 + Math.random() * 15);
+            return (
+              <div
+                key={`particle-${i}`}
+                className="absolute pointer-events-none rounded-full"
+                style={{
+                  left: 28,
+                  top: '50%',
+                  width: 4 + Math.random() * 3,
+                  height: 4 + Math.random() * 3,
+                  background: `rgba(${styles.rgba}, ${0.8 + Math.random() * 0.2})`,
+                  boxShadow: `0 0 6px rgba(${styles.rgba}, 0.6)`,
+                  animation: `zenFlareParticle 500ms ${i * 30}ms ease-out forwards`,
+                  willChange: 'transform, opacity',
+                  // @ts-ignore custom properties for animation
+                  '--tx': `${tx}px`,
+                  '--ty': `${ty}px`,
+                } as React.CSSProperties}
+              />
+            );
+          })}
+          {/* Flash glow behind icon */}
+          <div
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              left: 16,
+              top: '50%',
+              width: 44,
+              height: 44,
+              marginTop: -22,
+              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.4) 0%, transparent 70%)`,
+              animation: 'zenFlareFlash 400ms ease-out forwards',
+              willChange: 'transform, opacity',
+            }}
+          />
+        </>
+      )}
       
       {/* Icon with gradient background */}
-      <div className="relative p-3 rounded-xl">
+      <div className="relative p-3 rounded-xl" style={isBursting ? { 
+        filter: `drop-shadow(0 0 8px rgba(${styles.rgba}, 0.8))`,
+        transition: 'all 200ms ease-out',
+      } : { transition: 'all 200ms ease-out' }}>
         <Icon className={cn(
           "h-5 w-5 transition-all",
-          active ? styles.text : "text-muted-foreground"
+          active ? styles.text : "text-muted-foreground",
+          isBursting && "scale-125"
         )} />
       </div>
       
@@ -776,7 +856,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 <span className={cn(
                   "transition-all duration-300",
                   active ? "text-foreground" : "text-muted-foreground"
-                )}>
+                )} style={isBursting ? { textShadow: styles.textGlow, transition: 'text-shadow 200ms ease-out' } : { transition: 'text-shadow 200ms ease-out' }}>
                   {value.toLocaleString()}
                 </span>
                 <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
