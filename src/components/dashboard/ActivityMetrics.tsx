@@ -708,6 +708,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const [isBursting, setIsBursting] = useState(false);
   const [isChargingUp, setIsChargingUp] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
+  const [showTapAgain, setShowTapAgain] = useState(false);
   const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
@@ -786,20 +787,22 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       // ⚡ DOUBLE TAP — trigger confirm
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
+      setShowTapAgain(false);
       triggerDoubleBurst(posX, posY);
       if (onTap) {
-        setTimeout(() => onTap(), 2500);
+        setTimeout(() => onTap(), 1500);
       }
     } else {
-      // First tap — just the experience, wait to see if second tap comes
+      // First tap — just the experience
       lastTapTimeRef.current = now;
       triggerBurst(posX, posY);
-      // Clear any pending timer
+      // Show subtle "tap again" hint on the MINT label
+      setShowTapAgain(true);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
-        // Single tap confirmed — no action needed, burst already played
         lastTapTimeRef.current = 0;
-      }, DOUBLE_TAP_WINDOW);
+        setShowTapAgain(false);
+      }, 2000); // Hint visible for 2s
     }
   }, [triggerBurst, triggerDoubleBurst, onTap]);
 
