@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
+import { useMintSound } from '@/hooks/useMintSound';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
