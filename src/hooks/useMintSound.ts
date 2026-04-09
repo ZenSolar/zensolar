@@ -419,44 +419,6 @@ export function useMintSound() {
       grainSrc.start(now + 0.2);
       grainSrc.stop(now + 0.2 + grainLen + 0.01);
 
-      const coin1 = ctx.createOscillator();
-      coin1.type = 'triangle';
-      coin1.frequency.setValueAtTime(196, coin1Time);
-      coin1.frequency.exponentialRampToValueAtTime(170, coin1Time + 0.25);
-
-      const coin1LP = ctx.createBiquadFilter();
-      coin1LP.type = 'lowpass';
-      coin1LP.frequency.value = 280;
-      coin1LP.Q.value = 0.7;
-
-      coin1.connect(coin1LP);
-      coin1LP.connect(coin1Gain);
-      coin1.start(coin1Time);
-      coin1.stop(coin1Time + 0.3);
-
-      // Coin 2: the value registers — slightly higher = ascending = "reward"
-      const coin2Time = now + 0.2;
-      const coin2Gain = ctx.createGain();
-      coin2Gain.gain.setValueAtTime(0, coin2Time);
-      coin2Gain.gain.linearRampToValueAtTime(0.028, coin2Time + 0.008);
-      coin2Gain.gain.exponentialRampToValueAtTime(0.01, coin2Time + 0.1);
-      coin2Gain.gain.exponentialRampToValueAtTime(0.001, coin2Time + 0.35);
-      coin2Gain.connect(ctx.destination);
-
-      const coin2 = ctx.createOscillator();
-      coin2.type = 'triangle';
-      coin2.frequency.setValueAtTime(262, coin2Time);
-      coin2.frequency.exponentialRampToValueAtTime(230, coin2Time + 0.35);
-
-      const coin2LP = ctx.createBiquadFilter();
-      coin2LP.type = 'lowpass';
-      coin2LP.frequency.value = 320;
-      coin2LP.Q.value = 0.8;
-
-      coin2.connect(coin2LP);
-      coin2LP.connect(coin2Gain);
-      coin2.start(coin2Time);
-      coin2.stop(coin2Time + 0.55);
 
       triggerHaptic('confirm');
     } catch {
