@@ -44,6 +44,8 @@ interface PendingRewards {
   evMiles: number;
   battery: number;
   charging: number;
+  superchargerKwh?: number;
+  homeChargerKwh?: number;
 }
 
 export interface DemoMintHandler {
@@ -411,11 +413,21 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return category;
   };
 
+  // Get label with unit appended naturally (no parens)
+  const getCategoryLabelWithUnit = (category: MintCategory): string => {
+    if (category === 'all') return 'All Clean Energy Activity';
+    if (category === 'solar') return 'Solar Energy Produced kWh';
+    if (category === 'ev_miles') return 'EV Miles Driven';
+    if (category === 'battery') return 'Battery Storage kWh';
+    if (category === 'charging') return 'EV Charging kWh';
+    return category;
+  };
+
   // Get the appropriate unit for a category
   const getCategoryUnit = (category: MintCategory): string => {
     if (category === 'ev_miles') return 'miles';
     if (category === 'all') return 'units';
-    return 'kWh'; // solar, battery, charging all measured in kWh
+    return 'kWh';
   };
 
   // Get icon for category
@@ -1108,7 +1120,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   You are about to mint
                 </p>
                 <p className="text-base font-bold text-primary text-center">
-                  {getCategoryLabel(pendingMintRequest?.category || 'all')} ({getCategoryUnit(pendingMintRequest?.category || 'all')})
+                  {getCategoryLabelWithUnit(pendingMintRequest?.category || 'all')}
                 </p>
                 <p className="text-sm text-foreground text-center">
                   tokens:
@@ -1132,6 +1144,30 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                           Device: <span className="font-medium text-foreground">{pendingMintRequest.deviceName}</span>
                         </p>
                       )}
+
+                      {/* Supercharger vs Home Charger breakdown for charging category */}
+                      {pendingMintRequest.category === 'charging' && (pendingRewards.superchargerKwh || pendingRewards.homeChargerKwh) ? (
+                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                          {(pendingRewards.superchargerKwh ?? 0) > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <Zap className="h-3 w-3 text-purple-500" />
+                                Tesla Supercharger
+                              </span>
+                              <span className="font-medium text-foreground tabular-nums">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} kWh</span>
+                            </div>
+                          )}
+                          {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <Zap className="h-3 w-3 text-emerald-500" />
+                                Home Charger
+                              </span>
+                              <span className="font-medium text-foreground tabular-nums">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} kWh</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
                       
                       <div className="flex items-center justify-between pt-1.5 border-t border-primary/20">
                         <span className="text-xs text-muted-foreground">Tokens to<br/>receive:</span>

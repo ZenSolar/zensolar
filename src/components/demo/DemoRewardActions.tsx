@@ -25,6 +25,8 @@ interface PendingRewards {
   evMiles: number;
   battery: number;
   charging: number;
+  superchargerKwh?: number;
+  homeChargerKwh?: number;
 }
 
 interface DemoRewardActionsProps {
