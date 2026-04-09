@@ -751,13 +751,81 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           styles.gradient
         )} />
       )}
+
+      {/* ⚡ Solar Flare Burst — radiating rings + particles on tap */}
+      {isBursting && (
+        <>
+          {/* Expanding energy rings */}
+          {[0, 1, 2].map(i => (
+            <div
+              key={`ring-${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: 28,
+                top: '50%',
+                width: 20,
+                height: 20,
+                marginTop: -10,
+                borderRadius: '50%',
+                border: `2px solid rgba(${styles.rgba}, ${0.7 - i * 0.2})`,
+                animation: `zenFlareRing 600ms ${i * 80}ms ease-out forwards`,
+                willChange: 'transform, opacity',
+              }}
+            />
+          ))}
+          {/* Scattered energy particles */}
+          {Array.from({ length: 8 }).map((_, i) => {
+            const angle = (i / 8) * 360;
+            const rad = (angle * Math.PI) / 180;
+            const tx = Math.cos(rad) * (50 + Math.random() * 30);
+            const ty = Math.sin(rad) * (20 + Math.random() * 15);
+            return (
+              <div
+                key={`particle-${i}`}
+                className="absolute pointer-events-none rounded-full"
+                style={{
+                  left: 28,
+                  top: '50%',
+                  width: 4 + Math.random() * 3,
+                  height: 4 + Math.random() * 3,
+                  background: `rgba(${styles.rgba}, ${0.8 + Math.random() * 0.2})`,
+                  boxShadow: `0 0 6px rgba(${styles.rgba}, 0.6)`,
+                  animation: `zenFlareParticle 500ms ${i * 30}ms ease-out forwards`,
+                  willChange: 'transform, opacity',
+                  // @ts-ignore custom properties for animation
+                  '--tx': `${tx}px`,
+                  '--ty': `${ty}px`,
+                } as React.CSSProperties}
+              />
+            );
+          })}
+          {/* Flash glow behind icon */}
+          <div
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              left: 16,
+              top: '50%',
+              width: 44,
+              height: 44,
+              marginTop: -22,
+              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.4) 0%, transparent 70%)`,
+              animation: 'zenFlareFlash 400ms ease-out forwards',
+              willChange: 'transform, opacity',
+            }}
+          />
+        </>
+      )}
       
       {/* Icon with gradient background */}
       <div className="relative p-3 rounded-xl">
         <Icon className={cn(
           "h-5 w-5 transition-all",
-          active ? styles.text : "text-muted-foreground"
-        )} />
+          active ? styles.text : "text-muted-foreground",
+          isBursting && "scale-125"
+        )} style={isBursting ? { 
+          filter: `drop-shadow(0 0 8px rgba(${styles.rgba}, 0.8))`,
+          transition: 'all 200ms ease-out',
+        } : { transition: 'all 200ms ease-out' }} />
       </div>
       
       {/* Label + Value */}
