@@ -290,8 +290,13 @@ export function ActivityMetrics({
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.25) 30%, hsl(210 90% 50% / 0.45) 50%, hsl(205 85% 45% / 0.25) 70%, transparent 100%)',
-              animation: 'zenHeaderShimmer 3.5s ease-in-out 1.2s infinite',
+              background: shimmerBurstDone
+                ? 'linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.25) 30%, hsl(210 90% 50% / 0.45) 50%, hsl(205 85% 45% / 0.25) 70%, transparent 100%)'
+                : 'linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.45) 25%, hsl(210 90% 50% / 0.75) 50%, hsl(205 85% 45% / 0.45) 75%, transparent 100%)',
+              animation: shimmerBurstDone
+                ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
+                : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+              animationDelay: shimmerBurstDone ? '1.2s' : '1s',
               willChange: 'transform',
             }}
           />
@@ -390,9 +395,13 @@ export function ActivityMetrics({
           <div 
             className="absolute inset-0 pointer-events-none z-10 rounded-lg"
             style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.08) 30%, hsl(142 76% 65% / 0.18) 50%, hsl(142 76% 50% / 0.08) 70%, transparent 100%)',
-              animation: 'zenHeaderShimmer 3.5s ease-in-out infinite',
-              animationDelay: '2.4s',
+              background: shimmerBurstDone
+                ? 'linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.08) 30%, hsl(142 76% 65% / 0.18) 50%, hsl(142 76% 50% / 0.08) 70%, transparent 100%)'
+                : 'linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.16) 25%, hsl(142 76% 65% / 0.35) 50%, hsl(142 76% 50% / 0.16) 75%, transparent 100%)',
+              animation: shimmerBurstDone
+                ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
+                : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+              animationDelay: shimmerBurstDone ? '2.4s' : '2s',
               willChange: 'transform',
             }}
           />
