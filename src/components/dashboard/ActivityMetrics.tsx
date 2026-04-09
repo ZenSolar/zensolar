@@ -896,8 +896,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {/* ⚡ Solar Flare Burst — radiating rings + particles on tap */}
       {isBursting && (
         <>
-          {/* Expanding energy rings */}
-          {[0, 1, 2].map(i => (
+          {/* Expanding energy rings — 4 staggered waves */}
+          {[0, 1, 2, 3].map(i => (
             <div
               key={`ring-${i}`}
               className="absolute pointer-events-none"
@@ -909,20 +909,20 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 marginLeft: touchPoint ? -10 : 0,
                 marginTop: -10,
                 borderRadius: '50%',
-                border: `2px solid rgba(${styles.rgba}, ${0.7 - i * 0.2})`,
-                animation: `zenFlareRing 600ms ${i * 80}ms ease-out forwards`,
+                border: `2px solid rgba(${styles.rgba}, ${0.8 - i * 0.15})`,
+                animation: `zenFlareRing 900ms ${i * 120}ms ease-out forwards`,
                 willChange: 'transform, opacity',
               }}
             />
           ))}
-          {/* Shaped energy particles — unique per category, burst from touch point */}
-          {Array.from({ length: 10 }).map((_, i) => {
-            const angle = (i / 10) * 360 + (Math.random() * 20 - 10);
+          {/* Shaped energy particles — 16 particles, larger spread */}
+          {Array.from({ length: 16 }).map((_, i) => {
+            const angle = (i / 16) * 360 + (Math.random() * 20 - 10);
             const rad = (angle * Math.PI) / 180;
-            const dist = 40 + Math.random() * 50;
+            const dist = 50 + Math.random() * 70;
             const tx = Math.cos(rad) * dist;
-            const ty = Math.sin(rad) * (15 + Math.random() * 20);
-            const size = 6 + Math.random() * 5;
+            const ty = Math.sin(rad) * (20 + Math.random() * 30);
+            const size = 7 + Math.random() * 6;
             const rotation = Math.random() * 360;
             return (
               <div
@@ -933,11 +933,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                   top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
                   width: size,
                   height: size,
-                  background: `rgba(${styles.rgba}, ${0.8 + Math.random() * 0.2})`,
-                  boxShadow: `0 0 8px rgba(${styles.rgba}, 0.7)`,
+                  background: `rgba(${styles.rgba}, ${0.85 + Math.random() * 0.15})`,
+                  boxShadow: `0 0 12px rgba(${styles.rgba}, 0.8), 0 0 24px rgba(${styles.rgba}, 0.3)`,
                   clipPath: shape,
                   transform: `rotate(${rotation}deg)`,
-                  animation: `zenFlareParticle 600ms ${i * 25}ms ease-out forwards`,
+                  animation: `zenFlareParticle 900ms ${i * 30}ms ease-out forwards`,
                   willChange: 'transform, opacity',
                   '--tx': `${tx}px`,
                   '--ty': `${ty}px`,
@@ -945,18 +945,18 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               />
             );
           })}
-          {/* Energy release glow from touch point */}
+          {/* Energy release glow — larger, more intense */}
           <div
             className="absolute pointer-events-none rounded-full"
             style={{
               left: touchPoint ? `${touchPoint.x * 100}%` : 28,
               top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
-              width: 60,
-              height: 60,
-              marginLeft: touchPoint ? -30 : -2,
-              marginTop: -30,
-              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.5) 0%, transparent 70%)`,
-              animation: 'zenEnergyRelease 500ms ease-out forwards',
+              width: 80,
+              height: 80,
+              marginLeft: touchPoint ? -40 : -12,
+              marginTop: -40,
+              background: `radial-gradient(circle, rgba(${styles.rgba}, 0.6) 0%, rgba(${styles.rgba}, 0.2) 40%, transparent 70%)`,
+              animation: 'zenEnergyRelease 800ms ease-out forwards',
               willChange: 'transform, opacity',
             }}
           />
