@@ -1344,7 +1344,7 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
         <MintEffectButton
           onClick={handleMint}
           className={cn(
-            "p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden w-full",
+            "p-3.5 rounded-xl border flex items-center gap-3 transition-all relative overflow-hidden max-w-[280px] w-full",
             "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 hover:border-primary/60 shadow-lg shadow-primary/10"
           )}
         >
@@ -1356,7 +1356,7 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
 
   return (
     <div className="flex justify-center">
-      <div className="p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden border-border/50 bg-muted/30 w-full">
+      <div className="p-3.5 rounded-xl border flex items-center gap-3 transition-all relative overflow-hidden border-border/50 bg-muted/30 max-w-[280px] w-full">
         {content}
       </div>
     </div>
