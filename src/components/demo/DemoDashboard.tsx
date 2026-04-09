@@ -17,6 +17,7 @@ import { Loader2, Images, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
+import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
