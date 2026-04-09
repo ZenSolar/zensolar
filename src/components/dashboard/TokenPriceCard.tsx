@@ -42,6 +42,13 @@ export function TokenPriceCard({
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [shimmerBurstDone, setShimmerBurstDone] = useState(false);
+
+  // First-load burst → idle transition
+  useEffect(() => {
+    const t = setTimeout(() => setShimmerBurstDone(true), 2800);
+    return () => clearTimeout(t);
+  }, []);
 
   // Burst effect state
   const [isBursting, setIsBursting] = useState(false);
