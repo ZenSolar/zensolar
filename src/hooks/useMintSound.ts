@@ -332,7 +332,22 @@ export function useMintSound() {
       zen2.start(zenTime + 0.08);
       zen2.stop(zenTime + 0.95);
 
-      // --- Phase 3: BASS DESCENT — only descends, then dissipates ---
+      // --- Phase 2b: Extra zen sub-octave voice ---
+      const zen3Gain = ctx.createGain();
+      zen3Gain.gain.setValueAtTime(0, zenTime + 0.03);
+      zen3Gain.gain.linearRampToValueAtTime(0.06, zenTime + 0.15);
+      zen3Gain.gain.setValueAtTime(0.06, zenTime + 0.35);
+      zen3Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 1.0);
+      zen3Gain.connect(ctx.destination);
+
+      const zen3 = ctx.createOscillator();
+      zen3.type = 'sine';
+      zen3.frequency.setValueAtTime(55, zenTime + 0.03); // A1 — sub-octave depth
+      zen3.connect(zen3Gain);
+      zen3.start(zenTime + 0.03);
+      zen3.stop(zenTime + 1.05);
+
+      // --- Phase 3: BASS DESCENT ---
       const swellGain = ctx.createGain();
       swellGain.gain.setValueAtTime(0, now + 0.1);
       swellGain.gain.linearRampToValueAtTime(0.12, now + 0.2);
@@ -342,71 +357,67 @@ export function useMintSound() {
       const swell = ctx.createOscillator();
       swell.type = 'sine';
       swell.frequency.setValueAtTime(55, now + 0.1);
-      swell.frequency.exponentialRampToValueAtTime(22, now + 0.9); // Only descends
+      swell.frequency.exponentialRampToValueAtTime(22, now + 0.9);
       swell.connect(swellGain);
       swell.start(now + 0.1);
       swell.stop(now + 1.05);
 
-      // --- Phase 3b: DISSIPATION — energy transforming into on-chain currency ---
-      const dissLen = 0.6;
-      const dissSize = Math.ceil(ctx.sampleRate * dissLen);
-      const dissBuf = ctx.createBuffer(1, dissSize, ctx.sampleRate);
-      const dissData = dissBuf.getChannelData(0);
-      for (let i = 0; i < dissSize; i++) {
-        const t = i / dissSize;
-        const env = Math.pow(1 - t, 2.2);
-        dissData[i] = (Math.random() * 2 - 1) * env;
+      // --- Phase 3b: TRON DISSOLVE — kWh derezzing into the blockchain ---
+      // Bigger, longer version — the full "energy becomes currency" moment
+
+      // Derez sweep — descending resonant sawtooth
+      const derezGain = ctx.createGain();
+      derezGain.gain.setValueAtTime(0, now + 0.12);
+      derezGain.gain.linearRampToValueAtTime(0.14, now + 0.18);
+      derezGain.gain.setValueAtTime(0.14, now + 0.3);
+      derezGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+      derezGain.connect(ctx.destination);
+
+      const derez = ctx.createOscillator();
+      derez.type = 'sawtooth';
+      derez.frequency.setValueAtTime(250, now + 0.12);
+      derez.frequency.exponentialRampToValueAtTime(25, now + 1.0);
+
+      const derezLP = ctx.createBiquadFilter();
+      derezLP.type = 'lowpass';
+      derezLP.frequency.setValueAtTime(600, now + 0.12);
+      derezLP.frequency.exponentialRampToValueAtTime(40, now + 1.0);
+      derezLP.Q.value = 2.5; // More resonant = more Tron
+
+      derez.connect(derezLP);
+      derezLP.connect(derezGain);
+      derez.start(now + 0.12);
+      derez.stop(now + 1.12);
+
+      // Digital grain particles — data fragments dissolving
+      const grainLen = 0.8;
+      const grainSize = Math.ceil(ctx.sampleRate * grainLen);
+      const grainBuf = ctx.createBuffer(1, grainSize, ctx.sampleRate);
+      const grainData = grainBuf.getChannelData(0);
+      for (let i = 0; i < grainSize; i++) {
+        const t = i / grainSize;
+        const env = Math.pow(1 - t, 1.5);
+        const isParticle = Math.random() < (0.18 * (1 - t * 0.6));
+        grainData[i] = isParticle ? (Math.random() * 2 - 1) * env : 0;
       }
-      const dissSrc = ctx.createBufferSource();
-      dissSrc.buffer = dissBuf;
+      const grainSrc = ctx.createBufferSource();
+      grainSrc.buffer = grainBuf;
 
-      const dissLP = ctx.createBiquadFilter();
-      dissLP.type = 'lowpass';
-      dissLP.frequency.setValueAtTime(400, now + 0.25);
-      dissLP.frequency.exponentialRampToValueAtTime(30, now + 0.25 + dissLen);
+      const grainBP = ctx.createBiquadFilter();
+      grainBP.type = 'bandpass';
+      grainBP.frequency.setValueAtTime(500, now + 0.2);
+      grainBP.frequency.exponentialRampToValueAtTime(60, now + 0.2 + grainLen);
+      grainBP.Q.value = 1.8;
 
-      const dissGain = ctx.createGain();
-      dissGain.gain.setValueAtTime(0.14, now + 0.25);
-      dissGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25 + dissLen);
+      const grainGain = ctx.createGain();
+      grainGain.gain.setValueAtTime(0.16, now + 0.2);
+      grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
-      dissSrc.connect(dissLP);
-      dissLP.connect(dissGain);
-      dissGain.connect(ctx.destination);
-      dissSrc.start(now + 0.25);
-      dissSrc.stop(now + 0.25 + dissLen + 0.01);
-
-      // --- Phase 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
-      const tailGain = ctx.createGain();
-      tailGain.gain.setValueAtTime(0, now + 0.15);
-      tailGain.gain.linearRampToValueAtTime(0.04, now + 0.3);
-      tailGain.gain.setValueAtTime(0.04, now + 0.5);
-      tailGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
-      tailGain.connect(ctx.destination);
-
-      const tail = ctx.createOscillator();
-      tail.type = 'sawtooth';
-      tail.frequency.setValueAtTime(50, now + 0.15);
-      tail.frequency.exponentialRampToValueAtTime(35, now + 1.0);
-
-      const tailLP = ctx.createBiquadFilter();
-      tailLP.type = 'lowpass';
-      tailLP.frequency.value = 100;
-      tailLP.Q.value = 0.5;
-
-      tail.connect(tailLP);
-      tailLP.connect(tailGain);
-      tail.start(now + 0.15);
-      tail.stop(now + 1.05);
-
-      // --- Phase 5: COIN RESONANCE — ascending double-coin = "value earned" ---
-      // Coin 1: the mint lands
-      const coin1Time = now + 0.02;
-      const coin1Gain = ctx.createGain();
-      coin1Gain.gain.setValueAtTime(0, coin1Time);
-      coin1Gain.gain.linearRampToValueAtTime(0.022, coin1Time + 0.008);
-      coin1Gain.gain.exponentialRampToValueAtTime(0.008, coin1Time + 0.08);
-      coin1Gain.gain.exponentialRampToValueAtTime(0.001, coin1Time + 0.25);
-      coin1Gain.connect(ctx.destination);
+      grainSrc.connect(grainBP);
+      grainBP.connect(grainGain);
+      grainGain.connect(ctx.destination);
+      grainSrc.start(now + 0.2);
+      grainSrc.stop(now + 0.2 + grainLen + 0.01);
 
       const coin1 = ctx.createOscillator();
       coin1.type = 'triangle';
