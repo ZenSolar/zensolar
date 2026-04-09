@@ -302,9 +302,9 @@ export function TokenPriceCard({
         <div 
           className="absolute -inset-px pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(142 76% 36% / 0.16), transparent 70%)',
+            background: 'radial-gradient(ellipse 65% 35% at 50% 75%, hsl(142 76% 36% / 0.12), transparent 65%)',
             animation: 'zenChargeUpPulse 3.5s ease-in-out infinite alternate',
-            filter: 'blur(2px)',
+            filter: 'blur(1.5px)',
           }}
         />
         <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10">
@@ -505,9 +505,9 @@ export function TokenPriceCard({
       <div 
         className="absolute -inset-px pointer-events-none rounded-xl z-0"
         style={{
-          background: 'radial-gradient(ellipse 75% 40% at 50% 75%, hsl(142 76% 36% / 0.16), transparent 70%)',
+          background: 'radial-gradient(ellipse 65% 35% at 50% 75%, hsl(142 76% 36% / 0.12), transparent 65%)',
           animation: 'zenChargeUpPulse 3.5s ease-in-out infinite alternate',
-          filter: 'blur(2px)',
+          filter: 'blur(1.5px)',
         }}
       />
       <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10" style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)' }}>
