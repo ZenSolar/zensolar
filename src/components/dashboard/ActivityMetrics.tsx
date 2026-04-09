@@ -766,7 +766,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     setTimeout(() => {
       setIsBursting(false);
       setTouchPoint(null);
-    }, 1400);
+    }, 700); // Shorter — confirm appears at 750ms
   }, [haptic, playMintSound, color]);
 
   const getTouchRelativePos = (clientX: number, clientY: number) => {
