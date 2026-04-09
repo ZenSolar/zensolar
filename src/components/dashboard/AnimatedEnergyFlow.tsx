@@ -366,13 +366,9 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
   return (
     <div className={`relative ${className}`}>
-      {/* Dark premium background */}
+      {/* Semi-transparent background — hex grid shows through */}
       <div className="absolute inset-0 rounded-xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e1a] via-[#0d1220] to-[#0a0e18]" />
-        <div className="absolute inset-0 opacity-30" style={{
-          backgroundImage: 'radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.3), transparent), radial-gradient(1px 1px at 80px 60px, rgba(255,255,255,0.2), transparent), radial-gradient(1px 1px at 140px 20px, rgba(255,255,255,0.15), transparent), radial-gradient(1px 1px at 280px 45px, rgba(255,255,255,0.2), transparent), radial-gradient(1px 1px at 320px 80px, rgba(255,255,255,0.15), transparent)',
-          backgroundSize: '400px 100px',
-        }} />
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
       </div>
 
       {/* Title header */}
