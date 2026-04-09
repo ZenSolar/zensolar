@@ -269,18 +269,12 @@ export function ActivityMetrics({
                 </span>
               )}
             </h2>
-            <span className="text-[9px] font-medium tracking-widest uppercase text-secondary">
-              Tap-to-Mint™
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
             {filteredProviders.length > 0 && (
               <div className="flex items-center gap-1.5">
                 {filteredProviders.map((provider) => (
                   <div 
                     key={provider}
-                    className="h-7 w-7 rounded-lg flex items-center justify-center bg-muted/60 border border-border/40 overflow-hidden"
+                    className="h-8 w-8 rounded-lg flex items-center justify-center bg-muted/40 border border-border/30 overflow-hidden"
                     title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                   >
                     <img 
@@ -288,13 +282,26 @@ export function ActivityMetrics({
                       alt={provider}
                       className={cn(
                         "object-contain",
-                        provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
+                        provider === 'tesla' ? "h-6 w-6" : "h-4 w-4"
                       )}
                     />
                   </div>
                 ))}
               </div>
             )}
+          </div>
+          <div className="flex items-center justify-between">
+            <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+            <span 
+              className="text-[9px] font-medium tracking-widest uppercase"
+              style={{ 
+                backgroundImage: 'linear-gradient(135deg, #2d8f4e, #5ec269, #8adf80)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Tap-to-Mint™
+            </span>
           </div>
         </div>
 
