@@ -407,84 +407,125 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Mint Dialog */}
+      {/* Confirm Mint Dialog — ZenSolar branded */}
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Mint</DialogTitle>
-            <DialogDescription>
-              You're about to mint {pendingMintCategory && getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR tokens
-              for {pendingMintCategory && getCategoryLabel(pendingMintCategory)}.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Activity Units</span>
-              <span>{pendingMintCategory && getCategoryActivityUnits(pendingMintCategory).toLocaleString()}</span>
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden border-primary/20">
+          {/* Category header band */}
+          {pendingMintCategory && (
+            <div className={`relative px-6 pt-8 pb-6 text-center ${
+              pendingMintCategory === 'solar' ? 'bg-gradient-to-br from-amber-500/15 to-orange-500/5' :
+              pendingMintCategory === 'ev_miles' ? 'bg-gradient-to-br from-blue-500/15 to-cyan-500/5' :
+              pendingMintCategory === 'battery' ? 'bg-gradient-to-br from-emerald-500/15 to-green-500/5' :
+              pendingMintCategory === 'charging' ? 'bg-gradient-to-br from-purple-500/15 to-violet-500/5' :
+              'bg-gradient-to-br from-primary/15 to-primary/5'
+            }`}>
+              {/* Decorative ring */}
+              <div className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg ${
+                pendingMintCategory === 'solar' ? 'bg-gradient-to-br from-amber-400 to-orange-500' :
+                pendingMintCategory === 'ev_miles' ? 'bg-gradient-to-br from-blue-400 to-cyan-500' :
+                pendingMintCategory === 'battery' ? 'bg-gradient-to-br from-emerald-400 to-green-500' :
+                pendingMintCategory === 'charging' ? 'bg-gradient-to-br from-purple-400 to-violet-500' :
+                'bg-gradient-to-br from-primary to-primary/80'
+              }`}>
+                {pendingMintCategory === 'solar' && <Sun className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'ev_miles' && <Car className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'battery' && <BatteryFull className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'charging' && <Zap className="h-7 w-7 text-white" />}
+                {pendingMintCategory === 'all' && <Coins className="h-7 w-7 text-white" />}
+              </div>
+              <h3 className="text-lg font-bold tracking-tight">Confirm Mint</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {getCategoryLabel(pendingMintCategory)}
+              </p>
             </div>
-            <div className="flex justify-between text-sm">
-              <span>You Receive (75%)</span>
-              <span className="font-medium text-primary">
-                {pendingMintCategory && getCategoryTokens(pendingMintCategory).toLocaleString()} $ZSOLAR
-              </span>
+          )}
+
+          {/* Token breakdown */}
+          <div className="px-6 pb-6 space-y-4">
+            <div className="rounded-xl border border-border/60 divide-y divide-border/40 overflow-hidden">
+              <div className="flex justify-between items-center px-4 py-3 bg-muted/30">
+                <span className="text-sm text-muted-foreground">Activity Units</span>
+                <span className="text-sm font-semibold tabular-nums">
+                  {pendingMintCategory && getCategoryActivityUnits(pendingMintCategory).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-3">
+                <span className="text-sm font-medium">You Receive</span>
+                <span className="text-base font-bold text-primary tabular-nums">
+                  {pendingMintCategory && getCategoryTokens(pendingMintCategory).toLocaleString()} <span className="text-xs font-semibold opacity-70">$ZSOLAR</span>
+                </span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-2.5 bg-muted/20">
+                <span className="text-xs text-muted-foreground">Burn 20% · LP 3% · Treasury 2%</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {pendingMintCategory && Math.floor(getCategoryActivityUnits(pendingMintCategory) * 0.25).toLocaleString()}
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Burn (20%) + LP (3%) + Treasury (2%)</span>
-              <span>{pendingMintCategory && Math.floor(getCategoryActivityUnits(pendingMintCategory) * 0.25).toLocaleString()}</span>
+
+            {/* Action buttons */}
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setConfirmMintDialog(false)}
+                className="flex-1 h-12 text-sm"
+              >
+                Cancel
+              </Button>
+              <MintEffectButton
+                onClick={handleConfirmMint}
+                className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-4 py-2 text-sm"
+              >
+                <Zap className="h-4 w-4" />
+                Mint Now
+              </MintEffectButton>
             </div>
           </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setConfirmMintDialog(false)}>
-              Cancel
-            </Button>
-            <MintEffectButton
-              onClick={handleConfirmMint}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              <Zap className="h-4 w-4" />
-              Mint Now
-            </MintEffectButton>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Minting Progress Dialog */}
       <Dialog open={mintingProgressDialog} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-lg">
-              {mintingProgress.step === 'complete' ? '🎉 Transaction Complete!' : 
-               mintingProgress.step === 'error' ? '❌ Transaction Failed' : 
-               '⛓️ Minting to Blockchain...'}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-6 py-4">
-            <div className="flex flex-col items-center gap-4">
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden border-primary/20">
+          <div className="px-6 pt-8 pb-6 text-center">
+            {/* Animated icon */}
+            <div className="mx-auto mb-5">
               {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
-                <div className="relative">
-                  <Loader2 className="h-14 w-14 animate-spin text-primary" />
+                <div className="relative w-16 h-16 mx-auto">
+                  <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+                  <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Zap className="h-6 w-6 text-primary animate-pulse" />
                   </div>
                 </div>
               )}
               {mintingProgress.step === 'complete' && (
-                <CheckCircle2 className="h-14 w-14 text-green-500" />
+                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg">
+                  <CheckCircle2 className="h-8 w-8 text-white" />
+                </div>
               )}
               {mintingProgress.step === 'error' && (
-                <AlertCircle className="h-14 w-14 text-destructive" />
-              )}
-              <p className="text-center text-base font-medium">{mintingProgress.message}</p>
-              {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
-                <p className="text-xs text-muted-foreground text-center">
-                  Securing your rewards on Base Sepolia testnet
-                </p>
+                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg">
+                  <AlertCircle className="h-8 w-8 text-white" />
+                </div>
               )}
             </div>
+
+            <h3 className="text-lg font-bold tracking-tight mb-1">
+              {mintingProgress.step === 'complete' ? 'Transaction Complete' : 
+               mintingProgress.step === 'error' ? 'Transaction Failed' : 
+               'Minting to Blockchain'}
+            </h3>
+            <p className="text-sm text-muted-foreground">{mintingProgress.message}</p>
             
+            {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
+              <p className="text-xs text-muted-foreground/60 mt-2">
+                Securing your rewards on Base Sepolia
+              </p>
+            )}
+          </div>
+
+          <div className="px-6 pb-6">
             <Progress 
               value={
                 mintingProgress.step === 'preparing' ? 20 :
@@ -492,7 +533,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 mintingProgress.step === 'confirming' ? 80 :
                 mintingProgress.step === 'complete' ? 100 : 0
               } 
-              className="h-3"
+              className="h-2 rounded-full"
             />
           </div>
         </DialogContent>
@@ -500,105 +541,89 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
       {/* Result Dialog - Enhanced Success Screen */}
       <Dialog open={resultDialog.open} onOpenChange={(open) => setResultDialog(prev => ({ ...prev, open }))}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden border-primary/20">
+          {/* Success/Error header */}
+          <div className={`px-6 pt-8 pb-5 text-center ${
+            resultDialog.success 
+              ? 'bg-gradient-to-br from-emerald-500/10 to-green-500/5' 
+              : 'bg-gradient-to-br from-red-500/10 to-rose-500/5'
+          }`}>
+            <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 shadow-lg ${
+              resultDialog.success 
+                ? 'bg-gradient-to-br from-emerald-400 to-green-500' 
+                : 'bg-gradient-to-br from-red-400 to-rose-500'
+            }`}>
               {resultDialog.success ? (
-                <CheckCircle2 className="h-6 w-6 text-green-500" />
+                <CheckCircle2 className="h-8 w-8 text-white" />
               ) : (
-                <AlertCircle className="h-6 w-6 text-destructive" />
+                <AlertCircle className="h-8 w-8 text-white" />
               )}
-              {resultDialog.success ? 'Success!' : 'Transaction Failed'}
-            </DialogTitle>
-          </DialogHeader>
+            </div>
+            <h3 className="text-lg font-bold tracking-tight">
+              {resultDialog.success ? 'Mint Successful' : 'Transaction Failed'}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">{resultDialog.message}</p>
+          </div>
           
-          <div className="space-y-5 py-2">
-            {/* Main message with emphasis */}
-            <p className="text-lg font-medium text-foreground">{resultDialog.message}</p>
-            
+          <div className="px-6 pb-6 space-y-4">
             {resultDialog.txHash && resultDialog.success && (
-              <div className="space-y-4">
-                {/* Transaction Details Card */}
-                <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Wallet className="h-4 w-4" />
-                      Transaction Hash
-                    </span>
-                    <Badge variant="outline" className="font-mono text-xs bg-background">
-                      {resultDialog.txHash}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground flex items-center gap-2">
-                      <ExternalLink className="h-4 w-4" />
-                      Network
-                    </span>
-                    <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30">
-                      Base Sepolia
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Status
-                    </span>
-                    <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
-                      Confirmed
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
-                      Block Confirmations
-                    </span>
-                    <span className="text-sm font-medium">12</span>
-                  </div>
+              <div className="rounded-xl border border-border/60 divide-y divide-border/40 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Wallet className="h-3.5 w-3.5" />
+                    Tx Hash
+                  </span>
+                  <Badge variant="outline" className="font-mono text-[10px] bg-muted/30">
+                    {resultDialog.txHash}
+                  </Badge>
                 </div>
-                
-                {/* Token-specific info */}
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Network
+                  </span>
+                  <Badge className="text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30">
+                    Base Sepolia
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Status
+                  </span>
+                  <Badge className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                    Confirmed
+                  </Badge>
+                </div>
                 {resultDialog.type === 'token' && (
-                  <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Gas Used (Demo)</span>
-                      <span className="font-mono">~0.0001 ETH</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Contract</span>
-                      <span className="font-mono text-xs">0xZSOLAR...Token</span>
-                    </div>
+                  <div className="flex items-center justify-between px-4 py-3 bg-muted/20">
+                    <span className="text-xs text-muted-foreground">Contract</span>
+                    <span className="font-mono text-[10px]">0xZSOLAR...Token</span>
                   </div>
                 )}
-                
-                {/* NFT-specific info */}
                 {resultDialog.type === 'nft' && (
-                  <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Token Standard</span>
-                      <span className="font-medium">ERC-1155</span>
+                  <>
+                    <div className="flex items-center justify-between px-4 py-3 bg-muted/20">
+                      <span className="text-xs text-muted-foreground">Standard</span>
+                      <span className="text-xs font-medium">ERC-1155</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Contract</span>
-                      <span className="font-mono text-xs">0xZenSolar...NFT</span>
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-xs text-muted-foreground">Contract</span>
+                      <span className="font-mono text-[10px]">0xZenSolar...NFT</span>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
             )}
-          </div>
 
-          <DialogFooter>
             <Button 
               size="lg" 
-              className="w-full" 
+              className="w-full h-12 font-semibold" 
               onClick={() => setResultDialog(prev => ({ ...prev, open: false }))}
             >
-              Close
+              Done
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
