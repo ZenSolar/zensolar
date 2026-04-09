@@ -121,7 +121,7 @@ export function DemoDashboard() {
         isReady={isReady}
       />
       
-      <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border overflow-x-hidden">
+      <AnimatedContainer className="w-full max-w-lg min-w-0 mx-auto px-[max(0.75rem,env(safe-area-inset-left))] sm:px-[max(1rem,env(safe-area-inset-left))] py-6 space-y-6 box-border overflow-x-hidden">
         {/* Dashboard Header - matches real dashboard exactly */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
           <div className="space-y-1.5">
