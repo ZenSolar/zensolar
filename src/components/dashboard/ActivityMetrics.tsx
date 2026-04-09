@@ -258,19 +258,16 @@ export function ActivityMetrics({
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
          <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-0.5">
-            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-primary" />
-              Clean Energy Center
-              {isLoading && (
-                <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Updating…
-                </span>
-              )}
-            </h2>
-            <span className="text-[10px] tracking-wider uppercase text-primary/50 font-medium ml-6">Tap to Mint™</span>
-          </div>
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Gauge className="h-4 w-4 text-primary" />
+            Clean Energy Center
+            {isLoading && (
+              <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Updating…
+              </span>
+            )}
+          </h2>
           <div className="flex items-center gap-2">
           
           {/* Connected Provider Logos */}
