@@ -1,15 +1,33 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useMemo } from 'react';
 import { useMintSound } from '@/hooks/useMintSound';
 import { cn } from '@/lib/utils';
 
 const TOUCH_DELTA_THRESHOLD = 15;
 const DOUBLE_TAP_WINDOW = 800;
-const BURST_DURATION = 800;
-const DOUBLE_BURST_DURATION = 600;
+const BURST_DURATION = 750;
+const DOUBLE_BURST_DURATION = 550;
 
 const RGBA = '34, 197, 94';
 const PARTICLE_SHAPE = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
 const HAPTIC_PATTERN = [15, 30, 10];
+const PARTICLE_COUNT = 10;
+
+// Pre-compute particle layouts to avoid Math.random() during render
+function generateParticleLayout() {
+  return Array.from({ length: PARTICLE_COUNT }, (_, i) => {
+    const angle = (i / PARTICLE_COUNT) * 360 + (Math.random() * 20 - 10);
+    const rad = (angle * Math.PI) / 180;
+    const dist = 40 + Math.random() * 55;
+    return {
+      tx: Math.cos(rad) * dist,
+      ty: Math.sin(rad) * (16 + Math.random() * 22),
+      size: 5 + Math.random() * 5,
+      rotation: Math.random() * 360,
+      alpha: 0.85 + Math.random() * 0.15,
+      delay: i * 20,
+    };
+  });
+}
 
 interface MintEffectButtonProps {
   onClick: () => void;
@@ -18,11 +36,24 @@ interface MintEffectButtonProps {
   children: React.ReactNode;
 }
 
+// Single combined state to batch updates and reduce renders
+interface ButtonState {
+  phase: 'idle' | 'pressing' | 'charging' | 'burst';
+  touchPoint: { x: number; y: number } | null;
+  showTapAgain: boolean;
+  burstKey: number;
+}
+
 export function MintEffectButton({ onClick, disabled, className, children }: MintEffectButtonProps) {
-  const [phase, setPhase] = useState<'idle' | 'pressing' | 'charging' | 'burst'>('idle');
-  const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
-  const [showTapAgain, setShowTapAgain] = useState(false);
-  const [burstKey, setBurstKey] = useState(0); // force re-mount burst elements on re-tap
+  const stateRef = useRef<ButtonState>({
+    phase: 'idle',
+    touchPoint: null,
+    showTapAgain: false,
+    burstKey: 0,
+  });
+  // Force re-render trigger
+  const [, setRenderTick] = React.useState(0);
+  const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
   
   const cardRef = useRef<HTMLButtonElement>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -30,15 +61,30 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapTimeRef = useRef<number>(0);
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
   
   const { playMintSound } = useMintSound();
 
-  // Cleanup all timers on unmount
+  // Pre-computed particle positions — regenerated each burst via burstKey
+  const particles = useMemo(
+    () => generateParticleLayout(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stateRef.current.burstKey]
+  );
+
+  // Batch state update helper — single render per update
+  const updateState = useCallback((patch: Partial<ButtonState>) => {
+    Object.assign(stateRef.current, patch);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(forceRender);
+  }, [forceRender]);
+
   useEffect(() => {
     return () => {
       if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
@@ -51,31 +97,28 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
     };
   };
 
-  const clearBurstTimer = () => {
-    if (burstTimerRef.current) {
-      clearTimeout(burstTimerRef.current);
-      burstTimerRef.current = null;
-    }
-  };
-
   const triggerBurst = useCallback((relX?: number, relY?: number, duration = BURST_DURATION) => {
-    if (relX !== undefined && relY !== undefined) setTouchPoint({ x: relX, y: relY });
-    clearBurstTimer();
-    setBurstKey(k => k + 1);
-    setPhase('burst');
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+    
+    updateState({
+      phase: 'burst',
+      burstKey: stateRef.current.burstKey + 1,
+      ...(relX !== undefined && relY !== undefined ? { touchPoint: { x: relX, y: relY } } : {}),
+    });
+    
     playMintSound('gold');
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(HAPTIC_PATTERN); } catch { /* */ }
     }
     import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
-      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 100);
     }).catch(() => {});
+    
     burstTimerRef.current = setTimeout(() => {
-      setPhase('idle');
-      setTouchPoint(null);
+      updateState({ phase: 'idle', touchPoint: null });
     }, duration);
-  }, [playMintSound]);
+  }, [playMintSound, updateState]);
 
   const processTap = useCallback((posX: number, posY: number) => {
     const now = Date.now();
@@ -84,20 +127,20 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
     if (timeSinceLastTap < DOUBLE_TAP_WINDOW) {
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
-      setShowTapAgain(false);
+      updateState({ showTapAgain: false });
       triggerBurst(posX, posY, DOUBLE_BURST_DURATION);
-      setTimeout(() => onClick(), 600);
+      setTimeout(() => onClick(), 550);
     } else {
       lastTapTimeRef.current = now;
       triggerBurst(posX, posY, BURST_DURATION);
-      setShowTapAgain(true);
+      updateState({ showTapAgain: true });
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
-        setShowTapAgain(false);
+        updateState({ showTapAgain: false });
       }, 2000);
     }
-  }, [triggerBurst, onClick]);
+  }, [triggerBurst, onClick, updateState]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (disabled) return;
@@ -109,12 +152,11 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
     if (disabled) return;
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
-    setPhase('pressing');
     const pos = getTouchRelativePos(touch.clientX, touch.clientY);
-    setTouchPoint(pos);
+    updateState({ phase: 'pressing', touchPoint: pos });
     if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
     chargeTimerRef.current = setTimeout(() => {
-      setPhase('charging');
+      updateState({ phase: 'charging' });
       import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
         Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
       }).catch(() => {});
@@ -126,7 +168,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (disabled || !touchStartRef.current) {
-      setPhase('idle');
+      updateState({ phase: 'idle' });
       if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
       return;
     }
@@ -139,24 +181,22 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
       const pos = getTouchRelativePos(touch.clientX, touch.clientY);
       processTap(pos.x, pos.y);
     } else {
-      setPhase('idle');
-      setTouchPoint(null);
+      updateState({ phase: 'idle', touchPoint: null });
     }
     touchStartRef.current = null;
   };
 
   const handleTouchCancel = () => {
-    setPhase('idle');
-    setTouchPoint(null);
+    updateState({ phase: 'idle', touchPoint: null });
     if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
     touchStartRef.current = null;
   };
 
+  const { phase, touchPoint, showTapAgain, burstKey } = stateRef.current;
   const isBursting = phase === 'burst';
   const isPressing = phase === 'pressing';
   const isChargingUp = phase === 'charging';
 
-  // Use CSS classes for the stamp animation to avoid framer-motion layout recalcs
   const phaseClass = isBursting
     ? 'zen-mint-burst'
     : isChargingUp
@@ -164,6 +204,9 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
     : isPressing
     ? 'zen-mint-pressing'
     : 'zen-mint-idle';
+
+  const ox = touchPoint ? `${touchPoint.x * 100}%` : '50%';
+  const oy = touchPoint ? `${touchPoint.y * 100}%` : '50%';
 
   return (
     <button
@@ -173,149 +216,139 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
       disabled={disabled}
-      style={{
-        boxShadow: isBursting 
-          ? `0 0 30px rgba(${RGBA}, 0.5), 0 0 60px rgba(${RGBA}, 0.25)` 
-          : isChargingUp
-            ? `0 0 20px rgba(${RGBA}, 0.4), 0 0 40px rgba(${RGBA}, 0.2)`
-          : isPressing 
-            ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(${RGBA}, 0.3)` 
-            : undefined,
-      }}
       className={cn(
-        "relative overflow-hidden touch-manipulation select-none",
+        "relative overflow-hidden touch-manipulation select-none zen-mint-contain",
         phaseClass,
         className
       )}
     >
-      {/* Touch-point ripple */}
-      {(isPressing || isBursting) && touchPoint && (
-        <div
-          className="absolute pointer-events-none rounded-full z-10"
-          style={{
-            left: `${touchPoint.x * 100}%`,
-            top: `${touchPoint.y * 100}%`,
-            width: '200%',
-            height: '200%',
-            background: `radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%)`,
-            animation: isBursting ? 'zenTouchRipple 700ms ease-out forwards' : undefined,
-            transform: isPressing && !isBursting ? 'translate(-50%, -50%) scale(0.3)' : undefined,
-            opacity: isPressing && !isBursting ? 0.4 : undefined,
-            transition: !isBursting ? 'transform 0.12s ease-out, opacity 0.12s ease-out' : undefined,
-            willChange: 'transform, opacity',
-          }}
-        />
-      )}
-
-      {/* Pressure shockwave ring */}
-      {isBursting && touchPoint && (
-        <div
-          key={`wave-${burstKey}`}
-          className="absolute pointer-events-none rounded-full z-10"
-          style={{
-            left: `${touchPoint.x * 100}%`,
-            top: `${touchPoint.y * 100}%`,
-            width: '300%',
-            height: '300%',
-            border: `2px solid rgba(255,255,255,0.8)`,
-            animation: 'zenPressureWave 600ms ease-out forwards',
-            willChange: 'transform, opacity',
-          }}
-        />
-      )}
-
-      {/* Solar Flare Burst — rings + particles */}
-      {isBursting && (
-        <React.Fragment key={`burst-${burstKey}`}>
-          {[0, 1, 2].map(i => (
-            <div
-              key={`ring-${i}`}
-              className="absolute pointer-events-none z-10"
-              style={{
-                left: touchPoint ? `${touchPoint.x * 100}%` : '50%',
-                top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
-                width: 20,
-                height: 20,
-                marginLeft: -10,
-                marginTop: -10,
-                borderRadius: '50%',
-                border: `2px solid rgba(255,255,255, ${0.8 - i * 0.2})`,
-                animation: `zenFlareRing 700ms ${i * 100}ms ease-out forwards`,
-                willChange: 'transform, opacity',
-              }}
-            />
-          ))}
-          {Array.from({ length: 12 }).map((_, i) => {
-            const angle = (i / 12) * 360 + (Math.random() * 20 - 10);
-            const rad = (angle * Math.PI) / 180;
-            const dist = 45 + Math.random() * 60;
-            const tx = Math.cos(rad) * dist;
-            const ty = Math.sin(rad) * (18 + Math.random() * 25);
-            const size = 6 + Math.random() * 5;
-            const rotation = Math.random() * 360;
-            return (
-              <div
-                key={`particle-${i}`}
-                className="absolute pointer-events-none z-10"
-                style={{
-                  left: touchPoint ? `${touchPoint.x * 100}%` : '50%',
-                  top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
-                  width: size,
-                  height: size,
-                  background: `rgba(255,255,255, ${0.85 + Math.random() * 0.15})`,
-                  boxShadow: `0 0 10px rgba(${RGBA}, 0.7), 0 0 20px rgba(${RGBA}, 0.25)`,
-                  clipPath: PARTICLE_SHAPE,
-                  transform: `rotate(${rotation}deg)`,
-                  animation: `zenFlareParticle 700ms ${i * 25}ms ease-out forwards`,
-                  willChange: 'transform, opacity',
-                  '--tx': `${tx}px`,
-                  '--ty': `${ty}px`,
-                } as React.CSSProperties}
-              />
-            );
-          })}
+      {/* Effect layer — always mounted, toggled via opacity/animation to avoid DOM churn */}
+      <div
+        className="absolute inset-0 pointer-events-none z-10"
+        style={{ opacity: (isPressing || isBursting) ? 1 : 0, transition: 'opacity 0.1s ease-out' }}
+      >
+        {/* Touch-point ripple */}
+        {touchPoint && (
           <div
-            className="absolute pointer-events-none rounded-full z-10"
+            className="absolute rounded-full"
             style={{
-              left: touchPoint ? `${touchPoint.x * 100}%` : '50%',
-              top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
-              width: 80,
-              height: 80,
-              marginLeft: -40,
-              marginTop: -40,
-              background: `radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(${RGBA}, 0.2) 40%, transparent 70%)`,
-              animation: 'zenEnergyRelease 600ms ease-out forwards',
+              left: ox,
+              top: oy,
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%)',
+              animation: isBursting ? 'zenTouchRipple 650ms ease-out forwards' : undefined,
+              transform: isPressing && !isBursting ? 'translate(-50%, -50%) scale(0.3)' : undefined,
+              opacity: isPressing && !isBursting ? 0.4 : undefined,
+              transition: !isBursting ? 'transform 0.1s ease-out, opacity 0.1s ease-out' : undefined,
               willChange: 'transform, opacity',
             }}
           />
-        </React.Fragment>
-      )}
+        )}
 
-      {/* Charging-up pulsing glow */}
-      {isChargingUp && (
-        <div
-          className="absolute inset-0 pointer-events-none rounded-xl z-10"
-          style={{
-            border: `2px solid rgba(255,255,255,0.5)`,
-            animation: 'zenChargeUpPulse 600ms ease-in-out infinite alternate',
-            willChange: 'opacity, box-shadow',
-            boxShadow: `inset 0 0 20px rgba(255,255,255,0.1), 0 0 25px rgba(${RGBA}, 0.3)`,
-          }}
-        />
-      )}
+        {/* Shockwave ring */}
+        {isBursting && touchPoint && (
+          <div
+            key={`wave-${burstKey}`}
+            className="absolute rounded-full"
+            style={{
+              left: ox, top: oy,
+              width: '280%', height: '280%',
+              border: '2px solid rgba(255,255,255,0.7)',
+              animation: 'zenPressureWave 550ms ease-out forwards',
+              willChange: 'transform, opacity',
+            }}
+          />
+        )}
 
-      {/* "Tap twice" hint */}
-      {showTapAgain && (
-        <span
-          className="absolute inset-0 flex items-center justify-center z-20 text-white/90 text-xs font-bold tracking-wider pointer-events-none animate-pulse"
-          style={{ textShadow: '0 0 12px rgba(0,0,0,0.5)' }}
-        >
-          tap again to mint
-        </span>
-      )}
+        {/* Flare rings */}
+        {isBursting && [0, 1, 2].map(i => (
+          <div
+            key={`ring-${burstKey}-${i}`}
+            className="absolute"
+            style={{
+              left: ox, top: oy,
+              width: 18, height: 18,
+              marginLeft: -9, marginTop: -9,
+              borderRadius: '50%',
+              border: `2px solid rgba(255,255,255, ${0.75 - i * 0.2})`,
+              animation: `zenFlareRing 650ms ${i * 80}ms ease-out forwards`,
+              willChange: 'transform, opacity',
+            }}
+          />
+        ))}
 
-      {/* Actual button content */}
-      <span className={cn("relative z-0 flex items-center justify-center w-full", showTapAgain && "opacity-30")}>
+        {/* Particles */}
+        {isBursting && particles.map((p, i) => (
+          <div
+            key={`p-${burstKey}-${i}`}
+            className="absolute"
+            style={{
+              left: ox, top: oy,
+              width: p.size, height: p.size,
+              background: `rgba(255,255,255, ${p.alpha})`,
+              boxShadow: `0 0 8px rgba(${RGBA}, 0.6)`,
+              clipPath: PARTICLE_SHAPE,
+              transform: `rotate(${p.rotation}deg)`,
+              animation: `zenFlareParticle 650ms ${p.delay}ms ease-out forwards`,
+              willChange: 'transform, opacity',
+              '--tx': `${p.tx}px`,
+              '--ty': `${p.ty}px`,
+            } as React.CSSProperties}
+          />
+        ))}
+
+        {/* Energy release glow */}
+        {isBursting && (
+          <div
+            key={`glow-${burstKey}`}
+            className="absolute rounded-full"
+            style={{
+              left: ox, top: oy,
+              width: 70, height: 70,
+              marginLeft: -35, marginTop: -35,
+              background: `radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(${RGBA}, 0.15) 40%, transparent 70%)`,
+              animation: 'zenEnergyRelease 550ms ease-out forwards',
+              willChange: 'transform, opacity',
+            }}
+          />
+        )}
+      </div>
+
+      {/* Charging glow overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none rounded-xl z-10"
+        style={{
+          opacity: isChargingUp ? 1 : 0,
+          border: '2px solid rgba(255,255,255,0.5)',
+          animation: isChargingUp ? 'zenChargeUpPulse 600ms ease-in-out infinite alternate' : undefined,
+          boxShadow: `inset 0 0 20px rgba(255,255,255,0.1), 0 0 25px rgba(${RGBA}, 0.3)`,
+          transition: 'opacity 0.15s ease-out',
+        }}
+      />
+
+      {/* "Tap twice" hint — CSS only, no framer-motion */}
+      <span
+        className="absolute inset-0 flex items-center justify-center z-20 text-white/90 text-xs font-bold tracking-wider pointer-events-none"
+        style={{
+          textShadow: '0 0 12px rgba(0,0,0,0.5)',
+          opacity: showTapAgain ? 1 : 0,
+          transform: showTapAgain ? 'scale(1)' : 'scale(0.85)',
+          transition: 'opacity 0.2s ease-out, transform 0.2s ease-out',
+          animation: showTapAgain ? 'zenTapAgainPulse 1.2s ease-in-out infinite' : undefined,
+        }}
+      >
+        tap again to mint
+      </span>
+
+      {/* Button content */}
+      <span
+        className={cn("relative z-0 flex items-center justify-center w-full")}
+        style={{
+          opacity: showTapAgain ? 0.3 : 1,
+          transition: 'opacity 0.15s ease-out',
+        }}
+      >
         {children}
       </span>
     </button>
