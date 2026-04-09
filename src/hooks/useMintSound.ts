@@ -383,38 +383,56 @@ export function useMintSound() {
       // Bigger, longer version — the full "energy becomes currency" moment
 
       // Derez sweep — descending resonant sawtooth
+      // Pressure tone — crushed downward, longer
       const derezGain = ctx.createGain();
-      derezGain.gain.setValueAtTime(0, now + 0.12);
-      derezGain.gain.linearRampToValueAtTime(0.07, now + 0.18);
-      derezGain.gain.setValueAtTime(0.07, now + 0.3);
+      derezGain.gain.setValueAtTime(0, now + 0.1);
+      derezGain.gain.linearRampToValueAtTime(0.08, now + 0.15);
+      derezGain.gain.setValueAtTime(0.08, now + 0.25);
+      derezGain.gain.linearRampToValueAtTime(0.04, now + 0.6);
       derezGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
       derezGain.connect(ctx.destination);
 
       const derez = ctx.createOscillator();
       derez.type = 'sawtooth';
-      derez.frequency.setValueAtTime(250, now + 0.12);
-      derez.frequency.exponentialRampToValueAtTime(25, now + 1.0);
+      derez.frequency.setValueAtTime(350, now + 0.1);
+      derez.frequency.exponentialRampToValueAtTime(15, now + 1.0);
 
       const derezLP = ctx.createBiquadFilter();
       derezLP.type = 'lowpass';
-      derezLP.frequency.setValueAtTime(450, now + 0.12);
-      derezLP.frequency.exponentialRampToValueAtTime(40, now + 1.0);
-      derezLP.Q.value = 1.2; // Softer resonance
+      derezLP.frequency.setValueAtTime(500, now + 0.1);
+      derezLP.frequency.exponentialRampToValueAtTime(30, now + 1.0);
+      derezLP.Q.value = 1.2;
 
       derez.connect(derezLP);
       derezLP.connect(derezGain);
-      derez.start(now + 0.12);
+      derez.start(now + 0.1);
       derez.stop(now + 1.12);
 
-      // Digital grain — softer, sparser
-      const grainLen = 0.8;
+      // Sub-pressure — pushed below hearing
+      const pressGain = ctx.createGain();
+      pressGain.gain.setValueAtTime(0, now + 0.12);
+      pressGain.gain.linearRampToValueAtTime(0.07, now + 0.18);
+      pressGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      pressGain.connect(ctx.destination);
+
+      const press = ctx.createOscillator();
+      press.type = 'sine';
+      press.frequency.setValueAtTime(90, now + 0.12);
+      press.frequency.exponentialRampToValueAtTime(10, now + 0.85);
+      press.connect(pressGain);
+      press.start(now + 0.12);
+      press.stop(now + 0.92);
+
+      // Digital grain — particles increase then vanish
+      const grainLen = 0.85;
       const grainSize = Math.ceil(ctx.sampleRate * grainLen);
       const grainBuf = ctx.createBuffer(1, grainSize, ctx.sampleRate);
       const grainData = grainBuf.getChannelData(0);
       for (let i = 0; i < grainSize; i++) {
         const t = i / grainSize;
-        const env = Math.pow(1 - t, 2);
-        const isParticle = Math.random() < (0.12 * (1 - t * 0.6));
+        const density = Math.sin(t * Math.PI * 0.75) * 0.16;
+        const env = Math.pow(Math.max(0, 1 - t * 1.2), 1.5);
+        const isParticle = Math.random() < density;
         grainData[i] = isParticle ? (Math.random() * 2 - 1) * env : 0;
       }
       const grainSrc = ctx.createBufferSource();
@@ -422,12 +440,12 @@ export function useMintSound() {
 
       const grainBP = ctx.createBiquadFilter();
       grainBP.type = 'bandpass';
-      grainBP.frequency.setValueAtTime(400, now + 0.2);
-      grainBP.frequency.exponentialRampToValueAtTime(60, now + 0.2 + grainLen);
-      grainBP.Q.value = 1;
+      grainBP.frequency.setValueAtTime(350, now + 0.2);
+      grainBP.frequency.exponentialRampToValueAtTime(40, now + 0.2 + grainLen);
+      grainBP.Q.value = 0.9;
 
       const grainGain = ctx.createGain();
-      grainGain.gain.setValueAtTime(0.07, now + 0.2);
+      grainGain.gain.setValueAtTime(0.08, now + 0.2);
       grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + grainLen);
 
       grainSrc.connect(grainBP);
