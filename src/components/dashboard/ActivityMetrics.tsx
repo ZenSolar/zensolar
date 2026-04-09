@@ -258,19 +258,16 @@ export function ActivityMetrics({
       <CardContent className="p-4 space-y-3">
         {/* Header Row */}
          <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-0.5">
-            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-primary" />
-              Clean Energy Center
-              {isLoading && (
-                <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Updating…
-                </span>
-              )}
-            </h2>
-            <span className="text-[10px] tracking-wider uppercase text-primary/50 font-medium ml-6">Tap to Mint™</span>
-          </div>
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Gauge className="h-4 w-4 text-primary" />
+            Clean Energy Center
+            {isLoading && (
+              <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Updating…
+              </span>
+            )}
+          </h2>
           <div className="flex items-center gap-2">
           
           {/* Connected Provider Logos */}
@@ -348,6 +345,7 @@ export function ActivityMetrics({
                     color="gold"
                     active={pendingKwh > 0}
                     isLoading={isLoading}
+                    showBadge={index === 0}
                     onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
                       category: 'solar', 
                       deviceId: device.deviceId,
@@ -381,7 +379,7 @@ export function ActivityMetrics({
                   color="gold"
                   active={current.solarKwh > 0}
                   isLoading={isLoading}
-                  
+                  showBadge
                   onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
                 />
               </SwipeableActivityField>
@@ -703,9 +701,10 @@ interface ActivityFieldProps {
   isLoading?: boolean;
   historyLink?: string;
   liveIndicator?: boolean;
+  showBadge?: boolean;
 }
 
-function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator }: ActivityFieldProps) {
+function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator, showBadge }: ActivityFieldProps) {
   const navigate = useNavigate();
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
@@ -925,6 +924,15 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           : "bg-muted/30"
       )}
     >
+      {/* Tap-to-Mint™ badge — top-right corner */}
+      {showBadge && (
+        <span className="absolute top-1.5 right-2 z-20 text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
+          style={{ color: '#39FF14', textShadow: '0 0 6px rgba(57,255,20,0.5), 0 0 12px rgba(57,255,20,0.25)' }}
+        >
+          Tap-to-Mint™
+        </span>
+      )}
+
       {/* Subtle gradient overlay for active cards */}
       {active && (
         <div className={cn(
