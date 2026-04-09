@@ -332,15 +332,6 @@ export function ActivityMetrics({
         <div className="space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
-            <>
-              <div className="flex justify-end pr-1 -mb-1">
-                <span className="text-[9px] font-medium tracking-widest uppercase"
-                  style={{ color: '#7DF97D', textShadow: '0 0 8px rgba(125,249,125,0.3)' }}
-                >
-                  Tap-to-Mint™
-                </span>
-              </div>
-              {hasMultipleSolarDevices ? (
                 solarDevices.map((device, index) => {
                   const pendingKwh = Math.floor(device.pendingKwh);
                   const field = (
