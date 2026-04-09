@@ -831,7 +831,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   return (
     <motion.div
       ref={cardRef}
-      onClick={(e) => handleTap(e.clientX, e.clientY)}
+      onClick={handleClick}
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
       onTouchCancel={isTappable ? handleTouchCancel : undefined}
