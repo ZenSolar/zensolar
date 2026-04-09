@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { 
@@ -9,10 +9,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useHaptics } from '@/hooks/useHaptics';
 
 // Touch threshold constants
 const TOUCH_DELTA_THRESHOLD = 15;
 const TOUCH_TIME_THRESHOLD = 400;
+const DOUBLE_TAP_WINDOW = 800;
 
 interface TokenPriceCardProps {
   tokensHeld: number;
@@ -33,8 +35,42 @@ export function TokenPriceCard({
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [showTapAgain, setShowTapAgain] = useState(false);
+  const [firstTapScale, setFirstTapScale] = useState(false);
+
+  const lastTapTimeRef = useRef<number>(0);
+  const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const haptic = useHaptics();
 
   const totalValueUSD = tokensHeld * tokenPrice;
+
+  // Double-tap to expand
+  const handleDoubleTapExpand = useCallback(() => {
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapTimeRef.current;
+
+    if (timeSinceLastTap < DOUBLE_TAP_WINDOW) {
+      // Second tap — expand!
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      lastTapTimeRef.current = 0;
+      setShowTapAgain(false);
+      setFirstTapScale(false);
+      haptic.mediumTap();
+      setIsCollapsed(false);
+    } else {
+      // First tap — show hint
+      lastTapTimeRef.current = now;
+      haptic.lightTap();
+      setFirstTapScale(true);
+      setTimeout(() => setFirstTapScale(false), 150);
+      setShowTapAgain(true);
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = setTimeout(() => {
+        lastTapTimeRef.current = 0;
+        setShowTapAgain(false);
+      }, DOUBLE_TAP_WINDOW);
+    }
+  }, [haptic]);
 
   const updatePrice = (newPrice: number) => {
     setTokenPrice(newPrice);
@@ -96,20 +132,34 @@ export function TokenPriceCard({
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+        animate={{ opacity: 1, y: 0, scale: firstTapScale ? 0.97 : 1 }}
+        transition={{ duration: firstTapScale ? 0.08 : 0.4, ease: 'easeOut' }}
       >
-        <Card className="wallet-card-glass relative overflow-hidden border-primary/30" style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)' }}>
+        <Card className="wallet-card-glass relative overflow-hidden border-primary/30 select-none" style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)' }}>
           {/* Shimmer band */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.06] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
           </div>
 
+          {/* Double-tap glow ring on first tap */}
+          <AnimatePresence>
+            {showTapAgain && (
+              <motion.div
+                className="absolute inset-0 rounded-[inherit] pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{ boxShadow: '0 0 30px hsl(var(--primary) / 0.35), 0 0 15px hsl(var(--primary) / 0.25), inset 0 0 20px hsl(var(--primary) / 0.08)' }}
+              />
+            )}
+          </AnimatePresence>
+
           <CardContent className="relative p-3.5">
             <button
-              onClick={() => setIsCollapsed(false)}
+              onClick={handleDoubleTapExpand}
               onTouchStart={handleTouchStart}
-              onTouchEnd={createTouchEndHandler(() => setIsCollapsed(false))}
+              onTouchEnd={createTouchEndHandler(handleDoubleTapExpand)}
               className="w-full flex items-center justify-between gap-3 group touch-manipulation"
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -121,7 +171,31 @@ export function TokenPriceCard({
                   <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-eco border-2 border-card" />
                 </div>
                 <div className="flex flex-col items-start min-w-0">
-                  <span className="font-semibold text-sm text-foreground leading-tight">My Wallet</span>
+                  <AnimatePresence mode="wait">
+                    {showTapAgain ? (
+                      <motion.span
+                        key="tap-again"
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.15 }}
+                        className="font-semibold text-sm text-primary leading-tight"
+                      >
+                        Tap again to open
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="my-wallet"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="font-semibold text-sm text-foreground leading-tight"
+                      >
+                        My Wallet
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                   <span className="text-[11px] text-muted-foreground leading-tight">
                     {tokensHeld.toLocaleString()} tokens · ${tokenPrice.toFixed(2)}
                   </span>
@@ -135,7 +209,7 @@ export function TokenPriceCard({
                 >
                   <span className="text-lg font-bold text-foreground tabular-nums">${formattedValue}</span>
                 </motion.div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                <ChevronDown className={`h-4 w-4 transition-colors flex-shrink-0 ${showTapAgain ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
               </div>
             </button>
           </CardContent>
