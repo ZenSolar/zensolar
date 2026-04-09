@@ -302,8 +302,7 @@ export function TokenPriceCard({
         <div 
           className="absolute -inset-px pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 65% 35% at 50% 75%, hsl(160 100% 10% / 0.5), hsl(158 95% 8% / 0.25), transparent 65%)',
-            filter: 'blur(1px)',
+            background: 'radial-gradient(ellipse 55% 25% at 50% 75%, hsl(160 100% 10% / 0.2), transparent 55%)',
           }}
         />
         <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10">
@@ -504,11 +503,10 @@ export function TokenPriceCard({
       <div 
         className="absolute -inset-px pointer-events-none rounded-xl z-0"
         style={{
-          background: 'radial-gradient(ellipse 65% 35% at 50% 75%, hsl(160 100% 10% / 0.5), hsl(158 95% 8% / 0.25), transparent 65%)',
-          filter: 'blur(1px)',
+          background: 'radial-gradient(ellipse 55% 25% at 50% 75%, hsl(160 100% 10% / 0.2), transparent 55%)',
         }}
       />
-      <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10" style={{ boxShadow: '0 0 20px hsl(160 100% 10% / 0.35), 0 0 8px hsl(158 95% 8% / 0.25), 0 0 40px hsl(160 100% 10% / 0.12)' }}>
+      <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10" style={{ boxShadow: '0 0 10px hsl(160 100% 10% / 0.15), 0 0 4px hsl(158 95% 8% / 0.1)' }}>
         {/* Background effects */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />
