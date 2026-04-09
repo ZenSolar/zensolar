@@ -817,15 +817,15 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       )}
       
       {/* Icon with gradient background */}
-      <div className="relative p-3 rounded-xl">
+      <div className="relative p-3 rounded-xl" style={isBursting ? { 
+        filter: `drop-shadow(0 0 8px rgba(${styles.rgba}, 0.8))`,
+        transition: 'all 200ms ease-out',
+      } : { transition: 'all 200ms ease-out' }}>
         <Icon className={cn(
           "h-5 w-5 transition-all",
           active ? styles.text : "text-muted-foreground",
           isBursting && "scale-125"
-        )} style={isBursting ? { 
-          filter: `drop-shadow(0 0 8px rgba(${styles.rgba}, 0.8))`,
-          transition: 'all 200ms ease-out',
-        } : { transition: 'all 200ms ease-out' }} />
+        )} />
       </div>
       
       {/* Label + Value */}
