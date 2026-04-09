@@ -865,7 +865,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             height: '200%',
             background: `radial-gradient(circle, rgba(${styles.rgba}, 0.15) 0%, transparent 70%)`,
             animation: isBursting 
-              ? 'zenTouchRipple 600ms ease-out forwards' 
+              ? 'zenTouchRipple 900ms ease-out forwards' 
               : undefined,
             transform: isPressing && !isBursting 
               ? 'translate(-50%, -50%) scale(0.3)' 
@@ -887,7 +887,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             width: '300%',
             height: '300%',
             border: `2px solid rgba(${styles.rgba}, 0.8)`,
-            animation: 'zenPressureWave 500ms ease-out forwards',
+            animation: 'zenPressureWave 800ms ease-out forwards',
             willChange: 'transform, opacity',
           }}
         />
