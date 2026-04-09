@@ -25,6 +25,8 @@ interface PendingRewards {
   evMiles: number;
   battery: number;
   charging: number;
+  superchargerKwh?: number;
+  homeChargerKwh?: number;
 }
 
 interface DemoRewardActionsProps {
@@ -124,6 +126,15 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     if (category === 'ev_miles') return 'EV Miles Driven';
     if (category === 'battery') return 'Battery Storage';
     if (category === 'charging') return 'EV Charging';
+    return category;
+  };
+
+  const getCategoryLabelWithUnit = (category: MintCategory): string => {
+    if (category === 'all') return 'All Clean Energy Activity';
+    if (category === 'solar') return 'Solar Energy Produced kWh';
+    if (category === 'ev_miles') return 'EV Miles Driven';
+    if (category === 'battery') return 'Battery Storage kWh';
+    if (category === 'charging') return 'EV Charging kWh';
     return category;
   };
 
@@ -443,7 +454,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 You are about to mint
               </p>
               <p className="text-center text-base font-semibold text-primary">
-                {getCategoryLabel(pendingMintCategory)} ({getCategoryUnit(pendingMintCategory)})
+                {getCategoryLabelWithUnit(pendingMintCategory)}
               </p>
               <p className="text-center text-sm text-muted-foreground">
                 tokens:
@@ -467,6 +478,30 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                   </div>
                   <span className="font-semibold text-sm">{getCategoryLabel(pendingMintCategory)}</span>
                 </div>
+
+                {/* Supercharger vs Home Charger breakdown for charging category */}
+                {pendingMintCategory === 'charging' && (pendingRewards.superchargerKwh || pendingRewards.homeChargerKwh) ? (
+                  <div className="flex flex-col gap-1 text-xs text-muted-foreground pt-1">
+                    {(pendingRewards.superchargerKwh ?? 0) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Zap className="h-3 w-3 text-purple-500" />
+                          Tesla Supercharger
+                        </span>
+                        <span className="font-medium text-foreground tabular-nums">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} kWh</span>
+                      </div>
+                    )}
+                    {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Zap className="h-3 w-3 text-emerald-500" />
+                          Home Charger
+                        </span>
+                        <span className="font-medium text-foreground tabular-nums">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} kWh</span>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
 
                 {/* Big token amount */}
                 <div className="flex items-baseline justify-between py-0.5">

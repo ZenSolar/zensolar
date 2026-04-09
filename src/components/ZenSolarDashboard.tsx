@@ -257,6 +257,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
                 evMiles: currentActivity.evMiles,
                 battery: currentActivity.batteryKwh,
                 charging: currentActivity.chargingKwh,
+                superchargerKwh: currentActivity.superchargerKwh,
+                homeChargerKwh: currentActivity.homeChargerKwh,
               }}
             />
           </AnimatedItem>

@@ -194,6 +194,8 @@ export function DemoDashboard() {
               evMiles: currentActivity.evMiles,
               battery: currentActivity.batteryKwh,
               charging: currentActivity.chargingKwh,
+              superchargerKwh: currentActivity.superchargerKwh,
+              homeChargerKwh: currentActivity.homeChargerKwh,
             }}
             demoMintHandler={demoMintHandler}
           />
