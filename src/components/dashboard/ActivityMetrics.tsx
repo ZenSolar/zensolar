@@ -606,6 +606,29 @@ export function ActivityMetrics({
 }
 
 // Color mapping - ZenSolar logo-themed palette (gold, teal, green)
+// Particle shape clip-paths per energy category
+const particleShapes: Record<string, string> = {
+  // Sun ray — 4-pointed starburst
+  gold: 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)',
+  // Leaf shape — organic teardrop
+  green: 'polygon(50% 0%, 80% 30%, 90% 70%, 50% 100%, 10% 70%, 20% 30%)',
+  // Lightning bolt
+  cyan: 'polygon(30% 0%, 70% 0%, 55% 40%, 80% 40%, 25% 100%, 40% 55%, 15% 55%)',
+  // Battery / energy cell
+  teal: 'polygon(20% 10%, 80% 10%, 80% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 20% 0%)',
+  // Lightning bolt (charging)
+  greenGold: 'polygon(30% 0%, 70% 0%, 55% 40%, 80% 40%, 25% 100%, 40% 55%, 15% 55%)',
+};
+
+// Haptic intensity per category for distinct feel
+const hapticPattern: Record<string, number[]> = {
+  gold: [15, 30, 10],        // Solar: warm double-pulse
+  teal: [25],                // Battery: solid thump
+  green: [8, 20, 8, 20, 8], // EV Miles: rapid road-rumble
+  cyan: [30, 15, 30],       // Supercharger: electric zap
+  greenGold: [20, 10, 20],  // Home charger: steady pulse
+};
+
 const colorStyles = {
   gold: { 
     gradient: 'from-amber-500 to-yellow-500',
@@ -682,14 +705,24 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
   const [isBursting, setIsBursting] = useState(false);
+  const shape = particleShapes[color] || '';
+  const haptic = hapticPattern[color] || [15];
   
   // Track touch start position to distinguish taps from scrolls
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
 
   const triggerBurst = useCallback(() => {
     setIsBursting(true);
-    setTimeout(() => setIsBursting(false), 700);
-  }, []);
+    // Haptic feedback — category-specific vibration pattern
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(haptic); } catch { /* silent */ }
+    }
+    // Also try Capacitor Haptics for native
+    import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+    }).catch(() => {});
+    setTimeout(() => setIsBursting(false), 800);
+  }, [haptic]);
 
   const handleTap = () => {
     if (isTappable && onTap) {
@@ -734,8 +767,13 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       onClick={handleTap}
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
-      whileTap={isTappable ? { scale: 0.98 } : undefined}
+      whileTap={isTappable ? { scale: 0.95 } : undefined}
       whileHover={isTappable ? { scale: 1.01, y: -1 } : undefined}
+      animate={isBursting ? { 
+        scale: [0.95, 1.03, 1],
+        borderColor: [`rgba(${styles.rgba}, 0.8)`, `rgba(${styles.rgba}, 0.3)`, 'rgba(255,255,255,0.1)'],
+      } : {}}
+      transition={isBursting ? { duration: 0.4, ease: 'easeOut' } : { duration: 0.15 }}
       className={cn(
         "p-3.5 rounded-xl border-l-[3px] border border-border/50 transition-all flex items-center gap-3.5 relative overflow-hidden touch-manipulation",
         styles.leftBorder,
@@ -773,26 +811,30 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               }}
             />
           ))}
-          {/* Scattered energy particles */}
-          {Array.from({ length: 8 }).map((_, i) => {
-            const angle = (i / 8) * 360;
+          {/* Shaped energy particles — unique per category */}
+          {Array.from({ length: 10 }).map((_, i) => {
+            const angle = (i / 10) * 360 + (Math.random() * 20 - 10);
             const rad = (angle * Math.PI) / 180;
-            const tx = Math.cos(rad) * (50 + Math.random() * 30);
-            const ty = Math.sin(rad) * (20 + Math.random() * 15);
+            const dist = 40 + Math.random() * 50;
+            const tx = Math.cos(rad) * dist;
+            const ty = Math.sin(rad) * (15 + Math.random() * 20);
+            const size = 6 + Math.random() * 5;
+            const rotation = Math.random() * 360;
             return (
               <div
                 key={`particle-${i}`}
-                className="absolute pointer-events-none rounded-full"
+                className="absolute pointer-events-none"
                 style={{
                   left: 28,
                   top: '50%',
-                  width: 4 + Math.random() * 3,
-                  height: 4 + Math.random() * 3,
+                  width: size,
+                  height: size,
                   background: `rgba(${styles.rgba}, ${0.8 + Math.random() * 0.2})`,
-                  boxShadow: `0 0 6px rgba(${styles.rgba}, 0.6)`,
-                  animation: `zenFlareParticle 500ms ${i * 30}ms ease-out forwards`,
+                  boxShadow: `0 0 8px rgba(${styles.rgba}, 0.7)`,
+                  clipPath: shape,
+                  transform: `rotate(${rotation}deg)`,
+                  animation: `zenFlareParticle 600ms ${i * 25}ms ease-out forwards`,
                   willChange: 'transform, opacity',
-                  // @ts-ignore custom properties for animation
                   '--tx': `${tx}px`,
                   '--ty': `${ty}px`,
                 } as React.CSSProperties}
