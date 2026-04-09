@@ -296,9 +296,18 @@ export function TokenPriceCard({
           transition: 'box-shadow 0.4s ease-out',
           borderRadius: 'var(--radius)',
         } as React.CSSProperties}
-        className="cursor-pointer touch-manipulation select-none"
+        className="cursor-pointer touch-manipulation select-none relative"
       >
-        <Card className="wallet-card-glass relative overflow-hidden border-primary/30">
+        {/* Outer ambient glow */}
+        <div 
+          className="absolute -inset-1.5 pointer-events-none rounded-xl z-0"
+          style={{
+            background: 'radial-gradient(ellipse 90% 70% at 50% 40%, hsl(var(--primary) / 0.1), transparent 70%)',
+            animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
+            filter: 'blur(6px)',
+          }}
+        />
+        <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10">
           {/* Shimmer band */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.06] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
@@ -487,11 +496,21 @@ export function TokenPriceCard({
   // ── Expanded view ──
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
     >
-      <Card className="wallet-card-glass relative overflow-hidden border-primary/30" style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)' }}>
+      {/* Outer ambient glow */}
+      <div 
+        className="absolute -inset-1.5 pointer-events-none rounded-xl z-0"
+        style={{
+          background: 'radial-gradient(ellipse 90% 70% at 50% 40%, hsl(var(--primary) / 0.1), transparent 70%)',
+          animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
+          filter: 'blur(6px)',
+        }}
+      />
+      <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10" style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.2), 0 0 8px hsl(var(--primary) / 0.15), 0 0 40px hsl(var(--primary) / 0.06)' }}>
         {/* Background effects */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />

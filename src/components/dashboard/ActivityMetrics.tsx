@@ -255,11 +255,11 @@ export function ActivityMetrics({
       {/* Outer ambient glow — lives outside the card */}
       {activityUnits > 0 && (
         <div 
-          className="absolute -inset-3 pointer-events-none rounded-2xl z-0"
+          className="absolute -inset-1.5 pointer-events-none rounded-xl z-0"
           style={{
-            background: 'radial-gradient(ellipse 90% 70% at 50% 40%, hsl(var(--primary) / 0.12), transparent 70%)',
+            background: 'radial-gradient(ellipse 90% 70% at 50% 40%, hsl(var(--primary) / 0.1), transparent 70%)',
             animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
-            filter: 'blur(8px)',
+            filter: 'blur(6px)',
           }}
         />
       )}
