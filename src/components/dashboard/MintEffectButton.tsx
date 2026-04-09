@@ -72,11 +72,13 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
     [stateRef.current.burstKey]
   );
 
-  // Batch state update helper — single render per update
+  // Batch state update helper — synchronous render to guarantee visuals fire with sound
   const updateState = useCallback((patch: Partial<ButtonState>) => {
     Object.assign(stateRef.current, patch);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(forceRender);
+    rafRef.current = null;
+    // Force synchronous render so burst visuals are never skipped
+    forceRender();
   }, [forceRender]);
 
   useEffect(() => {

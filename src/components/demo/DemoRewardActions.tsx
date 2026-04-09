@@ -429,8 +429,8 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         <DialogContent className="sm:max-w-sm p-0 overflow-hidden border-primary/20">
           {pendingMintCategory && (
             <div className="px-4 pt-5 pb-4 space-y-3">
-              {/* Header — icon + title inline */}
-              <div className="flex items-center gap-2.5">
+              {/* Header — icon + title centered */}
+              <div className="flex flex-col items-center gap-2">
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   pendingMintCategory === 'solar' ? 'bg-amber-500/15 text-amber-500' :
                   pendingMintCategory === 'ev_miles' ? 'bg-blue-500/15 text-blue-500' :
