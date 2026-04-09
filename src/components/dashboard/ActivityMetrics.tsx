@@ -1178,9 +1178,6 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
 }
 
 // Touch threshold constants - shared across all tappable elements
-const TOUCH_DELTA_THRESHOLD = 15; // pixels - increased for better scroll detection
-const TOUCH_TIME_THRESHOLD = 400; // ms - increased to allow more deliberate taps
-
 interface TotalTokensCardProps {
   tokensToReceive: number;
   activityUnits: number;
