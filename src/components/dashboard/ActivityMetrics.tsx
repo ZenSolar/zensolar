@@ -700,9 +700,10 @@ interface ActivityFieldProps {
   isLoading?: boolean;
   historyLink?: string;
   liveIndicator?: boolean;
+  showBadge?: boolean;
 }
 
-function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator }: ActivityFieldProps) {
+function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator, showBadge }: ActivityFieldProps) {
   const navigate = useNavigate();
   const styles = colorStyles[color];
   const isTappable = active && onTap && !isLoading;
