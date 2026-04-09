@@ -285,22 +285,47 @@ export function useMintSound() {
       zen2.start(zenTime + 0.08);
       zen2.stop(zenTime + 0.95);
 
-      // --- Phase 3: BASS SWELL — deep confirmation that rises gently ---
+      // --- Phase 3: BASS DESCENT — only descends, then dissipates ---
       const swellGain = ctx.createGain();
       swellGain.gain.setValueAtTime(0, now + 0.1);
-      swellGain.gain.linearRampToValueAtTime(0.12, now + 0.3);
-      swellGain.gain.setValueAtTime(0.12, now + 0.5);
-      swellGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+      swellGain.gain.linearRampToValueAtTime(0.12, now + 0.2);
+      swellGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
       swellGain.connect(ctx.destination);
 
       const swell = ctx.createOscillator();
       swell.type = 'sine';
-      swell.frequency.setValueAtTime(55, now + 0.1); // A1 — deep bass foundation
-      swell.frequency.linearRampToValueAtTime(65, now + 0.5); // Gently rises
-      swell.frequency.exponentialRampToValueAtTime(45, now + 1.0); // Settles back
+      swell.frequency.setValueAtTime(55, now + 0.1);
+      swell.frequency.exponentialRampToValueAtTime(22, now + 0.9); // Only descends
       swell.connect(swellGain);
       swell.start(now + 0.1);
-      swell.stop(now + 1.15);
+      swell.stop(now + 1.05);
+
+      // --- Phase 3b: DISSIPATION — energy dispersing into silence ---
+      const dissLen = 0.35;
+      const dissSize = Math.ceil(ctx.sampleRate * dissLen);
+      const dissBuf = ctx.createBuffer(1, dissSize, ctx.sampleRate);
+      const dissData = dissBuf.getChannelData(0);
+      for (let i = 0; i < dissSize; i++) {
+        const t = i / dissSize;
+        const env = Math.pow(1 - t, 3);
+        dissData[i] = (Math.random() * 2 - 1) * env;
+      }
+      const dissSrc = ctx.createBufferSource();
+      dissSrc.buffer = dissBuf;
+
+      const dissLP = ctx.createBiquadFilter();
+      dissLP.type = 'lowpass';
+      dissLP.frequency.setValueAtTime(180, now + 0.5);
+      dissLP.frequency.exponentialRampToValueAtTime(40, now + 0.5 + dissLen);
+
+      const dissGain = ctx.createGain();
+      dissGain.gain.setValueAtTime(0.05, now + 0.5);
+
+      dissSrc.connect(dissLP);
+      dissLP.connect(dissGain);
+      dissGain.connect(ctx.destination);
+      dissSrc.start(now + 0.5);
+      dissSrc.stop(now + 0.5 + dissLen + 0.01);
 
       // --- Phase 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const tailGain = ctx.createGain();
