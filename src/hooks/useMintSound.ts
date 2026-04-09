@@ -86,28 +86,28 @@ export function useMintSound() {
       sub.start(now);
       sub.stop(now + 0.32);
 
-      // --- Layer 2: DEEP ZEN BOWL — low meditative resonance (matches confirm) ---
+      // --- Layer 2: DEEP ZEN BOWL — louder, longer, more meditative ---
       const zenTime = now + 0.04;
       const zenGain = ctx.createGain();
       zenGain.gain.setValueAtTime(0, zenTime);
-      zenGain.gain.linearRampToValueAtTime(0.08, zenTime + 0.08);
-      zenGain.gain.setValueAtTime(0.08, zenTime + 0.25);
-      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.8);
+      zenGain.gain.linearRampToValueAtTime(0.12, zenTime + 0.1);
+      zenGain.gain.setValueAtTime(0.12, zenTime + 0.35);
+      zenGain.gain.exponentialRampToValueAtTime(0.001, zenTime + 1.0);
       zenGain.connect(ctx.destination);
 
       const zen = ctx.createOscillator();
       zen.type = 'sine';
-      zen.frequency.setValueAtTime(110, zenTime); // A2 — deep om, same as confirm
+      zen.frequency.setValueAtTime(110, zenTime); // A2 — deep om
       zen.connect(zenGain);
       zen.start(zenTime);
-      zen.stop(zenTime + 0.85);
+      zen.stop(zenTime + 1.05);
 
-      // Bowl harmonic fifth — warm, not metallic
+      // Bowl harmonic fifth — louder presence
       const zen2Gain = ctx.createGain();
       zen2Gain.gain.setValueAtTime(0, zenTime + 0.06);
-      zen2Gain.gain.linearRampToValueAtTime(0.04, zenTime + 0.15);
-      zen2Gain.gain.setValueAtTime(0.04, zenTime + 0.3);
-      zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.7);
+      zen2Gain.gain.linearRampToValueAtTime(0.06, zenTime + 0.15);
+      zen2Gain.gain.setValueAtTime(0.06, zenTime + 0.4);
+      zen2Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.9);
       zen2Gain.connect(ctx.destination);
 
       const zen2 = ctx.createOscillator();
@@ -115,9 +115,24 @@ export function useMintSound() {
       zen2.frequency.setValueAtTime(165, zenTime + 0.06); // E3 — perfect fifth
       zen2.connect(zen2Gain);
       zen2.start(zenTime + 0.06);
-      zen2.stop(zenTime + 0.75);
+      zen2.stop(zenTime + 0.95);
 
-      // --- Layer 3: BASS DESCENT — only goes down, never rebounds ---
+      // Third bowl voice — sub-octave for extra depth
+      const zen3Gain = ctx.createGain();
+      zen3Gain.gain.setValueAtTime(0, zenTime + 0.02);
+      zen3Gain.gain.linearRampToValueAtTime(0.05, zenTime + 0.12);
+      zen3Gain.gain.setValueAtTime(0.05, zenTime + 0.3);
+      zen3Gain.gain.exponentialRampToValueAtTime(0.001, zenTime + 0.85);
+      zen3Gain.connect(ctx.destination);
+
+      const zen3 = ctx.createOscillator();
+      zen3.type = 'sine';
+      zen3.frequency.setValueAtTime(55, zenTime + 0.02); // A1 — sub-octave om
+      zen3.connect(zen3Gain);
+      zen3.start(zenTime + 0.02);
+      zen3.stop(zenTime + 0.9);
+
+      // --- Layer 3: BASS DESCENT ---
       const swellGain = ctx.createGain();
       swellGain.gain.setValueAtTime(0, now + 0.08);
       swellGain.gain.linearRampToValueAtTime(0.08, now + 0.15);
@@ -127,39 +142,69 @@ export function useMintSound() {
       const swell = ctx.createOscillator();
       swell.type = 'sine';
       swell.frequency.setValueAtTime(55, now + 0.08);
-      swell.frequency.exponentialRampToValueAtTime(28, now + 0.65); // Only descends
+      swell.frequency.exponentialRampToValueAtTime(28, now + 0.65);
       swell.connect(swellGain);
       swell.start(now + 0.08);
       swell.stop(now + 0.72);
 
-      // --- Layer 3b: DISSIPATION — energy converting to digital currency ---
-      // The sound of energy transforming into on-chain value
-      const dissLen = 0.5;
-      const dissSize = Math.ceil(ctx.sampleRate * dissLen);
-      const dissBuf = ctx.createBuffer(1, dissSize, ctx.sampleRate);
-      const dissData = dissBuf.getChannelData(0);
-      for (let i = 0; i < dissSize; i++) {
-        const t = i / dissSize;
-        const env = Math.pow(1 - t, 2.5); // Smooth energy release curve
-        dissData[i] = (Math.random() * 2 - 1) * env;
+      // --- Layer 3b: TRON DISSOLVE — kWh derezzing into the grid ---
+      // A descending digital tone that fragments into granular noise
+      // Like energy literally pixelating and dissolving on-chain
+
+      // Derez tone — descending sawtooth that "breaks apart"
+      const derezGain = ctx.createGain();
+      derezGain.gain.setValueAtTime(0, now + 0.1);
+      derezGain.gain.linearRampToValueAtTime(0.12, now + 0.15);
+      derezGain.gain.setValueAtTime(0.12, now + 0.25);
+      derezGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+      derezGain.connect(ctx.destination);
+
+      const derez = ctx.createOscillator();
+      derez.type = 'sawtooth';
+      derez.frequency.setValueAtTime(200, now + 0.1);
+      derez.frequency.exponentialRampToValueAtTime(30, now + 0.75); // Sweeps way down
+
+      const derezLP = ctx.createBiquadFilter();
+      derezLP.type = 'lowpass';
+      derezLP.frequency.setValueAtTime(500, now + 0.1);
+      derezLP.frequency.exponentialRampToValueAtTime(60, now + 0.75); // Filter closes = dissolving
+      derezLP.Q.value = 2; // Resonant peak = that Tron "digital" character
+
+      derez.connect(derezLP);
+      derezLP.connect(derezGain);
+      derez.start(now + 0.1);
+      derez.stop(now + 0.82);
+
+      // Digital grain — sparse noise particles, like data fragments scattering
+      const grainLen = 0.6;
+      const grainSize = Math.ceil(ctx.sampleRate * grainLen);
+      const grainBuf = ctx.createBuffer(1, grainSize, ctx.sampleRate);
+      const grainData = grainBuf.getChannelData(0);
+      for (let i = 0; i < grainSize; i++) {
+        const t = i / grainSize;
+        const env = Math.pow(1 - t, 1.8);
+        // Sparse digital particles — only ~15% of samples have signal
+        const isParticle = Math.random() < (0.15 * (1 - t * 0.7));
+        grainData[i] = isParticle ? (Math.random() * 2 - 1) * env : 0;
       }
-      const dissSrc = ctx.createBufferSource();
-      dissSrc.buffer = dissBuf;
+      const grainSrc = ctx.createBufferSource();
+      grainSrc.buffer = grainBuf;
 
-      const dissLP = ctx.createBiquadFilter();
-      dissLP.type = 'lowpass';
-      dissLP.frequency.setValueAtTime(350, now + 0.15); // Starts warm
-      dissLP.frequency.exponentialRampToValueAtTime(40, now + 0.15 + dissLen); // Closes down to nothing
+      const grainBP = ctx.createBiquadFilter();
+      grainBP.type = 'bandpass';
+      grainBP.frequency.setValueAtTime(400, now + 0.15);
+      grainBP.frequency.exponentialRampToValueAtTime(80, now + 0.15 + grainLen);
+      grainBP.Q.value = 1.5;
 
-      const dissGain = ctx.createGain();
-      dissGain.gain.setValueAtTime(0.15, now + 0.15); // Much louder — this is the signature
-      dissGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15 + dissLen);
+      const grainGain = ctx.createGain();
+      grainGain.gain.setValueAtTime(0.18, now + 0.15);
+      grainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15 + grainLen);
 
-      dissSrc.connect(dissLP);
-      dissLP.connect(dissGain);
-      dissGain.connect(ctx.destination);
-      dissSrc.start(now + 0.15);
-      dissSrc.stop(now + 0.15 + dissLen + 0.01);
+      grainSrc.connect(grainBP);
+      grainBP.connect(grainGain);
+      grainGain.connect(ctx.destination);
+      grainSrc.start(now + 0.15);
+      grainSrc.stop(now + 0.15 + grainLen + 0.01);
 
       // --- Layer 4: ELECTRIC WARMTH — filtered sawtooth undertow ---
       const techGain = ctx.createGain();
