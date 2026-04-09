@@ -451,13 +451,10 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
               {/* Subtitle */}
               <p className="text-center text-sm text-muted-foreground">
-                You are about to mint tokens
+                You are about to mint
               </p>
               <p className="text-center text-base font-semibold text-primary">
                 {getCategoryLabelWithUnit(pendingMintCategory)}
-              </p>
-              <p className="text-center text-sm text-muted-foreground">
-                tokens:
               </p>
 
               <div className="rounded-xl border border-border/60 p-4 space-y-2">
