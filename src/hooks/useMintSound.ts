@@ -111,6 +111,20 @@ export function useMintSound() {
       tex.start(now);
       tex.stop(now + texLen);
 
+      // --- Layer 4: Pseudo-haptic click burst (iPhone tactile trick) ---
+      // Ultra-short 5ms sine at 150Hz — through speakers it feels almost physical
+      const clickGain = ctx.createGain();
+      clickGain.gain.setValueAtTime(0.18, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.005);
+      clickGain.connect(ctx.destination);
+
+      const click = ctx.createOscillator();
+      click.type = 'sine';
+      click.frequency.setValueAtTime(150, now);
+      click.connect(clickGain);
+      click.start(now);
+      click.stop(now + 0.008);
+
       // --- Haptic: light tap synchronized with sound ---
       triggerHaptic('light');
     } catch {
