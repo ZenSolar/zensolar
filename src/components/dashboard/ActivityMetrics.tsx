@@ -279,16 +279,6 @@ export function ActivityMetrics({
             borderBottom: '1px solid hsl(var(--primary) / 0.15)',
           }}
         >
-          {/* Animated ambient glow */}
-          {activityUnits > 0 && (
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse 80% 60% at 30% 50%, hsl(var(--primary) / 0.08), transparent 70%)',
-                animation: 'zenChargeUpPulse 3s ease-in-out infinite alternate',
-              }}
-            />
-          )}
 
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-2.5">
