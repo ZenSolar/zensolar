@@ -715,6 +715,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const [isPressing, setIsPressing] = useState(false);
   const [showTapAgain, setShowTapAgain] = useState(false);
   const [touchPoint, setTouchPoint] = useState<{ x: number; y: number } | null>(null);
+  const [isSecondTap, setIsSecondTap] = useState(false);
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
   const cardRef = React.useRef<HTMLDivElement>(null);
