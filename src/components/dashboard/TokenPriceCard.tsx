@@ -310,9 +310,9 @@ export function TokenPriceCard({
           {/* Purple shimmer sweep */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <ShimmerOverlay
-              gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.25) 25%, hsl(280 72% 70% / 0.45) 50%, hsl(280 68% 60% / 0.25) 75%, transparent 100%)"
-              glowColor="hsla(280, 68%, 60%, 0.06)"
-              duration="5s"
+              gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 20%, hsl(280 72% 70% / 0.55) 50%, hsl(280 68% 60% / 0.3) 80%, transparent 100%)"
+              glowColor="hsla(280, 68%, 60%, 0.15)"
+              duration="4.5s"
               idleDelay="0s"
             />
           </div>
@@ -517,9 +517,9 @@ export function TokenPriceCard({
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.25) 25%, hsl(280 72% 70% / 0.45) 50%, hsl(280 68% 60% / 0.25) 75%, transparent 100%)"
-            glowColor="hsla(280, 68%, 60%, 0.06)"
-            duration="5s"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 20%, hsl(280 72% 70% / 0.55) 50%, hsl(280 68% 60% / 0.3) 80%, transparent 100%)"
+            glowColor="hsla(280, 68%, 60%, 0.15)"
+            duration="4.5s"
             idleDelay="0s"
           />
           {/* Corner accent */}
