@@ -8,7 +8,7 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
-import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
+
 
 
 const LS_KEY = 'zen_demo_access';
@@ -315,7 +315,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         minHeight: '100dvh',
       }}
     >
-      <AudioDebugOverlay />
+      
       <div
         className="absolute inset-0"
         style={{

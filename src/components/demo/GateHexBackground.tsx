@@ -104,7 +104,7 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
       const CURTAIN_DURATION = 8.0;
-      const CURTAIN_SWEEP = 5.0;      // seconds for the leading edge to cross the screen
+      const CURTAIN_SWEEP = 6.5;      // seconds for the leading edge to cross the screen (slower)
       const curtainActive = actElapsed !== null && actElapsed < CURTAIN_DURATION;
       // Global fade-out in the last 2 seconds
       const curtainFade = curtainActive
@@ -155,11 +155,12 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
             // Positive = curtain has passed this hex (above/behind), negative = not yet reached
             const distBehind = curtainY - cy;
             
-            if (distBehind > -hexHeight * 2) {
-              // LEADING EDGE: intense bright band at the curtain front (~3 hex rows wide)
+            if (distBehind > -hexHeight * 4) {
+              // LEADING EDGE: wide intense band (~5 hex rows) that really pops
+              const edgeWidth = hexHeight * 5;
               const edgeDist = Math.abs(cy - curtainY);
-              const edgeGlow = edgeDist < hexHeight * 3
-                ? Math.pow(1 - edgeDist / (hexHeight * 3), 1.5) * 0.95
+              const edgeGlow = edgeDist < edgeWidth
+                ? Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0
                 : 0;
               
               // TRAIL: very faint residual glow behind the leading edge
