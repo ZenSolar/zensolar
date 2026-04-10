@@ -108,7 +108,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
 
-  const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
+  const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
