@@ -17,6 +17,7 @@ export function getSharedAudioContext(): AudioContext | null {
 }
 
 const IMMEDIATE_SOUND_LEAD = 0.008;
+const WARM_START_SOUND_LEAD = 0.18;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
 const isStandalonePWA = () => {
@@ -130,13 +131,18 @@ export function useMintSound() {
     try {
       const ctx = getCtx();
       if (!ctx) return null;
+      const needsWarmStart = ctx.state !== 'running';
       // Resume synchronously — nodes scheduled while suspended play once running
-      if (ctx.state !== 'running') {
+      if (needsWarmStart) {
         ctx.resume().catch(() => {});
       }
       fireSilentUnlockPulse(ctx);
-      // Use currentTime directly — no lead delay for snappier response
-      return { ctx, now: ctx.currentTime };
+      // On a cold/warm start, schedule slightly ahead so mobile browsers
+      // have time to bring the audio hardware online before playback begins.
+      return {
+        ctx,
+        now: ctx.currentTime + (needsWarmStart ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD),
+      };
     } catch {
       return null;
     }
