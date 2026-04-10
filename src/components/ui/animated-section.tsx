@@ -9,7 +9,7 @@ interface AnimatedSectionProps extends Omit<HTMLMotionProps<'div'>, 'children'> 
 const fadeInUp = {
   hidden: { 
     opacity: 0, 
-    y: 20 
+    y: 6 
   },
   visible: { 
     opacity: 1, 
