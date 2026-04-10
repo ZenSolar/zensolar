@@ -100,6 +100,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [forceRender]);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const lockButtonRef = useRef<HTMLButtonElement>(null);
   const lastTapTimeRef = useRef<number>(0);
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -266,6 +267,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playMintSound, startShimmerSound, updateState]);
 
+  // Native event listeners for iOS gesture-chain audio unlock
+  useEffect(() => {
+    const btn = lockButtonRef.current;
+    if (!btn) return;
+    const onTouch = (e: TouchEvent) => { e.preventDefault(); handleLockPointerDown(); };
+    const onPointer = (e: PointerEvent) => { if (e.pointerType === 'touch') return; handleLockPointerDown(); };
+    btn.addEventListener('touchstart', onTouch, { capture: true, passive: false });
+    btn.addEventListener('pointerdown', onPointer, true);
+    return () => {
+      btn.removeEventListener('touchstart', onTouch, true);
+      btn.removeEventListener('pointerdown', onPointer, true);
+    };
+  }, [handleLockPointerDown]);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       primeAudio();
@@ -286,8 +301,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] bg-background overflow-hidden touch-none"
+      className="fixed inset-0 z-[100] overflow-hidden touch-none"
       style={{
+        backgroundColor: hexAwake ? 'hsl(var(--background))' : '#0a1628',
         overscrollBehavior: 'none',
         minHeight: '100dvh',
       }}
@@ -301,7 +317,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           height: '100%',
         }}
       >
-        <GateHexBackground />
+        <GateHexBackground activated={hexAwake} />
       </div>
 
       {/* Radial vignette */}
@@ -384,10 +400,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             )}
 
             <button
-              onPointerDownCapture={(e) => {
-                if (e.pointerType !== 'touch') handleLockPointerDown();
-              }}
-              onTouchStartCapture={handleLockPointerDown}
+              ref={lockButtonRef}
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
@@ -409,6 +422,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   ? 'zenCircleBreathe 2.8s ease-in-out infinite'
                   : 'none',
               }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleLockPointerDown(); } }}
             >
               {isBursting ? (
                 <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />

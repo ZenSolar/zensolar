@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { getSharedAudioContext } from './useMintSound';
+import { getSharedAudioContext, runWhenAudioContextRunning } from './useMintSound';
 
 /**
  * useShimmerSound — continuous lightsaber-style ambient hum
@@ -83,7 +83,15 @@ export function useShimmerSound({
 
     if (ctx.state !== 'running') {
       if (scheduledStartTime !== undefined) {
+        pendingStartRef.current = true;
         ctx.resume().catch(() => {});
+        runWhenAudioContextRunning(
+          ctx,
+          () => { pendingStartRef.current = false; startSoundInternal(Math.max(scheduledStartTime, ctx.currentTime + 0.02)); },
+          1500,
+          () => { pendingStartRef.current = false; },
+        );
+        return true;
       } else {
         pendingStartRef.current = true;
         ctx.resume().then(() => {

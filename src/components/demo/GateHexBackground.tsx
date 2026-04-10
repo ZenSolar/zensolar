@@ -4,8 +4,20 @@ import { useEffect, useRef } from 'react';
  * A faster, brighter variant of DashboardHexBackground
  * designed for the access gate — frenetic, alive, teasing energy.
  */
-export function GateHexBackground() {
+interface GateHexBackgroundProps {
+  activated?: boolean;
+}
+
+export function GateHexBackground({ activated = false }: GateHexBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const activationStartRef = useRef<number | null>(null);
+  const activatedRef = useRef(activated);
+
+  useEffect(() => {
+    if (activated && !activatedRef.current) activationStartRef.current = performance.now();
+    if (!activated) activationStartRef.current = null;
+    activatedRef.current = activated;
+  }, [activated]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -88,6 +100,14 @@ export function GateHexBackground() {
       const driftB = time * 400;
       const driftC = time * 300;
 
+      // Rainfall intro
+      const actStart = activationStartRef.current;
+      const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
+      const rainActive = actElapsed !== null && actElapsed < 2.2;
+      const rainHead = rainActive ? -hexHeight * 2 + Math.min(actElapsed / 1.15, 1) * (h + hexHeight * 4) : 0;
+      const rainBand = hexHeight * 2.4;
+      const rainIntensity = rainActive ? Math.max(0, 1 - Math.max(actElapsed - 1.3, 0) / 0.9) : 0;
+
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
 
@@ -123,7 +143,13 @@ export function GateHexBackground() {
 
           // Stronger contribution from waves + shimmer + flicker
           alpha += bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
-          alpha = Math.min(alpha, 0.55);
+
+          if (rainActive) {
+            const dist = Math.abs(cy - rainHead);
+            if (dist < rainBand) alpha += Math.pow(1 - dist / rainBand, 2.6) * 0.28 * rainIntensity;
+          }
+
+          alpha = Math.min(alpha, rainActive ? 0.72 : 0.55);
 
           if (alpha < 0.06) continue;
 
