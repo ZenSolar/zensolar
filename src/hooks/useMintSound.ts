@@ -10,6 +10,12 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 let sharedAudioContext: AudioContext | null = null;
 let unlockListenersInstalled = false;
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+
+/** Expose the shared AudioContext for other audio hooks (e.g. useShimmerSound) */
+export function getSharedAudioContext(): AudioContext | null {
+  return sharedAudioContext;
+}
+
 const IMMEDIATE_SOUND_LEAD = 0.008;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
