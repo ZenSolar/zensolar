@@ -66,6 +66,7 @@ interface GateState {
   firstTapBurst: boolean;
   burstKey: number;
   revealed: boolean; // true after first tap — switches $Z → Lock
+  hexAwake: boolean; // hex background activates on first tap
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
