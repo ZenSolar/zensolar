@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Lock, Sparkles, ShieldCheck, Sun, Zap, Battery, Car } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +9,7 @@ import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
 
 const LS_KEY = 'zen_demo_access';
-const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const TTL_MS = 24 * 60 * 60 * 1000;
 
 function isAccessGranted(): boolean {
   try {
@@ -26,7 +26,7 @@ function grantAccess() {
   localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now() }));
 }
 
-// ─── Burst particles (reused from MintEffectButton aesthetic) ────
+// ─── Burst particles ────
 const PARTICLE_COUNT = 12;
 const RGBA = '34, 197, 94';
 const PARTICLE_SHAPE = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
@@ -47,15 +47,24 @@ function generateParticles() {
   });
 }
 
+// ─── Timing constants ────
+const DOUBLE_TAP_WINDOW = 500;
+const FIRST_TAP_BURST_MS = 700;    // Snappy first-tap visual
+const GHOST_CLICK_SUPPRESSION = 400;
+
 interface DemoAccessGateProps {
   children: React.ReactNode;
 }
 
-const DOUBLE_TAP_WINDOW = 500;
-const BURST_DURATION = 1200;
+// ─── Interaction state managed via ref to avoid re-render storms ────
+interface GateState {
+  phase: 'idle' | 'verifying' | 'burst' | 'denied';
+  showTapAgain: boolean;
+  firstTapBurst: boolean;
+  burstKey: number;
+}
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
-  // ?reset query param clears the stored access for easy testing
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
@@ -66,17 +75,36 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return isAccessGranted();
   });
   const [code, setCode] = useState('');
-  const [phase, setPhase] = useState<'idle' | 'verifying' | 'burst' | 'denied'>('idle');
-  const [burstKey, setBurstKey] = useState(0);
   const [showHint, setShowHint] = useState(false);
-  const [showTapAgain, setShowTapAgain] = useState(false);
-  const [firstTapBurst, setFirstTapBurst] = useState(false);
+
+  // ── stateRef pattern: single ref holds all interaction state ──
+  const stateRef = useRef<GateState>({
+    phase: 'idle',
+    showTapAgain: false,
+    firstTapBurst: false,
+    burstKey: 0,
+  });
+  const [, setRenderTick] = useState(0);
+  const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
+  const updateState = useCallback((patch: Partial<GateState>) => {
+    Object.assign(stateRef.current, patch);
+    forceRender();
+  }, [forceRender]);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const lastTapTimeRef = useRef<number>(0);
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const particles = generateParticles();
+  const ignorePointerUntilRef = useRef<number>(0);
+
   const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
+
+  // Stable particles — only regenerate on burstKey change
+  const particles = useMemo(
+    () => generateParticles(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stateRef.current.burstKey]
+  );
 
   // Focus input on mount
   useEffect(() => {
@@ -93,23 +121,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
   }, []);
 
+  // ── Core submit logic ──
   const submitCode = useCallback(async () => {
     const trimmed = code.trim();
-    if (!trimmed || phase === 'verifying' || phase === 'burst') return;
+    const s = stateRef.current;
+    if (!trimmed || s.phase === 'verifying' || s.phase === 'burst') return;
 
-    setPhase('verifying');
+    updateState({ phase: 'verifying', showTapAgain: false });
     setShowHint(false);
-    setShowTapAgain(false);
 
     try {
       const { data, error } = await supabase.rpc('verify_demo_code', { _code: trimmed });
-
       if (error) throw error;
 
       if (data === true) {
-        // Success burst!
-        setPhase('burst');
-        setBurstKey(k => k + 1);
+        updateState({ phase: 'burst', burstKey: s.burstKey + 1 });
         playMintSound();
 
         if ('vibrate' in navigator) {
@@ -121,72 +147,82 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           setGranted(true);
         }, 1000);
       } else {
-        setPhase('denied');
+        updateState({ phase: 'denied' });
         playDeniedSound();
         toast.error('Invalid access code', { description: 'Please check your code and try again.' });
 
         setTimeout(() => {
-          setPhase('idle');
+          updateState({ phase: 'idle' });
           setCode('');
           lastTapTimeRef.current = 0;
           inputRef.current?.focus();
         }, 600);
       }
     } catch {
-      setPhase('idle');
+      updateState({ phase: 'idle' });
       toast.error('Connection error', { description: 'Please try again.' });
     }
-  }, [code, phase, playMintSound, playDeniedSound]);
+  }, [code, playMintSound, playDeniedSound, updateState]);
 
-  const handleLockTap = useCallback(() => {
+  // ── Trigger first-tap burst (shared between single & double) ──
+  const triggerBurst = useCallback(() => {
+    const s = stateRef.current;
+    updateState({ firstTapBurst: true, burstKey: s.burstKey + 1 });
+
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+    burstTimerRef.current = setTimeout(() => {
+      updateState({ firstTapBurst: false });
+    }, FIRST_TAP_BURST_MS);
+  }, [updateState]);
+
+  // ── Pointer handler: fires on pointerdown for zero-latency response ──
+  const handleLockPointerDown = useCallback((e: React.PointerEvent) => {
+    // Suppress ghost clicks
+    if (Date.now() < ignorePointerUntilRef.current) return;
+    e.preventDefault();
+
     primeAudio();
     const trimmed = code.trim();
-    if (!trimmed || phase === 'verifying' || phase === 'burst') return;
+    const s = stateRef.current;
+    if (!trimmed || s.phase === 'verifying' || s.phase === 'burst') return;
 
     const now = Date.now();
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
 
     if (isDoubleTap) {
-      // ⚡ DOUBLE TAP — submit the code
+      // ⚡ DOUBLE TAP — submit
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
-      setShowTapAgain(false);
 
-      // Second burst + submit
-      setFirstTapBurst(true);
-      setBurstKey(k => k + 1);
+      triggerBurst();
+      playMintSound();
+
       if ('vibrate' in navigator) {
         try { navigator.vibrate([15, 30, 10]); } catch {}
       }
 
-      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
-      burstTimerRef.current = setTimeout(() => setFirstTapBurst(false), BURST_DURATION);
-
+      ignorePointerUntilRef.current = now + GHOST_CLICK_SUPPRESSION;
       submitCode();
     } else {
-      // ── FIRST TAP ── visual pulse + "tap again" hint + welcome chime
+      // ── FIRST TAP ── welcome chime + visual burst + hint
       lastTapTimeRef.current = now;
 
-      setFirstTapBurst(true);
-      setBurstKey(k => k + 1);
-      setShowTapAgain(true);
+      triggerBurst();
+      updateState({ showTapAgain: true });
       playWelcomeTap();
 
       if ('vibrate' in navigator) {
         try { navigator.vibrate([10]); } catch {}
       }
 
-      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
-      burstTimerRef.current = setTimeout(() => setFirstTapBurst(false), BURST_DURATION);
-
-      // Clear after window expires
+      // Clear tap window
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
-        setShowTapAgain(false);
+        updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, phase, primeAudio, submitCode, playWelcomeTap]);
+  }, [code, primeAudio, submitCode, triggerBurst, playWelcomeTap, playMintSound, updateState]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -197,33 +233,33 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   // Show hint after typing starts
   useEffect(() => {
-    if (code.length > 0 && phase === 'idle' && !showTapAgain) {
+    if (code.length > 0 && stateRef.current.phase === 'idle' && !stateRef.current.showTapAgain) {
       setShowHint(true);
     } else {
       setShowHint(false);
     }
-  }, [code, phase, showTapAgain]);
+  }, [code]);
 
   if (granted) return <>{children}</>;
 
+  const { phase, firstTapBurst, showTapAgain, burstKey } = stateRef.current;
   const isBursting = phase === 'burst';
   const isDenied = phase === 'denied';
   const isVerifying = phase === 'verifying';
 
   return (
     <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden">
-      {/* Frenetic hex background — alive, urgent, teasing energy */}
+      {/* Frenetic hex background */}
       <div className="absolute inset-0 opacity-[0.55]">
         <GateHexBackground />
       </div>
 
-      {/* Radial vignette to focus attention on center */}
+      {/* Radial vignette */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)]" />
 
-      {/* Ghost dashboard teaser — blurred silhouette visible behind the gate */}
+      {/* Ghost dashboard teaser */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
         <div className="w-full max-w-md px-6 opacity-[0.04] blur-[2px] flex flex-col gap-4 mt-40">
-          {/* Fake KPI cards */}
           <div className="flex gap-3">
             {[
               { icon: Sun, label: '12.4 kWh' },
@@ -236,13 +272,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               </div>
             ))}
           </div>
-          {/* Fake chart area */}
           <div className="rounded-xl border border-foreground/20 h-24 flex items-end px-3 pb-2 gap-1">
             {[40, 65, 55, 80, 70, 90, 60, 75, 85, 50, 95, 70].map((h, i) => (
               <div key={i} className="flex-1 bg-foreground/30 rounded-t" style={{ height: `${h}%` }} />
             ))}
           </div>
-          {/* Fake token balance */}
           <div className="rounded-xl border border-foreground/20 p-3 flex items-center gap-3">
             <Zap className="h-5 w-5" />
             <div className="flex-1">
@@ -263,12 +297,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         />
 
         {/* Lock icon with burst effect */}
-        <div className="relative">
+        <div className="relative" style={{ touchAction: 'manipulation' }}>
           <button
-            onClick={handleLockTap}
+            onPointerDown={handleLockPointerDown}
+            onClick={(e) => e.preventDefault()}
             disabled={!code.trim() || isVerifying || isBursting}
             className={cn(
-              'relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 touch-manipulation select-none overflow-visible',
+              'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible',
+              'transition-[background-color,box-shadow] duration-150',
               isBursting
                 ? 'bg-primary/30 scale-110'
                 : isDenied
@@ -276,17 +312,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   : isVerifying
                     ? 'bg-primary/20 animate-pulse'
                     : firstTapBurst
-                      ? 'bg-primary/25 scale-105 shadow-[0_0_40px_hsl(var(--primary)/0.4)]'
+                      ? 'bg-primary/25 scale-[1.08] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
                       : code.trim()
                         ? 'bg-primary/20 hover:bg-primary/30 hover:scale-105 cursor-pointer shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
                         : 'bg-muted/50'
             )}
+            style={{
+              transition: firstTapBurst
+                ? 'transform 80ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 80ms, box-shadow 80ms'
+                : 'transform 200ms, background-color 200ms, box-shadow 200ms',
+            }}
           >
             {isBursting ? (
               <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
             ) : (
               <Lock className={cn(
-                'h-8 w-8 transition-colors',
+                'h-8 w-8 transition-colors duration-100',
                 code.trim() ? 'text-primary' : 'text-muted-foreground'
               )} />
             )}
@@ -295,7 +336,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             {firstTapBurst && !isBursting && particles.map((p, i) => (
               <div
                 key={`fp-${burstKey}-${i}`}
-                className="absolute"
+                className="absolute pointer-events-none"
                 style={{
                   left: '50%',
                   top: '50%',
@@ -305,10 +346,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   boxShadow: `0 0 6px rgba(${RGBA}, 0.4)`,
                   clipPath: PARTICLE_SHAPE,
                   transform: `rotate(${p.rotation}deg)`,
-                  animation: `zenFlareParticle 600ms ${p.delay}ms ease-out forwards`,
+                  animation: `zenFlareParticle 500ms ${p.delay}ms ease-out forwards`,
                   willChange: 'transform, opacity',
-                  '--tx': `${p.tx * 0.6}px`,
-                  '--ty': `${p.ty * 0.6}px`,
+                  '--tx': `${p.tx * 0.5}px`,
+                  '--ty': `${p.ty * 0.5}px`,
                 } as React.CSSProperties}
               />
             ))}
@@ -317,14 +358,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             {firstTapBurst && !isBursting && (
               <div
                 key={`fr-${burstKey}`}
-                className="absolute rounded-full"
+                className="absolute rounded-full pointer-events-none"
                 style={{
                   left: '50%',
                   top: '50%',
                   width: '200%',
                   height: '200%',
                   background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-                  animation: 'zenTouchRipple 600ms ease-out forwards',
+                  animation: 'zenTouchRipple 500ms ease-out forwards',
                   willChange: 'transform, opacity',
                 }}
               />
@@ -334,7 +375,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             {isBursting && particles.map((p, i) => (
               <div
                 key={`p-${burstKey}-${i}`}
-                className="absolute"
+                className="absolute pointer-events-none"
                 style={{
                   left: '50%',
                   top: '50%',
@@ -356,7 +397,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             {isBursting && (
               <div
                 key={`ripple-${burstKey}`}
-                className="absolute rounded-full"
+                className="absolute rounded-full pointer-events-none"
                 style={{
                   left: '50%',
                   top: '50%',
@@ -373,7 +414,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             {isBursting && (
               <div
                 key={`glow-${burstKey}`}
-                className="absolute rounded-full"
+                className="absolute rounded-full pointer-events-none"
                 style={{
                   left: '50%',
                   top: '50%',
