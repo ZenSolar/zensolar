@@ -271,14 +271,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   };
 
-  // Show hint after typing starts
-  useEffect(() => {
-    if (code.length > 0 && stateRef.current.phase === 'idle' && !stateRef.current.showTapAgain) {
-      setShowHint(true);
-    } else {
-      setShowHint(false);
-    }
-  }, [code]);
+  // Derive hint state directly — no effect needed
+  const hasCode = code.trim().length > 0;
 
   if (granted) return <>{children}</>;
 
