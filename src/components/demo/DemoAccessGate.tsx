@@ -366,7 +366,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   }}
                 >
                   <span className="text-primary/90">Tap-to-Mint</span>
-                  <span style={{ color: 'hsl(var(--solar))' }}>™️</span>
+                  <span className="text-solar">™</span>
                 </span>
               </div>
             )}
@@ -416,9 +416,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 >
                   <span
                     style={{
-                      fontFamily: 'Georgia, "Times New Roman", serif',
                       fontWeight: 400,
-                      fontStyle: 'italic',
                       color: 'hsl(var(--muted-foreground))',
                     }}
                   >
