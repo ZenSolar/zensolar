@@ -115,9 +115,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const viewport = window.visualViewport;
     const syncViewport = () => {
       if (!containerRef.current) return;
-      const viewportHeight = Math.ceil(viewport?.height ?? window.innerHeight);
-      containerRef.current.style.height = `${viewportHeight}px`;
-      containerRef.current.style.minHeight = `${viewportHeight}px`;
+      // Use the LARGEST value to ensure full coverage — never let the hex cut short
+      const vh = window.innerHeight;
+      const dvh = document.documentElement.clientHeight;
+      const screen = window.screen?.height ?? 0;
+      const visual = Math.ceil(viewport?.height ?? 0);
+      const best = Math.max(vh, dvh, visual, screen);
+      containerRef.current.style.height = `${best}px`;
+      containerRef.current.style.minHeight = `${best}px`;
     };
     syncViewport();
     window.addEventListener('resize', syncViewport);
