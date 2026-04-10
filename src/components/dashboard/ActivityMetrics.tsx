@@ -287,7 +287,7 @@ export function ActivityMetrics({
             gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 20%, hsl(210 90% 55% / 0.5) 50%, hsl(205 85% 45% / 0.3) 80%, transparent 100%)"
             glowColor="hsla(210, 90%, 50%, 0.12)"
             duration="4.5s"
-            idleDelay="1.2s"
+            idleDelay="0.8s"
           />
 
           <div className="relative flex items-center justify-between">
@@ -385,7 +385,7 @@ export function ActivityMetrics({
             gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 20%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 80%, transparent 100%)"
             glowColor="hsla(142, 76%, 45%, 0.07)"
             duration="5s"
-            idleDelay="2.4s"
+            idleDelay="1.6s"
             className="z-10 rounded-lg"
           />
           <div className="space-y-2">
