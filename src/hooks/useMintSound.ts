@@ -130,6 +130,8 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return null;
+      // Always resume — don't gate on 'running'. Audio nodes scheduled
+      // while suspended will play as soon as resume() completes.
       if (ctx.state !== 'running') {
         ctx.resume().catch(() => {});
       }
