@@ -450,9 +450,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     letterSpacing: '-0.02em',
                     color: 'hsl(142, 76%, 42%, 0.9)',
                     textShadow: '0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25)',
+                    willChange: 'transform, opacity',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
-                      : 'zenSymbolFadeIn 300ms ease-out both',
+                      : 'none',
                   }}
                 >
                   $Z
