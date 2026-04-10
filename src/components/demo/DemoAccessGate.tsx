@@ -505,10 +505,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               autoCapitalize="off"
             />
 
-            {/* Tap hint — always visible */}
-            <div className="flex justify-center h-6">
-              <span className="text-xs text-primary/80 flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" />
+            {/* Tap hints */}
+            <div className="flex flex-col items-center gap-1 min-h-[2.5rem]">
+              {showTapMintHint && (
+                <span
+                  className="text-xs font-medium text-primary flex items-center gap-1.5"
+                  style={{ animation: 'zenHintFadeIn 0.8s ease-out both' }}
+                >
+                  <Zap className="h-3 w-3" />
+                  Tap-to-Mint™️
+                </span>
+              )}
+              <span className="text-[10px] text-primary/50 flex items-center gap-1">
+                <Sparkles className="h-2.5 w-2.5" />
                 double tap to unlock
               </span>
             </div>
