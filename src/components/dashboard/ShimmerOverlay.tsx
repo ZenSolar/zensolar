@@ -42,7 +42,7 @@ export function ShimmerOverlay({
           background: gradient,
           opacity: burstDone ? 0 : 1,
           transition: 'opacity 0.8s ease-out',
-          animation: `zenShimmerBurst 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${burstDelay} both`,
+          animation: `zenShimmerBurst 2.8s cubic-bezier(0.4, 0, 0.2, 1) ${burstDelay} both`,
           willChange: 'transform',
         }}
       />
