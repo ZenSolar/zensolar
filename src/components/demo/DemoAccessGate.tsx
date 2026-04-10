@@ -401,10 +401,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 />
               ) : (
                 <span
-                  className="text-xl font-bold text-primary select-none"
+                  className="text-2xl font-extrabold select-none"
                   style={{
                     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                    textShadow: '0 0 12px hsl(var(--primary) / 0.5)',
+                    color: 'hsl(142, 76%, 45%)',
+                    textShadow: '0 0 16px hsl(142 76% 45% / 0.6), 0 0 32px hsl(142 76% 45% / 0.3)',
+                    letterSpacing: '0.05em',
                     ...(firstTapBurst ? { animation: 'zenSymbolFadeOut 300ms ease-out both' } : {}),
                   }}
                 >
