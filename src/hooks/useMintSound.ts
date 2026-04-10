@@ -1021,5 +1021,110 @@ export function useMintSound() {
     }
   }, [getCtx, preparePlayback]);
 
-  return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
+  // ── Singing bowl: Tibetan gong ring for the very first tap ──
+  const playSingingBowl = useCallback((scheduledStartTime?: number) => {
+    try {
+      const ctx = getCtx();
+      if (!ctx) return;
+
+      const playback = scheduledStartTime === undefined
+        ? preparePlayback()
+        : { ctx, now: scheduledStartTime };
+
+      const requested = playback?.now;
+      if (requested === undefined) return;
+
+      if (ctx.state !== 'running') {
+        ctx.resume().catch(() => {});
+      }
+
+      const now = getSafeAudioStartTime(ctx, requested, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD);
+      const DUR = 4.0; // Long, resonant ring
+
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.5, now);
+      master.connect(ctx.destination);
+
+      // Fundamental — deep bowl tone (~174 Hz, a meditative frequency)
+      const fund = ctx.createOscillator();
+      fund.type = 'sine';
+      fund.frequency.setValueAtTime(174, now);
+      const fundGain = ctx.createGain();
+      fundGain.gain.setValueAtTime(0.5, now);
+      // Slow exponential decay — the long ring
+      fundGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
+      fund.connect(fundGain);
+      fundGain.connect(master);
+      fund.start(now);
+      fund.stop(now + DUR + 0.1);
+
+      // Second partial — octave + fifth (~522 Hz) — characteristic bowl shimmer
+      const p2 = ctx.createOscillator();
+      p2.type = 'sine';
+      p2.frequency.setValueAtTime(522, now);
+      // Slight detuning for the "beating" quality of real bowls
+      p2.frequency.linearRampToValueAtTime(520, now + DUR * 0.5);
+      const p2Gain = ctx.createGain();
+      p2Gain.gain.setValueAtTime(0.25, now);
+      p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
+      p2.connect(p2Gain);
+      p2Gain.connect(master);
+      p2.start(now);
+      p2.stop(now + DUR + 0.1);
+
+      // Third partial — double octave (~696 Hz) — bright ring
+      const p3 = ctx.createOscillator();
+      p3.type = 'sine';
+      p3.frequency.setValueAtTime(696, now);
+      p3.frequency.linearRampToValueAtTime(694, now + DUR * 0.3);
+      const p3Gain = ctx.createGain();
+      p3Gain.gain.setValueAtTime(0.12, now);
+      p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
+      p3.connect(p3Gain);
+      p3Gain.connect(master);
+      p3.start(now);
+      p3.stop(now + DUR + 0.1);
+
+      // Fourth partial — high shimmer (~1044 Hz)
+      const p4 = ctx.createOscillator();
+      p4.type = 'sine';
+      p4.frequency.setValueAtTime(1044, now);
+      const p4Gain = ctx.createGain();
+      p4Gain.gain.setValueAtTime(0.06, now);
+      p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.35);
+      p4.connect(p4Gain);
+      p4Gain.connect(master);
+      p4.start(now);
+      p4.stop(now + DUR + 0.1);
+
+      // Strike transient — the mallet hit
+      const strike = ctx.createOscillator();
+      strike.type = 'triangle';
+      strike.frequency.setValueAtTime(2200, now);
+      strike.frequency.exponentialRampToValueAtTime(400, now + 0.02);
+      const strikeGain = ctx.createGain();
+      strikeGain.gain.setValueAtTime(0.3, now);
+      strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      strike.connect(strikeGain);
+      strikeGain.connect(master);
+      strike.start(now);
+      strike.stop(now + 0.1);
+
+      // Subtle LFO for the "wobble" / beating effect
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(3.5, now); // Slow beat
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.setValueAtTime(2, now); // ±2 Hz wobble
+      lfo.connect(lfoGain);
+      lfoGain.connect(fund.frequency);
+      lfo.start(now);
+      lfo.stop(now + DUR + 0.1);
+
+    } catch {
+      // Silent fail
+    }
+  }, [getCtx, preparePlayback]);
+
+  return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, playSingingBowl, triggerHaptic };
 }
