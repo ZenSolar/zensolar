@@ -69,7 +69,7 @@ export function useShimmerSound({
     }
 
     let disposed = false;
-    let pollId: ReturnType<typeof setTimeout> | undefined;
+    let pollId: ReturnType<typeof window.setTimeout> | undefined;
 
     const tryStart = () => {
       if (disposed || nodesRef.current) return;
