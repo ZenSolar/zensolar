@@ -319,8 +319,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       {/* Central content */}
       <div
-        className="relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center gap-8 px-6 pointer-events-none"
-        style={{ minHeight: 'var(--gate-visible-height, 100dvh)' }}
+        className="relative mx-auto flex max-w-sm w-full flex-col items-center justify-center gap-8 px-6 pointer-events-none"
+        style={{ height: 'var(--gate-visible-height, 100dvh)', paddingBottom: '48px' }}
       >
         {/* Logo */}
         <img
