@@ -1,10 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Lock, Sparkles, ShieldCheck } from 'lucide-react';
+import { Lock, Sparkles, ShieldCheck, Sun, Zap, Battery, Car } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 
 const LS_KEY = 'zen_demo_access';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -131,13 +132,46 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden">
-      {/* Subtle background grid */}
-      <div className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)',
-          backgroundSize: '32px 32px',
-        }}
-      />
+      {/* Living hex background — faint teaser of what's behind the wall */}
+      <div className="absolute inset-0 opacity-[0.35]">
+        <DashboardHexBackground />
+      </div>
+
+      {/* Radial vignette to focus attention on center */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)]" />
+
+      {/* Ghost dashboard teaser — blurred silhouette visible behind the gate */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+        <div className="w-full max-w-md px-6 opacity-[0.04] blur-[2px] flex flex-col gap-4 mt-40">
+          {/* Fake KPI cards */}
+          <div className="flex gap-3">
+            {[
+              { icon: Sun, label: '12.4 kWh' },
+              { icon: Battery, label: '8.2 kWh' },
+              { icon: Car, label: '34 mi' },
+            ].map(({ icon: Icon, label }, i) => (
+              <div key={i} className="flex-1 rounded-xl border border-foreground/20 p-3 flex flex-col items-center gap-1">
+                <Icon className="h-5 w-5" />
+                <span className="text-xs font-mono">{label}</span>
+              </div>
+            ))}
+          </div>
+          {/* Fake chart area */}
+          <div className="rounded-xl border border-foreground/20 h-24 flex items-end px-3 pb-2 gap-1">
+            {[40, 65, 55, 80, 70, 90, 60, 75, 85, 50, 95, 70].map((h, i) => (
+              <div key={i} className="flex-1 bg-foreground/30 rounded-t" style={{ height: `${h}%` }} />
+            ))}
+          </div>
+          {/* Fake token balance */}
+          <div className="rounded-xl border border-foreground/20 p-3 flex items-center gap-3">
+            <Zap className="h-5 w-5" />
+            <div className="flex-1">
+              <div className="h-2 w-20 bg-foreground/20 rounded" />
+              <div className="h-3 w-32 bg-foreground/20 rounded mt-1" />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Central content */}
       <div className="relative flex flex-col items-center gap-8 px-6 max-w-sm w-full">
