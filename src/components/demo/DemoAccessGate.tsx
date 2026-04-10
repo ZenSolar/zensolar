@@ -535,7 +535,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={handleKeyDown}
-              
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
               placeholder="Access code"
               disabled={isVerifying || isBursting}
               className={cn(
