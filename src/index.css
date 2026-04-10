@@ -116,6 +116,7 @@
     /* Full viewport height - critical for PWA to avoid white bar at bottom */
     height: 100%;
     min-height: 100vh;
+    min-height: 100svh;
     min-height: 100dvh; /* Dynamic viewport height for iOS */
     /* Ensure the browser chrome/overscroll never reveals white behind the app */
     background: hsl(var(--background));
@@ -132,6 +133,7 @@
     /* Full viewport height - critical for PWA to avoid white bar at bottom */
     height: 100%;
     min-height: 100vh;
+    min-height: 100svh;
     min-height: 100dvh; /* Dynamic viewport height for iOS */
     /* CRITICAL: Do NOT use padding-bottom for safe area - it creates white bar */
     /* Instead, content should handle its own safe area insets */
@@ -146,7 +148,9 @@
     text-align: left;
     overflow-x: hidden;
     /* Fill the viewport */
+    height: 100%;
     min-height: 100%;
+    min-height: 100svh;
     min-height: 100dvh;
     background: hsl(var(--background));
   }

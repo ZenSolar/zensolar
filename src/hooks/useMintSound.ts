@@ -10,6 +10,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 let sharedAudioContext: AudioContext | null = null;
 let unlockListenersInstalled = false;
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+const IMMEDIATE_SOUND_LEAD = 0.008;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
 const isStandalonePWA = () => {
@@ -105,6 +106,19 @@ export function useMintSound() {
     }
   }, [getCtx]);
 
+  const preparePlayback = useCallback((lead = IMMEDIATE_SOUND_LEAD) => {
+    try {
+      const ctx = primeAudio();
+      if (!ctx) return null;
+      if (ctx.state !== 'running') {
+        ctx.resume().catch(() => {});
+      }
+      return { ctx, now: ctx.currentTime + lead };
+    } catch {
+      return null;
+    }
+  }, [primeAudio]);
+
   /** Trigger haptic feedback — falls back silently on web */
   const triggerHaptic = useCallback(async (style: 'light' | 'confirm' = 'light') => {
     try {
@@ -131,17 +145,9 @@ export function useMintSound() {
 
   const playMintSound = useCallback((_color?: string) => {
     try {
-      const ctx = primeAudio();
-      if (!ctx) return;
-      // If context is still suspended (PWA edge case), force resume
-      if (ctx.state === 'suspended') {
-        ctx.resume().then(() => {
-          // Re-trigger the sound after resume completes
-          playMintSound(_color);
-        }).catch(() => {});
-        return;
-      }
-      const now = ctx.currentTime + 0.035;
+      const playback = preparePlayback();
+      if (!playback) return;
+      const { ctx, now } = playback;
 
       // Master volume — scale entire sound package
       const master = ctx.createGain();
@@ -415,7 +421,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [primeAudio, triggerHaptic]);
+  }, [preparePlayback, triggerHaptic]);
   /** Confirm mint: ZenSolar™ — stamp → deep meditative bowl bloom → bass sustain */
   const playConfirmSound = useCallback(() => {
     try {
@@ -751,13 +757,9 @@ export function useMintSound() {
    */
   const playDeniedSound = useCallback(() => {
     try {
-      const ctx = primeAudio();
-      if (!ctx) return;
-      if (ctx.state === 'suspended') {
-        ctx.resume().then(() => playDeniedSound()).catch(() => {});
-        return;
-      }
-      const now = ctx.currentTime + 0.02;
+      const playback = preparePlayback();
+      if (!playback) return;
+      const { ctx, now } = playback;
 
       const master = ctx.createGain();
       master.gain.value = 0.6;
@@ -866,18 +868,14 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [primeAudio]);
+  }, [preparePlayback]);
 
   // ── Welcome tap: a friendly, softer cousin of the mint gong ──
   const playWelcomeTap = useCallback(() => {
     try {
-      const ctx = primeAudio();
-      if (!ctx) return;
-      if (ctx.state === 'suspended') {
-        ctx.resume().then(() => playWelcomeTap()).catch(() => {});
-        return;
-      }
-      const now = ctx.currentTime + 0.02;
+      const playback = preparePlayback();
+      if (!playback) return;
+      const { ctx, now } = playback;
 
       const master = ctx.createGain();
       master.gain.value = 0.35;
@@ -932,7 +930,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [primeAudio]);
+  }, [preparePlayback]);
 
   return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
 }
