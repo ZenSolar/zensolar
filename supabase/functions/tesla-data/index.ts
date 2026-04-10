@@ -719,6 +719,7 @@ Deno.serve(async (req) => {
         baselineChargingKwh = vehicleBaseline.total_charge_energy_added_kwh || vehicleBaseline.charging_kwh || 0;
         baselineSuperchargerKwh = vehicleBaseline.supercharger_kwh || vehicleBaseline.charging_kwh || 0;
         baselineWallConnectorKwh = vehicleBaseline.wall_connector_kwh || 0;
+        baselineHomeChargingKwh = vehicleBaseline.home_charging_kwh || 0;
       } catch (error) {
         console.error("Error fetching charging history:", error);
       }
