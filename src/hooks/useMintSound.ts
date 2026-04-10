@@ -1039,85 +1039,96 @@ export function useMintSound() {
       }
 
       const now = getSafeAudioStartTime(ctx, requested, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD);
-      const DUR = 4.0; // Long, resonant ring
+      const DUR = 5.0; // Longer resonant ring to blend into the ambient hum
 
       const master = ctx.createGain();
-      master.gain.setValueAtTime(0.5, now);
+      master.gain.setValueAtTime(0.45, now);
       master.connect(ctx.destination);
 
-      // Fundamental — deep bowl tone (~174 Hz, a meditative frequency)
+      // Fundamental — 55 Hz (same root as the ambient lightsaber/gong hum)
       const fund = ctx.createOscillator();
       fund.type = 'sine';
-      fund.frequency.setValueAtTime(174, now);
+      fund.frequency.setValueAtTime(55, now);
       const fundGain = ctx.createGain();
-      fundGain.gain.setValueAtTime(0.5, now);
-      // Slow exponential decay — the long ring
+      fundGain.gain.setValueAtTime(0.55, now);
       fundGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
       fund.connect(fundGain);
       fundGain.connect(master);
       fund.start(now);
       fund.stop(now + DUR + 0.1);
 
-      // Second partial — octave + fifth (~522 Hz) — characteristic bowl shimmer
+      // Second partial — octave (110 Hz, matches ambient harmOsc)
       const p2 = ctx.createOscillator();
       p2.type = 'sine';
-      p2.frequency.setValueAtTime(522, now);
-      // Slight detuning for the "beating" quality of real bowls
-      p2.frequency.linearRampToValueAtTime(520, now + DUR * 0.5);
+      p2.frequency.setValueAtTime(110, now);
+      p2.frequency.linearRampToValueAtTime(109.5, now + DUR * 0.5); // Subtle beating
       const p2Gain = ctx.createGain();
-      p2Gain.gain.setValueAtTime(0.25, now);
-      p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
+      p2Gain.gain.setValueAtTime(0.4, now);
+      p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.85);
       p2.connect(p2Gain);
       p2Gain.connect(master);
       p2.start(now);
       p2.stop(now + DUR + 0.1);
 
-      // Third partial — double octave (~696 Hz) — bright ring
+      // Third partial — octave + fifth (165 Hz, matches ambient gongOsc3)
       const p3 = ctx.createOscillator();
       p3.type = 'sine';
-      p3.frequency.setValueAtTime(696, now);
-      p3.frequency.linearRampToValueAtTime(694, now + DUR * 0.3);
+      p3.frequency.setValueAtTime(165, now);
+      p3.frequency.linearRampToValueAtTime(164.5, now + DUR * 0.4);
       const p3Gain = ctx.createGain();
-      p3Gain.gain.setValueAtTime(0.12, now);
-      p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
+      p3Gain.gain.setValueAtTime(0.2, now);
+      p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.65);
       p3.connect(p3Gain);
       p3Gain.connect(master);
       p3.start(now);
       p3.stop(now + DUR + 0.1);
 
-      // Fourth partial — high shimmer (~1044 Hz)
+      // Fourth partial — double octave (220 Hz, matches ambient baseLp cutoff)
       const p4 = ctx.createOscillator();
       p4.type = 'sine';
-      p4.frequency.setValueAtTime(1044, now);
+      p4.frequency.setValueAtTime(220, now);
       const p4Gain = ctx.createGain();
-      p4Gain.gain.setValueAtTime(0.06, now);
-      p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.35);
+      p4Gain.gain.setValueAtTime(0.1, now);
+      p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
       p4.connect(p4Gain);
       p4Gain.connect(master);
       p4.start(now);
       p4.stop(now + DUR + 0.1);
 
-      // Strike transient — the mallet hit
+      // Sub-bass layer — 27.5 Hz (octave below fundamental, felt more than heard)
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(27.5, now);
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.3, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
+      sub.connect(subGain);
+      subGain.connect(master);
+      sub.start(now);
+      sub.stop(now + DUR + 0.1);
+
+      // Strike transient — softer, deeper mallet hit
       const strike = ctx.createOscillator();
       strike.type = 'triangle';
-      strike.frequency.setValueAtTime(2200, now);
-      strike.frequency.exponentialRampToValueAtTime(400, now + 0.02);
+      strike.frequency.setValueAtTime(800, now);
+      strike.frequency.exponentialRampToValueAtTime(110, now + 0.04);
       const strikeGain = ctx.createGain();
-      strikeGain.gain.setValueAtTime(0.3, now);
-      strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      strikeGain.gain.setValueAtTime(0.2, now);
+      strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
       strike.connect(strikeGain);
       strikeGain.connect(master);
       strike.start(now);
-      strike.stop(now + 0.1);
+      strike.stop(now + 0.15);
 
-      // Subtle LFO for the "wobble" / beating effect
+      // Slow LFO wobble — matches the 5s ambient shimmer cycle
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(3.5, now); // Slow beat
+      lfo.frequency.setValueAtTime(0.2, now); // 5-second cycle = 0.2 Hz
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(2, now); // ±2 Hz wobble
+      lfoGain.gain.setValueAtTime(1.5, now); // ±1.5 Hz wobble
       lfo.connect(lfoGain);
       lfoGain.connect(fund.frequency);
+      lfoGain.connect(p2.frequency);
       lfo.start(now);
       lfo.stop(now + DUR + 0.1);
 
