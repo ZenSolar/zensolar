@@ -526,9 +526,12 @@ Deno.serve(async (req) => {
 
     // Fetch charging history for EV charging kWh totals - paginate through all results
     let totalChargingKwh = 0;
+    let billingHomeChargingKwh = 0; // AC sessions classified as "home" from billing API
+    let billingSuperchargerKwh = 0; // DC sessions classified as "supercharger" from billing API
     let baselineChargingKwh = 0;
     let baselineSuperchargerKwh = 0;
     let baselineWallConnectorKwh = 0;
+    let baselineHomeChargingKwh = 0;
     let totalSessions = 0;
     let chargingSessionDetails: any[] | null = null;
     
