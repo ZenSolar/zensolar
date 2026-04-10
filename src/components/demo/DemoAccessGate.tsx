@@ -108,7 +108,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
 
-  const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
+  const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
@@ -247,8 +247,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       if (!s.hexAwake) {
         startShimmerSound(firstTapStartTime);
+        playSingingBowl(firstTapStartTime); // First tap = singing bowl
+      } else {
+        playWelcomeTap(firstTapStartTime); // Subsequent taps = standard chime
       }
-      playWelcomeTap(firstTapStartTime);
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
@@ -266,7 +268,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playMintSound, startShimmerSound, updateState]);
+  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
 
   // Native event listeners for iOS gesture-chain audio unlock
   useEffect(() => {
@@ -383,6 +385,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             <div
               className="absolute -inset-2 rounded-full pointer-events-none"
               style={{
+                willChange: 'transform, box-shadow',
                 animation: 'zenLockBeckon 3.5s ease-in-out infinite',
               }}
             />
@@ -423,6 +426,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                         : 'bg-primary/20 hover:bg-primary/30 hover:scale-105 shadow-[0_0_24px_hsl(var(--primary)/0.3)]',
               )}
               style={{
+                willChange: 'transform, box-shadow',
+                transform: 'scale(1)',
                 transition: firstTapBurst
                   ? 'background-color 60ms, box-shadow 60ms'
                   : 'background-color 200ms, box-shadow 200ms',
@@ -448,9 +453,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     letterSpacing: '-0.02em',
                     color: 'hsl(142, 76%, 42%, 0.9)',
                     textShadow: '0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25)',
+                    willChange: 'transform, opacity',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
-                      : 'zenSymbolFadeIn 300ms ease-out both',
+                      : 'none',
                   }}
                 >
                   $Z

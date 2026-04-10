@@ -333,7 +333,7 @@
   }
 }
 
-/* Subtle idle breathing for the inner circle */
+/* Subtle idle breathing for the inner circle — GPU-composited */
 @keyframes zenCircleBreathe {
   0%, 100% {
     transform: scale(1);
