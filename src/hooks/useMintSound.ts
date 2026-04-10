@@ -17,7 +17,7 @@ export function getSharedAudioContext(): AudioContext | null {
 }
 
 const IMMEDIATE_SOUND_LEAD = 0.008;
-const WARM_START_SOUND_LEAD = 0.18;
+const WARM_START_SOUND_LEAD = 0.02;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
 const isStandalonePWA = () => {
@@ -900,21 +900,16 @@ export function useMintSound() {
   }, [preparePlayback]);
 
   // ── Welcome tap: snappy, instant-attack chime ──
-  const playWelcomeTap = useCallback(function playWelcomeTapInternal(scheduledStartTime?: number) {
+  const playWelcomeTap = useCallback((scheduledStartTime?: number) => {
     try {
       const ctx = getCtx();
       if (!ctx) return;
 
-      if (scheduledStartTime === undefined && ctx.state !== 'running') {
-        ctx.resume().then(() => {
-          fireSilentUnlockPulse(ctx);
-          playWelcomeTapInternal(ctx.currentTime + IMMEDIATE_SOUND_LEAD);
-        }).catch(() => {});
-        return;
-      }
+      const playback = scheduledStartTime === undefined
+        ? preparePlayback()
+        : { ctx, now: scheduledStartTime };
 
-      const fallbackPlayback = scheduledStartTime === undefined ? preparePlayback() : null;
-      const now = scheduledStartTime ?? fallbackPlayback?.now;
+      const now = playback?.now;
       if (now === undefined) return;
 
       const master = ctx.createGain();

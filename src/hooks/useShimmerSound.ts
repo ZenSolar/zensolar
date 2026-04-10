@@ -82,17 +82,25 @@ export function useShimmerSound({
     if (!ctx) return false;
 
     if (ctx.state !== 'running') {
-      pendingStartRef.current = true;
-      ctx.resume().then(() => {
-        pendingStartRef.current = false;
-        startSoundInternal(ctx.currentTime + 0.02);
-      }).catch(() => {
-        pendingStartRef.current = false;
-      });
-      return true;
+      if (scheduledStartTime !== undefined) {
+        ctx.resume().catch(() => {});
+      } else {
+        pendingStartRef.current = true;
+        ctx.resume().then(() => {
+          pendingStartRef.current = false;
+          startSoundInternal(ctx.currentTime + 0.02);
+        }).catch(() => {
+          pendingStartRef.current = false;
+        });
+        return true;
+      }
     }
 
-    const now = scheduledStartTime ?? (ctx.currentTime + 0.02);
+    const now = Math.max(
+      scheduledStartTime ?? (ctx.currentTime + 0.02),
+      ctx.currentTime + 0.02,
+    );
+
     const vol = volumeRef.current;
     const lfoFreq = 1 / cycleDurationRef.current;
 

@@ -80,6 +80,7 @@ root.render(
 if (typeof window !== 'undefined' && typeof (window as any).hideSplashScreen === 'function') {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+      (window as any).__zensolarBooted = true;
       (window as any).hideSplashScreen();
     });
   });
