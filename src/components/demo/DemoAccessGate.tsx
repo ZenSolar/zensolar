@@ -247,8 +247,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       if (!s.hexAwake) {
         startShimmerSound(firstTapStartTime);
+        playSingingBowl(firstTapStartTime); // First tap = singing bowl
+      } else {
+        playWelcomeTap(firstTapStartTime); // Subsequent taps = standard chime
       }
-      playWelcomeTap(firstTapStartTime);
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
