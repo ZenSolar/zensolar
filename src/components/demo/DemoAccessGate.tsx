@@ -272,7 +272,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isVerifying = phase === 'verifying';
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none', minHeight: '100dvh' }}>
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-[100] bg-background overflow-hidden touch-none"
+      style={{
+        overscrollBehavior: 'none',
+        minHeight: '100dvh',
+      }}
+    >
       <div className="absolute inset-0 opacity-[0.55]" style={{ touchAction: 'none', width: '100%', height: '100%' }}>
         <GateHexBackground />
       </div>
@@ -311,7 +318,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       </div>
 
       {/* Central content */}
-      <div className="relative flex flex-col items-center justify-center gap-8 px-6 max-w-sm w-full h-full pointer-events-none">
+      <div
+        className="relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center gap-8 px-6 pointer-events-none"
+        style={{ minHeight: 'var(--gate-visible-height, 100dvh)' }}
+      >
         {/* Logo */}
         <img
           src={zenLogo}
