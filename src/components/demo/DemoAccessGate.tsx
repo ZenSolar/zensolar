@@ -262,7 +262,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isVerifying = phase === 'verifying';
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
+    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none', minHeight: '100dvh' }}>
       {/* Frenetic hex background — tappable for water ripple */}
       <div className="absolute inset-0 opacity-[0.55]" onPointerDown={handleBackgroundTap} style={{ touchAction: 'none' }}>
         <GateHexBackground />
@@ -300,7 +300,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       </div>
 
       {/* Radial vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)] pointer-events-none" />
 
       {/* Ghost dashboard teaser */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
@@ -333,7 +333,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       </div>
 
       {/* Central content */}
-      <div className="relative flex flex-col items-center justify-center gap-8 px-6 max-w-sm w-full h-full">
+      <div className="relative flex flex-col items-center justify-center gap-8 px-6 max-w-sm w-full h-full pointer-events-none">
         {/* Logo */}
         <img
           src={zenLogo}
@@ -342,7 +342,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         />
 
         {/* Lock icon with burst effect */}
-        <div className="relative" style={{ touchAction: 'manipulation' }}>
+        <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
           {/* Pulsating glow ring */}
           <div
             className="absolute inset-0 rounded-full pointer-events-none"
@@ -491,7 +491,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
 
         {/* Code input */}
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-3 pointer-events-auto">
           <Input
             ref={inputRef}
             value={code}
@@ -518,7 +518,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
 
         {/* Fine print */}
-        <p className="text-[10px] text-muted-foreground/50 text-center">
+        <p className="text-[10px] text-muted-foreground/50 text-center pointer-events-auto">
           Request access at{' '}
           <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
             joe@zen.solar
