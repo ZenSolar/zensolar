@@ -873,6 +873,10 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playWelcomeTap()).catch(() => {});
+        return;
+      }
       const now = ctx.currentTime + 0.02;
 
       const master = ctx.createGain();

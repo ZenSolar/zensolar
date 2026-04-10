@@ -249,7 +249,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isVerifying = phase === 'verifying';
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
       {/* Frenetic hex background */}
       <div className="absolute inset-0 opacity-[0.55]">
         <GateHexBackground />
