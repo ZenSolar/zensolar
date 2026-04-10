@@ -93,6 +93,9 @@ export function useMintSound() {
     try {
       const ctx = getCtx();
       if (ctx.state === 'suspended') {
+        // In PWA standalone, resume() must be called synchronously within
+        // the user gesture. We call it and also fire a silent pulse to
+        // ensure the context transitions to 'running' immediately.
         ctx.resume().catch(() => {});
       }
       fireSilentUnlockPulse(ctx);
