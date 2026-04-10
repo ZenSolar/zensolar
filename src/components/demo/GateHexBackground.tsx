@@ -163,11 +163,10 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
                 ? Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0
                 : 0;
               
-              // TRAIL: very faint residual glow behind the leading edge
-              // Drops off quickly so the bright edge is the clear focal point
-              const trailLength = h * 0.5;
+              // TRAIL: barely-there whisper so the leading edge is the star
+              const trailLength = h * 0.3;
               const trailGlow = distBehind > 0 && distBehind < trailLength
-                ? Math.pow(1 - distBehind / trailLength, 3) * 0.12
+                ? Math.pow(1 - distBehind / trailLength, 5) * 0.04
                 : 0;
               
               alpha += (edgeGlow + trailGlow) * curtainFade;
