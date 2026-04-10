@@ -204,18 +204,18 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
 
   return (
     <g>
-      <ellipse cx="200" cy="298" rx="100" ry="5" fill="#0a0e18" opacity="0.2" />
+      <ellipse cx="200" cy="298" rx="100" ry="5" fill="#0a0e18" opacity="0.08" />
       {/* House body — bigger */}
       <rect x="130" y="192" width="140" height="103" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.8" />
-      <rect x="130" y="192" width="4" height="103" fill="#151b2a" opacity="0.3" />
-      <rect x="266" y="192" width="4" height="103" fill="#151b2a" opacity="0.3" />
+      <rect x="130" y="192" width="4" height="103" fill="#151b2a" opacity="0.12" />
+      <rect x="266" y="192" width="4" height="103" fill="#151b2a" opacity="0.12" />
       {/* Roof */}
-      <polygon points="110,195 200,110 290,195" fill="#111827" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.8" />
+      <polygon points="110,195 200,110 290,195" fill="#111827" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.8" />
       <line x1="200" y1="110" x2="200" y2="114" stroke="#3a4560" strokeWidth="0.5" />
-      <line x1="112" y1="195" x2="288" y2="195" stroke="#0a0e18" strokeWidth="1.5" opacity="0.3" />
+      <line x1="112" y1="195" x2="288" y2="195" stroke="#0a0e18" strokeWidth="1.5" opacity="0.12" />
       {/* Chimney */}
-      <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.5" />
-      <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
+      <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.5" />
+      <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.4" />
       {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
       {(() => {
         const peakY = 115, eaveY = 191, cx = 200;
