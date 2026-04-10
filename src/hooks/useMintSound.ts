@@ -893,7 +893,7 @@ export function useMintSound() {
     }
   }, [preparePlayback]);
 
-  // ── Welcome tap: a friendly, softer cousin of the mint gong ──
+  // ── Welcome tap: snappy, instant-attack chime ──
   const playWelcomeTap = useCallback(() => {
     try {
       const playback = preparePlayback();
@@ -901,51 +901,48 @@ export function useMintSound() {
       const { ctx, now } = playback;
 
       const master = ctx.createGain();
-      master.gain.value = 0.35;
+      master.gain.value = 0.45;
       master.connect(ctx.destination);
 
-      const DUR = 0.5;
+      const DUR = 0.4;
 
-      // Warm chime — higher, lighter than the mint gong
+      // Instant attack chime — A4
       const chimeGain = ctx.createGain();
-      chimeGain.gain.setValueAtTime(0, now);
-      chimeGain.gain.linearRampToValueAtTime(0.4, now + 0.008);
-      chimeGain.gain.exponentialRampToValueAtTime(0.1, now + 0.15);
+      chimeGain.gain.setValueAtTime(0.5, now);
+      chimeGain.gain.exponentialRampToValueAtTime(0.12, now + 0.1);
       chimeGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
       chimeGain.connect(master);
 
       const chime = ctx.createOscillator();
       chime.type = 'sine';
-      chime.frequency.setValueAtTime(440, now); // A4
+      chime.frequency.setValueAtTime(440, now);
       chime.frequency.exponentialRampToValueAtTime(420, now + DUR);
       chime.connect(chimeGain);
       chime.start(now);
       chime.stop(now + DUR + 0.05);
 
-      // Soft harmonic shimmer
+      // Harmonic shimmer — instant
       const shimGain = ctx.createGain();
-      shimGain.gain.setValueAtTime(0, now);
-      shimGain.gain.linearRampToValueAtTime(0.15, now + 0.01);
-      shimGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
+      shimGain.gain.setValueAtTime(0.2, now);
+      shimGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.6);
       shimGain.connect(master);
 
       const shim = ctx.createOscillator();
       shim.type = 'sine';
-      shim.frequency.setValueAtTime(660, now); // E5 — perfect fifth
+      shim.frequency.setValueAtTime(660, now);
       shim.connect(shimGain);
       shim.start(now);
       shim.stop(now + DUR + 0.05);
 
-      // Gentle sub presence
+      // Sub presence — instant
       const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0, now);
-      subGain.gain.linearRampToValueAtTime(0.12, now + 0.01);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.6);
+      subGain.gain.setValueAtTime(0.15, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
       subGain.connect(master);
 
       const sub = ctx.createOscillator();
       sub.type = 'sine';
-      sub.frequency.setValueAtTime(220, now); // A3
+      sub.frequency.setValueAtTime(220, now);
       sub.connect(subGain);
       sub.start(now);
       sub.stop(now + DUR + 0.05);
