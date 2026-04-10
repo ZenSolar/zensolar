@@ -522,13 +522,12 @@
   100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
-/* First-load shimmer burst — sweeps fully across, then softly rebounds into idle rhythm */
+/* First-load shimmer burst — sweeps RIGHT→LEFT (reverse), then idle takes over LEFT→RIGHT */
 @keyframes zenShimmerBurst {
-  0% { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
-  5% { opacity: 0.7; }
-  50% { transform: translateX(200%) skewX(-15deg); opacity: 0.3; }
-  51% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
-  100% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
+  0% { transform: translateX(200%) skewX(15deg); opacity: 0; }
+  8% { opacity: 0.7; }
+  80% { opacity: 0.35; }
+  100% { transform: translateX(-100%) skewX(15deg); opacity: 0; }
 }
 
 /* Idle shimmer sweep — GPU-accelerated */
