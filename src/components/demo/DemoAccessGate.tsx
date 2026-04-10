@@ -356,9 +356,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             <button
               onPointerDown={handleLockPointerDown}
               onClick={(e) => e.preventDefault()}
-              disabled={!code.trim() || isVerifying || isBursting}
+              disabled={isVerifying || isBursting}
               className={cn(
-                'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible',
+                'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
                 'transition-[background-color,box-shadow] duration-150',
                 isBursting
                   ? 'bg-primary/30 scale-110'
@@ -368,9 +368,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
                         ? 'bg-primary/25 scale-[1.08] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
-                        : code.trim()
-                          ? 'bg-primary/20 hover:bg-primary/30 hover:scale-105 cursor-pointer shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
-                          : 'bg-muted/50'
+                        : 'bg-primary/15 hover:bg-primary/25 hover:scale-105 shadow-[0_0_20px_hsl(var(--primary)/0.2)]'
               )}
               style={{
                 transition: firstTapBurst
