@@ -290,7 +290,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         minHeight: '100dvh',
       }}
     >
-      <div className="absolute inset-0 opacity-[0.55]" style={{ touchAction: 'none', width: '100%', height: '100%' }}>
+      <div className="absolute inset-0 opacity-[0.70]" style={{ touchAction: 'none', width: '100%', height: '100%' }}>
         <GateHexBackground />
       </div>
 
@@ -340,7 +340,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <img
             src={zenLogo}
             alt="ZenSolar"
-            className="h-8 w-auto object-contain dark:brightness-150 drop-shadow-[0_0_8px_hsl(var(--primary)/0.3)]"
+            className="h-8 w-auto object-contain dark:brightness-[1.8] drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)]"
           />
 
           {/* $Z / Lock icon with burst effect */}
@@ -362,12 +362,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 }}
               >
                 <span
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[9px] font-bold tracking-wider bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5 backdrop-blur-sm"
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[9px] font-bold tracking-wider bg-primary/15 border border-primary/30 rounded-full px-2 py-0.5 backdrop-blur-sm"
                   style={{
-                    textShadow: '0 0 8px hsl(var(--primary) / 0.4)',
+                    textShadow: '0 0 10px hsl(var(--primary) / 0.55)',
                   }}
                 >
-                  <span className="text-primary/90">Tap-to-Mint</span>
+                  <span className="text-primary">Tap-to-Mint</span>
                   <span className="text-solar">™</span>
                 </span>
               </div>
@@ -390,7 +390,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
                         ? 'bg-primary/30 scale-[0.92] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
-                        : 'bg-primary/15 hover:bg-primary/25 hover:scale-105 shadow-[0_0_20px_hsl(var(--primary)/0.2)]'
+                        : 'bg-primary/20 hover:bg-primary/30 hover:scale-105 shadow-[0_0_24px_hsl(var(--primary)/0.3)]'
               )}
               style={{
                 transition: firstTapBurst
@@ -412,8 +412,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     fontSize: '1.5rem',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
-                    color: 'hsl(142, 76%, 36%, 0.75)',
-                    textShadow: '0 0 16px hsl(142 76% 36% / 0.4), 0 0 32px hsl(142 76% 36% / 0.15)',
+                    color: 'hsl(142, 76%, 42%, 0.9)',
+                    textShadow: '0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25)',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
                       : 'zenSymbolFadeIn 300ms ease-out both',
@@ -524,8 +524,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
           {/* Title */}
           <div className="text-center space-y-1">
-            <h1 className="text-lg font-semibold text-foreground">Private Demo</h1>
-            <p className="text-sm text-muted-foreground">Enter your access code to continue</p>
+            <h1 className="text-lg font-semibold text-foreground drop-shadow-[0_0_6px_hsl(var(--primary)/0.2)]">Private Demo</h1>
+            <p className="text-sm text-foreground/70">Enter your access code to continue</p>
           </div>
 
           {/* Code input */}
@@ -552,14 +552,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             <div className="flex justify-center h-8">
               {showUnlockHint ? (
                 <span
-                  className="text-xs font-semibold text-primary/80 flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20"
+                  className="text-xs font-semibold text-primary flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/30"
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
                 >
                   <Lock className="h-3 w-3" />
                   double tap $Z to unlock
                 </span>
               ) : (
-                <span className="text-xs font-medium text-primary/60 flex items-center gap-1.5">
+                <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" />
                   {revealed ? 'double tap to unlock' : 'tap the $Z'}
                 </span>
@@ -568,7 +568,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </div>
 
           {/* Fine print */}
-          <p className="text-[10px] text-muted-foreground/50 text-center pointer-events-auto">
+          <p className="text-[10px] text-muted-foreground/70 text-center pointer-events-auto">
             Request access at{' '}
             <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
               joe@zen.solar
