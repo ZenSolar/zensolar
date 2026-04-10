@@ -318,12 +318,12 @@ export function TokenPriceCard({
             <div 
               className="absolute inset-0"
               style={{
-                background: shimmerBurstDone
-                  ? 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)'
-                  : 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.4) 25%, hsl(280 68% 70% / 0.7) 50%, hsl(280 68% 60% / 0.4) 75%, transparent 100%)',
+                background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 30%, hsl(280 68% 70% / 0.5) 50%, hsl(280 68% 60% / 0.3) 70%, transparent 100%)',
+                opacity: shimmerBurstDone ? 0.6 : 1,
+                transition: 'opacity 1.2s ease-out',
                 animation: shimmerBurstDone
                   ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
-                  : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                  : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
                 willChange: 'transform',
               }}
             />
@@ -529,16 +529,16 @@ export function TokenPriceCard({
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />
           <div 
-            className="absolute inset-0"
-            style={{
-              background: shimmerBurstDone
-                ? 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.2) 30%, hsl(280 68% 70% / 0.38) 50%, hsl(280 68% 60% / 0.2) 70%, transparent 100%)'
-                : 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.4) 25%, hsl(280 68% 70% / 0.7) 50%, hsl(280 68% 60% / 0.4) 75%, transparent 100%)',
-              animation: shimmerBurstDone
-                ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
-                : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-              willChange: 'transform',
-            }}
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 30%, hsl(280 68% 70% / 0.5) 50%, hsl(280 68% 60% / 0.3) 70%, transparent 100%)',
+                opacity: shimmerBurstDone ? 0.6 : 1,
+                transition: 'opacity 1.2s ease-out',
+                animation: shimmerBurstDone
+                  ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
+                  : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                willChange: 'transform',
+              }}
           />
           {/* Corner accent */}
           <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/[0.06] blur-2xl" />
