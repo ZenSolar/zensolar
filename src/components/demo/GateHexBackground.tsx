@@ -145,16 +145,30 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
           // Stronger contribution from waves + shimmer + flicker
           alpha += bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
 
-          if (rainActive) {
-            const dist = Math.abs(cy - rainHead);
-            if (dist < rainBand) {
-              const t = 1 - dist / rainBand;
-              // Massive bright cascade with an intense core
-              alpha += (t * 0.45 + t * t * 0.35 + Math.pow(t, 4) * 0.4) * rainIntensity;
+          if (snowActive && actElapsed !== null) {
+            // Each hex gets a unique "seed" for staggered timing
+            const seed = Math.sin(cx * 127.1 + cy * 311.7) * 43758.5453;
+            const flakeSeed = seed - Math.floor(seed); // 0-1 per hex
+            
+            // Each hex "falls" at a slightly different time based on its y-position + randomness
+            // Top hexes light up first, bottom ones later — like snowfall
+            const yNorm = cy / h; // 0 at top, 1 at bottom
+            const hexTriggerTime = yNorm * 4.0 + flakeSeed * 1.5; // stagger: 0-5.5s
+            const hexAge = actElapsed - hexTriggerTime;
+            
+            if (hexAge > 0) {
+              // Quick bright flash then gentle fade
+              const flashIn = Math.min(hexAge / 0.3, 1); // 0.3s fade in
+              const fadeOut = Math.max(0, 1 - (hexAge - 0.5) / 3.0); // hold 0.5s then fade 3s
+              const snowAlpha = flashIn * fadeOut * snowFade;
+              
+              // Vary brightness per flake — some are bright "stars", most are gentle
+              const brightness = 0.3 + flakeSeed * 0.7; // 0.3–1.0
+              alpha += snowAlpha * brightness * 0.85;
             }
           }
 
-          alpha = Math.min(alpha, rainActive ? 1.0 : 0.55);
+          alpha = Math.min(alpha, snowActive ? 1.0 : 0.55);
 
           if (alpha < 0.06) continue;
 
