@@ -284,8 +284,10 @@ export function ActivityMetrics({
         >
           {/* Shimmer sweep */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 30%, hsl(210 90% 50% / 0.5) 50%, hsl(205 85% 45% / 0.3) 70%, transparent 100%)"
-            idleDelay="1.5s"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.2) 25%, hsl(210 90% 55% / 0.4) 50%, hsl(205 85% 45% / 0.2) 75%, transparent 100%)"
+            glowColor="hsla(210, 90%, 50%, 0.05)"
+            duration="5.5s"
+            idleDelay="1.8s"
           />
 
           <div className="relative flex items-center justify-between">
@@ -380,8 +382,10 @@ export function ActivityMetrics({
         <div className="relative overflow-hidden rounded-lg">
           {/* KPI area shimmer */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 30%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 70%, transparent 100%)"
-            idleDelay="3s"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.1) 25%, hsl(142 76% 65% / 0.22) 50%, hsl(142 76% 50% / 0.1) 75%, transparent 100%)"
+            glowColor="hsla(142, 76%, 45%, 0.04)"
+            duration="6s"
+            idleDelay="3.6s"
             className="z-10 rounded-lg"
           />
           <div className="space-y-2">
