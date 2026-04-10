@@ -16,10 +16,11 @@ export function getSharedAudioContext(): AudioContext | null {
   return sharedAudioContext;
 }
 
-const IMMEDIATE_SOUND_LEAD = 0.008;
-// iOS WebKit needs ~100-300ms to bring audio hardware online after resume().
-// Schedule far enough ahead so nodes don't start "in the past".
-const WARM_START_SOUND_LEAD = 0.35;
+export const IMMEDIATE_SOUND_LEAD = 0.02;
+export const POST_RESUME_SOUND_LEAD = 0.18;
+// iPhone WebKit can still need a little extra runway after resume()
+// before the first audible nodes render reliably through hardware.
+const WARM_START_SOUND_LEAD = 0.45;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
 const isStandalonePWA = () => {
@@ -107,6 +108,26 @@ export function runWhenAudioContextRunning(
   return cleanup;
 }
 
+export function getSafeAudioStartTime(
+  ctx: AudioContext,
+  requestedTime?: number,
+  lead = IMMEDIATE_SOUND_LEAD,
+) {
+  return Math.max(requestedTime ?? 0, ctx.currentTime + lead);
+}
+
+const warmAudioHardware = (ctx: AudioContext) => {
+  fireSilentUnlockPulse(ctx);
+  if (ctx.state === 'running' || typeof window === 'undefined') return;
+
+  runWhenAudioContextRunning(ctx, () => {
+    fireSilentUnlockPulse(ctx);
+    window.setTimeout(() => {
+      if (ctx.state === 'running') fireSilentUnlockPulse(ctx);
+    }, 120);
+  });
+};
+
 const installGlobalUnlockListeners = () => {
   if (unlockListenersInstalled || typeof window === 'undefined') return;
 
@@ -116,7 +137,7 @@ const installGlobalUnlockListeners = () => {
       if (ctx.state !== 'running') {
         ctx.resume().catch(() => {});
       }
-      fireSilentUnlockPulse(ctx);
+      warmAudioHardware(ctx);
     } catch {
       // Silent fail
     }
@@ -150,7 +171,7 @@ export function useMintSound() {
         // ensure the context transitions to 'running' immediately.
         ctx.resume().catch(() => {});
       }
-      fireSilentUnlockPulse(ctx);
+      warmAudioHardware(ctx);
       return ctx;
     } catch {
       return null;
@@ -166,12 +187,16 @@ export function useMintSound() {
       if (needsWarmStart) {
         ctx.resume().catch(() => {});
       }
-      fireSilentUnlockPulse(ctx);
+      warmAudioHardware(ctx);
       // On a cold/warm start, schedule slightly ahead so mobile browsers
       // have time to bring the audio hardware online before playback begins.
       return {
         ctx,
-        now: ctx.currentTime + (needsWarmStart ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD),
+        now: getSafeAudioStartTime(
+          ctx,
+          undefined,
+          needsWarmStart ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD,
+        ),
       };
     } catch {
       return null;
@@ -942,6 +967,8 @@ export function useMintSound() {
       const requested = playback?.now;
       if (requested === undefined) return;
 
+      const lead = scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD;
+
       const fire = (now: number) => {
         const master = ctx.createGain();
         master.gain.setValueAtTime(0.45, now);
@@ -980,10 +1007,10 @@ export function useMintSound() {
 
       if (ctx.state !== 'running') {
         runWhenAudioContextRunning(ctx, () => {
-          fire(Math.max(requested, ctx.currentTime + IMMEDIATE_SOUND_LEAD));
+          fire(getSafeAudioStartTime(ctx, requested, POST_RESUME_SOUND_LEAD));
         });
       } else {
-        fire(Math.max(requested, ctx.currentTime + IMMEDIATE_SOUND_LEAD));
+        fire(getSafeAudioStartTime(ctx, requested, lead));
       }
     } catch {
       // Silent fail

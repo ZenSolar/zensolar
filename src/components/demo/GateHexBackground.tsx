@@ -85,8 +85,8 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       const dt = lastFrameTime ? Math.min((now - lastFrameTime) / 16.667, 2) : 1;
       lastFrameTime = now;
 
-      // 2.5x faster time progression for frenetic energy
-      time += 0.022 * dt;
+      // Keep the gate alive, but slightly slower so the intro cascade reads clearly.
+      time += 0.018 * dt;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
@@ -103,10 +103,12 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       // Rainfall intro
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
-      const rainActive = actElapsed !== null && actElapsed < 2.2;
-      const rainHead = rainActive ? -hexHeight * 2 + Math.min(actElapsed / 1.15, 1) * (h + hexHeight * 4) : 0;
-      const rainBand = hexHeight * 2.4;
-      const rainIntensity = rainActive ? Math.max(0, 1 - Math.max(actElapsed - 1.3, 0) / 0.9) : 0;
+      const rainActive = actElapsed !== null && actElapsed < 4.2;
+      const rainHead = rainActive ? -hexHeight * 3 + Math.min(actElapsed / 2.4, 1) * (h + hexHeight * 6) : 0;
+      const rainBand = hexHeight * 5.2;
+      const rainIntensity = rainActive
+        ? (actElapsed < 2.8 ? 1 : Math.max(0, 1 - (actElapsed - 2.8) / 1.4))
+        : 0;
 
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
@@ -146,10 +148,10 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
           if (rainActive) {
             const dist = Math.abs(cy - rainHead);
-            if (dist < rainBand) alpha += Math.pow(1 - dist / rainBand, 2.6) * 0.28 * rainIntensity;
+            if (dist < rainBand) alpha += Math.pow(1 - dist / rainBand, 2.2) * 0.46 * rainIntensity;
           }
 
-          alpha = Math.min(alpha, rainActive ? 0.72 : 0.55);
+          alpha = Math.min(alpha, rainActive ? 0.84 : 0.55);
 
           if (alpha < 0.06) continue;
 

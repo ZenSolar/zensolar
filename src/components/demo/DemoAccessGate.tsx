@@ -272,14 +272,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const btn = lockButtonRef.current;
     if (!btn) return;
     const onTouch = (e: TouchEvent) => { e.preventDefault(); handleLockPointerDown(); };
+    const onTouchEnd = () => { primeAudio(); };
     const onPointer = (e: PointerEvent) => { if (e.pointerType === 'touch') return; handleLockPointerDown(); };
+    const onClick = () => { primeAudio(); };
     btn.addEventListener('touchstart', onTouch, { capture: true, passive: false });
+    btn.addEventListener('touchend', onTouchEnd, { capture: true, passive: true });
     btn.addEventListener('pointerdown', onPointer, true);
+    btn.addEventListener('click', onClick, true);
     return () => {
       btn.removeEventListener('touchstart', onTouch, true);
+      btn.removeEventListener('touchend', onTouchEnd, true);
       btn.removeEventListener('pointerdown', onPointer, true);
+      btn.removeEventListener('click', onClick, true);
     };
-  }, [handleLockPointerDown]);
+  }, [handleLockPointerDown, primeAudio]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -303,7 +309,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ref={containerRef}
       className="fixed inset-0 z-[100] overflow-hidden touch-none"
       style={{
-        backgroundColor: hexAwake ? 'hsl(var(--background))' : '#0a1628',
+        backgroundColor: hexAwake ? 'hsl(var(--background))' : 'hsl(var(--gate-splash-background))',
         overscrollBehavior: 'none',
         minHeight: '100dvh',
       }}
