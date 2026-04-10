@@ -56,6 +56,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   const { profile, isLoading: profileLoading } = useProfile();
   const { isAdmin, isAdminView, isViewer } = useAdminCheck();
   const { triggerConfetti } = useConfetti();
+  useShimmerSound({ cycleDuration: 5, volume: 0.06 });
   const { 
     hiddenFields, 
     hideField, 

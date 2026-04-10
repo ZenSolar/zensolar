@@ -48,6 +48,7 @@ export function DemoDashboard() {
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   const { triggerConfetti } = useConfetti();
+  useShimmerSound({ cycleDuration: 5, volume: 0.06 });
   const [tokenPrice, setTokenPrice] = useState(0.10);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
