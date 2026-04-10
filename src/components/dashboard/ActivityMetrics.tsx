@@ -382,8 +382,8 @@ export function ActivityMetrics({
         <div className="relative overflow-hidden rounded-lg">
           {/* KPI area shimmer */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.15) 20%, hsl(142 76% 65% / 0.3) 50%, hsl(142 76% 50% / 0.15) 80%, transparent 100%)"
-            glowColor="hsla(142, 76%, 45%, 0.1)"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 20%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 80%, transparent 100%)"
+            glowColor="hsla(142, 76%, 45%, 0.07)"
             duration="5.5s"
             idleDelay="2.4s"
             className="z-10 rounded-lg"
