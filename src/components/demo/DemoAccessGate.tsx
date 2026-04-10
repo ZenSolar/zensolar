@@ -394,8 +394,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               )}
               style={{
                 transition: firstTapBurst
-                  ? 'transform 60ms cubic-bezier(0.2, 0, 0.4, 1), background-color 60ms, box-shadow 60ms'
-                  : 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 200ms, box-shadow 200ms',
+                  ? 'background-color 60ms, box-shadow 60ms'
+                  : 'background-color 200ms, box-shadow 200ms',
+                animation: (!firstTapBurst && !isBursting && !isDenied && !isVerifying)
+                  ? 'zenCircleBreathe 2.8s ease-in-out infinite'
+                  : 'none',
               }}
             >
               {isBursting ? (
