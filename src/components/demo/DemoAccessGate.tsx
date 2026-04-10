@@ -268,7 +268,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playMintSound, startShimmerSound, updateState]);
+  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
 
   // Native event listeners for iOS gesture-chain audio unlock
   useEffect(() => {
