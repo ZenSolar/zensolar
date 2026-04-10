@@ -124,60 +124,78 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
           if (cy < -hexSize || cy > h + hexSize) continue;
 
-          // Base alpha for the emerald grid
-          let alpha = 0.12;
-
-          const dA = cx + cy * 0.55;
-          const dB = cx * 0.78 + cy * 0.82;
-          const dC = cx * 1.08 - cy * 0.28;
-
-          const phA = ((dA - driftA) / 480) * TAU;
-          const bA = Math.pow((Math.cos(phA) + 1) * 0.5, 4);
-
-          const phB = ((dB + driftB) / 600) * TAU;
-          const bB = Math.pow((Math.cos(phB) + 1) * 0.5, 5);
-
-          const phC = ((dC - driftC) / 700) * TAU;
-          const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
-
-          const shimmer = (Math.sin(dA * 0.015 - time * 5) + 1) * 0.5;
-          const flicker = (Math.sin(dB * 0.02 + time * 8) + 1) * 0.5;
-
-          alpha += bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
-
-          // Curtain: orange edge leads, green shimmer follows right behind — one fluid wave
+          // ── Curtain position ──
+          // During the curtain sweep, green hexes are ONLY visible behind
+          // (below) the orange leading edge. Before the curtain reaches a
+          // hex's row, that hex is invisible — pure navy.
           let edgeAlpha = 0;
-          let greenBoost = 0;
+          let greenAlpha = 0;
 
           if (curtainActive && actElapsed !== null) {
             const curtainY = -hexHeight * 2 + (Math.min(actElapsed / CURTAIN_SWEEP, 1)) * (h + hexHeight * 4);
-            const distBehind = curtainY - cy;
-            
-            if (distBehind > -hexHeight * 5) {
-              // ORANGE LEADING EDGE: bright band at the front
-              const edgeWidth = hexHeight * 5;
-              const edgeDist = Math.abs(cy - curtainY);
-              edgeAlpha = edgeDist < edgeWidth
-                ? Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0 * curtainFade
-                : 0;
-              
-              // GREEN SHIMMER WAVE: follows right behind the orange edge
-              // Starts just behind the leading edge and extends further back
-              if (distBehind > 0) {
-                const greenWaveLength = h * 0.5;
-                if (distBehind < greenWaveLength) {
-                  const t = 1 - distBehind / greenWaveLength;
-                  // Strong near the edge, fading smoothly behind — creates the "wake"
-                  greenBoost = Math.pow(t, 1.5) * 0.45 * curtainFade;
-                }
-              }
+            const distBehind = curtainY - cy; // positive = curtain has passed this row
+
+            // ORANGE LEADING EDGE
+            const edgeWidth = hexHeight * 5;
+            const edgeDist = Math.abs(cy - curtainY);
+            if (edgeDist < edgeWidth) {
+              edgeAlpha = Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0 * curtainFade;
             }
+
+            // GREEN: only appears once the curtain has swept past this row
+            if (distBehind > 0) {
+              // Base green shimmer — fades in as the curtain recedes
+              const dA = cx + cy * 0.55;
+              const dB = cx * 0.78 + cy * 0.82;
+              const dC = cx * 1.08 - cy * 0.28;
+
+              const phA = ((dA - driftA) / 480) * TAU;
+              const bA = Math.pow((Math.cos(phA) + 1) * 0.5, 4);
+              const phB = ((dB + driftB) / 600) * TAU;
+              const bB = Math.pow((Math.cos(phB) + 1) * 0.5, 5);
+              const phC = ((dC - driftC) / 700) * TAU;
+              const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
+              const shimmer = (Math.sin(dA * 0.015 - time * 5) + 1) * 0.5;
+              const flicker = (Math.sin(dB * 0.02 + time * 8) + 1) * 0.5;
+
+              let alpha = 0.12 + bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
+
+              // Bright green wake right behind the orange edge
+              const greenWaveLength = h * 0.5;
+              if (distBehind < greenWaveLength) {
+                const t = 1 - distBehind / greenWaveLength;
+                alpha += Math.pow(t, 1.5) * 0.45 * curtainFade;
+              }
+
+              // Fade-in ramp: green starts dim right at the curtain edge,
+              // reaches full strength a few hex-heights behind it
+              const revealRamp = Math.min(distBehind / (hexHeight * 4), 1);
+              alpha *= revealRamp;
+
+              greenAlpha = Math.min(alpha, curtainActive ? 0.85 : 0.55);
+            }
+          } else if (actElapsed !== null && actElapsed >= CURTAIN_DURATION) {
+            // Curtain complete — show steady green grid
+            const dA = cx + cy * 0.55;
+            const dB = cx * 0.78 + cy * 0.82;
+            const dC = cx * 1.08 - cy * 0.28;
+
+            const phA = ((dA - driftA) / 480) * TAU;
+            const bA = Math.pow((Math.cos(phA) + 1) * 0.5, 4);
+            const phB = ((dB + driftB) / 600) * TAU;
+            const bB = Math.pow((Math.cos(phB) + 1) * 0.5, 5);
+            const phC = ((dC - driftC) / 700) * TAU;
+            const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
+            const shimmer = (Math.sin(dA * 0.015 - time * 5) + 1) * 0.5;
+            const flicker = (Math.sin(dB * 0.02 + time * 8) + 1) * 0.5;
+
+            greenAlpha = Math.min(0.12 + bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03, 0.55);
           }
+          // else: curtain hasn't started or hasn't reached this row — hex stays invisible (navy)
 
           const isCurtainHex = edgeAlpha > 0.05;
           
           if (isCurtainHex) {
-            // Draw the orange leading edge
             const finalAlpha = Math.min(edgeAlpha, 1.0);
             if (finalAlpha < 0.06) continue;
 
@@ -192,13 +210,8 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
             ctx.shadowColor = `hsla(36,92%,55%,0.3)`;
             ctx.shadowBlur = 10;
             lastGlow = true;
-          } else {
-            // Green hex — boosted by the shimmer wave trailing the orange
-            alpha += greenBoost;
-            alpha = Math.min(alpha, curtainActive ? 0.85 : 0.55);
-            if (alpha < 0.06) continue;
-
-            const roundedAlpha = ((alpha * 50 + 0.5) | 0) / 50;
+          } else if (greenAlpha > 0.06) {
+            const roundedAlpha = ((greenAlpha * 50 + 0.5) | 0) / 50;
             const colorStr = `hsla(160,84%,42%,${roundedAlpha.toFixed(2)})`;
 
             if (colorStr !== lastColor) {
@@ -206,7 +219,7 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
               lastColor = colorStr;
             }
 
-            const needsGlow = alpha > 0.28;
+            const needsGlow = greenAlpha > 0.28;
             if (needsGlow !== lastGlow) {
               if (needsGlow) {
                 ctx.lineWidth = 0.8;
@@ -219,6 +232,8 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
               }
               lastGlow = needsGlow;
             }
+          } else {
+            continue;
           }
 
           ctx.setTransform(dpr, 0, 0, dpr, cx * dpr, cy * dpr);
