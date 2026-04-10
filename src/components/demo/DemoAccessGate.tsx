@@ -379,10 +379,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               {isBursting ? (
                 <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
               ) : (
-                <Lock className={cn(
-                  'h-8 w-8 transition-colors duration-100',
-                  code.trim() ? 'text-primary' : 'text-muted-foreground'
-                )} />
+                <Lock className="h-8 w-8 text-primary/80 transition-colors duration-100" />
               )}
 
               {/* First-tap burst particles (KPI-style impact) */}
