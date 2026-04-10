@@ -69,6 +69,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [showHint, setShowHint] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const particles = generateParticles();
+  const { primeAudio, playDeniedSound } = useMintSound();
 
   // Focus input on mount
   useEffect(() => {
