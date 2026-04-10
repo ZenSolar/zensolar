@@ -896,28 +896,26 @@ export function useMintSound() {
   // ── Welcome tap: snappy, instant-attack chime ──
   const playWelcomeTap = useCallback(() => {
     try {
-      const ctx = primeAudio();
+      const ctx = getCtx();
       if (!ctx) return;
 
-      // If the context is still suspended (first-ever tap), resume it and
-      // retry once it's running so currentTime is valid.
-      if (ctx.state === 'suspended') {
-        ctx.resume().then(() => {
-          // Re-enter — now ctx.state === 'running' and currentTime is live
-          playWelcomeTap();
-        }).catch(() => {});
-        return;
+      const needsWarmStart = ctx.state !== 'running';
+      if (needsWarmStart) {
+        ctx.resume().catch(() => {});
       }
 
-      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
+      fireSilentUnlockPulse(ctx);
+
+      // On the very first tap, give the resumed context a slightly larger
+      // lead so iOS/mobile browsers have time to bring audio hardware online.
+      const now = ctx.currentTime + (needsWarmStart ? 0.08 : IMMEDIATE_SOUND_LEAD);
 
       const master = ctx.createGain();
-      master.gain.value = 0.45;
+      master.gain.setValueAtTime(0.45, now);
       master.connect(ctx.destination);
 
       const DUR = 0.4;
 
-      // Instant attack chime — A4
       const chimeGain = ctx.createGain();
       chimeGain.gain.setValueAtTime(0.5, now);
       chimeGain.gain.exponentialRampToValueAtTime(0.12, now + 0.1);
@@ -932,7 +930,6 @@ export function useMintSound() {
       chime.start(now);
       chime.stop(now + DUR + 0.05);
 
-      // Harmonic shimmer — instant
       const shimGain = ctx.createGain();
       shimGain.gain.setValueAtTime(0.2, now);
       shimGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.6);
@@ -945,7 +942,6 @@ export function useMintSound() {
       shim.start(now);
       shim.stop(now + DUR + 0.05);
 
-      // Sub presence — instant
       const subGain = ctx.createGain();
       subGain.gain.setValueAtTime(0.15, now);
       subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
@@ -957,11 +953,10 @@ export function useMintSound() {
       sub.connect(subGain);
       sub.start(now);
       sub.stop(now + DUR + 0.05);
-
     } catch {
       // Silent fail
     }
-  }, [primeAudio]);
+  }, [getCtx]);
 
   return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
 }
