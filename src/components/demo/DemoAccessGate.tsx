@@ -8,6 +8,13 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
 
+// ─── Water ripple state ────
+interface Ripple {
+  id: number;
+  x: number;
+  y: number;
+}
+
 const LS_KEY = 'zen_demo_access';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
