@@ -9,11 +9,31 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 let sharedAudioContext: AudioContext | null = null;
 let unlockListenersInstalled = false;
+let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+
+/** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
+const isStandalonePWA = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    (window.navigator as any).standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches
+  );
+};
 
 const createSharedAudioContext = () => {
   if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
     const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
     sharedAudioContext = new AudioContextCtor();
+
+    // In PWA standalone mode, iOS aggressively suspends the AudioContext.
+    // Keep it alive by playing inaudible pulses every 4 seconds.
+    if (isStandalonePWA() && !keepAliveInterval) {
+      keepAliveInterval = setInterval(() => {
+        if (sharedAudioContext && sharedAudioContext.state === 'running') {
+          fireSilentUnlockPulse(sharedAudioContext);
+        }
+      }, 4000);
+    }
   }
   return sharedAudioContext;
 };
@@ -73,6 +93,9 @@ export function useMintSound() {
     try {
       const ctx = getCtx();
       if (ctx.state === 'suspended') {
+        // In PWA standalone, resume() must be called synchronously within
+        // the user gesture. We call it and also fire a silent pulse to
+        // ensure the context transitions to 'running' immediately.
         ctx.resume().catch(() => {});
       }
       fireSilentUnlockPulse(ctx);
@@ -110,6 +133,14 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+      // If context is still suspended (PWA edge case), force resume
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          // Re-trigger the sound after resume completes
+          playMintSound(_color);
+        }).catch(() => {});
+        return;
+      }
       const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
@@ -390,6 +421,10 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playConfirmSound()).catch(() => {});
+        return;
+      }
       const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
@@ -718,6 +753,10 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playDeniedSound()).catch(() => {});
+        return;
+      }
       const now = ctx.currentTime + 0.02;
 
       const master = ctx.createGain();

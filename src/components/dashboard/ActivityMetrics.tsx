@@ -290,40 +290,51 @@ export function ActivityMetrics({
             idleDelay="0.8s"
           />
 
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div 
-                className="h-9 w-9 rounded-lg flex items-center justify-center"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
-                  boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
-                }}
-              >
-                <Gauge className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
-                  Clean Energy Center
-                </h2>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
-                  {isLoading && (
-                    <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Updating…
-                    </span>
-                  )}
+          <div className="relative">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div 
+                  className="h-9 w-9 rounded-lg flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
+                    boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
+                  }}
+                >
+                  <Gauge className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
+                    Clean Energy Center
+                  </h2>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+                    {isLoading && (
+                      <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Updating…
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
+
+              <span 
+                className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary whitespace-nowrap flex-shrink-0"
+                style={{ textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)' }}
+              >
+                Tap-to-Mint™
+              </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              {filteredProviders.length > 0 && (
-                <div className="flex items-center gap-1">
+            {/* Connected providers — clear row below header */}
+            {filteredProviders.length > 0 && (
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
+                <div className="flex items-center gap-1.5">
                   {filteredProviders.map((provider) => (
                     <div 
                       key={provider}
-                      className="h-6 w-6 rounded-md flex items-center justify-center overflow-hidden"
+                      className="h-7 w-7 rounded-lg flex items-center justify-center border border-border/30 bg-card/10"
                       title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                     >
                       <img 
@@ -331,20 +342,14 @@ export function ActivityMetrics({
                         alt={provider}
                         className={cn(
                           "object-contain",
-                          provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
+                          provider === 'tesla' ? "h-5 w-5" : "h-4 w-4"
                         )}
                       />
                     </div>
                   ))}
                 </div>
-              )}
-              <span 
-                className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary"
-                style={{ textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)' }}
-              >
-                Tap-to-Mint™
-              </span>
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
