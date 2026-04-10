@@ -30,9 +30,11 @@ export function useDemoScreenshotDetector() {
       // Log to console for local debugging
       console.info(`[ZenSolar] Screenshot detected (${method}) at ${timestamp} on ${page}`);
 
-      // Store in Supabase — best effort, no auth required
-      // Uses a simple insert into notification_logs or a dedicated table
-      supabase.rpc('verify_demo_code', { _code: `__screenshot__${method}__${timestamp}` }).catch(() => {});
+      // Log to a lightweight endpoint — fire-and-forget
+      fetch(`${window.location.origin}/demo-screenshot-log`, {
+        method: 'POST',
+        body: JSON.stringify({ method, timestamp, userAgent, page }),
+      }).catch(() => {});
 
       // You could also send to an edge function for email/slack notification
       if (!notified.current) {
