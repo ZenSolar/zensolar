@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, AlertCircle, Sun, Car, BatteryFull, Zap, Wallet, Image } from 'lucide-react';
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
+
 import { useConfetti } from '@/hooks/useConfetti';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
