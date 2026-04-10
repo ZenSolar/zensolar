@@ -285,8 +285,6 @@ export function ActivityMetrics({
           {/* Shimmer sweep */}
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 30%, hsl(210 90% 50% / 0.5) 50%, hsl(205 85% 45% / 0.3) 70%, transparent 100%)"
-            burstGradient="linear-gradient(90deg, transparent 0%, hsl(210 60% 18% / 0.35) 30%, hsl(215 65% 22% / 0.5) 50%, hsl(210 60% 18% / 0.35) 70%, transparent 100%)"
-            burstDelay="1.5s"
             idleDelay="1.5s"
           />
 
@@ -383,8 +381,6 @@ export function ActivityMetrics({
           {/* KPI area shimmer */}
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 30%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 70%, transparent 100%)"
-            burstGradient="linear-gradient(90deg, transparent 0%, hsl(142 55% 16% / 0.2) 30%, hsl(142 60% 20% / 0.3) 50%, hsl(142 55% 16% / 0.2) 70%, transparent 100%)"
-            burstDelay="3s"
             idleDelay="3s"
             className="z-10 rounded-lg"
           />
