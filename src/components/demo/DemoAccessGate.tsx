@@ -414,34 +414,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 />
               ) : (
                 <span
-                  className="select-none"
+                  className="select-none font-black"
                   style={{
                     fontSize: '1.75rem',
                     lineHeight: 1,
-                    letterSpacing: '0.03em',
+                    letterSpacing: '-0.02em',
+                    color: 'hsl(var(--primary))',
+                    textShadow: '0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.2)',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
                       : 'zenSymbolFadeIn 300ms ease-out both',
                   }}
                 >
-                  <span
-                    style={{
-                      fontWeight: 400,
-                      color: 'hsl(var(--primary) / 0.4)',
-                    }}
-                  >
-                    $
-                  </span>
-                  <span
-                    className="font-black"
-                    style={{
-                      fontFamily: 'system-ui, -apple-system, sans-serif',
-                      color: 'hsl(var(--primary) / 0.75)',
-                      textShadow: '0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.2)',
-                    }}
-                  >
-                    Z
-                  </span>
+                  $Z
                 </span>
               )}
 
