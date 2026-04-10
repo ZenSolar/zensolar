@@ -455,24 +455,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             autoCapitalize="off"
           />
 
-          {/* Tap hint */}
+          {/* Tap hint — always visible */}
           <div className="flex justify-center h-6">
-            {showTapAgain ? (
-              <span className="text-xs text-primary flex items-center gap-1.5 animate-pulse">
-                <Zap className="h-3 w-3" />
-                double tap to unlock
-              </span>
-            ) : (
-              <span
-                className={cn(
-                  'text-xs text-primary/80 flex items-center gap-1.5 transition-all duration-300',
-                  showHint ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
-                )}
-              >
-                <Sparkles className="h-3 w-3" />
-                tap the lock to enter
-              </span>
-            )}
+            <span className="text-xs text-primary/80 flex items-center gap-1.5">
+              <Sparkles className="h-3 w-3" />
+              double tap to unlock
+            </span>
           </div>
         </div>
 
