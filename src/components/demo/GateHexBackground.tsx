@@ -156,17 +156,17 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
             const distBehind = curtainY - cy;
             
             if (distBehind > -hexHeight * 2) {
-              // LEADING EDGE: bright line at the curtain front (±2 hex rows)
+              // LEADING EDGE: intense bright band at the curtain front (~3 hex rows wide)
               const edgeDist = Math.abs(cy - curtainY);
               const edgeGlow = edgeDist < hexHeight * 3
-                ? Math.pow(1 - edgeDist / (hexHeight * 3), 2) * 0.9
+                ? Math.pow(1 - edgeDist / (hexHeight * 3), 1.5) * 0.95
                 : 0;
               
-              // TRAIL: everything above the curtain line glows, fading with distance
-              // The trail stretches up to ~40% of screen height behind the leading edge
-              const trailLength = h * 0.45;
+              // TRAIL: very faint residual glow behind the leading edge
+              // Drops off quickly so the bright edge is the clear focal point
+              const trailLength = h * 0.5;
               const trailGlow = distBehind > 0 && distBehind < trailLength
-                ? (1 - distBehind / trailLength) * 0.55
+                ? Math.pow(1 - distBehind / trailLength, 3) * 0.12
                 : 0;
               
               alpha += (edgeGlow + trailGlow) * curtainFade;
