@@ -146,6 +146,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       viewport?.removeEventListener('scroll', syncViewport);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+      if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
     };
   }, []);
 
