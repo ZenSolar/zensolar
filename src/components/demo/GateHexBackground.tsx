@@ -85,7 +85,6 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       const dt = lastFrameTime ? Math.min((now - lastFrameTime) / 16.667, 2) : 1;
       lastFrameTime = now;
 
-      // Keep the gate alive, but slightly slower so the intro cascade reads clearly.
       time += 0.018 * dt;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -95,27 +94,26 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       const endRow = Math.ceil(h / hexHeight) + 3;
       const cols = Math.ceil(w / (hexWidth * 0.75)) + 2;
 
-      // Faster drift speeds for urgency
       const driftA = time * 520;
       const driftB = time * 400;
       const driftC = time * 300;
 
-      // Curtain drop — bright leading edge sweeps top-to-bottom with a glowing trail
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
       const CURTAIN_DURATION = 8.0;
-      const CURTAIN_SWEEP = 6.5;      // seconds for the leading edge to cross the screen (slower)
+      const CURTAIN_SWEEP = 6.5;
       const curtainActive = actElapsed !== null && actElapsed < CURTAIN_DURATION;
-      // Global fade-out in the last 2 seconds
       const curtainFade = curtainActive
         ? (actElapsed! < 6.0 ? 1 : Math.max(0, 1 - (actElapsed! - 6.0) / 2.0))
         : 0;
 
+      // Disable shadow globally — use alpha-based brightness instead (much cheaper)
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
 
-      let lastColor = '';
-      let lastGlow = false;
+      // Batch hex draws: collect orange & green hexes, draw in two passes to minimise state changes
+      const orangeHexes: { cx: number; cy: number; alpha: number }[] = [];
+      const greenHexes: { cx: number; cy: number; alpha: number }[] = [];
 
       for (let row = startRow; row < endRow; row++) {
         for (let col = 0; col < cols; col++) {
@@ -124,27 +122,20 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
           if (cy < -hexSize || cy > h + hexSize) continue;
 
-          // ── Curtain position ──
-          // During the curtain sweep, green hexes are ONLY visible behind
-          // (below) the orange leading edge. Before the curtain reaches a
-          // hex's row, that hex is invisible — pure navy.
           let edgeAlpha = 0;
           let greenAlpha = 0;
 
           if (curtainActive && actElapsed !== null) {
             const curtainY = -hexHeight * 2 + (Math.min(actElapsed / CURTAIN_SWEEP, 1)) * (h + hexHeight * 4);
-            const distBehind = curtainY - cy; // positive = curtain has passed this row
+            const distBehind = curtainY - cy;
 
-            // ORANGE LEADING EDGE
             const edgeWidth = hexHeight * 5;
             const edgeDist = Math.abs(cy - curtainY);
             if (edgeDist < edgeWidth) {
               edgeAlpha = Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0 * curtainFade;
             }
 
-            // GREEN: only appears once the curtain has swept past this row
             if (distBehind > 0) {
-              // Base green shimmer — fades in as the curtain recedes
               const dA = cx + cy * 0.55;
               const dB = cx * 0.78 + cy * 0.82;
               const dC = cx * 1.08 - cy * 0.28;
@@ -160,22 +151,18 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
               let alpha = 0.12 + bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
 
-              // Bright green wake right behind the orange edge
               const greenWaveLength = h * 0.5;
               if (distBehind < greenWaveLength) {
                 const t = 1 - distBehind / greenWaveLength;
                 alpha += Math.pow(t, 1.5) * 0.45 * curtainFade;
               }
 
-              // Fade-in ramp: green starts dim right at the curtain edge,
-              // reaches full strength a few hex-heights behind it
               const revealRamp = Math.min(distBehind / (hexHeight * 4), 1);
               alpha *= revealRamp;
 
               greenAlpha = Math.min(alpha, curtainActive ? 0.85 : 0.55);
             }
           } else if (actElapsed !== null && actElapsed >= CURTAIN_DURATION) {
-            // Curtain complete — show steady green grid
             const dA = cx + cy * 0.55;
             const dB = cx * 0.78 + cy * 0.82;
             const dC = cx * 1.08 - cy * 0.28;
@@ -191,52 +178,41 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
             greenAlpha = Math.min(0.12 + bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03, 0.55);
           }
-          // else: curtain hasn't started or hasn't reached this row — hex stays invisible (navy)
 
-          const isCurtainHex = edgeAlpha > 0.05;
-          
-          if (isCurtainHex) {
-            const finalAlpha = Math.min(edgeAlpha, 1.0);
-            if (finalAlpha < 0.06) continue;
-
-            const roundedAlpha = ((finalAlpha * 50 + 0.5) | 0) / 50;
-            const colorStr = `hsla(36,92%,55%,${roundedAlpha.toFixed(2)})`;
-
-            if (colorStr !== lastColor) {
-              ctx.strokeStyle = colorStr;
-              lastColor = colorStr;
-            }
-            ctx.lineWidth = 1.0;
-            ctx.shadowColor = `hsla(36,92%,55%,0.3)`;
-            ctx.shadowBlur = 10;
-            lastGlow = true;
+          if (edgeAlpha > 0.05) {
+            orangeHexes.push({ cx, cy, alpha: Math.min(edgeAlpha, 1.0) });
           } else if (greenAlpha > 0.06) {
-            const roundedAlpha = ((greenAlpha * 50 + 0.5) | 0) / 50;
-            const colorStr = `hsla(160,84%,42%,${roundedAlpha.toFixed(2)})`;
-
-            if (colorStr !== lastColor) {
-              ctx.strokeStyle = colorStr;
-              lastColor = colorStr;
-            }
-
-            const needsGlow = greenAlpha > 0.28;
-            if (needsGlow !== lastGlow) {
-              if (needsGlow) {
-                ctx.lineWidth = 0.8;
-                ctx.shadowColor = 'hsla(160,84%,55%,0.18)';
-                ctx.shadowBlur = 8;
-              } else {
-                ctx.lineWidth = 0.5;
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-              }
-              lastGlow = needsGlow;
-            }
-          } else {
-            continue;
+            greenHexes.push({ cx, cy, alpha: greenAlpha });
           }
+        }
+      }
 
-          ctx.setTransform(dpr, 0, 0, dpr, cx * dpr, cy * dpr);
+      // Draw orange hexes in one batch
+      if (orangeHexes.length > 0) {
+        ctx.lineWidth = 1.0;
+        let lastAlpha = -1;
+        for (const hex of orangeHexes) {
+          const roundedAlpha = ((hex.alpha * 50 + 0.5) | 0) / 50;
+          if (roundedAlpha !== lastAlpha) {
+            ctx.strokeStyle = `hsla(36,92%,55%,${roundedAlpha.toFixed(2)})`;
+            lastAlpha = roundedAlpha;
+          }
+          ctx.setTransform(dpr, 0, 0, dpr, hex.cx * dpr, hex.cy * dpr);
+          ctx.stroke(hexPath);
+        }
+      }
+
+      // Draw green hexes in one batch
+      if (greenHexes.length > 0) {
+        ctx.lineWidth = 0.6;
+        let lastAlpha = -1;
+        for (const hex of greenHexes) {
+          const roundedAlpha = ((hex.alpha * 50 + 0.5) | 0) / 50;
+          if (roundedAlpha !== lastAlpha) {
+            ctx.strokeStyle = `hsla(160,84%,42%,${roundedAlpha.toFixed(2)})`;
+            lastAlpha = roundedAlpha;
+          }
+          ctx.setTransform(dpr, 0, 0, dpr, hex.cx * dpr, hex.cy * dpr);
           ctx.stroke(hexPath);
         }
       }
