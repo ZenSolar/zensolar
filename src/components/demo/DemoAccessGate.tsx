@@ -346,12 +346,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
           {/* Lock icon with burst effect */}
           <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
-            {/* Pulsating glow ring */}
+            {/* Beckoning glow ring — synced with 5s shimmer cycle */}
             <div
-              className="absolute inset-0 rounded-full pointer-events-none"
+              className="absolute -inset-2 rounded-full pointer-events-none"
               style={{
-                animation: 'zenLockPulse 2.5s ease-in-out infinite',
-                boxShadow: '0 0 0 1px hsl(var(--primary) / 0.3)',
+                animation: 'zenLockBeckon 5s ease-in-out infinite',
               }}
             />
             <button
