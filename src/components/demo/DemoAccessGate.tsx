@@ -76,7 +76,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const particles = generateParticles();
-  const { primeAudio, playDeniedSound, playMintSound } = useMintSound();
+  const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
 
   // Focus input on mount
   useEffect(() => {
@@ -164,12 +164,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       submitCode();
     } else {
-      // ── FIRST TAP ── visual pulse + "tap again" hint
+      // ── FIRST TAP ── visual pulse + "tap again" hint + welcome chime
       lastTapTimeRef.current = now;
 
       setFirstTapBurst(true);
       setBurstKey(k => k + 1);
       setShowTapAgain(true);
+      playWelcomeTap();
 
       if ('vibrate' in navigator) {
         try { navigator.vibrate([10]); } catch {}
@@ -185,7 +186,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         setShowTapAgain(false);
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, phase, primeAudio, submitCode]);
+  }, [code, phase, primeAudio, submitCode, playWelcomeTap]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -418,7 +419,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             {showTapAgain ? (
               <span className="text-xs text-primary flex items-center gap-1.5 animate-pulse">
                 <Zap className="h-3 w-3" />
-                tap again to unlock
+                double tap to unlock
               </span>
             ) : (
               <span

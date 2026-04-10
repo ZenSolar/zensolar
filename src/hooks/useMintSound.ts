@@ -829,5 +829,67 @@ export function useMintSound() {
     }
   }, [primeAudio]);
 
-  return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, triggerHaptic };
+  // ── Welcome tap: a friendly, softer cousin of the mint gong ──
+  const playWelcomeTap = useCallback(() => {
+    try {
+      const ctx = primeAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.02;
+
+      const master = ctx.createGain();
+      master.gain.value = 0.35;
+      master.connect(ctx.destination);
+
+      const DUR = 0.5;
+
+      // Warm chime — higher, lighter than the mint gong
+      const chimeGain = ctx.createGain();
+      chimeGain.gain.setValueAtTime(0, now);
+      chimeGain.gain.linearRampToValueAtTime(0.4, now + 0.008);
+      chimeGain.gain.exponentialRampToValueAtTime(0.1, now + 0.15);
+      chimeGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
+      chimeGain.connect(master);
+
+      const chime = ctx.createOscillator();
+      chime.type = 'sine';
+      chime.frequency.setValueAtTime(440, now); // A4
+      chime.frequency.exponentialRampToValueAtTime(420, now + DUR);
+      chime.connect(chimeGain);
+      chime.start(now);
+      chime.stop(now + DUR + 0.05);
+
+      // Soft harmonic shimmer
+      const shimGain = ctx.createGain();
+      shimGain.gain.setValueAtTime(0, now);
+      shimGain.gain.linearRampToValueAtTime(0.15, now + 0.01);
+      shimGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
+      shimGain.connect(master);
+
+      const shim = ctx.createOscillator();
+      shim.type = 'sine';
+      shim.frequency.setValueAtTime(660, now); // E5 — perfect fifth
+      shim.connect(shimGain);
+      shim.start(now);
+      shim.stop(now + DUR + 0.05);
+
+      // Gentle sub presence
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0, now);
+      subGain.gain.linearRampToValueAtTime(0.12, now + 0.01);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.6);
+      subGain.connect(master);
+
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(220, now); // A3
+      sub.connect(subGain);
+      sub.start(now);
+      sub.stop(now + DUR + 0.05);
+
+    } catch {
+      // Silent fail
+    }
+  }, [primeAudio]);
+
+  return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
 }
