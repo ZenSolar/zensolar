@@ -79,7 +79,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   });
   const [code, setCode] = useState('');
   const [showHint, setShowHint] = useState(false);
-  const [showTapMintHint, setShowTapMintHint] = useState(false);
+  
 
   // ── stateRef pattern: single ref holds all interaction state ──
   const stateRef = useRef<GateState>({
