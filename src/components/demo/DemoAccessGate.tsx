@@ -109,9 +109,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   // No auto-focus — let user take in the full page experience first
 
-  // Cleanup timers
+  // Set actual viewport height to eliminate black bar on mobile browsers
+  const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const setVh = () => {
+      if (containerRef.current) {
+        containerRef.current.style.height = `${window.innerHeight}px`;
+      }
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
     return () => {
+      window.removeEventListener('resize', setVh);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     };
@@ -172,15 +181,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [updateState]);
 
   // ── Pointer handler: fires on pointerdown for zero-latency response ──
-  const handleLockPointerDown = useCallback(async (e: React.PointerEvent) => {
+  // CRITICAL: Everything here must be synchronous — no await — to stay
+  // inside the user-gesture context so iOS Safari allows immediate audio.
+  const handleLockPointerDown = useCallback((e: React.PointerEvent) => {
     // Suppress ghost clicks
     if (Date.now() < ignorePointerUntilRef.current) return;
     e.preventDefault();
 
-    // Prime and ensure AudioContext is running before playing sound
+    // Synchronous prime + resume — do NOT await
     const ctx = primeAudio();
     if (ctx && ctx.state === 'suspended') {
-      try { await ctx.resume(); } catch {}
+      ctx.resume().catch(() => {});
     }
 
     const s = stateRef.current;
@@ -190,7 +201,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
 
     if (isDoubleTap) {
-      // ⚡ DOUBLE TAP — submit only if code entered, otherwise just burst
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
 
@@ -206,7 +216,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         submitCode();
       }
     } else {
-      // ── FIRST TAP ── welcome chime + visual burst + hint
       lastTapTimeRef.current = now;
 
       triggerBurst();
@@ -217,7 +226,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         try { navigator.vibrate([10]); } catch {}
       }
 
-      // Clear tap window
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
@@ -250,8 +258,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isVerifying = phase === 'verifying';
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none', minHeight: '100dvh' }}>
-      <div className="absolute inset-0 opacity-[0.55]" style={{ touchAction: 'none' }}>
+    <div ref={containerRef} className="fixed top-0 left-0 right-0 bottom-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
+      <div className="absolute inset-0 opacity-[0.55]" style={{ touchAction: 'none', width: '100%', height: '100%' }}>
         <GateHexBackground />
       </div>
 
