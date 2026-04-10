@@ -50,13 +50,17 @@ export function useShimmerSound({
         n.master.gain.setTargetAtTime(0, n.ctx.currentTime, 0.3);
         const captured = n;
         setTimeout(() => {
-          try {
+           try {
             captured.baseOsc.stop();
             captured.harmOsc.stop();
             captured.subOsc.stop();
             captured.lfo.stop();
             captured.biasNode.stop();
             captured.wobbleLfo.stop();
+            captured.gongOsc.stop();
+            captured.gongOsc2.stop();
+            captured.gongOsc3.stop();
+            captured.gongBias.stop();
           } catch { /* already stopped */ }
         }, 1500);
         nodesRef.current = null;
@@ -247,6 +251,10 @@ export function useShimmerSound({
             n.lfo.stop();
             n.biasNode.stop();
             n.wobbleLfo.stop();
+            n.gongOsc.stop();
+            n.gongOsc2.stop();
+            n.gongOsc3.stop();
+            n.gongBias.stop();
           } catch { /* already stopped */ }
         }, 1500);
         nodesRef.current = null;
