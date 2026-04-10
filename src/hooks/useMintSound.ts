@@ -1155,11 +1155,13 @@ export function useMintSound() {
         lfo.stop(now + DUR + 0.1);
       };
 
-      // CRITICAL: Same iOS-safe pattern as playWelcomeTap — schedule immediately
+      // CRITICAL: Schedule immediately with minimal lead — the singing bowl
+      // is the first sound on first tap, so any perceptible delay feels wrong.
+      // Nodes scheduled while suspended will play the instant resume() resolves.
       if (ctx.state !== 'running') {
         ctx.resume().catch(() => {});
       }
-      fire(getSafeAudioStartTime(ctx, requested, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : lead));
+      fire(getSafeAudioStartTime(ctx, requested, IMMEDIATE_SOUND_LEAD));
 
     } catch {
       // Silent fail
