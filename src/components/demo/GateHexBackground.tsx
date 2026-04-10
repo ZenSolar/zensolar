@@ -114,7 +114,7 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
 
-      let lastAlphaStr = '';
+      let lastColor = '';
       let lastGlow = false;
 
       for (let row = startRow; row < endRow; row++) {
@@ -124,7 +124,7 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
           if (cy < -hexSize || cy > h + hexSize) continue;
 
-          // Higher base alpha for brighter feel
+          // Base alpha for the emerald grid
           let alpha = 0.12;
 
           const dA = cx + cy * 0.55;
@@ -140,64 +140,82 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
           const phC = ((dC - driftC) / 700) * TAU;
           const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
 
-          // Faster, more pronounced shimmer with a secondary flicker
           const shimmer = (Math.sin(dA * 0.015 - time * 5) + 1) * 0.5;
           const flicker = (Math.sin(dB * 0.02 + time * 8) + 1) * 0.5;
 
-          // Stronger contribution from waves + shimmer + flicker
           alpha += bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
 
+          // Curtain: compute edge glow separately — it renders in solar orange
+          let edgeAlpha = 0;
+          let trailAlpha = 0;
+
           if (curtainActive && actElapsed !== null) {
-            // The "curtain line" position: starts above the screen, sweeps to below
             const curtainY = -hexHeight * 2 + (Math.min(actElapsed / CURTAIN_SWEEP, 1)) * (h + hexHeight * 4);
-            
-            // Distance from this hex to the curtain's leading edge
-            // Positive = curtain has passed this hex (above/behind), negative = not yet reached
             const distBehind = curtainY - cy;
             
-            if (distBehind > -hexHeight * 4) {
-              // LEADING EDGE: wide intense band (~5 hex rows) that really pops
+            if (distBehind > -hexHeight * 5) {
               const edgeWidth = hexHeight * 5;
               const edgeDist = Math.abs(cy - curtainY);
-              const edgeGlow = edgeDist < edgeWidth
-                ? Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0
+              edgeAlpha = edgeDist < edgeWidth
+                ? Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0 * curtainFade
                 : 0;
               
-              // TRAIL: barely-there whisper so the leading edge is the star
               const trailLength = h * 0.3;
-              const trailGlow = distBehind > 0 && distBehind < trailLength
-                ? Math.pow(1 - distBehind / trailLength, 5) * 0.04
+              trailAlpha = distBehind > 0 && distBehind < trailLength
+                ? Math.pow(1 - distBehind / trailLength, 5) * 0.04 * curtainFade
                 : 0;
-              
-              alpha += (edgeGlow + trailGlow) * curtainFade;
             }
           }
 
-          alpha = Math.min(alpha, curtainActive ? 1.0 : 0.55);
+          // Decide which color to use: solar orange for the curtain edge, emerald for everything else
+          const isCurtainHex = edgeAlpha > 0.05;
+          
+          if (isCurtainHex) {
+            // Draw in solar orange — the edge is the star
+            const finalAlpha = Math.min(edgeAlpha + trailAlpha, 1.0);
+            if (finalAlpha < 0.06) continue;
 
-          if (alpha < 0.06) continue;
+            const roundedAlpha = ((finalAlpha * 50 + 0.5) | 0) / 50;
+            const colorStr = `hsla(36,92%,55%,${roundedAlpha.toFixed(2)})`;
 
-          const roundedAlpha = ((alpha * 50 + 0.5) | 0) / 50;
-          const alphaStr = roundedAlpha.toFixed(2);
-
-          if (alphaStr !== lastAlphaStr) {
-            ctx.strokeStyle = `hsla(160,84%,42%,${alphaStr})`;
-            lastAlphaStr = alphaStr;
-          }
-
-          // Lower glow threshold so more hexes shimmer
-          const needsGlow = alpha > 0.28;
-          if (needsGlow !== lastGlow) {
-            if (needsGlow) {
-              ctx.lineWidth = 0.8;
-              ctx.shadowColor = 'hsla(160,84%,55%,0.18)';
-              ctx.shadowBlur = 8;
-            } else {
-              ctx.lineWidth = 0.5;
-              ctx.shadowColor = 'transparent';
-              ctx.shadowBlur = 0;
+            if (colorStr !== lastColor) {
+              ctx.strokeStyle = colorStr;
+              lastColor = colorStr;
             }
-            lastGlow = needsGlow;
+
+            if (!lastGlow || lastGlow) {
+              ctx.lineWidth = 1.0;
+              ctx.shadowColor = `hsla(36,92%,55%,0.3)`;
+              ctx.shadowBlur = 10;
+              lastGlow = true;
+            }
+          } else {
+            // Normal emerald hex
+            alpha += trailAlpha;
+            alpha = Math.min(alpha, 0.55);
+            if (alpha < 0.06) continue;
+
+            const roundedAlpha = ((alpha * 50 + 0.5) | 0) / 50;
+            const colorStr = `hsla(160,84%,42%,${roundedAlpha.toFixed(2)})`;
+
+            if (colorStr !== lastColor) {
+              ctx.strokeStyle = colorStr;
+              lastColor = colorStr;
+            }
+
+            const needsGlow = alpha > 0.28;
+            if (needsGlow !== lastGlow) {
+              if (needsGlow) {
+                ctx.lineWidth = 0.8;
+                ctx.shadowColor = 'hsla(160,84%,55%,0.18)';
+                ctx.shadowBlur = 8;
+              } else {
+                ctx.lineWidth = 0.5;
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+              }
+              lastGlow = needsGlow;
+            }
           }
 
           ctx.setTransform(dpr, 0, 0, dpr, cx * dpr, cy * dpr);
