@@ -154,12 +154,12 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
             const dist = Math.abs(cy - rainHead);
             if (dist < rainBand) {
               const t = 1 - dist / rainBand;
-              // Smooth wide glow with a bright core
-              alpha += (t * t * 0.35 + Math.pow(t, 5) * 0.25) * rainIntensity;
+              // Massive bright cascade with an intense core
+              alpha += (t * 0.45 + t * t * 0.35 + Math.pow(t, 4) * 0.4) * rainIntensity;
             }
           }
 
-          alpha = Math.min(alpha, rainActive ? 0.92 : 0.55);
+          alpha = Math.min(alpha, rainActive ? 1.0 : 0.55);
 
           if (alpha < 0.06) continue;
 
