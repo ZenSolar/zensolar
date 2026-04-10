@@ -601,19 +601,33 @@ export function useDashboardData() {
       const userId = getEffectiveUserId();
       if (!userId) return null;
 
-      const [devicesSnapshot, homeChargingMonitorKwh, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
+      const [devicesSnapshot, homeChargingAllSessions, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
         supabase.from('connected_devices')
           .select('device_id, device_name, device_type, provider, baseline_data, lifetime_totals, last_minted_at')
           .eq('user_id', userId).then(r => r.data || []),
         supabase.from('home_charging_sessions')
-          .select('total_session_kwh')
+          .select('total_session_kwh, start_time')
           .eq('user_id', userId)
           .eq('status', 'completed')
-          .then(r => (r.data || []).reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)),
+          .then(r => r.data || []),
         fetchMintedTokens(),
         fetchReferralTokens(),
         fetchDeviceLabels(),
       ]);
+
+      // Calculate home charging: lifetime total and pending (since last mint)
+      const homeChargingMonitorKwh = homeChargingAllSessions.reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0);
+      // Find the most recent mint timestamp across all devices
+      const lastMintTimestamps = devicesSnapshot.map((d: any) => d.last_minted_at).filter(Boolean);
+      const latestMintAt = lastMintTimestamps.length > 0
+        ? new Date(Math.max(...lastMintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
+        : null;
+      // Pending = only sessions started AFTER the last mint
+      const pendingHomeChargingMonitorKwh = latestMintAt
+        ? homeChargingAllSessions
+            .filter((s: any) => new Date(s.start_time) > new Date(latestMintAt))
+            .reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)
+        : homeChargingMonitorKwh;
 
       if (devicesSnapshot.length === 0) return null;
 
@@ -657,7 +671,7 @@ export function useDashboardData() {
       const pendingSupercharger = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
 
       const homeChargerKwh = homeChargingMonitorKwh;
-      const pendingHomeCharger = homeChargingMonitorKwh;
+      const pendingHomeCharger = pendingHomeChargingMonitorKwh;
       const pendingCharging = pendingSupercharger + pendingHomeCharger;
 
       const tokensEarned = Math.floor(evMiles) + Math.floor(solarEnergy) + Math.floor(batteryDischarge) + Math.floor(superchargerKwh) + Math.floor(homeChargerKwh);
@@ -782,25 +796,27 @@ export function useDashboardData() {
       let pendingHomeCharger = 0;
 
       // Fetch data in parallel (including device labels and minted tokens)
-      const fetchHomeChargingTotal = async () => {
+      const fetchHomeChargingTotal = async (): Promise<{ lifetime: number; sessions: Array<{ total_session_kwh: number; start_time: string }> }> => {
         try {
           const userId = getEffectiveUserId();
-          if (!userId) return 0;
+          if (!userId) return { lifetime: 0, sessions: [] };
           const { data, error } = await supabase
             .from('home_charging_sessions')
-            .select('total_session_kwh')
+            .select('total_session_kwh, start_time')
             .eq('user_id', userId)
             .eq('status', 'completed');
-          if (error) { console.error('Home charging fetch error:', error); return 0; }
-          return (data || []).reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
-        } catch { return 0; }
+          if (error) { console.error('Home charging fetch error:', error); return { lifetime: 0, sessions: [] }; }
+          const sessions = data || [];
+          const lifetime = sessions.reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
+          return { lifetime, sessions };
+        } catch { return { lifetime: 0, sessions: [] }; }
       };
 
       // When viewing as another user, skip external API calls (they authenticate as admin, not target user).
       // Instead rely entirely on DB-stored data (devices, rewards, etc.) which uses getEffectiveUserId().
       const shouldCallAPIs = !isViewingAsOther;
 
-      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot, homeChargingMonitorKwh] = await Promise.all([
+      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot, homeChargingResult] = await Promise.all([
         shouldCallAPIs && profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         shouldCallAPIs && profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         shouldCallAPIs && profileConnections?.tesla_connected ? fetchTeslaData() : null,
@@ -812,6 +828,19 @@ export function useDashboardData() {
         fetchDevicesSnapshot(),
         fetchHomeChargingTotal(),
       ]);
+
+      // Calculate pending home charging based on last mint timestamp
+      const homeChargingMonitorKwh = homeChargingResult?.lifetime || 0;
+      const allDevicesForMintTs = devicesSnapshot || [];
+      const mintTimestamps = allDevicesForMintTs.map((d: any) => d.last_minted_at).filter(Boolean);
+      const latestMintTimestamp = mintTimestamps.length > 0
+        ? new Date(Math.max(...mintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
+        : null;
+      const pendingHomeChargingMonitorKwh = latestMintTimestamp
+        ? (homeChargingResult?.sessions || [])
+            .filter((s: any) => new Date(s.start_time) > new Date(latestMintTimestamp))
+            .reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)
+        : homeChargingMonitorKwh;
 
       // Update provider refresh state
       setProviderRefresh((prev) => {
@@ -1016,9 +1045,8 @@ export function useDashboardData() {
         pendingBattery = teslaPendingBattery;
         pendingEvMiles = teslaPendingEvMiles;
         pendingSupercharger = teslaPendingSupercharger;
-        // Combine Tesla Wall Connector pending + Wallbox pending + Charge Monitor sessions
-        // Charge monitor sessions have no mint baseline yet, so all completed kWh are pending
-        pendingHomeCharger = teslaPendingWallConnector + wallboxPendingKwh + homeChargingMonitorKwh;
+        // Combine Tesla Wall Connector pending + Wallbox pending + Charge Monitor pending sessions
+        pendingHomeCharger = teslaPendingWallConnector + wallboxPendingKwh + pendingHomeChargingMonitorKwh;
         pendingCharging = pendingSupercharger + pendingHomeCharger;
 
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
@@ -1027,15 +1055,14 @@ export function useDashboardData() {
       // If only Wallbox connected (no Tesla), set home charger from Wallbox data
       if (!teslaData?.totals && wallboxData?.totals) {
         homeChargerKwh = wallboxChargerKwh + homeChargingMonitorKwh;
-        // Use the properly calculated pending value + charge monitor sessions
-        pendingHomeCharger = wallboxPendingKwh + homeChargingMonitorKwh;
+        pendingHomeCharger = wallboxPendingKwh + pendingHomeChargingMonitorKwh;
         pendingCharging = pendingHomeCharger;
       }
 
       // If neither Tesla nor Wallbox, but charge monitor has data
       if (!teslaData?.totals && !wallboxData?.totals && homeChargingMonitorKwh > 0) {
         homeChargerKwh = homeChargingMonitorKwh;
-        pendingHomeCharger = homeChargingMonitorKwh;
+        pendingHomeCharger = pendingHomeChargingMonitorKwh;
         pendingCharging = pendingHomeCharger;
       }
 
@@ -1047,10 +1074,9 @@ export function useDashboardData() {
         pendingBattery = fallback.batteryPendingKwh;
         superchargerKwh = fallback.chargingKwhLifetime;
         pendingSupercharger = fallback.chargingKwhPending;
-        // Include home charging monitor sessions in the fallback path
         homeChargerKwh = homeChargingMonitorKwh;
-        pendingHomeCharger = homeChargingMonitorKwh;
-        pendingCharging = fallback.chargingKwhPending + homeChargingMonitorKwh;
+        pendingHomeCharger = pendingHomeChargingMonitorKwh;
+        pendingCharging = fallback.chargingKwhPending + pendingHomeChargingMonitorKwh;
 
         // Also apply Tesla solar fallback when no dedicated solar provider
         if (!hasDedicatedSolarProvider && solarEnergy <= 0 && fallback.solarLifetimeKwh > 0) {
