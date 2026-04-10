@@ -42,7 +42,7 @@ export function ShimmerOverlay({
         className={`absolute inset-0 pointer-events-none ${className}`}
         style={{
           background: gradient,
-          animation: `zenShimmerBurst 1.8s ease-in-out ${burstDelay} both`,
+          animation: `zenShimmerBurst 2.4s cubic-bezier(0.4, 0, 0.2, 1) ${burstDelay} both`,
           willChange: 'transform',
         }}
       />
