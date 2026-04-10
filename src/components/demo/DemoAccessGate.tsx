@@ -387,10 +387,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
             <button
               onPointerDown={handleLockPointerDown}
-              onTouchStart={(e) => {
-                // Ensure AudioContext is primed on touchstart (iOS gesture requirement)
-                primeAudio();
-              }}
+              onTouchStart={handleLockPointerDown}
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
