@@ -268,9 +268,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
-          <div className="rounded-xl overflow-hidden border border-border/50 bg-card/5">
-            <AnimatedEnergyFlow className="w-full" />
-          </div>
+          <EnergyFlowGlowCard />
         </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
@@ -370,6 +368,30 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       
       {/* Dashboard Footer */}
       <DashboardFooter />
+    </div>
+  );
+}
+
+function EnergyFlowGlowCard() {
+  const [burstDone, setBurstDone] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setBurstDone(true), 4500);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div
+      className="rounded-xl overflow-hidden bg-card/5"
+      style={{
+        border: '1px solid hsla(142, 76%, 36%, 0.1)',
+        animation: burstDone
+          ? 'emeraldGlowIdle 4s ease-in-out infinite'
+          : 'emeraldGlowBurst 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+        animationDelay: burstDone ? '0s' : '2s',
+      }}
+    >
+      <AnimatedEnergyFlow className="w-full" />
     </div>
   );
 }
