@@ -40,6 +40,20 @@ const createSharedAudioContext = () => {
 };
 
 const fireSilentUnlockPulse = (ctx: AudioContext) => {
+  const unlockGain = ctx.createGain();
+  unlockGain.gain.setValueAtTime(0.00001, ctx.currentTime);
+  unlockGain.connect(ctx.destination);
+
+  const unlockBuffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+  const unlockSource = ctx.createBufferSource();
+  unlockSource.buffer = unlockBuffer;
+  unlockSource.connect(unlockGain);
+  unlockSource.onended = () => {
+    unlockSource.disconnect();
+    unlockGain.disconnect();
+  };
+  unlockSource.start(ctx.currentTime);
+
   const silentGain = ctx.createGain();
   silentGain.gain.setValueAtTime(0.00001, ctx.currentTime);
   silentGain.connect(ctx.destination);
@@ -145,13 +159,9 @@ export function useMintSound() {
 
   const playMintSound = useCallback((_color?: string) => {
     try {
-      const ctx = primeAudio();
-      if (!ctx) return;
-      if (ctx.state !== 'running') {
-        ctx.resume().then(() => playMintSound(_color)).catch(() => {});
-        return;
-      }
-      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
+      const playback = preparePlayback();
+      if (!playback) return;
+      const { ctx, now } = playback;
 
       // Master volume — scale entire sound package
       const master = ctx.createGain();
@@ -425,7 +435,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [primeAudio, triggerHaptic]);
+  }, [preparePlayback, triggerHaptic]);
   /** Confirm mint: ZenSolar™ — stamp → deep meditative bowl bloom → bass sustain */
   const playConfirmSound = useCallback(() => {
     try {
@@ -761,13 +771,9 @@ export function useMintSound() {
    */
   const playDeniedSound = useCallback(() => {
     try {
-      const ctx = primeAudio();
-      if (!ctx) return;
-      if (ctx.state !== 'running') {
-        ctx.resume().then(() => playDeniedSound()).catch(() => {});
-        return;
-      }
-      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
+      const playback = preparePlayback();
+      if (!playback) return;
+      const { ctx, now } = playback;
 
       const master = ctx.createGain();
       master.gain.value = 0.6;
@@ -876,18 +882,14 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [primeAudio]);
+  }, [preparePlayback]);
 
   // ── Welcome tap: a friendly, softer cousin of the mint gong ──
   const playWelcomeTap = useCallback(() => {
     try {
-      const ctx = primeAudio();
-      if (!ctx) return;
-      if (ctx.state !== 'running') {
-        ctx.resume().then(() => playWelcomeTap()).catch(() => {});
-        return;
-      }
-      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
+      const playback = preparePlayback();
+      if (!playback) return;
+      const { ctx, now } = playback;
 
       const master = ctx.createGain();
       master.gain.value = 0.35;
@@ -942,7 +944,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [primeAudio]);
+  }, [preparePlayback]);
 
   return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
 }
