@@ -252,7 +252,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lockFlashTimerRef.current = setTimeout(() => {
         updateState({ revealed: false });
       }, LOCK_FLASH_MS);
-      playWelcomeTap();
+
+      // On the very first tap AudioContext may still be suspended.
+      // Schedule playWelcomeTap after a microtask so resume() has landed.
+      if (ctx && ctx.state !== 'running') {
+        ctx.resume().then(() => playWelcomeTap()).catch(() => {});
+      } else {
+        playWelcomeTap();
+      }
 
       if ('vibrate' in navigator) {
         try { navigator.vibrate([10]); } catch {}
