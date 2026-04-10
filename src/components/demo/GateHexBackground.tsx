@@ -161,7 +161,8 @@ export function GateHexBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none"
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ width: '100%', height: '100%' }}
       aria-hidden="true"
     />
   );
