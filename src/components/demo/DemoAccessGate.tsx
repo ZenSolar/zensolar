@@ -342,7 +342,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         />
 
         {/* Lock icon with burst effect */}
-        <div className="relative" style={{ touchAction: 'manipulation' }}>
+        <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
           {/* Pulsating glow ring */}
           <div
             className="absolute inset-0 rounded-full pointer-events-none"
@@ -491,7 +491,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
 
         {/* Code input */}
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-3 pointer-events-auto">
           <Input
             ref={inputRef}
             value={code}
@@ -518,7 +518,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
 
         {/* Fine print */}
-        <p className="text-[10px] text-muted-foreground/50 text-center">
+        <p className="text-[10px] text-muted-foreground/50 text-center pointer-events-auto">
           Request access at{' '}
           <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
             joe@zen.solar
