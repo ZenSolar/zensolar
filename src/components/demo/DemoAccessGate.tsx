@@ -253,13 +253,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ revealed: false });
       }, LOCK_FLASH_MS);
 
-      // On the very first tap AudioContext may still be suspended.
-      // Schedule playWelcomeTap after a microtask so resume() has landed.
-      if (ctx && ctx.state !== 'running') {
-        ctx.resume().then(() => playWelcomeTap()).catch(() => {});
-      } else {
-        playWelcomeTap();
-      }
+      // Keep first-tap audio fully synchronous inside the gesture.
+      playWelcomeTap();
 
       if ('vibrate' in navigator) {
         try { navigator.vibrate([10]); } catch {}
