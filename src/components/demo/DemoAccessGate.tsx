@@ -317,6 +317,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         backgroundColor: hexAwake ? 'hsl(var(--background))' : 'hsl(var(--gate-splash-background))',
         overscrollBehavior: 'none',
         minHeight: '100dvh',
+        contain: 'strict',
+        isolation: 'isolate',
       }}
     >
       {hexAwake && (
@@ -382,12 +384,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           />
 
           {/* $Z / Lock icon with burst effect */}
-          <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
-            {/* Beckoning glow ring — synced with 5s shimmer cycle */}
+          <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation', contain: 'layout style' }}>
+            {/* Beckoning glow ring — GPU-composited opacity+transform only */}
             <div
               className="absolute -inset-2 rounded-full pointer-events-none"
               style={{
-                willChange: 'transform, box-shadow',
+                willChange: 'transform, opacity',
+                backfaceVisibility: 'hidden',
+                boxShadow: '0 0 0 3px hsl(var(--primary) / 0.3), 0 0 24px 6px hsl(var(--primary) / 0.15), 0 0 50px 12px hsl(var(--primary) / 0.06)',
                 animation: 'zenLockBeckon 3.5s ease-in-out infinite',
               }}
             />
@@ -398,6 +402,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 className="absolute inset-0 pointer-events-none"
                 style={{
                   animation: 'zenOrbit 8s linear infinite',
+                  willChange: 'transform',
+                  backfaceVisibility: 'hidden',
                 }}
               >
                 <span
@@ -418,17 +424,23 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
                 isBursting
-                  ? 'bg-primary/30 scale-[0.92] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
+                  ? 'bg-primary/30 scale-[0.92]'
                   : isDenied
-                    ? 'bg-destructive/30 animate-shake shadow-[0_0_40px_hsl(var(--destructive)/0.5)]'
+                    ? 'bg-destructive/30 animate-shake'
                     : isVerifying
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
-                        ? 'bg-primary/30 scale-[0.92] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
-                        : 'bg-primary/20 hover:bg-primary/30 hover:scale-105 shadow-[0_0_24px_hsl(var(--primary)/0.3)]',
+                        ? 'bg-primary/30 scale-[0.92]'
+                        : 'bg-primary/20 hover:bg-primary/30 hover:scale-105',
               )}
               style={{
-                willChange: 'transform, box-shadow',
+                willChange: 'transform, opacity',
+                backfaceVisibility: 'hidden',
+                boxShadow: isBursting || firstTapBurst
+                  ? '0 0 40px hsl(var(--primary) / 0.5)'
+                  : isDenied
+                    ? '0 0 40px hsl(var(--destructive) / 0.5)'
+                    : '0 0 24px hsl(var(--primary) / 0.3)',
                 transform: 'scale(1)',
                 transition: firstTapBurst
                   ? 'background-color 60ms, box-shadow 60ms'
