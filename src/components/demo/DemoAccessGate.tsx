@@ -541,6 +541,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => setShowHint(true)}
               placeholder="Access code"
               disabled={isVerifying || isBursting}
               className={cn(
@@ -553,11 +554,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             />
 
             {/* Tap hint */}
-            <div className="flex justify-center h-6">
-              <span className="text-[10px] text-primary/50 flex items-center gap-1">
-                <Sparkles className="h-2.5 w-2.5" />
-                {revealed ? 'double tap to unlock' : 'tap the $Z'}
-              </span>
+            <div className="flex justify-center h-8">
+              {(showHint && code.trim()) ? (
+                <span
+                  className="text-xs font-semibold text-primary/80 flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20"
+                  style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
+                >
+                  <Lock className="h-3 w-3" />
+                  double tap $Z to unlock
+                </span>
+              ) : (
+                <span className="text-xs font-medium text-primary/60 flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3" />
+                  {revealed ? 'double tap to unlock' : 'tap the $Z'}
+                </span>
+              )}
             </div>
           </div>
 
