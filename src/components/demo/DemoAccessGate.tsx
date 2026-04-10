@@ -105,11 +105,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }, 1000);
       } else {
         setPhase('denied');
+        playDeniedSound();
         toast.error('Invalid access code', { description: 'Please check your code and try again.' });
-
-        if ('vibrate' in navigator) {
-          try { navigator.vibrate([50, 30, 50]); } catch {}
-        }
 
         setTimeout(() => {
           setPhase('idle');
