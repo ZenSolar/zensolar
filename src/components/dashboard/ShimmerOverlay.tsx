@@ -21,7 +21,7 @@ interface ShimmerOverlayProps {
 
 export function ShimmerOverlay({
   gradient,
-  burstDuration = 2000,
+  burstDuration = 2800,
   burstDelay = '0s',
   idleDelay = '0s',
   className = '',
