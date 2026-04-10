@@ -51,13 +51,15 @@ interface DemoAccessGateProps {
   children: React.ReactNode;
 }
 
+const DOUBLE_TAP_WINDOW = 500;
+const BURST_DURATION = 1200;
+
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
   // ?reset query param clears the stored access for easy testing
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
       localStorage.removeItem(LS_KEY);
-      // Clean the URL without reload
       window.history.replaceState({}, '', window.location.pathname);
       return false;
     }
@@ -67,9 +69,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [phase, setPhase] = useState<'idle' | 'verifying' | 'burst' | 'denied'>('idle');
   const [burstKey, setBurstKey] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [showTapAgain, setShowTapAgain] = useState(false);
+  const [firstTapBurst, setFirstTapBurst] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastTapTimeRef = useRef<number>(0);
+  const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const particles = generateParticles();
-  const { primeAudio, playDeniedSound } = useMintSound();
+  const { primeAudio, playDeniedSound, playMintSound } = useMintSound();
 
   // Focus input on mount
   useEffect(() => {
@@ -78,13 +85,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [granted]);
 
-  const handleSubmit = useCallback(async () => {
-    primeAudio();
+  // Cleanup timers
+  useEffect(() => {
+    return () => {
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+    };
+  }, []);
+
+  const submitCode = useCallback(async () => {
     const trimmed = code.trim();
     if (!trimmed || phase === 'verifying' || phase === 'burst') return;
 
     setPhase('verifying');
     setShowHint(false);
+    setShowTapAgain(false);
 
     try {
       const { data, error } = await supabase.rpc('verify_demo_code', { _code: trimmed });
@@ -95,6 +110,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         // Success burst!
         setPhase('burst');
         setBurstKey(k => k + 1);
+        playMintSound();
 
         if ('vibrate' in navigator) {
           try { navigator.vibrate([15, 30, 10]); } catch {}
@@ -112,6 +128,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         setTimeout(() => {
           setPhase('idle');
           setCode('');
+          lastTapTimeRef.current = 0;
           inputRef.current?.focus();
         }, 600);
       }
@@ -119,20 +136,72 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       setPhase('idle');
       toast.error('Connection error', { description: 'Please try again.' });
     }
-  }, [code, phase]);
+  }, [code, phase, playMintSound, playDeniedSound]);
+
+  const handleLockTap = useCallback(() => {
+    primeAudio();
+    const trimmed = code.trim();
+    if (!trimmed || phase === 'verifying' || phase === 'burst') return;
+
+    const now = Date.now();
+    const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
+
+    if (isDoubleTap) {
+      // ⚡ DOUBLE TAP — submit the code
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      lastTapTimeRef.current = 0;
+      setShowTapAgain(false);
+
+      // Second burst + submit
+      setFirstTapBurst(true);
+      setBurstKey(k => k + 1);
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate([15, 30, 10]); } catch {}
+      }
+
+      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+      burstTimerRef.current = setTimeout(() => setFirstTapBurst(false), BURST_DURATION);
+
+      submitCode();
+    } else {
+      // ── FIRST TAP ── visual pulse + "tap again" hint
+      lastTapTimeRef.current = now;
+
+      setFirstTapBurst(true);
+      setBurstKey(k => k + 1);
+      setShowTapAgain(true);
+
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate([10]); } catch {}
+      }
+
+      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+      burstTimerRef.current = setTimeout(() => setFirstTapBurst(false), BURST_DURATION);
+
+      // Clear after window expires
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = setTimeout(() => {
+        lastTapTimeRef.current = 0;
+        setShowTapAgain(false);
+      }, DOUBLE_TAP_WINDOW);
+    }
+  }, [code, phase, primeAudio, submitCode]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSubmit();
+    if (e.key === 'Enter') {
+      primeAudio();
+      submitCode();
+    }
   };
 
   // Show hint after typing starts
   useEffect(() => {
-    if (code.length > 0 && phase === 'idle') {
+    if (code.length > 0 && phase === 'idle' && !showTapAgain) {
       setShowHint(true);
     } else {
       setShowHint(false);
     }
-  }, [code, phase]);
+  }, [code, phase, showTapAgain]);
 
   if (granted) return <>{children}</>;
 
