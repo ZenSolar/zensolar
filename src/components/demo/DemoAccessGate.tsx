@@ -305,10 +305,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       </div>
 
       {/* Radial vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)] pointer-events-none" />
+      <div className={cn("absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)] pointer-events-none transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')} />
 
       {/* Ghost dashboard teaser */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+      <div className={cn("absolute inset-0 flex items-center justify-center pointer-events-none select-none transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
         <div className="w-full max-w-md px-6 opacity-[0.04] blur-[2px] flex flex-col gap-4 mt-40">
           <div className="flex gap-3">
             {[
@@ -350,7 +350,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <img
             src={zenLogo}
             alt="ZenSolar"
-            className="h-8 w-auto object-contain dark:brightness-[1.8] drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)]"
+            className={cn("h-8 w-auto object-contain dark:brightness-[1.8] drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)] transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}
           />
 
           {/* $Z / Lock icon with burst effect */}
@@ -536,13 +536,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </div>
 
           {/* Title */}
-          <div className="text-center space-y-1">
+          <div className={cn("text-center space-y-1 transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
             <h1 className="text-lg font-semibold text-foreground drop-shadow-[0_0_6px_hsl(var(--primary)/0.2)]">Private Demo</h1>
             <p className="text-sm text-foreground/70">Enter your access code to continue</p>
           </div>
 
           {/* Code input */}
-          <div className="w-full px-4 space-y-3 pointer-events-auto">
+          <div className={cn("w-full px-4 space-y-3 pointer-events-auto transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
             <Input
               ref={inputRef}
               value={code}
@@ -581,7 +581,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </div>
 
           {/* Fine print */}
-          <p className="text-[10px] text-muted-foreground/70 text-center pointer-events-auto">
+          <p className={cn("text-[10px] text-muted-foreground/70 text-center pointer-events-auto transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
             Request access at{' '}
             <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
               joe@zen.solar
