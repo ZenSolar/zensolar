@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
+import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
 const LS_KEY = 'zen_demo_access';
