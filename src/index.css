@@ -309,6 +309,7 @@
   }
 }
 
+@keyframes zenFlareParticle {
   0% {
     transform: translate(0, 0) scale(1) rotate(0deg);
     opacity: 1;
