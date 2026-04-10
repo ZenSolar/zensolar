@@ -100,13 +100,15 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       const driftB = time * 400;
       const driftC = time * 300;
 
-      // Snowfall intro — individual hexes light up like falling snowflakes
+      // Curtain drop — bright leading edge sweeps top-to-bottom with a glowing trail
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
-      const SNOW_DURATION = 8.0;
-      const snowActive = actElapsed !== null && actElapsed < SNOW_DURATION;
-      const snowFade = snowActive
-        ? (actElapsed < 6.0 ? 1 : Math.max(0, 1 - (actElapsed - 6.0) / 2.0))
+      const CURTAIN_DURATION = 8.0;
+      const CURTAIN_SWEEP = 5.0;      // seconds for the leading edge to cross the screen
+      const curtainActive = actElapsed !== null && actElapsed < CURTAIN_DURATION;
+      // Global fade-out in the last 2 seconds
+      const curtainFade = curtainActive
+        ? (actElapsed! < 6.0 ? 1 : Math.max(0, 1 - (actElapsed! - 6.0) / 2.0))
         : 0;
 
       ctx.shadowColor = 'transparent';
@@ -145,30 +147,33 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
           // Stronger contribution from waves + shimmer + flicker
           alpha += bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
 
-          if (snowActive && actElapsed !== null) {
-            // Each hex gets a unique "seed" for staggered timing
-            const seed = Math.sin(cx * 127.1 + cy * 311.7) * 43758.5453;
-            const flakeSeed = seed - Math.floor(seed); // 0-1 per hex
+          if (curtainActive && actElapsed !== null) {
+            // The "curtain line" position: starts above the screen, sweeps to below
+            const curtainY = -hexHeight * 2 + (Math.min(actElapsed / CURTAIN_SWEEP, 1)) * (h + hexHeight * 4);
             
-            // Each hex "falls" at a slightly different time based on its y-position + randomness
-            // Top hexes light up first, bottom ones later — like snowfall
-            const yNorm = cy / h; // 0 at top, 1 at bottom
-            const hexTriggerTime = yNorm * 4.0 + flakeSeed * 1.5; // stagger: 0-5.5s
-            const hexAge = actElapsed - hexTriggerTime;
+            // Distance from this hex to the curtain's leading edge
+            // Positive = curtain has passed this hex (above/behind), negative = not yet reached
+            const distBehind = curtainY - cy;
             
-            if (hexAge > 0) {
-              // Quick bright flash then gentle fade
-              const flashIn = Math.min(hexAge / 0.3, 1); // 0.3s fade in
-              const fadeOut = Math.max(0, 1 - (hexAge - 0.5) / 3.0); // hold 0.5s then fade 3s
-              const snowAlpha = flashIn * fadeOut * snowFade;
+            if (distBehind > -hexHeight * 2) {
+              // LEADING EDGE: bright line at the curtain front (±2 hex rows)
+              const edgeDist = Math.abs(cy - curtainY);
+              const edgeGlow = edgeDist < hexHeight * 3
+                ? Math.pow(1 - edgeDist / (hexHeight * 3), 2) * 0.9
+                : 0;
               
-              // Vary brightness per flake — some are bright "stars", most are gentle
-              const brightness = 0.3 + flakeSeed * 0.7; // 0.3–1.0
-              alpha += snowAlpha * brightness * 0.85;
+              // TRAIL: everything above the curtain line glows, fading with distance
+              // The trail stretches up to ~40% of screen height behind the leading edge
+              const trailLength = h * 0.45;
+              const trailGlow = distBehind > 0 && distBehind < trailLength
+                ? (1 - distBehind / trailLength) * 0.55
+                : 0;
+              
+              alpha += (edgeGlow + trailGlow) * curtainFade;
             }
           }
 
-          alpha = Math.min(alpha, snowActive ? 1.0 : 0.55);
+          alpha = Math.min(alpha, curtainActive ? 1.0 : 0.55);
 
           if (alpha < 0.06) continue;
 
