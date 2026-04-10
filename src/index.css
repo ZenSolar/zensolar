@@ -522,20 +522,19 @@
   100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
-/* First-load shimmer burst — meditative RIGHT→LEFT sweep (inhale) */
+/* Opening shadow wash — very slow, dark, RIGHT→LEFT */
 @keyframes zenShimmerBurst {
-  0% { transform: translateX(200%) skewX(8deg); opacity: 0; }
-  12% { opacity: 0.45; }
-  40% { transform: translateX(80%) skewX(6deg); opacity: 0.4; }
-  70% { transform: translateX(-20%) skewX(4deg); opacity: 0.25; }
-  90% { transform: translateX(-70%) skewX(2deg); opacity: 0.1; }
-  100% { transform: translateX(-100%) skewX(0deg); opacity: 0; }
+  0% { transform: translateX(200%) skewX(4deg); opacity: 0; }
+  15% { opacity: 0.3; }
+  50% { opacity: 0.25; }
+  85% { opacity: 0.12; }
+  100% { transform: translateX(-100%) skewX(2deg); opacity: 0; }
 }
 
-/* Idle shimmer sweep — slower, meditative LEFT→RIGHT (exhale) */
+/* Steady idle shimmer — very slow, meditative LEFT→RIGHT */
 @keyframes zenHeaderShimmer {
-  0% { transform: translateX(-100%) skewX(-8deg); }
-  100% { transform: translateX(200%) skewX(-8deg); }
+  0% { transform: translateX(-100%) skewX(-4deg); }
+  100% { transform: translateX(200%) skewX(-4deg); }
 }
 
 /* Emerald glow pulse for energy flow card — syncs with green cascade */
