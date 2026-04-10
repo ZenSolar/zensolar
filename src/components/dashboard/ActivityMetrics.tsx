@@ -285,10 +285,10 @@ export function ActivityMetrics({
           {/* Shimmer sweep */}
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 30%, hsl(210 90% 50% / 0.5) 50%, hsl(205 85% 45% / 0.3) 70%, transparent 100%)"
-            burstGradient="linear-gradient(90deg, transparent 0%, hsl(45 80% 55% / 0.2) 30%, hsl(38 85% 60% / 0.3) 50%, hsl(45 80% 55% / 0.2) 70%, transparent 100%)"
+            burstGradient="linear-gradient(90deg, transparent 0%, hsl(30 65% 28% / 0.25) 30%, hsl(25 70% 32% / 0.4) 50%, hsl(30 65% 28% / 0.25) 70%, transparent 100%)"
             burstDuration={3200}
-            burstDelay="0.8s"
-            idleDelay="0.8s"
+            burstDelay="1.2s"
+            idleDelay="1.2s"
           />
 
           <div className="relative flex items-center justify-between">
@@ -384,10 +384,10 @@ export function ActivityMetrics({
           {/* KPI area shimmer */}
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 30%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 70%, transparent 100%)"
-            burstGradient="linear-gradient(90deg, transparent 0%, hsl(165 55% 50% / 0.12) 30%, hsl(175 60% 55% / 0.2) 50%, hsl(165 55% 50% / 0.12) 70%, transparent 100%)"
+            burstGradient="linear-gradient(90deg, transparent 0%, hsl(160 50% 25% / 0.15) 30%, hsl(170 55% 28% / 0.25) 50%, hsl(160 50% 25% / 0.15) 70%, transparent 100%)"
             burstDuration={3200}
-            burstDelay="1.6s"
-            idleDelay="1.6s"
+            burstDelay="2.4s"
+            idleDelay="2.4s"
             className="z-10 rounded-lg"
           />
           <div className="space-y-2">
