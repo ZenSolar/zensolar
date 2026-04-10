@@ -1045,9 +1045,8 @@ export function useDashboardData() {
         pendingBattery = teslaPendingBattery;
         pendingEvMiles = teslaPendingEvMiles;
         pendingSupercharger = teslaPendingSupercharger;
-        // Combine Tesla Wall Connector pending + Wallbox pending + Charge Monitor sessions
-        // Charge monitor sessions have no mint baseline yet, so all completed kWh are pending
-        pendingHomeCharger = teslaPendingWallConnector + wallboxPendingKwh + homeChargingMonitorKwh;
+        // Combine Tesla Wall Connector pending + Wallbox pending + Charge Monitor pending sessions
+        pendingHomeCharger = teslaPendingWallConnector + wallboxPendingKwh + pendingHomeChargingMonitorKwh;
         pendingCharging = pendingSupercharger + pendingHomeCharger;
 
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
@@ -1056,15 +1055,14 @@ export function useDashboardData() {
       // If only Wallbox connected (no Tesla), set home charger from Wallbox data
       if (!teslaData?.totals && wallboxData?.totals) {
         homeChargerKwh = wallboxChargerKwh + homeChargingMonitorKwh;
-        // Use the properly calculated pending value + charge monitor sessions
-        pendingHomeCharger = wallboxPendingKwh + homeChargingMonitorKwh;
+        pendingHomeCharger = wallboxPendingKwh + pendingHomeChargingMonitorKwh;
         pendingCharging = pendingHomeCharger;
       }
 
       // If neither Tesla nor Wallbox, but charge monitor has data
       if (!teslaData?.totals && !wallboxData?.totals && homeChargingMonitorKwh > 0) {
         homeChargerKwh = homeChargingMonitorKwh;
-        pendingHomeCharger = homeChargingMonitorKwh;
+        pendingHomeCharger = pendingHomeChargingMonitorKwh;
         pendingCharging = pendingHomeCharger;
       }
 
@@ -1076,10 +1074,9 @@ export function useDashboardData() {
         pendingBattery = fallback.batteryPendingKwh;
         superchargerKwh = fallback.chargingKwhLifetime;
         pendingSupercharger = fallback.chargingKwhPending;
-        // Include home charging monitor sessions in the fallback path
         homeChargerKwh = homeChargingMonitorKwh;
-        pendingHomeCharger = homeChargingMonitorKwh;
-        pendingCharging = fallback.chargingKwhPending + homeChargingMonitorKwh;
+        pendingHomeCharger = pendingHomeChargingMonitorKwh;
+        pendingCharging = fallback.chargingKwhPending + pendingHomeChargingMonitorKwh;
 
         // Also apply Tesla solar fallback when no dedicated solar provider
         if (!hasDedicatedSolarProvider && solarEnergy <= 0 && fallback.solarLifetimeKwh > 0) {
