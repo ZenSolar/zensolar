@@ -103,11 +103,15 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       // Rainfall intro
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
-      const rainActive = actElapsed !== null && actElapsed < 4.2;
-      const rainHead = rainActive ? -hexHeight * 3 + Math.min(actElapsed / 2.4, 1) * (h + hexHeight * 6) : 0;
-      const rainBand = hexHeight * 5.2;
+      const RAIN_DURATION = 5.0;
+      const rainActive = actElapsed !== null && actElapsed < RAIN_DURATION;
+      // Slow, majestic descent — takes ~3.5s to cross the full viewport
+      const rainProgress = rainActive ? Math.min(actElapsed / 3.5, 1) : 0;
+      const rainHead = rainActive ? -hexHeight * 4 + rainProgress * (h + hexHeight * 8) : 0;
+      // Very wide band — covers ~40% of the screen height at once
+      const rainBand = Math.max(h * 0.42, hexHeight * 8);
       const rainIntensity = rainActive
-        ? (actElapsed < 2.8 ? 1 : Math.max(0, 1 - (actElapsed - 2.8) / 1.4))
+        ? (actElapsed < 3.5 ? 1 : Math.max(0, 1 - (actElapsed - 3.5) / 1.5))
         : 0;
 
       ctx.shadowColor = 'transparent';
@@ -148,10 +152,14 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
           if (rainActive) {
             const dist = Math.abs(cy - rainHead);
-            if (dist < rainBand) alpha += Math.pow(1 - dist / rainBand, 2.2) * 0.46 * rainIntensity;
+            if (dist < rainBand) {
+              const t = 1 - dist / rainBand;
+              // Smooth wide glow with a bright core
+              alpha += (t * t * 0.35 + Math.pow(t, 5) * 0.25) * rainIntensity;
+            }
           }
 
-          alpha = Math.min(alpha, rainActive ? 0.84 : 0.55);
+          alpha = Math.min(alpha, rainActive ? 0.92 : 0.55);
 
           if (alpha < 0.06) continue;
 
