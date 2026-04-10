@@ -269,17 +269,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         {/* Water ripple effects */}
         {ripples.map(r => (
           <div key={r.id} className="absolute pointer-events-none" style={{ left: r.x, top: r.y }}>
-            {[0, 150, 300].map((delay, i) => (
+            {[0, 80, 160].map((delay, i) => (
               <div
                 key={i}
                 className="absolute rounded-full border pointer-events-none"
                 style={{
                   left: '50%', top: '50%',
-                  width: 200 + i * 60, height: 200 + i * 60,
-                  marginLeft: -(100 + i * 30), marginTop: -(100 + i * 30),
-                  borderColor: `hsla(160, 84%, 45%, ${0.5 - i * 0.12})`,
-                  borderWidth: 1.5 - i * 0.3,
-                  animation: `zenWaterRipple ${0.9 + i * 0.2}s ${delay}ms ease-out forwards`,
+                  width: 60 + i * 20, height: 60 + i * 20,
+                  marginLeft: -(30 + i * 10), marginTop: -(30 + i * 10),
+                  borderColor: `hsla(160, 84%, 45%, ${0.45 - i * 0.1})`,
+                  borderWidth: 1.2 - i * 0.2,
+                  animation: `zenWaterRipple ${0.5 + i * 0.12}s ${delay}ms ease-out forwards`,
                   willChange: 'transform, opacity',
                 }}
               />
@@ -288,10 +288,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               className="absolute rounded-full pointer-events-none"
               style={{
                 left: '50%', top: '50%',
-                width: 40, height: 40,
-                marginLeft: -20, marginTop: -20,
-                background: 'radial-gradient(circle, hsla(160, 84%, 50%, 0.3) 0%, transparent 70%)',
-                animation: 'zenWaterDrop 0.6s ease-out forwards',
+                width: 16, height: 16,
+                marginLeft: -8, marginTop: -8,
+                background: 'radial-gradient(circle, hsla(160, 84%, 50%, 0.35) 0%, transparent 70%)',
+                animation: 'zenWaterDrop 0.4s ease-out forwards',
                 willChange: 'transform, opacity',
               }}
             />
