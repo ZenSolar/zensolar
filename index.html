@@ -44,10 +44,59 @@
         }
       })();
     </script>
+    <script>
+      (function () {
+        var BOOT_RECOVERY_KEY = 'zensolar_boot_recovery';
+
+        function isRecoverableBootError(message) {
+          return (
+            message.indexOf('Importing a module script failed') !== -1 ||
+            message.indexOf('Failed to fetch dynamically imported module') !== -1 ||
+            message.indexOf('Loading chunk') !== -1 ||
+            message.indexOf('Loading CSS chunk') !== -1
+          );
+        }
+
+        window.__zensolarBooted = false;
+        window.__zensolarRecoverBoot = function () {
+          try {
+            var lastAttempt = Number(sessionStorage.getItem(BOOT_RECOVERY_KEY) || 0);
+            var now = Date.now();
+            if (now - lastAttempt < 30000) return;
+
+            sessionStorage.setItem(BOOT_RECOVERY_KEY, String(now));
+            var url = new URL(window.location.href);
+            url.searchParams.set('boot-recover', String(now));
+            window.location.replace(url.toString());
+          } catch (error) {
+            window.location.reload();
+          }
+        };
+
+        window.addEventListener('error', function (event) {
+          var message = String((event && event.message) || '');
+          if (isRecoverableBootError(message)) {
+            window.__zensolarRecoverBoot();
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event && event.reason;
+          var message = String((reason && reason.message) || reason || '');
+          if (isRecoverableBootError(message)) {
+            window.__zensolarRecoverBoot();
+          }
+        });
+
+        window.setTimeout(function () {
+          if (!window.__zensolarBooted && document.getElementById('pwa-splash')) {
+            window.__zensolarRecoverBoot();
+          }
+        }, 8000);
+      })();
+    </script>
     <!-- Preload LCP hero logo for faster Largest Contentful Paint -->
     <link rel="preload" as="image" href="/logos/zen-logo-horizontal-new.png" fetchpriority="high" />
-    <!-- Preload critical assets for faster paint -->
-    <link rel="modulepreload" href="/src/main.tsx" />
     <!-- Preconnect to external resources (stronger than dns-prefetch) -->
     <link rel="preconnect" href="https://fcptrpgqkjffgeddajwl.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://fcptrpgqkjffgeddajwl.supabase.co" />
