@@ -311,7 +311,6 @@ export function TokenPriceCard({
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <ShimmerOverlay
               gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 30%, hsl(280 68% 70% / 0.5) 50%, hsl(280 68% 60% / 0.3) 70%, transparent 100%)"
-              burstGradient="linear-gradient(90deg, transparent 0%, hsl(280 50% 20% / 0.35) 30%, hsl(280 55% 25% / 0.5) 50%, hsl(280 50% 20% / 0.35) 70%, transparent 100%)"
             />
           </div>
 
@@ -516,7 +515,6 @@ export function TokenPriceCard({
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 30%, hsl(280 68% 70% / 0.5) 50%, hsl(280 68% 60% / 0.3) 70%, transparent 100%)"
-            burstGradient="linear-gradient(90deg, transparent 0%, hsl(280 50% 20% / 0.35) 30%, hsl(280 55% 25% / 0.5) 50%, hsl(280 50% 20% / 0.35) 70%, transparent 100%)"
           />
           {/* Corner accent */}
           <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/[0.06] blur-2xl" />
