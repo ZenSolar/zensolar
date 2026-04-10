@@ -79,6 +79,34 @@ const fireSilentUnlockPulse = (ctx: AudioContext) => {
   osc.stop(ctx.currentTime + 0.03);
 };
 
+export function runWhenAudioContextRunning(
+  ctx: AudioContext,
+  onRunning: () => void,
+  timeoutMs = 1500,
+  onTimeout?: () => void,
+) {
+  if (typeof window === 'undefined') { onRunning(); return () => {}; }
+  let settled = false;
+  let pollId: number | undefined;
+  let timeoutId: number | undefined;
+  const handle = () => {
+    if (settled || ctx.state !== 'running') return;
+    settled = true; cleanup(); onRunning();
+  };
+  const cleanup = () => {
+    if (pollId !== undefined) window.clearInterval(pollId);
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    ctx.removeEventListener('statechange', handle);
+  };
+  ctx.addEventListener('statechange', handle);
+  pollId = window.setInterval(handle, 24);
+  timeoutId = window.setTimeout(() => {
+    if (settled) return; settled = true; cleanup(); onTimeout?.();
+  }, timeoutMs);
+  handle();
+  return cleanup;
+}
+
 const installGlobalUnlockListeners = () => {
   if (unlockListenersInstalled || typeof window === 'undefined') return;
 
@@ -911,52 +939,52 @@ export function useMintSound() {
         ? preparePlayback()
         : { ctx, now: scheduledStartTime };
 
-      const now = playback?.now;
-      if (now === undefined) return;
+      const requested = playback?.now;
+      if (requested === undefined) return;
 
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(0.45, now);
-      master.connect(ctx.destination);
+      const fire = (now: number) => {
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.45, now);
+        master.connect(ctx.destination);
+        const DUR = 0.4;
+        const chimeGain = ctx.createGain();
+        chimeGain.gain.setValueAtTime(0.5, now);
+        chimeGain.gain.exponentialRampToValueAtTime(0.12, now + 0.1);
+        chimeGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
+        chimeGain.connect(master);
+        const chime = ctx.createOscillator();
+        chime.type = 'sine';
+        chime.frequency.setValueAtTime(440, now);
+        chime.frequency.exponentialRampToValueAtTime(420, now + DUR);
+        chime.connect(chimeGain);
+        chime.start(now); chime.stop(now + DUR + 0.05);
+        const shimGain = ctx.createGain();
+        shimGain.gain.setValueAtTime(0.2, now);
+        shimGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.6);
+        shimGain.connect(master);
+        const shim = ctx.createOscillator();
+        shim.type = 'sine';
+        shim.frequency.setValueAtTime(660, now);
+        shim.connect(shimGain);
+        shim.start(now); shim.stop(now + DUR + 0.05);
+        const subGain = ctx.createGain();
+        subGain.gain.setValueAtTime(0.15, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
+        subGain.connect(master);
+        const sub = ctx.createOscillator();
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(220, now);
+        sub.connect(subGain);
+        sub.start(now); sub.stop(now + DUR + 0.05);
+      };
 
-      const DUR = 0.4;
-
-      const chimeGain = ctx.createGain();
-      chimeGain.gain.setValueAtTime(0.5, now);
-      chimeGain.gain.exponentialRampToValueAtTime(0.12, now + 0.1);
-      chimeGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
-      chimeGain.connect(master);
-
-      const chime = ctx.createOscillator();
-      chime.type = 'sine';
-      chime.frequency.setValueAtTime(440, now);
-      chime.frequency.exponentialRampToValueAtTime(420, now + DUR);
-      chime.connect(chimeGain);
-      chime.start(now);
-      chime.stop(now + DUR + 0.05);
-
-      const shimGain = ctx.createGain();
-      shimGain.gain.setValueAtTime(0.2, now);
-      shimGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.6);
-      shimGain.connect(master);
-
-      const shim = ctx.createOscillator();
-      shim.type = 'sine';
-      shim.frequency.setValueAtTime(660, now);
-      shim.connect(shimGain);
-      shim.start(now);
-      shim.stop(now + DUR + 0.05);
-
-      const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0.15, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
-      subGain.connect(master);
-
-      const sub = ctx.createOscillator();
-      sub.type = 'sine';
-      sub.frequency.setValueAtTime(220, now);
-      sub.connect(subGain);
-      sub.start(now);
-      sub.stop(now + DUR + 0.05);
+      if (ctx.state !== 'running') {
+        runWhenAudioContextRunning(ctx, () => {
+          fire(Math.max(requested, ctx.currentTime + IMMEDIATE_SOUND_LEAD));
+        });
+      } else {
+        fire(Math.max(requested, ctx.currentTime + IMMEDIATE_SOUND_LEAD));
+      }
     } catch {
       // Silent fail
     }
