@@ -79,6 +79,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [granted]);
 
   const handleSubmit = useCallback(async () => {
+    primeAudio();
     const trimmed = code.trim();
     if (!trimmed || phase === 'verifying' || phase === 'burst') return;
 
