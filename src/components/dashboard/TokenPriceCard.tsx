@@ -312,7 +312,7 @@ export function TokenPriceCard({
             <ShimmerOverlay
               gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 20%, hsl(280 72% 70% / 0.55) 50%, hsl(280 68% 60% / 0.3) 80%, transparent 100%)"
               glowColor="hsla(280, 68%, 60%, 0.15)"
-              duration="5.5s"
+              duration="4s"
               idleDelay="0s"
             />
           </div>
@@ -519,7 +519,7 @@ export function TokenPriceCard({
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 20%, hsl(280 72% 70% / 0.55) 50%, hsl(280 68% 60% / 0.3) 80%, transparent 100%)"
             glowColor="hsla(280, 68%, 60%, 0.15)"
-            duration="5.5s"
+            duration="4s"
             idleDelay="0s"
           />
           {/* Corner accent */}
