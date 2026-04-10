@@ -901,14 +901,18 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
     if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
+      // ── DOUBLE TAP ── fire the mint confirmation
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = now;
       updateState({ showTapAgain: false });
       triggerDoubleBurst(posX, posY);
+      // Open the mint confirmation dialog
+      onTap?.();
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
       }, DOUBLE_TAP_WINDOW);
     } else {
+      // ── FIRST TAP ── visual burst + "tap twice" hint
       lastTapTimeRef.current = now;
       triggerBurst(posX, posY);
       updateState({ showTapAgain: true });
@@ -918,7 +922,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState]);
+  }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState, onTap]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (!isTappable || !onTap) return;
