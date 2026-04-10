@@ -35,7 +35,18 @@ export function ShimmerOverlay({
 
   return (
     <>
-      {/* Single idle layer — starts invisible, fades in smoothly */}
+      {/* Burst layer — sweeps right then rebounds left, then fades out */}
+      <div
+        className={`absolute inset-0 pointer-events-none ${className}`}
+        style={{
+          background: gradient,
+          opacity: burstDone ? 0 : 1,
+          transition: 'opacity 0.8s ease-out',
+          animation: `zenShimmerBurst 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${burstDelay} both`,
+          willChange: 'transform',
+        }}
+      />
+      {/* Idle layer — loops forever, fades in after burst */}
       <div
         className={`absolute inset-0 pointer-events-none ${className}`}
         style={{
