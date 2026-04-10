@@ -279,7 +279,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   if (granted) return <>{children}</>;
 
-  const { phase, firstTapBurst, showTapAgain, burstKey } = stateRef.current;
+  const { phase, firstTapBurst, showTapAgain, burstKey, revealed } = stateRef.current;
   const isBursting = phase === 'burst';
   const isDenied = phase === 'denied';
   const isVerifying = phase === 'verifying';
