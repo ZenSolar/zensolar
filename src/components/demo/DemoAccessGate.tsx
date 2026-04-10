@@ -106,12 +106,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     [stateRef.current.burstKey]
   );
 
-  // Focus input on mount
-  useEffect(() => {
-    if (!granted) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
-  }, [granted]);
+  // No auto-focus — let user take in the full page experience first
 
   // Cleanup timers
   useEffect(() => {
