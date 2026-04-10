@@ -128,13 +128,10 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
           // During the curtain sweep, green hexes are ONLY visible behind
           // (below) the orange leading edge. Before the curtain reaches a
           // hex's row, that hex is invisible — pure navy.
-          const actStart = activationStartRef.current;
-          const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
-
           let edgeAlpha = 0;
           let greenAlpha = 0;
 
-          if (actElapsed !== null) {
+          if (curtainActive && actElapsed !== null) {
             const curtainY = -hexHeight * 2 + (Math.min(actElapsed / CURTAIN_SWEEP, 1)) * (h + hexHeight * 4);
             const distBehind = curtainY - cy; // positive = curtain has passed this row
 
