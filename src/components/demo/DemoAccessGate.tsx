@@ -320,8 +320,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         {/* Fine print */}
         <p className="text-[10px] text-muted-foreground/50 text-center">
           Request access at{' '}
-          <a href="mailto:hello@zen.solar" className="underline hover:text-muted-foreground">
-            hello@zen.solar
+          <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
+            joe@zen.solar
           </a>
         </p>
       </div>
