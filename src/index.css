@@ -313,6 +313,28 @@
   }
 }
 
+/* Beckoning glow — draws attention to the lock, synced with shimmer 5s cycle */
+@keyframes zenLockBeckon {
+  0%, 100% {
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15), 0 0 12px 2px hsl(var(--primary) / 0.08);
+    transform: scale(1);
+  }
+  40% {
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.4), 0 0 30px 8px hsl(var(--primary) / 0.2), 0 0 60px 16px hsl(var(--primary) / 0.08);
+    transform: scale(1.06);
+  }
+  60% {
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.3), 0 0 20px 4px hsl(var(--primary) / 0.15);
+    transform: scale(1.03);
+  }
+}
+
+/* Tap-to-Mint text fade-in after delay */
+@keyframes zenHintFadeIn {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes zenFlareParticle {
   0% {
     transform: translate(0, 0) scale(1) rotate(0deg);
