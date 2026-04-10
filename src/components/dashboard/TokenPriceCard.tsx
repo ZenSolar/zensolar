@@ -322,9 +322,8 @@ export function TokenPriceCard({
                 opacity: shimmerBurstDone ? 0.6 : 1,
                 transition: 'opacity 1.2s ease-out',
                 animation: shimmerBurstDone
-                  ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
-                  : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-                animationFillMode: 'both',
+                  ? 'zenHeaderShimmer 3.5s ease-in-out infinite both'
+                  : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
                 willChange: 'transform',
               }}
             />
@@ -536,9 +535,8 @@ export function TokenPriceCard({
                 opacity: shimmerBurstDone ? 0.6 : 1,
                 transition: 'opacity 1.2s ease-out',
                 animation: shimmerBurstDone
-                  ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
-                  : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-                animationFillMode: 'both',
+                  ? 'zenHeaderShimmer 3.5s ease-in-out infinite both'
+                  : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
                 willChange: 'transform',
               }}
           />

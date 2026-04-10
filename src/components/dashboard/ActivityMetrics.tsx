@@ -294,10 +294,8 @@ export function ActivityMetrics({
               opacity: shimmerBurstDone ? 0.5 : 1,
               transition: 'opacity 1.2s ease-out',
               animation: shimmerBurstDone
-                ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
-                : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-              animationDelay: shimmerBurstDone ? '1.2s' : '0.15s',
-              animationFillMode: 'both',
+                ? 'zenHeaderShimmer 3.5s ease-in-out 1.2s infinite both'
+                : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s both',
               willChange: 'transform',
             }}
           />
@@ -400,10 +398,8 @@ export function ActivityMetrics({
               opacity: shimmerBurstDone ? 0.6 : 1,
               transition: 'opacity 1.2s ease-out',
               animation: shimmerBurstDone
-                ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
-                : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-              animationDelay: shimmerBurstDone ? '2.4s' : '0.3s',
-              animationFillMode: 'both',
+                ? 'zenHeaderShimmer 3.5s ease-in-out 2.4s infinite both'
+                : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both',
               willChange: 'transform',
             }}
           />
