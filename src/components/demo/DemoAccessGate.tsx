@@ -51,7 +51,17 @@ interface DemoAccessGateProps {
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
-  const [granted, setGranted] = useState(isAccessGranted);
+  // ?reset query param clears the stored access for easy testing
+  const [granted, setGranted] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('reset')) {
+      localStorage.removeItem(LS_KEY);
+      // Clean the URL without reload
+      window.history.replaceState({}, '', window.location.pathname);
+      return false;
+    }
+    return isAccessGranted();
+  });
   const [code, setCode] = useState('');
   const [phase, setPhase] = useState<'idle' | 'verifying' | 'burst' | 'denied'>('idle');
   const [burstKey, setBurstKey] = useState(0);
