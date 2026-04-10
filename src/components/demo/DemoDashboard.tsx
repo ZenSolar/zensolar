@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
+import { useShimmerSound } from '@/hooks/useShimmerSound';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
@@ -47,6 +48,7 @@ export function DemoDashboard() {
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   const { triggerConfetti } = useConfetti();
+  useShimmerSound({ cycleDuration: 5, volume: 0.06 });
   const [tokenPrice, setTokenPrice] = useState(0.10);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
