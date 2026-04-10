@@ -116,6 +116,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const syncViewport = () => {
       if (!containerRef.current) return;
       const visibleHeight = Math.ceil(viewport?.height ?? window.innerHeight);
+      const visibleOffsetTop = Math.max(Math.ceil(viewport?.offsetTop ?? 0), 0);
       const coverageHeight = Math.max(
         visibleHeight,
         window.innerHeight,
@@ -124,6 +125,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       );
 
       containerRef.current.style.setProperty('--gate-visible-height', `${visibleHeight}px`);
+      containerRef.current.style.setProperty('--gate-visible-offset-top', `${visibleOffsetTop}px`);
       containerRef.current.style.height = `${coverageHeight}px`;
       containerRef.current.style.minHeight = `${coverageHeight}px`;
     };
@@ -319,199 +321,204 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       {/* Central content */}
       <div
-        className="relative mx-auto flex max-w-sm w-full flex-col items-center justify-center gap-8 px-6 pointer-events-none"
-        style={{ height: 'var(--gate-visible-height, 100dvh)', paddingBottom: '48px' }}
+        className="absolute inset-x-0 pointer-events-none"
+        style={{
+          top: 'var(--gate-visible-offset-top, 0px)',
+          height: 'var(--gate-visible-height, 100dvh)',
+        }}
       >
-        {/* Logo */}
-        <img
-          src={zenLogo}
-          alt="ZenSolar"
-          className="h-8 w-auto object-contain dark:brightness-150 drop-shadow-[0_0_8px_hsl(var(--primary)/0.3)]"
-        />
-
-        {/* Lock icon with burst effect */}
-        <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
-          {/* Pulsating glow ring */}
-          <div
-            className="absolute inset-0 rounded-full pointer-events-none"
-            style={{
-              animation: 'zenLockPulse 2.5s ease-in-out infinite',
-              boxShadow: '0 0 0 1px hsl(var(--primary) / 0.3)',
-            }}
-          />
-          <button
-            onPointerDown={handleLockPointerDown}
-            onClick={(e) => e.preventDefault()}
-            disabled={!code.trim() || isVerifying || isBursting}
-            className={cn(
-              'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible',
-              'transition-[background-color,box-shadow] duration-150',
-              isBursting
-                ? 'bg-primary/30 scale-110'
-                : isDenied
-                  ? 'bg-destructive/20 animate-shake'
-                  : isVerifying
-                    ? 'bg-primary/20 animate-pulse'
-                    : firstTapBurst
-                      ? 'bg-primary/25 scale-[1.08] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
-                      : code.trim()
-                        ? 'bg-primary/20 hover:bg-primary/30 hover:scale-105 cursor-pointer shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
-                        : 'bg-muted/50'
-            )}
-            style={{
-              transition: firstTapBurst
-                ? 'transform 80ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 80ms, box-shadow 80ms'
-                : 'transform 200ms, background-color 200ms, box-shadow 200ms',
-            }}
-          >
-            {isBursting ? (
-              <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
-            ) : (
-              <Lock className={cn(
-                'h-8 w-8 transition-colors duration-100',
-                code.trim() ? 'text-primary' : 'text-muted-foreground'
-              )} />
-            )}
-
-            {/* First-tap burst particles (KPI-style impact) */}
-            {firstTapBurst && !isBursting && particles.map((p, i) => (
-              <div
-                key={`fp-${burstKey}-${i}`}
-                className="absolute pointer-events-none"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  width: p.size * 0.7,
-                  height: p.size * 0.7,
-                  background: `rgba(255,255,255, ${p.alpha * 0.6})`,
-                  boxShadow: `0 0 6px rgba(${RGBA}, 0.4)`,
-                  clipPath: PARTICLE_SHAPE,
-                  transform: `rotate(${p.rotation}deg)`,
-                  animation: `zenFlareParticle 500ms ${p.delay}ms ease-out forwards`,
-                  willChange: 'transform, opacity',
-                  '--tx': `${p.tx * 0.5}px`,
-                  '--ty': `${p.ty * 0.5}px`,
-                } as React.CSSProperties}
-              />
-            ))}
-
-            {/* First-tap ripple */}
-            {firstTapBurst && !isBursting && (
-              <div
-                key={`fr-${burstKey}`}
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  width: '200%',
-                  height: '200%',
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-                  animation: 'zenTouchRipple 500ms ease-out forwards',
-                  willChange: 'transform, opacity',
-                }}
-              />
-            )}
-
-            {/* Success burst particles */}
-            {isBursting && particles.map((p, i) => (
-              <div
-                key={`p-${burstKey}-${i}`}
-                className="absolute pointer-events-none"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  width: p.size,
-                  height: p.size,
-                  background: `rgba(255,255,255, ${p.alpha})`,
-                  boxShadow: `0 0 8px rgba(${RGBA}, 0.6)`,
-                  clipPath: PARTICLE_SHAPE,
-                  transform: `rotate(${p.rotation}deg)`,
-                  animation: `zenFlareParticle 800ms ${p.delay}ms ease-out forwards`,
-                  willChange: 'transform, opacity',
-                  '--tx': `${p.tx}px`,
-                  '--ty': `${p.ty}px`,
-                } as React.CSSProperties}
-              />
-            ))}
-
-            {/* Burst ripple */}
-            {isBursting && (
-              <div
-                key={`ripple-${burstKey}`}
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  width: '300%',
-                  height: '300%',
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
-                  animation: 'zenTouchRipple 800ms ease-out forwards',
-                  willChange: 'transform, opacity',
-                }}
-              />
-            )}
-
-            {/* Burst glow */}
-            {isBursting && (
-              <div
-                key={`glow-${burstKey}`}
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  width: 100,
-                  height: 100,
-                  marginLeft: -50,
-                  marginTop: -50,
-                  background: `radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(${RGBA}, 0.2) 40%, transparent 70%)`,
-                  animation: 'zenEnergyRelease 700ms ease-out forwards',
-                  willChange: 'transform, opacity',
-                }}
-              />
-            )}
-          </button>
-        </div>
-
-        {/* Title */}
-        <div className="text-center space-y-1">
-          <h1 className="text-lg font-semibold text-foreground">Private Demo</h1>
-          <p className="text-sm text-muted-foreground">Enter your access code to continue</p>
-        </div>
-
-        {/* Code input */}
-        <div className="w-full space-y-3 pointer-events-auto">
-          <Input
-            ref={inputRef}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Access code"
-            disabled={isVerifying || isBursting}
-            className={cn(
-              'text-center font-mono text-sm tracking-wider h-12 transition-all',
-              isBursting && 'border-primary bg-primary/5',
-              isDenied && 'border-destructive bg-destructive/5 animate-shake'
-            )}
-            autoComplete="off"
-            autoCapitalize="off"
+        <div className="relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center gap-8 px-6 pointer-events-none">
+          {/* Logo */}
+          <img
+            src={zenLogo}
+            alt="ZenSolar"
+            className="h-8 w-auto object-contain dark:brightness-150 drop-shadow-[0_0_8px_hsl(var(--primary)/0.3)]"
           />
 
-          {/* Tap hint — always visible */}
-          <div className="flex justify-center h-6">
-            <span className="text-xs text-primary/80 flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3" />
-              double tap to unlock
-            </span>
+          {/* Lock icon with burst effect */}
+          <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
+            {/* Pulsating glow ring */}
+            <div
+              className="absolute inset-0 rounded-full pointer-events-none"
+              style={{
+                animation: 'zenLockPulse 2.5s ease-in-out infinite',
+                boxShadow: '0 0 0 1px hsl(var(--primary) / 0.3)',
+              }}
+            />
+            <button
+              onPointerDown={handleLockPointerDown}
+              onClick={(e) => e.preventDefault()}
+              disabled={!code.trim() || isVerifying || isBursting}
+              className={cn(
+                'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible',
+                'transition-[background-color,box-shadow] duration-150',
+                isBursting
+                  ? 'bg-primary/30 scale-110'
+                  : isDenied
+                    ? 'bg-destructive/20 animate-shake'
+                    : isVerifying
+                      ? 'bg-primary/20 animate-pulse'
+                      : firstTapBurst
+                        ? 'bg-primary/25 scale-[1.08] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
+                        : code.trim()
+                          ? 'bg-primary/20 hover:bg-primary/30 hover:scale-105 cursor-pointer shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
+                          : 'bg-muted/50'
+              )}
+              style={{
+                transition: firstTapBurst
+                  ? 'transform 80ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 80ms, box-shadow 80ms'
+                  : 'transform 200ms, background-color 200ms, box-shadow 200ms',
+              }}
+            >
+              {isBursting ? (
+                <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
+              ) : (
+                <Lock className={cn(
+                  'h-8 w-8 transition-colors duration-100',
+                  code.trim() ? 'text-primary' : 'text-muted-foreground'
+                )} />
+              )}
+
+              {/* First-tap burst particles (KPI-style impact) */}
+              {firstTapBurst && !isBursting && particles.map((p, i) => (
+                <div
+                  key={`fp-${burstKey}-${i}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: p.size * 0.7,
+                    height: p.size * 0.7,
+                    background: `rgba(255,255,255, ${p.alpha * 0.6})`,
+                    boxShadow: `0 0 6px rgba(${RGBA}, 0.4)`,
+                    clipPath: PARTICLE_SHAPE,
+                    transform: `rotate(${p.rotation}deg)`,
+                    animation: `zenFlareParticle 500ms ${p.delay}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                    '--tx': `${p.tx * 0.5}px`,
+                    '--ty': `${p.ty * 0.5}px`,
+                  } as React.CSSProperties}
+                />
+              ))}
+
+              {/* First-tap ripple */}
+              {firstTapBurst && !isBursting && (
+                <div
+                  key={`fr-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '200%',
+                    height: '200%',
+                    background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+                    animation: 'zenTouchRipple 500ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+
+              {/* Success burst particles */}
+              {isBursting && particles.map((p, i) => (
+                <div
+                  key={`p-${burstKey}-${i}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: p.size,
+                    height: p.size,
+                    background: `rgba(255,255,255, ${p.alpha})`,
+                    boxShadow: `0 0 8px rgba(${RGBA}, 0.6)`,
+                    clipPath: PARTICLE_SHAPE,
+                    transform: `rotate(${p.rotation}deg)`,
+                    animation: `zenFlareParticle 800ms ${p.delay}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                    '--tx': `${p.tx}px`,
+                    '--ty': `${p.ty}px`,
+                  } as React.CSSProperties}
+                />
+              ))}
+
+              {/* Burst ripple */}
+              {isBursting && (
+                <div
+                  key={`ripple-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '300%',
+                    height: '300%',
+                    background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+                    animation: 'zenTouchRipple 800ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+
+              {/* Burst glow */}
+              {isBursting && (
+                <div
+                  key={`glow-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: 100,
+                    height: 100,
+                    marginLeft: -50,
+                    marginTop: -50,
+                    background: `radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(${RGBA}, 0.2) 40%, transparent 70%)`,
+                    animation: 'zenEnergyRelease 700ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+            </button>
           </div>
-        </div>
 
-        {/* Fine print */}
-        <p className="text-[10px] text-muted-foreground/50 text-center pointer-events-auto">
-          Request access at{' '}
-          <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
-            joe@zen.solar
-          </a>
-        </p>
+          {/* Title */}
+          <div className="text-center space-y-1">
+            <h1 className="text-lg font-semibold text-foreground">Private Demo</h1>
+            <p className="text-sm text-muted-foreground">Enter your access code to continue</p>
+          </div>
+
+          {/* Code input */}
+          <div className="w-full space-y-3 pointer-events-auto">
+            <Input
+              ref={inputRef}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Access code"
+              disabled={isVerifying || isBursting}
+              className={cn(
+                'text-center font-mono text-sm tracking-wider h-12 transition-all',
+                isBursting && 'border-primary bg-primary/5',
+                isDenied && 'border-destructive bg-destructive/5 animate-shake'
+              )}
+              autoComplete="off"
+              autoCapitalize="off"
+            />
+
+            {/* Tap hint — always visible */}
+            <div className="flex justify-center h-6">
+              <span className="text-xs text-primary/80 flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3" />
+                double tap to unlock
+              </span>
+            </div>
+          </div>
+
+          {/* Fine print */}
+          <p className="text-[10px] text-muted-foreground/50 text-center pointer-events-auto">
+            Request access at{' '}
+            <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
+              joe@zen.solar
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
