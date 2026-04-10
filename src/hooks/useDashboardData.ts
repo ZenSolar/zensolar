@@ -601,19 +601,33 @@ export function useDashboardData() {
       const userId = getEffectiveUserId();
       if (!userId) return null;
 
-      const [devicesSnapshot, homeChargingMonitorKwh, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
+      const [devicesSnapshot, homeChargingAllSessions, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
         supabase.from('connected_devices')
           .select('device_id, device_name, device_type, provider, baseline_data, lifetime_totals, last_minted_at')
           .eq('user_id', userId).then(r => r.data || []),
         supabase.from('home_charging_sessions')
-          .select('total_session_kwh')
+          .select('total_session_kwh, start_time')
           .eq('user_id', userId)
           .eq('status', 'completed')
-          .then(r => (r.data || []).reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)),
+          .then(r => r.data || []),
         fetchMintedTokens(),
         fetchReferralTokens(),
         fetchDeviceLabels(),
       ]);
+
+      // Calculate home charging: lifetime total and pending (since last mint)
+      const homeChargingMonitorKwh = homeChargingAllSessions.reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0);
+      // Find the most recent mint timestamp across all devices
+      const lastMintTimestamps = devicesSnapshot.map((d: any) => d.last_minted_at).filter(Boolean);
+      const latestMintAt = lastMintTimestamps.length > 0
+        ? new Date(Math.max(...lastMintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
+        : null;
+      // Pending = only sessions started AFTER the last mint
+      const pendingHomeChargingMonitorKwh = latestMintAt
+        ? homeChargingAllSessions
+            .filter((s: any) => new Date(s.start_time) > new Date(latestMintAt))
+            .reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)
+        : homeChargingMonitorKwh;
 
       if (devicesSnapshot.length === 0) return null;
 
