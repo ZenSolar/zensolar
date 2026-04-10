@@ -172,15 +172,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [updateState]);
 
   // ── Pointer handler: fires on pointerdown for zero-latency response ──
-  const handleLockPointerDown = useCallback(async (e: React.PointerEvent) => {
+  // CRITICAL: Everything here must be synchronous — no await — to stay
+  // inside the user-gesture context so iOS Safari allows immediate audio.
+  const handleLockPointerDown = useCallback((e: React.PointerEvent) => {
     // Suppress ghost clicks
     if (Date.now() < ignorePointerUntilRef.current) return;
     e.preventDefault();
 
-    // Prime and ensure AudioContext is running before playing sound
+    // Synchronous prime + resume — do NOT await
     const ctx = primeAudio();
     if (ctx && ctx.state === 'suspended') {
-      try { await ctx.resume(); } catch {}
+      ctx.resume().catch(() => {});
     }
 
     const s = stateRef.current;
@@ -190,7 +192,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
 
     if (isDoubleTap) {
-      // ⚡ DOUBLE TAP — submit only if code entered, otherwise just burst
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
 
@@ -206,7 +207,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         submitCode();
       }
     } else {
-      // ── FIRST TAP ── welcome chime + visual burst + hint
       lastTapTimeRef.current = now;
 
       triggerBurst();
@@ -217,7 +217,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         try { navigator.vibrate([10]); } catch {}
       }
 
-      // Clear tap window
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
