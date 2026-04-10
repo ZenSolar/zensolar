@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
+import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
 const LS_KEY = 'zen_demo_access';
@@ -99,6 +100,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const ignorePointerUntilRef = useRef<number>(0);
 
   const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
+  useShimmerSound({ cycleDuration: 5, volume: 0.06 });
 
   // Stable particles — only regenerate on burstKey change
   const particles = useMemo(
