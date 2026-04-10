@@ -100,13 +100,15 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       const driftB = time * 400;
       const driftC = time * 300;
 
-      // Snowfall intro — individual hexes light up like falling snowflakes
+      // Curtain drop — bright leading edge sweeps top-to-bottom with a glowing trail
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
-      const SNOW_DURATION = 8.0;
-      const snowActive = actElapsed !== null && actElapsed < SNOW_DURATION;
-      const snowFade = snowActive
-        ? (actElapsed < 6.0 ? 1 : Math.max(0, 1 - (actElapsed - 6.0) / 2.0))
+      const CURTAIN_DURATION = 8.0;
+      const CURTAIN_SWEEP = 5.0;      // seconds for the leading edge to cross the screen
+      const curtainActive = actElapsed !== null && actElapsed < CURTAIN_DURATION;
+      // Global fade-out in the last 2 seconds
+      const curtainFade = curtainActive
+        ? (actElapsed! < 6.0 ? 1 : Math.max(0, 1 - (actElapsed! - 6.0) / 2.0))
         : 0;
 
       ctx.shadowColor = 'transparent';
