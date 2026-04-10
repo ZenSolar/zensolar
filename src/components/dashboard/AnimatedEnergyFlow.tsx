@@ -128,14 +128,14 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
   if (compact) {
     return (
       <g>
-        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.2" />
+        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.08" />
         {/* House body */}
         <rect x="150" y="180" width="100" height="73" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.6" />
-        <rect x="150" y="180" width="3" height="73" fill="#151b2a" opacity="0.3" />
-        <rect x="247" y="180" width="3" height="73" fill="#151b2a" opacity="0.3" />
+        <rect x="150" y="180" width="3" height="73" fill="#151b2a" opacity="0.12" />
+        <rect x="247" y="180" width="3" height="73" fill="#151b2a" opacity="0.12" />
         {/* Roof */}
-        <polygon points="132,183 200,118 268,183" fill="#111827" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.6" />
-        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.3" />
+        <polygon points="132,183 200,118 268,183" fill="#111827" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.12" />
         {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
         {(() => {
           const peakY = 121, eaveY = 180, cx = 200;
@@ -173,49 +173,49 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
           );
         })()}
         {/* Windows */}
-        <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
-        <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="162" y="195" width="18" height="22" rx="1" fill="#080c14" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="220" y="195" width="18" height="22" rx="1" fill="#080c14" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.4" />
         <rect x="163" y="196" width="8" height="10" fill="#1a1800" opacity="0.5">
           <animate attributeName="fill" values="#1a1800;#221e00;#1a1800" dur="6s" repeatCount="indefinite" />
         </rect>
         {/* Door */}
-        <rect x="190" y="222" width="18" height="30" rx="1" fill="#0c1018" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
+        <rect x="190" y="222" width="18" height="30" rx="1" fill="#0c1018" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.4" />
         <circle cx="205" cy="238" r="0.8" fill="#4a5568" />
         {/* Powerwall */}
-        <rect x="127" y="212" width="16" height="30" rx="2" fill="#141e30" fillOpacity="0.3" stroke="#2a4060" strokeWidth="0.6" />
+        <rect x="127" y="212" width="16" height="30" rx="2" fill="#141e30" fillOpacity="0.12" stroke="#2a4060" strokeWidth="0.6" />
         <rect x="129.5" y="215" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.25">
           <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
         </rect>
         <rect x="129.5" y="219" width="11" height="2.5" rx="0.8" fill="#22c55e" opacity="0.15" />
         <text x="135" y="234" textAnchor="middle" fill="#4a6080" fontSize="4" fontWeight="700">PW</text>
         {/* Utility meter */}
-        <rect x="256" y="210" width="14" height="18" rx="1.5" fill="#141e30" fillOpacity="0.3" stroke="#2a4060" strokeWidth="0.5" />
-        <circle cx="263" cy="217" r="4" fill="#0a1018" fillOpacity="0.3" stroke="#3a5070" strokeWidth="0.3" />
+        <rect x="256" y="210" width="14" height="18" rx="1.5" fill="#141e30" fillOpacity="0.12" stroke="#2a4060" strokeWidth="0.5" />
+        <circle cx="263" cy="217" r="4" fill="#0a1018" fillOpacity="0.12" stroke="#3a5070" strokeWidth="0.3" />
         <line x1="263" y1="217" x2="265.5" y2="215.5" stroke="#8B5CF6" strokeWidth="0.4" opacity="0.7">
           <animateTransform attributeName="transform" type="rotate" from="0 263 217" to="360 263 217" dur="8s" repeatCount="indefinite" />
         </line>
         <circle cx="263" cy="217" r="0.6" fill="#8B5CF6" opacity="0.6" />
         <text x="263" y="225" textAnchor="middle" fill="#4a6080" fontSize="3" fontWeight="600">kWh</text>
         {/* Ground */}
-        <line x1="110" y1="253" x2="290" y2="253" stroke="#1a2030" strokeWidth="0.6" />
+        <line x1="110" y1="253" x2="290" y2="253" stroke="#1a2030" strokeWidth="0.4" opacity="0.4" />
       </g>
     );
   }
 
   return (
     <g>
-      <ellipse cx="200" cy="298" rx="100" ry="5" fill="#0a0e18" opacity="0.2" />
+      <ellipse cx="200" cy="298" rx="100" ry="5" fill="#0a0e18" opacity="0.08" />
       {/* House body — bigger */}
       <rect x="130" y="192" width="140" height="103" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.8" />
-      <rect x="130" y="192" width="4" height="103" fill="#151b2a" opacity="0.3" />
-      <rect x="266" y="192" width="4" height="103" fill="#151b2a" opacity="0.3" />
+      <rect x="130" y="192" width="4" height="103" fill="#151b2a" opacity="0.12" />
+      <rect x="266" y="192" width="4" height="103" fill="#151b2a" opacity="0.12" />
       {/* Roof */}
-      <polygon points="110,195 200,110 290,195" fill="#111827" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.8" />
+      <polygon points="110,195 200,110 290,195" fill="#111827" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.8" />
       <line x1="200" y1="110" x2="200" y2="114" stroke="#3a4560" strokeWidth="0.5" />
-      <line x1="112" y1="195" x2="288" y2="195" stroke="#0a0e18" strokeWidth="1.5" opacity="0.3" />
+      <line x1="112" y1="195" x2="288" y2="195" stroke="#0a0e18" strokeWidth="1.5" opacity="0.12" />
       {/* Chimney */}
-      <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.5" />
-      <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.4" />
+      <rect x="252" y="132" width="14" height="35" rx="1" fill="#141c2c" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.5" />
+      <rect x="250" y="130" width="18" height="4" rx="1" fill="#1a2438" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.4" />
       {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
       {(() => {
         const peakY = 115, eaveY = 191, cx = 200;
@@ -254,7 +254,7 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       })()}
       {/* Windows */}
       <g>
-        <rect x="145" y="212" width="28" height="32" rx="1.5" fill="#080c14" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.6" />
+        <rect x="145" y="212" width="28" height="32" rx="1.5" fill="#080c14" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="159" y1="212" x2="159" y2="244" stroke="#2a3448" strokeWidth="0.4" />
         <line x1="145" y1="228" x2="173" y2="228" stroke="#2a3448" strokeWidth="0.4" />
         <rect x="146" y="213" width="12.5" height="14.5" fill="#1a1800" opacity="0.6">
@@ -263,7 +263,7 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         <rect x="160" y="229" width="12.5" height="14.5" fill="#1a1800" opacity="0.4">
           <animate attributeName="fill" values="#1a1800;#1e1a00;#1a1800" dur="8s" repeatCount="indefinite" />
         </rect>
-        <rect x="228" y="212" width="28" height="32" rx="1.5" fill="#080c14" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.6" />
+        <rect x="228" y="212" width="28" height="32" rx="1.5" fill="#080c14" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.6" />
         <line x1="242" y1="212" x2="242" y2="244" stroke="#2a3448" strokeWidth="0.4" />
         <line x1="228" y1="228" x2="256" y2="228" stroke="#2a3448" strokeWidth="0.4" />
         <rect x="229" y="213" width="12.5" height="14.5" fill="#1a1800" opacity="0.5">
@@ -271,17 +271,17 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         </rect>
       </g>
       {/* Door */}
-      <rect x="186" y="255" width="28" height="40" rx="1.5" fill="#0c1018" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.6" />
-      <rect x="189" y="259" width="22" height="14" rx="1" fill="#0f1520" fillOpacity="0.3" stroke="#1e2840" strokeWidth="0.3" />
-      <rect x="189" y="276" width="22" height="16" rx="1" fill="#0f1520" fillOpacity="0.3" stroke="#1e2840" strokeWidth="0.3" />
+      <rect x="186" y="255" width="28" height="40" rx="1.5" fill="#0c1018" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.6" />
+      <rect x="189" y="259" width="22" height="14" rx="1" fill="#0f1520" fillOpacity="0.12" stroke="#1e2840" strokeWidth="0.3" />
+      <rect x="189" y="276" width="22" height="16" rx="1" fill="#0f1520" fillOpacity="0.12" stroke="#1e2840" strokeWidth="0.3" />
       <circle cx="210" cy="279" r="1.2" fill="#4a5568" />
       <ellipse cx="200" cy="253" rx="4" ry="2" fill="#F59E0B" opacity="0.08">
-        <animate attributeName="opacity" values="0.06;0.12;0.06" dur="4s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.04;0.1;0.04" dur="4s" repeatCount="indefinite" />
       </ellipse>
       {/* Porch step */}
-      <rect x="182" y="293" width="36" height="4" rx="0.5" fill="#1a2030" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.3" />
+      <rect x="182" y="293" width="36" height="4" rx="0.5" fill="#1a2030" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.3" />
       {/* Powerwall unit */}
-      <rect x="100" y="252" width="22" height="42" rx="2.5" fill="#141e30" fillOpacity="0.3" stroke="#2a4060" strokeWidth="0.8" />
+      <rect x="100" y="252" width="22" height="42" rx="2.5" fill="#141e30" fillOpacity="0.12" stroke="#2a4060" strokeWidth="0.8" />
       <rect x="104" y="257" width="14" height="3.5" rx="1" fill="#22c55e" opacity="0.25">
         <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
       </rect>
@@ -291,8 +291,8 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
       <line x1="111" y1="250" x2="111" y2="252" stroke="#2a4060" strokeWidth="1" />
       {/* Utility meter */}
       <g>
-        <rect x="278" y="245" width="18" height="24" rx="2" fill="#141e30" fillOpacity="0.3" stroke="#2a4060" strokeWidth="0.7" />
-        <circle cx="287" cy="254" r="5.5" fill="#0a1018" fillOpacity="0.3" stroke="#3a5070" strokeWidth="0.4" />
+        <rect x="278" y="245" width="18" height="24" rx="2" fill="#141e30" fillOpacity="0.12" stroke="#2a4060" strokeWidth="0.7" />
+        <circle cx="287" cy="254" r="5.5" fill="#0a1018" fillOpacity="0.12" stroke="#3a5070" strokeWidth="0.4" />
         <line x1="287" y1="254" x2="290" y2="252" stroke="#8B5CF6" strokeWidth="0.5" opacity="0.7">
           <animateTransform attributeName="transform" type="rotate" from="0 287 254" to="360 287 254" dur="8s" repeatCount="indefinite" />
         </line>
@@ -301,10 +301,10 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
         <line x1="287" y1="269" x2="287" y2="276" stroke="#2a4060" strokeWidth="0.8" />
       </g>
       {/* Landscaping */}
-      <ellipse cx="140" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.2" />
-      <ellipse cx="260" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.2" />
+      <ellipse cx="140" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.08" />
+      <ellipse cx="260" cy="294" rx="10" ry="5" fill="#0f2010" opacity="0.08" />
       {/* Ground line */}
-      <line x1="70" y1="296" x2="330" y2="296" stroke="#1a2030" strokeWidth="0.8" />
+      <line x1="70" y1="296" x2="330" y2="296" stroke="#1a2030" strokeWidth="0.5" opacity="0.4" />
     </g>
   );
 }
@@ -396,8 +396,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             <stop offset="100%" stopColor={colors.solar} stopOpacity={0} />
           </radialGradient>
           <linearGradient id="houseFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a2235" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#141a28" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#1a2235" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#141a28" stopOpacity="0.12" />
           </linearGradient>
         </defs>
 
@@ -495,7 +495,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 48 : 63)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 9 : 11}>
             · {flow.batteryPercent}%
           </text>
-          <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36} height={5} rx={2.5} fill="#1a2030" fillOpacity={0.3} />
+          <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36} height={5} rx={2.5} fill="#1a2030" fillOpacity={0.15} />
           <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36 * (flow.batteryPercent / 100)} height={5} rx={2.5} fill={colors.battery} fillOpacity={0.6} />
         </g>
 
@@ -577,7 +577,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             return (
               <g>
                 {/* Card background */}
-                <rect x={sx} y={sy - 2} width={cardW} height={cardH} rx={6} fill="none" stroke="hsl(var(--border))" strokeWidth={0.5} strokeOpacity={0.3} />
+                <rect x={sx} y={sy - 2} width={cardW} height={cardH} rx={6} fill="none" stroke="hsl(var(--border))" strokeWidth={0.5} strokeOpacity={0.15} />
                 {/* Header */}
                 <text x={sx + 8} y={sy + 10} fill="#6b7280" fontSize={headerFs} fontWeight="700" letterSpacing="1.5">
                   TODAY&apos;S ENERGY
