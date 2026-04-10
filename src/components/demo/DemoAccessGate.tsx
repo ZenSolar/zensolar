@@ -106,7 +106,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
 
-  const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
+  const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
@@ -239,12 +239,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
     } else {
       lastTapTimeRef.current = now;
-      const firstTapPlayback = !s.hexAwake ? preparePlayback() : null;
 
       if (!s.hexAwake) {
-        startShimmerSound(firstTapPlayback?.now);
+        startShimmerSound();
       }
-      playWelcomeTap(firstTapPlayback?.now);
+      playWelcomeTap();
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
@@ -262,7 +261,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, primeAudio, preparePlayback, submitCode, triggerBurst, playWelcomeTap, playMintSound, startShimmerSound, updateState]);
+  }, [code, primeAudio, submitCode, triggerBurst, playWelcomeTap, playMintSound, startShimmerSound, updateState]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -382,10 +381,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             )}
 
             <button
-              onPointerDown={(e) => {
+              onPointerDownCapture={(e) => {
                 if (e.pointerType !== 'touch') handleLockPointerDown();
               }}
-              onTouchStart={handleLockPointerDown}
+              onTouchStartCapture={handleLockPointerDown}
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
