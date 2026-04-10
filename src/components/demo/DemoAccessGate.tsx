@@ -388,21 +388,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
-                'transition-[background-color,box-shadow] duration-150',
                 isBursting
-                  ? 'bg-primary/30 scale-110'
+                  ? 'bg-primary/30 scale-[0.92] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
                   : isDenied
                     ? 'bg-destructive/20 animate-shake'
                     : isVerifying
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
-                        ? 'bg-primary/25 scale-[1.08] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
+                        ? 'bg-primary/30 scale-[0.92] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
                         : 'bg-primary/15 hover:bg-primary/25 hover:scale-105 shadow-[0_0_20px_hsl(var(--primary)/0.2)]'
               )}
               style={{
                 transition: firstTapBurst
-                  ? 'transform 80ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 80ms, box-shadow 80ms'
-                  : 'transform 200ms, background-color 200ms, box-shadow 200ms',
+                  ? 'transform 60ms cubic-bezier(0.2, 0, 0.4, 1), background-color 60ms, box-shadow 60ms'
+                  : 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 200ms, box-shadow 200ms',
               }}
             >
               {isBursting ? (
@@ -416,11 +415,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 <span
                   className="select-none font-black"
                   style={{
-                    fontSize: '1.75rem',
+                    fontSize: '1.5rem',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
-                    color: 'hsl(142, 76%, 45%)',
-                    textShadow: '0 0 20px hsl(142 76% 45% / 0.5), 0 0 40px hsl(142 76% 45% / 0.2)',
+                    color: 'hsl(142, 76%, 36%, 0.75)',
+                    textShadow: '0 0 16px hsl(142 76% 36% / 0.4), 0 0 32px hsl(142 76% 36% / 0.15)',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
                       : 'zenSymbolFadeIn 300ms ease-out both',
