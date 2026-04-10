@@ -178,6 +178,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }
 
         setTimeout(() => {
+          // Blur input to dismiss keyboard & reset iOS viewport zoom before revealing app
+          inputRef.current?.blur();
+          // Force viewport zoom reset on iOS
+          const vp = document.querySelector('meta[name="viewport"]');
+          if (vp) {
+            const original = vp.getAttribute('content') || '';
+            vp.setAttribute('content', original.replace(/maximum-scale=[^,]*/,'maximum-scale=1.0'));
+            requestAnimationFrame(() => {
+              vp.setAttribute('content', original);
+            });
+          }
           grantAccess();
           setGranted(true);
         }, 1000);
@@ -594,7 +605,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               placeholder="Access code"
               disabled={isVerifying || isBursting}
               className={cn(
-                'text-center font-mono text-sm tracking-wider h-12 transition-all',
+                'text-center font-mono tracking-wider h-12 transition-all text-[16px]',
                 isBursting && 'border-primary bg-primary/5',
                 isDenied && 'border-destructive bg-destructive/5 animate-shake'
               )}
