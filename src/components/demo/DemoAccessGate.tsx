@@ -109,9 +109,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   // No auto-focus — let user take in the full page experience first
 
-  // Cleanup timers
+  // Set actual viewport height to eliminate black bar on mobile browsers
+  const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const setVh = () => {
+      if (containerRef.current) {
+        containerRef.current.style.height = `${window.innerHeight}px`;
+      }
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
     return () => {
+      window.removeEventListener('resize', setVh);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     };
