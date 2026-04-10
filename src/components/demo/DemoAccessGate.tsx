@@ -189,7 +189,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
 
     if (isDoubleTap) {
-      // ⚡ DOUBLE TAP — submit
+      // ⚡ DOUBLE TAP — submit only if code entered, otherwise just burst
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
 
@@ -201,7 +201,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
 
       ignorePointerUntilRef.current = now + GHOST_CLICK_SUPPRESSION;
-      submitCode();
+      if (code.trim()) {
+        submitCode();
+      }
     } else {
       // ── FIRST TAP ── welcome chime + visual burst + hint
       lastTapTimeRef.current = now;
