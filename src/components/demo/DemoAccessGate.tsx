@@ -317,9 +317,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     >
       <AudioDebugOverlay />
       <div
-        className="absolute inset-0 transition-opacity duration-1000 ease-out"
+        className="absolute inset-0"
         style={{
-          opacity: hexAwake ? 0.70 : 0,
+          opacity: hexAwake ? 1 : 0,
+          transition: hexAwake ? 'none' : 'opacity 1s ease-out',
           touchAction: 'none',
           width: '100%',
           height: '100%',

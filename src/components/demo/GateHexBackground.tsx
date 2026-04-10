@@ -103,15 +103,15 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       // Rainfall intro
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
-      const RAIN_DURATION = 5.0;
+      const RAIN_DURATION = 7.0;
       const rainActive = actElapsed !== null && actElapsed < RAIN_DURATION;
-      // Slow, majestic descent — takes ~3.5s to cross the full viewport
-      const rainProgress = rainActive ? Math.min(actElapsed / 3.5, 1) : 0;
-      const rainHead = rainActive ? -hexHeight * 4 + rainProgress * (h + hexHeight * 8) : 0;
-      // Very wide band — covers ~40% of the screen height at once
-      const rainBand = Math.max(h * 0.42, hexHeight * 8);
+      // Slow, majestic descent — takes ~5s to cross the full viewport
+      const rainProgress = rainActive ? Math.min(actElapsed / 5.0, 1) : 0;
+      const rainHead = rainActive ? -hexHeight * 6 + rainProgress * (h + hexHeight * 12) : 0;
+      // Massive band — covers ~55% of the screen height
+      const rainBand = Math.max(h * 0.55, hexHeight * 12);
       const rainIntensity = rainActive
-        ? (actElapsed < 3.5 ? 1 : Math.max(0, 1 - (actElapsed - 3.5) / 1.5))
+        ? (actElapsed < 5.0 ? 1 : Math.max(0, 1 - (actElapsed - 5.0) / 2.0))
         : 0;
 
       ctx.shadowColor = 'transparent';
