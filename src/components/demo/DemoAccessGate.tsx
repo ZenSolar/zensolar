@@ -299,6 +299,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
         {/* Lock icon with burst effect */}
         <div className="relative" style={{ touchAction: 'manipulation' }}>
+          {/* Pulsating glow ring */}
+          <div
+            className="absolute inset-0 rounded-full pointer-events-none"
+            style={{
+              animation: 'zenLockPulse 2.5s ease-in-out infinite',
+              boxShadow: '0 0 0 1px hsl(var(--primary) / 0.3)',
+            }}
+          />
           <button
             onPointerDown={handleLockPointerDown}
             onClick={(e) => e.preventDefault()}
