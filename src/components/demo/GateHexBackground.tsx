@@ -145,34 +145,40 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
           alpha += bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03;
 
-          // Curtain: compute edge glow separately — it renders in solar orange
+          // Curtain: orange edge leads, green shimmer follows right behind — one fluid wave
           let edgeAlpha = 0;
-          let trailAlpha = 0;
+          let greenBoost = 0;
 
           if (curtainActive && actElapsed !== null) {
             const curtainY = -hexHeight * 2 + (Math.min(actElapsed / CURTAIN_SWEEP, 1)) * (h + hexHeight * 4);
             const distBehind = curtainY - cy;
             
             if (distBehind > -hexHeight * 5) {
+              // ORANGE LEADING EDGE: bright band at the front
               const edgeWidth = hexHeight * 5;
               const edgeDist = Math.abs(cy - curtainY);
               edgeAlpha = edgeDist < edgeWidth
                 ? Math.pow(1 - edgeDist / edgeWidth, 1.2) * 1.0 * curtainFade
                 : 0;
               
-              const trailLength = h * 0.3;
-              trailAlpha = distBehind > 0 && distBehind < trailLength
-                ? Math.pow(1 - distBehind / trailLength, 5) * 0.04 * curtainFade
-                : 0;
+              // GREEN SHIMMER WAVE: follows right behind the orange edge
+              // Starts just behind the leading edge and extends further back
+              if (distBehind > 0) {
+                const greenWaveLength = h * 0.5;
+                if (distBehind < greenWaveLength) {
+                  const t = 1 - distBehind / greenWaveLength;
+                  // Strong near the edge, fading smoothly behind — creates the "wake"
+                  greenBoost = Math.pow(t, 1.5) * 0.45 * curtainFade;
+                }
+              }
             }
           }
 
-          // Decide which color to use: solar orange for the curtain edge, emerald for everything else
           const isCurtainHex = edgeAlpha > 0.05;
           
           if (isCurtainHex) {
-            // Draw in solar orange — the edge is the star
-            const finalAlpha = Math.min(edgeAlpha + trailAlpha, 1.0);
+            // Draw the orange leading edge
+            const finalAlpha = Math.min(edgeAlpha, 1.0);
             if (finalAlpha < 0.06) continue;
 
             const roundedAlpha = ((finalAlpha * 50 + 0.5) | 0) / 50;
@@ -182,17 +188,14 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
               ctx.strokeStyle = colorStr;
               lastColor = colorStr;
             }
-
-            if (!lastGlow || lastGlow) {
-              ctx.lineWidth = 1.0;
-              ctx.shadowColor = `hsla(36,92%,55%,0.3)`;
-              ctx.shadowBlur = 10;
-              lastGlow = true;
-            }
+            ctx.lineWidth = 1.0;
+            ctx.shadowColor = `hsla(36,92%,55%,0.3)`;
+            ctx.shadowBlur = 10;
+            lastGlow = true;
           } else {
-            // Normal emerald hex
-            alpha += trailAlpha;
-            alpha = Math.min(alpha, 0.55);
+            // Green hex — boosted by the shimmer wave trailing the orange
+            alpha += greenBoost;
+            alpha = Math.min(alpha, curtainActive ? 0.85 : 0.55);
             if (alpha < 0.06) continue;
 
             const roundedAlpha = ((alpha * 50 + 0.5) | 0) / 50;
