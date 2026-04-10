@@ -300,7 +300,15 @@
   }
 }
 
-@keyframes zenFlareParticle {
+@keyframes zenLockPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 0 8px hsl(var(--primary) / 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.35), 0 0 16px hsl(var(--primary) / 0.2);
+  }
+}
+
   0% {
     transform: translate(0, 0) scale(1) rotate(0deg);
     opacity: 1;
