@@ -33,6 +33,10 @@ export function useShimmerSound({
     harmOsc: OscillatorNode;
     subOsc: OscillatorNode;
     wobbleLfo: OscillatorNode;
+    gongOsc: OscillatorNode;
+    gongOsc2: OscillatorNode;
+    gongOsc3: OscillatorNode;
+    gongBias: ConstantSourceNode;
   } | null>(null);
 
   const volumeRef = useRef(volume);
