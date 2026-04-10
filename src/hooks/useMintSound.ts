@@ -9,11 +9,31 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 let sharedAudioContext: AudioContext | null = null;
 let unlockListenersInstalled = false;
+let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+
+/** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
+const isStandalonePWA = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    (window.navigator as any).standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches
+  );
+};
 
 const createSharedAudioContext = () => {
   if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
     const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
     sharedAudioContext = new AudioContextCtor();
+
+    // In PWA standalone mode, iOS aggressively suspends the AudioContext.
+    // Keep it alive by playing inaudible pulses every 4 seconds.
+    if (isStandalonePWA() && !keepAliveInterval) {
+      keepAliveInterval = setInterval(() => {
+        if (sharedAudioContext && sharedAudioContext.state === 'running') {
+          fireSilentUnlockPulse(sharedAudioContext);
+        }
+      }, 4000);
+    }
   }
   return sharedAudioContext;
 };
