@@ -64,6 +64,7 @@ interface GateState {
   showTapAgain: boolean;
   firstTapBurst: boolean;
   burstKey: number;
+  revealed: boolean; // true after first tap — switches $Z → Lock
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
