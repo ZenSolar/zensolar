@@ -376,7 +376,7 @@ function EnergyFlowGlowCard() {
   const [burstDone, setBurstDone] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setBurstDone(true), 4500);
+    const t = setTimeout(() => setBurstDone(true), 1800);
     return () => clearTimeout(t);
   }, []);
 
@@ -388,7 +388,7 @@ function EnergyFlowGlowCard() {
         animation: burstDone
           ? 'emeraldGlowIdle 4s ease-in-out infinite'
           : 'emeraldGlowBurst 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-        animationDelay: burstDone ? '0s' : '2s',
+        animationDelay: burstDone ? '0s' : '0.5s',
       }}
     >
       <AnimatedEnergyFlow className="w-full" />

@@ -46,7 +46,7 @@ export function TokenPriceCard({
 
   // First-load burst → idle transition
   useEffect(() => {
-    const t = setTimeout(() => setShimmerBurstDone(true), 2800);
+    const t = setTimeout(() => setShimmerBurstDone(true), 1200);
     return () => clearTimeout(t);
   }, []);
 
