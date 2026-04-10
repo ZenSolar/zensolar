@@ -8,6 +8,13 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
 
+// ─── Water ripple state ────
+interface Ripple {
+  id: number;
+  x: number;
+  y: number;
+}
+
 const LS_KEY = 'zen_demo_access';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -76,6 +83,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   });
   const [code, setCode] = useState('');
   const [showHint, setShowHint] = useState(false);
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+  const rippleIdRef = useRef(0);
+
+  const handleBackgroundTap = useCallback((e: React.PointerEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = ++rippleIdRef.current;
+    setRipples(prev => [...prev, { id, x, y }]);
+    setTimeout(() => setRipples(prev => prev.filter(r => r.id !== id)), 1200);
+  }, []);
 
   // ── stateRef pattern: single ref holds all interaction state ──
   const stateRef = useRef<GateState>({
@@ -245,9 +263,40 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
-      {/* Frenetic hex background */}
-      <div className="absolute inset-0 opacity-[0.55]">
+      {/* Frenetic hex background — tappable for water ripple */}
+      <div className="absolute inset-0 opacity-[0.55]" onPointerDown={handleBackgroundTap} style={{ touchAction: 'none' }}>
         <GateHexBackground />
+        {/* Water ripple effects */}
+        {ripples.map(r => (
+          <div key={r.id} className="absolute pointer-events-none" style={{ left: r.x, top: r.y }}>
+            {[0, 150, 300].map((delay, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full border pointer-events-none"
+                style={{
+                  left: '50%', top: '50%',
+                  width: 200 + i * 60, height: 200 + i * 60,
+                  marginLeft: -(100 + i * 30), marginTop: -(100 + i * 30),
+                  borderColor: `hsla(160, 84%, 45%, ${0.5 - i * 0.12})`,
+                  borderWidth: 1.5 - i * 0.3,
+                  animation: `zenWaterRipple ${0.9 + i * 0.2}s ${delay}ms ease-out forwards`,
+                  willChange: 'transform, opacity',
+                }}
+              />
+            ))}
+            <div
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                left: '50%', top: '50%',
+                width: 40, height: 40,
+                marginLeft: -20, marginTop: -20,
+                background: 'radial-gradient(circle, hsla(160, 84%, 50%, 0.3) 0%, transparent 70%)',
+                animation: 'zenWaterDrop 0.6s ease-out forwards',
+                willChange: 'transform, opacity',
+              }}
+            />
+          </div>
+        ))}
       </div>
 
       {/* Radial vignette */}

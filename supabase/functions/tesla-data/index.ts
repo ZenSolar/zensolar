@@ -526,9 +526,12 @@ Deno.serve(async (req) => {
 
     // Fetch charging history for EV charging kWh totals - paginate through all results
     let totalChargingKwh = 0;
+    let billingHomeChargingKwh = 0; // AC sessions classified as "home" from billing API
+    let billingSuperchargerKwh = 0; // DC sessions classified as "supercharger" from billing API
     let baselineChargingKwh = 0;
     let baselineSuperchargerKwh = 0;
     let baselineWallConnectorKwh = 0;
+    let baselineHomeChargingKwh = 0;
     let totalSessions = 0;
     let chargingSessionDetails: any[] | null = null;
     
@@ -624,6 +627,13 @@ Deno.serve(async (req) => {
                 if (!chargingSessionDetails) chargingSessionDetails = [];
                 // Classify charging type via street-name matching
                 const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || session.chargerType || "");
+                
+                // Track home vs supercharger kWh from billing API
+                if (chargingType === 'home') {
+                  billingHomeChargingKwh += sessionKwh;
+                } else {
+                  billingSuperchargerKwh += sessionKwh;
+                }
 
                 chargingSessionDetails.push({
                   user_id: targetUserId,
@@ -709,6 +719,7 @@ Deno.serve(async (req) => {
         baselineChargingKwh = vehicleBaseline.total_charge_energy_added_kwh || vehicleBaseline.charging_kwh || 0;
         baselineSuperchargerKwh = vehicleBaseline.supercharger_kwh || vehicleBaseline.charging_kwh || 0;
         baselineWallConnectorKwh = vehicleBaseline.wall_connector_kwh || 0;
+        baselineHomeChargingKwh = vehicleBaseline.home_charging_kwh || 0;
       } catch (error) {
         console.error("Error fetching charging history:", error);
       }
@@ -893,23 +904,29 @@ Deno.serve(async (req) => {
     // Calculate pending charging kWh (total and per source)
     const pendingChargingKwh = Math.max(0, totalChargingKwh - baselineChargingKwh);
 
-    // Total EV charging calculation:
-    // - Supercharger (DC): From billing history - available for all users
-    // - Wall Connector (AC): From energy site telemetry - only for users with Tesla Wall Connectors
-    // - No estimation: Only report measured/verified data for accuracy
+    // EV charging calculation — split billing API total into Supercharger vs Home AC:
+    // - billingSuperchargerKwh: Paid DC sessions from billing API
+    // - billingHomeChargingKwh: Free AC sessions at/near home address from billing API
+    // - wallConnectorKwh: AC charging from Tesla Wall Connector telemetry (if installed)
+    // For users WITHOUT a Tesla Wall Connector (e.g. ChargePoint), billingHomeChargingKwh
+    // captures their home charging from the vehicle's onboard charging history.
     
-    const superchargerKwh = totalChargingKwh; // DC charging from billing
-    const wallConnectorKwh = totalHomeChargingWh / 1000; // AC charging from Wall Connector telemetry
+    const superchargerKwh = billingSuperchargerKwh; // Only paid DC sessions
+    const wallConnectorKwh = totalHomeChargingWh / 1000; // AC from Wall Connector telemetry
+    // Home AC charging: use billing API classification (covers all sessions in billing history)
+    // plus Wall Connector telemetry if available (for users with Tesla chargers)
+    const homeAcChargingKwh = billingHomeChargingKwh + wallConnectorKwh;
     
-    // Total = Supercharger + Wall Connector (if available)
-    const totalEvChargingKwh = superchargerKwh + wallConnectorKwh;
+    // Total = Supercharger + Home AC
+    const totalEvChargingKwh = superchargerKwh + homeAcChargingKwh;
 
     // Calculate pending for each charging source
     const pendingSuperchargerKwh = Math.max(0, superchargerKwh - baselineSuperchargerKwh);
     const pendingWallConnectorKwh = Math.max(0, wallConnectorKwh - baselineWallConnectorKwh);
-    const pendingEvChargingKwh = pendingSuperchargerKwh + pendingWallConnectorKwh;
+    const pendingHomeAcKwh = Math.max(0, homeAcChargingKwh - baselineHomeChargingKwh);
+    const pendingEvChargingKwh = pendingSuperchargerKwh + pendingHomeAcKwh;
     
-    console.log(`EV Charging: Supercharger (DC)=${superchargerKwh.toFixed(1)} kWh (pending: ${pendingSuperchargerKwh.toFixed(1)}), Wall Connector (AC)=${wallConnectorKwh.toFixed(1)} kWh (pending: ${pendingWallConnectorKwh.toFixed(1)}), Total=${totalEvChargingKwh.toFixed(1)} kWh`);
+    console.log(`EV Charging: Supercharger (DC)=${superchargerKwh.toFixed(1)} kWh (pending: ${pendingSuperchargerKwh.toFixed(1)}), Home AC (billing)=${billingHomeChargingKwh.toFixed(1)} kWh, Wall Connector (AC)=${wallConnectorKwh.toFixed(1)} kWh, Home AC total=${homeAcChargingKwh.toFixed(1)} kWh (pending: ${pendingHomeAcKwh.toFixed(1)}), Total=${totalEvChargingKwh.toFixed(1)} kWh`);
 
     // Store production data for rewards calculation and Energy Log
     {
@@ -1080,6 +1097,8 @@ Deno.serve(async (req) => {
         ev_charging_kwh: totalEvChargingKwh,
         supercharger_kwh: superchargerKwh,
         wall_connector_kwh: wallConnectorKwh,
+        home_ac_charging_kwh: homeAcChargingKwh,
+        billing_home_charging_kwh: billingHomeChargingKwh,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,
@@ -1087,6 +1106,7 @@ Deno.serve(async (req) => {
         pending_ev_charging_kwh: pendingEvChargingKwh,
         pending_supercharger_kwh: pendingSuperchargerKwh,
         pending_wall_connector_kwh: pendingWallConnectorKwh,
+        pending_home_ac_charging_kwh: pendingHomeAcKwh,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

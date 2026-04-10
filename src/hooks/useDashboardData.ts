@@ -1026,13 +1026,11 @@ export function useDashboardData() {
         batteryDischarge = (teslaData.totals.battery_discharge_wh || 0) / 1000;
         evMiles = teslaData.totals.ev_miles || 0;
         superchargerKwh = teslaData.totals.supercharger_kwh || 0;
-        // Tesla Wall Connector kWh
-        const teslaWallConnectorKwh = teslaData.totals.wall_connector_kwh || 0;
-        // Combine Tesla Wall Connector + Wallbox + Charge Monitor for total home charging
-        homeChargerKwh = teslaWallConnectorKwh + wallboxChargerKwh + homeChargingMonitorKwh;
+        // Home AC charging: use the new split field from billing API, plus Wall Connector telemetry + Wallbox + monitor
+        const teslaHomeAcKwh = teslaData.totals.home_ac_charging_kwh || teslaData.totals.wall_connector_kwh || 0;
+        homeChargerKwh = teslaHomeAcKwh + wallboxChargerKwh + homeChargingMonitorKwh;
 
         // Pending values (since last mint baseline)
-        // If pending not returned, use lifetime (no baseline set yet means all is pending)
         const teslaPendingSolar = teslaData.totals.pending_solar_wh !== undefined
           ? (teslaData.totals.pending_solar_wh / 1000)
           : (teslaData.totals.solar_production_wh || 0) / 1000;
@@ -1045,9 +1043,9 @@ export function useDashboardData() {
         const teslaPendingSupercharger = teslaData.totals.pending_supercharger_kwh !== undefined
           ? teslaData.totals.pending_supercharger_kwh
           : superchargerKwh;
-        const teslaPendingWallConnector = teslaData.totals.pending_wall_connector_kwh !== undefined
-          ? teslaData.totals.pending_wall_connector_kwh
-          : teslaWallConnectorKwh;
+        const teslaPendingHomeAc = teslaData.totals.pending_home_ac_charging_kwh !== undefined
+          ? teslaData.totals.pending_home_ac_charging_kwh
+          : teslaHomeAcKwh;
 
         // Only use Tesla solar/pending if no dedicated solar provider
         if (!hasDedicatedSolarProvider) {
@@ -1058,8 +1056,7 @@ export function useDashboardData() {
         pendingBattery = teslaPendingBattery;
         pendingEvMiles = teslaPendingEvMiles;
         pendingSupercharger = teslaPendingSupercharger;
-        // Combine Tesla Wall Connector pending + Wallbox pending + Charge Monitor pending sessions
-        pendingHomeCharger = teslaPendingWallConnector + wallboxPendingKwh + pendingHomeChargingMonitorKwh;
+        pendingHomeCharger = teslaPendingHomeAc + wallboxPendingKwh + pendingHomeChargingMonitorKwh;
         pendingCharging = pendingSupercharger + pendingHomeCharger;
 
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
