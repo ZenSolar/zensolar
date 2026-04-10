@@ -133,6 +133,14 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+      // If context is still suspended (PWA edge case), force resume
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          // Re-trigger the sound after resume completes
+          playMintSound(_color);
+        }).catch(() => {});
+        return;
+      }
       const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
