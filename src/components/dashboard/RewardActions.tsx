@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, BatteryFull, Zap, Copy, Check, Wallet } from 'lucide-react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
-import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
+
 import { useToast } from '@/hooks/use-toast';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -1196,13 +1196,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             >
               Cancel
             </Button>
-            <MintEffectButton
+            <Button
               onClick={handleConfirmMint}
               className="flex-1 h-10 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200 text-primary-foreground font-medium text-sm"
             >
               <Coins className="mr-2 h-4 w-4" />
               Confirm Mint
-            </MintEffectButton>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
