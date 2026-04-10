@@ -69,7 +69,7 @@ export function useShimmerSound({
     }
 
     let disposed = false;
-    let pollId: ReturnType<typeof setTimeout>;
+    let pollId: number | undefined;
 
     const tryStart = () => {
       if (disposed || nodesRef.current) return;
@@ -77,8 +77,8 @@ export function useShimmerSound({
       // Reuse the shared AudioContext that useMintSound unlocks
       const ctx = getSharedAudioContext();
       if (!ctx || ctx.state !== 'running') {
-        // Keep polling — the context will be unlocked on user gesture
-        pollId = setTimeout(tryStart, 400);
+        // Retry quickly after the first gesture so ambient audio begins right away
+        pollId = window.setTimeout(tryStart, 120);
         return;
       }
 
@@ -234,7 +234,7 @@ export function useShimmerSound({
       };
     };
 
-    pollId = setTimeout(tryStart, 300);
+    tryStart();
 
     return () => {
       disposed = true;

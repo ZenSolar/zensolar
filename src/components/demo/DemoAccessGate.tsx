@@ -107,7 +107,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const ignorePointerUntilRef = useRef<number>(0);
 
   const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
-  useShimmerSound({ cycleDuration: 5, volume: 0.06 });
+  useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
   const particles = useMemo(
@@ -206,14 +206,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }, FIRST_TAP_BURST_MS);
   }, [updateState]);
 
-  // ── Pointer handler: fires on pointerdown for zero-latency response ──
+  // ── Gesture handler: touchstart on mobile, pointerdown on non-touch ──
   // CRITICAL: Everything here must be synchronous — no await — to stay
   // inside the user-gesture context so iOS Safari allows immediate audio.
-  const handleLockPointerDown = useCallback((e: React.PointerEvent) => {
+  const handleLockPointerDown = useCallback(() => {
     // Suppress ghost clicks
     if (Date.now() < ignorePointerUntilRef.current) return;
-    // NOTE: Do NOT call e.preventDefault() here — it breaks the
-    // user-gesture context on iOS Safari, preventing AudioContext.resume().
 
     // Synchronous prime + resume — do NOT await
     const ctx = primeAudio();
@@ -246,14 +244,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lastTapTimeRef.current = now;
 
       triggerBurst();
-      // Flash lock icon briefly, then return to $Z
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       lockFlashTimerRef.current = setTimeout(() => {
         updateState({ revealed: false });
       }, LOCK_FLASH_MS);
 
-      // Keep first-tap audio fully synchronous inside the gesture.
       playWelcomeTap();
 
       if ('vibrate' in navigator) {
@@ -386,11 +382,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             )}
 
             <button
-              onPointerDown={handleLockPointerDown}
-              onTouchStart={(e) => {
-                // Ensure AudioContext is primed on touchstart (iOS gesture requirement)
-                primeAudio();
+              onPointerDown={(e) => {
+                if (e.pointerType !== 'touch') handleLockPointerDown();
               }}
+              onTouchStart={handleLockPointerDown}
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
