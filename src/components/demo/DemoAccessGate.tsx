@@ -90,6 +90,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     firstTapBurst: false,
     burstKey: 0,
     revealed: false,
+    hexAwake: false,
   });
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
