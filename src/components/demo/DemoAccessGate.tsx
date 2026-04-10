@@ -207,7 +207,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const handleLockPointerDown = useCallback((e: React.PointerEvent) => {
     // Suppress ghost clicks
     if (Date.now() < ignorePointerUntilRef.current) return;
-    e.preventDefault();
+    // NOTE: Do NOT call e.preventDefault() here — it breaks the
+    // user-gesture context on iOS Safari, preventing AudioContext.resume().
 
     // Synchronous prime + resume — do NOT await
     const ctx = primeAudio();
