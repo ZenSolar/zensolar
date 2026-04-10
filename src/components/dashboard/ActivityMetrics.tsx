@@ -139,12 +139,7 @@ export function ActivityMetrics({
   const hasMultipleEvDevices = evDevices.length > 1;
   const hasMultipleChargerDevices = chargerDevices.length > 1;
 
-  // First-load shimmer burst → idle transition
-  const [shimmerBurstDone, setShimmerBurstDone] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setShimmerBurstDone(true), 800);
-    return () => clearTimeout(t);
-  }, []);
+  // shimmerBurstDone removed — ShimmerOverlay handles burst→idle crossfade internally
 
   // Swipe hint for first-time users
   const { shouldShowHint, markHintSeen } = useSwipeHintShown();
