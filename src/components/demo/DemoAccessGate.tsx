@@ -207,7 +207,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const handleLockPointerDown = useCallback((e: React.PointerEvent) => {
     // Suppress ghost clicks
     if (Date.now() < ignorePointerUntilRef.current) return;
-    e.preventDefault();
+    // NOTE: Do NOT call e.preventDefault() here — it breaks the
+    // user-gesture context on iOS Safari, preventing AudioContext.resume().
 
     // Synchronous prime + resume — do NOT await
     const ctx = primeAudio();
@@ -359,19 +360,23 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 }}
               >
                 <span
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[9px] font-bold tracking-wider text-primary/90 bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5 backdrop-blur-sm"
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[9px] font-bold tracking-wider bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5 backdrop-blur-sm"
                   style={{
                     textShadow: '0 0 8px hsl(var(--primary) / 0.4)',
                   }}
                 >
-                  Tap-to-Mint™️
+                  <span className="text-primary/90">Tap-to-Mint</span>
+                  <span style={{ color: 'hsl(var(--solar))' }}>™️</span>
                 </span>
               </div>
             )}
 
             <button
               onPointerDown={handleLockPointerDown}
-              onClick={(e) => e.preventDefault()}
+              onTouchStart={(e) => {
+                // Ensure AudioContext is primed on touchstart (iOS gesture requirement)
+                primeAudio();
+              }}
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
@@ -401,16 +406,34 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 />
               ) : (
                 <span
-                  className="text-2xl font-extrabold select-none"
+                  className="select-none"
                   style={{
-                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                    color: 'hsl(142, 76%, 45%)',
-                    textShadow: '0 0 16px hsl(142 76% 45% / 0.6), 0 0 32px hsl(142 76% 45% / 0.3)',
-                    letterSpacing: '0.05em',
+                    fontSize: '1.75rem',
+                    lineHeight: 1,
+                    letterSpacing: '0.03em',
                     ...(firstTapBurst ? { animation: 'zenSymbolFadeOut 300ms ease-out both' } : {}),
                   }}
                 >
-                  $Z
+                  <span
+                    style={{
+                      fontFamily: 'Georgia, "Times New Roman", serif',
+                      fontWeight: 400,
+                      fontStyle: 'italic',
+                      color: 'hsl(var(--muted-foreground))',
+                    }}
+                  >
+                    $
+                  </span>
+                  <span
+                    className="font-black"
+                    style={{
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      color: 'hsl(var(--primary))',
+                      textShadow: '0 0 16px hsl(var(--primary) / 0.6), 0 0 32px hsl(var(--primary) / 0.3)',
+                    }}
+                  >
+                    Z
+                  </span>
                 </span>
               )}
 
