@@ -10,7 +10,7 @@ interface GateHexBackgroundProps {
 
 export function GateHexBackground({ activated = false }: GateHexBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const activationStartRef = useRef<number | null>(null);
+  const activationStartRef = useRef<number | null>(activated ? performance.now() : null);
   const activatedRef = useRef(activated);
 
   useEffect(() => {
