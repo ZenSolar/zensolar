@@ -317,34 +317,40 @@ export function ActivityMetrics({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {filteredProviders.length > 0 && (
-                <div className="flex items-center gap-1">
-                  {filteredProviders.map((provider) => (
-                    <div 
-                      key={provider}
-                      className="h-6 w-6 rounded-md flex items-center justify-center overflow-hidden"
-                      title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                    >
-                      <img 
-                        src={providerLogos[provider]} 
-                        alt={provider}
-                        className={cn(
-                          "object-contain",
-                          provider === 'tesla' ? "h-5 w-5" : "h-3.5 w-3.5"
-                        )}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="flex items-center gap-2 flex-shrink-0">
               <span 
-                className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary"
+                className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary whitespace-nowrap"
                 style={{ textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)' }}
               >
                 Tap-to-Mint™
               </span>
             </div>
+          </div>
+
+          {/* Connected providers — clear row below header */}
+          {filteredProviders.length > 0 && (
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
+              <div className="flex items-center gap-1.5">
+                {filteredProviders.map((provider) => (
+                  <div 
+                    key={provider}
+                    className="h-7 w-7 rounded-lg flex items-center justify-center border border-border/30 bg-card/10"
+                    title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                  >
+                    <img 
+                      src={providerLogos[provider]} 
+                      alt={provider}
+                      className={cn(
+                        "object-contain",
+                        provider === 'tesla' ? "h-5 w-5" : "h-4 w-4"
+                      )}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           </div>
         </div>
 
