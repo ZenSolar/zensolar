@@ -627,6 +627,13 @@ Deno.serve(async (req) => {
                 if (!chargingSessionDetails) chargingSessionDetails = [];
                 // Classify charging type via street-name matching
                 const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || session.chargerType || "");
+                
+                // Track home vs supercharger kWh from billing API
+                if (chargingType === 'home') {
+                  billingHomeChargingKwh += sessionKwh;
+                } else {
+                  billingSuperchargerKwh += sessionKwh;
+                }
 
                 chargingSessionDetails.push({
                   user_id: targetUserId,
