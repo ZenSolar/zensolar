@@ -137,6 +137,59 @@ export function useShimmerSound({
       subOsc.connect(subGain);
       subGain.connect(master);
 
+      // ─── Soft gong tone: sine @ 55Hz (A1) with slow decay per cycle ───
+      // Resonant bowl tone that blooms at each shimmer peak
+      const gongOsc = ctx.createOscillator();
+      gongOsc.type = 'sine';
+      gongOsc.frequency.setValueAtTime(55, now);
+
+      const gongOsc2 = ctx.createOscillator();
+      gongOsc2.type = 'sine';
+      gongOsc2.frequency.setValueAtTime(110, now); // octave partial
+
+      const gongOsc3 = ctx.createOscillator();
+      gongOsc3.type = 'sine';
+      gongOsc3.frequency.setValueAtTime(165, now); // 3rd partial — inharmonic gong char
+
+      // Gong volume modulated by same LFO but with sharper envelope (squared)
+      // Use a waveshaper to square the LFO signal for a bloom-then-decay feel
+      const gongLfoGain = ctx.createGain();
+      gongLfoGain.gain.setValueAtTime(0.4, now);
+
+      const gongBias = ctx.createConstantSource();
+      gongBias.offset.setValueAtTime(0.35, now);
+
+      const gongMaster = ctx.createGain();
+      gongMaster.gain.setValueAtTime(0, now);
+
+      lfo.connect(gongLfoGain);
+      gongLfoGain.connect(gongMaster.gain);
+      gongBias.connect(gongMaster.gain);
+
+      const gong1Gain = ctx.createGain();
+      gong1Gain.gain.setValueAtTime(0.35, now);
+      gongOsc.connect(gong1Gain);
+      gong1Gain.connect(gongMaster);
+
+      const gong2Gain = ctx.createGain();
+      gong2Gain.gain.setValueAtTime(0.18, now);
+      gongOsc2.connect(gong2Gain);
+      gong2Gain.connect(gongMaster);
+
+      const gong3Gain = ctx.createGain();
+      gong3Gain.gain.setValueAtTime(0.08, now);
+      gongOsc3.connect(gong3Gain);
+      gong3Gain.connect(gongMaster);
+
+      // Lowpass to soften the gong
+      const gongLp = ctx.createBiquadFilter();
+      gongLp.type = 'lowpass';
+      gongLp.frequency.setValueAtTime(180, now);
+      gongLp.Q.setValueAtTime(0.7, now);
+
+      gongMaster.connect(gongLp);
+      gongLp.connect(master);
+
       // ─── Frequency wobble: ±3Hz pitch modulation @ 5.5Hz ───
       const wobbleLfo = ctx.createOscillator();
       wobbleLfo.type = 'sine';
@@ -149,16 +202,27 @@ export function useShimmerSound({
       wobbleGain.connect(baseOsc.frequency);
       wobbleGain.connect(harmOsc.frequency);
 
+      // Gentle wobble on gong too — slower, subtler
+      const gongWobbleGain = ctx.createGain();
+      gongWobbleGain.gain.setValueAtTime(1.2, now);
+      wobbleLfo.connect(gongWobbleGain);
+      gongWobbleGain.connect(gongOsc.frequency);
+
       // Start everything
       lfo.start(now);
       biasNode.start(now);
+      gongBias.start(now);
       baseOsc.start(now);
       harmOsc.start(now);
       subOsc.start(now);
+      gongOsc.start(now);
+      gongOsc2.start(now);
+      gongOsc3.start(now);
       wobbleLfo.start(now);
 
       nodesRef.current = {
         ctx, master, lfo, biasNode, lfoGain, baseOsc, harmOsc, subOsc, wobbleLfo,
+        gongOsc, gongOsc2, gongOsc3, gongBias,
       };
     };
 
