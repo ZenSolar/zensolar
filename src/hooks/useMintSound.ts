@@ -896,9 +896,9 @@ export function useMintSound() {
   // ── Welcome tap: snappy, instant-attack chime ──
   const playWelcomeTap = useCallback(() => {
     try {
-      const playback = preparePlayback();
-      if (!playback) return;
-      const { ctx, now } = playback;
+      const ctx = primeAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
 
       const master = ctx.createGain();
       master.gain.value = 0.45;
@@ -950,7 +950,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [preparePlayback]);
+  }, [primeAudio]);
 
   return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
 }
