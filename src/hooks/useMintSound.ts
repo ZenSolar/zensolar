@@ -126,20 +126,21 @@ export function useMintSound() {
     }
   }, [getCtx]);
 
-  const preparePlayback = useCallback((lead = IMMEDIATE_SOUND_LEAD) => {
+  const preparePlayback = useCallback(() => {
     try {
-      const ctx = primeAudio();
+      const ctx = getCtx();
       if (!ctx) return null;
-      // Always resume — don't gate on 'running'. Audio nodes scheduled
-      // while suspended will play as soon as resume() completes.
+      // Resume synchronously — nodes scheduled while suspended play once running
       if (ctx.state !== 'running') {
         ctx.resume().catch(() => {});
       }
-      return { ctx, now: ctx.currentTime + lead };
+      fireSilentUnlockPulse(ctx);
+      // Use currentTime directly — no lead delay for snappier response
+      return { ctx, now: ctx.currentTime };
     } catch {
       return null;
     }
-  }, [primeAudio]);
+  }, [getCtx]);
 
   /** Trigger haptic feedback — falls back silently on web */
   const triggerHaptic = useCallback(async (style: 'light' | 'confirm' = 'light') => {
