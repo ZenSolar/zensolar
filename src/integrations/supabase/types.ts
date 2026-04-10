@@ -196,6 +196,33 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string | null
+          uses: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          uses?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          uses?: number
+        }
+        Relationships: []
+      }
       energy_production: {
         Row: {
           consumption_wh: number | null
@@ -969,6 +996,7 @@ export type Database = {
       }
       is_viewer: { Args: { _user_id: string }; Returns: boolean }
       lookup_referral_code: { Args: { code: string }; Returns: string }
+      verify_demo_code: { Args: { _code: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer"
