@@ -1,26 +1,13 @@
 import { useEffect, useRef } from 'react';
+import { getSharedAudioContext } from './useMintSound';
 
 /**
  * useShimmerSound — continuous lightsaber-style ambient hum
  * that pulses in sync with the dashboard shimmer sweep cycle.
  *
- * Uses the shared AudioContext from useMintSound's module scope.
- * The hum swells and fades on each shimmer pass (~5s cycle).
+ * Reuses the shared AudioContext from useMintSound so it benefits
+ * from the same user-gesture unlock and keep-alive infrastructure.
  */
-
-let sharedCtx: AudioContext | null = null;
-
-const getOrCreateCtx = (): AudioContext | null => {
-  try {
-    if (!sharedCtx || sharedCtx.state === 'closed') {
-      const Ctor = window.AudioContext || (window as any).webkitAudioContext;
-      sharedCtx = new Ctor();
-    }
-    return sharedCtx;
-  } catch {
-    return null;
-  }
-};
 
 interface ShimmerSoundOptions {
   /** Duration of one shimmer cycle in seconds (default 5) */
@@ -40,107 +27,78 @@ export function useShimmerSound({
     ctx: AudioContext;
     master: GainNode;
     lfo: OscillatorNode;
+    biasNode: ConstantSourceNode;
     lfoGain: GainNode;
     baseOsc: OscillatorNode;
     harmOsc: OscillatorNode;
     subOsc: OscillatorNode;
     wobbleLfo: OscillatorNode;
-    wobbleGain: GainNode;
   } | null>(null);
 
-  const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
   const volumeRef = useRef(volume);
   volumeRef.current = volume;
 
   useEffect(() => {
     if (!enabled) {
-      // Fade out and stop if disabled
       if (nodesRef.current) {
-        const { master, ctx } = nodesRef.current;
-        master.gain.cancelScheduledValues(ctx.currentTime);
-        master.gain.setTargetAtTime(0, ctx.currentTime, 0.3);
-        const nodes = nodesRef.current;
+        const n = nodesRef.current;
+        n.master.gain.cancelScheduledValues(n.ctx.currentTime);
+        n.master.gain.setTargetAtTime(0, n.ctx.currentTime, 0.3);
+        const captured = n;
         setTimeout(() => {
           try {
-            nodes.baseOsc.stop();
-            nodes.harmOsc.stop();
-            nodes.subOsc.stop();
-            nodes.lfo.stop();
-            nodes.wobbleLfo.stop();
+            captured.baseOsc.stop();
+            captured.harmOsc.stop();
+            captured.subOsc.stop();
+            captured.lfo.stop();
+            captured.biasNode.stop();
+            captured.wobbleLfo.stop();
           } catch { /* already stopped */ }
-          nodesRef.current = null;
         }, 1500);
+        nodesRef.current = null;
       }
       return;
     }
 
-    // Need a user gesture to start — we wait for the shared context to exist
-    // and be running, then start our ambient hum.
-    let startTimeout: ReturnType<typeof setTimeout>;
     let disposed = false;
+    let pollId: ReturnType<typeof setTimeout>;
 
     const tryStart = () => {
       if (disposed || nodesRef.current) return;
 
-      const ctx = getOrCreateCtx();
+      // Reuse the shared AudioContext that useMintSound unlocks
+      const ctx = getSharedAudioContext();
       if (!ctx || ctx.state !== 'running') {
-        // Retry — the context will be unlocked by useMintSound's global listeners
-        startTimeout = setTimeout(tryStart, 500);
+        // Keep polling — the context will be unlocked on user gesture
+        pollId = setTimeout(tryStart, 400);
         return;
       }
 
       const now = ctx.currentTime;
+      const vol = volumeRef.current;
 
-      // ─── Master gain ───
+      // ─── Master gain (modulated by LFO) ───
       const master = ctx.createGain();
       master.gain.setValueAtTime(0, now);
-      // Fade in over 2 seconds
-      master.gain.linearRampToValueAtTime(volumeRef.current, now + 2);
       master.connect(ctx.destination);
 
       // ─── LFO: volume swell synced to shimmer cycle ───
-      // The shimmer sweeps left→right over cycleDuration.
-      // We pulse the volume with the same period.
       const lfoFreq = 1 / cycleDuration;
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
       lfo.frequency.setValueAtTime(lfoFreq, now);
 
-      // LFO → gain modulation: amplitude swings ±0.5 around 0.5
-      // so volume goes 0→1→0 each cycle
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(0.45, now); // depth of pulse
+      lfoGain.gain.setValueAtTime(vol * 0.45, now);
 
-      const lfoBias = ctx.createGain();
-      lfoBias.gain.setValueAtTime(0.55, now); // center point
-
-      // We'll use a ConstantSource for bias
       const biasNode = ctx.createConstantSource();
-      biasNode.offset.setValueAtTime(0.55, now);
+      biasNode.offset.setValueAtTime(vol * 0.55, now);
 
       lfo.connect(lfoGain);
       lfoGain.connect(master.gain);
       biasNode.connect(master.gain);
-
-      // Actually, let's simplify: use setValueAtTime scheduling 
-      // for more precise sync with the CSS animation.
-      // Re-approach: Just use the LFO approach - it's smooth and close enough.
-      
-      // Disconnect bias approach, just let master.gain be modulated
-      // The LFO will add a sine wave to the gain value
-      master.gain.cancelScheduledValues(now);
-      master.gain.setValueAtTime(volumeRef.current * 0.55, now);
-
-      lfo.connect(lfoGain);
-      lfoGain.connect(master.gain);
-
-      biasNode.connect(master.gain);
-      biasNode.offset.setValueAtTime(volumeRef.current * 0.55, now);
-      lfoGain.gain.setValueAtTime(volumeRef.current * 0.45, now);
 
       // ─── Base hum: sawtooth @ 92Hz, heavily lowpassed ───
-      // Classic lightsaber fundamental
       const baseOsc = ctx.createOscillator();
       baseOsc.type = 'sawtooth';
       baseOsc.frequency.setValueAtTime(92, now);
@@ -157,7 +115,7 @@ export function useShimmerSound({
       baseLp.connect(baseGain);
       baseGain.connect(master);
 
-      // ─── Harmonic: sine @ 184Hz (2nd harmonic) ───
+      // ─── Harmonic: sine @ 184Hz ───
       const harmOsc = ctx.createOscillator();
       harmOsc.type = 'sine';
       harmOsc.frequency.setValueAtTime(184, now);
@@ -179,14 +137,13 @@ export function useShimmerSound({
       subOsc.connect(subGain);
       subGain.connect(master);
 
-      // ─── Frequency wobble LFO: slight pitch modulation ───
-      // Gives it that alive, unstable lightsaber character
+      // ─── Frequency wobble: ±3Hz pitch modulation @ 5.5Hz ───
       const wobbleLfo = ctx.createOscillator();
       wobbleLfo.type = 'sine';
-      wobbleLfo.frequency.setValueAtTime(5.5, now); // ~5.5Hz wobble
+      wobbleLfo.frequency.setValueAtTime(5.5, now);
 
       const wobbleGain = ctx.createGain();
-      wobbleGain.gain.setValueAtTime(3, now); // ±3Hz pitch wobble
+      wobbleGain.gain.setValueAtTime(3, now);
 
       wobbleLfo.connect(wobbleGain);
       wobbleGain.connect(baseOsc.frequency);
@@ -201,35 +158,27 @@ export function useShimmerSound({
       wobbleLfo.start(now);
 
       nodesRef.current = {
-        ctx,
-        master,
-        lfo,
-        lfoGain,
-        baseOsc,
-        harmOsc,
-        subOsc,
-        wobbleLfo,
-        wobbleGain,
+        ctx, master, lfo, biasNode, lfoGain, baseOsc, harmOsc, subOsc, wobbleLfo,
       };
     };
 
-    // Small delay to let the page settle
-    startTimeout = setTimeout(tryStart, 300);
+    pollId = setTimeout(tryStart, 300);
 
     return () => {
       disposed = true;
-      clearTimeout(startTimeout);
+      clearTimeout(pollId);
       if (nodesRef.current) {
-        const { master, ctx, baseOsc, harmOsc, subOsc, lfo, wobbleLfo } = nodesRef.current;
-        master.gain.cancelScheduledValues(ctx.currentTime);
-        master.gain.setTargetAtTime(0, ctx.currentTime, 0.3);
+        const n = nodesRef.current;
+        n.master.gain.cancelScheduledValues(n.ctx.currentTime);
+        n.master.gain.setTargetAtTime(0, n.ctx.currentTime, 0.3);
         setTimeout(() => {
           try {
-            baseOsc.stop();
-            harmOsc.stop();
-            subOsc.stop();
-            lfo.stop();
-            wobbleLfo.stop();
+            n.baseOsc.stop();
+            n.harmOsc.stop();
+            n.subOsc.stop();
+            n.lfo.stop();
+            n.biasNode.stop();
+            n.wobbleLfo.stop();
           } catch { /* already stopped */ }
         }, 1500);
         nodesRef.current = null;
@@ -240,11 +189,9 @@ export function useShimmerSound({
   // Update volume dynamically
   useEffect(() => {
     if (!nodesRef.current) return;
-    const { master, ctx, lfoGain } = nodesRef.current;
+    const { ctx, lfoGain, biasNode } = nodesRef.current;
     const now = ctx.currentTime;
-    // Update bias and LFO depth to match new volume
-    master.gain.cancelScheduledValues(now);
-    // The bias + LFO centers at volume*0.55, swings ±volume*0.45
     lfoGain.gain.setTargetAtTime(volume * 0.45, now, 0.1);
+    biasNode.offset.setTargetAtTime(volume * 0.55, now, 0.1);
   }, [volume]);
 }
