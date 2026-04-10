@@ -172,12 +172,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [updateState]);
 
   // ── Pointer handler: fires on pointerdown for zero-latency response ──
-  const handleLockPointerDown = useCallback((e: React.PointerEvent) => {
+  const handleLockPointerDown = useCallback(async (e: React.PointerEvent) => {
     // Suppress ghost clicks
     if (Date.now() < ignorePointerUntilRef.current) return;
     e.preventDefault();
 
-    primeAudio();
+    // Prime and ensure AudioContext is running before playing sound
+    const ctx = primeAudio();
+    if (ctx && ctx.state === 'suspended') {
+      try { await ctx.resume(); } catch {}
+    }
+
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
 
