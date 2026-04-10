@@ -317,6 +317,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         backgroundColor: hexAwake ? 'hsl(var(--background))' : 'hsl(var(--gate-splash-background))',
         overscrollBehavior: 'none',
         minHeight: '100dvh',
+        contain: 'strict',
+        isolation: 'isolate',
       }}
     >
       {hexAwake && (
