@@ -51,8 +51,9 @@ function generateParticles() {
 
 // ─── Timing constants ────
 const DOUBLE_TAP_WINDOW = 500;
-const FIRST_TAP_BURST_MS = 700;    // Snappy first-tap visual
+const FIRST_TAP_BURST_MS = 700;
 const GHOST_CLICK_SUPPRESSION = 400;
+const LOCK_FLASH_MS = 600;        // Lock icon visible during tap flash
 
 interface DemoAccessGateProps {
   children: React.ReactNode;
@@ -100,6 +101,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const lastTapTimeRef = useRef<number>(0);
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
 
   const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
@@ -144,6 +146,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       viewport?.removeEventListener('scroll', syncViewport);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+      if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
     };
   }, []);
 
@@ -241,7 +244,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lastTapTimeRef.current = now;
 
       triggerBurst();
+      // Flash lock icon briefly, then return to $Z
       updateState({ showTapAgain: true, revealed: true });
+      if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
+      lockFlashTimerRef.current = setTimeout(() => {
+        updateState({ revealed: false });
+      }, LOCK_FLASH_MS);
       playWelcomeTap();
 
       if ('vibrate' in navigator) {
@@ -401,8 +409,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
               ) : revealed ? (
                 <Lock
-                  className="h-8 w-8 text-primary/80"
-                  style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
+                  className="h-8 w-8 text-primary"
+                  style={{ animation: 'zenSymbolFadeIn 200ms ease-out both' }}
                 />
               ) : (
                 <span
@@ -411,13 +419,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     fontSize: '1.75rem',
                     lineHeight: 1,
                     letterSpacing: '0.03em',
-                    ...(firstTapBurst ? { animation: 'zenSymbolFadeOut 300ms ease-out both' } : {}),
+                    animation: firstTapBurst
+                      ? 'zenSymbolFadeOut 200ms ease-out both'
+                      : 'zenSymbolFadeIn 300ms ease-out both',
                   }}
                 >
                   <span
                     style={{
                       fontWeight: 400,
-                      color: 'hsl(var(--muted-foreground))',
+                      color: 'hsl(var(--primary) / 0.4)',
                     }}
                   >
                     $
@@ -426,8 +436,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     className="font-black"
                     style={{
                       fontFamily: 'system-ui, -apple-system, sans-serif',
-                      color: 'hsl(var(--primary))',
-                      textShadow: '0 0 16px hsl(var(--primary) / 0.6), 0 0 32px hsl(var(--primary) / 0.3)',
+                      color: 'hsl(var(--primary) / 0.75)',
+                      textShadow: '0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.2)',
                     }}
                   >
                     Z
