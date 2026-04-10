@@ -4,8 +4,10 @@ import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
 import { DemoProvider } from '@/contexts/DemoContext';
 import { DemoAccessGate } from '@/components/demo/DemoAccessGate';
+import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
 
 export function DemoLayout() {
+  useDemoScreenshotDetector();
   return (
     <DemoAccessGate>
       <DemoProvider>
