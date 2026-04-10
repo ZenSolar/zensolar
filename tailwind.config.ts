@@ -164,6 +164,11 @@ export default {
             transform: "scale(1.03)"
           },
         },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-4px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(4px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -179,6 +184,7 @@ export default {
         "sidebar-glow": "sidebar-glow 2s ease-in-out infinite",
         "logo-glow": "logo-glow 3s ease-in-out infinite",
         "breathing-glow": "breathing-glow 4s ease-in-out infinite",
+        "shake": "shake 0.4s ease-in-out",
       },
     },
   },
