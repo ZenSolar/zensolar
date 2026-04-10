@@ -128,14 +128,14 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
   if (compact) {
     return (
       <g>
-        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.2" />
+        <ellipse cx="200" cy="255" rx="70" ry="3" fill="#0a0e18" opacity="0.08" />
         {/* House body */}
         <rect x="150" y="180" width="100" height="73" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.6" />
-        <rect x="150" y="180" width="3" height="73" fill="#151b2a" opacity="0.3" />
-        <rect x="247" y="180" width="3" height="73" fill="#151b2a" opacity="0.3" />
+        <rect x="150" y="180" width="3" height="73" fill="#151b2a" opacity="0.12" />
+        <rect x="247" y="180" width="3" height="73" fill="#151b2a" opacity="0.12" />
         {/* Roof */}
-        <polygon points="132,183 200,118 268,183" fill="#111827" fillOpacity="0.3" stroke="#2a3448" strokeWidth="0.6" />
-        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.3" />
+        <polygon points="132,183 200,118 268,183" fill="#111827" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.6" />
+        <line x1="134" y1="183" x2="266" y2="183" stroke="#0a0e18" strokeWidth="1" opacity="0.12" />
         {/* Solar panels — 4-3-2-1 pyramid, uniform size */}
         {(() => {
           const peakY = 121, eaveY = 180, cx = 200;
@@ -396,8 +396,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             <stop offset="100%" stopColor={colors.solar} stopOpacity={0} />
           </radialGradient>
           <linearGradient id="houseFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a2235" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#141a28" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#1a2235" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#141a28" stopOpacity="0.12" />
           </linearGradient>
         </defs>
 
