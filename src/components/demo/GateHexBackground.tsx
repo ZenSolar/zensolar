@@ -100,18 +100,13 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
       const driftB = time * 400;
       const driftC = time * 300;
 
-      // Rainfall intro
+      // Snowfall intro — individual hexes light up like falling snowflakes
       const actStart = activationStartRef.current;
       const actElapsed = activatedRef.current && actStart !== null ? Math.max(0, (now - actStart) / 1000) : null;
-      const RAIN_DURATION = 7.0;
-      const rainActive = actElapsed !== null && actElapsed < RAIN_DURATION;
-      // Slow, majestic descent — takes ~5s to cross the full viewport
-      const rainProgress = rainActive ? Math.min(actElapsed / 5.0, 1) : 0;
-      const rainHead = rainActive ? -hexHeight * 6 + rainProgress * (h + hexHeight * 12) : 0;
-      // Massive band — covers ~55% of the screen height
-      const rainBand = Math.max(h * 0.55, hexHeight * 12);
-      const rainIntensity = rainActive
-        ? (actElapsed < 5.0 ? 1 : Math.max(0, 1 - (actElapsed - 5.0) / 2.0))
+      const SNOW_DURATION = 8.0;
+      const snowActive = actElapsed !== null && actElapsed < SNOW_DURATION;
+      const snowFade = snowActive
+        ? (actElapsed < 6.0 ? 1 : Math.max(0, 1 - (actElapsed - 6.0) / 2.0))
         : 0;
 
       ctx.shadowColor = 'transparent';
