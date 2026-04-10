@@ -262,7 +262,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isVerifying = phase === 'verifying';
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
+    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none', minHeight: '100dvh' }}>
       {/* Frenetic hex background — tappable for water ripple */}
       <div className="absolute inset-0 opacity-[0.55]" onPointerDown={handleBackgroundTap} style={{ touchAction: 'none' }}>
         <GateHexBackground />
@@ -300,7 +300,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       </div>
 
       {/* Radial vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)] pointer-events-none" />
 
       {/* Ghost dashboard teaser */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
