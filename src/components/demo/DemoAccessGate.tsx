@@ -79,7 +79,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return isAccessGranted();
   });
   const [code, setCode] = useState('');
-  
+  const [inputFocused, setInputFocused] = useState(false);
   
 
   // ── stateRef pattern: single ref holds all interaction state ──
