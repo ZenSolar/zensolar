@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ShimmerOverlay } from '@/components/dashboard/ShimmerOverlay';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

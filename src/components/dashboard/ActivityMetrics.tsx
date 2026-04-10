@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { ShimmerOverlay } from './ShimmerOverlay';
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { useMintSound } from '@/hooks/useMintSound';
@@ -282,17 +283,11 @@ export function ActivityMetrics({
           }}
         >
           {/* Shimmer sweep */}
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 30%, hsl(210 90% 50% / 0.5) 50%, hsl(205 85% 45% / 0.3) 70%, transparent 100%)',
-              opacity: shimmerBurstDone ? 0.5 : 1,
-              transition: 'opacity 1.2s ease-out',
-              animation: shimmerBurstDone
-                ? 'zenHeaderShimmer 3.5s ease-in-out 1.2s infinite both'
-                : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s both',
-              willChange: 'transform',
-            }}
+          <ShimmerOverlay
+            gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 30%, hsl(210 90% 50% / 0.5) 50%, hsl(205 85% 45% / 0.3) 70%, transparent 100%)"
+            burstDuration={800}
+            burstDelay="0.15s"
+            idleDelay="1.2s"
           />
 
           <div className="relative flex items-center justify-between">
@@ -386,17 +381,12 @@ export function ActivityMetrics({
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
         <div className="relative overflow-hidden rounded-lg">
           {/* KPI area shimmer */}
-          <div 
-            className="absolute inset-0 pointer-events-none z-10 rounded-lg"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 30%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 70%, transparent 100%)',
-              opacity: shimmerBurstDone ? 0.6 : 1,
-              transition: 'opacity 1.2s ease-out',
-              animation: shimmerBurstDone
-                ? 'zenHeaderShimmer 3.5s ease-in-out 2.4s infinite both'
-                : 'zenShimmerBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both',
-              willChange: 'transform',
-            }}
+          <ShimmerOverlay
+            gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 30%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 70%, transparent 100%)"
+            burstDuration={800}
+            burstDelay="0.3s"
+            idleDelay="2.4s"
+            className="z-10 rounded-lg"
           />
           <div className="space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
