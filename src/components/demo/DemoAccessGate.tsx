@@ -258,7 +258,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isVerifying = phase === 'verifying';
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
+    <div ref={containerRef} className="fixed top-0 left-0 right-0 bottom-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
       <div className="absolute inset-0 opacity-[0.55]" style={{ touchAction: 'none', width: '100%', height: '100%' }}>
         <GateHexBackground />
       </div>
