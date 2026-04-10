@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
+import { useMintSound } from '@/hooks/useMintSound';
 
 const LS_KEY = 'zen_demo_access';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -68,6 +69,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [showHint, setShowHint] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const particles = generateParticles();
+  const { primeAudio, playDeniedSound } = useMintSound();
 
   // Focus input on mount
   useEffect(() => {
@@ -77,6 +79,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [granted]);
 
   const handleSubmit = useCallback(async () => {
+    primeAudio();
     const trimmed = code.trim();
     if (!trimmed || phase === 'verifying' || phase === 'burst') return;
 
@@ -103,11 +106,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }, 1000);
       } else {
         setPhase('denied');
+        playDeniedSound();
         toast.error('Invalid access code', { description: 'Please check your code and try again.' });
-
-        if ('vibrate' in navigator) {
-          try { navigator.vibrate([50, 30, 50]); } catch {}
-        }
 
         setTimeout(() => {
           setPhase('idle');

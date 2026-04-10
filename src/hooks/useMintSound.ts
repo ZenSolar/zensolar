@@ -709,5 +709,125 @@ export function useMintSound() {
     }
   }, [primeAudio, triggerHaptic]);
 
-  return { primeAudio, playMintSound, playConfirmSound, triggerHaptic };
+  /**
+   * ZenSolar™ Access Denied — locked vault clang
+   * Short, dissonant metallic strike that descends into silence.
+   * Inspired by the mint gong but twisted: detuned, harsh, abrupt.
+   */
+  const playDeniedSound = useCallback(() => {
+    try {
+      const ctx = primeAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.02;
+
+      const master = ctx.createGain();
+      master.gain.value = 0.6;
+      master.connect(ctx.destination);
+
+      const END = 0.55;
+
+      // ─── Harsh metallic clang — detuned dissonant pair ───
+      const clang1Gain = ctx.createGain();
+      clang1Gain.gain.setValueAtTime(0, now);
+      clang1Gain.gain.linearRampToValueAtTime(0.35, now + 0.003);
+      clang1Gain.gain.exponentialRampToValueAtTime(0.08, now + 0.08);
+      clang1Gain.gain.exponentialRampToValueAtTime(0.001, now + END);
+      clang1Gain.connect(master);
+
+      const clang1 = ctx.createOscillator();
+      clang1.type = 'square';
+      clang1.frequency.setValueAtTime(185, now);
+      clang1.frequency.exponentialRampToValueAtTime(95, now + END);
+
+      const clang1LP = ctx.createBiquadFilter();
+      clang1LP.type = 'lowpass';
+      clang1LP.frequency.setValueAtTime(800, now);
+      clang1LP.frequency.exponentialRampToValueAtTime(120, now + END);
+      clang1LP.Q.value = 3;
+
+      clang1.connect(clang1LP);
+      clang1LP.connect(clang1Gain);
+      clang1.start(now);
+      clang1.stop(now + END + 0.05);
+
+      // ─── Second clang — slightly detuned for dissonance ───
+      const clang2Gain = ctx.createGain();
+      clang2Gain.gain.setValueAtTime(0, now);
+      clang2Gain.gain.linearRampToValueAtTime(0.25, now + 0.003);
+      clang2Gain.gain.exponentialRampToValueAtTime(0.05, now + 0.06);
+      clang2Gain.gain.exponentialRampToValueAtTime(0.001, now + END * 0.8);
+      clang2Gain.connect(master);
+
+      const clang2 = ctx.createOscillator();
+      clang2.type = 'sawtooth';
+      clang2.frequency.setValueAtTime(197, now); // Detuned from clang1
+      clang2.frequency.exponentialRampToValueAtTime(80, now + END);
+
+      const clang2LP = ctx.createBiquadFilter();
+      clang2LP.type = 'lowpass';
+      clang2LP.frequency.setValueAtTime(600, now);
+      clang2LP.frequency.exponentialRampToValueAtTime(100, now + END * 0.7);
+      clang2LP.Q.value = 2;
+
+      clang2.connect(clang2LP);
+      clang2LP.connect(clang2Gain);
+      clang2.start(now);
+      clang2.stop(now + END + 0.05);
+
+      // ─── Metallic noise burst — door slam transient ───
+      const noiseLen = 0.06;
+      const noiseSize = Math.ceil(ctx.sampleRate * noiseLen);
+      const noiseBuf = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
+      const noiseData = noiseBuf.getChannelData(0);
+      for (let i = 0; i < noiseSize; i++) {
+        const t = i / noiseSize;
+        const env = Math.pow(1 - t, 8);
+        noiseData[i] = (Math.random() * 2 - 1) * env;
+      }
+      const noiseSrc = ctx.createBufferSource();
+      noiseSrc.buffer = noiseBuf;
+
+      const noiseBP = ctx.createBiquadFilter();
+      noiseBP.type = 'bandpass';
+      noiseBP.frequency.setValueAtTime(400, now);
+      noiseBP.frequency.exponentialRampToValueAtTime(100, now + noiseLen);
+      noiseBP.Q.value = 1.5;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.15, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + noiseLen);
+
+      noiseSrc.connect(noiseBP);
+      noiseBP.connect(noiseGain);
+      noiseGain.connect(master);
+      noiseSrc.start(now);
+      noiseSrc.stop(now + noiseLen + 0.01);
+
+      // ─── Sub thud — locked door impact ───
+      const thudGain = ctx.createGain();
+      thudGain.gain.setValueAtTime(0, now);
+      thudGain.gain.linearRampToValueAtTime(0.3, now + 0.005);
+      thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      thudGain.connect(master);
+
+      const thud = ctx.createOscillator();
+      thud.type = 'sine';
+      thud.frequency.setValueAtTime(65, now);
+      thud.frequency.exponentialRampToValueAtTime(30, now + 0.25);
+      thud.connect(thudGain);
+      thud.start(now);
+      thud.stop(now + 0.35);
+
+      // Harsh haptic
+      try {
+        navigator.vibrate?.([40, 20, 40]);
+      } catch {}
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+
+    } catch {
+      // Silent fail
+    }
+  }, [primeAudio]);
+
+  return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, triggerHaptic };
 }
