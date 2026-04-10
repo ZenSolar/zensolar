@@ -622,10 +622,19 @@ export function useDashboardData() {
       const latestMintAt = lastMintTimestamps.length > 0
         ? new Date(Math.max(...lastMintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
         : null;
-      // Pending = only sessions started AFTER the last mint
-      const pendingHomeChargingMonitorKwh = latestMintAt
+      // Home charging uses its OWN baseline — look for a charger-type device's last_minted_at
+      // If no charger device exists in connected_devices, all sessions are "pending" (no baseline captured yet)
+      const chargerDevicesMintTimestamps = devicesSnapshot
+        .filter((d: any) => d.device_type === 'charger' || d.device_type === 'wall_connector')
+        .map((d: any) => d.last_minted_at)
+        .filter(Boolean);
+      const homeChargerLastMintAt = chargerDevicesMintTimestamps.length > 0
+        ? new Date(Math.max(...chargerDevicesMintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
+        : null;
+      // Pending = sessions after home-charger-specific mint (or ALL if no home charger baseline)
+      const pendingHomeChargingMonitorKwh = homeChargerLastMintAt
         ? homeChargingAllSessions
-            .filter((s: any) => new Date(s.start_time) > new Date(latestMintAt))
+            .filter((s: any) => new Date(s.start_time) > new Date(homeChargerLastMintAt))
             .reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)
         : homeChargingMonitorKwh;
 
