@@ -271,8 +271,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   };
 
-  // Derive hint state directly — no effect needed
-  const hasCode = code.trim().length > 0;
+  // Show unlock hint when input is focused or has text
+  const showUnlockHint = inputFocused || code.trim().length > 0;
 
   if (granted) return <>{children}</>;
 
