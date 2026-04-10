@@ -549,7 +549,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
             {/* Tap hint */}
             <div className="flex justify-center h-8">
-              {hasCode ? (
+              {showUnlockHint ? (
                 <span
                   className="text-xs font-semibold text-primary/80 flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20"
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
