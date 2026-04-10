@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
+import { DemoAccessGate } from "@/components/demo/DemoAccessGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
 import { Loader2 } from "lucide-react";
@@ -161,6 +162,7 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <GoogleAnalytics />
+                  <DemoAccessGate>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
@@ -834,6 +836,7 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
+                  </DemoAccessGate>
                 </BrowserRouter>
               </BotProtection>
             </ErrorBoundary>
