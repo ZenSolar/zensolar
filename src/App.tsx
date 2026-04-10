@@ -162,6 +162,7 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <GoogleAnalytics />
+                  <DemoAccessGate>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
