@@ -315,8 +315,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         minHeight: '100dvh',
       }}
     >
-      
-      <div
       {hexAwake && (
         <div
           className="absolute inset-0"
