@@ -30,24 +30,24 @@ function grantAccess() {
 }
 
 // ─── Burst particles ────
-const PARTICLE_COUNT = 20;
+const PARTICLE_COUNT = 12;
 const RGBA = '34, 197, 94';
 const RGBA_GOLD = '255, 180, 60';
 const PARTICLE_SHAPE = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
 
 function generateParticles() {
   return Array.from({ length: PARTICLE_COUNT }, (_, i) => {
-    const angle = (i / PARTICLE_COUNT) * 360 + (Math.random() * 30 - 15);
+    const angle = (i / PARTICLE_COUNT) * 360 + (Math.random() * 20 - 10);
     const rad = (angle * Math.PI) / 180;
-    const dist = 70 + Math.random() * 90;
+    const dist = 40 + Math.random() * 50;
     return {
       tx: Math.cos(rad) * dist,
       ty: Math.sin(rad) * dist,
-      size: 7 + Math.random() * 8,
+      size: 4 + Math.random() * 5,
       rotation: Math.random() * 360,
-      alpha: 0.9 + Math.random() * 0.1,
-      delay: i * 18,
-      isGold: i % 3 === 0,
+      alpha: 0.7 + Math.random() * 0.2,
+      delay: i * 22,
+      isGold: i % 4 === 0,
     };
   });
 }
