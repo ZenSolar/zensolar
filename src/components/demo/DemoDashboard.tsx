@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState, useMemo } from 'react';
+import { useRef, useCallback, useState, useMemo, useEffect } from 'react';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useConfetti } from '@/hooks/useConfetti';
@@ -205,9 +205,7 @@ export function DemoDashboard() {
 
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
-          <div className="rounded-xl overflow-hidden border border-border/20 bg-card/5">
-            <AnimatedEnergyFlow className="w-full" />
-          </div>
+          <EnergyFlowGlowCard />
         </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
