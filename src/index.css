@@ -313,7 +313,7 @@
   }
 }
 
-/* Beckoning glow — draws attention to the lock, synced with shimmer 5s cycle */
+/* Beckoning glow — draws attention to the lock */
 @keyframes zenLockBeckon {
   0%, 100% {
     box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15), 0 0 12px 2px hsl(var(--primary) / 0.08);
@@ -326,6 +326,18 @@
   60% {
     box-shadow: 0 0 0 3px hsl(var(--primary) / 0.3), 0 0 20px 4px hsl(var(--primary) / 0.15);
     transform: scale(1.03);
+  }
+}
+
+/* Subtle idle breathing for the inner circle */
+@keyframes zenCircleBreathe {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.25);
+  }
+  50% {
+    transform: scale(0.97);
+    box-shadow: 0 0 14px hsl(var(--primary) / 0.18);
   }
 }
 
