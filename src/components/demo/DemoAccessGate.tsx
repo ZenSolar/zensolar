@@ -145,6 +145,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
   }, []);
 
+  // Show "Tap-to-Mint™️" hint after 3s to entice interaction
+  useEffect(() => {
+    const timer = setTimeout(() => setShowTapMintHint(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // ── Core submit logic ──
   const submitCode = useCallback(async () => {
     const trimmed = code.trim();
