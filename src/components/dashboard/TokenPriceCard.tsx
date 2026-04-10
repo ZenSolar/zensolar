@@ -313,6 +313,8 @@ export function TokenPriceCard({
               gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 30%, hsl(280 68% 70% / 0.5) 50%, hsl(280 68% 60% / 0.3) 70%, transparent 100%)"
               burstGradient="linear-gradient(90deg, transparent 0%, hsl(320 60% 55% / 0.2) 30%, hsl(340 65% 60% / 0.35) 50%, hsl(320 60% 55% / 0.2) 70%, transparent 100%)"
               burstDuration={3200}
+              burstDelay="0s"
+              idleDelay="0s"
             />
           </div>
 
@@ -519,6 +521,8 @@ export function TokenPriceCard({
             gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 30%, hsl(280 68% 70% / 0.5) 50%, hsl(280 68% 60% / 0.3) 70%, transparent 100%)"
             burstGradient="linear-gradient(90deg, transparent 0%, hsl(320 60% 55% / 0.2) 30%, hsl(340 65% 60% / 0.35) 50%, hsl(320 60% 55% / 0.2) 70%, transparent 100%)"
             burstDuration={3200}
+            burstDelay="0s"
+            idleDelay="0s"
           />
           {/* Corner accent */}
           <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/[0.06] blur-2xl" />

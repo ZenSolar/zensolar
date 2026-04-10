@@ -286,8 +286,8 @@ export function ActivityMetrics({
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 30%, hsl(210 90% 50% / 0.5) 50%, hsl(205 85% 45% / 0.3) 70%, transparent 100%)"
             burstGradient="linear-gradient(90deg, transparent 0%, hsl(45 80% 55% / 0.2) 30%, hsl(38 85% 60% / 0.3) 50%, hsl(45 80% 55% / 0.2) 70%, transparent 100%)"
-            burstDuration={3400}
-            burstDelay="0.2s"
+            burstDuration={3200}
+            burstDelay="0.8s"
             idleDelay="0.8s"
           />
 
