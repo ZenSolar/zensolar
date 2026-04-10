@@ -17,7 +17,9 @@ export function getSharedAudioContext(): AudioContext | null {
 }
 
 const IMMEDIATE_SOUND_LEAD = 0.008;
-const WARM_START_SOUND_LEAD = 0.02;
+// iOS WebKit needs ~100-300ms to bring audio hardware online after resume().
+// Schedule far enough ahead so nodes don't start "in the past".
+const WARM_START_SOUND_LEAD = 0.35;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
 const isStandalonePWA = () => {
