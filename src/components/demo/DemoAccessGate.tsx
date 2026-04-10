@@ -78,6 +78,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   });
   const [code, setCode] = useState('');
   const [showHint, setShowHint] = useState(false);
+  const [showTapMintHint, setShowTapMintHint] = useState(false);
 
   // ── stateRef pattern: single ref holds all interaction state ──
   const stateRef = useRef<GateState>({
@@ -142,6 +143,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     };
+  }, []);
+
+  // Show "Tap-to-Mint™️" hint after 3s to entice interaction
+  useEffect(() => {
+    const timer = setTimeout(() => setShowTapMintHint(true), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   // ── Core submit logic ──
@@ -339,20 +346,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
           {/* Lock icon with burst effect */}
           <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
-            {/* Pulsating glow ring */}
+            {/* Beckoning glow ring — synced with 5s shimmer cycle */}
             <div
-              className="absolute inset-0 rounded-full pointer-events-none"
+              className="absolute -inset-2 rounded-full pointer-events-none"
               style={{
-                animation: 'zenLockPulse 2.5s ease-in-out infinite',
-                boxShadow: '0 0 0 1px hsl(var(--primary) / 0.3)',
+                animation: 'zenLockBeckon 5s ease-in-out infinite',
               }}
             />
             <button
               onPointerDown={handleLockPointerDown}
               onClick={(e) => e.preventDefault()}
-              disabled={!code.trim() || isVerifying || isBursting}
+              disabled={isVerifying || isBursting}
               className={cn(
-                'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible',
+                'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
                 'transition-[background-color,box-shadow] duration-150',
                 isBursting
                   ? 'bg-primary/30 scale-110'
@@ -362,9 +368,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
                         ? 'bg-primary/25 scale-[1.08] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
-                        : code.trim()
-                          ? 'bg-primary/20 hover:bg-primary/30 hover:scale-105 cursor-pointer shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
-                          : 'bg-muted/50'
+                        : 'bg-primary/15 hover:bg-primary/25 hover:scale-105 shadow-[0_0_20px_hsl(var(--primary)/0.2)]'
               )}
               style={{
                 transition: firstTapBurst
@@ -375,10 +379,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               {isBursting ? (
                 <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
               ) : (
-                <Lock className={cn(
-                  'h-8 w-8 transition-colors duration-100',
-                  code.trim() ? 'text-primary' : 'text-muted-foreground'
-                )} />
+                <Lock className="h-8 w-8 text-primary/80 transition-colors duration-100" />
               )}
 
               {/* First-tap burst particles (KPI-style impact) */}
@@ -504,10 +505,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               autoCapitalize="off"
             />
 
-            {/* Tap hint — always visible */}
-            <div className="flex justify-center h-6">
-              <span className="text-xs text-primary/80 flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" />
+            {/* Tap hints */}
+            <div className="flex flex-col items-center gap-1 min-h-[2.5rem]">
+              {showTapMintHint && (
+                <span
+                  className="text-xs font-medium text-primary flex items-center gap-1.5"
+                  style={{ animation: 'zenHintFadeIn 0.8s ease-out both' }}
+                >
+                  <Zap className="h-3 w-3" />
+                  Tap-to-Mint™️
+                </span>
+              )}
+              <span className="text-[10px] text-primary/50 flex items-center gap-1">
+                <Sparkles className="h-2.5 w-2.5" />
                 double tap to unlock
               </span>
             </div>
