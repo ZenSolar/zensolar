@@ -106,7 +106,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
 
-  const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
+  const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
@@ -214,10 +214,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (Date.now() < ignorePointerUntilRef.current) return;
 
     // Synchronous prime + resume — do NOT await
-    const ctx = primeAudio();
-    if (ctx && ctx.state !== 'running') {
-      ctx.resume().catch(() => {});
-    }
+    primeAudio();
 
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
@@ -242,11 +239,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
     } else {
       lastTapTimeRef.current = now;
+      const firstTapPlayback = !s.hexAwake ? preparePlayback() : null;
 
       if (!s.hexAwake) {
-        startShimmerSound();
+        startShimmerSound(firstTapPlayback?.now);
       }
-      playWelcomeTap();
+      playWelcomeTap(firstTapPlayback?.now);
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
@@ -264,7 +262,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, primeAudio, submitCode, triggerBurst, playWelcomeTap, playMintSound, updateState]);
+  }, [code, primeAudio, preparePlayback, submitCode, triggerBurst, playWelcomeTap, playMintSound, startShimmerSound, updateState]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

@@ -894,21 +894,14 @@ export function useMintSound() {
   }, [preparePlayback]);
 
   // ── Welcome tap: snappy, instant-attack chime ──
-  const playWelcomeTap = useCallback(() => {
+  const playWelcomeTap = useCallback((scheduledStartTime?: number) => {
     try {
       const ctx = getCtx();
       if (!ctx) return;
 
-      const needsWarmStart = ctx.state !== 'running';
-      if (needsWarmStart) {
-        ctx.resume().catch(() => {});
-      }
-
-      fireSilentUnlockPulse(ctx);
-
-      // On the very first tap, give the resumed context a slightly larger
-      // lead so iOS/mobile browsers have time to bring audio hardware online.
-      const now = ctx.currentTime + (needsWarmStart ? 0.08 : IMMEDIATE_SOUND_LEAD);
+      const fallbackPlayback = scheduledStartTime === undefined ? preparePlayback() : null;
+      const now = scheduledStartTime ?? fallbackPlayback?.now;
+      if (now === undefined) return;
 
       const master = ctx.createGain();
       master.gain.setValueAtTime(0.45, now);
@@ -956,7 +949,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [getCtx]);
+  }, [getCtx, preparePlayback]);
 
-  return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
+  return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
 }
