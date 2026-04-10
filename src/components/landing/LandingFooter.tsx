@@ -3,7 +3,13 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 export function LandingFooter() {
   return (
-    <footer className="py-8 border-t border-border/40 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+    <footer
+      className="py-8 pb-[calc(2rem+env(safe-area-inset-bottom))]"
+      style={{
+        borderTop: '1px solid hsla(142, 76%, 36%, 0.08)',
+        animation: 'emeraldGlowIdle 4s ease-in-out infinite 1s',
+      }}
+    >
       <div className="container max-w-6xl mx-auto px-4 space-y-3 text-center">
         <div className="text-sm font-medium tracking-wide">
           <p className="bg-gradient-to-r from-primary via-secondary to-energy bg-clip-text text-transparent">
