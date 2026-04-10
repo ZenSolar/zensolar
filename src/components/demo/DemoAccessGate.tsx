@@ -64,6 +64,7 @@ interface GateState {
   showTapAgain: boolean;
   firstTapBurst: boolean;
   burstKey: number;
+  revealed: boolean; // true after first tap — switches $Z → Lock
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
@@ -78,7 +79,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   });
   const [code, setCode] = useState('');
   const [showHint, setShowHint] = useState(false);
-  const [showTapMintHint, setShowTapMintHint] = useState(false);
+  
 
   // ── stateRef pattern: single ref holds all interaction state ──
   const stateRef = useRef<GateState>({
@@ -86,6 +87,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     showTapAgain: false,
     firstTapBurst: false,
     burstKey: 0,
+    revealed: false,
   });
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
@@ -143,12 +145,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     };
-  }, []);
-
-  // Show "Tap-to-Mint™️" hint after 3s to entice interaction
-  useEffect(() => {
-    const timer = setTimeout(() => setShowTapMintHint(true), 3000);
-    return () => clearTimeout(timer);
   }, []);
 
   // ── Core submit logic ──
@@ -244,7 +240,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lastTapTimeRef.current = now;
 
       triggerBurst();
-      updateState({ showTapAgain: true });
+      updateState({ showTapAgain: true, revealed: true });
       playWelcomeTap();
 
       if ('vibrate' in navigator) {
@@ -277,7 +273,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   if (granted) return <>{children}</>;
 
-  const { phase, firstTapBurst, showTapAgain, burstKey } = stateRef.current;
+  const { phase, firstTapBurst, showTapAgain, burstKey, revealed } = stateRef.current;
   const isBursting = phase === 'burst';
   const isDenied = phase === 'denied';
   const isVerifying = phase === 'verifying';
@@ -344,7 +340,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             className="h-8 w-auto object-contain dark:brightness-150 drop-shadow-[0_0_8px_hsl(var(--primary)/0.3)]"
           />
 
-          {/* Lock icon with burst effect */}
+          {/* $Z / Lock icon with burst effect */}
           <div className="relative pointer-events-auto" style={{ touchAction: 'manipulation' }}>
             {/* Beckoning glow ring — synced with 5s shimmer cycle */}
             <div
@@ -353,6 +349,26 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 animation: 'zenLockBeckon 5s ease-in-out infinite',
               }}
             />
+
+            {/* Orbiting Tap-to-Mint™️ badge */}
+            {!isBursting && (
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  animation: 'zenOrbit 8s linear infinite',
+                }}
+              >
+                <span
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[9px] font-bold tracking-wider text-primary/90 bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5 backdrop-blur-sm"
+                  style={{
+                    textShadow: '0 0 8px hsl(var(--primary) / 0.4)',
+                  }}
+                >
+                  Tap-to-Mint™️
+                </span>
+              </div>
+            )}
+
             <button
               onPointerDown={handleLockPointerDown}
               onClick={(e) => e.preventDefault()}
@@ -378,8 +394,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             >
               {isBursting ? (
                 <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
+              ) : revealed ? (
+                <Lock
+                  className="h-8 w-8 text-primary/80"
+                  style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
+                />
               ) : (
-                <Lock className="h-8 w-8 text-primary/80 transition-colors duration-100" />
+                <span
+                  className="text-xl font-bold text-primary select-none"
+                  style={{
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                    textShadow: '0 0 12px hsl(var(--primary) / 0.5)',
+                    ...(firstTapBurst ? { animation: 'zenSymbolFadeOut 300ms ease-out both' } : {}),
+                  }}
+                >
+                  $Z
+                </span>
               )}
 
               {/* First-tap burst particles (KPI-style impact) */}
@@ -505,20 +535,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               autoCapitalize="off"
             />
 
-            {/* Tap hints */}
-            <div className="flex flex-col items-center gap-1 min-h-[2.5rem]">
-              {showTapMintHint && (
-                <span
-                  className="text-xs font-medium text-primary flex items-center gap-1.5"
-                  style={{ animation: 'zenHintFadeIn 0.8s ease-out both' }}
-                >
-                  <Zap className="h-3 w-3" />
-                  Tap-to-Mint™️
-                </span>
-              )}
+            {/* Tap hint */}
+            <div className="flex justify-center h-6">
               <span className="text-[10px] text-primary/50 flex items-center gap-1">
                 <Sparkles className="h-2.5 w-2.5" />
-                double tap to unlock
+                {revealed ? 'double tap to unlock' : 'tap the $Z'}
               </span>
             </div>
           </div>
