@@ -107,7 +107,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const ignorePointerUntilRef = useRef<number>(0);
 
   const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
-  useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
+  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
   const particles = useMemo(
@@ -243,14 +243,16 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     } else {
       lastTapTimeRef.current = now;
 
+      if (!s.hexAwake) {
+        startShimmerSound();
+      }
+      playWelcomeTap();
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       lockFlashTimerRef.current = setTimeout(() => {
         updateState({ revealed: false });
       }, LOCK_FLASH_MS);
-
-      playWelcomeTap();
 
       if ('vibrate' in navigator) {
         try { navigator.vibrate([10]); } catch {}
