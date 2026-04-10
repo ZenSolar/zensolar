@@ -383,6 +383,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             <div
               className="absolute -inset-2 rounded-full pointer-events-none"
               style={{
+                willChange: 'transform, box-shadow',
                 animation: 'zenLockBeckon 3.5s ease-in-out infinite',
               }}
             />
