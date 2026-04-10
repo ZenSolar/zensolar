@@ -1097,6 +1097,8 @@ Deno.serve(async (req) => {
         ev_charging_kwh: totalEvChargingKwh,
         supercharger_kwh: superchargerKwh,
         wall_connector_kwh: wallConnectorKwh,
+        home_ac_charging_kwh: homeAcChargingKwh,
+        billing_home_charging_kwh: billingHomeChargingKwh,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,
@@ -1104,6 +1106,7 @@ Deno.serve(async (req) => {
         pending_ev_charging_kwh: pendingEvChargingKwh,
         pending_supercharger_kwh: pendingSuperchargerKwh,
         pending_wall_connector_kwh: pendingWallConnectorKwh,
+        pending_home_ac_charging_kwh: pendingHomeAcKwh,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
