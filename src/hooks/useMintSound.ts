@@ -145,9 +145,13 @@ export function useMintSound() {
 
   const playMintSound = useCallback((_color?: string) => {
     try {
-      const playback = preparePlayback();
-      if (!playback) return;
-      const { ctx, now } = playback;
+      const ctx = primeAudio();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playMintSound(_color)).catch(() => {});
+        return;
+      }
+      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
 
       // Master volume — scale entire sound package
       const master = ctx.createGain();
@@ -421,7 +425,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [preparePlayback, triggerHaptic]);
+  }, [primeAudio, triggerHaptic]);
   /** Confirm mint: ZenSolar™ — stamp → deep meditative bowl bloom → bass sustain */
   const playConfirmSound = useCallback(() => {
     try {
@@ -757,9 +761,13 @@ export function useMintSound() {
    */
   const playDeniedSound = useCallback(() => {
     try {
-      const playback = preparePlayback();
-      if (!playback) return;
-      const { ctx, now } = playback;
+      const ctx = primeAudio();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playDeniedSound()).catch(() => {});
+        return;
+      }
+      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
 
       const master = ctx.createGain();
       master.gain.value = 0.6;
@@ -868,14 +876,18 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [preparePlayback]);
+  }, [primeAudio]);
 
   // ── Welcome tap: a friendly, softer cousin of the mint gong ──
   const playWelcomeTap = useCallback(() => {
     try {
-      const playback = preparePlayback();
-      if (!playback) return;
-      const { ctx, now } = playback;
+      const ctx = primeAudio();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playWelcomeTap()).catch(() => {});
+        return;
+      }
+      const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
 
       const master = ctx.createGain();
       master.gain.value = 0.35;
@@ -930,7 +942,7 @@ export function useMintSound() {
     } catch {
       // Silent fail
     }
-  }, [preparePlayback]);
+  }, [primeAudio]);
 
   return { primeAudio, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, triggerHaptic };
 }
