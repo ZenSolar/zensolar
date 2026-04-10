@@ -796,25 +796,27 @@ export function useDashboardData() {
       let pendingHomeCharger = 0;
 
       // Fetch data in parallel (including device labels and minted tokens)
-      const fetchHomeChargingTotal = async () => {
+      const fetchHomeChargingTotal = async (): Promise<{ lifetime: number; sessions: Array<{ total_session_kwh: number; start_time: string }> }> => {
         try {
           const userId = getEffectiveUserId();
-          if (!userId) return 0;
+          if (!userId) return { lifetime: 0, sessions: [] };
           const { data, error } = await supabase
             .from('home_charging_sessions')
-            .select('total_session_kwh')
+            .select('total_session_kwh, start_time')
             .eq('user_id', userId)
             .eq('status', 'completed');
-          if (error) { console.error('Home charging fetch error:', error); return 0; }
-          return (data || []).reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
-        } catch { return 0; }
+          if (error) { console.error('Home charging fetch error:', error); return { lifetime: 0, sessions: [] }; }
+          const sessions = data || [];
+          const lifetime = sessions.reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
+          return { lifetime, sessions };
+        } catch { return { lifetime: 0, sessions: [] }; }
       };
 
       // When viewing as another user, skip external API calls (they authenticate as admin, not target user).
       // Instead rely entirely on DB-stored data (devices, rewards, etc.) which uses getEffectiveUserId().
       const shouldCallAPIs = !isViewingAsOther;
 
-      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot, homeChargingMonitorKwh] = await Promise.all([
+      const [enphaseData, solarEdgeData, teslaData, wallboxData, rewardsData, referralTokens, deviceLabels, lifetimeMinted, devicesSnapshot, homeChargingResult] = await Promise.all([
         shouldCallAPIs && profileConnections?.enphase_connected ? fetchEnphaseData() : null,
         shouldCallAPIs && profileConnections?.solaredge_connected ? fetchSolarEdgeData() : null,
         shouldCallAPIs && profileConnections?.tesla_connected ? fetchTeslaData() : null,
@@ -826,6 +828,19 @@ export function useDashboardData() {
         fetchDevicesSnapshot(),
         fetchHomeChargingTotal(),
       ]);
+
+      // Calculate pending home charging based on last mint timestamp
+      const homeChargingMonitorKwh = homeChargingResult?.lifetime || 0;
+      const allDevicesForMintTs = devicesSnapshot || [];
+      const mintTimestamps = allDevicesForMintTs.map((d: any) => d.last_minted_at).filter(Boolean);
+      const latestMintTimestamp = mintTimestamps.length > 0
+        ? new Date(Math.max(...mintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
+        : null;
+      const pendingHomeChargingMonitorKwh = latestMintTimestamp
+        ? (homeChargingResult?.sessions || [])
+            .filter((s: any) => new Date(s.start_time) > new Date(latestMintTimestamp))
+            .reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)
+        : homeChargingMonitorKwh;
 
       // Update provider refresh state
       setProviderRefresh((prev) => {
