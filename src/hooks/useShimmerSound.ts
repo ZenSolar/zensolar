@@ -73,7 +73,7 @@ export function useShimmerSound({
     nodesRef.current = null;
   }, []);
 
-  const startSound = useCallback(() => {
+  const startSound = useCallback((scheduledStartTime?: number) => {
     if (nodesRef.current) return true;
 
     const ctx = getSharedAudioContext();
@@ -84,7 +84,7 @@ export function useShimmerSound({
       ctx.resume().catch(() => {});
     }
 
-    const now = ctx.currentTime + (needsWarmStart ? 0.18 : 0.02);
+    const now = scheduledStartTime ?? ctx.currentTime;
     const vol = volumeRef.current;
     const lfoFreq = 1 / cycleDurationRef.current;
 
