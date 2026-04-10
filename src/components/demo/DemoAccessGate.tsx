@@ -423,6 +423,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                         : 'bg-primary/20 hover:bg-primary/30 hover:scale-105 shadow-[0_0_24px_hsl(var(--primary)/0.3)]',
               )}
               style={{
+                willChange: 'transform, box-shadow',
+                transform: 'scale(1)',
                 transition: firstTapBurst
                   ? 'background-color 60ms, box-shadow 60ms'
                   : 'background-color 200ms, box-shadow 200ms',
