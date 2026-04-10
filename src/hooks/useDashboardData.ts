@@ -841,13 +841,17 @@ export function useDashboardData() {
       // Calculate pending home charging based on last mint timestamp
       const homeChargingMonitorKwh = homeChargingResult?.lifetime || 0;
       const allDevicesForMintTs = devicesSnapshot || [];
-      const mintTimestamps = allDevicesForMintTs.map((d: any) => d.last_minted_at).filter(Boolean);
-      const latestMintTimestamp = mintTimestamps.length > 0
-        ? new Date(Math.max(...mintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
+      // Home charging uses its OWN baseline — only charger-type devices' mint timestamps
+      const chargerMintTimestamps = allDevicesForMintTs
+        .filter((d: any) => d.device_type === 'charger' || d.device_type === 'wall_connector')
+        .map((d: any) => d.last_minted_at)
+        .filter(Boolean);
+      const homeChargerMintTimestamp = chargerMintTimestamps.length > 0
+        ? new Date(Math.max(...chargerMintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
         : null;
-      const pendingHomeChargingMonitorKwh = latestMintTimestamp
+      const pendingHomeChargingMonitorKwh = homeChargerMintTimestamp
         ? (homeChargingResult?.sessions || [])
-            .filter((s: any) => new Date(s.start_time) > new Date(latestMintTimestamp))
+            .filter((s: any) => new Date(s.start_time) > new Date(homeChargerMintTimestamp))
             .reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)
         : homeChargingMonitorKwh;
 
