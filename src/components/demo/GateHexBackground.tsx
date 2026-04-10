@@ -221,7 +221,7 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
               lastColor = colorStr;
             }
 
-            const needsGlow = alpha > 0.28;
+            const needsGlow = greenAlpha > 0.28;
             if (needsGlow !== lastGlow) {
               if (needsGlow) {
                 ctx.lineWidth = 0.8;
@@ -234,6 +234,8 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
               }
               lastGlow = needsGlow;
             }
+          } else {
+            continue;
           }
 
           ctx.setTransform(dpr, 0, 0, dpr, cx * dpr, cy * dpr);
