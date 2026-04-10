@@ -246,7 +246,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lastTapTimeRef.current = now;
 
       triggerBurst();
-      updateState({ showTapAgain: true });
+      updateState({ showTapAgain: true, revealed: true });
       playWelcomeTap();
 
       if ('vibrate' in navigator) {
