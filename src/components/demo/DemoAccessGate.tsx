@@ -419,8 +419,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     fontSize: '1.75rem',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
-                    color: 'hsl(var(--primary))',
-                    textShadow: '0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.2)',
+                    color: 'hsl(142, 76%, 45%)',
+                    textShadow: '0 0 20px hsl(142 76% 45% / 0.5), 0 0 40px hsl(142 76% 45% / 0.2)',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
                       : 'zenSymbolFadeIn 300ms ease-out both',
