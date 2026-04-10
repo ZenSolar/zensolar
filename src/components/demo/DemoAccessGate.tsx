@@ -100,6 +100,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const ignorePointerUntilRef = useRef<number>(0);
 
   const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap } = useMintSound();
+  useShimmerSound({ cycleDuration: 5, volume: 0.06 });
 
   // Stable particles — only regenerate on burstKey change
   const particles = useMemo(
