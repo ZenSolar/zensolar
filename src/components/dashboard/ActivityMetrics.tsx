@@ -142,7 +142,7 @@ export function ActivityMetrics({
   // First-load shimmer burst → idle transition
   const [shimmerBurstDone, setShimmerBurstDone] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setShimmerBurstDone(true), 4000);
+    const t = setTimeout(() => setShimmerBurstDone(true), 1600);
     return () => clearTimeout(t);
   }, []);
 
@@ -296,7 +296,7 @@ export function ActivityMetrics({
               animation: shimmerBurstDone
                 ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
                 : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-              animationDelay: shimmerBurstDone ? '1.2s' : '1s',
+              animationDelay: shimmerBurstDone ? '1.2s' : '0.3s',
               willChange: 'transform',
             }}
           />
@@ -401,7 +401,7 @@ export function ActivityMetrics({
               animation: shimmerBurstDone
                 ? 'zenHeaderShimmer 3.5s ease-in-out infinite'
                 : 'zenShimmerBurst 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-              animationDelay: shimmerBurstDone ? '2.4s' : '2s',
+              animationDelay: shimmerBurstDone ? '2.4s' : '0.6s',
               willChange: 'transform',
             }}
           />
