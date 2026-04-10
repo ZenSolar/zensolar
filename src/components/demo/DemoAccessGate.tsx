@@ -182,9 +182,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     e.preventDefault();
 
     primeAudio();
-    const trimmed = code.trim();
     const s = stateRef.current;
-    if (!trimmed || s.phase === 'verifying' || s.phase === 'burst') return;
+    if (s.phase === 'verifying' || s.phase === 'burst') return;
 
     const now = Date.now();
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
