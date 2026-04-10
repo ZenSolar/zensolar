@@ -264,7 +264,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         {/* Lock icon with burst effect */}
         <div className="relative">
           <button
-            onClick={handleSubmit}
+            onClick={handleLockTap}
             disabled={!code.trim() || isVerifying || isBursting}
             className={cn(
               'relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 touch-manipulation select-none overflow-visible',
@@ -274,9 +274,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   ? 'bg-destructive/20 animate-shake'
                   : isVerifying
                     ? 'bg-primary/20 animate-pulse'
-                    : code.trim()
-                      ? 'bg-primary/20 hover:bg-primary/30 hover:scale-105 cursor-pointer shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
-                      : 'bg-muted/50'
+                    : firstTapBurst
+                      ? 'bg-primary/25 scale-105 shadow-[0_0_40px_hsl(var(--primary)/0.4)]'
+                      : code.trim()
+                        ? 'bg-primary/20 hover:bg-primary/30 hover:scale-105 cursor-pointer shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
+                        : 'bg-muted/50'
             )}
           >
             {isBursting ? (
@@ -288,7 +290,46 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               )} />
             )}
 
-            {/* Burst particles */}
+            {/* First-tap burst particles (KPI-style impact) */}
+            {firstTapBurst && !isBursting && particles.map((p, i) => (
+              <div
+                key={`fp-${burstKey}-${i}`}
+                className="absolute"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  width: p.size * 0.7,
+                  height: p.size * 0.7,
+                  background: `rgba(255,255,255, ${p.alpha * 0.6})`,
+                  boxShadow: `0 0 6px rgba(${RGBA}, 0.4)`,
+                  clipPath: PARTICLE_SHAPE,
+                  transform: `rotate(${p.rotation}deg)`,
+                  animation: `zenFlareParticle 600ms ${p.delay}ms ease-out forwards`,
+                  willChange: 'transform, opacity',
+                  '--tx': `${p.tx * 0.6}px`,
+                  '--ty': `${p.ty * 0.6}px`,
+                } as React.CSSProperties}
+              />
+            ))}
+
+            {/* First-tap ripple */}
+            {firstTapBurst && !isBursting && (
+              <div
+                key={`fr-${burstKey}`}
+                className="absolute rounded-full"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  width: '200%',
+                  height: '200%',
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+                  animation: 'zenTouchRipple 600ms ease-out forwards',
+                  willChange: 'transform, opacity',
+                }}
+              />
+            )}
+
+            {/* Success burst particles */}
             {isBursting && particles.map((p, i) => (
               <div
                 key={`p-${burstKey}-${i}`}
@@ -374,15 +415,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
           {/* Tap hint */}
           <div className="flex justify-center h-6">
-            <span
-              className={cn(
-                'text-xs text-primary/80 flex items-center gap-1.5 transition-all duration-300',
-                showHint ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
-              )}
-            >
-              <Sparkles className="h-3 w-3" />
-              tap the lock to enter
-            </span>
+            {showTapAgain ? (
+              <span className="text-xs text-primary flex items-center gap-1.5 animate-pulse">
+                <Zap className="h-3 w-3" />
+                tap again to unlock
+              </span>
+            ) : (
+              <span
+                className={cn(
+                  'text-xs text-primary/80 flex items-center gap-1.5 transition-all duration-300',
+                  showHint ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+                )}
+              >
+                <Sparkles className="h-3 w-3" />
+                tap the lock to enter
+              </span>
+            )}
           </div>
         </div>
 
