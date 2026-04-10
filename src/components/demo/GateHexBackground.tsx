@@ -174,7 +174,7 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
               greenAlpha = Math.min(alpha, curtainActive ? 0.85 : 0.55);
             }
-          } else {
+          } else if (actElapsed !== null && actElapsed >= CURTAIN_DURATION) {
             // Curtain complete — show steady green grid
             const dA = cx + cy * 0.55;
             const dB = cx * 0.78 + cy * 0.82;
@@ -191,6 +191,7 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
 
             greenAlpha = Math.min(0.12 + bA * 0.22 + bB * 0.16 + bC * 0.13 + shimmer * 0.06 + flicker * 0.03, 0.55);
           }
+          // else: curtain hasn't started or hasn't reached this row — hex stays invisible (navy)
 
           const isCurtainHex = edgeAlpha > 0.05;
           
