@@ -62,7 +62,7 @@ const installGlobalUnlockListeners = () => {
   const unlock = () => {
     try {
       const ctx = createSharedAudioContext();
-      if (ctx.state === 'suspended') {
+      if (ctx.state !== 'running') {
         ctx.resume().catch(() => {});
       }
       fireSilentUnlockPulse(ctx);
@@ -93,7 +93,7 @@ export function useMintSound() {
     installGlobalUnlockListeners();
     try {
       const ctx = getCtx();
-      if (ctx.state === 'suspended') {
+      if (ctx.state !== 'running') {
         // In PWA standalone, resume() must be called synchronously within
         // the user gesture. We call it and also fire a silent pulse to
         // ensure the context transitions to 'running' immediately.
@@ -147,7 +147,7 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
-      if (ctx.state === 'suspended') {
+      if (ctx.state !== 'running') {
         ctx.resume().then(() => playMintSound(_color)).catch(() => {});
         return;
       }
@@ -431,7 +431,7 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
-      if (ctx.state === 'suspended') {
+      if (ctx.state !== 'running') {
         ctx.resume().then(() => playConfirmSound()).catch(() => {});
         return;
       }
@@ -763,7 +763,7 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
-      if (ctx.state === 'suspended') {
+      if (ctx.state !== 'running') {
         ctx.resume().then(() => playDeniedSound()).catch(() => {});
         return;
       }
@@ -883,7 +883,7 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
-      if (ctx.state === 'suspended') {
+      if (ctx.state !== 'running') {
         ctx.resume().then(() => playWelcomeTap()).catch(() => {});
         return;
       }

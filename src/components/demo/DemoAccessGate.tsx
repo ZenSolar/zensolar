@@ -206,7 +206,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     // Synchronous prime + resume — do NOT await
     const ctx = primeAudio();
-    if (ctx && ctx.state === 'suspended') {
+    if (ctx && ctx.state !== 'running') {
       ctx.resume().catch(() => {});
     }
 
