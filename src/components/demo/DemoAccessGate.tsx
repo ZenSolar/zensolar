@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
+import { GateHexBackground } from '@/components/demo/GateHexBackground';
 
 const LS_KEY = 'zen_demo_access';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -142,9 +142,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden">
-      {/* Living hex background — faint teaser of what's behind the wall */}
-      <div className="absolute inset-0 opacity-[0.35]">
-        <DashboardHexBackground />
+      {/* Frenetic hex background — alive, urgent, teasing energy */}
+      <div className="absolute inset-0 opacity-[0.55]">
+        <GateHexBackground />
       </div>
 
       {/* Radial vignette to focus attention on center */}
