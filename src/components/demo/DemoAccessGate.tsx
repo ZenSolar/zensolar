@@ -408,8 +408,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
               ) : revealed ? (
                 <Lock
-                  className="h-8 w-8 text-primary/80"
-                  style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
+                  className="h-8 w-8 text-primary"
+                  style={{ animation: 'zenSymbolFadeIn 200ms ease-out both' }}
                 />
               ) : (
                 <span
@@ -418,13 +418,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     fontSize: '1.75rem',
                     lineHeight: 1,
                     letterSpacing: '0.03em',
-                    ...(firstTapBurst ? { animation: 'zenSymbolFadeOut 300ms ease-out both' } : {}),
+                    animation: firstTapBurst
+                      ? 'zenSymbolFadeOut 200ms ease-out both'
+                      : 'zenSymbolFadeIn 300ms ease-out both',
                   }}
                 >
                   <span
                     style={{
                       fontWeight: 400,
-                      color: 'hsl(var(--muted-foreground))',
+                      color: 'hsl(var(--primary) / 0.4)',
                     }}
                   >
                     $
@@ -433,8 +435,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     className="font-black"
                     style={{
                       fontFamily: 'system-ui, -apple-system, sans-serif',
-                      color: 'hsl(var(--primary))',
-                      textShadow: '0 0 16px hsl(var(--primary) / 0.6), 0 0 32px hsl(var(--primary) / 0.3)',
+                      color: 'hsl(var(--primary) / 0.75)',
+                      textShadow: '0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.2)',
                     }}
                   >
                     Z
