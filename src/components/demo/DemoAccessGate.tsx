@@ -391,7 +391,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 isBursting
                   ? 'bg-primary/30 scale-[0.92] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
                   : isDenied
-                    ? 'bg-destructive/20 animate-shake'
+                    ? 'bg-destructive/30 animate-shake shadow-[0_0_40px_hsl(var(--destructive)/0.5)]'
                     : isVerifying
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
