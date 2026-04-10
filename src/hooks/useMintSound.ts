@@ -898,6 +898,17 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+
+      // If the context is still suspended (first-ever tap), resume it and
+      // retry once it's running so currentTime is valid.
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          // Re-enter — now ctx.state === 'running' and currentTime is live
+          playWelcomeTap();
+        }).catch(() => {});
+        return;
+      }
+
       const now = ctx.currentTime + IMMEDIATE_SOUND_LEAD;
 
       const master = ctx.createGain();
