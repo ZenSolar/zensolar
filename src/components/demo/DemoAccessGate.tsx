@@ -333,7 +333,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       </div>
 
       {/* Central content */}
-      <div className="relative flex flex-col items-center justify-center gap-8 px-6 max-w-sm w-full h-full">
+      <div className="relative flex flex-col items-center justify-center gap-8 px-6 max-w-sm w-full h-full pointer-events-none">
         {/* Logo */}
         <img
           src={zenLogo}
