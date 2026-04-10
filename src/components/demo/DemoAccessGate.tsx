@@ -402,6 +402,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 className="absolute inset-0 pointer-events-none"
                 style={{
                   animation: 'zenOrbit 8s linear infinite',
+                  willChange: 'transform',
+                  backfaceVisibility: 'hidden',
                 }}
               >
                 <span
