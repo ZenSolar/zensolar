@@ -561,7 +561,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               autoCapitalize="off"
             />
 
-            {/* Unlock hint — only after awake */}
+            {/* Unlock hint — only shown after awake */}
             <div className="flex justify-center h-8">
               {showUnlockHint ? (
                 <span
@@ -580,13 +580,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             </div>
           </div>
 
-          {/* Pre-tap hint — always visible, fades out once awake */}
-          <div className={cn("flex justify-center transition-opacity duration-700", hexAwake ? 'opacity-0 pointer-events-none h-0' : 'opacity-100')}>
-            <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3" />
-              tap the $Z
-            </span>
-          </div>
+          {/* Pre-tap hint — visible only before first tap, hidden after */}
+          {!hexAwake && (
+            <div className="flex justify-center">
+              <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3" />
+                tap the $Z
+              </span>
+            </div>
+          )}
 
           {/* Fine print */}
           <p className={cn("text-[10px] text-muted-foreground/70 text-center pointer-events-auto transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
