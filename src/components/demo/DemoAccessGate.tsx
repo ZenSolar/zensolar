@@ -529,7 +529,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </div>
 
           {/* Code input */}
-          <div className="w-full space-y-3 pointer-events-auto">
+          <div className="w-full px-4 space-y-3 pointer-events-auto">
             <Input
               ref={inputRef}
               value={code}
