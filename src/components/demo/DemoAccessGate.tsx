@@ -349,7 +349,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             <div
               className="absolute -inset-2 rounded-full pointer-events-none"
               style={{
-                animation: 'zenLockBeckon 5s ease-in-out infinite',
+                animation: 'zenLockBeckon 3.5s ease-in-out infinite',
               }}
             />
 
@@ -390,7 +390,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
                         ? 'bg-primary/30 scale-[0.92] shadow-[0_0_40px_hsl(var(--primary)/0.5)]'
-                        : 'bg-primary/20 hover:bg-primary/30 hover:scale-105 shadow-[0_0_24px_hsl(var(--primary)/0.3)]'
+                        : 'bg-primary/20 hover:bg-primary/30 hover:scale-105 shadow-[0_0_24px_hsl(var(--primary)/0.3)]',
               )}
               style={{
                 transition: firstTapBurst
