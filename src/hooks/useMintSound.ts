@@ -421,6 +421,10 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playConfirmSound()).catch(() => {});
+        return;
+      }
       const now = ctx.currentTime + 0.035;
 
       // Master volume — scale entire sound package
@@ -749,6 +753,10 @@ export function useMintSound() {
     try {
       const ctx = primeAudio();
       if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => playDeniedSound()).catch(() => {});
+        return;
+      }
       const now = ctx.currentTime + 0.02;
 
       const master = ctx.createGain();
