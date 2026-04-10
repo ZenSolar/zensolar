@@ -79,7 +79,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return isAccessGranted();
   });
   const [code, setCode] = useState('');
-  
+  const [inputFocused, setInputFocused] = useState(false);
   
 
   // ── stateRef pattern: single ref holds all interaction state ──
@@ -271,8 +271,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   };
 
-  // Derive hint state directly — no effect needed
-  const hasCode = code.trim().length > 0;
+  // Show unlock hint when input is focused or has text
+  const showUnlockHint = inputFocused || code.trim().length > 0;
 
   if (granted) return <>{children}</>;
 
@@ -535,7 +535,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={handleKeyDown}
-              
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
               placeholder="Access code"
               disabled={isVerifying || isBursting}
               className={cn(
@@ -549,7 +550,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
             {/* Tap hint */}
             <div className="flex justify-center h-8">
-              {hasCode ? (
+              {showUnlockHint ? (
                 <span
                   className="text-xs font-semibold text-primary/80 flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20"
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
