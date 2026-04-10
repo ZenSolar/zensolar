@@ -19,6 +19,7 @@ import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { AnimatedEnergyFlow } from './dashboard/AnimatedEnergyFlow';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
+import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 import { NFTQuickMintDialog, NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';

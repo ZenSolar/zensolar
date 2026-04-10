@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
+import { useShimmerSound } from '@/hooks/useShimmerSound';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
