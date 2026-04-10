@@ -419,7 +419,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             {showTapAgain ? (
               <span className="text-xs text-primary flex items-center gap-1.5 animate-pulse">
                 <Zap className="h-3 w-3" />
-                tap again to unlock
+                double tap to unlock
               </span>
             ) : (
               <span
