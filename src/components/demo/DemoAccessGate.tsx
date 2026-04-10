@@ -182,15 +182,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     e.preventDefault();
 
     primeAudio();
-    const trimmed = code.trim();
     const s = stateRef.current;
-    if (!trimmed || s.phase === 'verifying' || s.phase === 'burst') return;
+    if (s.phase === 'verifying' || s.phase === 'burst') return;
 
     const now = Date.now();
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
 
     if (isDoubleTap) {
-      // ⚡ DOUBLE TAP — submit
+      // ⚡ DOUBLE TAP — submit only if code entered, otherwise just burst
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
 
@@ -202,7 +201,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
 
       ignorePointerUntilRef.current = now + GHOST_CLICK_SUPPRESSION;
-      submitCode();
+      if (code.trim()) {
+        submitCode();
+      }
     } else {
       // ── FIRST TAP ── welcome chime + visual burst + hint
       lastTapTimeRef.current = now;
