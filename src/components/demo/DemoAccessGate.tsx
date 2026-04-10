@@ -109,18 +109,24 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   // No auto-focus — let user take in the full page experience first
 
-  // Set actual viewport height to eliminate black bar on mobile browsers
+  // Track the visual viewport so mobile browser chrome never exposes a dead strip
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const setVh = () => {
-      if (containerRef.current) {
-        containerRef.current.style.height = `${window.innerHeight}px`;
-      }
+    const viewport = window.visualViewport;
+    const syncViewport = () => {
+      if (!containerRef.current) return;
+      const viewportHeight = Math.ceil(viewport?.height ?? window.innerHeight);
+      containerRef.current.style.height = `${viewportHeight}px`;
+      containerRef.current.style.minHeight = `${viewportHeight}px`;
     };
-    setVh();
-    window.addEventListener('resize', setVh);
+    syncViewport();
+    window.addEventListener('resize', syncViewport);
+    viewport?.addEventListener('resize', syncViewport);
+    viewport?.addEventListener('scroll', syncViewport);
     return () => {
-      window.removeEventListener('resize', setVh);
+      window.removeEventListener('resize', syncViewport);
+      viewport?.removeEventListener('resize', syncViewport);
+      viewport?.removeEventListener('scroll', syncViewport);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     };
@@ -258,7 +264,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isVerifying = phase === 'verifying';
 
   return (
-    <div ref={containerRef} className="fixed top-0 left-0 right-0 bottom-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none' }}>
+    <div ref={containerRef} className="fixed inset-0 z-[100] bg-background flex items-center justify-center overflow-hidden touch-none" style={{ overscrollBehavior: 'none', minHeight: '100dvh' }}>
       <div className="absolute inset-0 opacity-[0.55]" style={{ touchAction: 'none', width: '100%', height: '100%' }}>
         <GateHexBackground />
       </div>

@@ -17,6 +17,7 @@ export function GateHexBackground() {
     let animationId: number;
     let time = 0;
     let lastFrameTime = 0;
+    let resizeObserver: ResizeObserver | null = null;
 
     const hexSize = 30;
     const hexWidth = hexSize * 2;
@@ -39,11 +40,13 @@ export function GateHexBackground() {
     const isMobile = window.innerWidth < 768;
     const TARGET_FPS = isMobile ? 28 : 45;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
+    const viewport = window.visualViewport;
 
     const resize = () => {
+      const bounds = (canvas.parentElement ?? canvas).getBoundingClientRect();
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = window.innerWidth;
-      h = window.innerHeight;
+      w = Math.max(1, Math.ceil(bounds.width || viewport?.width || window.innerWidth));
+      h = Math.max(1, Math.ceil(bounds.height || viewport?.height || window.innerHeight));
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.width = `${w}px`;
@@ -53,6 +56,12 @@ export function GateHexBackground() {
 
     resize();
     window.addEventListener('resize', resize);
+    viewport?.addEventListener('resize', resize);
+    viewport?.addEventListener('scroll', resize);
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(canvas.parentElement ?? canvas);
+    }
 
     const TAU = Math.PI * 2;
 
@@ -155,6 +164,9 @@ export function GateHexBackground() {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
+      viewport?.removeEventListener('resize', resize);
+      viewport?.removeEventListener('scroll', resize);
+      resizeObserver?.disconnect();
     };
   }, []);
 
