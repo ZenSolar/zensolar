@@ -66,6 +66,7 @@ interface GateState {
   firstTapBurst: boolean;
   burstKey: number;
   revealed: boolean; // true after first tap — switches $Z → Lock
+  hexAwake: boolean; // hex background activates on first tap
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
@@ -89,6 +90,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     firstTapBurst: false,
     burstKey: 0,
     revealed: false,
+    hexAwake: false,
   });
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
@@ -245,7 +247,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       triggerBurst();
       // Flash lock icon briefly, then return to $Z
-      updateState({ showTapAgain: true, revealed: true });
+      updateState({ showTapAgain: true, revealed: true, hexAwake: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       lockFlashTimerRef.current = setTimeout(() => {
         updateState({ revealed: false });
@@ -276,7 +278,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   if (granted) return <>{children}</>;
 
-  const { phase, firstTapBurst, showTapAgain, burstKey, revealed } = stateRef.current;
+  const { phase, firstTapBurst, showTapAgain, burstKey, revealed, hexAwake } = stateRef.current;
   const isBursting = phase === 'burst';
   const isDenied = phase === 'denied';
   const isVerifying = phase === 'verifying';
@@ -290,7 +292,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         minHeight: '100dvh',
       }}
     >
-      <div className="absolute inset-0 opacity-[0.70]" style={{ touchAction: 'none', width: '100%', height: '100%' }}>
+      <div
+        className="absolute inset-0 transition-opacity duration-1000 ease-out"
+        style={{
+          opacity: hexAwake ? 0.70 : 0,
+          touchAction: 'none',
+          width: '100%',
+          height: '100%',
+        }}
+      >
         <GateHexBackground />
       </div>
 
