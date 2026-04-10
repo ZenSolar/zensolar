@@ -671,7 +671,7 @@ export function useDashboardData() {
       const pendingSupercharger = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
 
       const homeChargerKwh = homeChargingMonitorKwh;
-      const pendingHomeCharger = homeChargingMonitorKwh;
+      const pendingHomeCharger = pendingHomeChargingMonitorKwh;
       const pendingCharging = pendingSupercharger + pendingHomeCharger;
 
       const tokensEarned = Math.floor(evMiles) + Math.floor(solarEnergy) + Math.floor(batteryDischarge) + Math.floor(superchargerKwh) + Math.floor(homeChargerKwh);
