@@ -8,12 +8,6 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
 
-// ─── Water ripple state ────
-interface Ripple {
-  id: number;
-  x: number;
-  y: number;
-}
 
 const LS_KEY = 'zen_demo_access';
 const TTL_MS = 24 * 60 * 60 * 1000;
@@ -83,17 +77,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   });
   const [code, setCode] = useState('');
   const [showHint, setShowHint] = useState(false);
-  const [ripples, setRipples] = useState<Ripple[]>([]);
-  const rippleIdRef = useRef(0);
-
-  const handleBackgroundTap = useCallback((e: React.PointerEvent) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const id = ++rippleIdRef.current;
-    setRipples(prev => [...prev, { id, x, y }]);
-    setTimeout(() => setRipples(prev => prev.filter(r => r.id !== id)), 1200);
-  }, []);
 
   // ── stateRef pattern: single ref holds all interaction state ──
   const stateRef = useRef<GateState>({
