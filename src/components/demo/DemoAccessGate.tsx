@@ -252,7 +252,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lockFlashTimerRef.current = setTimeout(() => {
         updateState({ revealed: false });
       }, LOCK_FLASH_MS);
-      playWelcomeTap();
+
+      // On the very first tap AudioContext may still be suspended.
+      // Schedule playWelcomeTap after a microtask so resume() has landed.
+      if (ctx && ctx.state !== 'running') {
+        ctx.resume().then(() => playWelcomeTap()).catch(() => {});
+      } else {
+        playWelcomeTap();
+      }
 
       if ('vibrate' in navigator) {
         try { navigator.vibrate([10]); } catch {}
@@ -345,7 +352,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           height: 'var(--gate-visible-height, 100dvh)',
         }}
       >
-        <div className="relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center gap-8 px-6 pointer-events-none">
+        <div className={cn("relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center px-6 pointer-events-none", hexAwake ? 'gap-8' : 'gap-4')}>
           {/* Logo */}
           <img
             src={zenLogo}
