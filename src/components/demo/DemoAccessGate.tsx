@@ -157,7 +157,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!trimmed || s.phase === 'verifying' || s.phase === 'burst') return;
 
     updateState({ phase: 'verifying', showTapAgain: false });
-    setShowHint(false);
+    
 
     try {
       const { data, error } = await supabase.rpc('verify_demo_code', { _code: trimmed });
@@ -535,7 +535,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={handleKeyDown}
-              onFocus={() => setShowHint(true)}
+              
               placeholder="Access code"
               disabled={isVerifying || isBursting}
               className={cn(
