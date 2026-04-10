@@ -1,5 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { getSharedAudioContext, runWhenAudioContextRunning } from './useMintSound';
+import {
+  getSafeAudioStartTime,
+  getSharedAudioContext,
+  IMMEDIATE_SOUND_LEAD,
+  POST_RESUME_SOUND_LEAD,
+  runWhenAudioContextRunning,
+} from './useMintSound';
 
 /**
  * useShimmerSound — continuous lightsaber-style ambient hum
@@ -82,31 +88,30 @@ export function useShimmerSound({
     if (!ctx) return false;
 
     if (ctx.state !== 'running') {
-      if (scheduledStartTime !== undefined) {
-        pendingStartRef.current = true;
-        ctx.resume().catch(() => {});
-        runWhenAudioContextRunning(
-          ctx,
-          () => { pendingStartRef.current = false; startSoundInternal(Math.max(scheduledStartTime, ctx.currentTime + 0.02)); },
-          1500,
-          () => { pendingStartRef.current = false; },
-        );
-        return true;
-      } else {
-        pendingStartRef.current = true;
-        ctx.resume().then(() => {
+      pendingStartRef.current = true;
+      ctx.resume().catch(() => {});
+      runWhenAudioContextRunning(
+        ctx,
+        () => {
           pendingStartRef.current = false;
-          startSoundInternal(ctx.currentTime + 0.02);
-        }).catch(() => {
-          pendingStartRef.current = false;
-        });
-        return true;
-      }
+          startSoundInternal(
+            getSafeAudioStartTime(
+              ctx,
+              scheduledStartTime,
+              POST_RESUME_SOUND_LEAD,
+            ),
+          );
+        },
+        1500,
+        () => { pendingStartRef.current = false; },
+      );
+      return true;
     }
 
-    const now = Math.max(
-      scheduledStartTime ?? (ctx.currentTime + 0.02),
-      ctx.currentTime + 0.02,
+    const now = getSafeAudioStartTime(
+      ctx,
+      scheduledStartTime,
+      scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD,
     );
 
     const vol = volumeRef.current;
