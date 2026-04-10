@@ -1034,103 +1034,108 @@ export function useMintSound() {
       const requested = playback?.now;
       if (requested === undefined) return;
 
+      const lead = scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD;
+
+      const fire = (now: number) => {
+        const DUR = 7.0; // Long resonant ring
+
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.5, now);
+        master.connect(ctx.destination);
+
+        // Fundamental — 36.7 Hz (D1, very deep — felt in the chest)
+        const fund = ctx.createOscillator();
+        fund.type = 'sine';
+        fund.frequency.setValueAtTime(36.7, now);
+        const fundGain = ctx.createGain();
+        fundGain.gain.setValueAtTime(0.6, now);
+        fundGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
+        fund.connect(fundGain);
+        fundGain.connect(master);
+        fund.start(now);
+        fund.stop(now + DUR + 0.1);
+
+        // Second partial — 73.4 Hz (octave, warm body)
+        const p2 = ctx.createOscillator();
+        p2.type = 'sine';
+        p2.frequency.setValueAtTime(73.4, now);
+        p2.frequency.linearRampToValueAtTime(73.0, now + DUR * 0.5);
+        const p2Gain = ctx.createGain();
+        p2Gain.gain.setValueAtTime(0.45, now);
+        p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.85);
+        p2.connect(p2Gain);
+        p2Gain.connect(master);
+        p2.start(now);
+        p2.stop(now + DUR + 0.1);
+
+        // Third partial — 110 Hz (octave + fifth, harmonizes with ambient hum)
+        const p3 = ctx.createOscillator();
+        p3.type = 'sine';
+        p3.frequency.setValueAtTime(110, now);
+        p3.frequency.linearRampToValueAtTime(109.5, now + DUR * 0.4);
+        const p3Gain = ctx.createGain();
+        p3Gain.gain.setValueAtTime(0.25, now);
+        p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.65);
+        p3.connect(p3Gain);
+        p3Gain.connect(master);
+        p3.start(now);
+        p3.stop(now + DUR + 0.1);
+
+        // Fourth partial — 146.8 Hz (shimmer)
+        const p4 = ctx.createOscillator();
+        p4.type = 'sine';
+        p4.frequency.setValueAtTime(146.8, now);
+        const p4Gain = ctx.createGain();
+        p4Gain.gain.setValueAtTime(0.1, now);
+        p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
+        p4.connect(p4Gain);
+        p4Gain.connect(master);
+        p4.start(now);
+        p4.stop(now + DUR + 0.1);
+
+        // Sub-bass — 18.35 Hz (octave below fundamental, pure physical vibration)
+        const sub = ctx.createOscillator();
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(18.35, now);
+        const subGain = ctx.createGain();
+        subGain.gain.setValueAtTime(0.35, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
+        sub.connect(subGain);
+        subGain.connect(master);
+        sub.start(now);
+        sub.stop(now + DUR + 0.1);
+
+        // Strike transient — deep mallet
+        const strike = ctx.createOscillator();
+        strike.type = 'triangle';
+        strike.frequency.setValueAtTime(600, now);
+        strike.frequency.exponentialRampToValueAtTime(73, now + 0.06);
+        const strikeGain = ctx.createGain();
+        strikeGain.gain.setValueAtTime(0.22, now);
+        strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        strike.connect(strikeGain);
+        strikeGain.connect(master);
+        strike.start(now);
+        strike.stop(now + 0.2);
+
+        // Slow LFO wobble — 7s cycle
+        const lfo = ctx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.setValueAtTime(1 / 7, now);
+        const lfoGain = ctx.createGain();
+        lfoGain.gain.setValueAtTime(0.8, now);
+        lfo.connect(lfoGain);
+        lfoGain.connect(fund.frequency);
+        lfoGain.connect(p2.frequency);
+        lfo.start(now);
+        lfo.stop(now + DUR + 0.1);
+      };
+
+      // CRITICAL: Same iOS-safe pattern as playWelcomeTap — schedule immediately
       if (ctx.state !== 'running') {
         ctx.resume().catch(() => {});
       }
-
-      const now = getSafeAudioStartTime(ctx, requested, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD);
-      const DUR = 5.0; // Longer resonant ring to blend into the ambient hum
-
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(0.45, now);
-      master.connect(ctx.destination);
-
-      // Fundamental — 55 Hz (same root as the ambient lightsaber/gong hum)
-      const fund = ctx.createOscillator();
-      fund.type = 'sine';
-      fund.frequency.setValueAtTime(55, now);
-      const fundGain = ctx.createGain();
-      fundGain.gain.setValueAtTime(0.55, now);
-      fundGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
-      fund.connect(fundGain);
-      fundGain.connect(master);
-      fund.start(now);
-      fund.stop(now + DUR + 0.1);
-
-      // Second partial — octave (110 Hz, matches ambient harmOsc)
-      const p2 = ctx.createOscillator();
-      p2.type = 'sine';
-      p2.frequency.setValueAtTime(110, now);
-      p2.frequency.linearRampToValueAtTime(109.5, now + DUR * 0.5); // Subtle beating
-      const p2Gain = ctx.createGain();
-      p2Gain.gain.setValueAtTime(0.4, now);
-      p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.85);
-      p2.connect(p2Gain);
-      p2Gain.connect(master);
-      p2.start(now);
-      p2.stop(now + DUR + 0.1);
-
-      // Third partial — octave + fifth (165 Hz, matches ambient gongOsc3)
-      const p3 = ctx.createOscillator();
-      p3.type = 'sine';
-      p3.frequency.setValueAtTime(165, now);
-      p3.frequency.linearRampToValueAtTime(164.5, now + DUR * 0.4);
-      const p3Gain = ctx.createGain();
-      p3Gain.gain.setValueAtTime(0.2, now);
-      p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.65);
-      p3.connect(p3Gain);
-      p3Gain.connect(master);
-      p3.start(now);
-      p3.stop(now + DUR + 0.1);
-
-      // Fourth partial — double octave (220 Hz, matches ambient baseLp cutoff)
-      const p4 = ctx.createOscillator();
-      p4.type = 'sine';
-      p4.frequency.setValueAtTime(220, now);
-      const p4Gain = ctx.createGain();
-      p4Gain.gain.setValueAtTime(0.1, now);
-      p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
-      p4.connect(p4Gain);
-      p4Gain.connect(master);
-      p4.start(now);
-      p4.stop(now + DUR + 0.1);
-
-      // Sub-bass layer — 27.5 Hz (octave below fundamental, felt more than heard)
-      const sub = ctx.createOscillator();
-      sub.type = 'sine';
-      sub.frequency.setValueAtTime(27.5, now);
-      const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0.3, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
-      sub.connect(subGain);
-      subGain.connect(master);
-      sub.start(now);
-      sub.stop(now + DUR + 0.1);
-
-      // Strike transient — softer, deeper mallet hit
-      const strike = ctx.createOscillator();
-      strike.type = 'triangle';
-      strike.frequency.setValueAtTime(800, now);
-      strike.frequency.exponentialRampToValueAtTime(110, now + 0.04);
-      const strikeGain = ctx.createGain();
-      strikeGain.gain.setValueAtTime(0.2, now);
-      strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-      strike.connect(strikeGain);
-      strikeGain.connect(master);
-      strike.start(now);
-      strike.stop(now + 0.15);
-
-      // Slow LFO wobble — matches the 5s ambient shimmer cycle
-      const lfo = ctx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.2, now); // 5-second cycle = 0.2 Hz
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(1.5, now); // ±1.5 Hz wobble
-      lfo.connect(lfoGain);
-      lfoGain.connect(fund.frequency);
-      lfoGain.connect(p2.frequency);
-      lfo.start(now);
-      lfo.stop(now + DUR + 0.1);
+      fire(getSafeAudioStartTime(ctx, requested, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : lead));
 
     } catch {
       // Silent fail
