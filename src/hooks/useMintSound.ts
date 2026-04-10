@@ -1037,93 +1037,117 @@ export function useMintSound() {
       const lead = scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD;
 
       const fire = (now: number) => {
-        const DUR = 7.0; // Long resonant ring
+        const DUR = 6.0;
 
         const master = ctx.createGain();
-        master.gain.setValueAtTime(0.5, now);
+        master.gain.setValueAtTime(0.55, now);
         master.connect(ctx.destination);
 
-        // Fundamental — 36.7 Hz (D1, very deep — felt in the chest)
+        // ── Metallic gong body ──
+        // Real gongs have inharmonic partials — slightly detuned from integer ratios
+        // Fundamental — 65 Hz (C2, rich and audible as a gong tone)
         const fund = ctx.createOscillator();
         fund.type = 'sine';
-        fund.frequency.setValueAtTime(36.7, now);
+        fund.frequency.setValueAtTime(65, now);
         const fundGain = ctx.createGain();
-        fundGain.gain.setValueAtTime(0.6, now);
+        fundGain.gain.setValueAtTime(0.5, now);
         fundGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
         fund.connect(fundGain);
         fundGain.connect(master);
         fund.start(now);
         fund.stop(now + DUR + 0.1);
 
-        // Second partial — 73.4 Hz (octave, warm body)
+        // Partial 2 — 156 Hz (2.4× fundamental — gong-like inharmonic)
         const p2 = ctx.createOscillator();
         p2.type = 'sine';
-        p2.frequency.setValueAtTime(73.4, now);
-        p2.frequency.linearRampToValueAtTime(73.0, now + DUR * 0.5);
+        p2.frequency.setValueAtTime(156, now);
+        p2.frequency.linearRampToValueAtTime(154.5, now + DUR * 0.6);
         const p2Gain = ctx.createGain();
-        p2Gain.gain.setValueAtTime(0.45, now);
-        p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.85);
+        p2Gain.gain.setValueAtTime(0.35, now);
+        p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.8);
         p2.connect(p2Gain);
         p2Gain.connect(master);
         p2.start(now);
         p2.stop(now + DUR + 0.1);
 
-        // Third partial — 110 Hz (octave + fifth, harmonizes with ambient hum)
+        // Partial 3 — 287 Hz (4.4× — metallic shimmer, slightly sharp)
         const p3 = ctx.createOscillator();
         p3.type = 'sine';
-        p3.frequency.setValueAtTime(110, now);
-        p3.frequency.linearRampToValueAtTime(109.5, now + DUR * 0.4);
+        p3.frequency.setValueAtTime(287, now);
+        p3.frequency.linearRampToValueAtTime(285, now + DUR * 0.4);
         const p3Gain = ctx.createGain();
-        p3Gain.gain.setValueAtTime(0.25, now);
-        p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.65);
+        p3Gain.gain.setValueAtTime(0.18, now);
+        p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.55);
         p3.connect(p3Gain);
         p3Gain.connect(master);
         p3.start(now);
         p3.stop(now + DUR + 0.1);
 
-        // Fourth partial — 146.8 Hz (shimmer)
+        // Partial 4 — 410 Hz (6.3× — high metallic ring)
         const p4 = ctx.createOscillator();
         p4.type = 'sine';
-        p4.frequency.setValueAtTime(146.8, now);
+        p4.frequency.setValueAtTime(410, now);
         const p4Gain = ctx.createGain();
-        p4Gain.gain.setValueAtTime(0.1, now);
-        p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.5);
+        p4Gain.gain.setValueAtTime(0.08, now);
+        p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.4);
         p4.connect(p4Gain);
         p4Gain.connect(master);
         p4.start(now);
         p4.stop(now + DUR + 0.1);
 
-        // Sub-bass — 18.35 Hz (octave below fundamental, pure physical vibration)
+        // Sub-bass drone — 32.5 Hz (octave below, meditative hum foundation)
         const sub = ctx.createOscillator();
         sub.type = 'sine';
-        sub.frequency.setValueAtTime(18.35, now);
+        sub.frequency.setValueAtTime(32.5, now);
         const subGain = ctx.createGain();
-        subGain.gain.setValueAtTime(0.35, now);
-        subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.7);
+        subGain.gain.setValueAtTime(0.3, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.75);
         sub.connect(subGain);
         subGain.connect(master);
         sub.start(now);
         sub.stop(now + DUR + 0.1);
 
-        // Strike transient — deep mallet
+        // ── Strike transient — bright mallet impact on metal ──
+        // Noise burst filtered through a bandpass for metallic character
+        const strikeLen = 0.08;
+        const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * strikeLen, ctx.sampleRate);
+        const noiseData = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < noiseData.length; i++) {
+          noiseData[i] = (Math.random() * 2 - 1);
+        }
+        const noiseSource = ctx.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+        const noiseBp = ctx.createBiquadFilter();
+        noiseBp.type = 'bandpass';
+        noiseBp.frequency.setValueAtTime(2200, now);
+        noiseBp.Q.setValueAtTime(3, now);
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.25, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + strikeLen);
+        noiseSource.connect(noiseBp);
+        noiseBp.connect(noiseGain);
+        noiseGain.connect(master);
+        noiseSource.start(now);
+
+        // Tonal strike — triangle sweep for the "dong" attack
         const strike = ctx.createOscillator();
         strike.type = 'triangle';
-        strike.frequency.setValueAtTime(600, now);
-        strike.frequency.exponentialRampToValueAtTime(73, now + 0.06);
+        strike.frequency.setValueAtTime(900, now);
+        strike.frequency.exponentialRampToValueAtTime(65, now + 0.07);
         const strikeGain = ctx.createGain();
-        strikeGain.gain.setValueAtTime(0.22, now);
-        strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        strikeGain.gain.setValueAtTime(0.3, now);
+        strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
         strike.connect(strikeGain);
         strikeGain.connect(master);
         strike.start(now);
-        strike.stop(now + 0.2);
+        strike.stop(now + 0.25);
 
-        // Slow LFO wobble — 7s cycle
+        // ── LFO wobble — characteristic gong beating ──
         const lfo = ctx.createOscillator();
         lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(1 / 7, now);
+        lfo.frequency.setValueAtTime(0.25, now); // 4-second beat cycle
         const lfoGain = ctx.createGain();
-        lfoGain.gain.setValueAtTime(0.8, now);
+        lfoGain.gain.setValueAtTime(1.2, now);
         lfo.connect(lfoGain);
         lfoGain.connect(fund.frequency);
         lfoGain.connect(p2.frequency);

@@ -30,22 +30,24 @@ function grantAccess() {
 }
 
 // ─── Burst particles ────
-const PARTICLE_COUNT = 12;
+const PARTICLE_COUNT = 20;
 const RGBA = '34, 197, 94';
+const RGBA_GOLD = '255, 180, 60';
 const PARTICLE_SHAPE = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
 
 function generateParticles() {
   return Array.from({ length: PARTICLE_COUNT }, (_, i) => {
-    const angle = (i / PARTICLE_COUNT) * 360 + (Math.random() * 20 - 10);
+    const angle = (i / PARTICLE_COUNT) * 360 + (Math.random() * 30 - 15);
     const rad = (angle * Math.PI) / 180;
-    const dist = 50 + Math.random() * 60;
+    const dist = 70 + Math.random() * 90;
     return {
       tx: Math.cos(rad) * dist,
       ty: Math.sin(rad) * dist,
-      size: 5 + Math.random() * 5,
+      size: 7 + Math.random() * 8,
       rotation: Math.random() * 360,
-      alpha: 0.85 + Math.random() * 0.15,
-      delay: i * 25,
+      alpha: 0.9 + Math.random() * 0.1,
+      delay: i * 18,
+      isGold: i % 3 === 0,
     };
   });
 }
@@ -471,16 +473,16 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   style={{
                     left: '50%',
                     top: '50%',
-                    width: p.size * 0.7,
-                    height: p.size * 0.7,
-                    background: `rgba(255,255,255, ${p.alpha * 0.6})`,
-                    boxShadow: `0 0 6px rgba(${RGBA}, 0.4)`,
+                    width: p.size,
+                    height: p.size,
+                    background: `rgba(${p.isGold ? RGBA_GOLD : '255,255,255'}, ${p.alpha * 0.85})`,
+                    boxShadow: `0 0 ${p.isGold ? 12 : 8}px rgba(${p.isGold ? RGBA_GOLD : RGBA}, 0.6)`,
                     clipPath: PARTICLE_SHAPE,
                     transform: `rotate(${p.rotation}deg)`,
-                    animation: `zenFlareParticle 500ms ${p.delay}ms ease-out forwards`,
+                    animation: `zenFlareParticle 650ms ${p.delay}ms ease-out forwards`,
                     willChange: 'transform, opacity',
-                    '--tx': `${p.tx * 0.5}px`,
-                    '--ty': `${p.ty * 0.5}px`,
+                    '--tx': `${p.tx}px`,
+                    '--ty': `${p.ty}px`,
                   } as React.CSSProperties}
                 />
               ))}
@@ -493,10 +495,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   style={{
                     left: '50%',
                     top: '50%',
-                    width: '200%',
-                    height: '200%',
-                    background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-                    animation: 'zenTouchRipple 500ms ease-out forwards',
+                    width: '280%',
+                    height: '280%',
+                    background: 'radial-gradient(circle, rgba(255,200,60,0.18) 0%, rgba(255,255,255,0.1) 40%, transparent 70%)',
+                    animation: 'zenTouchRipple 650ms ease-out forwards',
                     willChange: 'transform, opacity',
                   }}
                 />
