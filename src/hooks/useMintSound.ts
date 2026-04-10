@@ -133,11 +133,14 @@ const installGlobalUnlockListeners = () => {
 
   const unlock = () => {
     try {
-      const ctx = createSharedAudioContext();
-      if (ctx.state !== 'running') {
-        ctx.resume().catch(() => {});
+      // IMPORTANT: On iOS WebKit (iPhone Chrome & Safari), do NOT create
+      // the AudioContext here. Creating it in a global capture-phase listener
+      // can "consume" the gesture token before the component's own handler
+      // gets to play audible nodes. Only resume an already-existing context.
+      if (sharedAudioContext && sharedAudioContext.state !== 'running') {
+        sharedAudioContext.resume().catch(() => {});
+        warmAudioHardware(sharedAudioContext);
       }
-      warmAudioHardware(ctx);
     } catch {
       // Silent fail
     }
