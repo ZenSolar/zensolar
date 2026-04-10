@@ -900,10 +900,18 @@ export function useMintSound() {
   }, [preparePlayback]);
 
   // ── Welcome tap: snappy, instant-attack chime ──
-  const playWelcomeTap = useCallback((scheduledStartTime?: number) => {
+  const playWelcomeTap = useCallback(function playWelcomeTapInternal(scheduledStartTime?: number) {
     try {
       const ctx = getCtx();
       if (!ctx) return;
+
+      if (scheduledStartTime === undefined && ctx.state !== 'running') {
+        ctx.resume().then(() => {
+          fireSilentUnlockPulse(ctx);
+          playWelcomeTapInternal(ctx.currentTime + IMMEDIATE_SOUND_LEAD);
+        }).catch(() => {});
+        return;
+      }
 
       const fallbackPlayback = scheduledStartTime === undefined ? preparePlayback() : null;
       const now = scheduledStartTime ?? fallbackPlayback?.now;

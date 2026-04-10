@@ -40,6 +40,7 @@ export function useShimmerSound({
   enabled = true,
 }: ShimmerSoundOptions = {}) {
   const nodesRef = useRef<ShimmerNodes | null>(null);
+  const pendingStartRef = useRef(false);
   const volumeRef = useRef(volume);
   const cycleDurationRef = useRef(cycleDuration);
   volumeRef.current = volume;
@@ -71,20 +72,27 @@ export function useShimmerSound({
     }, 1500);
 
     nodesRef.current = null;
+    pendingStartRef.current = false;
   }, []);
 
-  const startSound = useCallback((scheduledStartTime?: number) => {
-    if (nodesRef.current) return true;
+  const startSound = useCallback(function startSoundInternal(scheduledStartTime?: number) {
+    if (nodesRef.current || pendingStartRef.current) return true;
 
     const ctx = getSharedAudioContext();
     if (!ctx) return false;
 
-    const needsWarmStart = ctx.state !== 'running';
-    if (needsWarmStart) {
-      ctx.resume().catch(() => {});
+    if (ctx.state !== 'running') {
+      pendingStartRef.current = true;
+      ctx.resume().then(() => {
+        pendingStartRef.current = false;
+        startSoundInternal(ctx.currentTime + 0.02);
+      }).catch(() => {
+        pendingStartRef.current = false;
+      });
+      return true;
     }
 
-    const now = scheduledStartTime ?? ctx.currentTime;
+    const now = scheduledStartTime ?? (ctx.currentTime + 0.02);
     const vol = volumeRef.current;
     const lfoFreq = 1 / cycleDurationRef.current;
 
