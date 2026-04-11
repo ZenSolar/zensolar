@@ -332,18 +332,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         isolation: 'isolate',
       }}
     >
-      {hexAwake && (
-        <div
-          className="absolute inset-0"
-          style={{
-            touchAction: 'none',
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <GateHexBackground activated={hexAwake} />
-        </div>
-      )}
+      <div
+        className="absolute inset-0"
+        style={{
+          touchAction: 'none',
+          width: '100%',
+          height: '100%',
+          opacity: hexAwake ? 1 : 0,
+          transition: 'opacity 0.15s ease-out',
+        }}
+      >
+        <GateHexBackground activated={hexAwake} />
+      </div>
 
       {/* Radial vignette */}
       <div className={cn("absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background))_75%)] pointer-events-none transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')} />
