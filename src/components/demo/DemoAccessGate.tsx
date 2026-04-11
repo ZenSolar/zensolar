@@ -391,7 +391,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <img
             src={zenLogo}
             alt="ZenSolar"
-            className={cn("h-8 w-auto object-contain dark:brightness-[1.8] drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)] transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}
+            className={cn("h-8 w-auto object-contain transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}
+            style={{ filter: 'drop-shadow(0 0 12px hsl(142 76% 36% / 0.45)) brightness(1.8)' }}
           />
 
           {/* $Z / Lock icon with burst effect */}
