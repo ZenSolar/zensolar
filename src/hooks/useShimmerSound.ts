@@ -87,25 +87,11 @@ export function useShimmerSound({
     const ctx = getSharedAudioContext();
     if (!ctx) return false;
 
+    // CRITICAL: On iOS, schedule nodes immediately even if ctx is suspended.
+    // Nodes scheduled on a suspended context will play once resume() resolves.
+    // Deferring via runWhenAudioContextRunning breaks the gesture chain.
     if (ctx.state !== 'running') {
-      pendingStartRef.current = true;
       ctx.resume().catch(() => {});
-      runWhenAudioContextRunning(
-        ctx,
-        () => {
-          pendingStartRef.current = false;
-          startSoundInternal(
-            getSafeAudioStartTime(
-              ctx,
-              scheduledStartTime,
-              POST_RESUME_SOUND_LEAD,
-            ),
-          );
-        },
-        1500,
-        () => { pendingStartRef.current = false; },
-      );
-      return true;
     }
 
     const now = getSafeAudioStartTime(
