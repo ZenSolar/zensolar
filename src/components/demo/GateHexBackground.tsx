@@ -13,11 +13,14 @@ export function GateHexBackground({ activated = false }: GateHexBackgroundProps)
   const activationStartRef = useRef<number | null>(activated ? performance.now() : null);
   const activatedRef = useRef(activated);
 
-  useEffect(() => {
-    if (activated && !activatedRef.current) activationStartRef.current = performance.now();
-    if (!activated) activationStartRef.current = null;
-    activatedRef.current = activated;
-  }, [activated]);
+  // Synchronous prop sync — no useEffect delay
+  if (activated && !activatedRef.current) {
+    activationStartRef.current = performance.now();
+  }
+  if (!activated) {
+    activationStartRef.current = null;
+  }
+  activatedRef.current = activated;
 
   useEffect(() => {
     const canvas = canvasRef.current;
