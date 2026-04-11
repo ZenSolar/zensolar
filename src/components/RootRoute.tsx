@@ -1,11 +1,10 @@
 import { lazy, Suspense } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
 const Index = lazy(() => import('@/pages/Index'));
-const Home = lazy(() => import('@/pages/Home'));
-const ComingSoon = lazy(() => import('@/pages/ComingSoon'));
 
 // Eagerly preload dashboard chunks for returning PWA users.
 // This starts fetching the JS in parallel with auth resolution so the chunks
@@ -21,8 +20,6 @@ function RouteLoader() {
   );
 }
 
-const BETA_HOSTS = ['beta.zen.solar'];
-
 export function RootRoute() {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -31,12 +28,7 @@ export function RootRoute() {
   }
 
   if (!isAuthenticated) {
-    const isComingSoon = !BETA_HOSTS.includes(window.location.hostname);
-    return (
-      <Suspense fallback={<RouteLoader />}>
-        {isComingSoon ? <ComingSoon /> : <Home />}
-      </Suspense>
-    );
+    return <Navigate to="/demo" replace />;
   }
 
   return (
