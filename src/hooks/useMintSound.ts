@@ -1027,14 +1027,11 @@ export function useMintSound() {
       const ctx = getCtx();
       if (!ctx) return;
 
-      const playback = scheduledStartTime === undefined
-        ? preparePlayback()
-        : { ctx, now: scheduledStartTime };
-
-      const requested = playback?.now;
-      if (requested === undefined) return;
-
-      const lead = scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD;
+      // Always resume synchronously within the gesture
+      if (ctx.state !== 'running') {
+        ctx.resume().catch(() => {});
+        warmAudioHardware(ctx);
+      }
 
       const fire = (now: number) => {
         const DUR = 6.0;
