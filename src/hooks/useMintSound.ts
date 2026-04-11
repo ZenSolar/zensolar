@@ -1152,18 +1152,23 @@ export function useMintSound() {
         lfo.stop(now + DUR + 0.1);
       };
 
-      // CRITICAL: Schedule immediately with minimal lead — the singing bowl
-      // is the first sound on first tap, so any perceptible delay feels wrong.
-      // Nodes scheduled while suspended will play the instant resume() resolves.
-      if (ctx.state !== 'running') {
-        ctx.resume().catch(() => {});
+      // If context is already running, fire immediately.
+      // If suspended (incognito cold start), wait for it to actually start
+      // running so we schedule nodes at the right currentTime.
+      if (ctx.state === 'running') {
+        fire(getSafeAudioStartTime(ctx, scheduledStartTime, IMMEDIATE_SOUND_LEAD));
+      } else {
+        runWhenAudioContextRunning(
+          ctx,
+          () => fire(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD)),
+          2000,
+        );
       }
-      fire(getSafeAudioStartTime(ctx, requested, IMMEDIATE_SOUND_LEAD));
 
     } catch {
       // Silent fail
     }
-  }, [getCtx, preparePlayback]);
+  }, [getCtx]);
 
   return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, playSingingBowl, triggerHaptic };
 }
