@@ -1152,18 +1152,14 @@ export function useMintSound() {
         lfo.stop(now + DUR + 0.1);
       };
 
-      // If context is already running, fire immediately.
-      // If suspended (incognito cold start), wait for it to actually start
-      // running so we schedule nodes at the right currentTime.
-      if (ctx.state === 'running') {
-        fire(getSafeAudioStartTime(ctx, scheduledStartTime, IMMEDIATE_SOUND_LEAD));
-      } else {
-        runWhenAudioContextRunning(
-          ctx,
-          () => fire(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD)),
-          2000,
-        );
+      // CRITICAL: On iOS, schedule nodes immediately even if ctx is suspended.
+      // Nodes scheduled on a suspended context will play once resume() resolves.
+      // Waiting for 'running' state (via runWhenAudioContextRunning) breaks the
+      // gesture chain and iOS blocks playback entirely.
+      if (ctx.state !== 'running') {
+        ctx.resume().catch(() => {});
       }
+      fire(getSafeAudioStartTime(ctx, scheduledStartTime, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD));
 
     } catch {
       // Silent fail
