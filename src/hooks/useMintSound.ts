@@ -128,6 +128,43 @@ const warmAudioHardware = (ctx: AudioContext) => {
   });
 };
 
+interface ScheduleWhenAudioRunningOptions {
+  requestedTime?: number;
+  runningLead?: number;
+  resumedLead?: number;
+  timeoutMs?: number;
+  onTimeout?: () => void;
+}
+
+export function scheduleWhenAudioRunning(
+  ctx: AudioContext,
+  fire: (startTime: number) => void,
+  {
+    requestedTime,
+    runningLead = IMMEDIATE_SOUND_LEAD,
+    resumedLead = POST_RESUME_SOUND_LEAD,
+    timeoutMs = 2000,
+    onTimeout,
+  }: ScheduleWhenAudioRunningOptions = {},
+) {
+  if (ctx.state === 'running') {
+    fire(getSafeAudioStartTime(ctx, requestedTime, runningLead));
+    return () => {};
+  }
+
+  warmAudioHardware(ctx);
+  ctx.resume().catch(() => {});
+
+  return runWhenAudioContextRunning(
+    ctx,
+    () => {
+      fire(getSafeAudioStartTime(ctx, requestedTime, resumedLead));
+    },
+    timeoutMs,
+    onTimeout,
+  );
+}
+
 const installGlobalUnlockListeners = () => {
   if (unlockListenersInstalled || typeof window === 'undefined') return;
 
@@ -963,15 +1000,6 @@ export function useMintSound() {
       const ctx = getCtx();
       if (!ctx) return;
 
-      const playback = scheduledStartTime === undefined
-        ? preparePlayback()
-        : { ctx, now: scheduledStartTime };
-
-      const requested = playback?.now;
-      if (requested === undefined) return;
-
-      const lead = scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD;
-
       const fire = (now: number) => {
         const master = ctx.createGain();
         master.gain.setValueAtTime(0.45, now);
@@ -1008,38 +1036,21 @@ export function useMintSound() {
         sub.start(now); sub.stop(now + DUR + 0.05);
       };
 
-      // CRITICAL: On iOS, schedule nodes immediately even if ctx is suspended.
-      // Nodes scheduled on a suspended context will play once resume() resolves.
-      // Waiting for 'running' state (via runWhenAudioContextRunning) breaks the
-      // gesture chain and iOS blocks playback entirely.
-      const wasRunning = ctx.state === 'running';
-      if (!wasRunning) {
-        ctx.resume().catch(() => {});
-      }
-      fire(getSafeAudioStartTime(ctx, requested, wasRunning ? lead : WARM_START_SOUND_LEAD));
-
-      // Dual-fire: also schedule when context confirms running (iOS drops suspended nodes)
-      if (!wasRunning) {
-        runWhenAudioContextRunning(ctx, () => {
-          fire(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD));
-        }, 2000);
-      }
+      scheduleWhenAudioRunning(ctx, fire, {
+        requestedTime: scheduledStartTime,
+        runningLead: IMMEDIATE_SOUND_LEAD,
+        resumedLead: POST_RESUME_SOUND_LEAD,
+      });
     } catch {
       // Silent fail
     }
-  }, [getCtx, preparePlayback]);
+  }, [getCtx]);
 
   // ── Singing bowl: Tibetan gong ring for the very first tap ──
   const playSingingBowl = useCallback((scheduledStartTime?: number) => {
     try {
       const ctx = getCtx();
       if (!ctx) return;
-
-      // Always resume synchronously within the gesture
-      if (ctx.state !== 'running') {
-        ctx.resume().catch(() => {});
-        warmAudioHardware(ctx);
-      }
 
       const fire = (now: number) => {
         // Guard: if we already fired and produced audible output, skip
@@ -1161,26 +1172,11 @@ export function useMintSound() {
         lfo.stop(now + DUR + 0.1);
       };
 
-      // CRITICAL: On iOS, schedule nodes immediately even if ctx is suspended.
-      // Nodes scheduled on a suspended context will play once resume() resolves.
-      // Waiting for 'running' state (via runWhenAudioContextRunning) breaks the
-      // gesture chain and iOS blocks playback entirely.
-      const wasRunning = ctx.state === 'running';
-      if (!wasRunning) {
-        ctx.resume().catch(() => {});
-      }
-
-      // Strategy 1: Schedule immediately (works on some browsers even while suspended)
-      fire(getSafeAudioStartTime(ctx, scheduledStartTime, wasRunning ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD));
-
-      // Strategy 2: If context wasn't running, ALSO schedule when it transitions
-      // to running. iOS Safari often silently drops nodes scheduled on suspended contexts.
-      // The duplicate playback is acceptable — two gong layers create a richer sound.
-      if (!wasRunning) {
-        runWhenAudioContextRunning(ctx, () => {
-          fire(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD));
-        }, 2000);
-      }
+      scheduleWhenAudioRunning(ctx, fire, {
+        requestedTime: scheduledStartTime,
+        runningLead: IMMEDIATE_SOUND_LEAD,
+        resumedLead: POST_RESUME_SOUND_LEAD,
+      });
 
     } catch {
       // Silent fail

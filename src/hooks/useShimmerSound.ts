@@ -1,10 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react';
 import {
-  getSafeAudioStartTime,
   getSharedAudioContext,
   IMMEDIATE_SOUND_LEAD,
   POST_RESUME_SOUND_LEAD,
-  runWhenAudioContextRunning,
+  scheduleWhenAudioRunning,
 } from './useMintSound';
 
 /**
@@ -47,12 +46,17 @@ export function useShimmerSound({
 }: ShimmerSoundOptions = {}) {
   const nodesRef = useRef<ShimmerNodes | null>(null);
   const pendingStartRef = useRef(false);
+  const pendingStartCleanupRef = useRef<(() => void) | null>(null);
   const volumeRef = useRef(volume);
   const cycleDurationRef = useRef(cycleDuration);
   volumeRef.current = volume;
   cycleDurationRef.current = cycleDuration;
 
   const stopSound = useCallback(() => {
+    pendingStartCleanupRef.current?.();
+    pendingStartCleanupRef.current = null;
+    pendingStartRef.current = false;
+
     if (!nodesRef.current) return;
 
     const n = nodesRef.current;
@@ -78,7 +82,6 @@ export function useShimmerSound({
     }, 1500);
 
     nodesRef.current = null;
-    pendingStartRef.current = false;
   }, []);
 
   const startSound = useCallback(function startSoundInternal(scheduledStartTime?: number) {
@@ -87,181 +90,178 @@ export function useShimmerSound({
     const ctx = getSharedAudioContext();
     if (!ctx) return false;
 
-    // CRITICAL: On iOS, schedule nodes immediately even if ctx is suspended.
-    // Nodes scheduled on a suspended context will play once resume() resolves.
-    // Deferring via runWhenAudioContextRunning breaks the gesture chain.
-    const wasRunning = ctx.state === 'running';
-    if (ctx.state !== 'running') {
-      ctx.resume().catch(() => {});
-    }
+    const bootNodes = (now: number) => {
+      const vol = volumeRef.current;
+      const lfoFreq = 1 / cycleDurationRef.current;
 
-    const now = getSafeAudioStartTime(
-      ctx,
-      scheduledStartTime,
-      scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD,
-    );
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0, now);
+      master.connect(ctx.destination);
 
-    const vol = volumeRef.current;
-    const lfoFreq = 1 / cycleDurationRef.current;
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(lfoFreq, now);
 
-    const master = ctx.createGain();
-    master.gain.setValueAtTime(0, now);
-    master.connect(ctx.destination);
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.setValueAtTime(vol * 0.45, now);
 
-    const lfo = ctx.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.setValueAtTime(lfoFreq, now);
+      const biasNode = ctx.createConstantSource();
+      biasNode.offset.setValueAtTime(vol * 0.55, now);
 
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.setValueAtTime(vol * 0.45, now);
+      lfo.connect(lfoGain);
+      lfoGain.connect(master.gain);
+      biasNode.connect(master.gain);
 
-    const biasNode = ctx.createConstantSource();
-    biasNode.offset.setValueAtTime(vol * 0.55, now);
+      const baseOsc = ctx.createOscillator();
+      baseOsc.type = 'sawtooth';
+      baseOsc.frequency.setValueAtTime(92, now);
 
-    lfo.connect(lfoGain);
-    lfoGain.connect(master.gain);
-    biasNode.connect(master.gain);
+      const baseLp = ctx.createBiquadFilter();
+      baseLp.type = 'lowpass';
+      baseLp.frequency.setValueAtTime(220, now);
+      baseLp.Q.setValueAtTime(2.0, now);
 
-    const baseOsc = ctx.createOscillator();
-    baseOsc.type = 'sawtooth';
-    baseOsc.frequency.setValueAtTime(92, now);
+      const baseGain = ctx.createGain();
+      baseGain.gain.setValueAtTime(0.5, now);
 
-    const baseLp = ctx.createBiquadFilter();
-    baseLp.type = 'lowpass';
-    baseLp.frequency.setValueAtTime(220, now);
-    baseLp.Q.setValueAtTime(2.0, now);
+      baseOsc.connect(baseLp);
+      baseLp.connect(baseGain);
+      baseGain.connect(master);
 
-    const baseGain = ctx.createGain();
-    baseGain.gain.setValueAtTime(0.5, now);
+      const harmOsc = ctx.createOscillator();
+      harmOsc.type = 'sine';
+      harmOsc.frequency.setValueAtTime(184, now);
 
-    baseOsc.connect(baseLp);
-    baseLp.connect(baseGain);
-    baseGain.connect(master);
+      const harmGain = ctx.createGain();
+      harmGain.gain.setValueAtTime(0.25, now);
 
-    const harmOsc = ctx.createOscillator();
-    harmOsc.type = 'sine';
-    harmOsc.frequency.setValueAtTime(184, now);
+      harmOsc.connect(harmGain);
+      harmGain.connect(master);
 
-    const harmGain = ctx.createGain();
-    harmGain.gain.setValueAtTime(0.25, now);
+      const subOsc = ctx.createOscillator();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(46, now);
 
-    harmOsc.connect(harmGain);
-    harmGain.connect(master);
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.3, now);
 
-    const subOsc = ctx.createOscillator();
-    subOsc.type = 'sine';
-    subOsc.frequency.setValueAtTime(46, now);
+      subOsc.connect(subGain);
+      subGain.connect(master);
 
-    const subGain = ctx.createGain();
-    subGain.gain.setValueAtTime(0.3, now);
+      const gongOsc = ctx.createOscillator();
+      gongOsc.type = 'sine';
+      gongOsc.frequency.setValueAtTime(55, now);
 
-    subOsc.connect(subGain);
-    subGain.connect(master);
+      const gongOsc2 = ctx.createOscillator();
+      gongOsc2.type = 'sine';
+      gongOsc2.frequency.setValueAtTime(110, now);
 
-    const gongOsc = ctx.createOscillator();
-    gongOsc.type = 'sine';
-    gongOsc.frequency.setValueAtTime(55, now);
+      const gongOsc3 = ctx.createOscillator();
+      gongOsc3.type = 'sine';
+      gongOsc3.frequency.setValueAtTime(165, now);
 
-    const gongOsc2 = ctx.createOscillator();
-    gongOsc2.type = 'sine';
-    gongOsc2.frequency.setValueAtTime(110, now);
+      const gongLfoGain = ctx.createGain();
+      gongLfoGain.gain.setValueAtTime(0.4, now);
 
-    const gongOsc3 = ctx.createOscillator();
-    gongOsc3.type = 'sine';
-    gongOsc3.frequency.setValueAtTime(165, now);
+      const gongBias = ctx.createConstantSource();
+      gongBias.offset.setValueAtTime(0.35, now);
 
-    const gongLfoGain = ctx.createGain();
-    gongLfoGain.gain.setValueAtTime(0.4, now);
+      const gongMaster = ctx.createGain();
+      gongMaster.gain.setValueAtTime(0, now);
 
-    const gongBias = ctx.createConstantSource();
-    gongBias.offset.setValueAtTime(0.35, now);
+      lfo.connect(gongLfoGain);
+      gongLfoGain.connect(gongMaster.gain);
+      gongBias.connect(gongMaster.gain);
 
-    const gongMaster = ctx.createGain();
-    gongMaster.gain.setValueAtTime(0, now);
+      const gong1Gain = ctx.createGain();
+      gong1Gain.gain.setValueAtTime(0.35, now);
+      gongOsc.connect(gong1Gain);
+      gong1Gain.connect(gongMaster);
 
-    lfo.connect(gongLfoGain);
-    gongLfoGain.connect(gongMaster.gain);
-    gongBias.connect(gongMaster.gain);
+      const gong2Gain = ctx.createGain();
+      gong2Gain.gain.setValueAtTime(0.18, now);
+      gongOsc2.connect(gong2Gain);
+      gong2Gain.connect(gongMaster);
 
-    const gong1Gain = ctx.createGain();
-    gong1Gain.gain.setValueAtTime(0.35, now);
-    gongOsc.connect(gong1Gain);
-    gong1Gain.connect(gongMaster);
+      const gong3Gain = ctx.createGain();
+      gong3Gain.gain.setValueAtTime(0.08, now);
+      gongOsc3.connect(gong3Gain);
+      gong3Gain.connect(gongMaster);
 
-    const gong2Gain = ctx.createGain();
-    gong2Gain.gain.setValueAtTime(0.18, now);
-    gongOsc2.connect(gong2Gain);
-    gong2Gain.connect(gongMaster);
+      const gongLp = ctx.createBiquadFilter();
+      gongLp.type = 'lowpass';
+      gongLp.frequency.setValueAtTime(180, now);
+      gongLp.Q.setValueAtTime(0.7, now);
 
-    const gong3Gain = ctx.createGain();
-    gong3Gain.gain.setValueAtTime(0.08, now);
-    gongOsc3.connect(gong3Gain);
-    gong3Gain.connect(gongMaster);
+      gongMaster.connect(gongLp);
+      gongLp.connect(master);
 
-    const gongLp = ctx.createBiquadFilter();
-    gongLp.type = 'lowpass';
-    gongLp.frequency.setValueAtTime(180, now);
-    gongLp.Q.setValueAtTime(0.7, now);
+      const wobbleLfo = ctx.createOscillator();
+      wobbleLfo.type = 'sine';
+      wobbleLfo.frequency.setValueAtTime(5.5, now);
 
-    gongMaster.connect(gongLp);
-    gongLp.connect(master);
+      const wobbleGain = ctx.createGain();
+      wobbleGain.gain.setValueAtTime(3, now);
 
-    const wobbleLfo = ctx.createOscillator();
-    wobbleLfo.type = 'sine';
-    wobbleLfo.frequency.setValueAtTime(5.5, now);
+      wobbleLfo.connect(wobbleGain);
+      wobbleGain.connect(baseOsc.frequency);
+      wobbleGain.connect(harmOsc.frequency);
 
-    const wobbleGain = ctx.createGain();
-    wobbleGain.gain.setValueAtTime(3, now);
+      const gongWobbleGain = ctx.createGain();
+      gongWobbleGain.gain.setValueAtTime(1.2, now);
+      wobbleLfo.connect(gongWobbleGain);
+      gongWobbleGain.connect(gongOsc.frequency);
 
-    wobbleLfo.connect(wobbleGain);
-    wobbleGain.connect(baseOsc.frequency);
-    wobbleGain.connect(harmOsc.frequency);
+      lfo.start(now);
+      biasNode.start(now);
+      gongBias.start(now);
+      baseOsc.start(now);
+      harmOsc.start(now);
+      subOsc.start(now);
+      gongOsc.start(now);
+      gongOsc2.start(now);
+      gongOsc3.start(now);
+      wobbleLfo.start(now);
 
-    const gongWobbleGain = ctx.createGain();
-    gongWobbleGain.gain.setValueAtTime(1.2, now);
-    wobbleLfo.connect(gongWobbleGain);
-    gongWobbleGain.connect(gongOsc.frequency);
-
-    lfo.start(now);
-    biasNode.start(now);
-    gongBias.start(now);
-    baseOsc.start(now);
-    harmOsc.start(now);
-    subOsc.start(now);
-    gongOsc.start(now);
-    gongOsc2.start(now);
-    gongOsc3.start(now);
-    wobbleLfo.start(now);
-
-    nodesRef.current = {
-      ctx,
-      master,
-      lfo,
-      biasNode,
-      lfoGain,
-      baseOsc,
-      harmOsc,
-      subOsc,
-      wobbleLfo,
-      gongOsc,
-      gongOsc2,
-      gongOsc3,
-      gongBias,
+      nodesRef.current = {
+        ctx,
+        master,
+        lfo,
+        biasNode,
+        lfoGain,
+        baseOsc,
+        harmOsc,
+        subOsc,
+        wobbleLfo,
+        gongOsc,
+        gongOsc2,
+        gongOsc3,
+        gongBias,
+      };
     };
 
-    // If context was suspended, the master gain ramp may have been silently
-    // dropped. Once it transitions to running, nudge the gain to ensure
-    // the ambient hum is audible.
-    if (!wasRunning) {
-      runWhenAudioContextRunning(ctx, () => {
-        if (!nodesRef.current) return;
-        const n = nodesRef.current;
-        const vol = volumeRef.current;
-        const t = ctx.currentTime + 0.02;
-        n.lfoGain.gain.setTargetAtTime(vol * 0.45, t, 0.05);
-        n.biasNode.offset.setTargetAtTime(vol * 0.55, t, 0.05);
-      }, 2000);
-    }
+    pendingStartRef.current = true;
+    const cleanup = scheduleWhenAudioRunning(
+      ctx,
+      (now) => {
+        pendingStartRef.current = false;
+        pendingStartCleanupRef.current = null;
+        if (nodesRef.current) return;
+        bootNodes(now);
+      },
+      {
+        requestedTime: scheduledStartTime,
+        runningLead: scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD,
+        resumedLead: scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD,
+        timeoutMs: 2000,
+        onTimeout: () => {
+          pendingStartRef.current = false;
+          pendingStartCleanupRef.current = null;
+        },
+      },
+    );
+
+    pendingStartCleanupRef.current = nodesRef.current ? null : cleanup;
 
     return true;
   }, []);
