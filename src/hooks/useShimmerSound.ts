@@ -90,6 +90,7 @@ export function useShimmerSound({
     // CRITICAL: On iOS, schedule nodes immediately even if ctx is suspended.
     // Nodes scheduled on a suspended context will play once resume() resolves.
     // Deferring via runWhenAudioContextRunning breaks the gesture chain.
+    const wasRunning = ctx.state === 'running';
     if (ctx.state !== 'running') {
       ctx.resume().catch(() => {});
     }
@@ -247,6 +248,20 @@ export function useShimmerSound({
       gongOsc3,
       gongBias,
     };
+
+    // If context was suspended, the master gain ramp may have been silently
+    // dropped. Once it transitions to running, nudge the gain to ensure
+    // the ambient hum is audible.
+    if (!wasRunning) {
+      runWhenAudioContextRunning(ctx, () => {
+        if (!nodesRef.current) return;
+        const n = nodesRef.current;
+        const vol = volumeRef.current;
+        const t = ctx.currentTime + 0.02;
+        n.lfoGain.gain.setTargetAtTime(vol * 0.45, t, 0.05);
+        n.biasNode.offset.setTargetAtTime(vol * 0.55, t, 0.05);
+      }, 2000);
+    }
 
     return true;
   }, []);
