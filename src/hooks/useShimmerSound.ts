@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { logAudioDebug } from '@/lib/audioDebug';
 import {
   getSharedAudioContext,
   IMMEDIATE_SOUND_LEAD,
@@ -103,13 +104,19 @@ export function useShimmerSound({
       biasNode.offset.cancelScheduledValues(now);
       lfoGain.gain.setTargetAtTime(targetVolume * 0.45, now, 0.06);
       biasNode.offset.setTargetAtTime(targetVolume * 0.55, now, 0.06);
+      if (targetVolume > 0) {
+        logAudioDebug('hum-fired', { ctx: ctx.state, mode: 'reactivate', start: now, volume: targetVolume });
+      }
       return true;
     }
 
     if (pendingStartRef.current) return true;
 
     const ctx = getSharedAudioContext();
-    if (!ctx) return false;
+    if (!ctx) {
+      logAudioDebug('hum-missed', { reason: 'no-context' });
+      return false;
+    }
 
     const bootNodes = (now: number) => {
       const vol = targetVolume;
@@ -275,6 +282,9 @@ export function useShimmerSound({
 
     pendingStartRef.current = false;
     bootNodes(now);
+    if (targetVolume > 0) {
+      logAudioDebug('hum-fired', { ctx: ctx.state, mode: 'boot', start: now, volume: targetVolume });
+    }
 
     return true;
   }, []);

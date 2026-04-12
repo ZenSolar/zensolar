@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { logAudioDebug } from '@/lib/audioDebug';
 
 /**
  * Unified mint interaction — a gentle, low-tone electric hum
@@ -57,7 +58,12 @@ const isStandalonePWA = () => {
 const createSharedAudioContext = () => {
   if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
     const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
-    sharedAudioContext = new AudioContextCtor();
+    const ctx = new AudioContextCtor();
+    sharedAudioContext = ctx;
+    logAudioDebug('audio-context-created', { ctx: ctx.state });
+    ctx.addEventListener('statechange', () => {
+      logAudioDebug('audio-context-statechange', { ctx: ctx.state });
+    });
 
     // In PWA standalone mode, iOS aggressively suspends the AudioContext.
     // Keep it alive by playing inaudible pulses every 4 seconds.
@@ -1231,7 +1237,10 @@ export function useMintSound() {
   const playSingingBowl = useCallback((scheduledStartTime?: number) => {
     try {
       const playback = preparePlayback();
-      if (!playback) return;
+      if (!playback) {
+        logAudioDebug('gong-missed', { reason: 'no-playback' });
+        return false;
+      }
       const { ctx, now: preparedStartTime } = playback;
 
       const startTime = scheduledStartTime !== undefined
@@ -1241,7 +1250,8 @@ export function useMintSound() {
       const prewarmedGraph = ensurePrewarmedSingingBowl(ctx);
       if (prewarmedGraph) {
         triggerPrewarmedSingingBowl(prewarmedGraph, startTime);
-        return;
+        logAudioDebug('gong-fired', { ctx: ctx.state, mode: 'prewarmed', start: startTime });
+        return true;
       }
 
       const fire = (now: number) => {
@@ -1353,8 +1363,12 @@ export function useMintSound() {
       };
 
       fire(startTime);
+      logAudioDebug('gong-fired', { ctx: ctx.state, mode: 'fresh', start: startTime });
+      return true;
     } catch {
+      logAudioDebug('gong-missed', { reason: 'exception' });
       // Silent fail
+      return false;
     }
   }, [preparePlayback]);
 
