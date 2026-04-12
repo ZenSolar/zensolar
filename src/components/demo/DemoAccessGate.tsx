@@ -286,11 +286,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lastTapTimeRef.current = now;
 
       if (!s.hexAwake) {
-        if (gesturePlayback?.ctx.state === 'running') {
-          playSingingBowl(gestureStartTime); // First tap = singing bowl
-          startShimmerSound(gestureStartTime); // First tap = ambient hum
-        } else {
+        playSingingBowl(gestureStartTime); // First tap = singing bowl
+        startShimmerSound(gestureStartTime); // First tap = ambient hum
+
+        if (gesturePlayback?.ctx.state !== 'running') {
           pendingInitialTapAudioRef.current = { startTime: gestureStartTime };
+        } else {
+          pendingInitialTapAudioRef.current = null;
         }
       } else {
         playWelcomeTap(gestureStartTime); // Subsequent taps = standard chime
@@ -329,16 +331,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     nativeGestureReadyRef.current = true;
     const onTouch = (e: TouchEvent) => { e.preventDefault(); handleLockPointerDown(); };
     const onTouchEnd = () => { primeAudio(); flushPendingInitialTapAudio(); };
+    const onTouchCancel = () => { primeAudio(); flushPendingInitialTapAudio(); };
     const onPointer = (e: PointerEvent) => { if (e.pointerType === 'touch') return; handleLockPointerDown(); };
     const onClick = () => { primeAudio(); flushPendingInitialTapAudio(); };
     btn.addEventListener('touchstart', onTouch, { capture: true, passive: false });
     btn.addEventListener('touchend', onTouchEnd, { capture: true, passive: true });
+    btn.addEventListener('touchcancel', onTouchCancel, { capture: true, passive: true });
     btn.addEventListener('pointerdown', onPointer, true);
     btn.addEventListener('click', onClick, true);
     return () => {
       nativeGestureReadyRef.current = false;
       btn.removeEventListener('touchstart', onTouch, true);
       btn.removeEventListener('touchend', onTouchEnd, true);
+      btn.removeEventListener('touchcancel', onTouchCancel, true);
       btn.removeEventListener('pointerdown', onPointer, true);
       btn.removeEventListener('click', onClick, true);
     };
