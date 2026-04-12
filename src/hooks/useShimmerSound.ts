@@ -21,6 +21,8 @@ interface ShimmerSoundOptions {
   volume?: number;
   /** Whether the sound is active */
   enabled?: boolean;
+  /** Prebuild the graph silently so first activation is instant */
+  prewarm?: boolean;
 }
 
 type ShimmerNodes = {
@@ -43,6 +45,7 @@ export function useShimmerSound({
   cycleDuration = 5,
   volume = 0.06,
   enabled = true,
+  prewarm = false,
 }: ShimmerSoundOptions = {}) {
   const nodesRef = useRef<ShimmerNodes | null>(null);
   const pendingStartRef = useRef(false);
@@ -84,14 +87,32 @@ export function useShimmerSound({
     nodesRef.current = null;
   }, []);
 
-  const startSound = useCallback(function startSoundInternal(scheduledStartTime?: number) {
-    if (nodesRef.current || pendingStartRef.current) return true;
+  const startSound = useCallback(function startSoundInternal(
+    scheduledStartTime?: number,
+    activationVolume?: number,
+  ) {
+    const targetVolume = activationVolume ?? volumeRef.current;
+
+    if (nodesRef.current) {
+      const { ctx, lfoGain, biasNode } = nodesRef.current;
+      const now = scheduledStartTime !== undefined
+        ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
+        : ctx.currentTime;
+
+      lfoGain.gain.cancelScheduledValues(now);
+      biasNode.offset.cancelScheduledValues(now);
+      lfoGain.gain.setTargetAtTime(targetVolume * 0.45, now, 0.06);
+      biasNode.offset.setTargetAtTime(targetVolume * 0.55, now, 0.06);
+      return true;
+    }
+
+    if (pendingStartRef.current) return true;
 
     const ctx = getSharedAudioContext();
     if (!ctx) return false;
 
     const bootNodes = (now: number) => {
-      const vol = volumeRef.current;
+      const vol = targetVolume;
       const lfoFreq = 1 / cycleDurationRef.current;
 
       const master = ctx.createGain();
@@ -240,9 +261,6 @@ export function useShimmerSound({
       };
     };
 
-    // CRITICAL: Schedule nodes IMMEDIATELY instead of waiting for 'running'.
-    // Nodes scheduled on a suspended AudioContext play once resume() completes.
-    // This keeps us inside the iOS gesture token window.
     if (ctx.state !== 'running') {
       ctx.resume().catch(() => {});
     }
@@ -261,22 +279,20 @@ export function useShimmerSound({
     return true;
   }, []);
 
+
   useEffect(() => {
-    if (!enabled) {
+    if (!enabled && !prewarm) {
       stopSound();
       return;
     }
 
-    if (startSound()) {
-      return () => stopSound();
-    }
-
     let disposed = false;
     let pollId: number | undefined;
+    const initialVolume = enabled ? volumeRef.current : 0;
 
     const tryStart = () => {
-      if (disposed || nodesRef.current) return;
-      if (startSound()) return;
+      if (disposed) return;
+      if (startSound(undefined, initialVolume)) return;
       pollId = window.setTimeout(tryStart, 120);
     };
 
@@ -285,17 +301,21 @@ export function useShimmerSound({
     return () => {
       disposed = true;
       if (pollId !== undefined) window.clearTimeout(pollId);
-      stopSound();
     };
-  }, [enabled, startSound, stopSound]);
+  }, [enabled, prewarm, startSound, stopSound]);
+
+  useEffect(() => () => {
+    stopSound();
+  }, [stopSound]);
 
   useEffect(() => {
     if (!nodesRef.current) return;
     const { ctx, lfoGain, biasNode } = nodesRef.current;
     const now = ctx.currentTime;
-    lfoGain.gain.setTargetAtTime(volume * 0.45, now, 0.1);
-    biasNode.offset.setTargetAtTime(volume * 0.55, now, 0.1);
-  }, [volume]);
+    const targetVolume = enabled ? volume : 0;
+    lfoGain.gain.setTargetAtTime(targetVolume * 0.45, now, 0.1);
+    biasNode.offset.setTargetAtTime(targetVolume * 0.55, now, 0.1);
+  }, [enabled, volume]);
 
   useEffect(() => {
     if (!nodesRef.current) return;

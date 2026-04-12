@@ -11,6 +11,29 @@ let sharedAudioContext: AudioContext | null = null;
 let unlockListenersInstalled = false;
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
 
+type PrewarmedSingingBowlGraph = {
+  ctx: AudioContext;
+  master: GainNode;
+  fund: OscillatorNode;
+  fundGain: GainNode;
+  p2: OscillatorNode;
+  p2Gain: GainNode;
+  p3: OscillatorNode;
+  p3Gain: GainNode;
+  p4: OscillatorNode;
+  p4Gain: GainNode;
+  sub: OscillatorNode;
+  subGain: GainNode;
+  strike: OscillatorNode;
+  strikeGain: GainNode;
+  noiseSource: AudioBufferSourceNode;
+  noiseGain: GainNode;
+  lfo: OscillatorNode;
+  lfoGain: GainNode;
+};
+let prewarmedSingingBowl: PrewarmedSingingBowlGraph | null = null;
+const SILENT_AUDIO_LEVEL = 0.00001;
+
 /** Expose the shared AudioContext for other audio hooks (e.g. useShimmerSound) */
 export function getSharedAudioContext(): AudioContext | null {
   return sharedAudioContext;
@@ -78,6 +101,152 @@ const fireSilentUnlockPulse = (ctx: AudioContext) => {
   };
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + 0.03);
+};
+
+const createLoopingNoiseBuffer = (ctx: AudioContext, durationSeconds = 1) => {
+  const buffer = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * durationSeconds)), ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  return buffer;
+};
+
+const ensurePrewarmedSingingBowl = (ctx: AudioContext) => {
+  if (prewarmedSingingBowl?.ctx === ctx && ctx.state !== 'closed') {
+    return prewarmedSingingBowl;
+  }
+
+  const now = ctx.currentTime;
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.55, now);
+  master.connect(ctx.destination);
+
+  const createPartial = (frequency: number, type: OscillatorType = 'sine') => {
+    const osc = ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.setValueAtTime(frequency, now);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(SILENT_AUDIO_LEVEL, now);
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(now);
+    return { osc, gain };
+  };
+
+  const fund = createPartial(65);
+  const p2 = createPartial(156);
+  const p3 = createPartial(287);
+  const p4 = createPartial(410);
+  const sub = createPartial(32.5);
+  const strike = createPartial(65, 'triangle');
+
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = createLoopingNoiseBuffer(ctx);
+  noiseSource.loop = true;
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.setValueAtTime(2200, now);
+  noiseFilter.Q.setValueAtTime(3, now);
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(SILENT_AUDIO_LEVEL, now);
+  noiseSource.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(master);
+  noiseSource.start(now);
+
+  const lfo = ctx.createOscillator();
+  lfo.type = 'sine';
+  lfo.frequency.setValueAtTime(0.25, now);
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.setValueAtTime(1.2, now);
+  lfo.connect(lfoGain);
+  lfoGain.connect(fund.osc.frequency);
+  lfoGain.connect(p2.osc.frequency);
+  lfo.start(now);
+
+  prewarmedSingingBowl = {
+    ctx,
+    master,
+    fund: fund.osc,
+    fundGain: fund.gain,
+    p2: p2.osc,
+    p2Gain: p2.gain,
+    p3: p3.osc,
+    p3Gain: p3.gain,
+    p4: p4.osc,
+    p4Gain: p4.gain,
+    sub: sub.osc,
+    subGain: sub.gain,
+    strike: strike.osc,
+    strikeGain: strike.gain,
+    noiseSource,
+    noiseGain,
+    lfo,
+    lfoGain,
+  };
+
+  return prewarmedSingingBowl;
+};
+
+const triggerPrewarmedSingingBowl = (graph: PrewarmedSingingBowlGraph, now: number) => {
+  const DUR = 6.0;
+
+  graph.master.gain.cancelScheduledValues(now);
+  graph.master.gain.setValueAtTime(0.55, now);
+
+  graph.fund.frequency.cancelScheduledValues(now);
+  graph.fund.frequency.setValueAtTime(65, now);
+  graph.fund.frequency.exponentialRampToValueAtTime(64, now + DUR);
+  graph.fundGain.gain.cancelScheduledValues(now);
+  graph.fundGain.gain.setValueAtTime(SILENT_AUDIO_LEVEL, now);
+  graph.fundGain.gain.linearRampToValueAtTime(0.5, now + 0.004);
+  graph.fundGain.gain.setValueAtTime(0.5, now + 0.06);
+  graph.fundGain.gain.exponentialRampToValueAtTime(SILENT_AUDIO_LEVEL, now + DUR);
+
+  graph.p2.frequency.cancelScheduledValues(now);
+  graph.p2.frequency.setValueAtTime(156, now);
+  graph.p2.frequency.linearRampToValueAtTime(154.5, now + DUR * 0.6);
+  graph.p2Gain.gain.cancelScheduledValues(now);
+  graph.p2Gain.gain.setValueAtTime(SILENT_AUDIO_LEVEL, now);
+  graph.p2Gain.gain.linearRampToValueAtTime(0.35, now + 0.004);
+  graph.p2Gain.gain.exponentialRampToValueAtTime(SILENT_AUDIO_LEVEL, now + DUR * 0.8);
+
+  graph.p3.frequency.cancelScheduledValues(now);
+  graph.p3.frequency.setValueAtTime(287, now);
+  graph.p3.frequency.linearRampToValueAtTime(285, now + DUR * 0.4);
+  graph.p3Gain.gain.cancelScheduledValues(now);
+  graph.p3Gain.gain.setValueAtTime(SILENT_AUDIO_LEVEL, now);
+  graph.p3Gain.gain.linearRampToValueAtTime(0.18, now + 0.003);
+  graph.p3Gain.gain.exponentialRampToValueAtTime(SILENT_AUDIO_LEVEL, now + DUR * 0.55);
+
+  graph.p4.frequency.cancelScheduledValues(now);
+  graph.p4.frequency.setValueAtTime(410, now);
+  graph.p4Gain.gain.cancelScheduledValues(now);
+  graph.p4Gain.gain.setValueAtTime(SILENT_AUDIO_LEVEL, now);
+  graph.p4Gain.gain.linearRampToValueAtTime(0.08, now + 0.003);
+  graph.p4Gain.gain.exponentialRampToValueAtTime(SILENT_AUDIO_LEVEL, now + DUR * 0.4);
+
+  graph.sub.frequency.cancelScheduledValues(now);
+  graph.sub.frequency.setValueAtTime(32.5, now);
+  graph.subGain.gain.cancelScheduledValues(now);
+  graph.subGain.gain.setValueAtTime(SILENT_AUDIO_LEVEL, now);
+  graph.subGain.gain.linearRampToValueAtTime(0.3, now + 0.004);
+  graph.subGain.gain.exponentialRampToValueAtTime(SILENT_AUDIO_LEVEL, now + DUR * 0.75);
+
+  graph.strike.frequency.cancelScheduledValues(now);
+  graph.strike.frequency.setValueAtTime(900, now);
+  graph.strike.frequency.exponentialRampToValueAtTime(65, now + 0.07);
+  graph.strikeGain.gain.cancelScheduledValues(now);
+  graph.strikeGain.gain.setValueAtTime(0.3, now);
+  graph.strikeGain.gain.exponentialRampToValueAtTime(SILENT_AUDIO_LEVEL, now + 0.18);
+
+  graph.noiseGain.gain.cancelScheduledValues(now);
+  graph.noiseGain.gain.setValueAtTime(0.25, now);
+  graph.noiseGain.gain.exponentialRampToValueAtTime(SILENT_AUDIO_LEVEL, now + 0.08);
+
+  graph.lfoGain.gain.cancelScheduledValues(now);
+  graph.lfoGain.gain.setValueAtTime(1.2, now);
 };
 
 export function runWhenAudioContextRunning(
@@ -197,9 +366,10 @@ export function useMintSound() {
   useLayoutEffect(() => {
     installGlobalUnlockListeners();
     try {
-      // Pre-create the shared context on mount so the first real tap only
-      // needs to resume/unlock it instead of constructing it from scratch.
-      getCtx();
+      // Pre-create the shared context and prewarm the first-tap bowl graph
+      // so the initial gesture only needs resume/unlock + gain envelopes.
+      const ctx = getCtx();
+      ensurePrewarmedSingingBowl(ctx);
     } catch {
       // Fall back to lazy creation inside the first user gesture.
     }
@@ -1064,17 +1234,23 @@ export function useMintSound() {
       if (!playback) return;
       const { ctx, now: preparedStartTime } = playback;
 
+      const startTime = scheduledStartTime !== undefined
+        ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
+        : preparedStartTime;
+
+      const prewarmedGraph = ensurePrewarmedSingingBowl(ctx);
+      if (prewarmedGraph) {
+        triggerPrewarmedSingingBowl(prewarmedGraph, startTime);
+        return;
+      }
+
       const fire = (now: number) => {
-        // Guard: if we already fired and produced audible output, skip
         const DUR = 6.0;
 
         const master = ctx.createGain();
         master.gain.setValueAtTime(0.55, now);
         master.connect(ctx.destination);
 
-        // ── Metallic gong body ──
-        // Real gongs have inharmonic partials — slightly detuned from integer ratios
-        // Fundamental — 65 Hz (C2, rich and audible as a gong tone)
         const fund = ctx.createOscillator();
         fund.type = 'sine';
         fund.frequency.setValueAtTime(65, now);
@@ -1086,7 +1262,6 @@ export function useMintSound() {
         fund.start(now);
         fund.stop(now + DUR + 0.1);
 
-        // Partial 2 — 156 Hz (2.4× fundamental — gong-like inharmonic)
         const p2 = ctx.createOscillator();
         p2.type = 'sine';
         p2.frequency.setValueAtTime(156, now);
@@ -1099,7 +1274,6 @@ export function useMintSound() {
         p2.start(now);
         p2.stop(now + DUR + 0.1);
 
-        // Partial 3 — 287 Hz (4.4× — metallic shimmer, slightly sharp)
         const p3 = ctx.createOscillator();
         p3.type = 'sine';
         p3.frequency.setValueAtTime(287, now);
@@ -1112,7 +1286,6 @@ export function useMintSound() {
         p3.start(now);
         p3.stop(now + DUR + 0.1);
 
-        // Partial 4 — 410 Hz (6.3× — high metallic ring)
         const p4 = ctx.createOscillator();
         p4.type = 'sine';
         p4.frequency.setValueAtTime(410, now);
@@ -1124,7 +1297,6 @@ export function useMintSound() {
         p4.start(now);
         p4.stop(now + DUR + 0.1);
 
-        // Sub-bass drone — 32.5 Hz (octave below, meditative hum foundation)
         const sub = ctx.createOscillator();
         sub.type = 'sine';
         sub.frequency.setValueAtTime(32.5, now);
@@ -1136,8 +1308,6 @@ export function useMintSound() {
         sub.start(now);
         sub.stop(now + DUR + 0.1);
 
-        // ── Strike transient — bright mallet impact on metal ──
-        // Noise burst filtered through a bandpass for metallic character
         const strikeLen = 0.08;
         const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * strikeLen, ctx.sampleRate);
         const noiseData = noiseBuffer.getChannelData(0);
@@ -1158,7 +1328,6 @@ export function useMintSound() {
         noiseGain.connect(master);
         noiseSource.start(now);
 
-        // Tonal strike — triangle sweep for the "dong" attack
         const strike = ctx.createOscillator();
         strike.type = 'triangle';
         strike.frequency.setValueAtTime(900, now);
@@ -1171,10 +1340,9 @@ export function useMintSound() {
         strike.start(now);
         strike.stop(now + 0.25);
 
-        // ── LFO wobble — characteristic gong beating ──
         const lfo = ctx.createOscillator();
         lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(0.25, now); // 4-second beat cycle
+        lfo.frequency.setValueAtTime(0.25, now);
         const lfoGain = ctx.createGain();
         lfoGain.gain.setValueAtTime(1.2, now);
         lfo.connect(lfoGain);
@@ -1184,16 +1352,12 @@ export function useMintSound() {
         lfo.stop(now + DUR + 0.1);
       };
 
-      // Schedule immediately — nodes on a suspended context play once resume() completes
-      const startTime = scheduledStartTime !== undefined
-        ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
-        : preparedStartTime;
       fire(startTime);
-
     } catch {
       // Silent fail
     }
   }, [preparePlayback]);
+
 
   return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, playSingingBowl, triggerHaptic };
 }
