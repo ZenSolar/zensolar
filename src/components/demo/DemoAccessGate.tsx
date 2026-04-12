@@ -117,7 +117,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
 
-  const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
+  const { preparePlayback, primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
@@ -235,8 +235,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     // Suppress ghost clicks
     if (Date.now() < ignorePointerUntilRef.current) return;
 
-    // Synchronous prime + resume — do NOT await
-    primeAudio();
+    // Capture one shared audio start time for the entire gesture so the
+    // first gong + hum stay on the same warm-start schedule on iOS.
+    const gesturePlayback = preparePlayback();
+    const gestureStartTime = gesturePlayback?.now;
+    if (!gesturePlayback) {
+      primeAudio();
+    }
 
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
@@ -263,10 +268,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lastTapTimeRef.current = now;
 
       if (!s.hexAwake) {
-        startShimmerSound();
-        playSingingBowl(); // First tap = singing bowl
+        startShimmerSound(gestureStartTime);
+        playSingingBowl(gestureStartTime); // First tap = singing bowl
       } else {
-        playWelcomeTap(); // Subsequent taps = standard chime
+        playWelcomeTap(gestureStartTime); // Subsequent taps = standard chime
       }
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
@@ -285,7 +290,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
+  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
