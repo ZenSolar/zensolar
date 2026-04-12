@@ -1034,6 +1034,7 @@ export function useMintSound() {
       }
 
       const fire = (now: number) => {
+        // Guard: if we already fired and produced audible output, skip
         const DUR = 6.0;
 
         const master = ctx.createGain();
@@ -1156,10 +1157,22 @@ export function useMintSound() {
       // Nodes scheduled on a suspended context will play once resume() resolves.
       // Waiting for 'running' state (via runWhenAudioContextRunning) breaks the
       // gesture chain and iOS blocks playback entirely.
-      if (ctx.state !== 'running') {
+      const wasRunning = ctx.state === 'running';
+      if (!wasRunning) {
         ctx.resume().catch(() => {});
       }
-      fire(getSafeAudioStartTime(ctx, scheduledStartTime, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : IMMEDIATE_SOUND_LEAD));
+
+      // Strategy 1: Schedule immediately (works on some browsers even while suspended)
+      fire(getSafeAudioStartTime(ctx, scheduledStartTime, wasRunning ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD));
+
+      // Strategy 2: If context wasn't running, ALSO schedule when it transitions
+      // to running. iOS Safari often silently drops nodes scheduled on suspended contexts.
+      // The duplicate playback is acceptable — two gong layers create a richer sound.
+      if (!wasRunning) {
+        runWhenAudioContextRunning(ctx, () => {
+          fire(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD));
+        }, 2000);
+      }
 
     } catch {
       // Silent fail
