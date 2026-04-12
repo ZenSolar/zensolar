@@ -371,15 +371,7 @@ export function useMintSound() {
 
   useLayoutEffect(() => {
     installGlobalUnlockListeners();
-    try {
-      // Pre-create the shared context and prewarm the first-tap bowl graph
-      // so the initial gesture only needs resume/unlock + gain envelopes.
-      const ctx = getCtx();
-      ensurePrewarmedSingingBowl(ctx);
-    } catch {
-      // Fall back to lazy creation inside the first user gesture.
-    }
-  }, [getCtx]);
+  }, []);
 
   /** Must be called synchronously inside a touch/click handler to unlock
    *  the AudioContext on iOS Safari. Uses native capture listeners plus a
