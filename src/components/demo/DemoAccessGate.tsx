@@ -120,7 +120,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const pendingInitialTapAudioRef = useRef<{ startTime?: number } | null>(null);
 
   const { preparePlayback, primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
-  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
+  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake, prewarm: true });
 
   // Stable particles — only regenerate on burstKey change
   const particles = useMemo(
