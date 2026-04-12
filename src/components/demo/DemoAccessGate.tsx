@@ -117,7 +117,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
 
-  const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
+  const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
@@ -262,14 +262,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     } else {
       lastTapTimeRef.current = now;
 
-      const firstTapPlayback = !s.hexAwake ? preparePlayback() : null;
-      const firstTapStartTime = firstTapPlayback?.now;
-
       if (!s.hexAwake) {
-        startShimmerSound(firstTapStartTime);
-        playSingingBowl(firstTapStartTime); // First tap = singing bowl
+        startShimmerSound();
+        playSingingBowl(); // First tap = singing bowl
       } else {
-        playWelcomeTap(firstTapStartTime); // Subsequent taps = standard chime
+        playWelcomeTap(); // Subsequent taps = standard chime
       }
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true });
@@ -288,7 +285,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
+  }, [code, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
