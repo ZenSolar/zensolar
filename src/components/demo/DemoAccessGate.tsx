@@ -117,6 +117,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const ignorePointerUntilRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
+  const pendingInitialTapAudioRef = useRef<{ startTime?: number } | null>(null);
 
   const { preparePlayback, primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
@@ -229,6 +230,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }, FIRST_TAP_BURST_MS);
   }, [updateState]);
 
+  const flushPendingInitialTapAudio = useCallback(() => {
+    const pending = pendingInitialTapAudioRef.current;
+    if (!pending) return;
+    pendingInitialTapAudioRef.current = null;
+    playSingingBowl(pending.startTime);
+    startShimmerSound(pending.startTime);
+  }, [playSingingBowl, startShimmerSound]);
+
   // ── Gesture handler: touchstart on mobile, pointerdown on non-touch ──
   // CRITICAL: Everything here must be synchronous — no await — to stay
   // inside the user-gesture context so iOS Safari allows immediate audio.
@@ -277,8 +286,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       lastTapTimeRef.current = now;
 
       if (!s.hexAwake) {
-        playSingingBowl(gestureStartTime); // First tap = singing bowl
-        startShimmerSound(gestureStartTime); // First tap = ambient hum
+        if (gesturePlayback?.ctx.state === 'running') {
+          playSingingBowl(gestureStartTime); // First tap = singing bowl
+          startShimmerSound(gestureStartTime); // First tap = ambient hum
+        } else {
+          pendingInitialTapAudioRef.current = { startTime: gestureStartTime };
+        }
       } else {
         playWelcomeTap(gestureStartTime); // Subsequent taps = standard chime
       }
@@ -315,9 +328,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!btn) return;
     nativeGestureReadyRef.current = true;
     const onTouch = (e: TouchEvent) => { e.preventDefault(); handleLockPointerDown(); };
-    const onTouchEnd = () => { primeAudio(); };
+    const onTouchEnd = () => { primeAudio(); flushPendingInitialTapAudio(); };
     const onPointer = (e: PointerEvent) => { if (e.pointerType === 'touch') return; handleLockPointerDown(); };
-    const onClick = () => { primeAudio(); };
+    const onClick = () => { primeAudio(); flushPendingInitialTapAudio(); };
     btn.addEventListener('touchstart', onTouch, { capture: true, passive: false });
     btn.addEventListener('touchend', onTouchEnd, { capture: true, passive: true });
     btn.addEventListener('pointerdown', onPointer, true);
@@ -329,7 +342,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       btn.removeEventListener('pointerdown', onPointer, true);
       btn.removeEventListener('click', onClick, true);
     };
-  }, [handleLockPointerDown, primeAudio]);
+  }, [flushPendingInitialTapAudio, handleLockPointerDown, primeAudio]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
