@@ -20,7 +20,7 @@ export const IMMEDIATE_SOUND_LEAD = 0.02;
 export const POST_RESUME_SOUND_LEAD = 0.18;
 // iPhone WebKit can still need a little extra runway after resume()
 // before the first audible nodes render reliably through hardware.
-export const WARM_START_SOUND_LEAD = 0.45;
+export const WARM_START_SOUND_LEAD = 0.12;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
 const isStandalonePWA = () => {
