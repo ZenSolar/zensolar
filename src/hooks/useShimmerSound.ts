@@ -247,11 +247,13 @@ export function useShimmerSound({
       ctx.resume().catch(() => {});
     }
 
-    const now = getSafeAudioStartTime(
-      ctx,
-      undefined,
-      ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
-    );
+    const now = scheduledStartTime !== undefined
+      ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
+      : getSafeAudioStartTime(
+          ctx,
+          undefined,
+          ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
+        );
 
     pendingStartRef.current = false;
     bootNodes(now);

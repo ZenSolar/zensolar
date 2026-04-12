@@ -1051,11 +1051,11 @@ export function useMintSound() {
   // the (possibly suspended) AudioContext. Nodes scheduled while suspended
   // play as soon as resume() completes — this keeps us inside the iOS
   // gesture token window. Do NOT use scheduleWhenAudioRunning here.
-  const playSingingBowl = useCallback((_scheduledStartTime?: number) => {
+  const playSingingBowl = useCallback((scheduledStartTime?: number) => {
     try {
       const playback = preparePlayback();
       if (!playback) return;
-      const { ctx } = playback;
+      const { ctx, now: preparedStartTime } = playback;
 
       const fire = (now: number) => {
         // Guard: if we already fired and produced audible output, skip
@@ -1178,12 +1178,10 @@ export function useMintSound() {
       };
 
       // Schedule immediately — nodes on a suspended context play once resume() completes
-      const now = getSafeAudioStartTime(
-        ctx,
-        undefined,
-        ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
-      );
-      fire(now);
+      const startTime = scheduledStartTime !== undefined
+        ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
+        : preparedStartTime;
+      fire(startTime);
 
     } catch {
       // Silent fail
