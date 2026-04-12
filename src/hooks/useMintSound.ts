@@ -1012,10 +1012,18 @@ export function useMintSound() {
       // Nodes scheduled on a suspended context will play once resume() resolves.
       // Waiting for 'running' state (via runWhenAudioContextRunning) breaks the
       // gesture chain and iOS blocks playback entirely.
-      if (ctx.state !== 'running') {
+      const wasRunning = ctx.state === 'running';
+      if (!wasRunning) {
         ctx.resume().catch(() => {});
       }
-      fire(getSafeAudioStartTime(ctx, requested, ctx.state !== 'running' ? WARM_START_SOUND_LEAD : lead));
+      fire(getSafeAudioStartTime(ctx, requested, wasRunning ? lead : WARM_START_SOUND_LEAD));
+
+      // Dual-fire: also schedule when context confirms running (iOS drops suspended nodes)
+      if (!wasRunning) {
+        runWhenAudioContextRunning(ctx, () => {
+          fire(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD));
+        }, 2000);
+      }
     } catch {
       // Silent fail
     }
