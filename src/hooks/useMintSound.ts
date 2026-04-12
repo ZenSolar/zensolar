@@ -20,7 +20,7 @@ export const IMMEDIATE_SOUND_LEAD = 0.02;
 export const POST_RESUME_SOUND_LEAD = 0.18;
 // iPhone WebKit can still need a little extra runway after resume()
 // before the first audible nodes render reliably through hardware.
-const WARM_START_SOUND_LEAD = 0.45;
+export const WARM_START_SOUND_LEAD = 0.45;
 
 /** Detect standalone PWA mode (iOS Add-to-Home-Screen) */
 const isStandalonePWA = () => {
@@ -1047,10 +1047,15 @@ export function useMintSound() {
   }, [getCtx]);
 
   // ── Singing bowl: Tibetan gong ring for the very first tap ──
-  const playSingingBowl = useCallback((scheduledStartTime?: number) => {
+  // CRITICAL: Uses preparePlayback() to schedule nodes IMMEDIATELY on
+  // the (possibly suspended) AudioContext. Nodes scheduled while suspended
+  // play as soon as resume() completes — this keeps us inside the iOS
+  // gesture token window. Do NOT use scheduleWhenAudioRunning here.
+  const playSingingBowl = useCallback((_scheduledStartTime?: number) => {
     try {
-      const ctx = getCtx();
-      if (!ctx) return;
+      const playback = preparePlayback();
+      if (!playback) return;
+      const { ctx } = playback;
 
       const fire = (now: number) => {
         // Guard: if we already fired and produced audible output, skip
@@ -1172,16 +1177,18 @@ export function useMintSound() {
         lfo.stop(now + DUR + 0.1);
       };
 
-      scheduleWhenAudioRunning(ctx, fire, {
-        requestedTime: scheduledStartTime,
-        runningLead: IMMEDIATE_SOUND_LEAD,
-        resumedLead: POST_RESUME_SOUND_LEAD,
-      });
+      // Schedule immediately — nodes on a suspended context play once resume() completes
+      const now = getSafeAudioStartTime(
+        ctx,
+        undefined,
+        ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
+      );
+      fire(now);
 
     } catch {
       // Silent fail
     }
-  }, [getCtx]);
+  }, [preparePlayback]);
 
   return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, playSingingBowl, triggerHaptic };
 }
