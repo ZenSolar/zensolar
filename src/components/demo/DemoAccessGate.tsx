@@ -1,10 +1,11 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, useLayoutEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Lock, Sparkles, ShieldCheck, Sun, Zap, Battery, Car } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
@@ -84,6 +85,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   });
   const [code, setCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  const showAudioDebug = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.has('audio-debug');
+  }, []);
   
 
   // ── stateRef pattern: single ref holds all interaction state ──
@@ -109,6 +114,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
+  const nativeGestureReadyRef = useRef(false);
+  const fallbackGestureTimeRef = useRef(0);
 
   const { primeAudio, preparePlayback, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
@@ -283,10 +290,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
 
+  const handlePreboundGestureFallback = useCallback(() => {
+    if (nativeGestureReadyRef.current) return;
+    const now = performance.now();
+    if (now - fallbackGestureTimeRef.current < 80) return;
+    fallbackGestureTimeRef.current = now;
+    handleLockPointerDown();
+  }, [handleLockPointerDown]);
+
   // Native event listeners for iOS gesture-chain audio unlock
-  useEffect(() => {
+  useLayoutEffect(() => {
     const btn = lockButtonRef.current;
     if (!btn) return;
+    nativeGestureReadyRef.current = true;
     const onTouch = (e: TouchEvent) => { e.preventDefault(); handleLockPointerDown(); };
     const onTouchEnd = () => { primeAudio(); };
     const onPointer = (e: PointerEvent) => { if (e.pointerType === 'touch') return; handleLockPointerDown(); };
@@ -296,6 +312,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     btn.addEventListener('pointerdown', onPointer, true);
     btn.addEventListener('click', onClick, true);
     return () => {
+      nativeGestureReadyRef.current = false;
       btn.removeEventListener('touchstart', onTouch, true);
       btn.removeEventListener('touchend', onTouchEnd, true);
       btn.removeEventListener('pointerdown', onPointer, true);
@@ -332,6 +349,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         isolation: 'isolate',
       }}
     >
+      {showAudioDebug && <AudioDebugOverlay />}
+
       <div
         className="absolute inset-0"
         style={{
@@ -460,6 +479,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 animation: (!firstTapBurst && !isBursting && !isDenied && !isVerifying)
                   ? 'zenCircleBreathe 2.8s ease-in-out infinite'
                   : 'none',
+              }}
+              onTouchStartCapture={(e) => {
+                if (nativeGestureReadyRef.current) return;
+                e.preventDefault();
+                handlePreboundGestureFallback();
+              }}
+              onPointerDownCapture={() => {
+                handlePreboundGestureFallback();
               }}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleLockPointerDown(); } }}
             >

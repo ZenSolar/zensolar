@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useLayoutEffect } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 /**
@@ -157,7 +157,7 @@ const installGlobalUnlockListeners = () => {
 export function useMintSound() {
   const getCtx = useCallback(() => createSharedAudioContext(), []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     installGlobalUnlockListeners();
   }, []);
 
