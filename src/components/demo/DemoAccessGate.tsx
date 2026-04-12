@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
-import { useMintSound } from '@/hooks/useMintSound';
+import { IMMEDIATE_SOUND_LEAD, getSafeAudioStartTime, useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
@@ -58,6 +58,7 @@ const DOUBLE_TAP_WINDOW = 500;
 const FIRST_TAP_BURST_MS = 700;
 const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;        // Lock icon visible during tap flash
+const FIRST_TAP_WARM_SOUND_LEAD = 0.12;
 
 interface DemoAccessGateProps {
   children: React.ReactNode;
@@ -118,7 +119,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const fallbackGestureTimeRef = useRef(0);
 
   const { preparePlayback, primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
-  useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
+  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake });
 
   // Stable particles — only regenerate on burstKey change
   const particles = useMemo(
@@ -238,7 +239,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     // Capture one shared audio start time for the entire gesture so the
     // first gong + hum stay on the same warm-start schedule on iOS.
     const gesturePlayback = preparePlayback();
-    const gestureStartTime = gesturePlayback?.now;
+    const gestureStartTime = gesturePlayback
+      ? getSafeAudioStartTime(
+          gesturePlayback.ctx,
+          undefined,
+          gesturePlayback.ctx.state === 'running'
+            ? IMMEDIATE_SOUND_LEAD
+            : FIRST_TAP_WARM_SOUND_LEAD,
+        )
+      : undefined;
     if (!gesturePlayback) {
       primeAudio();
     }
@@ -269,6 +278,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       if (!s.hexAwake) {
         playSingingBowl(gestureStartTime); // First tap = singing bowl
+        startShimmerSound(gestureStartTime); // First tap = ambient hum
       } else {
         playWelcomeTap(gestureStartTime); // Subsequent taps = standard chime
       }
@@ -289,7 +299,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, updateState]);
+  }, [code, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
