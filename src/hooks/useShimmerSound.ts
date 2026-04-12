@@ -2,8 +2,8 @@ import { useEffect, useRef, useCallback } from 'react';
 import {
   getSharedAudioContext,
   IMMEDIATE_SOUND_LEAD,
-  POST_RESUME_SOUND_LEAD,
-  scheduleWhenAudioRunning,
+  WARM_START_SOUND_LEAD,
+  getSafeAudioStartTime,
 } from './useMintSound';
 
 /**
@@ -240,28 +240,21 @@ export function useShimmerSound({
       };
     };
 
-    pendingStartRef.current = true;
-    const cleanup = scheduleWhenAudioRunning(
+    // CRITICAL: Schedule nodes IMMEDIATELY instead of waiting for 'running'.
+    // Nodes scheduled on a suspended AudioContext play once resume() completes.
+    // This keeps us inside the iOS gesture token window.
+    if (ctx.state !== 'running') {
+      ctx.resume().catch(() => {});
+    }
+
+    const now = getSafeAudioStartTime(
       ctx,
-      (now) => {
-        pendingStartRef.current = false;
-        pendingStartCleanupRef.current = null;
-        if (nodesRef.current) return;
-        bootNodes(now);
-      },
-      {
-        requestedTime: scheduledStartTime,
-        runningLead: scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD,
-        resumedLead: scheduledStartTime === undefined ? IMMEDIATE_SOUND_LEAD : POST_RESUME_SOUND_LEAD,
-        timeoutMs: 2000,
-        onTimeout: () => {
-          pendingStartRef.current = false;
-          pendingStartCleanupRef.current = null;
-        },
-      },
+      undefined,
+      ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
     );
 
-    pendingStartCleanupRef.current = nodesRef.current ? null : cleanup;
+    pendingStartRef.current = false;
+    bootNodes(now);
 
     return true;
   }, []);
