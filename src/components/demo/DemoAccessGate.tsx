@@ -59,8 +59,9 @@ const DOUBLE_TAP_WINDOW = 500;
 const FIRST_TAP_BURST_MS = 700;
 const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
-const HOLD_THRESHOLD_MS = 800;     // How long user must hold before release triggers reveal
-const HAPTIC_PULSE_INTERVALS = [0, 200, 400, 550, 700]; // Progressive haptic pulses during hold
+const HOLD_THRESHOLD_MS = 550;     // Short enough to feel immediate, long enough to unlock audio on iOS
+const HOLD_RELEASE_GRACE_MS = 80;  // Absorb finger-lift timing variance on iPhone Safari/Chrome
+const HAPTIC_PULSE_PROGRESS = [0, 0.28, 0.52, 0.74, 0.92] as const;
 interface DemoAccessGateProps {
   children: React.ReactNode;
 }
@@ -185,6 +186,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      holdPulseTimersRef.current.forEach(t => clearTimeout(t));
+      holdPulseTimersRef.current = [];
     };
   }, []);
 
@@ -272,33 +275,30 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
 
-    holdStartRef.current = Date.now();
+    holdStartRef.current = performance.now();
     updateState({ holding: true, holdReady: false, holdHint: false });
     logGestureDebug(`${source}-hold-start`);
 
-    // Clear any previous pulse timers
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
     holdPulseTimersRef.current.forEach(t => clearTimeout(t));
     holdPulseTimersRef.current = [];
 
-    // Progressive haptic pulses that intensify as ring fills
-    HAPTIC_PULSE_INTERVALS.forEach((delay, i) => {
-      const timer = setTimeout(() => {
+    HAPTIC_PULSE_PROGRESS.forEach((progress, i) => {
+      const delay = Math.round(HOLD_THRESHOLD_MS * progress);
+      const timer = window.setTimeout(() => {
         if (!stateRef.current.holding) return;
-        const intensity = Math.min(10 + i * 8, 40); // 10ms → 18ms → 26ms → 34ms → 40ms
+        const intensity = 10 + i * 5;
         if ('vibrate' in navigator) {
-          try { navigator.vibrate([intensity]); } catch {}
+          try { navigator.vibrate(intensity); } catch {}
         }
       }, delay);
       holdPulseTimersRef.current.push(timer);
     });
 
-    // After threshold, mark as ready (ring filled)
-    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
-    holdTimerRef.current = setTimeout(() => {
+    holdTimerRef.current = window.setTimeout(() => {
       updateState({ holdReady: true });
-      // Strong "ready" haptic burst
       if ('vibrate' in navigator) {
-        try { navigator.vibrate([20, 40, 25]); } catch {}
+        try { navigator.vibrate([18, 24, 20]); } catch {}
       }
       logGestureDebug(`${source}-hold-ready`);
     }, HOLD_THRESHOLD_MS);
@@ -310,13 +310,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
+    holdPulseTimersRef.current.forEach(t => clearTimeout(t));
+    holdPulseTimersRef.current = [];
 
-    const held = Date.now() - holdStartRef.current;
-    updateState({ holding: false });
-    logGestureDebug(`${source}-hold-end`, { held });
+    const held = performance.now() - holdStartRef.current;
+    const metHoldThreshold = s.holdReady || held >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS;
+    updateState({ holding: false, holdReady: false });
+    logGestureDebug(`${source}-hold-end`, { held, metHoldThreshold });
 
-    if (held < HOLD_THRESHOLD_MS) {
-      // Released too early — nudge
+    if (!metHoldThreshold) {
       updateState({ holdHint: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       lockFlashTimerRef.current = setTimeout(() => {
@@ -325,7 +327,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return;
     }
 
-    // Held long enough — fire cinematic reveal!
     const ctx = getSharedAudioContext();
     const gestureStartTime = ctx
       ? getSafeAudioStartTime(ctx, undefined, 0)
@@ -336,7 +337,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       startShimmerSound(gestureStartTime);
       logGestureDebug(`${source}-cinematic-reveal`, { start: gestureStartTime });
     } else {
-      // Already awake — play welcome tap for subsequent holds
       playWelcomeTap(gestureStartTime);
       logGestureDebug(`${source}-welcome-tap`, { start: gestureStartTime });
     }
