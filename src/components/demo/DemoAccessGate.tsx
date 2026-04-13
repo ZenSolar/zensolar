@@ -720,13 +720,33 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             </button>
           </div>
 
-          {/* Sound-on pulse — shown briefly after first tap (audio prime) */}
-          {showSoundOnPulse && !hexAwake && (
+          {/* Hold progress ring — visible while holding */}
+          {holding && (
+            <div className="pointer-events-none" style={{ animation: 'zenSymbolFadeIn 100ms ease-out both' }}>
+              <svg width="96" height="96" viewBox="0 0 96 96" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ marginTop: '-48px', marginLeft: '-48px' }}>
+                <circle
+                  cx="48" cy="48" r="44"
+                  fill="none"
+                  stroke={holdReady ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.4)'}
+                  strokeWidth="3"
+                  strokeDasharray={`${2 * Math.PI * 44}`}
+                  strokeDashoffset="0"
+                  strokeLinecap="round"
+                  style={{
+                    animation: `zenHoldRingFill ${HOLD_THRESHOLD_MS}ms linear forwards`,
+                    transformOrigin: 'center',
+                    transform: 'rotate(-90deg)',
+                  }}
+                />
+              </svg>
+            </div>
+          )}
+
+          {/* Hold hint — shown after premature release */}
+          {holdHint && !hexAwake && (
             <div
               className="text-center pointer-events-none"
-              style={{
-                animation: 'zenSymbolFadeIn 300ms ease-out both',
-              }}
+              style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
             >
               <span
                 className="inline-flex items-center gap-1.5 text-xs font-medium tracking-wide rounded-full px-3 py-1"
@@ -737,7 +757,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   textShadow: '0 0 8px hsl(var(--primary) / 0.4)',
                 }}
               >
-                🔊 Sound on — tap again
+                hold a bit longer ✨
               </span>
             </div>
           )}
