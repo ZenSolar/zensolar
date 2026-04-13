@@ -103,8 +103,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     burstKey: 0,
     revealed: false,
     hexAwake: false,
-    audioPrimed: false,
-    showSoundOnPulse: false,
+    holding: false,
+    holdReady: false,
+    holdHint: false,
   });
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
