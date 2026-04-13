@@ -8,7 +8,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
-import { IMMEDIATE_SOUND_LEAD, getSafeAudioStartTime, getSharedAudioContext, useMintSound } from '@/hooks/useMintSound';
+import { getSafeAudioStartTime, getSharedAudioContext, useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
@@ -59,8 +59,6 @@ const DOUBLE_TAP_WINDOW = 500;
 const FIRST_TAP_BURST_MS = 700;
 const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;        // Lock icon visible during tap flash
-const FIRST_TAP_WARM_SOUND_LEAD = 0.12;
-
 interface DemoAccessGateProps {
   children: React.ReactNode;
 }
@@ -118,10 +116,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const ignorePointerUntilRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
-  const pendingInitialTapAudioRef = useRef<{ startTime?: number } | null>(null);
 
-  const { preparePlayback, primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
-  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake, prewarm: true });
+  const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
+  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake, prewarm: false });
 
   useEffect(() => {
     if (!showAudioDebug) return;
@@ -132,7 +129,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const ctx = getSharedAudioContext();
     logAudioDebug(eventName, {
       ctx: ctx?.state ?? 'null',
-      pending: pendingInitialTapAudioRef.current !== null,
       ...details,
     });
   }, []);
@@ -245,18 +241,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }, FIRST_TAP_BURST_MS);
   }, [updateState]);
 
-  const flushPendingInitialTapAudio = useCallback((source: string) => {
-    const pending = pendingInitialTapAudioRef.current;
-    if (!pending) {
-      logGestureDebug(`${source}-no-pending-audio`);
-      return;
-    }
-    logGestureDebug(`${source}-flush-pending-audio`, { start: pending.startTime });
-    pendingInitialTapAudioRef.current = null;
-    playSingingBowl(pending.startTime);
-    startShimmerSound(pending.startTime);
-  }, [logGestureDebug, playSingingBowl, startShimmerSound]);
-
   // ── Gesture handler: touchstart on mobile, pointerdown on non-touch ──
   // CRITICAL: Everything here must be synchronous — no await — to stay
   // inside the user-gesture context so iOS Safari allows immediate audio.
@@ -267,21 +251,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return;
     }
 
-    // Capture one shared audio start time for the entire gesture so the
-    // first gong + hum stay on the same warm-start schedule on iOS.
-    const gesturePlayback = preparePlayback();
-    const gestureStartTime = gesturePlayback
-      ? getSafeAudioStartTime(
-          gesturePlayback.ctx,
-          undefined,
-          gesturePlayback.ctx.state === 'running'
-            ? IMMEDIATE_SOUND_LEAD
-            : FIRST_TAP_WARM_SOUND_LEAD,
-        )
+    const ctx = primeAudio();
+    const gestureStartTime = ctx
+      ? getSafeAudioStartTime(ctx, undefined, 0)
       : undefined;
-    if (!gesturePlayback) {
-      primeAudio();
-      logGestureDebug(`${source}-prime-audio-only`);
+    if (!ctx) {
+      logGestureDebug(`${source}-prime-audio-missed`);
     }
 
     const s = stateRef.current;
@@ -311,14 +286,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (!s.hexAwake) {
         playSingingBowl(gestureStartTime); // First tap = singing bowl
         startShimmerSound(gestureStartTime); // First tap = ambient hum
-
-        if (gesturePlayback?.ctx.state !== 'running') {
-          pendingInitialTapAudioRef.current = { startTime: gestureStartTime };
-          logGestureDebug(`${source}-queued-pending-audio`, { start: gestureStartTime });
-        } else {
-          pendingInitialTapAudioRef.current = null;
-          logGestureDebug(`${source}-scheduled-initial-audio`, { start: gestureStartTime });
-        }
+        logGestureDebug(`${source}-scheduled-initial-audio`, { start: gestureStartTime });
       } else {
         playWelcomeTap(gestureStartTime); // Subsequent taps = standard chime
         logGestureDebug(`${source}-welcome-tap`, { start: gestureStartTime });
@@ -340,7 +308,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, logGestureDebug, preparePlayback, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
+  }, [code, logGestureDebug, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
@@ -361,13 +329,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug('touchstart');
     };
     const onTouchEnd = () => {
-      primeAudio();
-      flushPendingInitialTapAudio('touchend');
       logGestureDebug('touchend');
     };
     const onTouchCancel = () => {
-      primeAudio();
-      flushPendingInitialTapAudio('touchcancel');
       logGestureDebug('touchcancel');
     };
     const onPointer = (e: PointerEvent) => {
@@ -376,8 +340,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug('pointerdown', { pointerType: e.pointerType });
     };
     const onClick = () => {
-      primeAudio();
-      flushPendingInitialTapAudio('click');
       logGestureDebug('click');
     };
     btn.addEventListener('touchstart', onTouch, { capture: true, passive: false });
@@ -393,7 +355,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       btn.removeEventListener('pointerdown', onPointer, true);
       btn.removeEventListener('click', onClick, true);
     };
-  }, [flushPendingInitialTapAudio, handleLockPointerDown, logGestureDebug, primeAudio]);
+  }, [handleLockPointerDown, logGestureDebug]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
