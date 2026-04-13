@@ -70,10 +70,11 @@ interface GateState {
   showTapAgain: boolean;
   firstTapBurst: boolean;
   burstKey: number;
-  revealed: boolean; // true after first tap — switches $Z → Lock
-  hexAwake: boolean; // hex background activates on first tap
-  audioPrimed: boolean; // true after first tap unlocks audio hardware
-  showSoundOnPulse: boolean; // brief "Sound on" indicator after first tap
+  revealed: boolean;
+  hexAwake: boolean;
+  holding: boolean;       // true while finger is down & charging
+  holdReady: boolean;     // true once hold threshold met (ring filled)
+  holdHint: boolean;      // "hold longer" nudge after premature release
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
