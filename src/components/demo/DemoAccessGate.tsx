@@ -59,7 +59,8 @@ const DOUBLE_TAP_WINDOW = 500;
 const FIRST_TAP_BURST_MS = 700;
 const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
-const HOLD_THRESHOLD_MS = 600;     // How long user must hold before release triggers reveal
+const HOLD_THRESHOLD_MS = 800;     // How long user must hold before release triggers reveal
+const HAPTIC_PULSE_INTERVALS = [0, 200, 400, 550, 700]; // Progressive haptic pulses during hold
 interface DemoAccessGateProps {
   children: React.ReactNode;
 }
