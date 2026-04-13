@@ -121,7 +121,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
-  const soundOnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdStartRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
 
