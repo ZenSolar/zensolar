@@ -276,16 +276,29 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     updateState({ holding: true, holdReady: false, holdHint: false });
     logGestureDebug(`${source}-hold-start`);
 
-    if ('vibrate' in navigator) {
-      try { navigator.vibrate([10]); } catch {}
-    }
+    // Clear any previous pulse timers
+    holdPulseTimersRef.current.forEach(t => clearTimeout(t));
+    holdPulseTimersRef.current = [];
 
-    // After threshold, mark as ready (ring fills)
+    // Progressive haptic pulses that intensify as ring fills
+    HAPTIC_PULSE_INTERVALS.forEach((delay, i) => {
+      const timer = setTimeout(() => {
+        if (!stateRef.current.holding) return;
+        const intensity = Math.min(10 + i * 8, 40); // 10ms → 18ms → 26ms → 34ms → 40ms
+        if ('vibrate' in navigator) {
+          try { navigator.vibrate([intensity]); } catch {}
+        }
+      }, delay);
+      holdPulseTimersRef.current.push(timer);
+    });
+
+    // After threshold, mark as ready (ring filled)
     if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
     holdTimerRef.current = setTimeout(() => {
       updateState({ holdReady: true });
+      // Strong "ready" haptic burst
       if ('vibrate' in navigator) {
-        try { navigator.vibrate([15, 30, 15]); } catch {}
+        try { navigator.vibrate([20, 40, 25]); } catch {}
       }
       logGestureDebug(`${source}-hold-ready`);
     }, HOLD_THRESHOLD_MS);
