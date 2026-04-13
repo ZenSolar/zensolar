@@ -59,7 +59,8 @@ const DOUBLE_TAP_WINDOW = 500;
 const FIRST_TAP_BURST_MS = 700;
 const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
-const HOLD_THRESHOLD_MS = 600;     // How long user must hold before release triggers reveal
+const HOLD_THRESHOLD_MS = 800;     // How long user must hold before release triggers reveal
+const HAPTIC_PULSE_INTERVALS = [0, 200, 400, 550, 700]; // Progressive haptic pulses during hold
 interface DemoAccessGateProps {
   children: React.ReactNode;
 }
@@ -122,6 +123,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdPulseTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const holdStartRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
@@ -274,16 +276,29 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     updateState({ holding: true, holdReady: false, holdHint: false });
     logGestureDebug(`${source}-hold-start`);
 
-    if ('vibrate' in navigator) {
-      try { navigator.vibrate([10]); } catch {}
-    }
+    // Clear any previous pulse timers
+    holdPulseTimersRef.current.forEach(t => clearTimeout(t));
+    holdPulseTimersRef.current = [];
 
-    // After threshold, mark as ready (ring fills)
+    // Progressive haptic pulses that intensify as ring fills
+    HAPTIC_PULSE_INTERVALS.forEach((delay, i) => {
+      const timer = setTimeout(() => {
+        if (!stateRef.current.holding) return;
+        const intensity = Math.min(10 + i * 8, 40); // 10ms → 18ms → 26ms → 34ms → 40ms
+        if ('vibrate' in navigator) {
+          try { navigator.vibrate([intensity]); } catch {}
+        }
+      }, delay);
+      holdPulseTimersRef.current.push(timer);
+    });
+
+    // After threshold, mark as ready (ring filled)
     if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
     holdTimerRef.current = setTimeout(() => {
       updateState({ holdReady: true });
+      // Strong "ready" haptic burst
       if ('vibrate' in navigator) {
-        try { navigator.vibrate([15, 30, 15]); } catch {}
+        try { navigator.vibrate([20, 40, 25]); } catch {}
       }
       logGestureDebug(`${source}-hold-ready`);
     }, HOLD_THRESHOLD_MS);
@@ -391,6 +406,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
     const onTouchCancel = () => {
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      holdPulseTimersRef.current.forEach(t => clearTimeout(t));
+      holdPulseTimersRef.current = [];
       updateState({ holding: false, holdReady: false });
       logGestureDebug('touchcancel');
     };
