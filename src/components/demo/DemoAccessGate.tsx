@@ -58,7 +58,8 @@ function generateParticles() {
 const DOUBLE_TAP_WINDOW = 500;
 const FIRST_TAP_BURST_MS = 700;
 const GHOST_CLICK_SUPPRESSION = 400;
-const LOCK_FLASH_MS = 600;        // Lock icon visible during tap flash
+const LOCK_FLASH_MS = 600;
+const HOLD_THRESHOLD_MS = 600;     // How long user must hold before release triggers reveal
 interface DemoAccessGateProps {
   children: React.ReactNode;
 }
