@@ -251,20 +251,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }, FIRST_TAP_BURST_MS);
   }, [updateState]);
 
-  // ── Gesture handler: touchstart on mobile, pointerdown on non-touch ──
-  // CRITICAL: Everything here must be synchronous — no await — to stay
-  // inside the user-gesture context so iOS Safari allows immediate audio.
-  const handleLockPointerDown = useCallback((source = 'pointerdown') => {
-    // Suppress ghost clicks
+  // ── Hold-to-unlock gesture ──
+  // On press: prime audio synchronously (iOS gesture context), start charging ring.
+  // On release after HOLD_THRESHOLD_MS: fire cinematic gong + curtain.
+  // On release too early: show "hold longer" hint.
+
+  const handleHoldStart = useCallback((source = 'pointerdown') => {
     if (Date.now() < ignorePointerUntilRef.current) {
       logGestureDebug(`${source}-ignored-ghost-click`);
       return;
     }
 
     const ctx = primeAudio();
-    const gestureStartTime = ctx
-      ? getSafeAudioStartTime(ctx, undefined, 0)
-      : undefined;
     if (!ctx) {
       logGestureDebug(`${source}-prime-audio-missed`);
     }
@@ -272,123 +270,159 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
 
+    holdStartRef.current = Date.now();
+    updateState({ holding: true, holdReady: false, holdHint: false });
+    logGestureDebug(`${source}-hold-start`);
+
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate([10]); } catch {}
+    }
+
+    // After threshold, mark as ready (ring fills)
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = setTimeout(() => {
+      updateState({ holdReady: true });
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate([15, 30, 15]); } catch {}
+      }
+      logGestureDebug(`${source}-hold-ready`);
+    }, HOLD_THRESHOLD_MS);
+  }, [logGestureDebug, primeAudio, updateState]);
+
+  const handleHoldEnd = useCallback((source = 'pointerup') => {
+    const s = stateRef.current;
+    if (!s.holding) return;
+
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = null;
+
+    const held = Date.now() - holdStartRef.current;
+    updateState({ holding: false });
+    logGestureDebug(`${source}-hold-end`, { held });
+
+    if (held < HOLD_THRESHOLD_MS) {
+      // Released too early — nudge
+      updateState({ holdHint: true });
+      if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
+      lockFlashTimerRef.current = setTimeout(() => {
+        updateState({ holdHint: false });
+      }, 2000);
+      return;
+    }
+
+    // Held long enough — fire cinematic reveal!
+    const ctx = getSharedAudioContext();
+    const gestureStartTime = ctx
+      ? getSafeAudioStartTime(ctx, undefined, 0)
+      : undefined;
+
+    if (!s.hexAwake) {
+      playSingingBowl(gestureStartTime);
+      startShimmerSound(gestureStartTime);
+      logGestureDebug(`${source}-cinematic-reveal`, { start: gestureStartTime });
+    } else {
+      // Already awake — play welcome tap for subsequent holds
+      playWelcomeTap(gestureStartTime);
+      logGestureDebug(`${source}-welcome-tap`, { start: gestureStartTime });
+    }
+
+    triggerBurst();
+    updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false });
+    ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
+
+    if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
+    lockFlashTimerRef.current = setTimeout(() => {
+      updateState({ revealed: false });
+    }, LOCK_FLASH_MS);
+  }, [logGestureDebug, triggerBurst, playSingingBowl, startShimmerSound, playWelcomeTap, updateState]);
+
+  // ── Double-tap to unlock (submit code) — still works after reveal ──
+  const handleLockPointerDown = useCallback((source = 'pointerdown') => {
+    if (Date.now() < ignorePointerUntilRef.current) return;
+
+    const s = stateRef.current;
+    if (s.phase === 'verifying' || s.phase === 'burst') return;
+
     const now = Date.now();
     const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
 
-    if (isDoubleTap) {
+    if (isDoubleTap && s.hexAwake) {
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = 0;
-
       triggerBurst();
       playMintSound();
-
       if ('vibrate' in navigator) {
         try { navigator.vibrate([15, 30, 10]); } catch {}
       }
-
       ignorePointerUntilRef.current = now + GHOST_CLICK_SUPPRESSION;
-      if (code.trim()) {
-        submitCode();
-      }
+      if (code.trim()) submitCode();
     } else {
       lastTapTimeRef.current = now;
-
-      if (!s.audioPrimed) {
-        // ── Step 1: Prime audio hardware silently, show "Sound on" pulse ──
-        logGestureDebug(`${source}-audio-prime`, { start: gestureStartTime });
-        triggerBurst();
-        updateState({ audioPrimed: true, showSoundOnPulse: true, revealed: true });
-
-        if (soundOnTimerRef.current) clearTimeout(soundOnTimerRef.current);
-        soundOnTimerRef.current = setTimeout(() => {
-          updateState({ showSoundOnPulse: false, revealed: false });
-        }, 1200);
-
-        if ('vibrate' in navigator) {
-          try { navigator.vibrate([10]); } catch {}
-        }
-
-        if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-        doubleTapTimerRef.current = setTimeout(() => {
-          lastTapTimeRef.current = 0;
-        }, DOUBLE_TAP_WINDOW);
-        return; // Don't run the rest of single-tap logic
-      }
-
-      if (!s.hexAwake) {
-        // ── Step 2: Audio is primed — fire the cinematic gong + curtain ──
-        playSingingBowl(gestureStartTime);
-        startShimmerSound(gestureStartTime);
-        logGestureDebug(`${source}-cinematic-reveal`, { start: gestureStartTime });
-      } else {
-        playWelcomeTap(gestureStartTime);
-        logGestureDebug(`${source}-welcome-tap`, { start: gestureStartTime });
-      }
-      triggerBurst();
-      updateState({ showTapAgain: true, revealed: true, hexAwake: true });
-      if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
-      lockFlashTimerRef.current = setTimeout(() => {
-        updateState({ revealed: false });
-      }, LOCK_FLASH_MS);
-
-      if ('vibrate' in navigator) {
-        try { navigator.vibrate([10]); } catch {}
-      }
-
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
     }
-  }, [code, logGestureDebug, primeAudio, submitCode, triggerBurst, playWelcomeTap, playSingingBowl, playMintSound, startShimmerSound, updateState]);
+  }, [code, triggerBurst, playMintSound, submitCode, updateState]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
     const now = performance.now();
     if (now - fallbackGestureTimeRef.current < 80) return;
     fallbackGestureTimeRef.current = now;
-    handleLockPointerDown('react-fallback');
-  }, [handleLockPointerDown]);
+    handleHoldStart('react-fallback');
+  }, [handleHoldStart]);
 
   // Native event listeners for iOS gesture-chain audio unlock
   useLayoutEffect(() => {
     const btn = lockButtonRef.current;
     if (!btn) return;
     nativeGestureReadyRef.current = true;
-    const onTouch = (e: TouchEvent) => {
+    const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
+      handleHoldStart('touchstart');
       handleLockPointerDown('touchstart');
       logGestureDebug('touchstart');
     };
     const onTouchEnd = () => {
+      handleHoldEnd('touchend');
       logGestureDebug('touchend');
     };
     const onTouchCancel = () => {
+      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      updateState({ holding: false, holdReady: false });
       logGestureDebug('touchcancel');
     };
     const onPointer = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return;
+      handleHoldStart(`pointerdown-${e.pointerType}`);
       handleLockPointerDown(`pointerdown-${e.pointerType}`);
       logGestureDebug('pointerdown', { pointerType: e.pointerType });
+    };
+    const onPointerUp = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
+      handleHoldEnd(`pointerup-${e.pointerType}`);
     };
     const onClick = () => {
       logGestureDebug('click');
     };
-    btn.addEventListener('touchstart', onTouch, { capture: true, passive: false });
+    btn.addEventListener('touchstart', onTouchStart, { capture: true, passive: false });
     btn.addEventListener('touchend', onTouchEnd, { capture: true, passive: true });
     btn.addEventListener('touchcancel', onTouchCancel, { capture: true, passive: true });
     btn.addEventListener('pointerdown', onPointer, true);
+    btn.addEventListener('pointerup', onPointerUp, true);
     btn.addEventListener('click', onClick, true);
     return () => {
       nativeGestureReadyRef.current = false;
-      btn.removeEventListener('touchstart', onTouch, true);
+      btn.removeEventListener('touchstart', onTouchStart, true);
       btn.removeEventListener('touchend', onTouchEnd, true);
       btn.removeEventListener('touchcancel', onTouchCancel, true);
       btn.removeEventListener('pointerdown', onPointer, true);
+      btn.removeEventListener('pointerup', onPointerUp, true);
       btn.removeEventListener('click', onClick, true);
     };
-  }, [handleLockPointerDown, logGestureDebug]);
+  }, [handleHoldStart, handleHoldEnd, handleLockPointerDown, logGestureDebug, updateState]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
