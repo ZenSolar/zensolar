@@ -801,7 +801,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               ) : (
                 <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" />
-                  {revealed ? 'double tap to unlock' : 'tap the $Z'}
+                  {revealed ? 'double tap to unlock' : 'press & hold $Z'}
                 </span>
               )}
             </div>
