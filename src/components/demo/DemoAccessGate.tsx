@@ -680,6 +680,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             </button>
           </div>
 
+          {/* Sound-on pulse — shown briefly after first tap (audio prime) */}
+          {showSoundOnPulse && !hexAwake && (
+            <div
+              className="text-center pointer-events-none"
+              style={{
+                animation: 'zenSymbolFadeIn 300ms ease-out both',
+              }}
+            >
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-medium tracking-wide rounded-full px-3 py-1"
+                style={{
+                  color: 'hsl(var(--primary))',
+                  background: 'hsl(var(--primary) / 0.1)',
+                  border: '1px solid hsl(var(--primary) / 0.2)',
+                  textShadow: '0 0 8px hsl(var(--primary) / 0.4)',
+                }}
+              >
+                🔊 Sound on — tap again
+              </span>
+            </div>
+          )}
+
           {/* Title */}
           <div className={cn("text-center space-y-1 transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
             <h1 className="text-lg font-semibold text-foreground drop-shadow-[0_0_6px_hsl(var(--primary)/0.2)]">Private Demo</h1>
