@@ -71,6 +71,8 @@ interface GateState {
   burstKey: number;
   revealed: boolean; // true after first tap — switches $Z → Lock
   hexAwake: boolean; // hex background activates on first tap
+  audioPrimed: boolean; // true after first tap unlocks audio hardware
+  showSoundOnPulse: boolean; // brief "Sound on" indicator after first tap
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
@@ -99,6 +101,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     burstKey: 0,
     revealed: false,
     hexAwake: false,
+    audioPrimed: false,
+    showSoundOnPulse: false,
   });
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
@@ -114,6 +118,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
+  const soundOnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
 
@@ -283,12 +288,35 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     } else {
       lastTapTimeRef.current = now;
 
+      if (!s.audioPrimed) {
+        // ── Step 1: Prime audio hardware silently, show "Sound on" pulse ──
+        logGestureDebug(`${source}-audio-prime`, { start: gestureStartTime });
+        triggerBurst();
+        updateState({ audioPrimed: true, showSoundOnPulse: true, revealed: true });
+
+        if (soundOnTimerRef.current) clearTimeout(soundOnTimerRef.current);
+        soundOnTimerRef.current = setTimeout(() => {
+          updateState({ showSoundOnPulse: false, revealed: false });
+        }, 1200);
+
+        if ('vibrate' in navigator) {
+          try { navigator.vibrate([10]); } catch {}
+        }
+
+        if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+        doubleTapTimerRef.current = setTimeout(() => {
+          lastTapTimeRef.current = 0;
+        }, DOUBLE_TAP_WINDOW);
+        return; // Don't run the rest of single-tap logic
+      }
+
       if (!s.hexAwake) {
-        playSingingBowl(gestureStartTime); // First tap = singing bowl
-        startShimmerSound(gestureStartTime); // First tap = ambient hum
-        logGestureDebug(`${source}-scheduled-initial-audio`, { start: gestureStartTime });
+        // ── Step 2: Audio is primed — fire the cinematic gong + curtain ──
+        playSingingBowl(gestureStartTime);
+        startShimmerSound(gestureStartTime);
+        logGestureDebug(`${source}-cinematic-reveal`, { start: gestureStartTime });
       } else {
-        playWelcomeTap(gestureStartTime); // Subsequent taps = standard chime
+        playWelcomeTap(gestureStartTime);
         logGestureDebug(`${source}-welcome-tap`, { start: gestureStartTime });
       }
       triggerBurst();
@@ -369,7 +397,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   if (granted) return <>{children}</>;
 
-  const { phase, firstTapBurst, showTapAgain, burstKey, revealed, hexAwake } = stateRef.current;
+  const { phase, firstTapBurst, showTapAgain, burstKey, revealed, hexAwake, showSoundOnPulse } = stateRef.current;
   const isBursting = phase === 'burst';
   const isDenied = phase === 'denied';
   const isVerifying = phase === 'verifying';
