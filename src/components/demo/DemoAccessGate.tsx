@@ -808,11 +808,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </div>
 
           {/* Pre-tap hint — visible only before first tap, hidden after */}
-          {!hexAwake && (
+          {!hexAwake && !holdHint && (
             <div className="flex justify-center">
               <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3" />
-                tap the $Z
+                press &amp; hold the $Z
               </span>
             </div>
           )}
