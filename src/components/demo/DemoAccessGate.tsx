@@ -406,6 +406,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
     const onTouchCancel = () => {
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      holdPulseTimersRef.current.forEach(t => clearTimeout(t));
+      holdPulseTimersRef.current = [];
       updateState({ holding: false, holdReady: false });
       logGestureDebug('touchcancel');
     };
