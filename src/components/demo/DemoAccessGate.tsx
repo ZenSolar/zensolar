@@ -123,8 +123,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
-  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const holdPulseTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const holdTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const holdPulseTimersRef = useRef<ReturnType<typeof window.setTimeout>[]>([]);
   const holdStartRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
