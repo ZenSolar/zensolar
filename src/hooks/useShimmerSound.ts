@@ -5,6 +5,7 @@ import {
   IMMEDIATE_SOUND_LEAD,
   WARM_START_SOUND_LEAD,
   getSafeAudioStartTime,
+  scheduleWhenAudioRunning,
 } from './useMintSound';
 
 /**
@@ -95,6 +96,10 @@ export function useShimmerSound({
     const targetVolume = activationVolume ?? volumeRef.current;
 
     if (nodesRef.current) {
+      pendingStartCleanupRef.current?.();
+      pendingStartCleanupRef.current = null;
+      pendingStartRef.current = false;
+
       const { ctx, lfoGain, biasNode } = nodesRef.current;
       const now = scheduledStartTime !== undefined
         ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
@@ -109,8 +114,6 @@ export function useShimmerSound({
       }
       return true;
     }
-
-    if (pendingStartRef.current) return true;
 
     const ctx = getSharedAudioContext();
     if (!ctx) {
@@ -268,8 +271,40 @@ export function useShimmerSound({
       };
     };
 
+    const finalizeBoot = (now: number, mode: 'boot' | 'boot-deferred') => {
+      pendingStartCleanupRef.current = null;
+      pendingStartRef.current = false;
+      bootNodes(now);
+      if (targetVolume > 0) {
+        logAudioDebug('hum-fired', { ctx: ctx.state, mode, start: now, volume: targetVolume });
+      }
+    };
+
+    pendingStartCleanupRef.current?.();
+    pendingStartCleanupRef.current = null;
+    pendingStartRef.current = false;
+
     if (ctx.state !== 'running') {
       ctx.resume().catch(() => {});
+      pendingStartRef.current = true;
+      pendingStartCleanupRef.current = scheduleWhenAudioRunning(
+        ctx,
+        (now) => {
+          finalizeBoot(now, 'boot-deferred');
+        },
+        {
+          requestedTime: scheduledStartTime,
+          runningLead: scheduledStartTime !== undefined ? 0 : IMMEDIATE_SOUND_LEAD,
+          resumedLead: scheduledStartTime !== undefined ? 0 : WARM_START_SOUND_LEAD,
+          timeoutMs: 2000,
+          onTimeout: () => {
+            pendingStartCleanupRef.current = null;
+            pendingStartRef.current = false;
+            logAudioDebug('hum-missed', { reason: 'timeout-waiting-for-running' });
+          },
+        },
+      );
+      return true;
     }
 
     const now = scheduledStartTime !== undefined
@@ -280,11 +315,7 @@ export function useShimmerSound({
           ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
         );
 
-    pendingStartRef.current = false;
-    bootNodes(now);
-    if (targetVolume > 0) {
-      logAudioDebug('hum-fired', { ctx: ctx.state, mode: 'boot', start: now, volume: targetVolume });
-    }
+    finalizeBoot(now, 'boot');
 
     return true;
   }, []);
