@@ -345,6 +345,21 @@
   }
 }
 
+/* Hold-to-unlock ring fill — stroke-dashoffset from full to zero */
+@keyframes zenHoldRingFill {
+  0% {
+    stroke-dashoffset: 276.46; /* 2 * PI * 44 */
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
 /* Tap-to-Mint text fade-in after delay */
 @keyframes zenHintFadeIn {
   0% { opacity: 0; transform: translateY(4px); }
