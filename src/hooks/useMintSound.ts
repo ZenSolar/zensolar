@@ -393,6 +393,43 @@ export function useMintSound() {
     }
   }, [getCtx]);
 
+  const prewarmSingingBowl = useCallback(() => {
+    try {
+      const ctx = primeAudio();
+      if (!ctx) {
+        logAudioDebug('gong-prewarm-missed', { reason: 'no-ctx' });
+        return false;
+      }
+
+      if (ctx.state === 'running') {
+        ensurePrewarmedSingingBowl(ctx);
+        logAudioDebug('gong-prewarmed', { ctx: ctx.state, mode: 'running' });
+        return true;
+      }
+
+      scheduleWhenAudioRunning(
+        ctx,
+        () => {
+          ensurePrewarmedSingingBowl(ctx);
+          logAudioDebug('gong-prewarmed', { ctx: ctx.state, mode: 'deferred' });
+        },
+        {
+          runningLead: 0,
+          resumedLead: 0,
+          timeoutMs: 2000,
+          onTimeout: () => {
+            logAudioDebug('gong-prewarm-missed', { reason: 'timeout-waiting-for-running' });
+          },
+        },
+      );
+
+      return true;
+    } catch {
+      logAudioDebug('gong-prewarm-missed', { reason: 'exception' });
+      return false;
+    }
+  }, [primeAudio]);
+
   const preparePlayback = useCallback(() => {
     try {
       const ctx = getCtx();
@@ -1390,5 +1427,5 @@ export function useMintSound() {
   }, [getCtx]);
 
 
-  return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, playSingingBowl, triggerHaptic };
+  return { primeAudio, prewarmSingingBowl, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, playSingingBowl, triggerHaptic };
 }

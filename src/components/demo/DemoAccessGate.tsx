@@ -123,13 +123,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
-  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const holdPulseTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const holdTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const holdPulseTimersRef = useRef<ReturnType<typeof window.setTimeout>[]>([]);
   const holdStartRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
 
-  const { primeAudio, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
+  const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake, prewarm: false });
 
   useEffect(() => {
@@ -267,13 +267,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return;
     }
 
+    const s = stateRef.current;
+    if (s.phase === 'verifying' || s.phase === 'burst') return;
+
     const ctx = primeAudio();
     if (!ctx) {
       logGestureDebug(`${source}-prime-audio-missed`);
     }
 
-    const s = stateRef.current;
-    if (s.phase === 'verifying' || s.phase === 'burst') return;
+    if (!s.hexAwake) {
+      const gongPrewarmed = prewarmSingingBowl();
+      const humPrewarmed = startShimmerSound(undefined, 0);
+      logGestureDebug(`${source}-entry-audio-prewarmed`, {
+        gongPrewarmed,
+        humPrewarmed,
+      });
+    }
 
     holdStartRef.current = performance.now();
     updateState({ holding: true, holdReady: false, holdHint: false });
@@ -302,7 +311,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
       logGestureDebug(`${source}-hold-ready`);
     }, HOLD_THRESHOLD_MS);
-  }, [logGestureDebug, primeAudio, updateState]);
+  }, [logGestureDebug, prewarmSingingBowl, primeAudio, startShimmerSound, updateState]);
 
   const handleHoldEnd = useCallback((source = 'pointerup') => {
     const s = stateRef.current;
