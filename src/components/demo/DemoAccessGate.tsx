@@ -182,7 +182,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
-      if (soundOnTimerRef.current) clearTimeout(soundOnTimerRef.current);
+      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
     };
   }, []);
 
