@@ -558,6 +558,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
+                holding && 'scale-[0.92]',
                 isBursting
                   ? 'bg-primary/30 scale-[0.92]'
                   : isDenied
