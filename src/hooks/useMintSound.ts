@@ -1224,145 +1224,170 @@ export function useMintSound() {
   // ── Singing bowl: Tibetan gong ring for the very first tap ──
   // CRITICAL: Uses preparePlayback() to schedule nodes IMMEDIATELY on
   // the (possibly suspended) AudioContext. Nodes scheduled while suspended
-  // play as soon as resume() completes — this keeps us inside the iOS
-  // gesture token window. Do NOT use scheduleWhenAudioRunning here.
+  // On iOS WebKit the first-ever AudioContext starts 'suspended' and nodes
+  // scheduled at currentTime=0 are silently dropped once resume() completes.
+  // Fix: if the context isn't running yet, use scheduleWhenAudioRunning so
+  // nodes are only created once hardware is live. The gesture token survives
+  // because resume() was already called synchronously in primeAudio().
   const playSingingBowl = useCallback((scheduledStartTime?: number) => {
     try {
-      const playback = preparePlayback();
-      if (!playback) {
-        logAudioDebug('gong-missed', { reason: 'no-playback' });
+      const ctx = getCtx();
+      if (!ctx) {
+        logAudioDebug('gong-missed', { reason: 'no-ctx' });
         return false;
       }
-      const { ctx, now: preparedStartTime } = playback;
+      // Always ensure resume is called (may already be called by primeAudio)
+      if (ctx.state !== 'running') {
+        ctx.resume().catch(() => {});
+      }
+      warmAudioHardware(ctx);
 
-      const startTime = scheduledStartTime !== undefined
-        ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
-        : preparedStartTime;
+      const fireGong = (startTime: number) => {
+        const prewarmedGraph = ensurePrewarmedSingingBowl(ctx);
+        if (prewarmedGraph) {
+          triggerPrewarmedSingingBowl(prewarmedGraph, startTime);
+          logAudioDebug('gong-fired', { ctx: ctx.state, mode: 'prewarmed', start: startTime });
+        } else {
+          const DUR = 6.0;
+          const now = startTime;
 
-      const prewarmedGraph = ensurePrewarmedSingingBowl(ctx);
-      if (prewarmedGraph) {
-        triggerPrewarmedSingingBowl(prewarmedGraph, startTime);
-        logAudioDebug('gong-fired', { ctx: ctx.state, mode: 'prewarmed', start: startTime });
+          const master = ctx.createGain();
+          master.gain.setValueAtTime(0.55, now);
+          master.connect(ctx.destination);
+
+          const fund = ctx.createOscillator();
+          fund.type = 'sine';
+          fund.frequency.setValueAtTime(65, now);
+          const fundGain = ctx.createGain();
+          fundGain.gain.setValueAtTime(0.5, now);
+          fundGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
+          fund.connect(fundGain);
+          fundGain.connect(master);
+          fund.start(now);
+          fund.stop(now + DUR + 0.1);
+
+          const p2 = ctx.createOscillator();
+          p2.type = 'sine';
+          p2.frequency.setValueAtTime(156, now);
+          p2.frequency.linearRampToValueAtTime(154.5, now + DUR * 0.6);
+          const p2Gain = ctx.createGain();
+          p2Gain.gain.setValueAtTime(0.35, now);
+          p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.8);
+          p2.connect(p2Gain);
+          p2Gain.connect(master);
+          p2.start(now);
+          p2.stop(now + DUR + 0.1);
+
+          const p3 = ctx.createOscillator();
+          p3.type = 'sine';
+          p3.frequency.setValueAtTime(287, now);
+          p3.frequency.linearRampToValueAtTime(285, now + DUR * 0.4);
+          const p3Gain = ctx.createGain();
+          p3Gain.gain.setValueAtTime(0.18, now);
+          p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.55);
+          p3.connect(p3Gain);
+          p3Gain.connect(master);
+          p3.start(now);
+          p3.stop(now + DUR + 0.1);
+
+          const p4 = ctx.createOscillator();
+          p4.type = 'sine';
+          p4.frequency.setValueAtTime(410, now);
+          const p4Gain = ctx.createGain();
+          p4Gain.gain.setValueAtTime(0.08, now);
+          p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.4);
+          p4.connect(p4Gain);
+          p4Gain.connect(master);
+          p4.start(now);
+          p4.stop(now + DUR + 0.1);
+
+          const sub = ctx.createOscillator();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(32.5, now);
+          const subGain = ctx.createGain();
+          subGain.gain.setValueAtTime(0.3, now);
+          subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.75);
+          sub.connect(subGain);
+          subGain.connect(master);
+          sub.start(now);
+          sub.stop(now + DUR + 0.1);
+
+          const strikeLen = 0.08;
+          const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * strikeLen, ctx.sampleRate);
+          const noiseData = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < noiseData.length; i++) {
+            noiseData[i] = (Math.random() * 2 - 1);
+          }
+          const noiseSource = ctx.createBufferSource();
+          noiseSource.buffer = noiseBuffer;
+          const noiseBp = ctx.createBiquadFilter();
+          noiseBp.type = 'bandpass';
+          noiseBp.frequency.setValueAtTime(2200, now);
+          noiseBp.Q.setValueAtTime(3, now);
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.25, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + strikeLen);
+          noiseSource.connect(noiseBp);
+          noiseBp.connect(noiseGain);
+          noiseGain.connect(master);
+          noiseSource.start(now);
+
+          const strike = ctx.createOscillator();
+          strike.type = 'triangle';
+          strike.frequency.setValueAtTime(900, now);
+          strike.frequency.exponentialRampToValueAtTime(65, now + 0.07);
+          const strikeGain = ctx.createGain();
+          strikeGain.gain.setValueAtTime(0.3, now);
+          strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          strike.connect(strikeGain);
+          strikeGain.connect(master);
+          strike.start(now);
+          strike.stop(now + 0.25);
+
+          const lfo = ctx.createOscillator();
+          lfo.type = 'sine';
+          lfo.frequency.setValueAtTime(0.25, now);
+          const lfoGain = ctx.createGain();
+          lfoGain.gain.setValueAtTime(1.2, now);
+          lfo.connect(lfoGain);
+          lfoGain.connect(fund.frequency);
+          lfoGain.connect(p2.frequency);
+          lfo.start(now);
+          lfo.stop(now + DUR + 0.1);
+
+          logAudioDebug('gong-fired', { ctx: ctx.state, mode: 'fresh', start: now });
+        }
+      };
+
+      // If context is already running, fire immediately
+      if (ctx.state === 'running') {
+        const startTime = scheduledStartTime !== undefined
+          ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
+          : getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
+        fireGong(startTime);
         return true;
       }
 
-      const fire = (now: number) => {
-        const DUR = 6.0;
-
-        const master = ctx.createGain();
-        master.gain.setValueAtTime(0.55, now);
-        master.connect(ctx.destination);
-
-        const fund = ctx.createOscillator();
-        fund.type = 'sine';
-        fund.frequency.setValueAtTime(65, now);
-        const fundGain = ctx.createGain();
-        fundGain.gain.setValueAtTime(0.5, now);
-        fundGain.gain.exponentialRampToValueAtTime(0.001, now + DUR);
-        fund.connect(fundGain);
-        fundGain.connect(master);
-        fund.start(now);
-        fund.stop(now + DUR + 0.1);
-
-        const p2 = ctx.createOscillator();
-        p2.type = 'sine';
-        p2.frequency.setValueAtTime(156, now);
-        p2.frequency.linearRampToValueAtTime(154.5, now + DUR * 0.6);
-        const p2Gain = ctx.createGain();
-        p2Gain.gain.setValueAtTime(0.35, now);
-        p2Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.8);
-        p2.connect(p2Gain);
-        p2Gain.connect(master);
-        p2.start(now);
-        p2.stop(now + DUR + 0.1);
-
-        const p3 = ctx.createOscillator();
-        p3.type = 'sine';
-        p3.frequency.setValueAtTime(287, now);
-        p3.frequency.linearRampToValueAtTime(285, now + DUR * 0.4);
-        const p3Gain = ctx.createGain();
-        p3Gain.gain.setValueAtTime(0.18, now);
-        p3Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.55);
-        p3.connect(p3Gain);
-        p3Gain.connect(master);
-        p3.start(now);
-        p3.stop(now + DUR + 0.1);
-
-        const p4 = ctx.createOscillator();
-        p4.type = 'sine';
-        p4.frequency.setValueAtTime(410, now);
-        const p4Gain = ctx.createGain();
-        p4Gain.gain.setValueAtTime(0.08, now);
-        p4Gain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.4);
-        p4.connect(p4Gain);
-        p4Gain.connect(master);
-        p4.start(now);
-        p4.stop(now + DUR + 0.1);
-
-        const sub = ctx.createOscillator();
-        sub.type = 'sine';
-        sub.frequency.setValueAtTime(32.5, now);
-        const subGain = ctx.createGain();
-        subGain.gain.setValueAtTime(0.3, now);
-        subGain.gain.exponentialRampToValueAtTime(0.001, now + DUR * 0.75);
-        sub.connect(subGain);
-        subGain.connect(master);
-        sub.start(now);
-        sub.stop(now + DUR + 0.1);
-
-        const strikeLen = 0.08;
-        const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * strikeLen, ctx.sampleRate);
-        const noiseData = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < noiseData.length; i++) {
-          noiseData[i] = (Math.random() * 2 - 1);
-        }
-        const noiseSource = ctx.createBufferSource();
-        noiseSource.buffer = noiseBuffer;
-        const noiseBp = ctx.createBiquadFilter();
-        noiseBp.type = 'bandpass';
-        noiseBp.frequency.setValueAtTime(2200, now);
-        noiseBp.Q.setValueAtTime(3, now);
-        const noiseGain = ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.25, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + strikeLen);
-        noiseSource.connect(noiseBp);
-        noiseBp.connect(noiseGain);
-        noiseGain.connect(master);
-        noiseSource.start(now);
-
-        const strike = ctx.createOscillator();
-        strike.type = 'triangle';
-        strike.frequency.setValueAtTime(900, now);
-        strike.frequency.exponentialRampToValueAtTime(65, now + 0.07);
-        const strikeGain = ctx.createGain();
-        strikeGain.gain.setValueAtTime(0.3, now);
-        strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-        strike.connect(strikeGain);
-        strikeGain.connect(master);
-        strike.start(now);
-        strike.stop(now + 0.25);
-
-        const lfo = ctx.createOscillator();
-        lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(0.25, now);
-        const lfoGain = ctx.createGain();
-        lfoGain.gain.setValueAtTime(1.2, now);
-        lfo.connect(lfoGain);
-        lfoGain.connect(fund.frequency);
-        lfoGain.connect(p2.frequency);
-        lfo.start(now);
-        lfo.stop(now + DUR + 0.1);
-      };
-
-      fire(startTime);
-      logAudioDebug('gong-fired', { ctx: ctx.state, mode: 'fresh', start: startTime });
+      // Context is suspended — defer until hardware is live.
+      // The gesture token is preserved because resume() was called
+      // synchronously in the same touchstart handler.
+      logAudioDebug('gong-deferred', { ctx: ctx.state });
+      scheduleWhenAudioRunning(ctx, (startTime) => {
+        fireGong(startTime);
+      }, {
+        runningLead: IMMEDIATE_SOUND_LEAD,
+        resumedLead: POST_RESUME_SOUND_LEAD,
+        timeoutMs: 2000,
+        onTimeout: () => {
+          logAudioDebug('gong-missed', { reason: 'timeout-waiting-for-running' });
+        },
+      });
       return true;
     } catch {
       logAudioDebug('gong-missed', { reason: 'exception' });
-      // Silent fail
       return false;
     }
-  }, [preparePlayback]);
+  }, [getCtx]);
 
 
   return { primeAudio, preparePlayback, playMintSound, playConfirmSound, playDeniedSound, playWelcomeTap, playSingingBowl, triggerHaptic };
