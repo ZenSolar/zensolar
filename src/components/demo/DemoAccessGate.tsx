@@ -170,7 +170,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, []);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
-  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake && !fallbackHumActive, prewarm: false });
+  const startShimmerSound = useShimmerSound({
+    cycleDuration: 5,
+    volume: 0.06,
+    enabled: stateRef.current.hexAwake && !fallbackHumActive,
+    prewarm: stateRef.current.holding || fallbackHumActive,
+  });
 
   useEffect(() => {
     if (!showAudioDebug) return;
@@ -201,7 +206,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         audioWakeCleanupRef.current = null;
         const start = getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
         const humStarted = startShimmerSound(start);
-        const fallbackStopped = humStarted ? handoffDemoEntryFallbackHum(220) : false;
+        const fallbackStopped = humStarted ? handoffDemoEntryFallbackHum(140) : false;
 
         if (humStarted) {
           setFallbackHumActive(false);
