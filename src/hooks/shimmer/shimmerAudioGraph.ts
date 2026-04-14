@@ -34,11 +34,14 @@ export function createShimmerAudioGraph(
   lfo.type = 'sine';
   lfo.frequency.setValueAtTime(lfoFreq, now);
 
+  // Start silent and ramp up over ~180ms to avoid clicks on cold start
   const lfoGain = ctx.createGain();
-  lfoGain.gain.setValueAtTime(volume * 0.45, now);
+  lfoGain.gain.setValueAtTime(0, now);
+  lfoGain.gain.setTargetAtTime(volume * 0.45, now, 0.06);
 
   const biasNode = ctx.createConstantSource();
-  biasNode.offset.setValueAtTime(volume * 0.55, now);
+  biasNode.offset.setValueAtTime(0, now);
+  biasNode.offset.setTargetAtTime(volume * 0.55, now, 0.06);
 
   lfo.connect(lfoGain);
   lfoGain.connect(master.gain);
