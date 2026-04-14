@@ -126,6 +126,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     holdReady: false,
     holdHint: false,
   });
+  const [shockwaveKey, setShockwaveKey] = useState<number | null>(null);
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
   const updateState = useCallback((patch: Partial<GateState>) => {
