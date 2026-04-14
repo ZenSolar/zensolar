@@ -251,12 +251,13 @@ export function playDemoEntryFallbackRevealAudio() {
   if (fallbackGestureArmed.hum && !audio.hum.paused) {
     try {
       audio.hum.loop = true;
-      audio.hum.currentTime = 0;
+      // Don't reset currentTime — seeking a playing element causes an audible pop/glitch.
+      // The hum is a seamless loop so any start position sounds identical.
       audio.hum.volume = 0;
       audio.hum.muted = false;
-      fadeHumTo(audio.hum, HUM_VOLUME);
+      fadeHumTo(audio.hum, HUM_VOLUME, 350);
       humStarted = true;
-      logPlaySuccess('hum', audio.hum, { armed: true, restarted: true });
+      logPlaySuccess('hum', audio.hum, { armed: true, seamless: true });
     } catch (error) {
       logPlayFailure('hum', error, audio.hum, { armed: true });
     }
