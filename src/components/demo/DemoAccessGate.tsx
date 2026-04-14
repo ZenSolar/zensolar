@@ -8,7 +8,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
-import { getSafeAudioStartTime, getSharedAudioContext, POST_RESUME_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
+import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
@@ -333,8 +333,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug(`${source}-prime-audio-missed`);
     }
 
-    audioReadyRef.current = Boolean(s.hexAwake || ctx?.state === 'running');
-    if (!s.hexAwake && ctx && !audioReadyRef.current) {
+    let gongPrewarmed = false;
+    let humPrewarmed = false;
+    if (!s.hexAwake) {
+      gongPrewarmed = prewarmSingingBowl();
+      humPrewarmed = startShimmerSound(undefined, 0);
+      logGestureDebug(`${source}-entry-audio-prewarmed`, {
+        gongPrewarmed,
+        humPrewarmed,
+      });
+    }
+
+    audioReadyRef.current = Boolean(s.hexAwake || ctx || gongPrewarmed || humPrewarmed);
+    if (!s.hexAwake && ctx && ctx.state !== 'running') {
       audioWakeCleanupRef.current = runWhenAudioContextRunning(
         ctx,
         () => {
@@ -349,15 +360,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           logGestureDebug(`${source}-audio-running-timeout`, { ctxState: ctx.state });
         },
       );
-    }
-
-    if (!s.hexAwake) {
-      const gongPrewarmed = prewarmSingingBowl();
-      const humPrewarmed = startShimmerSound(undefined, 0);
-      logGestureDebug(`${source}-entry-audio-prewarmed`, {
-        gongPrewarmed,
-        humPrewarmed,
-      });
     }
 
     holdStartRef.current = performance.now();
@@ -402,67 +404,95 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const held = performance.now() - holdStartRef.current;
     const heldLongEnough = s.holdReady || held >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS;
-    let audioReady = Boolean(s.hexAwake || audioReadyRef.current);
-    if (!audioReady) {
-      const ctx = primeAudio() ?? getSharedAudioContext();
-      audioReady = Boolean(ctx && ctx.state === 'running');
-      audioReadyRef.current = audioReady;
-    }
-    const metHoldThreshold = heldLongEnough && audioReady;
+    const ctx = primeAudio() ?? getSharedAudioContext();
+    const audioReady = Boolean(s.hexAwake || audioReadyRef.current || ctx);
     updateState({ holding: false, holdReady: false });
-    logGestureDebug(`${source}-hold-end`, { held, heldLongEnough, audioReady, metHoldThreshold });
+    logGestureDebug(`${source}-hold-end`, {
+      held,
+      heldLongEnough,
+      audioReady,
+      ctxState: ctx?.state ?? 'null',
+      metHoldThreshold: heldLongEnough,
+    });
 
-    if (!metHoldThreshold) {
-      if (heldLongEnough && !audioReady) {
-        logGestureDebug(`${source}-reveal-blocked-audio-not-ready`);
-      }
+    const showHoldHint = () => {
       updateState({ holdHint: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       lockFlashTimerRef.current = setTimeout(() => {
         updateState({ holdHint: false });
       }, 2000);
+    };
+
+    if (!heldLongEnough) {
+      showHoldHint();
       return;
     }
 
-    // ── Fire audio SYNCHRONOUSLY within this gesture handler ──
-    // Do NOT defer via scheduleWhenAudioRunning — the context was already
-    // primed+resumed on press, so it should be 'running' by now.
-    const ctx = primeAudio() ?? getSharedAudioContext();
-    if (ctx) {
-      const wasRunning = ctx.state === 'running';
-      if (!wasRunning) {
-        ctx.resume().catch(() => {});
-      }
-      const now = getSafeAudioStartTime(
-        ctx,
-        undefined,
-        wasRunning ? 0.005 : POST_RESUME_SOUND_LEAD,
-      );
-
-      if (!s.hexAwake) {
-        playSingingBowl(now);
-        startShimmerSound(now);
-        logGestureDebug(`${source}-cinematic-reveal`, { start: now, ctxState: ctx.state, warmStart: !wasRunning });
-      } else {
-        playWelcomeTap(now);
-        logGestureDebug(`${source}-welcome-tap`, { start: now, ctxState: ctx.state, warmStart: !wasRunning });
-      }
-    } else {
-      logGestureDebug(`${source}-no-audio-ctx`);
+    if (!ctx) {
+      logGestureDebug(`${source}-reveal-blocked-no-audio-ctx`);
+      showHoldHint();
+      return;
     }
 
-    // Fire screen-wide shockwave
-    const shockwaveOrigin = getLockVisualCenter();
-    setShockwave({ key: Date.now(), ...shockwaveOrigin });
+    const commitReveal = (startTime: number, warmStart: boolean) => {
+      const firstReveal = !stateRef.current.hexAwake;
 
-    triggerBurst();
-    updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false });
-    ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
+      if (firstReveal) {
+        const gongStarted = playSingingBowl(startTime);
+        const humStarted = startShimmerSound(startTime);
 
-    if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
-    lockFlashTimerRef.current = setTimeout(() => {
-      updateState({ revealed: false });
-    }, LOCK_FLASH_MS);
+        if (!gongStarted && !humStarted) {
+          logGestureDebug(`${source}-reveal-blocked-audio-arm-failed`, { start: startTime, warmStart });
+          showHoldHint();
+          return;
+        }
+
+        audioReadyRef.current = true;
+        logGestureDebug(`${source}-cinematic-reveal`, {
+          start: startTime,
+          ctxState: ctx.state,
+          warmStart,
+          gongStarted,
+          humStarted,
+        });
+      } else {
+        playWelcomeTap(startTime);
+        logGestureDebug(`${source}-welcome-tap`, { start: startTime, ctxState: ctx.state, warmStart });
+      }
+
+      const shockwaveOrigin = getLockVisualCenter();
+      setShockwave({ key: Date.now(), ...shockwaveOrigin });
+
+      triggerBurst();
+      updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false });
+      ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
+
+      if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
+      lockFlashTimerRef.current = setTimeout(() => {
+        updateState({ revealed: false });
+      }, LOCK_FLASH_MS);
+    };
+
+    if (ctx.state === 'running') {
+      commitReveal(getSafeAudioStartTime(ctx, undefined, 0.005), false);
+      return;
+    }
+
+    ctx.resume().catch(() => {});
+    audioWakeCleanupRef.current = runWhenAudioContextRunning(
+      ctx,
+      () => {
+        audioWakeCleanupRef.current = null;
+        commitReveal(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD), true);
+      },
+      1200,
+      () => {
+        audioWakeCleanupRef.current = null;
+        logGestureDebug(`${source}-reveal-blocked-audio-running-timeout`, { ctxState: ctx.state });
+        showHoldHint();
+      },
+    );
+    logGestureDebug(`${source}-reveal-armed-awaiting-running`, { ctxState: ctx.state, audioReady });
   }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
