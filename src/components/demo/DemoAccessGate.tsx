@@ -54,6 +54,23 @@ function generateParticles() {
   });
 }
 
+// ─── Attraction particles for hold effect ────
+const ATTRACT_PARTICLE_COUNT = 8;
+function generateAttractParticles() {
+  return Array.from({ length: ATTRACT_PARTICLE_COUNT }, (_, i) => {
+    const angle = (i / ATTRACT_PARTICLE_COUNT) * 360 + (Math.random() * 30 - 15);
+    const rad = (angle * Math.PI) / 180;
+    const dist = 55 + Math.random() * 30;
+    return {
+      x: Math.cos(rad) * dist,
+      y: Math.sin(rad) * dist,
+      size: 2 + Math.random() * 3,
+      delay: i * 60 + Math.random() * 40,
+      isGold: i % 3 === 0,
+    };
+  });
+}
+
 // ─── Timing constants ────
 const DOUBLE_TAP_WINDOW = 500;
 const FIRST_TAP_BURST_MS = 700;
