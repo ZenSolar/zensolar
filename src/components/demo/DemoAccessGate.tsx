@@ -514,6 +514,46 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     >
       {showAudioDebug && <AudioDebugOverlay />}
 
+      {/* ── Screen-wide energy shockwave — fires on successful hold release ── */}
+      {shockwaveKey !== null && (
+        <div
+          key={`shockwave-${shockwaveKey}`}
+          className="fixed inset-0 pointer-events-none z-[200]"
+          onAnimationEnd={() => setShockwaveKey(null)}
+        >
+          {/* Radial light burst */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: '50%',
+              top: '45%',
+              width: '200vmax',
+              height: '200vmax',
+              marginLeft: '-100vmax',
+              marginTop: '-100vmax',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(34,197,94,0.15) 25%, rgba(34,197,94,0.05) 50%, transparent 70%)',
+              animation: 'zenShockwaveExpand 900ms cubic-bezier(0.22,1,0.36,1) forwards',
+              willChange: 'transform, opacity',
+            }}
+          />
+          {/* Bright core flash */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: '50%',
+              top: '45%',
+              width: 120,
+              height: 120,
+              marginLeft: -60,
+              marginTop: -60,
+              background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,220,100,0.4) 40%, transparent 70%)',
+              animation: 'zenShockwaveFlash 500ms ease-out forwards',
+              willChange: 'transform, opacity',
+            }}
+          />
+        </div>
+      )}
+
       <div
         className="absolute inset-0"
         style={{
