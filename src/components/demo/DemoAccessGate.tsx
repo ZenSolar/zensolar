@@ -8,7 +8,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
-import { getSafeAudioStartTime, getSharedAudioContext, useMintSound } from '@/hooks/useMintSound';
+import { getSafeAudioStartTime, getSharedAudioContext, POST_RESUME_SOUND_LEAD, useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
@@ -96,6 +96,12 @@ interface GateState {
   holdHint: boolean;      // "hold longer" nudge after premature release
 }
 
+interface ShockwaveState {
+  key: number;
+  x: number;
+  y: number;
+}
+
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -126,7 +132,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     holdReady: false,
     holdHint: false,
   });
-  const [shockwaveKey, setShockwaveKey] = useState<number | null>(null);
+  const [shockwave, setShockwave] = useState<ShockwaveState | null>(null);
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
   const updateState = useCallback((patch: Partial<GateState>) => {
@@ -146,6 +152,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const holdStartRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
+
+  const getLockVisualCenter = useCallback(() => {
+    const rect = lockButtonRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return {
+        x: window.innerWidth / 2,
+        y: window.innerHeight * 0.45,
+      };
+    }
+
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
+  }, []);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake, prewarm: false });
@@ -360,28 +381,33 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     // ── Fire audio SYNCHRONOUSLY within this gesture handler ──
     // Do NOT defer via scheduleWhenAudioRunning — the context was already
     // primed+resumed on press, so it should be 'running' by now.
-    const ctx = getSharedAudioContext();
+    const ctx = primeAudio() ?? getSharedAudioContext();
     if (ctx) {
-      // Force resume one more time synchronously in case iOS suspended it
-      if (ctx.state !== 'running') {
+      const wasRunning = ctx.state === 'running';
+      if (!wasRunning) {
         ctx.resume().catch(() => {});
       }
-      const now = Math.max(ctx.currentTime + 0.005, ctx.currentTime);
+      const now = getSafeAudioStartTime(
+        ctx,
+        undefined,
+        wasRunning ? 0.005 : POST_RESUME_SOUND_LEAD,
+      );
 
       if (!s.hexAwake) {
         playSingingBowl(now);
         startShimmerSound(now);
-        logGestureDebug(`${source}-cinematic-reveal`, { start: now, ctxState: ctx.state });
+        logGestureDebug(`${source}-cinematic-reveal`, { start: now, ctxState: ctx.state, warmStart: !wasRunning });
       } else {
         playWelcomeTap(now);
-        logGestureDebug(`${source}-welcome-tap`, { start: now, ctxState: ctx.state });
+        logGestureDebug(`${source}-welcome-tap`, { start: now, ctxState: ctx.state, warmStart: !wasRunning });
       }
     } else {
       logGestureDebug(`${source}-no-audio-ctx`);
     }
 
     // Fire screen-wide shockwave
-    setShockwaveKey(Date.now());
+    const shockwaveOrigin = getLockVisualCenter();
+    setShockwave({ key: Date.now(), ...shockwaveOrigin });
 
     triggerBurst();
     updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false });
@@ -391,7 +417,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     lockFlashTimerRef.current = setTimeout(() => {
       updateState({ revealed: false });
     }, LOCK_FLASH_MS);
-  }, [logGestureDebug, triggerBurst, playSingingBowl, startShimmerSound, playWelcomeTap, updateState]);
+  }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
@@ -515,18 +541,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       {showAudioDebug && <AudioDebugOverlay />}
 
       {/* ── Screen-wide energy shockwave — fires on successful hold release ── */}
-      {shockwaveKey !== null && (
+      {shockwave !== null && (
         <div
-          key={`shockwave-${shockwaveKey}`}
+          key={`shockwave-${shockwave.key}`}
           className="fixed inset-0 pointer-events-none z-[200]"
-          onAnimationEnd={() => setShockwaveKey(null)}
+          onAnimationEnd={() => setShockwave(null)}
         >
           {/* Radial light burst */}
           <div
             className="absolute rounded-full"
             style={{
-              left: '50%',
-              top: '45%',
+              left: shockwave.x,
+              top: shockwave.y,
               width: '200vmax',
               height: '200vmax',
               marginLeft: '-100vmax',
@@ -540,8 +566,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <div
             className="absolute rounded-full"
             style={{
-              left: '50%',
-              top: '45%',
+              left: shockwave.x,
+              top: shockwave.y,
               width: 120,
               height: 120,
               marginLeft: -60,
