@@ -251,10 +251,12 @@ export function playDemoEntryFallbackRevealAudio() {
   if (fallbackGestureArmed.hum && !audio.hum.paused) {
     try {
       audio.hum.loop = true;
+      audio.hum.currentTime = 0;
+      audio.hum.volume = 0;
       audio.hum.muted = false;
       fadeHumTo(audio.hum, HUM_VOLUME);
       humStarted = true;
-      logPlaySuccess('hum', audio.hum, { armed: true });
+      logPlaySuccess('hum', audio.hum, { armed: true, restarted: true });
     } catch (error) {
       logPlayFailure('hum', error, audio.hum, { armed: true });
     }
