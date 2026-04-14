@@ -169,6 +169,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     [stateRef.current.burstKey]
   );
 
+  // Stable attraction particles for hold effect
+  const attractParticles = useMemo(() => generateAttractParticles(), []);
+
   // No auto-focus — let user take in the full page experience first
 
   // Track the visual viewport so mobile browser chrome never exposes a dead strip
