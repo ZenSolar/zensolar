@@ -513,7 +513,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           return;
         }
 
-        stopDemoEntryFallbackHum(false);
+        handoffDemoEntryFallbackHum(140);
         setFallbackHumActive(false);
         audioReadyRef.current = true;
         logGestureDebug(`${source}-cinematic-reveal`, {
