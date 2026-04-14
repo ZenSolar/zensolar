@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
-import { isDemoEntryFallbackHumActive, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
+import { armDemoEntryFallbackGestureAudio, isDemoEntryFallbackHumActive, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -347,16 +347,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     let gongPrewarmed = false;
     let humPrewarmed = false;
+    let fallbackArmed = false;
     if (!s.hexAwake) {
       gongPrewarmed = prewarmSingingBowl();
       humPrewarmed = startShimmerSound(undefined, 0);
+      fallbackArmed = armDemoEntryFallbackGestureAudio();
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         humPrewarmed,
+        fallbackArmed,
       });
     }
 
-    audioReadyRef.current = Boolean(s.hexAwake || ctx || gongPrewarmed || humPrewarmed);
+    audioReadyRef.current = Boolean(s.hexAwake || ctx || gongPrewarmed || humPrewarmed || fallbackArmed);
     if (!s.hexAwake && ctx && ctx.state !== 'running') {
       audioWakeCleanupRef.current = runWhenAudioContextRunning(
         ctx,
@@ -436,6 +439,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
 
     if (!heldLongEnough) {
+      if (!s.hexAwake) {
+        stopDemoEntryFallbackHum();
+        setFallbackHumActive(false);
+      }
       showHoldHint();
       return;
     }
@@ -585,6 +592,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
+      stopDemoEntryFallbackHum();
+      setFallbackHumActive(false);
       updateState({ holding: false, holdReady: false });
       logGestureDebug('touchcancel');
     };
