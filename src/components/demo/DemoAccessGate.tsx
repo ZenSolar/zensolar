@@ -116,10 +116,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [code, setCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [fallbackHumActive, setFallbackHumActive] = useState(false);
-  const showAudioDebug = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.has('audio-debug');
-  }, []);
+  const showAudioDebug = false;
   
 
   // ── stateRef pattern: single ref holds all interaction state ──
