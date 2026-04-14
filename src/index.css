@@ -729,3 +729,17 @@
   30% { transform: scale(1.5); opacity: 0.4; }
   100% { transform: scale(3); opacity: 0; }
 }
+
+/* Screen-wide energy shockwave — radial light expanding from center */
+@keyframes zenShockwaveExpand {
+  0% { transform: scale(0); opacity: 0.9; }
+  30% { opacity: 0.7; }
+  60% { opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes zenShockwaveFlash {
+  0% { transform: scale(0.5); opacity: 1; }
+  20% { transform: scale(3); opacity: 0.6; }
+  100% { transform: scale(6); opacity: 0; }
+}
