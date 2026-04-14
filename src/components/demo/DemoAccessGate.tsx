@@ -655,12 +655,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     fontSize: '1.5rem',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
-                    color: 'hsl(142, 76%, 42%, 0.9)',
-                    textShadow: '0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25)',
-                    willChange: 'transform, opacity',
+                    color: holding
+                      ? 'hsl(142, 76%, 52%, 1)'
+                      : 'hsl(142, 76%, 42%, 0.9)',
+                    textShadow: holding
+                      ? undefined
+                      : '0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25)',
+                    willChange: 'transform, opacity, filter',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
-                      : 'none',
+                      : holding
+                        ? `zenPlasmaCore ${HOLD_THRESHOLD_MS}ms ease-in forwards`
+                        : 'none',
                   }}
                 >
                   $Z
@@ -766,25 +772,98 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             </button>
           </div>
 
-          {/* Hold progress ring — visible while holding */}
+          {/* ── Enhanced charging effect — visible while holding ── */}
           {holding && (
-            <div className="pointer-events-none" style={{ animation: 'zenSymbolFadeIn 100ms ease-out both' }}>
-              <svg width="96" height="96" viewBox="0 0 96 96" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ marginTop: '-48px', marginLeft: '-48px' }}>
+            <div className="pointer-events-none" style={{ animation: 'zenSymbolFadeIn 80ms ease-out both' }}>
+              {/* Background resonance pulse */}
+              <div
+                className="absolute left-1/2 top-1/2 rounded-full pointer-events-none"
+                style={{
+                  width: 300,
+                  height: 300,
+                  background: 'radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.04) 40%, transparent 70%)',
+                  animation: `zenResonancePulse ${HOLD_THRESHOLD_MS * 1.2}ms ease-out forwards`,
+                  willChange: 'transform, opacity',
+                }}
+              />
+
+              {/* Dual charging rings SVG */}
+              <svg width="120" height="120" viewBox="0 0 120 120" className="absolute left-1/2 top-1/2" style={{ marginTop: -60, marginLeft: -60 }}>
+                {/* Outer ring — primary threshold indicator */}
                 <circle
-                  cx="48" cy="48" r="44"
+                  cx="60" cy="60" r="52"
                   fill="none"
-                  stroke={holdReady ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.4)'}
-                  strokeWidth="3"
+                  stroke={holdReady ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.35)'}
+                  strokeWidth={holdReady ? 3.5 : 2.5}
+                  strokeDasharray={`${2 * Math.PI * 52}`}
+                  strokeDashoffset="0"
+                  strokeLinecap="round"
+                  style={{
+                    animation: holdReady
+                      ? 'zenHoldReadyFlash 400ms ease-in-out 2'
+                      : `zenHoldRingFill ${HOLD_THRESHOLD_MS}ms linear forwards`,
+                    transformOrigin: 'center',
+                    transform: 'rotate(-90deg)',
+                    filter: holdReady ? 'drop-shadow(0 0 6px hsl(var(--primary) / 0.6))' : 'none',
+                    transition: 'stroke-width 150ms, filter 150ms',
+                  }}
+                />
+                {/* Inner ring — fast fill, opposite rotation */}
+                <circle
+                  cx="60" cy="60" r="44"
+                  fill="none"
+                  stroke={holdReady ? 'hsl(var(--primary) / 0.8)' : 'hsl(var(--primary) / 0.2)'}
+                  strokeWidth="1.5"
                   strokeDasharray={`${2 * Math.PI * 44}`}
                   strokeDashoffset="0"
                   strokeLinecap="round"
                   style={{
-                    animation: `zenHoldRingFill ${HOLD_THRESHOLD_MS}ms linear forwards`,
+                    animation: holdReady
+                      ? 'zenHoldReadyFlash 400ms ease-in-out 2'
+                      : `zenHoldRingFill ${HOLD_THRESHOLD_MS * 0.7}ms ease-in forwards`,
                     transformOrigin: 'center',
-                    transform: 'rotate(-90deg)',
+                    transform: 'rotate(90deg)',
+                    filter: holdReady ? 'drop-shadow(0 0 4px hsl(var(--primary) / 0.4))' : 'none',
+                  }}
+                />
+                {/* Decorative rotating glow arc — thin accent */}
+                <circle
+                  cx="60" cy="60" r="48"
+                  fill="none"
+                  stroke="hsl(var(--primary) / 0.15)"
+                  strokeWidth="1"
+                  strokeDasharray="20 60"
+                  strokeLinecap="round"
+                  style={{
+                    animation: `zenRingGlowSpin ${HOLD_THRESHOLD_MS * 2}ms linear infinite`,
+                    transformOrigin: 'center',
                   }}
                 />
               </svg>
+
+              {/* Attraction particles — spiral inward during hold */}
+              {attractParticles.map((p, i) => (
+                <div
+                  key={`attract-${i}`}
+                  className="absolute left-1/2 top-1/2 rounded-full pointer-events-none"
+                  style={{
+                    width: p.size,
+                    height: p.size,
+                    marginLeft: -p.size / 2,
+                    marginTop: -p.size / 2,
+                    background: p.isGold
+                      ? 'radial-gradient(circle, rgba(255,200,80,0.9) 0%, rgba(255,160,40,0.4) 100%)'
+                      : 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, hsl(var(--primary) / 0.4) 100%)',
+                    boxShadow: p.isGold
+                      ? '0 0 6px rgba(255,180,60,0.6)'
+                      : '0 0 4px hsl(var(--primary) / 0.5)',
+                    animation: `zenParticleAttract ${HOLD_THRESHOLD_MS * 0.9}ms ${p.delay}ms ease-in forwards`,
+                    willChange: 'transform, opacity',
+                    '--attract-x': `${p.x}px`,
+                    '--attract-y': `${p.y}px`,
+                  } as React.CSSProperties}
+                />
+              ))}
             </div>
           )}
 
@@ -803,7 +882,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   textShadow: '0 0 8px hsl(var(--primary) / 0.4)',
                 }}
               >
-                hold a bit longer ✨
+                almost… hold a bit longer ✨
               </span>
             </div>
           )}
