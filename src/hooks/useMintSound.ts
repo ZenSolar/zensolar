@@ -400,29 +400,11 @@ export function useMintSound() {
         logAudioDebug('gong-prewarm-missed', { reason: 'no-ctx' });
         return false;
       }
-
-      if (ctx.state === 'running') {
-        ensurePrewarmedSingingBowl(ctx);
-        logAudioDebug('gong-prewarmed', { ctx: ctx.state, mode: 'running' });
-        return true;
-      }
-
-      scheduleWhenAudioRunning(
-        ctx,
-        () => {
-          ensurePrewarmedSingingBowl(ctx);
-          logAudioDebug('gong-prewarmed', { ctx: ctx.state, mode: 'deferred' });
-        },
-        {
-          runningLead: 0,
-          resumedLead: 0,
-          timeoutMs: 2000,
-          onTimeout: () => {
-            logAudioDebug('gong-prewarm-missed', { reason: 'timeout-waiting-for-running' });
-          },
-        },
-      );
-
+      ensurePrewarmedSingingBowl(ctx);
+      logAudioDebug('gong-prewarmed', {
+        ctx: ctx.state,
+        mode: ctx.state === 'running' ? 'running' : 'suspended',
+      });
       return true;
     } catch {
       logAudioDebug('gong-prewarm-missed', { reason: 'exception' });
@@ -1396,29 +1378,15 @@ export function useMintSound() {
         }
       };
 
-      // If context is already running, fire immediately
-      if (ctx.state === 'running') {
-        const startTime = scheduledStartTime !== undefined
-          ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
-          : getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
-        fireGong(startTime);
-        return true;
-      }
+      const startTime = scheduledStartTime !== undefined
+        ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
+        : getSafeAudioStartTime(
+            ctx,
+            undefined,
+            ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
+          );
 
-      // Context is suspended — defer until hardware is live.
-      // The gesture token is preserved because resume() was called
-      // synchronously in the same touchstart handler.
-      logAudioDebug('gong-deferred', { ctx: ctx.state });
-      scheduleWhenAudioRunning(ctx, (startTime) => {
-        fireGong(startTime);
-      }, {
-        runningLead: IMMEDIATE_SOUND_LEAD,
-        resumedLead: POST_RESUME_SOUND_LEAD,
-        timeoutMs: 2000,
-        onTimeout: () => {
-          logAudioDebug('gong-missed', { reason: 'timeout-waiting-for-running' });
-        },
-      });
+      fireGong(startTime);
       return true;
     } catch {
       logAudioDebug('gong-missed', { reason: 'exception' });

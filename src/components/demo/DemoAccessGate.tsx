@@ -8,7 +8,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
-import { getSafeAudioStartTime, getSharedAudioContext, POST_RESUME_SOUND_LEAD, useMintSound } from '@/hooks/useMintSound';
+import { getSafeAudioStartTime, getSharedAudioContext, POST_RESUME_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
@@ -152,6 +152,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const holdStartRef = useRef<number>(0);
   const nativeGestureReadyRef = useRef(false);
   const fallbackGestureTimeRef = useRef(0);
+  const audioReadyRef = useRef(false);
+  const audioWakeCleanupRef = useRef<(() => void) | null>(null);
 
   const getLockVisualCenter = useCallback(() => {
     const rect = lockButtonRef.current?.getBoundingClientRect();
@@ -183,6 +185,16 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ...details,
     });
   }, []);
+
+  const markHoldReady = useCallback((source: string, reason: 'threshold' | 'audio-ready') => {
+    if (!stateRef.current.holding || stateRef.current.holdReady) return;
+
+    updateState({ holdReady: true });
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate([18, 24, 20]); } catch {}
+    }
+    logGestureDebug(`${source}-hold-ready`, { reason });
+  }, [logGestureDebug, updateState]);
 
   // Stable particles — only regenerate on burstKey change
   const particles = useMemo(
@@ -228,6 +240,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      audioWakeCleanupRef.current?.();
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
     };
@@ -312,9 +325,30 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
 
+    audioWakeCleanupRef.current?.();
+    audioWakeCleanupRef.current = null;
+
     const ctx = primeAudio();
     if (!ctx) {
       logGestureDebug(`${source}-prime-audio-missed`);
+    }
+
+    audioReadyRef.current = Boolean(s.hexAwake || ctx?.state === 'running');
+    if (!s.hexAwake && ctx && !audioReadyRef.current) {
+      audioWakeCleanupRef.current = runWhenAudioContextRunning(
+        ctx,
+        () => {
+          audioReadyRef.current = true;
+          logGestureDebug(`${source}-audio-running`, { currentTime: ctx.currentTime });
+          if (performance.now() - holdStartRef.current >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS) {
+            markHoldReady(source, 'audio-ready');
+          }
+        },
+        1600,
+        () => {
+          logGestureDebug(`${source}-audio-running-timeout`, { ctxState: ctx.state });
+        },
+      );
     }
 
     if (!s.hexAwake) {
@@ -347,13 +381,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     });
 
     holdTimerRef.current = window.setTimeout(() => {
-      updateState({ holdReady: true });
-      if ('vibrate' in navigator) {
-        try { navigator.vibrate([18, 24, 20]); } catch {}
+      if (stateRef.current.hexAwake || audioReadyRef.current) {
+        markHoldReady(source, 'threshold');
+      } else {
+        logGestureDebug(`${source}-hold-threshold-waiting-audio`, { ctxState: ctx?.state ?? 'null' });
       }
-      logGestureDebug(`${source}-hold-ready`);
     }, HOLD_THRESHOLD_MS);
-  }, [logGestureDebug, prewarmSingingBowl, primeAudio, startShimmerSound, updateState]);
+  }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, startShimmerSound, updateState]);
 
   const handleHoldEnd = useCallback((source = 'pointerup') => {
     const s = stateRef.current;
@@ -363,13 +397,25 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     holdTimerRef.current = null;
     holdPulseTimersRef.current.forEach(t => clearTimeout(t));
     holdPulseTimersRef.current = [];
+    audioWakeCleanupRef.current?.();
+    audioWakeCleanupRef.current = null;
 
     const held = performance.now() - holdStartRef.current;
-    const metHoldThreshold = s.holdReady || held >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS;
+    const heldLongEnough = s.holdReady || held >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS;
+    let audioReady = Boolean(s.hexAwake || audioReadyRef.current);
+    if (!audioReady) {
+      const ctx = primeAudio() ?? getSharedAudioContext();
+      audioReady = Boolean(ctx && ctx.state === 'running');
+      audioReadyRef.current = audioReady;
+    }
+    const metHoldThreshold = heldLongEnough && audioReady;
     updateState({ holding: false, holdReady: false });
-    logGestureDebug(`${source}-hold-end`, { held, metHoldThreshold });
+    logGestureDebug(`${source}-hold-end`, { held, heldLongEnough, audioReady, metHoldThreshold });
 
     if (!metHoldThreshold) {
+      if (heldLongEnough && !audioReady) {
+        logGestureDebug(`${source}-reveal-blocked-audio-not-ready`);
+      }
       updateState({ holdHint: true });
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       lockFlashTimerRef.current = setTimeout(() => {
