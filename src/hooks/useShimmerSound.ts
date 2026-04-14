@@ -5,7 +5,6 @@ import {
   IMMEDIATE_SOUND_LEAD,
   WARM_START_SOUND_LEAD,
   getSafeAudioStartTime,
-  scheduleWhenAudioRunning,
 } from './useMintSound';
 
 /**
@@ -271,7 +270,7 @@ export function useShimmerSound({
       };
     };
 
-    const finalizeBoot = (now: number, mode: 'boot' | 'boot-deferred') => {
+    const finalizeBoot = (now: number, mode: 'boot' | 'boot-cold') => {
       pendingStartCleanupRef.current = null;
       pendingStartRef.current = false;
       bootNodes(now);
@@ -284,29 +283,6 @@ export function useShimmerSound({
     pendingStartCleanupRef.current = null;
     pendingStartRef.current = false;
 
-    if (ctx.state !== 'running') {
-      ctx.resume().catch(() => {});
-      pendingStartRef.current = true;
-      pendingStartCleanupRef.current = scheduleWhenAudioRunning(
-        ctx,
-        (now) => {
-          finalizeBoot(now, 'boot-deferred');
-        },
-        {
-          requestedTime: scheduledStartTime,
-          runningLead: scheduledStartTime !== undefined ? 0 : IMMEDIATE_SOUND_LEAD,
-          resumedLead: WARM_START_SOUND_LEAD,
-          timeoutMs: 2000,
-          onTimeout: () => {
-            pendingStartCleanupRef.current = null;
-            pendingStartRef.current = false;
-            logAudioDebug('hum-missed', { reason: 'timeout-waiting-for-running' });
-          },
-        },
-      );
-      return true;
-    }
-
     const now = scheduledStartTime !== undefined
       ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
       : getSafeAudioStartTime(
@@ -314,6 +290,12 @@ export function useShimmerSound({
           undefined,
           ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
         );
+
+    if (ctx.state !== 'running') {
+      ctx.resume().catch(() => {});
+      finalizeBoot(now, 'boot-cold');
+      return true;
+    }
 
     finalizeBoot(now, 'boot');
 
