@@ -889,7 +889,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               </div>
             )}
           </div>
-          )}
 
           {/* Hold hint — shown after premature release */}
           {holdHint && !hexAwake && (
