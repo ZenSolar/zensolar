@@ -204,21 +204,32 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ctx,
       () => {
         audioWakeCleanupRef.current = null;
-        const start = getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
-        const humStarted = startShimmerSound(start);
-        const fallbackStopped = humStarted ? handoffDemoEntryFallbackHum(140) : false;
 
-        if (humStarted) {
-          setFallbackHumActive(false);
-        }
+        // Delay handoff so the fallback hum's 350ms fade-in has time to
+        // reach a stable volume before we cross-fade to the synth.
+        // Without this, an instantly-running context would cancel the
+        // fade-in mid-ramp, causing an audible click/glitch.
+        const doHandoff = () => {
+          const start = getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
+          const humStarted = startShimmerSound(start);
+          const fallbackStopped = humStarted ? handoffDemoEntryFallbackHum(180) : false;
 
-        audioReadyRef.current = audioReadyRef.current || humStarted;
-        logGestureDebug(`${source}-fallback-hum-handoff`, {
-          start,
-          ctxState: ctx.state,
-          humStarted,
-          fallbackStopped,
-        });
+          if (humStarted) {
+            setFallbackHumActive(false);
+          }
+
+          audioReadyRef.current = audioReadyRef.current || humStarted;
+          logGestureDebug(`${source}-fallback-hum-handoff`, {
+            start,
+            ctxState: ctx.state,
+            humStarted,
+            fallbackStopped,
+          });
+        };
+
+        // If context was already running, give the fallback hum 400ms
+        // to finish its fade-in before starting the crossfade
+        setTimeout(doHandoff, 400);
       },
       1600,
       () => {
@@ -513,7 +524,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           return;
         }
 
-        stopDemoEntryFallbackHum(false);
+        handoffDemoEntryFallbackHum(140);
         setFallbackHumActive(false);
         audioReadyRef.current = true;
         logGestureDebug(`${source}-cinematic-reveal`, {
