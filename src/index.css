@@ -360,6 +360,91 @@
   }
 }
 
+/* Inner ring — faster fill, opposite rotation */
+@keyframes zenHoldRingInner {
+  0% {
+    stroke-dashoffset: 226.19; /* 2 * PI * 36 */
+    opacity: 0.4;
+    transform: rotate(90deg);
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: rotate(90deg + 180deg);
+  }
+}
+
+/* Plasma core — $Z glow intensification during hold */
+@keyframes zenPlasmaCore {
+  0% {
+    text-shadow: 0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25);
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    text-shadow: 0 0 24px hsl(142 76% 52% / 0.8), 0 0 48px hsl(142 76% 42% / 0.4), 0 0 72px hsl(45 100% 65% / 0.15);
+    transform: scale(1.05);
+    filter: brightness(1.3);
+  }
+  100% {
+    text-shadow: 0 0 32px hsl(50 100% 75% / 0.9), 0 0 64px hsl(142 76% 52% / 0.6), 0 0 96px hsl(45 100% 65% / 0.3);
+    transform: scale(1.08);
+    filter: brightness(1.6);
+  }
+}
+
+/* Particle attraction — motes spiraling inward */
+@keyframes zenParticleAttract {
+  0% {
+    transform: translate(var(--attract-x), var(--attract-y)) scale(0.3);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  70% {
+    opacity: 1;
+    transform: translate(calc(var(--attract-x) * 0.15), calc(var(--attract-y) * 0.15)) scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0px, 0px) scale(0);
+  }
+}
+
+/* Background resonance — radial pulse from button center */
+@keyframes zenResonancePulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.08;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* Hold-ready flash — both rings flash when threshold met */
+@keyframes zenHoldReadyFlash {
+  0% { opacity: 1; }
+  25% { opacity: 0.3; }
+  50% { opacity: 1; }
+  75% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Outer ring rotation glow — slow spin while charging */
+@keyframes zenRingGlowSpin {
+  0% { transform: rotate(-90deg); }
+  100% { transform: rotate(270deg); }
+}
+
 /* Tap-to-Mint text fade-in after delay */
 @keyframes zenHintFadeIn {
   0% { opacity: 0; transform: translateY(4px); }
