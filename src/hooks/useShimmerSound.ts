@@ -295,7 +295,7 @@ export function useShimmerSound({
         {
           requestedTime: scheduledStartTime,
           runningLead: scheduledStartTime !== undefined ? 0 : IMMEDIATE_SOUND_LEAD,
-          resumedLead: scheduledStartTime !== undefined ? 0 : WARM_START_SOUND_LEAD,
+          resumedLead: WARM_START_SOUND_LEAD,
           timeoutMs: 2000,
           onTimeout: () => {
             pendingStartCleanupRef.current = null;
