@@ -357,19 +357,31 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return;
     }
 
+    // ── Fire audio SYNCHRONOUSLY within this gesture handler ──
+    // Do NOT defer via scheduleWhenAudioRunning — the context was already
+    // primed+resumed on press, so it should be 'running' by now.
     const ctx = getSharedAudioContext();
-    const gestureStartTime = ctx
-      ? getSafeAudioStartTime(ctx, undefined, 0)
-      : undefined;
+    if (ctx) {
+      // Force resume one more time synchronously in case iOS suspended it
+      if (ctx.state !== 'running') {
+        ctx.resume().catch(() => {});
+      }
+      const now = Math.max(ctx.currentTime + 0.005, ctx.currentTime);
 
-    if (!s.hexAwake) {
-      playSingingBowl(gestureStartTime);
-      startShimmerSound(gestureStartTime);
-      logGestureDebug(`${source}-cinematic-reveal`, { start: gestureStartTime });
+      if (!s.hexAwake) {
+        playSingingBowl(now);
+        startShimmerSound(now);
+        logGestureDebug(`${source}-cinematic-reveal`, { start: now, ctxState: ctx.state });
+      } else {
+        playWelcomeTap(now);
+        logGestureDebug(`${source}-welcome-tap`, { start: now, ctxState: ctx.state });
+      }
     } else {
-      playWelcomeTap(gestureStartTime);
-      logGestureDebug(`${source}-welcome-tap`, { start: gestureStartTime });
+      logGestureDebug(`${source}-no-audio-ctx`);
     }
+
+    // Fire screen-wide shockwave
+    setShockwaveKey(Date.now());
 
     triggerBurst();
     updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false });
