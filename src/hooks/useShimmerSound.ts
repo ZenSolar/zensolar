@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { logAudioDebug } from '@/lib/audioDebug';
 import {
   getSharedAudioContext,
@@ -6,6 +6,17 @@ import {
   WARM_START_SOUND_LEAD,
   getSafeAudioStartTime,
 } from './useMintSound';
+import {
+  createShimmerAudioGraph,
+  setShimmerGraphCycleDuration,
+  setShimmerGraphVolume,
+  type ShimmerNodes,
+} from './shimmer/shimmerAudioGraph';
+import {
+  clearShimmerDisposalTimeout,
+  pollUntilShimmerReady,
+  scheduleShimmerGraphDisposal,
+} from './shimmer/shimmerAudioLifecycle';
 
 /**
  * useShimmerSound — continuous lightsaber-style ambient hum
@@ -26,22 +37,6 @@ interface ShimmerSoundOptions {
   prewarm?: boolean;
 }
 
-type ShimmerNodes = {
-  ctx: AudioContext;
-  master: GainNode;
-  lfo: OscillatorNode;
-  biasNode: ConstantSourceNode;
-  lfoGain: GainNode;
-  baseOsc: OscillatorNode;
-  harmOsc: OscillatorNode;
-  subOsc: OscillatorNode;
-  wobbleLfo: OscillatorNode;
-  gongOsc: OscillatorNode;
-  gongOsc2: OscillatorNode;
-  gongOsc3: OscillatorNode;
-  gongBias: ConstantSourceNode;
-};
-
 export function useShimmerSound({
   cycleDuration = 5,
   volume = 0.06,
@@ -49,68 +44,56 @@ export function useShimmerSound({
   prewarm = false,
 }: ShimmerSoundOptions = {}) {
   const nodesRef = useRef<ShimmerNodes | null>(null);
-  const pendingStartRef = useRef(false);
-  const pendingStartCleanupRef = useRef<(() => void) | null>(null);
+  const disposeTimerRef = useRef<number | null>(null);
   const volumeRef = useRef(volume);
   const cycleDurationRef = useRef(cycleDuration);
   volumeRef.current = volume;
   cycleDurationRef.current = cycleDuration;
 
-  const stopSound = useCallback(() => {
-    pendingStartCleanupRef.current?.();
-    pendingStartCleanupRef.current = null;
-    pendingStartRef.current = false;
-
-    if (!nodesRef.current) return;
-
-    const n = nodesRef.current;
-    n.master.gain.cancelScheduledValues(n.ctx.currentTime);
-    n.master.gain.setTargetAtTime(0, n.ctx.currentTime, 0.3);
-
-    const captured = n;
-    window.setTimeout(() => {
-      try {
-        captured.baseOsc.stop();
-        captured.harmOsc.stop();
-        captured.subOsc.stop();
-        captured.lfo.stop();
-        captured.biasNode.stop();
-        captured.wobbleLfo.stop();
-        captured.gongOsc.stop();
-        captured.gongOsc2.stop();
-        captured.gongOsc3.stop();
-        captured.gongBias.stop();
-      } catch {
-        /* already stopped */
-      }
-    }, 1500);
-
-    nodesRef.current = null;
+  const clearPendingDisposal = useCallback(() => {
+    disposeTimerRef.current = clearShimmerDisposalTimeout(disposeTimerRef.current);
   }, []);
+
+  const stopSound = useCallback(() => {
+    clearPendingDisposal();
+
+    const nodes = nodesRef.current;
+    if (!nodes) return;
+
+    disposeTimerRef.current = scheduleShimmerGraphDisposal(nodes, () => {
+      if (nodesRef.current === nodes) {
+        nodesRef.current = null;
+      }
+      disposeTimerRef.current = null;
+    });
+  }, [clearPendingDisposal]);
 
   const startSound = useCallback(function startSoundInternal(
     scheduledStartTime?: number,
     activationVolume?: number,
   ) {
     const targetVolume = activationVolume ?? volumeRef.current;
+    const existingNodes = nodesRef.current;
 
-    if (nodesRef.current) {
-      pendingStartCleanupRef.current?.();
-      pendingStartCleanupRef.current = null;
-      pendingStartRef.current = false;
+    if (existingNodes) {
+      clearPendingDisposal();
 
-      const { ctx, lfoGain, biasNode } = nodesRef.current;
       const now = scheduledStartTime !== undefined
-        ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
-        : ctx.currentTime;
+        ? getSafeAudioStartTime(existingNodes.ctx, scheduledStartTime, 0)
+        : existingNodes.ctx.currentTime;
 
-      lfoGain.gain.cancelScheduledValues(now);
-      biasNode.offset.cancelScheduledValues(now);
-      lfoGain.gain.setTargetAtTime(targetVolume * 0.45, now, 0.06);
-      biasNode.offset.setTargetAtTime(targetVolume * 0.55, now, 0.06);
+      setShimmerGraphCycleDuration(existingNodes, cycleDurationRef.current, now);
+      setShimmerGraphVolume(existingNodes, targetVolume, now);
+
       if (targetVolume > 0) {
-        logAudioDebug('hum-fired', { ctx: ctx.state, mode: 'reactivate', start: now, volume: targetVolume });
+        logAudioDebug('hum-fired', {
+          ctx: existingNodes.ctx.state,
+          mode: 'reactivate',
+          start: now,
+          volume: targetVolume,
+        });
       }
+
       return true;
     }
 
@@ -120,168 +103,17 @@ export function useShimmerSound({
       return false;
     }
 
-    const bootNodes = (now: number) => {
-      const vol = targetVolume;
-      const lfoFreq = 1 / cycleDurationRef.current;
-
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(0, now);
-      master.connect(ctx.destination);
-
-      const lfo = ctx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(lfoFreq, now);
-
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(vol * 0.45, now);
-
-      const biasNode = ctx.createConstantSource();
-      biasNode.offset.setValueAtTime(vol * 0.55, now);
-
-      lfo.connect(lfoGain);
-      lfoGain.connect(master.gain);
-      biasNode.connect(master.gain);
-
-      const baseOsc = ctx.createOscillator();
-      baseOsc.type = 'sawtooth';
-      baseOsc.frequency.setValueAtTime(92, now);
-
-      const baseLp = ctx.createBiquadFilter();
-      baseLp.type = 'lowpass';
-      baseLp.frequency.setValueAtTime(220, now);
-      baseLp.Q.setValueAtTime(2.0, now);
-
-      const baseGain = ctx.createGain();
-      baseGain.gain.setValueAtTime(0.5, now);
-
-      baseOsc.connect(baseLp);
-      baseLp.connect(baseGain);
-      baseGain.connect(master);
-
-      const harmOsc = ctx.createOscillator();
-      harmOsc.type = 'sine';
-      harmOsc.frequency.setValueAtTime(184, now);
-
-      const harmGain = ctx.createGain();
-      harmGain.gain.setValueAtTime(0.25, now);
-
-      harmOsc.connect(harmGain);
-      harmGain.connect(master);
-
-      const subOsc = ctx.createOscillator();
-      subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(46, now);
-
-      const subGain = ctx.createGain();
-      subGain.gain.setValueAtTime(0.3, now);
-
-      subOsc.connect(subGain);
-      subGain.connect(master);
-
-      const gongOsc = ctx.createOscillator();
-      gongOsc.type = 'sine';
-      gongOsc.frequency.setValueAtTime(55, now);
-
-      const gongOsc2 = ctx.createOscillator();
-      gongOsc2.type = 'sine';
-      gongOsc2.frequency.setValueAtTime(110, now);
-
-      const gongOsc3 = ctx.createOscillator();
-      gongOsc3.type = 'sine';
-      gongOsc3.frequency.setValueAtTime(165, now);
-
-      const gongLfoGain = ctx.createGain();
-      gongLfoGain.gain.setValueAtTime(0.4, now);
-
-      const gongBias = ctx.createConstantSource();
-      gongBias.offset.setValueAtTime(0.35, now);
-
-      const gongMaster = ctx.createGain();
-      gongMaster.gain.setValueAtTime(0, now);
-
-      lfo.connect(gongLfoGain);
-      gongLfoGain.connect(gongMaster.gain);
-      gongBias.connect(gongMaster.gain);
-
-      const gong1Gain = ctx.createGain();
-      gong1Gain.gain.setValueAtTime(0.35, now);
-      gongOsc.connect(gong1Gain);
-      gong1Gain.connect(gongMaster);
-
-      const gong2Gain = ctx.createGain();
-      gong2Gain.gain.setValueAtTime(0.18, now);
-      gongOsc2.connect(gong2Gain);
-      gong2Gain.connect(gongMaster);
-
-      const gong3Gain = ctx.createGain();
-      gong3Gain.gain.setValueAtTime(0.08, now);
-      gongOsc3.connect(gong3Gain);
-      gong3Gain.connect(gongMaster);
-
-      const gongLp = ctx.createBiquadFilter();
-      gongLp.type = 'lowpass';
-      gongLp.frequency.setValueAtTime(180, now);
-      gongLp.Q.setValueAtTime(0.7, now);
-
-      gongMaster.connect(gongLp);
-      gongLp.connect(master);
-
-      const wobbleLfo = ctx.createOscillator();
-      wobbleLfo.type = 'sine';
-      wobbleLfo.frequency.setValueAtTime(5.5, now);
-
-      const wobbleGain = ctx.createGain();
-      wobbleGain.gain.setValueAtTime(3, now);
-
-      wobbleLfo.connect(wobbleGain);
-      wobbleGain.connect(baseOsc.frequency);
-      wobbleGain.connect(harmOsc.frequency);
-
-      const gongWobbleGain = ctx.createGain();
-      gongWobbleGain.gain.setValueAtTime(1.2, now);
-      wobbleLfo.connect(gongWobbleGain);
-      gongWobbleGain.connect(gongOsc.frequency);
-
-      lfo.start(now);
-      biasNode.start(now);
-      gongBias.start(now);
-      baseOsc.start(now);
-      harmOsc.start(now);
-      subOsc.start(now);
-      gongOsc.start(now);
-      gongOsc2.start(now);
-      gongOsc3.start(now);
-      wobbleLfo.start(now);
-
-      nodesRef.current = {
-        ctx,
-        master,
-        lfo,
-        biasNode,
-        lfoGain,
-        baseOsc,
-        harmOsc,
-        subOsc,
-        wobbleLfo,
-        gongOsc,
-        gongOsc2,
-        gongOsc3,
-        gongBias,
-      };
-    };
-
     const finalizeBoot = (now: number, mode: 'boot' | 'boot-cold') => {
-      pendingStartCleanupRef.current = null;
-      pendingStartRef.current = false;
-      bootNodes(now);
+      clearPendingDisposal();
+      nodesRef.current = createShimmerAudioGraph(ctx, now, {
+        cycleDuration: cycleDurationRef.current,
+        volume: targetVolume,
+      });
+
       if (targetVolume > 0) {
         logAudioDebug('hum-fired', { ctx: ctx.state, mode, start: now, volume: targetVolume });
       }
     };
-
-    pendingStartCleanupRef.current?.();
-    pendingStartCleanupRef.current = null;
-    pendingStartRef.current = false;
 
     const now = scheduledStartTime !== undefined
       ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
@@ -300,8 +132,7 @@ export function useShimmerSound({
     finalizeBoot(now, 'boot');
 
     return true;
-  }, []);
-
+  }, [clearPendingDisposal]);
 
   useEffect(() => {
     if (!enabled && !prewarm) {
@@ -309,22 +140,9 @@ export function useShimmerSound({
       return;
     }
 
-    let disposed = false;
-    let pollId: number | undefined;
     const initialVolume = enabled ? volumeRef.current : 0;
 
-    const tryStart = () => {
-      if (disposed) return;
-      if (startSound(undefined, initialVolume)) return;
-      pollId = window.setTimeout(tryStart, 120);
-    };
-
-    tryStart();
-
-    return () => {
-      disposed = true;
-      if (pollId !== undefined) window.clearTimeout(pollId);
-    };
+    return pollUntilShimmerReady(() => startSound(undefined, initialVolume));
   }, [enabled, prewarm, startSound, stopSound]);
 
   useEffect(() => () => {
@@ -333,17 +151,12 @@ export function useShimmerSound({
 
   useEffect(() => {
     if (!nodesRef.current) return;
-    const { ctx, lfoGain, biasNode } = nodesRef.current;
-    const now = ctx.currentTime;
-    const targetVolume = enabled ? volume : 0;
-    lfoGain.gain.setTargetAtTime(targetVolume * 0.45, now, 0.1);
-    biasNode.offset.setTargetAtTime(targetVolume * 0.55, now, 0.1);
+    setShimmerGraphVolume(nodesRef.current, enabled ? volume : 0, nodesRef.current.ctx.currentTime, 0.1);
   }, [enabled, volume]);
 
   useEffect(() => {
     if (!nodesRef.current) return;
-    const { ctx, lfo } = nodesRef.current;
-    lfo.frequency.setTargetAtTime(1 / cycleDuration, ctx.currentTime, 0.1);
+    setShimmerGraphCycleDuration(nodesRef.current, cycleDuration, nodesRef.current.ctx.currentTime);
   }, [cycleDuration]);
 
   return startSound;
