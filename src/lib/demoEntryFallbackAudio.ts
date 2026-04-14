@@ -16,7 +16,6 @@ function createAudioElement(src: string, { loop = false, volume = 1 }: { loop?: 
   audio.preload = 'auto';
   audio.loop = loop;
   audio.volume = volume;
-  audio.playsInline = true;
   audio.setAttribute('playsinline', '');
   audio.setAttribute('webkit-playsinline', 'true');
   return audio;
