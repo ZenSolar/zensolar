@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
+import { isDemoEntryFallbackHumActive, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -114,6 +115,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   });
   const [code, setCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  const [fallbackHumActive, setFallbackHumActive] = useState(false);
   const showAudioDebug = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     return params.has('audio-debug');
@@ -171,12 +173,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, []);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
-  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake, prewarm: false });
+  const startShimmerSound = useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: stateRef.current.hexAwake && !fallbackHumActive, prewarm: false });
 
   useEffect(() => {
     if (!showAudioDebug) return;
     logAudioDebug('access-gate-debug-enabled', { path: window.location.pathname });
   }, [showAudioDebug]);
+
+  useEffect(() => {
+    preloadDemoEntryFallbackAudio();
+    return () => {
+      stopDemoEntryFallbackHum();
+    };
+  }, []);
 
   const logGestureDebug = useCallback((eventName: string, details?: Record<string, unknown>) => {
     const ctx = getSharedAudioContext();
@@ -270,6 +279,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         setTimeout(() => {
           // Blur input to dismiss keyboard & reset iOS viewport zoom before revealing app
           inputRef.current?.blur();
+          stopDemoEntryFallbackHum();
+          setFallbackHumActive(false);
           // Force viewport zoom reset on iOS
           const vp = document.querySelector('meta[name="viewport"]');
           if (vp) {
@@ -329,6 +340,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     audioWakeCleanupRef.current = null;
 
     const ctx = primeAudio();
+    preloadDemoEntryFallbackAudio();
     if (!ctx) {
       logGestureDebug(`${source}-prime-audio-missed`);
     }
@@ -434,32 +446,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return;
     }
 
-    const commitReveal = (startTime: number, warmStart: boolean) => {
-      const firstReveal = !stateRef.current.hexAwake;
-
-      if (firstReveal) {
-        const gongStarted = playSingingBowl(startTime);
-        const humStarted = startShimmerSound(startTime);
-
-        if (!gongStarted && !humStarted) {
-          logGestureDebug(`${source}-reveal-blocked-audio-arm-failed`, { start: startTime, warmStart });
-          showHoldHint();
-          return;
-        }
-
-        audioReadyRef.current = true;
-        logGestureDebug(`${source}-cinematic-reveal`, {
-          start: startTime,
-          ctxState: ctx.state,
-          warmStart,
-          gongStarted,
-          humStarted,
-        });
-      } else {
-        playWelcomeTap(startTime);
-        logGestureDebug(`${source}-welcome-tap`, { start: startTime, ctxState: ctx.state, warmStart });
-      }
-
+    const revealVisuals = () => {
       const shockwaveOrigin = getLockVisualCenter();
       setShockwave({ key: Date.now(), ...shockwaveOrigin });
 
@@ -473,9 +460,55 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }, LOCK_FLASH_MS);
     };
 
+    const commitReveal = (startTime: number, warmStart: boolean) => {
+      const firstReveal = !stateRef.current.hexAwake;
+
+      if (firstReveal) {
+        const gongStarted = playSingingBowl(startTime);
+        const humStarted = startShimmerSound(startTime);
+
+        if (!gongStarted && !humStarted) {
+          logGestureDebug(`${source}-reveal-blocked-audio-arm-failed`, { start: startTime, warmStart });
+          showHoldHint();
+          return;
+        }
+
+        stopDemoEntryFallbackHum(false);
+        setFallbackHumActive(false);
+        audioReadyRef.current = true;
+        logGestureDebug(`${source}-cinematic-reveal`, {
+          start: startTime,
+          ctxState: ctx.state,
+          warmStart,
+          gongStarted,
+          humStarted,
+        });
+      } else {
+        playWelcomeTap(startTime);
+        logGestureDebug(`${source}-welcome-tap`, { start: startTime, ctxState: ctx.state, warmStart });
+      }
+
+      revealVisuals();
+    };
+
     if (ctx.state === 'running') {
       commitReveal(getSafeAudioStartTime(ctx, undefined, 0.005), false);
       return;
+    }
+
+    if (!stateRef.current.hexAwake) {
+      const fallbackStarted = playDemoEntryFallbackRevealAudio();
+      if (fallbackStarted) {
+        audioReadyRef.current = true;
+        setFallbackHumActive(isDemoEntryFallbackHumActive());
+        ctx.resume().catch(() => {});
+        logGestureDebug(`${source}-cinematic-reveal-fallback`, {
+          ctxState: ctx.state,
+          audioMode: 'media-element',
+        });
+        revealVisuals();
+        return;
+      }
     }
 
     ctx.resume().catch(() => {});
