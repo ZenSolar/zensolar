@@ -1135,9 +1135,11 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
   }
 
   if (hum) {
+    syncHumMediaSource(audio.hum, { allowWhilePlaying: false, resetCurrentTime: false });
     fallbackGestureArmed.hum = armMutedLoop('hum', audio.hum, true, {
       mode: 'media-bridge',
       transport: 'media-element',
+      mediaSource: isSeamlessHumMediaSource(audio.hum) ? 'seamless' : 'raw',
     });
 
     const ctx = getAudioContext();
@@ -1403,6 +1405,7 @@ export interface HumLoopDiagnostics {
   mediaBridge: boolean;
   mediaTime: number;
   mediaPlaying: boolean;
+  mediaSource: string;
   gainValue: number;
 }
 
@@ -1423,6 +1426,7 @@ export function getHumLoopDiagnostics(): HumLoopDiagnostics {
     mediaBridge: humMediaBridgeActive,
     mediaTime: audio?.currentTime ?? 0,
     mediaPlaying: audio ? !audio.paused : false,
+    mediaSource: audio?.dataset.zenHumLoopSource ?? 'unknown',
     gainValue: graph?.gain.gain.value ?? 0,
   };
 }
