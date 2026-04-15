@@ -1,10 +1,10 @@
 import gongUrl from '@/assets/audio/demo-entry-gong.wav';
 import humUrl from '@/assets/audio/demo-entry-hum-loop.wav';
 import { logAudioDebug } from '@/lib/audioDebug';
+import { getSharedAudioContext } from '@/hooks/useMintSound';
 
 interface DemoEntryFallbackAudioElements {
   gong: HTMLAudioElement;
-  hum: HTMLAudioElement;
 }
 
 interface ArmDemoEntryFallbackOptions {
@@ -14,11 +14,20 @@ interface ArmDemoEntryFallbackOptions {
 
 type AudioKind = 'gong' | 'hum';
 
+interface HumLoopGraph {
+  ctx: AudioContext;
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+}
+
 let fallbackAudio: DemoEntryFallbackAudioElements | null = null;
 let fallbackHumActive = false;
 let preloadLogged = false;
 let humFadeFrame: number | null = null;
 let humStopTimer: number | null = null;
+let humDecodedBuffer: AudioBuffer | null = null;
+let humDecodePromise: Promise<AudioBuffer | null> | null = null;
+let humLoopGraph: HumLoopGraph | null = null;
 const fallbackGestureArmed: Record<AudioKind, boolean> = {
   gong: false,
   hum: false,
@@ -26,6 +35,10 @@ const fallbackGestureArmed: Record<AudioKind, boolean> = {
 
 const GONG_VOLUME = 0.9;
 const HUM_VOLUME = 0.36;
+const HUM_LOOP_START = 0.56;
+const HUM_LOOP_END = 9.669333333333332;
+const HUM_FADE_IN_MS = 220;
+const HUM_FADE_OUT_MS = 180;
 
 function createAudioElement(src: string, { loop = false, volume = 1 }: { loop?: boolean; volume?: number }) {
   const audio = new Audio(src);
@@ -43,39 +56,49 @@ function ensureFallbackAudio() {
   if (!fallbackAudio) {
     fallbackAudio = {
       gong: createAudioElement(gongUrl, { volume: GONG_VOLUME }),
-      hum: createAudioElement(humUrl, { loop: true, volume: HUM_VOLUME }),
     };
   }
 
   return fallbackAudio;
 }
 
-function cancelHumFade() {
+function getAudioContext() {
+  if (typeof window === 'undefined') return null;
+  return getSharedAudioContext();
+}
+
+function clearHumFadeFrame() {
   if (typeof window === 'undefined' || humFadeFrame === null) return;
   window.cancelAnimationFrame(humFadeFrame);
   humFadeFrame = null;
 }
 
-function cancelHumStopTimer() {
+function clearHumStopTimer() {
   if (typeof window === 'undefined' || humStopTimer === null) return;
   window.clearTimeout(humStopTimer);
   humStopTimer = null;
 }
 
-function fadeHumTo(audio: HTMLAudioElement, targetVolume: number, durationMs = 220) {
-  cancelHumFade();
+function animateHumVolume(graph: HumLoopGraph, targetVolume: number, durationMs = 220) {
+  clearHumFadeFrame();
 
   if (typeof window === 'undefined' || durationMs <= 0) {
-    audio.volume = targetVolume;
+    graph.gain.gain.setValueAtTime(targetVolume, graph.ctx.currentTime);
     return;
   }
 
-  const startVolume = audio.volume;
   const startedAt = performance.now();
+  const startVolume = graph.gain.gain.value;
 
   const step = (now: number) => {
+    if (!humLoopGraph || humLoopGraph !== graph) {
+      humFadeFrame = null;
+      return;
+    }
+
     const progress = Math.min((now - startedAt) / durationMs, 1);
-    audio.volume = startVolume + ((targetVolume - startVolume) * progress);
+    const nextVolume = startVolume + ((targetVolume - startVolume) * progress);
+    graph.gain.gain.setValueAtTime(nextVolume, graph.ctx.currentTime);
 
     if (progress < 1) {
       humFadeFrame = window.requestAnimationFrame(step);
@@ -97,40 +120,33 @@ function requestLoad(audio: HTMLAudioElement) {
   }
 }
 
-function logPlaySuccess(kind: AudioKind, audio: HTMLAudioElement, details?: Record<string, unknown>) {
+function logPlaySuccess(kind: AudioKind, details?: Record<string, unknown>) {
   logAudioDebug(`${kind}-fired`, {
-    ctx: 'media-element',
+    ctx: kind === 'hum' ? 'web-audio' : 'media-element',
     mode: 'fallback',
-    readyState: audio.readyState,
-    loop: audio.loop,
     ...details,
   });
 }
 
-function logPlayFailure(kind: AudioKind, error: unknown, audio: HTMLAudioElement, details?: Record<string, unknown>) {
+function logPlayFailure(kind: AudioKind, error: unknown, details?: Record<string, unknown>) {
   logAudioDebug(`${kind}-missed`, {
-    reason: error instanceof DOMException ? error.name : 'play-rejected',
-    readyState: audio.readyState,
-    paused: audio.paused,
+    reason: error instanceof DOMException ? error.name : error instanceof Error ? error.message : 'play-rejected',
     ...details,
   });
 }
 
-function logArmSuccess(kind: AudioKind, audio: HTMLAudioElement) {
+function logArmSuccess(kind: AudioKind, details?: Record<string, unknown>) {
   logAudioDebug(`${kind}-armed`, {
-    ctx: 'media-element',
+    ctx: kind === 'hum' ? 'web-audio' : 'media-element',
     mode: 'fallback',
-    readyState: audio.readyState,
-    loop: audio.loop,
-    muted: audio.muted,
+    ...details,
   });
 }
 
-function logArmFailure(kind: AudioKind, error: unknown, audio: HTMLAudioElement) {
+function logArmFailure(kind: AudioKind, error: unknown, details?: Record<string, unknown>) {
   logAudioDebug(`${kind}-arm-missed`, {
-    reason: error instanceof DOMException ? error.name : 'play-rejected',
-    readyState: audio.readyState,
-    paused: audio.paused,
+    reason: error instanceof DOMException ? error.name : error instanceof Error ? error.message : 'play-rejected',
+    ...details,
   });
 }
 
@@ -139,16 +155,32 @@ function attemptPlay(kind: AudioKind, audio: HTMLAudioElement, details?: Record<
     const playback = audio.play();
     if (playback && typeof playback.then === 'function') {
       playback.then(() => {
-        logPlaySuccess(kind, audio, details);
+        logPlaySuccess(kind, {
+          readyState: audio.readyState,
+          loop: audio.loop,
+          ...details,
+        });
       }).catch((error) => {
-        logPlayFailure(kind, error, audio, details);
+        logPlayFailure(kind, error, {
+          readyState: audio.readyState,
+          paused: audio.paused,
+          ...details,
+        });
       });
     } else {
-      logPlaySuccess(kind, audio, details);
+      logPlaySuccess(kind, {
+        readyState: audio.readyState,
+        loop: audio.loop,
+        ...details,
+      });
     }
     return true;
   } catch (error) {
-    logPlayFailure(kind, error, audio, details);
+    logPlayFailure(kind, error, {
+      readyState: audio.readyState,
+      paused: audio.paused,
+      ...details,
+    });
     return false;
   }
 }
@@ -169,17 +201,142 @@ function armMutedLoop(kind: AudioKind, audio: HTMLAudioElement, loop: boolean) {
     const playback = audio.play();
     if (playback && typeof playback.then === 'function') {
       playback.then(() => {
-        logArmSuccess(kind, audio);
+        logArmSuccess(kind, {
+          readyState: audio.readyState,
+          loop: audio.loop,
+          muted: audio.muted,
+        });
       }).catch((error) => {
         fallbackGestureArmed[kind] = false;
-        logArmFailure(kind, error, audio);
+        logArmFailure(kind, error, {
+          readyState: audio.readyState,
+          paused: audio.paused,
+        });
       });
     } else {
-      logArmSuccess(kind, audio);
+      logArmSuccess(kind, {
+        readyState: audio.readyState,
+        loop: audio.loop,
+        muted: audio.muted,
+      });
     }
     return true;
   } catch (error) {
-    logArmFailure(kind, error, audio);
+    logArmFailure(kind, error, {
+      readyState: audio.readyState,
+      paused: audio.paused,
+    });
+    return false;
+  }
+}
+
+async function decodeHumBuffer(ctx: AudioContext) {
+  if (humDecodedBuffer) return humDecodedBuffer;
+
+  if (!humDecodePromise) {
+    humDecodePromise = fetch(humUrl)
+      .then((response) => response.arrayBuffer())
+      .then((arrayBuffer) => ctx.decodeAudioData(arrayBuffer.slice(0)))
+      .then((buffer) => {
+        humDecodedBuffer = buffer;
+        logAudioDebug('hum-buffer-decoded', {
+          duration: buffer.duration,
+          sampleRate: buffer.sampleRate,
+          channels: buffer.numberOfChannels,
+          loopStart: HUM_LOOP_START,
+          loopEnd: HUM_LOOP_END,
+        });
+        return buffer;
+      })
+      .catch((error) => {
+        humDecodePromise = null;
+        logPlayFailure('hum', error, { mode: 'decode-buffer' });
+        return null;
+      });
+  }
+
+  return humDecodePromise;
+}
+
+function destroyHumLoopGraph(resetGain = true) {
+  clearHumFadeFrame();
+  clearHumStopTimer();
+
+  if (!humLoopGraph) return;
+
+  try {
+    humLoopGraph.source.onended = null;
+    humLoopGraph.source.stop();
+  } catch {
+    // no-op
+  }
+
+  try {
+    humLoopGraph.source.disconnect();
+    humLoopGraph.gain.disconnect();
+  } catch {
+    // no-op
+  }
+
+  if (resetGain) {
+    humLoopGraph.gain.gain.value = 0;
+  }
+
+  humLoopGraph = null;
+}
+
+function createHumLoopGraph(ctx: AudioContext, buffer: AudioBuffer) {
+  destroyHumLoopGraph(false);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.connect(ctx.destination);
+
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+  source.loopStart = HUM_LOOP_START;
+  source.loopEnd = Math.min(HUM_LOOP_END, buffer.duration);
+  source.connect(gain);
+  source.onended = () => {
+    if (humLoopGraph?.source === source) {
+      humLoopGraph = null;
+      fallbackHumActive = false;
+    }
+  };
+
+  humLoopGraph = { ctx, source, gain };
+  return humLoopGraph;
+}
+
+async function prepareHumLoopGraph() {
+  const ctx = getAudioContext();
+  if (!ctx) return null;
+
+  const buffer = await decodeHumBuffer(ctx);
+  if (!buffer) return null;
+
+  return createHumLoopGraph(ctx, buffer);
+}
+
+function startPreparedHumLoopGraph(graph: HumLoopGraph) {
+  try {
+    graph.source.start(graph.ctx.currentTime, HUM_LOOP_START);
+    animateHumVolume(graph, HUM_VOLUME, HUM_FADE_IN_MS);
+    fallbackHumActive = true;
+    fallbackGestureArmed.hum = true;
+    logPlaySuccess('hum', {
+      mode: 'gapless-buffer-loop',
+      loopStart: HUM_LOOP_START,
+      loopEnd: HUM_LOOP_END,
+      duration: graph.source.buffer?.duration,
+    });
+    return true;
+  } catch (error) {
+    logPlayFailure('hum', error, { mode: 'gapless-buffer-loop-start' });
+    destroyHumLoopGraph();
+    fallbackHumActive = false;
+    fallbackGestureArmed.hum = false;
     return false;
   }
 }
@@ -189,13 +346,12 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
   if (!audio) return false;
 
   requestLoad(audio.gong);
-  requestLoad(audio.hum);
-  cancelHumFade();
-  cancelHumStopTimer();
+  clearHumFadeFrame();
+  clearHumStopTimer();
 
   fallbackHumActive = false;
   fallbackGestureArmed.gong = gong ? armMutedLoop('gong', audio.gong, true) : false;
-  fallbackGestureArmed.hum = hum ? armMutedLoop('hum', audio.hum, true) : false;
+  fallbackGestureArmed.hum = false;
 
   if (!gong) {
     try {
@@ -209,16 +365,21 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
     }
   }
 
-  if (!hum) {
-    try {
-      audio.hum.pause();
-      audio.hum.currentTime = 0;
-      audio.hum.loop = true;
-      audio.hum.muted = false;
-      audio.hum.volume = HUM_VOLUME;
-    } catch {
-      // no-op
-    }
+  if (hum) {
+    void prepareHumLoopGraph().then((graph) => {
+      fallbackGestureArmed.hum = Boolean(graph);
+      if (graph) {
+        logArmSuccess('hum', {
+          mode: 'gapless-buffer-loop',
+          loopStart: HUM_LOOP_START,
+          loopEnd: HUM_LOOP_END,
+        });
+      } else {
+        logArmFailure('hum', new Error('buffer-unavailable'), { mode: 'gapless-buffer-loop' });
+      }
+    });
+  } else {
+    destroyHumLoopGraph();
   }
 
   logAudioDebug('entry-fallback-armed', {
@@ -227,10 +388,9 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
     gongArmed: fallbackGestureArmed.gong,
     humArmed: fallbackGestureArmed.hum,
     gongReady: audio.gong.readyState,
-    humReady: audio.hum.readyState,
   });
 
-  return fallbackGestureArmed.gong || fallbackGestureArmed.hum;
+  return fallbackGestureArmed.gong || hum;
 }
 
 export function playDemoEntryFallbackGong() {
@@ -247,9 +407,9 @@ export function playDemoEntryFallbackGong() {
       audio.gong.volume = GONG_VOLUME;
       audio.gong.muted = false;
       gongStarted = true;
-      logPlaySuccess('gong', audio.gong, { armed: true, humDisabled: true });
+      logPlaySuccess('gong', { armed: true, readyState: audio.gong.readyState });
     } catch (error) {
-      logPlayFailure('gong', error, audio.gong, { armed: true, humDisabled: true });
+      logPlayFailure('gong', error, { armed: true, readyState: audio.gong.readyState });
     }
   } else {
     audio.gong.loop = false;
@@ -263,7 +423,7 @@ export function playDemoEntryFallbackGong() {
       // no-op
     }
 
-    gongStarted = attemptPlay('gong', audio.gong, { armed: false, humDisabled: true });
+    gongStarted = attemptPlay('gong', audio.gong, { armed: false });
   }
 
   fallbackGestureArmed.gong = false;
@@ -280,13 +440,16 @@ export function preloadDemoEntryFallbackAudio() {
   if (!audio) return false;
 
   requestLoad(audio.gong);
-  requestLoad(audio.hum);
+  const ctx = getAudioContext();
+  if (ctx) {
+    void decodeHumBuffer(ctx);
+  }
 
   if (!preloadLogged) {
     preloadLogged = true;
     logAudioDebug('entry-fallback-preloaded', {
       gongReady: audio.gong.readyState,
-      humReady: audio.hum.readyState,
+      humBuffered: Boolean(humDecodedBuffer),
     });
   }
 
@@ -298,9 +461,8 @@ export function playDemoEntryFallbackRevealAudio() {
   if (!audio) return false;
 
   requestLoad(audio.gong);
-  requestLoad(audio.hum);
-  cancelHumFade();
-  cancelHumStopTimer();
+  clearHumFadeFrame();
+  clearHumStopTimer();
 
   let gongStarted = false;
   if (fallbackGestureArmed.gong && !audio.gong.paused) {
@@ -310,9 +472,9 @@ export function playDemoEntryFallbackRevealAudio() {
       audio.gong.volume = GONG_VOLUME;
       audio.gong.muted = false;
       gongStarted = true;
-      logPlaySuccess('gong', audio.gong, { armed: true });
+      logPlaySuccess('gong', { armed: true, readyState: audio.gong.readyState });
     } catch (error) {
-      logPlayFailure('gong', error, audio.gong, { armed: true });
+      logPlayFailure('gong', error, { armed: true, readyState: audio.gong.readyState });
     }
   } else {
     audio.gong.loop = false;
@@ -330,35 +492,16 @@ export function playDemoEntryFallbackRevealAudio() {
   }
 
   let humStarted = false;
-  if (fallbackGestureArmed.hum && !audio.hum.paused) {
-    try {
-      audio.hum.loop = true;
-      // Don't reset currentTime — seeking a playing element causes an audible pop/glitch.
-      // The hum is a seamless loop so any start position sounds identical.
-      audio.hum.volume = 0;
-      audio.hum.muted = false;
-      fadeHumTo(audio.hum, HUM_VOLUME, 350);
-      humStarted = true;
-      logPlaySuccess('hum', audio.hum, { armed: true, seamless: true });
-    } catch (error) {
-      logPlayFailure('hum', error, audio.hum, { armed: true });
-    }
-  } else {
-    audio.hum.loop = true;
-    audio.hum.muted = false;
-    audio.hum.volume = HUM_VOLUME;
+  if (humLoopGraph) {
+    humStarted = startPreparedHumLoopGraph(humLoopGraph);
+  }
 
-    try {
-      if (audio.hum.paused) {
-        audio.hum.currentTime = 0;
-      }
-    } catch {
-      // no-op
-    }
-
-    humStarted = audio.hum.paused ? attemptPlay('hum', audio.hum, { armed: false }) : true;
-    if (humStarted && !audio.hum.paused) {
-      logPlaySuccess('hum', audio.hum, { armed: false, resumed: true });
+  if (!humStarted) {
+    const ctx = getAudioContext();
+    const buffer = humDecodedBuffer;
+    if (ctx && buffer) {
+      const graph = createHumLoopGraph(ctx, buffer);
+      humStarted = startPreparedHumLoopGraph(graph);
     }
   }
 
@@ -367,129 +510,86 @@ export function playDemoEntryFallbackRevealAudio() {
   fallbackGestureArmed.hum = humStarted;
   logAudioDebug('entry-fallback-triggered', {
     gongReady: audio.gong.readyState,
-    humReady: audio.hum.readyState,
-    humAlreadyPlaying: !audio.hum.paused,
-    gongArmed: gongStarted,
+    humBuffered: Boolean(humDecodedBuffer),
     humArmed: humStarted,
+    mode: humStarted ? 'gapless-buffer-loop' : 'missed',
   });
 
   return gongStarted || humStarted;
 }
 
-export function handoffDemoEntryFallbackHum(durationMs = 220) {
-  if (!fallbackAudio) return false;
+export function handoffDemoEntryFallbackHum(durationMs = HUM_FADE_OUT_MS) {
+  if (!humLoopGraph) return false;
 
-  const hum = fallbackAudio.hum;
-  cancelHumFade();
-  cancelHumStopTimer();
-
-  if (hum.paused) {
-    fallbackHumActive = false;
-    fallbackGestureArmed.hum = false;
-    return false;
-  }
-
-  hum.muted = false;
+  const graph = humLoopGraph;
+  clearHumFadeFrame();
+  clearHumStopTimer();
+  animateHumVolume(graph, 0, durationMs);
 
   if (typeof window === 'undefined' || durationMs <= 0) {
-    try {
-      hum.pause();
-      hum.currentTime = 0;
-      hum.loop = true;
-      hum.volume = HUM_VOLUME;
-    } catch {
-      // no-op
-    }
+    destroyHumLoopGraph();
   } else {
-    fadeHumTo(hum, 0, durationMs);
     humStopTimer = window.setTimeout(() => {
       humStopTimer = null;
-
-      try {
-        hum.pause();
-        hum.currentTime = 0;
-        hum.loop = true;
-        hum.muted = false;
-        hum.volume = HUM_VOLUME;
-      } catch {
-        // no-op
-      }
-    }, durationMs + 32);
+      destroyHumLoopGraph();
+    }, durationMs + 48);
   }
 
   fallbackHumActive = false;
   fallbackGestureArmed.hum = false;
   logAudioDebug('entry-fallback-hum-handed-off', {
     durationMs,
-    humReady: hum.readyState,
-    paused: hum.paused,
+    mode: 'gapless-buffer-loop',
   });
   return true;
 }
 
-/**
- * Fire the pre-armed fallback hum HTMLAudioElement immediately.
- * Must be called synchronously inside a user gesture (touchend/pointerup).
- * Returns true if the hum is now playing.
- */
 export function playDemoEntryFallbackHum(): boolean {
-  const audio = ensureFallbackAudio();
-  if (!audio) return false;
-
-  requestLoad(audio.hum);
-  cancelHumFade();
-  cancelHumStopTimer();
-
-  let humStarted = false;
-
-  if (fallbackGestureArmed.hum && !audio.hum.paused) {
-    try {
-      audio.hum.loop = true;
-      audio.hum.volume = 0;
-      audio.hum.muted = false;
-      fadeHumTo(audio.hum, HUM_VOLUME, 350);
-      humStarted = true;
-      logPlaySuccess('hum', audio.hum, { armed: true, seamless: true, standalone: true });
-    } catch (error) {
-      logPlayFailure('hum', error, audio.hum, { armed: true, standalone: true });
-    }
-  } else {
-    audio.hum.loop = true;
-    audio.hum.muted = false;
-    audio.hum.volume = HUM_VOLUME;
-    try { if (audio.hum.paused) audio.hum.currentTime = 0; } catch {}
-    humStarted = audio.hum.paused ? attemptPlay('hum', audio.hum, { armed: false, standalone: true }) : true;
+  if (humLoopGraph) {
+    const started = startPreparedHumLoopGraph(humLoopGraph);
+    logAudioDebug('entry-fallback-hum-triggered', {
+      humBuffered: Boolean(humDecodedBuffer),
+      humStarted: started,
+      mode: 'gapless-buffer-loop',
+    });
+    return started;
   }
 
-  fallbackHumActive = humStarted;
-  logAudioDebug('entry-fallback-hum-triggered', { humReady: audio.hum.readyState, humStarted });
-  return humStarted;
+  const ctx = getAudioContext();
+  if (!ctx || !humDecodedBuffer) {
+    logAudioDebug('entry-fallback-hum-triggered', {
+      humBuffered: Boolean(humDecodedBuffer),
+      humStarted: false,
+      mode: 'gapless-buffer-loop',
+    });
+    return false;
+  }
+
+  const graph = createHumLoopGraph(ctx, humDecodedBuffer);
+  const started = startPreparedHumLoopGraph(graph);
+  logAudioDebug('entry-fallback-hum-triggered', {
+    humBuffered: Boolean(humDecodedBuffer),
+    humStarted: started,
+    mode: 'gapless-buffer-loop',
+  });
+  return started;
 }
 
 export function stopDemoEntryFallbackHum(reset = true) {
-  if (!fallbackAudio) return;
+  clearHumFadeFrame();
+  clearHumStopTimer();
+  destroyHumLoopGraph();
 
-  cancelHumFade();
-  cancelHumStopTimer();
-
-  try {
-    fallbackAudio.hum.pause();
-    if (reset) fallbackAudio.hum.currentTime = 0;
-    fallbackAudio.hum.loop = true;
-    fallbackAudio.hum.muted = false;
-    fallbackAudio.hum.volume = HUM_VOLUME;
-  } catch {
-    // no-op
-  }
-
-  try {
-    fallbackAudio.gong.pause();
-    if (reset) fallbackAudio.gong.currentTime = 0;
-    fallbackAudio.gong.loop = false;
-    fallbackAudio.gong.muted = false;
-    fallbackAudio.gong.volume = GONG_VOLUME;
-  } catch {
-    // no-op
+  if (fallbackAudio) {
+    try {
+      fallbackAudio.gong.pause();
+      if (reset) fallbackAudio.gong.currentTime = 0;
+      fallbackAudio.gong.loop = false;
+      fallbackAudio.gong.muted = false;
+      fallbackAudio.gong.volume = GONG_VOLUME;
+    } catch {
+      // no-op
+    }
   }
 
   fallbackHumActive = false;
