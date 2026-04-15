@@ -123,58 +123,42 @@ function BatteryIcon({ percent, color, cx, cy }: { percent: number; color: strin
   );
 }
 
-// House illustration — premium upgrade with architectural detail
+// House illustration — premium with visible materials and depth
 function HouseIllustration({ compact }: { compact?: boolean }) {
-  // Shared solar panel renderer
   const renderSolarPanels = (peakY: number, eaveY: number, cx: number, pw: number, gap: number) => {
     const rows = [1, 2, 3, 4];
-    const totalRows = rows.length;
-    const rowH = (eaveY - peakY) / totalRows;
+    const rowH = (eaveY - peakY) / rows.length;
     const ph = rowH - (compact ? 2 : 2.5);
     return (
-      <g opacity="0.95">
+      <g>
         {rows.map((count, ri) => {
           const rowTop = peakY + ri * rowH;
           const totalW = count * pw + (count - 1) * gap;
           const startX = cx - totalW / 2;
-          return Array.from({ length: count }).map((_, ci) => (
-            <g key={`${ri}-${ci}`}>
-              <rect
-                x={startX + ci * (pw + gap)}
-                y={rowTop + 1}
-                width={pw}
-                height={ph}
-                rx={1}
-                fill="#1a3a60"
-                fillOpacity={0.5}
-                stroke="#2d6090"
-                strokeWidth={compact ? 0.5 : 0.6}
-              />
-              {/* Grid lines on each panel */}
-              <line
-                x1={startX + ci * (pw + gap) + pw / 2}
-                y1={rowTop + 1}
-                x2={startX + ci * (pw + gap) + pw / 2}
-                y2={rowTop + 1 + ph}
-                stroke="#2d6090"
-                strokeWidth="0.25"
-                opacity="0.5"
-              />
-              <line
-                x1={startX + ci * (pw + gap)}
-                y1={rowTop + 1 + ph / 2}
-                x2={startX + ci * (pw + gap) + pw}
-                y2={rowTop + 1 + ph / 2}
-                stroke="#2d6090"
-                strokeWidth="0.25"
-                opacity="0.5"
-              />
-            </g>
-          ));
+          return Array.from({ length: count }).map((_, ci) => {
+            const px = startX + ci * (pw + gap);
+            const py = rowTop + 1;
+            return (
+              <g key={`${ri}-${ci}`}>
+                <rect x={px} y={py} width={pw} height={ph} rx={1}
+                  fill="url(#panelFill)" stroke="#3a7ab8" strokeWidth={compact ? 0.5 : 0.7} />
+                {/* Cell grid lines */}
+                <line x1={px + pw / 2} y1={py} x2={px + pw / 2} y2={py + ph}
+                  stroke="#3a7ab8" strokeWidth="0.3" opacity="0.4" />
+                <line x1={px} y1={py + ph / 2} x2={px + pw} y2={py + ph / 2}
+                  stroke="#3a7ab8" strokeWidth="0.3" opacity="0.4" />
+                {/* Reflection glint */}
+                <rect x={px + 1} y={py + 1} width={pw / 3} height={ph / 3} rx={0.5}
+                  fill="#4a90d0" opacity="0.08" />
+              </g>
+            );
+          });
         })}
-        {/* Solar panel glow pulse */}
-        <rect x={cx - (compact ? 45 : 60)} y={peakY - 2} width={compact ? 90 : 120} height={eaveY - peakY + 4} fill="#3b82f6" opacity="0" rx="2">
-          <animate attributeName="opacity" values="0;0.07;0" dur="3s" repeatCount="indefinite" />
+        {/* Solar shimmer pulse */}
+        <rect x={cx - (compact ? 45 : 60)} y={peakY - 2}
+          width={compact ? 90 : 120} height={eaveY - peakY + 4}
+          fill="#3b82f6" opacity="0" rx="2">
+          <animate attributeName="opacity" values="0;0.1;0" dur="3s" repeatCount="indefinite" />
         </rect>
       </g>
     );
@@ -185,240 +169,232 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
     return (
       <g>
         {/* Ground shadow */}
-        <ellipse cx={cx} cy="255" rx="75" ry="3.5" fill="#0a0e18" opacity="0.1" />
+        <ellipse cx={cx} cy="255" rx="80" ry="4" fill="#050810" opacity="0.4" />
 
         {/* Foundation */}
-        <rect x="146" y="249" width="108" height="5" rx="1" fill="#151b2a" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.3" />
+        <rect x="144" y="249" width="112" height="6" rx="1" fill="#0e1420" stroke="#1e2a3c" strokeWidth="0.5" />
 
-        {/* House body — stone/siding texture effect */}
-        <rect x="148" y="178" width="104" height="73" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.7" />
-        {/* Horizontal siding lines */}
-        {[188, 198, 208, 218, 228, 238].map(y => (
-          <line key={y} x1="149" y1={y} x2="251" y2={y} stroke="#1e2a3c" strokeWidth="0.2" opacity="0.3" />
+        {/* House body */}
+        <rect x="148" y="178" width="104" height="73" rx="2" fill="url(#houseFill)" stroke="#2e4058" strokeWidth="0.8" />
+        {/* Siding lines */}
+        {[190, 200, 210, 220, 230, 240].map(y => (
+          <line key={y} x1="149" y1={y} x2="251" y2={y} stroke="#253448" strokeWidth="0.3" opacity="0.5" />
         ))}
-        {/* Corner posts */}
-        <rect x="148" y="178" width="3.5" height="73" fill="#141c2c" fillOpacity="0.15" />
-        <rect x="248.5" y="178" width="3.5" height="73" fill="#141c2c" fillOpacity="0.15" />
+        {/* Corner trim */}
+        <rect x="148" y="178" width="4" height="73" fill="#162030" opacity="0.6" />
+        <rect x="248" y="178" width="4" height="73" fill="#162030" opacity="0.6" />
 
-        {/* Roof with gradient fill */}
-        <polygon points="130,181 200,116 270,181" fill="#0f1824" fillOpacity="0.25" stroke="#2a3448" strokeWidth="0.7" />
-        {/* Roof ridge line */}
-        <line x1="200" y1="116" x2="200" y2="119" stroke="#3a5568" strokeWidth="0.6" />
-        {/* Eave line */}
-        <line x1="131" y1="181" x2="269" y2="181" stroke="#2a3448" strokeWidth="1.2" opacity="0.3" />
-        {/* Roof shingles hint */}
-        <line x1="165" y1="149" x2="235" y2="149" stroke="#1e2a3c" strokeWidth="0.2" opacity="0.2" />
-        <line x1="148" y1="165" x2="252" y2="165" stroke="#1e2a3c" strokeWidth="0.2" opacity="0.2" />
+        {/* Roof */}
+        <polygon points="130,181 200,116 270,181" fill="url(#roofFill)" stroke="#2e4058" strokeWidth="0.8" />
+        <line x1="200" y1="116" x2="200" y2="119" stroke="#4a6580" strokeWidth="0.7" />
+        <line x1="131" y1="181" x2="269" y2="181" stroke="#1a2838" strokeWidth="1.5" />
+        {/* Roof ridge texture */}
+        <line x1="165" y1="149" x2="235" y2="149" stroke="#253448" strokeWidth="0.3" opacity="0.4" />
+        <line x1="148" y1="165" x2="252" y2="165" stroke="#253448" strokeWidth="0.3" opacity="0.4" />
 
         {/* Solar panels */}
         {renderSolarPanels(119, 178, cx, 18, 2)}
 
-        {/* Left window — 4-pane */}
-        <rect x="160" y="193" width="20" height="24" rx="1.5" fill="#06090f" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.5" />
-        <line x1="170" y1="193" x2="170" y2="217" stroke="#2a3448" strokeWidth="0.3" />
-        <line x1="160" y1="205" x2="180" y2="205" stroke="#2a3448" strokeWidth="0.3" />
-        {/* Warm interior glow */}
-        <rect x="161" y="194" width="8.5" height="10.5" rx="0.5" fill="#2a2200" opacity="0.5">
-          <animate attributeName="fill" values="#2a2200;#332800;#2a2200" dur="6s" repeatCount="indefinite" />
+        {/* Left window — warm interior */}
+        <rect x="160" y="193" width="20" height="24" rx="1.5" fill="#0a1018" stroke="#2e4058" strokeWidth="0.6" />
+        <line x1="170" y1="193" x2="170" y2="217" stroke="#2e4058" strokeWidth="0.4" />
+        <line x1="160" y1="205" x2="180" y2="205" stroke="#2e4058" strokeWidth="0.4" />
+        <rect x="161" y="194" width="8.5" height="10.5" rx="0.5" fill="url(#windowGlow)">
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="6s" repeatCount="indefinite" />
         </rect>
-        <rect x="171" y="206" width="8.5" height="10.5" rx="0.5" fill="#2a2200" opacity="0.35">
-          <animate attributeName="fill" values="#2a2200;#2e2500;#2a2200" dur="8s" repeatCount="indefinite" />
+        <rect x="171" y="206" width="8.5" height="10.5" rx="0.5" fill="url(#windowGlow)" opacity="0.5">
+          <animate attributeName="opacity" values="0.4;0.7;0.4" dur="8s" repeatCount="indefinite" />
         </rect>
+        {/* Window sill */}
+        <rect x="159" y="217" width="22" height="1.5" rx="0.5" fill="#1a2838" />
 
-        {/* Right window — 4-pane */}
-        <rect x="220" y="193" width="20" height="24" rx="1.5" fill="#06090f" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.5" />
-        <line x1="230" y1="193" x2="230" y2="217" stroke="#2a3448" strokeWidth="0.3" />
-        <line x1="220" y1="205" x2="240" y2="205" stroke="#2a3448" strokeWidth="0.3" />
-        <rect x="221" y="194" width="8.5" height="10.5" rx="0.5" fill="#2a2200" opacity="0.4">
-          <animate attributeName="fill" values="#2a2200;#302600;#2a2200" dur="7s" repeatCount="indefinite" />
+        {/* Right window */}
+        <rect x="220" y="193" width="20" height="24" rx="1.5" fill="#0a1018" stroke="#2e4058" strokeWidth="0.6" />
+        <line x1="230" y1="193" x2="230" y2="217" stroke="#2e4058" strokeWidth="0.4" />
+        <line x1="220" y1="205" x2="240" y2="205" stroke="#2e4058" strokeWidth="0.4" />
+        <rect x="221" y="194" width="8.5" height="10.5" rx="0.5" fill="url(#windowGlow)" opacity="0.6">
+          <animate attributeName="opacity" values="0.5;0.8;0.5" dur="7s" repeatCount="indefinite" />
         </rect>
+        <rect x="219" y="217" width="22" height="1.5" rx="0.5" fill="#1a2838" />
 
-        {/* Front door with arch top */}
-        <rect x="189" y="220" width="22" height="32" rx="1.5" fill="#0a0f18" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.5" />
-        <rect x="191" y="224" width="18" height="12" rx="1" fill="#0c1220" fillOpacity="0.15" stroke="#1e2840" strokeWidth="0.25" />
-        <circle cx="207" cy="238" r="0.9" fill="#F59E0B" opacity="0.5" />
-        {/* Porch light */}
-        <circle cx={cx} cy="218" r="1.2" fill="#F59E0B" opacity="0.15">
-          <animate attributeName="opacity" values="0.1;0.25;0.1" dur="5s" repeatCount="indefinite" />
+        {/* Front door */}
+        <rect x="189" y="218" width="22" height="34" rx="1.5" fill="#0c1420" stroke="#2e4058" strokeWidth="0.6" />
+        <rect x="191" y="221" width="18" height="10" rx="1" fill="#0a1018" stroke="#1e2840" strokeWidth="0.3" />
+        <rect x="191" y="233" width="8" height="8" rx="0.5" fill="#0a1018" stroke="#1e2840" strokeWidth="0.25" />
+        <rect x="201" y="233" width="8" height="8" rx="0.5" fill="#0a1018" stroke="#1e2840" strokeWidth="0.25" />
+        <circle cx="207" cy="237" r="1" fill="#F59E0B" opacity="0.5" />
+        {/* Porch light glow */}
+        <circle cx={cx} cy="216" r="2" fill="#F59E0B" opacity="0.2">
+          <animate attributeName="opacity" values="0.15;0.35;0.15" dur="4s" repeatCount="indefinite" />
         </circle>
-        <ellipse cx={cx} cy="220" rx="6" ry="3" fill="#F59E0B" opacity="0.04">
-          <animate attributeName="opacity" values="0.02;0.06;0.02" dur="5s" repeatCount="indefinite" />
+        <ellipse cx={cx} cy="220" rx="8" ry="4" fill="#F59E0B" opacity="0.05">
+          <animate attributeName="opacity" values="0.03;0.08;0.03" dur="4s" repeatCount="indefinite" />
         </ellipse>
 
         {/* Powerwall */}
-        <rect x="125" y="210" width="17" height="32" rx="2" fill="#111a28" fillOpacity="0.15" stroke="#2a4060" strokeWidth="0.6" />
-        <rect x="127.5" y="214" width="12" height="2.5" rx="0.8" fill="#22c55e" opacity="0.3">
-          <animate attributeName="opacity" values="0.2;0.45;0.2" dur="3s" repeatCount="indefinite" />
+        <rect x="125" y="210" width="17" height="32" rx="2.5" fill="#0e1828" stroke="#2a4565" strokeWidth="0.8" />
+        <rect x="127.5" y="214" width="12" height="3" rx="1" fill="#22c55e" opacity="0.5">
+          <animate attributeName="opacity" values="0.35;0.65;0.35" dur="3s" repeatCount="indefinite" />
         </rect>
-        <rect x="127.5" y="218" width="12" height="2.5" rx="0.8" fill="#22c55e" opacity="0.18" />
-        <rect x="127.5" y="222" width="12" height="2.5" rx="0.8" fill="#22c55e" opacity="0.1" />
-        <text x="133.5" y="234" textAnchor="middle" fill="#4a6080" fontSize="4" fontWeight="700">PW</text>
-        {/* Powerwall cable */}
-        <line x1="133.5" y1="208" x2="133.5" y2="210" stroke="#2a4060" strokeWidth="0.8" />
+        <rect x="127.5" y="218.5" width="12" height="3" rx="1" fill="#22c55e" opacity="0.3" />
+        <rect x="127.5" y="223" width="12" height="3" rx="1" fill="#22c55e" opacity="0.15" />
+        <text x="133.5" y="235" textAnchor="middle" fill="#5a7a9a" fontSize="4" fontWeight="700">PW</text>
+        <line x1="133.5" y1="208" x2="133.5" y2="210" stroke="#2a4565" strokeWidth="0.8" />
 
         {/* Utility meter */}
-        <rect x="258" y="208" width="15" height="20" rx="1.5" fill="#111a28" fillOpacity="0.15" stroke="#2a4060" strokeWidth="0.5" />
-        <circle cx="265.5" cy="216" r="4.5" fill="#080d18" fillOpacity="0.15" stroke="#3a5070" strokeWidth="0.35" />
-        <line x1="265.5" y1="216" x2="268" y2="214" stroke="#8B5CF6" strokeWidth="0.4" opacity="0.7">
+        <rect x="258" y="208" width="15" height="20" rx="2" fill="#0e1828" stroke="#2a4565" strokeWidth="0.6" />
+        <circle cx="265.5" cy="216" r="4.5" fill="#0a1018" stroke="#3a5a7a" strokeWidth="0.4" />
+        <line x1="265.5" y1="216" x2="268" y2="214" stroke="#8B5CF6" strokeWidth="0.5" opacity="0.8">
           <animateTransform attributeName="transform" type="rotate" from="0 265.5 216" to="360 265.5 216" dur="8s" repeatCount="indefinite" />
         </line>
-        <circle cx="265.5" cy="216" r="0.6" fill="#8B5CF6" opacity="0.6" />
-        <text x="265.5" y="225" textAnchor="middle" fill="#4a6080" fontSize="3" fontWeight="600">kWh</text>
+        <circle cx="265.5" cy="216" r="0.7" fill="#8B5CF6" opacity="0.7" />
+        <text x="265.5" y="225" textAnchor="middle" fill="#5a7a9a" fontSize="3" fontWeight="600">kWh</text>
 
-        {/* Driveway */}
-        <rect x="185" y="252" width="30" height="4" rx="0.5" fill="#141a28" fillOpacity="0.08" stroke="#1a2030" strokeWidth="0.2" />
+        {/* Bushes */}
+        <ellipse cx="155" cy="251" rx="7" ry="4" fill="#0f2a12" opacity="0.3" />
+        <ellipse cx="245" cy="251" rx="7" ry="4" fill="#0f2a12" opacity="0.3" />
 
-        {/* Landscaping — small bushes */}
-        <ellipse cx="155" cy="251" rx="6" ry="3.5" fill="#0f2210" opacity="0.12" />
-        <ellipse cx="245" cy="251" rx="6" ry="3.5" fill="#0f2210" opacity="0.12" />
-
-        {/* Ground line */}
-        <line x1="108" y1="254" x2="292" y2="254" stroke="#1a2030" strokeWidth="0.4" opacity="0.4" />
+        {/* Ground */}
+        <line x1="108" y1="255" x2="292" y2="255" stroke="#1a2535" strokeWidth="0.5" opacity="0.6" />
       </g>
     );
   }
 
-  // Desktop (full-size) version
+  // Desktop version
   const cx = 200;
   return (
     <g>
       {/* Ground shadow */}
-      <ellipse cx={cx} cy="298" rx="110" ry="6" fill="#0a0e18" opacity="0.1" />
+      <ellipse cx={cx} cy="298" rx="115" ry="7" fill="#050810" opacity="0.4" />
 
       {/* Foundation */}
-      <rect x="124" y="290" width="152" height="7" rx="1.5" fill="#151b2a" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.4" />
+      <rect x="122" y="290" width="156" height="8" rx="1.5" fill="#0e1420" stroke="#1e2a3c" strokeWidth="0.5" />
 
-      {/* House body — with siding texture */}
-      <rect x="128" y="192" width="144" height="100" rx="2" fill="url(#houseFill)" stroke="#2a3448" strokeWidth="0.8" />
-      {/* Horizontal siding lines */}
-      {[202, 214, 226, 238, 250, 262, 274, 286].map(y => (
-        <line key={y} x1="129" y1={y} x2="271" y2={y} stroke="#1e2a3c" strokeWidth="0.2" opacity="0.25" />
+      {/* House body */}
+      <rect x="128" y="192" width="144" height="100" rx="2" fill="url(#houseFill)" stroke="#2e4058" strokeWidth="1" />
+      {/* Siding lines */}
+      {[204, 216, 228, 240, 252, 264, 276, 288].map(y => (
+        <line key={y} x1="129" y1={y} x2="271" y2={y} stroke="#253448" strokeWidth="0.3" opacity="0.4" />
       ))}
-      {/* Corner posts */}
-      <rect x="128" y="192" width="4.5" height="100" fill="#141c2c" fillOpacity="0.15" />
-      <rect x="267.5" y="192" width="4.5" height="100" fill="#141c2c" fillOpacity="0.15" />
+      {/* Corner trim */}
+      <rect x="128" y="192" width="5" height="100" fill="#162030" opacity="0.6" />
+      <rect x="267" y="192" width="5" height="100" fill="#162030" opacity="0.6" />
 
-      {/* Roof — with depth */}
-      <polygon points="108,195 200,108 292,195" fill="#0f1824" fillOpacity="0.25" stroke="#2a3448" strokeWidth="0.8" />
-      {/* Roof ridge cap */}
-      <line x1={cx} y1="108" x2={cx} y2="112" stroke="#3a5568" strokeWidth="0.7" />
-      {/* Eave line with shadow */}
-      <line x1="110" y1="195" x2="290" y2="195" stroke="#0a0e18" strokeWidth="1.8" opacity="0.15" />
+      {/* Roof */}
+      <polygon points="108,195 200,108 292,195" fill="url(#roofFill)" stroke="#2e4058" strokeWidth="1" />
+      <line x1={cx} y1="108" x2={cx} y2="113" stroke="#4a6580" strokeWidth="0.8" />
+      <line x1="110" y1="195" x2="290" y2="195" stroke="#1a2838" strokeWidth="2" />
       {/* Roof texture lines */}
-      <line x1="154" y1="152" x2="246" y2="152" stroke="#1e2a3c" strokeWidth="0.2" opacity="0.2" />
-      <line x1="131" y1="175" x2="269" y2="175" stroke="#1e2a3c" strokeWidth="0.2" opacity="0.2" />
+      <line x1="154" y1="152" x2="246" y2="152" stroke="#253448" strokeWidth="0.3" opacity="0.35" />
+      <line x1="131" y1="175" x2="269" y2="175" stroke="#253448" strokeWidth="0.3" opacity="0.35" />
 
       {/* Chimney */}
-      <rect x="253" y="130" width="15" height="38" rx="1.5" fill="#141c2c" fillOpacity="0.15" stroke="#2a3448" strokeWidth="0.5" />
-      <rect x="251" y="128" width="19" height="4" rx="1" fill="#1a2438" fillOpacity="0.15" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Chimney cap detail */}
-      <line x1="254" y1="134" x2="267" y2="134" stroke="#2a3448" strokeWidth="0.3" opacity="0.4" />
+      <rect x="253" y="130" width="15" height="38" rx="1.5" fill="#0e1828" stroke="#2e4058" strokeWidth="0.6" />
+      <rect x="251" y="128" width="19" height="4.5" rx="1" fill="#0e1828" stroke="#2e4058" strokeWidth="0.5" />
+      {/* Chimney brick lines */}
+      <line x1="254" y1="136" x2="267" y2="136" stroke="#253448" strokeWidth="0.3" opacity="0.4" />
+      <line x1="254" y1="144" x2="267" y2="144" stroke="#253448" strokeWidth="0.3" opacity="0.4" />
+      <line x1="254" y1="152" x2="267" y2="152" stroke="#253448" strokeWidth="0.3" opacity="0.4" />
 
       {/* Solar panels */}
       {renderSolarPanels(113, 191, cx, 24, 2.5)}
 
       {/* Left window — 4-pane with shutters */}
-      <rect x="140" y="210" width="30" height="34" rx="1.5" fill="#06090f" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.6" />
-      <line x1="155" y1="210" x2="155" y2="244" stroke="#2a3448" strokeWidth="0.4" />
-      <line x1="140" y1="227" x2="170" y2="227" stroke="#2a3448" strokeWidth="0.4" />
-      {/* Window sill */}
-      <rect x="138" y="244" width="34" height="2" rx="0.5" fill="#1a2438" fillOpacity="0.15" stroke="#2a3448" strokeWidth="0.3" />
+      <rect x="142" y="210" width="30" height="34" rx="1.5" fill="#0a1018" stroke="#2e4058" strokeWidth="0.7" />
+      <line x1="157" y1="210" x2="157" y2="244" stroke="#2e4058" strokeWidth="0.4" />
+      <line x1="142" y1="227" x2="172" y2="227" stroke="#2e4058" strokeWidth="0.4" />
       {/* Shutters */}
-      <rect x="136" y="210" width="4" height="34" rx="0.5" fill="#141c2c" fillOpacity="0.1" stroke="#2a3448" strokeWidth="0.3" />
-      <rect x="170" y="210" width="4" height="34" rx="0.5" fill="#141c2c" fillOpacity="0.1" stroke="#2a3448" strokeWidth="0.3" />
-      {/* Warm glow panes */}
-      <rect x="141" y="211" width="13.5" height="15.5" rx="0.5" fill="#2a2200" opacity="0.6">
-        <animate attributeName="fill" values="#2a2200;#332800;#2a2200" dur="6s" repeatCount="indefinite" />
+      <rect x="138" y="209" width="4" height="36" rx="0.5" fill="#12203a" stroke="#253448" strokeWidth="0.4" />
+      <rect x="172" y="209" width="4" height="36" rx="0.5" fill="#12203a" stroke="#253448" strokeWidth="0.4" />
+      {/* Window sill */}
+      <rect x="140" y="244" width="34" height="2.5" rx="0.5" fill="#1a2838" stroke="#2e4058" strokeWidth="0.3" />
+      {/* Warm glow */}
+      <rect x="143" y="211" width="13.5" height="15.5" rx="0.5" fill="url(#windowGlow)">
+        <animate attributeName="opacity" values="0.7;1;0.7" dur="6s" repeatCount="indefinite" />
       </rect>
-      <rect x="156" y="228" width="13.5" height="15.5" rx="0.5" fill="#2a2200" opacity="0.4">
-        <animate attributeName="fill" values="#2a2200;#2e2500;#2a2200" dur="8s" repeatCount="indefinite" />
+      <rect x="158" y="228" width="13.5" height="15.5" rx="0.5" fill="url(#windowGlow)" opacity="0.5">
+        <animate attributeName="opacity" values="0.4;0.7;0.4" dur="8s" repeatCount="indefinite" />
+      </rect>
+      <rect x="158" y="211" width="13.5" height="15.5" rx="0.5" fill="url(#windowGlow)" opacity="0.3">
+        <animate attributeName="opacity" values="0.2;0.5;0.2" dur="9s" repeatCount="indefinite" />
       </rect>
 
       {/* Right window — 4-pane with shutters */}
-      <rect x="230" y="210" width="30" height="34" rx="1.5" fill="#06090f" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.6" />
-      <line x1="245" y1="210" x2="245" y2="244" stroke="#2a3448" strokeWidth="0.4" />
-      <line x1="230" y1="227" x2="260" y2="227" stroke="#2a3448" strokeWidth="0.4" />
-      <rect x="228" y="244" width="34" height="2" rx="0.5" fill="#1a2438" fillOpacity="0.15" stroke="#2a3448" strokeWidth="0.3" />
-      <rect x="226" y="210" width="4" height="34" rx="0.5" fill="#141c2c" fillOpacity="0.1" stroke="#2a3448" strokeWidth="0.3" />
-      <rect x="260" y="210" width="4" height="34" rx="0.5" fill="#141c2c" fillOpacity="0.1" stroke="#2a3448" strokeWidth="0.3" />
-      <rect x="231" y="211" width="13.5" height="15.5" rx="0.5" fill="#2a2200" opacity="0.5">
-        <animate attributeName="fill" values="#2a2200;#302600;#2a2200" dur="7s" repeatCount="indefinite" />
+      <rect x="228" y="210" width="30" height="34" rx="1.5" fill="#0a1018" stroke="#2e4058" strokeWidth="0.7" />
+      <line x1="243" y1="210" x2="243" y2="244" stroke="#2e4058" strokeWidth="0.4" />
+      <line x1="228" y1="227" x2="258" y2="227" stroke="#2e4058" strokeWidth="0.4" />
+      <rect x="224" y="209" width="4" height="36" rx="0.5" fill="#12203a" stroke="#253448" strokeWidth="0.4" />
+      <rect x="258" y="209" width="4" height="36" rx="0.5" fill="#12203a" stroke="#253448" strokeWidth="0.4" />
+      <rect x="226" y="244" width="34" height="2.5" rx="0.5" fill="#1a2838" stroke="#2e4058" strokeWidth="0.3" />
+      <rect x="229" y="211" width="13.5" height="15.5" rx="0.5" fill="url(#windowGlow)" opacity="0.6">
+        <animate attributeName="opacity" values="0.5;0.85;0.5" dur="7s" repeatCount="indefinite" />
       </rect>
 
-      {/* Front door — paneled with transom window */}
-      <rect x="184" y="253" width="32" height="40" rx="1.5" fill="#0a0f18" fillOpacity="0.2" stroke="#2a3448" strokeWidth="0.6" />
-      {/* Transom window above door */}
-      <rect x="187" y="255" width="26" height="8" rx="1" fill="#0c1220" fillOpacity="0.15" stroke="#1e2840" strokeWidth="0.3" />
-      <rect x="188" y="256" width="11.5" height="6" rx="0.5" fill="#2a2200" opacity="0.2" />
+      {/* Front door — paneled */}
+      <rect x="184" y="253" width="32" height="40" rx="1.5" fill="#0c1420" stroke="#2e4058" strokeWidth="0.7" />
+      {/* Transom window */}
+      <rect x="187" y="255" width="26" height="9" rx="1" fill="#0a1018" stroke="#1e2a3c" strokeWidth="0.35" />
+      <rect x="188" y="256" width="12" height="7" rx="0.5" fill="url(#windowGlow)" opacity="0.25" />
       {/* Door panels */}
-      <rect x="187" y="266" width="12" height="12" rx="1" fill="#0f1520" fillOpacity="0.12" stroke="#1e2840" strokeWidth="0.25" />
-      <rect x="201" y="266" width="12" height="12" rx="1" fill="#0f1520" fillOpacity="0.12" stroke="#1e2840" strokeWidth="0.25" />
-      <rect x="187" y="280" width="12" height="11" rx="1" fill="#0f1520" fillOpacity="0.12" stroke="#1e2840" strokeWidth="0.25" />
-      <rect x="201" y="280" width="12" height="11" rx="1" fill="#0f1520" fillOpacity="0.12" stroke="#1e2840" strokeWidth="0.25" />
+      <rect x="187" y="267" width="12" height="12" rx="1" fill="#0a1018" stroke="#1e2a3c" strokeWidth="0.3" />
+      <rect x="201" y="267" width="12" height="12" rx="1" fill="#0a1018" stroke="#1e2a3c" strokeWidth="0.3" />
+      <rect x="187" y="281" width="12" height="10" rx="1" fill="#0a1018" stroke="#1e2a3c" strokeWidth="0.3" />
+      <rect x="201" y="281" width="12" height="10" rx="1" fill="#0a1018" stroke="#1e2a3c" strokeWidth="0.3" />
       {/* Door handle */}
-      <circle cx="211" cy="278" r="1.3" fill="#4a5568" />
+      <circle cx="211" cy="278" r="1.5" fill="#4a6a8a" opacity="0.7" />
 
       {/* Porch light */}
-      <circle cx={cx} cy="250" r="1.5" fill="#F59E0B" opacity="0.2">
-        <animate attributeName="opacity" values="0.1;0.3;0.1" dur="5s" repeatCount="indefinite" />
+      <circle cx={cx} cy="250" r="2" fill="#F59E0B" opacity="0.25">
+        <animate attributeName="opacity" values="0.15;0.4;0.15" dur="4s" repeatCount="indefinite" />
       </circle>
-      <ellipse cx={cx} cy="253" rx="10" ry="5" fill="#F59E0B" opacity="0.04">
-        <animate attributeName="opacity" values="0.02;0.07;0.02" dur="5s" repeatCount="indefinite" />
+      <ellipse cx={cx} cy="254" rx="12" ry="6" fill="#F59E0B" opacity="0.05">
+        <animate attributeName="opacity" values="0.03;0.08;0.03" dur="4s" repeatCount="indefinite" />
       </ellipse>
 
-      {/* Porch step */}
-      <rect x="180" y="291" width="40" height="3" rx="0.5" fill="#1a2030" fillOpacity="0.12" stroke="#2a3448" strokeWidth="0.3" />
-      <rect x="176" y="294" width="48" height="3" rx="0.5" fill="#1a2030" fillOpacity="0.08" stroke="#2a3448" strokeWidth="0.2" />
+      {/* Porch steps */}
+      <rect x="180" y="291" width="40" height="3.5" rx="0.5" fill="#12203a" stroke="#2e4058" strokeWidth="0.35" />
+      <rect x="176" y="294.5" width="48" height="3.5" rx="0.5" fill="#0e1828" stroke="#253448" strokeWidth="0.25" />
 
-      {/* Powerwall unit — detailed */}
-      <rect x="96" y="248" width="24" height="44" rx="3" fill="#111a28" fillOpacity="0.15" stroke="#2a4060" strokeWidth="0.8" />
-      {/* Status LED bars */}
-      <rect x="100" y="254" width="16" height="3.5" rx="1" fill="#22c55e" opacity="0.3">
-        <animate attributeName="opacity" values="0.2;0.45;0.2" dur="3s" repeatCount="indefinite" />
+      {/* Powerwall unit */}
+      <rect x="96" y="248" width="24" height="44" rx="3" fill="#0e1828" stroke="#2a4565" strokeWidth="1" />
+      <rect x="100" y="254" width="16" height="4" rx="1" fill="#22c55e" opacity="0.5">
+        <animate attributeName="opacity" values="0.35;0.7;0.35" dur="3s" repeatCount="indefinite" />
       </rect>
-      <rect x="100" y="259" width="16" height="3.5" rx="1" fill="#22c55e" opacity="0.18" />
-      <rect x="100" y="264" width="16" height="3.5" rx="1" fill="#22c55e" opacity="0.1" />
-      <rect x="100" y="269" width="16" height="3.5" rx="1" fill="#22c55e" opacity="0.06" />
-      <text x="108" y="283" textAnchor="middle" fill="#4a6080" fontSize="5" fontWeight="700" letterSpacing="0.5">PW</text>
-      {/* Cable from house to PW */}
-      <line x1="108" y1="246" x2="108" y2="248" stroke="#2a4060" strokeWidth="1" />
+      <rect x="100" y="260" width="16" height="4" rx="1" fill="#22c55e" opacity="0.3" />
+      <rect x="100" y="266" width="16" height="4" rx="1" fill="#22c55e" opacity="0.15" />
+      <rect x="100" y="272" width="16" height="4" rx="1" fill="#22c55e" opacity="0.08" />
+      <text x="108" y="285" textAnchor="middle" fill="#5a7a9a" fontSize="5" fontWeight="700" letterSpacing="0.5">PW</text>
+      <line x1="108" y1="246" x2="108" y2="248" stroke="#2a4565" strokeWidth="1" />
 
-      {/* Utility meter — detailed */}
+      {/* Utility meter */}
       <g>
-        <rect x="280" y="242" width="20" height="28" rx="2" fill="#111a28" fillOpacity="0.15" stroke="#2a4060" strokeWidth="0.7" />
-        <circle cx="290" cy="252" r="6" fill="#080d18" fillOpacity="0.15" stroke="#3a5070" strokeWidth="0.4" />
-        {/* Spinning dial */}
-        <line x1="290" y1="252" x2="293" y2="250" stroke="#8B5CF6" strokeWidth="0.5" opacity="0.7">
+        <rect x="280" y="242" width="20" height="28" rx="2" fill="#0e1828" stroke="#2a4565" strokeWidth="0.8" />
+        <circle cx="290" cy="252" r="6" fill="#0a1018" stroke="#3a5a7a" strokeWidth="0.5" />
+        <line x1="290" y1="252" x2="293" y2="250" stroke="#8B5CF6" strokeWidth="0.6" opacity="0.8">
           <animateTransform attributeName="transform" type="rotate" from="0 290 252" to="360 290 252" dur="8s" repeatCount="indefinite" />
         </line>
-        <circle cx="290" cy="252" r="0.8" fill="#8B5CF6" opacity="0.6" />
-        {/* Digital readout */}
-        <rect x="283" y="261" width="14" height="5" rx="0.5" fill="#0a1018" fillOpacity="0.1" stroke="#2a4060" strokeWidth="0.3" />
-        <text x="290" y="265" textAnchor="middle" fill="#4a6080" fontSize="3.5" fontWeight="600" letterSpacing="0.3">kWh</text>
-        <line x1="290" y1="270" x2="290" y2="278" stroke="#2a4060" strokeWidth="0.8" />
+        <circle cx="290" cy="252" r="0.9" fill="#8B5CF6" opacity="0.7" />
+        <rect x="283" y="261" width="14" height="5.5" rx="0.5" fill="#0a1018" stroke="#2a4565" strokeWidth="0.3" />
+        <text x="290" y="265.5" textAnchor="middle" fill="#5a7a9a" fontSize="3.5" fontWeight="600" letterSpacing="0.3">kWh</text>
+        <line x1="290" y1="270" x2="290" y2="278" stroke="#2a4565" strokeWidth="0.8" />
       </g>
 
-      {/* Landscaping — trees */}
-      <g opacity="0.15">
-        {/* Left tree */}
-        <rect x="123" y="280" width="2" height="14" rx="0.5" fill="#2a3a20" />
-        <ellipse cx="124" cy="278" rx="6" ry="8" fill="#1a3a1a" />
-        <ellipse cx="124" cy="274" rx="4.5" ry="6" fill="#1e4520" />
-        {/* Right tree */}
-        <rect x="275" y="282" width="2" height="12" rx="0.5" fill="#2a3a20" />
-        <ellipse cx="276" cy="280" rx="5" ry="7" fill="#1a3a1a" />
-        <ellipse cx="276" cy="276" rx="3.5" ry="5" fill="#1e4520" />
+      {/* Trees */}
+      <g opacity="0.35">
+        <rect x="123" y="280" width="2.5" height="14" rx="0.5" fill="#2a4020" />
+        <ellipse cx="124" cy="278" rx="7" ry="9" fill="#0f2a12" />
+        <ellipse cx="124" cy="273" rx="5" ry="7" fill="#153018" />
+        <rect x="275" y="282" width="2.5" height="12" rx="0.5" fill="#2a4020" />
+        <ellipse cx="276" cy="280" rx="6" ry="8" fill="#0f2a12" />
+        <ellipse cx="276" cy="275" rx="4" ry="6" fill="#153018" />
       </g>
 
-      {/* Bushes near foundation */}
-      <ellipse cx="140" cy="292" rx="8" ry="4" fill="#0f2210" opacity="0.1" />
-      <ellipse cx="260" cy="292" rx="8" ry="4" fill="#0f2210" opacity="0.1" />
+      {/* Bushes */}
+      <ellipse cx="140" cy="292" rx="9" ry="4.5" fill="#0f2a12" opacity="0.25" />
+      <ellipse cx="260" cy="292" rx="9" ry="4.5" fill="#0f2a12" opacity="0.25" />
 
-      {/* Driveway */}
-      <rect x="178" y="296" width="44" height="3" rx="0.5" fill="#141a28" fillOpacity="0.06" stroke="#1a2030" strokeWidth="0.2" />
-
-      {/* Ground line */}
-      <line x1="65" y1="297" x2="335" y2="297" stroke="#1a2030" strokeWidth="0.5" opacity="0.4" />
+      {/* Ground */}
+      <line x1="65" y1="298" x2="335" y2="298" stroke="#1a2535" strokeWidth="0.6" opacity="0.5" />
     </g>
   );
 }
