@@ -203,7 +203,7 @@ export function useShimmerSound({
 
   useEffect(() => {
     if (!enabled && !prewarm) {
-      stopSound();
+      stopSound(true);
       return;
     }
 
@@ -213,7 +213,7 @@ export function useShimmerSound({
   }, [enabled, prewarm, startSound, stopSound]);
 
   useEffect(() => () => {
-    stopSound();
+    stopSound(true);
   }, [stopSound]);
 
   useEffect(() => {

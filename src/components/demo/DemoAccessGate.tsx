@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
-  playDemoEntryFallbackGong,
+  playDemoEntryFallbackRevealAudio,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
 } from '@/lib/demoEntryFallbackAudio';
@@ -184,11 +184,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const fallbackGestureTimeRef = useRef(0);
   const audioReadyRef = useRef(false);
   const audioWakeCleanupRef = useRef<(() => void) | null>(null);
+  const shimmerRetryTimersRef = useRef<number[]>([]);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
-    volume: 0.24,
+    volume: 0.3,
     enabled: shimmerActive,
     prewarm: false,
   });
@@ -288,6 +289,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       audioWakeCleanupRef.current?.();
+      shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
+      shimmerRetryTimersRef.current = [];
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
     };
@@ -319,6 +322,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
           setFallbackHumActive(false);
+          setShimmerActive(false);
           // Force viewport zoom reset on iOS
           const vp = document.querySelector('meta[name="viewport"]');
           if (vp) {
@@ -421,7 +425,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let gongPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
-      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: true });
       gongPrewarmed = prewarmSingingBowl();
       // NOTE: Do NOT prewarm shimmer here — it creates a race condition where
       // the prewarm boot at volume 0 fires during the hold, and then the
@@ -566,31 +570,48 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
-        const fallbackStarted = playDemoEntryFallbackGong();
+        const fallbackStarted = playDemoEntryFallbackRevealAudio();
         const gongStarted = playSingingBowl(startTime);
+        setFallbackHumActive(fallbackStarted);
 
-        // Start the ambient hum almost immediately after the strike so mobile
-        // browsers keep the graph alive and phone speakers can actually render it.
+        shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
+        shimmerRetryTimersRef.current = [];
+
+        // Start the synth hum immediately, then retrigger it after the gesture settles.
+        // On iOS, this second kick is often what makes the sustained loop actually stick.
         const liveCtx = getSharedAudioContext();
         if (liveCtx) {
           if (liveCtx.state !== 'running') {
             liveCtx.resume().catch(() => {});
           }
           const humStart = Math.max(
-            startTime + 0.08,
-            getSafeAudioStartTime(liveCtx, undefined, 0.03),
+            startTime + 0.02,
+            getSafeAudioStartTime(liveCtx, undefined, 0.01),
           );
-          startShimmerSound(humStart, 0.28);
+          startShimmerSound(humStart, 0.3);
+
+          const queueHumRetry = (delay: number, volume: number) => {
+            const timer = window.setTimeout(() => {
+              startShimmerSound(undefined, volume);
+              logAudioDebug('hum-retrigger', {
+                delay,
+                volume,
+                ctx: getSharedAudioContext()?.state ?? 'null',
+              });
+            }, delay);
+            shimmerRetryTimersRef.current.push(timer);
+          };
+
+          queueHumRetry(260, 0.3);
+          queueHumRetry(1400, 0.32);
           logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
         }
-
-        setFallbackHumActive(false);
 
         audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
           fallbackFired: fallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: 'gesture-sync',
+          synthHandoff: 'fallback-bridge+gesture-sync',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -599,8 +620,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           fallbackStarted,
           gongStarted,
-          humStarted: 'gesture-sync',
-          audioMode: fallbackStarted ? 'fallback-gong+gesture-shimmer' : 'gesture-shimmer',
+          humStarted: 'fallback-bridge+gesture-sync',
+          audioMode: fallbackStarted ? 'fallback-hum+gesture-shimmer' : 'gesture-shimmer',
           visualReveal: true,
         });
         return false;
@@ -646,8 +667,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     } else {
       // No AudioContext — still try fallback gong synchronously in gesture context
       if (firstReveal) {
-        const fallbackStarted = playDemoEntryFallbackGong();
-        setFallbackHumActive(false);
+        const fallbackStarted = playDemoEntryFallbackRevealAudio();
+        setFallbackHumActive(fallbackStarted);
         updateReleaseAudioDiagnostics({
           fallbackFired: fallbackStarted ? 'fired' : 'missed',
           synthHandoff: 'failed',
@@ -661,7 +682,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     revealVisuals();
 
     if (!ctx) {
-      setFallbackHumActive(false);
       logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
     }
   }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
@@ -679,8 +699,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       const now = Date.now();
       const hasCode = Boolean(code.trim());
       const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
-
-      ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
 
       if (isDoubleTap) {
         if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
@@ -796,6 +814,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const showUnlockHint = inputFocused || code.trim().length > 0;
 
   const handleNdaSigned = useCallback(() => {
+    stopDemoEntryFallbackHum();
+    setFallbackHumActive(false);
+    setShimmerActive(false);
     setShowNda(false);
     grantAccess();
     setGranted(true);
@@ -1059,6 +1080,59 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 />
               )}
 
+              {firstTapBurst && !isBursting && (
+                <div
+                  key={`fw-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '280%',
+                    height: '280%',
+                    border: '2px solid rgba(255,255,255,0.7)',
+                    animation: 'zenPressureWave 550ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+
+              {firstTapBurst && !isBursting && [0, 1, 2].map((i) => (
+                <div
+                  key={`ffr-${burstKey}-${i}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: 18,
+                    height: 18,
+                    marginLeft: -9,
+                    marginTop: -9,
+                    borderRadius: '50%',
+                    border: `2px solid rgba(255,255,255, ${0.75 - i * 0.2})`,
+                    animation: `zenFlareRing 650ms ${i * 80}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
+
+              {firstTapBurst && !isBursting && (
+                <div
+                  key={`fg-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: 70,
+                    height: 70,
+                    marginLeft: -35,
+                    marginTop: -35,
+                    background: `radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(${RGBA}, 0.15) 40%, transparent 70%)`,
+                    animation: 'zenEnergyRelease 550ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+
               {/* Success burst particles */}
               {isBursting && particles.map((p, i) => (
                 <div
@@ -1097,6 +1171,41 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   }}
                 />
               )}
+
+              {isBursting && (
+                <div
+                  key={`wave-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '280%',
+                    height: '280%',
+                    border: '2px solid rgba(255,255,255,0.7)',
+                    animation: 'zenPressureWave 550ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+
+              {isBursting && [0, 1, 2].map((i) => (
+                <div
+                  key={`ring-${burstKey}-${i}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: 18,
+                    height: 18,
+                    marginLeft: -9,
+                    marginTop: -9,
+                    borderRadius: '50%',
+                    border: `2px solid rgba(255,255,255, ${0.75 - i * 0.2})`,
+                    animation: `zenFlareRing 650ms ${i * 80}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
 
               {/* Burst glow */}
               {isBursting && (
