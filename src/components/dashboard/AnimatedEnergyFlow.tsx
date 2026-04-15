@@ -685,17 +685,20 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             const colW = cardW / 3;
 
             const stats = [
-              { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar Generated', active: flow.solarPower > 0 },
-              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Exported', active: flow.batteryPower < 0 },
-              { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)}`, unit: 'kWh', label: 'EV Charged', active: flow.evPower > 0 },
+              { color: colors.solar, value: `${flow.solarPower.toFixed(1)}`, unit: 'kW', label: 'Solar Output', active: flow.solarPower > 0 },
+              { color: colors.battery, value: `${Math.abs(flow.batteryPower).toFixed(1)}`, unit: 'kW', label: flow.batteryPower < 0 ? 'Battery Export' : 'Battery Charging', active: flow.batteryPower !== 0 },
+              { color: colors.ev, value: `${flow.evPower.toFixed(1)}`, unit: 'kW', label: 'EV Charging', active: flow.evPower > 0 },
             ];
             return (
               <g>
                 {/* Card background */}
                 <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill="#0f172a" fillOpacity={0.6} stroke="hsl(142 76% 36% / 0.15)" strokeWidth={0.8} />
-                {/* Header */}
-                <text x={sx + cardW / 2} y={sy + 14} textAnchor="middle" fill="#6b7280" fontSize={headerFs} fontWeight="700" letterSpacing="2">
-                  TODAY&apos;S ENERGY
+                {/* Header with live indicator */}
+                <circle cx={sx + cardW / 2 - 38} cy={sy + 11} r={3} fill="#22C55E">
+                  <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
+                </circle>
+                <text x={sx + cardW / 2} y={sy + 14} textAnchor="middle" fill="#9ca3af" fontSize={headerFs} fontWeight="700" letterSpacing="2">
+                  LIVE ENERGY
                 </text>
                 {/* Divider line */}
                 <line x1={sx + 12} y1={sy + 20} x2={sx + cardW - 12} y2={sy + 20} stroke="#1e293b" strokeWidth={0.5} />
