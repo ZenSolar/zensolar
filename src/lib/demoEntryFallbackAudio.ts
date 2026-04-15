@@ -5,7 +5,6 @@ import { logAudioDebug } from '@/lib/audioDebug';
 interface DemoEntryFallbackAudioElements {
   gong: HTMLAudioElement;
   hum: HTMLAudioElement;
-  humAlt: HTMLAudioElement;
 }
 
 interface ArmDemoEntryFallbackOptions {
@@ -20,8 +19,6 @@ let fallbackHumActive = false;
 let preloadLogged = false;
 let humFadeFrame: number | null = null;
 let humStopTimer: number | null = null;
-let humSwapTimer: number | null = null;
-let activeHumChannel: 'hum' | 'humAlt' | null = null;
 const fallbackGestureArmed: Record<AudioKind, boolean> = {
   gong: false,
   hum: false,
@@ -29,10 +26,6 @@ const fallbackGestureArmed: Record<AudioKind, boolean> = {
 
 const GONG_VOLUME = 0.9;
 const HUM_VOLUME = 0.36;
-const HUM_LOOP_DURATION_MS = 10_000;
-const HUM_SWAP_LEAD_MS = 1_400;
-const HUM_SWAP_INTERVAL_MS = HUM_LOOP_DURATION_MS - HUM_SWAP_LEAD_MS;
-const HUM_CROSSFADE_MS = 320;
 
 function createAudioElement(src: string, { loop = false, volume = 1 }: { loop?: boolean; volume?: number }) {
   const audio = new Audio(src);
@@ -51,7 +44,6 @@ function ensureFallbackAudio() {
     fallbackAudio = {
       gong: createAudioElement(gongUrl, { volume: GONG_VOLUME }),
       hum: createAudioElement(humUrl, { loop: true, volume: HUM_VOLUME }),
-      humAlt: createAudioElement(humUrl, { loop: true, volume: 0 }),
     };
   }
 
@@ -68,12 +60,6 @@ function cancelHumStopTimer() {
   if (typeof window === 'undefined' || humStopTimer === null) return;
   window.clearTimeout(humStopTimer);
   humStopTimer = null;
-}
-
-function cancelHumSwapTimer() {
-  if (typeof window === 'undefined' || humSwapTimer === null) return;
-  window.clearTimeout(humSwapTimer);
-  humSwapTimer = null;
 }
 
 function fadeHumTo(audio: HTMLAudioElement, targetVolume: number, durationMs = 220) {
@@ -99,86 +85,6 @@ function fadeHumTo(audio: HTMLAudioElement, targetVolume: number, durationMs = 2
   };
 
   humFadeFrame = window.requestAnimationFrame(step);
-}
-
-function crossfadeHum(from: HTMLAudioElement, to: HTMLAudioElement, durationMs = HUM_CROSSFADE_MS) {
-  cancelHumFade();
-
-  if (typeof window === 'undefined' || durationMs <= 0) {
-    from.volume = 0;
-    from.muted = true;
-    to.volume = HUM_VOLUME;
-    to.muted = false;
-    return;
-  }
-
-  const fromStartVolume = from.volume;
-  const toStartVolume = to.volume;
-  to.muted = false;
-  const startedAt = performance.now();
-
-  const step = (now: number) => {
-    const progress = Math.min((now - startedAt) / durationMs, 1);
-    from.volume = fromStartVolume + ((0 - fromStartVolume) * progress);
-    to.volume = toStartVolume + ((HUM_VOLUME - toStartVolume) * progress);
-
-    if (progress < 1) {
-      humFadeFrame = window.requestAnimationFrame(step);
-      return;
-    }
-
-    from.volume = 0;
-    from.muted = true;
-    to.volume = HUM_VOLUME;
-    to.muted = false;
-    humFadeFrame = null;
-  };
-
-  humFadeFrame = window.requestAnimationFrame(step);
-}
-
-function scheduleHumSwap() {
-  cancelHumSwapTimer();
-
-  if (typeof window === 'undefined') return;
-
-  humSwapTimer = window.setTimeout(() => {
-    humSwapTimer = null;
-
-    const audio = fallbackAudio;
-    if (!audio || !fallbackHumActive || !activeHumChannel) return;
-
-    const nextChannel = activeHumChannel === 'hum' ? 'humAlt' : 'hum';
-    const currentHum = audio[activeHumChannel];
-    const nextHum = audio[nextChannel];
-
-    try {
-      nextHum.loop = true;
-      nextHum.currentTime = 0;
-      nextHum.volume = 0;
-      nextHum.muted = false;
-    } catch {
-      // no-op
-    }
-
-    if (nextHum.paused) {
-      const restarted = attemptPlay('hum', nextHum, { swap: true, channel: nextChannel });
-      if (!restarted) {
-        logAudioDebug('entry-fallback-hum-swap-missed', { nextChannel, paused: nextHum.paused });
-        scheduleHumSwap();
-        return;
-      }
-    }
-
-    crossfadeHum(currentHum, nextHum, HUM_CROSSFADE_MS);
-    activeHumChannel = nextChannel;
-    logAudioDebug('entry-fallback-hum-swapped', {
-      nextChannel,
-      intervalMs: HUM_SWAP_INTERVAL_MS,
-      crossfadeMs: HUM_CROSSFADE_MS,
-    });
-    scheduleHumSwap();
-  }, HUM_SWAP_INTERVAL_MS);
 }
 
 function requestLoad(audio: HTMLAudioElement) {
@@ -284,17 +190,12 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
 
   requestLoad(audio.gong);
   requestLoad(audio.hum);
-  requestLoad(audio.humAlt);
   cancelHumFade();
   cancelHumStopTimer();
-  cancelHumSwapTimer();
 
   fallbackHumActive = false;
-  activeHumChannel = null;
   fallbackGestureArmed.gong = gong ? armMutedLoop('gong', audio.gong, true) : false;
-  fallbackGestureArmed.hum = hum
-    ? armMutedLoop('hum', audio.hum, true) || armMutedLoop('hum', audio.humAlt, true)
-    : false;
+  fallbackGestureArmed.hum = hum ? armMutedLoop('hum', audio.hum, true) : false;
 
   if (!gong) {
     try {
@@ -315,12 +216,6 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
       audio.hum.loop = true;
       audio.hum.muted = false;
       audio.hum.volume = HUM_VOLUME;
-
-      audio.humAlt.pause();
-      audio.humAlt.currentTime = 0;
-      audio.humAlt.loop = true;
-      audio.humAlt.muted = false;
-      audio.humAlt.volume = 0;
     } catch {
       // no-op
     }
@@ -386,7 +281,6 @@ export function preloadDemoEntryFallbackAudio() {
 
   requestLoad(audio.gong);
   requestLoad(audio.hum);
-  requestLoad(audio.humAlt);
 
   if (!preloadLogged) {
     preloadLogged = true;
@@ -486,20 +380,16 @@ export function handoffDemoEntryFallbackHum(durationMs = 220) {
   if (!fallbackAudio) return false;
 
   const hum = fallbackAudio.hum;
-  const humAlt = fallbackAudio.humAlt;
   cancelHumFade();
   cancelHumStopTimer();
-  cancelHumSwapTimer();
 
-  if (hum.paused && humAlt.paused) {
+  if (hum.paused) {
     fallbackHumActive = false;
     fallbackGestureArmed.hum = false;
-    activeHumChannel = null;
     return false;
   }
 
   hum.muted = false;
-  humAlt.muted = false;
 
   if (typeof window === 'undefined' || durationMs <= 0) {
     try {
@@ -507,11 +397,6 @@ export function handoffDemoEntryFallbackHum(durationMs = 220) {
       hum.currentTime = 0;
       hum.loop = true;
       hum.volume = HUM_VOLUME;
-
-      humAlt.pause();
-      humAlt.currentTime = 0;
-      humAlt.loop = true;
-      humAlt.volume = 0;
     } catch {
       // no-op
     }
@@ -526,12 +411,6 @@ export function handoffDemoEntryFallbackHum(durationMs = 220) {
         hum.loop = true;
         hum.muted = false;
         hum.volume = HUM_VOLUME;
-
-        humAlt.pause();
-        humAlt.currentTime = 0;
-        humAlt.loop = true;
-        humAlt.muted = false;
-        humAlt.volume = 0;
       } catch {
         // no-op
       }
@@ -540,7 +419,6 @@ export function handoffDemoEntryFallbackHum(durationMs = 220) {
 
   fallbackHumActive = false;
   fallbackGestureArmed.hum = false;
-  activeHumChannel = null;
   logAudioDebug('entry-fallback-hum-handed-off', {
     durationMs,
     humReady: hum.readyState,
@@ -559,13 +437,10 @@ export function playDemoEntryFallbackHum(): boolean {
   if (!audio) return false;
 
   requestLoad(audio.hum);
-  requestLoad(audio.humAlt);
   cancelHumFade();
   cancelHumStopTimer();
-  cancelHumSwapTimer();
 
   let humStarted = false;
-  let standbyReady = false;
 
   if (fallbackGestureArmed.hum && !audio.hum.paused) {
     try {
@@ -586,38 +461,8 @@ export function playDemoEntryFallbackHum(): boolean {
     humStarted = audio.hum.paused ? attemptPlay('hum', audio.hum, { armed: false, standalone: true }) : true;
   }
 
-  try {
-    audio.humAlt.loop = true;
-    audio.humAlt.volume = 0;
-    audio.humAlt.muted = true;
-    if (!audio.humAlt.paused) {
-      audio.humAlt.currentTime = 0;
-      standbyReady = true;
-    } else {
-      try {
-        audio.humAlt.currentTime = 0;
-      } catch {
-        // no-op
-      }
-      standbyReady = attemptPlay('hum', audio.humAlt, { armed: false, standby: true });
-      audio.humAlt.volume = 0;
-      audio.humAlt.muted = true;
-    }
-  } catch {
-    standbyReady = false;
-  }
-
   fallbackHumActive = humStarted;
-  activeHumChannel = humStarted ? 'hum' : null;
-  if (humStarted && standbyReady) {
-    scheduleHumSwap();
-  }
-  logAudioDebug('entry-fallback-hum-triggered', {
-    humReady: audio.hum.readyState,
-    humStarted,
-    standbyReady,
-    swapIntervalMs: standbyReady ? HUM_SWAP_INTERVAL_MS : 0,
-  });
+  logAudioDebug('entry-fallback-hum-triggered', { humReady: audio.hum.readyState, humStarted });
   return humStarted;
 }
 
@@ -626,7 +471,6 @@ export function stopDemoEntryFallbackHum(reset = true) {
 
   cancelHumFade();
   cancelHumStopTimer();
-  cancelHumSwapTimer();
 
   try {
     fallbackAudio.hum.pause();
@@ -634,12 +478,6 @@ export function stopDemoEntryFallbackHum(reset = true) {
     fallbackAudio.hum.loop = true;
     fallbackAudio.hum.muted = false;
     fallbackAudio.hum.volume = HUM_VOLUME;
-
-    fallbackAudio.humAlt.pause();
-    if (reset) fallbackAudio.humAlt.currentTime = 0;
-    fallbackAudio.humAlt.loop = true;
-    fallbackAudio.humAlt.muted = false;
-    fallbackAudio.humAlt.volume = 0;
   } catch {
     // no-op
   }
@@ -655,7 +493,6 @@ export function stopDemoEntryFallbackHum(reset = true) {
   }
 
   fallbackHumActive = false;
-  activeHumChannel = null;
   fallbackGestureArmed.gong = false;
   fallbackGestureArmed.hum = false;
   logAudioDebug('entry-fallback-stopped');
