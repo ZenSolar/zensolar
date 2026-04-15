@@ -98,12 +98,6 @@ interface GateState {
   holdHint: boolean;      // "hold longer" nudge after premature release
 }
 
-interface ShockwaveState {
-  key: number;
-  x: number;
-  y: number;
-}
-
 interface ReleaseAudioDiagnosticsState {
   fallbackArmed: string;
   fallbackFired: string;
@@ -152,7 +146,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     holdReady: false,
     holdHint: false,
   });
-  const [shockwave, setShockwave] = useState<ShockwaveState | null>(null);
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
   const updateState = useCallback((patch: Partial<GateState>) => {
