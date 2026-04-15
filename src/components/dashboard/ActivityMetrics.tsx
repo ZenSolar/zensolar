@@ -1038,6 +1038,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   return (
     <motion.div
       ref={cardRef}
+      data-kpi-field
       onClick={handleClick}
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
