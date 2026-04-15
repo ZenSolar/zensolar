@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { logAudioDebug } from '@/lib/audioDebug';
 import {
+  enableGestureCreation,
   getSharedAudioContext,
   IMMEDIATE_SOUND_LEAD,
   POST_RESUME_SOUND_LEAD,
@@ -209,6 +210,14 @@ export function useShimmerSound({
     if (!enabled && !prewarm) {
       stopSound(true);
       return;
+    }
+
+    // Once the shimmer sound is enabled (dashboard is mounted), allow
+    // the global gesture listener to lazily create the AudioContext.
+    // This is safe because the hex animation's competing gesture handler
+    // is no longer active at this point.
+    if (enabled) {
+      enableGestureCreation();
     }
 
     // Prewarm-only mode (enabled=false, prewarm=true): do NOT poll.
