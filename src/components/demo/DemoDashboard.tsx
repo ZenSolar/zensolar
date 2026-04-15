@@ -379,31 +379,40 @@ function TodaysCleanEnergyStats() {
 
   const kpis = [
     { color: '#F59E0B', label: 'Solar Produced', value: solar, unit: 'kWh', decimals: 1 },
+    { color: '#22C55E', label: 'Battery Exported', value: battery, unit: 'kWh', decimals: 1 },
     { color: '#3B82F6', label: 'EV Charging', value: evCharge, unit: 'kWh', decimals: 1 },
     { color: '#06B6D4', label: 'EV Mileage', value: evMiles, unit: 'mi', decimals: 0 },
-    { color: '#22C55E', label: 'Battery Exported', value: battery, unit: 'kWh', decimals: 1 },
   ];
 
   return (
-    <div ref={ref} className="emerald-glow-card rounded-2xl p-5 space-y-4 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03]" style={{
+    <div ref={ref} className="emerald-glow-card rounded-2xl p-4 pt-3 relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 opacity-[0.04]" style={{
         background: 'linear-gradient(135deg, #F59E0B 0%, #3B82F6 25%, #22C55E 50%, #8B5CF6 75%, #F59E0B 100%)',
         backgroundSize: '400% 400%',
         animation: 'gradient-shift 8s ease infinite',
       }} />
+      {/* Orbiting particle ring */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-[200%] h-[200%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{
+          background: 'conic-gradient(from 0deg, transparent 0%, hsla(142, 76%, 36%, 0.08) 10%, transparent 20%, hsla(45, 93%, 47%, 0.06) 30%, transparent 40%, hsla(217, 91%, 60%, 0.06) 50%, transparent 60%, hsla(142, 76%, 36%, 0.08) 70%, transparent 80%, hsla(188, 94%, 43%, 0.06) 90%, transparent 100%)',
+          animation: 'spin 12s linear infinite',
+        }} />
+      </div>
       <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-2.5">
           <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <h3 className="text-sm font-bold text-foreground tracking-wide">Today's Clean Energy Stats —</h3>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {kpis.map((k) => (
+        <div className="grid grid-cols-2 gap-2.5">
+          {kpis.map((k, i) => (
             <div key={k.label} className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02]" style={{
               background: `linear-gradient(135deg, ${k.color}1F, ${k.color}0A)`,
               borderColor: `${k.color}40`,
+              animation: isVisible ? `fade-in 0.5s ease-out ${i * 0.1}s both` : 'none',
             }}>
               <div className="flex items-center gap-1.5 mb-1">
-                <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: k.color }} />
+                <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: k.color }} />
                 <p className="text-[10px] uppercase tracking-wider font-mono" style={{ color: k.color, opacity: 0.8 }}>{k.label}</p>
               </div>
               <p className="text-xl font-bold tabular-nums" style={{ color: k.color }}>
