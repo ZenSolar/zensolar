@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { ChevronDown, ChevronLeft, Hand } from 'lucide-react';
 
@@ -112,6 +113,11 @@ function useHintPosition({
 export function DemoOnboardingHints() {
   const [activeHints, setActiveHints] = useState<Set<HintId>>(() => new Set(['menu']));
   const [menuHintDismissed, setMenuHintDismissed] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     const handler = () => {
@@ -187,9 +193,9 @@ export function DemoOnboardingHints() {
     return () => cleanups.forEach((fn) => fn());
   }, [activeHints, dismissHint, dismissMenuHint]);
 
-  if (activeHints.size === 0) return null;
+  if (!portalReady || activeHints.size === 0) return null;
 
-  return (
+  return createPortal(
     <>
       {activeHints.has('menu') && <MenuHint onDismiss={dismissMenuHint} />}
 
@@ -215,7 +221,8 @@ export function DemoOnboardingHints() {
           delay={0.25}
         />
       )}
-    </>
+    </>,
+    document.body
   );
 }
 
@@ -232,7 +239,7 @@ function MenuHint({ onDismiss }: { onDismiss: () => void }) {
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed z-[55] pointer-events-none"
+      className="fixed z-[120] pointer-events-none"
       style={{ top: pos.top, left: pos.left }}
     >
       <div className="flex items-center gap-1.5 pointer-events-auto" onClick={onDismiss}>
@@ -276,7 +283,7 @@ function FloatingHint({
       initial={{ opacity: 0, y: position === 'above' ? 8 : -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      className="fixed z-[55] pointer-events-none -translate-x-1/2"
+      className="fixed z-[120] pointer-events-none -translate-x-1/2"
       style={{ top: coords.top, left: coords.left }}
     >
       <div className="flex flex-col items-center gap-1 pointer-events-auto" onClick={onDismiss}>

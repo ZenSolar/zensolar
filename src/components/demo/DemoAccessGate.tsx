@@ -25,9 +25,84 @@ const LS_KEY = 'zen_demo_access';
 const NDA_EMAIL_KEY = 'zen_nda_email';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
+function readCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+
+  const value = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith(`${name}=`))
+    ?.split('=')[1];
+
+  return value ? decodeURIComponent(value) : null;
+}
+
+function writeCookie(name: string, value: string, maxAgeMs: number) {
+  if (typeof document === 'undefined') return;
+
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${Math.floor(maxAgeMs / 1000)}; SameSite=Lax`;
+}
+
+function removeCookie(name: string) {
+  if (typeof document === 'undefined') return;
+
+  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+function readStoredValue(key: string): string | null {
+  try {
+    return localStorage.getItem(key) ?? sessionStorage.getItem(key) ?? readCookie(key);
+  } catch {
+    return readCookie(key);
+  }
+}
+
+function writeStoredValue(key: string, value: string, maxAgeMs: number) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // ignore storage failures
+  }
+
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    // ignore storage failures
+  }
+
+  writeCookie(key, value, maxAgeMs);
+}
+
+function removeStoredValue(key: string) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // ignore storage failures
+  }
+
+  try {
+    sessionStorage.removeItem(key);
+  } catch {
+    // ignore storage failures
+  }
+
+  removeCookie(key);
+}
+
+function parseRecentEmailRecord(raw: string | null): { email: string; ts: number } | null {
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as { email?: string; ts?: number };
+    if (!parsed.email || typeof parsed.ts !== 'number') return null;
+    return parsed.ts > 0 && Date.now() - parsed.ts < TTL_MS ? { email: parsed.email, ts: parsed.ts } : null;
+  } catch {
+    return null;
+  }
+}
+
 function isAccessGranted(): boolean {
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = readStoredValue(LS_KEY);
     if (!raw) return false;
     const { ts, ndaSigned } = JSON.parse(raw);
     // Access requires both a valid timestamp AND a signed NDA
@@ -38,15 +113,19 @@ function isAccessGranted(): boolean {
 }
 
 function grantAccess() {
-  localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }));
+  writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
 }
 
 function getSavedNdaEmail(): string | null {
-  return localStorage.getItem(NDA_EMAIL_KEY);
+  const raw = readStoredValue(NDA_EMAIL_KEY);
+  const parsed = parseRecentEmailRecord(raw);
+
+  if (parsed) return parsed.email;
+  return raw;
 }
 
 function saveNdaEmail(email: string) {
-  localStorage.setItem(NDA_EMAIL_KEY, email);
+  writeStoredValue(NDA_EMAIL_KEY, JSON.stringify({ email, ts: Date.now() }), TTL_MS);
 }
 
 async function checkExistingNda(email: string): Promise<boolean> {
@@ -148,7 +227,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
-      localStorage.removeItem(LS_KEY);
+      removeStoredValue(LS_KEY);
       window.history.replaceState({}, '', window.location.pathname);
       return false;
     }
@@ -213,6 +292,29 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!showAudioDebug) return;
     logAudioDebug('access-gate-debug-enabled', { path: window.location.pathname });
   }, [showAudioDebug]);
+
+  useEffect(() => {
+    if (granted) return;
+
+    const recentEmail = parseRecentEmailRecord(readStoredValue(NDA_EMAIL_KEY));
+    if (!recentEmail) return;
+
+    let cancelled = false;
+
+    checkExistingNda(recentEmail.email).then((alreadySigned) => {
+      if (cancelled || !alreadySigned) return;
+
+      grantAccess();
+      setGranted(true);
+      toast.success('Welcome back!', { description: 'Your recent demo access has been restored.' });
+    }).catch(() => {
+      // best-effort restore only
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [granted]);
 
   useEffect(() => {
     if (!showReleaseAudioDiagnostics) return;
