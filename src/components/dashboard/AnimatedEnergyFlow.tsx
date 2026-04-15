@@ -728,37 +728,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             );
           })()}
 
-          {/* Stacked manufacturer pills — bottom right */}
-          {(() => {
-            const bx = compact ? 350 : 362;
-            const by = compact ? 368 : 458;
-            const gap = compact ? 14 : 16;
-            const pillW = compact ? 50 : 58;
-            const pillH = compact ? 11 : 13;
-            const fs = compact ? 5.5 : 6.5;
-            const manufacturers = [
-              { label: 'ENPHASE', color: '#F59E0B' },
-              { label: 'TESLA', color: '#22C55E' },
-              { label: 'CHARGEPOINT', color: '#3B82F6' },
-            ];
-            return manufacturers.map((m, i) => (
-              <g key={m.label}>
-                <rect
-                  x={bx - pillW / 2} y={by + i * gap}
-                  width={pillW} height={pillH} rx={pillH / 2}
-                  fill={m.color} fillOpacity={0.08}
-                  stroke={m.color} strokeWidth={0.4} strokeOpacity={0.3}
-                />
-                <text
-                  x={bx} y={by + i * gap + pillH / 2 + (compact ? 1.8 : 2.2)}
-                  textAnchor="middle" fill={m.color}
-                  fontSize={fs} fontWeight="600" letterSpacing="0.3" opacity="0.9"
-                >
-                  {m.label}
-                </text>
-              </g>
-            ));
-          })()}
+          {/* Manufacturer pills are now inline next to each node */}
         </g>
       </svg>
     </div>
