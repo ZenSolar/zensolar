@@ -231,6 +231,11 @@ export function useShimmerSound({
   useEffect(() => {
     if (!nodesRef.current) return;
     setShimmerGraphVolume(nodesRef.current, enabled ? volume : 0, nodesRef.current.ctx.currentTime, 0.1);
+    logAudioDebug('hum-graph-volume', {
+      ctx: nodesRef.current.ctx.state,
+      enabled,
+      volume: enabled ? volume : 0,
+    });
   }, [enabled, volume]);
 
   useEffect(() => {

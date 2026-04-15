@@ -88,7 +88,7 @@ const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
 const HOLD_THRESHOLD_MS = 550;     // Short enough to feel immediate, long enough to unlock audio on iOS
 const HOLD_RELEASE_GRACE_MS = 80;  // Absorb finger-lift timing variance on iPhone Safari/Chrome
-const HUM_RETRY_DELAYS_MS = [900, 2400, 5200] as const;
+const HUM_START_DELAY_MS = 1050;
 const HAPTIC_PULSE_PROGRESS = [0, 0.28, 0.52, 0.74, 0.92] as const;
 interface DemoAccessGateProps {
   children: React.ReactNode;
@@ -143,8 +143,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [fallbackHumActive, setFallbackHumActive] = useState(false);
   const [shimmerActive, setShimmerActive] = useState(false);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
-  const showAudioDebug = false;
-  const showReleaseAudioDiagnostics = true;
+  const showAudioDebug = true;
+  const showReleaseAudioDiagnostics = false;
   
 
   // ── stateRef pattern: single ref holds all interaction state ──
@@ -190,10 +190,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const fallbackGestureTimeRef = useRef(0);
   const audioReadyRef = useRef(false);
   const audioWakeCleanupRef = useRef<(() => void) | null>(null);
-  const shimmerRetryTimersRef = useRef<number[]>([]);
+  const humStartTimerRef = useRef<number | null>(null);
+
+  const clearScheduledHumStart = useCallback(() => {
+    if (humStartTimerRef.current !== null) {
+      window.clearTimeout(humStartTimerRef.current);
+      humStartTimerRef.current = null;
+    }
+  }, []);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
-  const startShimmerSound = useShimmerSound({
+  useShimmerSound({
     cycleDuration: 5,
     volume: 0.3,
     enabled: shimmerActive,
@@ -297,12 +304,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (lockedIndicatorTimerRef.current) clearTimeout(lockedIndicatorTimerRef.current);
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       audioWakeCleanupRef.current?.();
-      shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
-      shimmerRetryTimersRef.current = [];
+      clearScheduledHumStart();
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
     };
-  }, []);
+  }, [clearScheduledHumStart]);
 
   // ── Core submit logic ──
   const submitCode = useCallback(async () => {
@@ -330,8 +336,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
           setFallbackHumActive(false);
-          shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
-          shimmerRetryTimersRef.current = [];
+          clearScheduledHumStart();
           setShimmerActive(false);
           // Force viewport zoom reset on iOS
           const vp = document.querySelector('meta[name="viewport"]');
@@ -451,24 +456,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
 
     let gongPrewarmed = false;
-    let shimmerPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
       fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
       gongPrewarmed = prewarmSingingBowl();
-      // Prewarm the dashboard hum synth silently during the hold gesture so the
-      // release can simply raise its volume instead of cold-booting audio.
-      shimmerPrewarmed = !!startShimmerSound(undefined, 0.0001);
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
-        synthHandoff: shimmerPrewarmed ? 'prewarmed-silent' : 'idle',
+        synthHandoff: 'waiting-reveal',
         audioContextState: ctx?.state ?? 'null',
         lastEvent: `${source}-entry-audio-prewarmed`,
       });
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         fallbackArmed,
-        shimmerPrewarmed,
+        shimmerMode: 'hook-prewarm',
       });
     }
 
@@ -531,7 +532,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }, 120);
       }
     }, HOLD_THRESHOLD_MS);
-  }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, startShimmerSound, updateState]);
+  }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, updateState]);
 
   const handleHoldEnd = useCallback((source = 'pointerup') => {
     const s = stateRef.current;
@@ -588,6 +589,35 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const firstReveal = !s.hexAwake;
 
+    const scheduleHumActivation = (origin: string) => {
+      clearScheduledHumStart();
+      setShimmerActive(false);
+      updateReleaseAudioDiagnostics({
+        audioContextState: getSharedAudioContext()?.state ?? 'null',
+        synthHandoff: 'scheduled',
+        lastEvent: `${origin}-hum-scheduled`,
+      });
+      logAudioDebug('hum-scheduled', {
+        delayMs: HUM_START_DELAY_MS,
+        ctx: getSharedAudioContext()?.state ?? 'null',
+      });
+
+      humStartTimerRef.current = window.setTimeout(() => {
+        humStartTimerRef.current = null;
+        setShimmerActive(true);
+        const audioContextState = getSharedAudioContext()?.state ?? 'null';
+        updateReleaseAudioDiagnostics({
+          audioContextState,
+          synthHandoff: 'enabled',
+          lastEvent: `${origin}-hum-enabled`,
+        });
+        logAudioDebug('hum-enabled', {
+          delayMs: HUM_START_DELAY_MS,
+          ctx: audioContextState,
+        });
+      }, HUM_START_DELAY_MS);
+    };
+
     const revealVisuals = () => {
       triggerBurst();
       updateState({ showTapAgain: false, revealed: true, hexAwake: true, holdReady: false, holdHint: false, lockedFlash: false });
@@ -599,81 +629,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }, LOCK_FLASH_MS);
     };
 
-    const scheduleShimmerRetries = (origin: string) => {
-      shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
-      shimmerRetryTimersRef.current = HUM_RETRY_DELAYS_MS.map((delayMs, index) => (
-        window.setTimeout(() => {
-          const retryCtx = getSharedAudioContext();
-          if (!retryCtx) {
-            updateReleaseAudioDiagnostics({
-              audioContextState: 'null',
-              synthHandoff: 'retry-missed',
-              lastEvent: `${origin}-hum-retry-${index + 1}-no-context`,
-            });
-            logAudioDebug('hum-retry-missed', { attempt: index + 1, delayMs, reason: 'no-context' });
-            return;
-          }
-
-          if (retryCtx.state !== 'running') {
-            retryCtx.resume().catch(() => {});
-          }
-
-          const retryStart = getSafeAudioStartTime(
-            retryCtx,
-            undefined,
-            retryCtx.state === 'running' ? 0.01 : IMMEDIATE_SOUND_LEAD,
-          );
-          const started = startShimmerSound(retryStart, 0.3);
-
-          updateReleaseAudioDiagnostics({
-            audioContextState: retryCtx.state,
-            synthHandoff: started ? 'retrying' : 'retry-missed',
-            lastEvent: `${origin}-hum-retry-${index + 1}`,
-          });
-          logAudioDebug('hum-retry-kick', {
-            attempt: index + 1,
-            delayMs,
-            ctx: retryCtx.state,
-            start: retryStart,
-            started,
-          });
-        }, delayMs)
-      ));
-    };
-
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
-        // Play only the gong via the fallback system — the WAV hum loop is a
-        // different sound than the dashboard's synth shimmer hum, so we skip it
-        // and let startShimmerSound (the synth) be the sole ambient layer.
         const gongFallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
         setFallbackHumActive(false);
-
-        shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
-        shimmerRetryTimersRef.current = [];
-
-        // Start the synth hum immediately, then retrigger it after the gesture settles.
-        // On iOS, this second kick is often what makes the sustained loop actually stick.
-        const liveCtx = getSharedAudioContext();
-        if (liveCtx) {
-          if (liveCtx.state !== 'running') {
-            liveCtx.resume().catch(() => {});
-          }
-          const humStart = Math.max(
-            startTime + 0.02,
-            getSafeAudioStartTime(liveCtx, undefined, 0.01),
-          );
-          startShimmerSound(humStart, 0.3);
-          scheduleShimmerRetries(source);
-          logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
-        }
+        scheduleHumActivation(source);
 
         audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: 'synth-shimmer-retrying',
+          synthHandoff: 'scheduled',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -682,8 +649,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           gongFallbackStarted,
           gongStarted,
-          humStarted: 'synth-shimmer-only',
-          audioMode: 'synth-shimmer',
+          humStarted: 'scheduled-delayed-shimmer',
+          audioMode: 'delayed-shimmer-only',
           visualReveal: true,
         });
         return false;
@@ -706,11 +673,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
 
     // CRITICAL: Set hexAwake BEFORE firing audio so the shimmer hook's
-    // `enabled` prop is true when startShimmerSound is called. This ensures
-    // the useEffect-driven activation path also works correctly.
+    // delayed activation can switch on cleanly after the reveal.
     if (firstReveal) {
       stateRef.current.hexAwake = true;
-      setShimmerActive(true);
     }
 
     // CRITICAL: Fire audio BEFORE any DOM mutations to preserve iOS gesture context
@@ -731,9 +696,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
         setFallbackHumActive(false);
+        scheduleHumActivation(source);
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
-          synthHandoff: 'failed',
+          synthHandoff: 'scheduled',
           audioContextState: 'null',
           lastEvent: `${source}-reveal-fallback-only`,
         });
@@ -746,7 +712,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!ctx) {
       logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
     }
-  }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
+  }, [clearScheduledHumStart, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, triggerBurst, updateState]);
 
   // ── Double-tap mint after reveal, hold-to-reveal before ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
@@ -831,6 +797,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
+      clearScheduledHumStart();
       stopDemoEntryFallbackHum();
       setFallbackHumActive(false);
       updateState({ holding: false, holdReady: false });
@@ -884,13 +851,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const handleNdaSigned = useCallback(() => {
     stopDemoEntryFallbackHum();
     setFallbackHumActive(false);
-    shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
-    shimmerRetryTimersRef.current = [];
+    clearScheduledHumStart();
     setShimmerActive(false);
     setShowNda(false);
     grantAccess();
     setGranted(true);
-  }, []);
+  }, [clearScheduledHumStart]);
 
   if (granted) return <>{children}</>;
 
