@@ -646,6 +646,10 @@ function scheduleHumLoopVoice(graph: HumLoopGraph, startTime: number, startOffse
 
   source.onended = () => {
     graph.voices.delete(voice);
+    logAudioDebug('hum-voice-ended', {
+      ctxNow: graph.ctx.currentTime.toFixed(3),
+      remainingVoices: graph.voices.size,
+    });
     try {
       source.disconnect();
       gain.disconnect();
@@ -656,6 +660,19 @@ function scheduleHumLoopVoice(graph: HumLoopGraph, startTime: number, startOffse
 
   source.start(startTime, safeOffset, duration);
   source.stop(startTime + duration + 0.03);
+
+  logAudioDebug('hum-voice-scheduled', {
+    startTime: startTime.toFixed(3),
+    ctxNow: graph.ctx.currentTime.toFixed(3),
+    offset: safeOffset.toFixed(3),
+    duration: duration.toFixed(3),
+    overlap: overlap.toFixed(3),
+    fadeIn,
+    voices: graph.voices.size,
+    bufDur: graph.buffer.duration.toFixed(3),
+    loopStart: loopStart.toFixed(3),
+    loopEnd: loopEnd.toFixed(3),
+  });
 
   return {
     duration,
