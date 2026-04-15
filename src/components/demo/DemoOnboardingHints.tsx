@@ -6,7 +6,7 @@ type HintId = 'menu' | 'kpi' | 'wallet';
 type HintPosition = 'above' | 'below' | 'center';
 type Coordinates = { top: number; left: number };
 
-const INITIAL_HINTS: HintId[] = ['menu', 'kpi', 'wallet'];
+const KPI_HINT_DELAY_MS = 5000;
 const MENU_FALLBACK_COORDS: Coordinates = { top: 16, left: 52 };
 
 function getTargetElement(targetId?: string, fallbackSelector?: string) {
@@ -110,28 +110,34 @@ function useHintPosition({
 }
 
 export function DemoOnboardingHints() {
-  const [activeHints, setActiveHints] = useState<Set<HintId>>(new Set());
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setActiveHints(new Set(INITIAL_HINTS));
-    }, 900);
-
-    return () => window.clearTimeout(timer);
-  }, []);
+  const [activeHints, setActiveHints] = useState<Set<HintId>>(() => new Set(['menu']));
+  const [menuHintDismissed, setMenuHintDismissed] = useState(false);
 
   useEffect(() => {
     const handler = () => {
-      setActiveHints((prev) => {
-        const next = new Set(prev);
-        next.add('wallet');
-        return next;
-      });
+      setMenuHintDismissed(true);
+      setActiveHints(new Set(['wallet']));
     };
 
     window.addEventListener('demo-mint-success', handler);
     return () => window.removeEventListener('demo-mint-success', handler);
   }, []);
+
+  useEffect(() => {
+    if (menuHintDismissed) return;
+
+    const timer = window.setTimeout(() => {
+      setActiveHints((prev) => {
+        if (!prev.has('menu') || prev.has('kpi')) return prev;
+
+        const next = new Set(prev);
+        next.add('kpi');
+        return next;
+      });
+    }, KPI_HINT_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [menuHintDismissed]);
 
   const dismissHint = useCallback((id: HintId) => {
     setActiveHints((prev) => {
@@ -141,6 +147,11 @@ export function DemoOnboardingHints() {
     });
   }, []);
 
+  const dismissMenuHint = useCallback(() => {
+    setMenuHintDismissed(true);
+    dismissHint('menu');
+  }, [dismissHint]);
+
   useEffect(() => {
     if (activeHints.size === 0) return;
 
@@ -149,7 +160,7 @@ export function DemoOnboardingHints() {
     if (activeHints.has('menu')) {
       const el = document.getElementById('zen-sidebar-trigger');
       if (el) {
-        const handler = () => dismissHint('menu');
+        const handler = () => dismissMenuHint();
         el.addEventListener('pointerdown', handler, { passive: true });
         cleanups.push(() => el.removeEventListener('pointerdown', handler));
       }
@@ -174,13 +185,13 @@ export function DemoOnboardingHints() {
     }
 
     return () => cleanups.forEach((fn) => fn());
-  }, [activeHints, dismissHint]);
+  }, [activeHints, dismissHint, dismissMenuHint]);
 
   if (activeHints.size === 0) return null;
 
   return (
     <>
-      {activeHints.has('menu') && <MenuHint onDismiss={() => dismissHint('menu')} />}
+      {activeHints.has('menu') && <MenuHint onDismiss={dismissMenuHint} />}
 
       {activeHints.has('kpi') && (
         <FloatingHint
