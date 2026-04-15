@@ -8,6 +8,13 @@ import { toast } from 'sonner';
 import { FileText, PenTool, Type, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+interface GeoInfo {
+  city?: string;
+  region?: string;
+  country?: string;
+  ip?: string;
+}
+
 interface NdaSignatureStepProps {
   accessCodeUsed: string;
   onSigned: () => void;
