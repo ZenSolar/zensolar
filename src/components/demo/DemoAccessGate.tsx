@@ -627,7 +627,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
         const humFallbackStarted = playDemoEntryFallbackHum();
-        const humSynthStarted = scheduleHumActivation(source, startTime);
+
+        // Only start the Web Audio synth hum if the HTMLAudioElement fallback
+        // did NOT start. Running both causes an audible glitch when the synth
+        // boots seconds later on top of the already-playing fallback.
+        let humSynthStarted = false;
+        if (!humFallbackStarted) {
+          humSynthStarted = scheduleHumActivation(source, startTime);
+        }
 
         audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
