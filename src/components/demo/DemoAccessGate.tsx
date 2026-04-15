@@ -537,13 +537,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const gongStarted = playSingingBowl(startTime);
         const humStarted = startShimmerSound(startTime);
 
-        stopDemoEntryFallbackHum(false);
         setFallbackHumActive(false);
-
-        if (!fallbackStarted && !humStarted) {
-          stopDemoEntryFallbackHum(false);
-          setFallbackHumActive(false);
-        }
 
         audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted || humStarted;
         updateReleaseAudioDiagnostics({
@@ -611,7 +605,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     revealVisuals();
 
     if (!ctx) {
-      stopDemoEntryFallbackHum(false);
       setFallbackHumActive(false);
       logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
     }

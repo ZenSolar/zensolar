@@ -1255,8 +1255,8 @@ export function useMintSound() {
         logAudioDebug('gong-missed', { reason: 'no-ctx' });
         return false;
       }
-      // Always ensure resume is called (may already be called by primeAudio)
-      if (ctx.state !== 'running') {
+      const shouldWaitForRunning = ctx.state !== 'running';
+      if (shouldWaitForRunning) {
         ctx.resume().catch(() => {});
       }
       warmAudioHardware(ctx);
@@ -1378,13 +1378,18 @@ export function useMintSound() {
         }
       };
 
+      if (shouldWaitForRunning) {
+        scheduleWhenAudioRunning(ctx, fireGong, {
+          requestedTime: scheduledStartTime,
+          runningLead: IMMEDIATE_SOUND_LEAD,
+          resumedLead: POST_RESUME_SOUND_LEAD,
+        });
+        return true;
+      }
+
       const startTime = scheduledStartTime !== undefined
         ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
-        : getSafeAudioStartTime(
-            ctx,
-            undefined,
-            ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
-          );
+        : getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
 
       fireGong(startTime);
       return true;
