@@ -212,7 +212,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const doHandoff = () => {
           const start = getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
           const humStarted = startShimmerSound(start);
-          const fallbackStopped = humStarted ? handoffDemoEntryFallbackHum(180) : false;
+          const fallbackStopped = humStarted ? (stopDemoEntryFallbackHum(false), true) : false;
 
           if (humStarted) {
             setFallbackHumActive(false);
@@ -395,7 +395,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!s.hexAwake) {
       gongPrewarmed = prewarmSingingBowl();
       humPrewarmed = startShimmerSound(undefined, 0);
-      fallbackArmed = armDemoEntryFallbackGestureAudio();
+      fallbackArmed = !!preloadDemoEntryFallbackAudio();
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         humPrewarmed,
