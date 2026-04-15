@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Award, ChevronRight, Sun, Car, BatteryFull, Zap, Sparkles } from 'lucide-react';
+import { Award, ChevronRight, Sun, Car, BatteryFull, Zap, Sparkles, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +17,7 @@ import {
   getNextMilestone,
   getCategoryDisplayName,
   type PriorityMilestone,
+  type NFTMilestone,
 } from '@/lib/nftMilestones';
 import { getNftArtwork } from '@/lib/nftArtwork';
 
@@ -274,9 +275,24 @@ export function RewardProgress({
     setSelectedCategory(category);
   };
   
+  // Look up featured NFT milestone info by ID
+  const featuredMilestone = useMemo(() => {
+    if (!featuredNftId) return null;
+    const allMilestones: { milestone: NFTMilestone; category: CategoryType }[] = [
+      ...SOLAR_MILESTONES.map(m => ({ milestone: m, category: 'solar' as CategoryType })),
+      ...BATTERY_MILESTONES.map(m => ({ milestone: m, category: 'battery' as CategoryType })),
+      ...EV_MILES_MILESTONES.map(m => ({ milestone: m, category: 'ev_miles' as CategoryType })),
+      ...EV_CHARGING_MILESTONES.map(m => ({ milestone: m, category: 'charging' as CategoryType })),
+    ];
+    return allMilestones.find(m => m.milestone.id === featuredNftId) || null;
+  }, [featuredNftId]);
+
+  // Determine if we're showing the featured NFT (no manual selection)
+  const showingFeatured = !!(featuredNftId && !selectedCategory && featuredMilestone);
+
   // Get artwork - use featured NFT as default if provided and no manual selection
-  const artwork = (featuredNftId && !selectedCategory)
-    ? getNftArtwork(featuredNftId)
+  const artwork = showingFeatured
+    ? getNftArtwork(featuredNftId!)
     : (displayMilestone ? getNftArtwork(displayMilestone.id) : null);
   
   // Calculate progress percentage
@@ -284,9 +300,14 @@ export function RewardProgress({
     ? Math.min((displayMilestone.currentValue / displayMilestone.threshold) * 100, 100)
     : 100;
   
-  // Get styles for current category
-  const currentStyles = displayMilestone ? categoryStyles[displayMilestone.category] : categoryStyles.solar;
-  const CurrentIcon = displayMilestone ? categoryIcons[displayMilestone.category] : Sun;
+  // Get styles for current category - use featured NFT's category when showing featured
+  const activeCategory = showingFeatured ? featuredMilestone!.category : (displayMilestone?.category || 'solar');
+  const currentStyles = categoryStyles[activeCategory];
+  const CurrentIcon = categoryIcons[activeCategory];
+
+  // Display name and info - use featured NFT when showing featured
+  const displayName = showingFeatured ? featuredMilestone!.milestone.name : displayMilestone?.name;
+  const displayCategory = showingFeatured ? featuredMilestone!.category : (displayMilestone?.category || 'solar');
 
   // Check if current milestone is complete
   const isCurrentComplete = displayMilestone && displayMilestone.currentValue >= displayMilestone.threshold;
@@ -366,10 +387,10 @@ export function RewardProgress({
                   <CurrentIcon className="h-3.5 w-3.5 text-white" />
                 </div>
                 <span className="text-xs font-medium text-white/80 uppercase tracking-wide">
-                  {getCategoryDisplayName(displayMilestone?.category || 'solar')} · {isCurrentComplete ? 'Earned' : 'Next Unlock'}
+                  {getCategoryDisplayName(displayCategory)} · {showingFeatured ? 'Featured' : (isCurrentComplete ? 'Earned' : 'Next Unlock')}
                 </span>
               </div>
-              <p className="text-xl font-bold text-white">{displayMilestone?.name}</p>
+              <p className="text-xl font-bold text-white">{displayName}</p>
             </div>
             
             {/* Glow effect on hover */}
@@ -415,7 +436,7 @@ export function RewardProgress({
             count={solarEarned.length} 
             total={SOLAR_MILESTONES.length} 
             color="solar"
-            isActive={displayMilestone?.category === 'solar'}
+            isActive={activeCategory === 'solar'}
             onClick={() => handleSelectCategory('solar')}
           />
           <CategoryDot 
@@ -424,7 +445,7 @@ export function RewardProgress({
             count={batteryEarned.length} 
             total={BATTERY_MILESTONES.length} 
             color="battery"
-            isActive={displayMilestone?.category === 'battery'}
+            isActive={activeCategory === 'battery'}
             onClick={() => handleSelectCategory('battery')}
           />
           <CategoryDot 
@@ -433,7 +454,7 @@ export function RewardProgress({
             count={evMilesEarned.length} 
             total={EV_MILES_MILESTONES.length} 
             color="ev_miles"
-            isActive={displayMilestone?.category === 'ev_miles'}
+            isActive={activeCategory === 'ev_miles'}
             onClick={() => handleSelectCategory('ev_miles')}
           />
           <CategoryDot 
@@ -442,11 +463,19 @@ export function RewardProgress({
             count={evChargingEarned.length} 
             total={EV_CHARGING_MILESTONES.length} 
             color="charging"
-            isActive={displayMilestone?.category === 'charging'}
+            isActive={activeCategory === 'charging'}
             onClick={() => handleSelectCategory('charging')}
           />
         </div>
         
+        {/* Mainnet upgrade note */}
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
+          <Rocket className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+          <span className="text-[11px] text-muted-foreground">
+            NFTs will be upgraded upon mainnet blockchain launch! 🚀
+          </span>
+        </div>
+
         {/* Footer: View Collection */}
         <div className="pt-3 border-t border-border/50">
           <Link 
