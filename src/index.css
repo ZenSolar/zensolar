@@ -746,3 +746,9 @@
   20% { transform: scale(3); opacity: 0.6; }
   100% { transform: scale(6); opacity: 0; }
 }
+
+/* Horizontal bounce for menu hint arrow */
+@keyframes bounceX {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-6px); }
+}
