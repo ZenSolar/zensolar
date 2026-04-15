@@ -235,6 +235,31 @@ export function DemoDashboard() {
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
+        {/* Today's Energy Stats */}
+        <AnimatedItem>
+          <div className="emerald-glow-card rounded-2xl p-4 space-y-3">
+            <h3 className="text-sm font-bold text-foreground tracking-wide">Today's —</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-background/30 rounded-xl p-3 border border-border/40">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-mono">Solar Energy Produced</p>
+                <p className="text-xl font-bold text-solar tabular-nums mt-1">24.7 <span className="text-xs font-normal text-muted-foreground">kWh</span></p>
+              </div>
+              <div className="bg-background/30 rounded-xl p-3 border border-border/40">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-mono">EV Charging</p>
+                <p className="text-xl font-bold text-primary tabular-nums mt-1">18.3 <span className="text-xs font-normal text-muted-foreground">kWh</span></p>
+              </div>
+              <div className="bg-background/30 rounded-xl p-3 border border-border/40">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-mono">EV Mileage</p>
+                <p className="text-xl font-bold text-primary tabular-nums mt-1">62 <span className="text-xs font-normal text-muted-foreground">mi</span></p>
+              </div>
+              <div className="bg-background/30 rounded-xl p-3 border border-border/40">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-mono">Battery Exported</p>
+                <p className="text-xl font-bold text-energy tabular-nums mt-1">8.1 <span className="text-xs font-normal text-muted-foreground">kWh</span></p>
+              </div>
+            </div>
+          </div>
+        </AnimatedItem>
+
         {/* Aesthetic Section Divider */}
         <AnimatedItem className="py-2">
           <div className="relative flex items-center justify-center">
