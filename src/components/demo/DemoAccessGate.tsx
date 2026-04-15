@@ -349,7 +349,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               vp.setAttribute('content', original);
             });
           }
-          // Show NDA instead of granting access immediately
+          // Check if user has already signed NDA
+          const savedEmail = getSavedNdaEmail();
+          if (savedEmail) {
+            const alreadySigned = await checkExistingNda(savedEmail);
+            if (alreadySigned) {
+              // Skip NDA, grant access directly
+              grantAccess();
+              setGranted(true);
+              toast.success('Welcome back!', { description: 'NDA already on file.' });
+              return;
+            }
+          }
+          // Show NDA for new signers
           setVerifiedCode(code.trim());
           setShowNda(true);
         }, 1000);
