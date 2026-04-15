@@ -524,7 +524,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           return;
         }
 
-        handoffDemoEntryFallbackHum(140);
+        stopDemoEntryFallbackHum(false);
         setFallbackHumActive(false);
         audioReadyRef.current = true;
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -533,6 +533,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           gongStarted,
           humStarted,
+          audioMode: 'shared-shimmer',
         });
       } else {
         playWelcomeTap(startTime);
@@ -545,27 +546,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (ctx.state === 'running') {
       commitReveal(getSafeAudioStartTime(ctx, undefined, 0.005), false);
       return;
-    }
-
-    if (!stateRef.current.hexAwake) {
-      const fallbackStarted = playDemoEntryFallbackRevealAudio();
-      if (fallbackStarted) {
-        const fallbackHumStarted = isDemoEntryFallbackHumActive();
-        audioReadyRef.current = true;
-        setFallbackHumActive(fallbackHumStarted);
-        if (fallbackHumStarted) {
-          scheduleFallbackHumHandoff(ctx, source);
-        } else {
-          ctx.resume().catch(() => {});
-        }
-        logGestureDebug(`${source}-cinematic-reveal-fallback`, {
-          ctxState: ctx.state,
-          audioMode: 'media-element',
-          fallbackHumStarted,
-        });
-        revealVisuals();
-        return;
-      }
     }
 
     ctx.resume().catch(() => {});
