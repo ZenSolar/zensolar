@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
+import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
 
 import {
   SOLAR_MILESTONES,
@@ -119,6 +120,7 @@ export function DemoDashboard() {
       className="bg-background min-h-full w-full relative overflow-x-hidden"
     >
       <DashboardHexBackground />
+      <DemoOnboardingHints />
       <PullToRefreshIndicator 
         pullDistance={pullDistance} 
         isRefreshing={isRefreshing}
@@ -173,7 +175,7 @@ export function DemoDashboard() {
         )}
 
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
-        <AnimatedItem>
+        <AnimatedItem data-hint-target="kpi">
           <ActivityMetrics
             data={activityData}
             currentActivity={currentActivity}
@@ -242,6 +244,7 @@ export function DemoDashboard() {
         {/* NFT Mint Button + Refresh - matches real dashboard */}
         <AnimatedItem className="space-y-3">
           <MintEffectButton
+            data-hint-target="mint"
             onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
             disabled={isLoading}
             className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"
