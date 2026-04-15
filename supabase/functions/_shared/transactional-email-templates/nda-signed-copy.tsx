@@ -70,7 +70,7 @@ const NdaSignedCopyEmail = ({ recipientName, recipientEmail, signedAt, ndaVersio
             Please retain this email for your records.
           </Text>
           <Text style={footer}>
-            © {new Date().getFullYear()} Zen<span style={solarBlue}>Solar</span>, LLC. All rights reserved.
+            © {new Date().getFullYear()} ZenSolar, LLC. All rights reserved.
             <br />Patent Pending — U.S. Application No. 19/634,402
           </Text>
         </Container>

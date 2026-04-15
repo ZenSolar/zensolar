@@ -63,7 +63,7 @@ export const SignupEmail = ({
           If you didn't create an account, you can safely ignore this email.
         </Text>
         <Text style={footerBrand}>
-          © {new Date().getFullYear()} Zen<span style={solarBlue}>Solar</span>, LLC · Creating Currency From Energy
+          © {new Date().getFullYear()} ZenSolar, LLC · Creating Currency From Energy
         </Text>
       </Container>
     </Body>

@@ -60,7 +60,7 @@ export const EmailChangeEmail = ({
           If you didn't request this change, please secure your account immediately.
         </Text>
         <Text style={footerBrand}>
-          © {new Date().getFullYear()} Zen<span style={solarBlue}>Solar</span>, LLC · Creating Currency From Energy
+          © {new Date().getFullYear()} ZenSolar, LLC · Creating Currency From Energy
         </Text>
       </Container>
     </Body>

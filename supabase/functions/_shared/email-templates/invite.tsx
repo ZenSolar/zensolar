@@ -54,7 +54,7 @@ export const InviteEmail = ({
           If you weren't expecting this invitation, you can safely ignore this email.
         </Text>
         <Text style={footerBrand}>
-          © {new Date().getFullYear()} Zen<span style={solarBlue}>Solar</span>, LLC · Creating Currency From Energy
+          © {new Date().getFullYear()} ZenSolar, LLC · Creating Currency From Energy
         </Text>
       </Container>
     </Body>
