@@ -567,6 +567,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
 
     fireRevealAudio(startTime, ctx.state !== 'running');
+    if (firstReveal && fallbackHumActive) {
+      scheduleFallbackHumHandoff(ctx, source);
+    }
   }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, scheduleFallbackHumHandoff, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
