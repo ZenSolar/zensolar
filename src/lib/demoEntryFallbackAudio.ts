@@ -93,10 +93,14 @@ function ensureFallbackAudio() {
   if (typeof window === 'undefined') return null;
 
   if (!fallbackAudio) {
+    const hum = createAudioElement(humLoopBlobUrl ?? humUrl, { loop: true, volume: 0 });
+    hum.dataset.zenHumLoopSource = humLoopBlobUrl ? 'seamless' : 'raw';
     fallbackAudio = {
       gong: createAudioElement(gongUrl, { volume: GONG_VOLUME }),
-      hum: createAudioElement(humUrl, { loop: true, volume: 0 }),
+      hum,
     };
+  } else if (humLoopBlobUrl && !humMediaBridgeActive && fallbackAudio.hum.paused) {
+    syncHumMediaSource(fallbackAudio.hum, { resetCurrentTime: false });
   }
 
   return fallbackAudio;
