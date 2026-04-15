@@ -81,7 +81,8 @@ const createDemoProfile = () => {
   twitter_handle: 'zensolar_demo',
   linkedin_connected: false,
   linkedin_handle: null,
-});
+  };
+};
 
 // Demo eligibility data - calculated based on actual demo activity thresholds
 const createDemoEligibility = (hasWelcomeNFT: boolean, mintedNfts: number[]) => {
