@@ -472,6 +472,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           if (savedEmail) {
             const alreadySigned = await checkExistingNda(savedEmail);
             if (alreadySigned) {
+              // Fetch and store the signer's name for the dashboard greeting
+              const name = await fetchNdaName(savedEmail);
+              if (name) saveNdaName(name);
               // Skip NDA, grant access directly
               grantAccess();
               setGranted(true);
