@@ -32,22 +32,20 @@ Deno.serve(async (req) => {
     
     // If no secret key configured, allow in development (test keys)
     if (!secretKey) {
-      console.log('[verify-turnstile] No secret key configured, allowing request (development mode)');
+      // No secret key = dev mode. Allow dummy tokens only here.
+      const isDummyToken = token.includes('DUMMY') || token.includes('dummy') || token === '0.dummy-token';
+      if (isDummyToken) {
+        console.log('[verify-turnstile] Dev mode + dummy token, allowing request');
+      } else {
+        console.log('[verify-turnstile] No secret key configured, allowing request (development mode)');
+      }
       return new Response(
         JSON.stringify({ success: true, development: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Allow dummy/test tokens from preview environments (Lovable preview, localhost)
-    const isDummyToken = token.includes('DUMMY') || token.includes('dummy') || token === '0.dummy-token';
-    if (isDummyToken) {
-      console.log('[verify-turnstile] Dummy token detected, allowing request (preview/dev environment)');
-      return new Response(
-        JSON.stringify({ success: true, development: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Production: always verify with Cloudflare, no dummy bypass
 
     // Verify with Cloudflare
     const formData = new URLSearchParams();
