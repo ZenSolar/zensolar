@@ -80,9 +80,10 @@ interface CategoryDotProps {
   color: CategoryType;
   isActive?: boolean;
   onClick?: () => void;
+  index?: number;
 }
 
-function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick }: CategoryDotProps) {
+function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick, index = 0 }: CategoryDotProps) {
   const styles = categoryStyles[color];
   
   // Touch tracking for scroll vs tap detection
