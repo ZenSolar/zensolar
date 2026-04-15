@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
-import { armDemoEntryFallbackGestureAudio, handoffDemoEntryFallbackHum, isDemoEntryFallbackHumActive, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
+import { preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -524,7 +524,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           return;
         }
 
-        handoffDemoEntryFallbackHum(140);
+        stopDemoEntryFallbackHum(false);
         setFallbackHumActive(false);
         audioReadyRef.current = true;
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -533,6 +533,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           gongStarted,
           humStarted,
+          audioMode: 'shared-shimmer',
         });
       } else {
         playWelcomeTap(startTime);
@@ -545,27 +546,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (ctx.state === 'running') {
       commitReveal(getSafeAudioStartTime(ctx, undefined, 0.005), false);
       return;
-    }
-
-    if (!stateRef.current.hexAwake) {
-      const fallbackStarted = playDemoEntryFallbackRevealAudio();
-      if (fallbackStarted) {
-        const fallbackHumStarted = isDemoEntryFallbackHumActive();
-        audioReadyRef.current = true;
-        setFallbackHumActive(fallbackHumStarted);
-        if (fallbackHumStarted) {
-          scheduleFallbackHumHandoff(ctx, source);
-        } else {
-          ctx.resume().catch(() => {});
-        }
-        logGestureDebug(`${source}-cinematic-reveal-fallback`, {
-          ctxState: ctx.state,
-          audioMode: 'media-element',
-          fallbackHumStarted,
-        });
-        revealVisuals();
-        return;
-      }
     }
 
     ctx.resume().catch(() => {});
