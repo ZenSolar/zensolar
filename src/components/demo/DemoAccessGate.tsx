@@ -586,6 +586,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     // the useEffect-driven activation path also works correctly.
     if (firstReveal) {
       stateRef.current.hexAwake = true;
+      setShimmerActive(true);
     }
 
     // CRITICAL: Fire audio BEFORE any DOM mutations to preserve iOS gesture context
