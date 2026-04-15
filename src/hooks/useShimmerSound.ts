@@ -90,6 +90,7 @@ export function useShimmerSound({
     scheduledStartTime?: number,
     activationVolume?: number,
   ) {
+    lastManualStartRef.current = Date.now();
     const targetVolume = activationVolume ?? volumeRef.current;
     const existingNodes = nodesRef.current;
 
