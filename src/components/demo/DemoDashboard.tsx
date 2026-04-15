@@ -339,3 +339,80 @@ function EnergyFlowGlowCard() {
     </div>
   );
 }
+
+// Animated count-up hook
+function useCountUp(target: number, duration = 1200, decimals = 1, enabled = false) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!enabled) { setValue(0); return; }
+    let start: number | null = null;
+    let raf: number;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setValue(parseFloat((eased * target).toFixed(decimals)));
+      if (progress < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration, decimals, enabled]);
+  return value;
+}
+
+function TodaysCleanEnergyStats() {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setIsVisible(true); obs.disconnect(); } }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const solar = useCountUp(24.7, 1400, 1, isVisible);
+  const evCharge = useCountUp(18.3, 1200, 1, isVisible);
+  const evMiles = useCountUp(62, 1000, 0, isVisible);
+  const battery = useCountUp(8.1, 1100, 1, isVisible);
+
+  const kpis = [
+    { color: '#F59E0B', label: 'Solar Produced', value: solar, unit: 'kWh', decimals: 1 },
+    { color: '#3B82F6', label: 'EV Charging', value: evCharge, unit: 'kWh', decimals: 1 },
+    { color: '#06B6D4', label: 'EV Mileage', value: evMiles, unit: 'mi', decimals: 0 },
+    { color: '#22C55E', label: 'Battery Exported', value: battery, unit: 'kWh', decimals: 1 },
+  ];
+
+  return (
+    <div ref={ref} className="emerald-glow-card rounded-2xl p-5 space-y-4 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        background: 'linear-gradient(135deg, #F59E0B 0%, #3B82F6 25%, #22C55E 50%, #8B5CF6 75%, #F59E0B 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'gradient-shift 8s ease infinite',
+      }} />
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <h3 className="text-sm font-bold text-foreground tracking-wide">Today's Clean Energy Stats —</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {kpis.map((k) => (
+            <div key={k.label} className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02]" style={{
+              background: `linear-gradient(135deg, ${k.color}1F, ${k.color}0A)`,
+              borderColor: `${k.color}40`,
+            }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: k.color }} />
+                <p className="text-[10px] uppercase tracking-wider font-mono" style={{ color: k.color, opacity: 0.8 }}>{k.label}</p>
+              </div>
+              <p className="text-xl font-bold tabular-nums" style={{ color: k.color }}>
+                {k.decimals > 0 ? k.value.toFixed(k.decimals) : k.value} <span className="text-xs font-normal text-muted-foreground">{k.unit}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
