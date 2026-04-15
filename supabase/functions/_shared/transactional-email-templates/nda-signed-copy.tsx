@@ -70,7 +70,7 @@ const NdaSignedCopyEmail = ({ recipientName, recipientEmail, signedAt, ndaVersio
             Please retain this email for your records.
           </Text>
           <Text style={footer}>
-            © {new Date().getFullYear()} Zen<span style={solarBlue}>Solar</span>, LLC. All rights reserved.
+            © {new Date().getFullYear()} ZenSolar, LLC. All rights reserved.
             <br />Patent Pending — U.S. Application No. 19/634,402
           </Text>
         </Container>
@@ -102,4 +102,4 @@ const ndaBox = { backgroundColor: '#fafafa', border: '1px solid #e2e8f0', border
 const ndaContent = { fontSize: '12px', color: '#333333', lineHeight: '1.6', margin: '0', whiteSpace: 'pre-wrap' as const }
 const divider = { borderColor: '#e2e8f0', margin: '24px 0' }
 const footer = { fontSize: '11px', color: '#999999', margin: '0 0 8px', textAlign: 'center' as const }
-const solarBlue = { color: '#2563EB' }
+
