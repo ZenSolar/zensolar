@@ -9,6 +9,7 @@ import { armDemoEntryFallbackGestureAudio, playDemoEntryFallbackRevealAudio, pre
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
+import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 
@@ -103,6 +104,24 @@ interface ShockwaveState {
   y: number;
 }
 
+interface ReleaseAudioDiagnosticsState {
+  fallbackArmed: string;
+  fallbackFired: string;
+  audioContextState: string;
+  synthHandoff: string;
+  lastEvent: string;
+  updatedAt: number | null;
+}
+
+const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
+  fallbackArmed: 'idle',
+  fallbackFired: 'idle',
+  audioContextState: 'null',
+  synthHandoff: 'idle',
+  lastEvent: 'waiting-for-gesture',
+  updatedAt: null,
+};
+
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -116,7 +135,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [code, setCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [fallbackHumActive, setFallbackHumActive] = useState(false);
+  const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
+  const showReleaseAudioDiagnostics = true;
   
 
   // ── stateRef pattern: single ref holds all interaction state ──
@@ -138,6 +159,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     Object.assign(stateRef.current, patch);
     forceRender();
   }, [forceRender]);
+  const updateReleaseAudioDiagnostics = useCallback((patch: Partial<ReleaseAudioDiagnosticsState>) => {
+    setReleaseAudioDiagnostics((prev) => ({
+      ...prev,
+      ...patch,
+      updatedAt: Date.now(),
+    }));
+  }, []);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const lockButtonRef = useRef<HTMLButtonElement>(null);
@@ -183,6 +211,26 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [showAudioDebug]);
 
   useEffect(() => {
+    if (!showReleaseAudioDiagnostics) return;
+
+    const syncAudioContextState = () => {
+      const nextState = getSharedAudioContext()?.state ?? 'null';
+      setReleaseAudioDiagnostics((prev) => (
+        prev.audioContextState === nextState
+          ? prev
+          : { ...prev, audioContextState: nextState }
+      ));
+    };
+
+    syncAudioContextState();
+    const id = window.setInterval(syncAudioContextState, 150);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [showReleaseAudioDiagnostics]);
+
+  useEffect(() => {
     preloadDemoEntryFallbackAudio();
     return () => {
       stopDemoEntryFallbackHum();
@@ -198,6 +246,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, []);
 
   const scheduleFallbackHumHandoff = useCallback((ctx: AudioContext, source: string) => {
+    updateReleaseAudioDiagnostics({
+      synthHandoff: 'pending',
+      audioContextState: ctx.state,
+      lastEvent: `${source}-fallback-hum-handoff-pending`,
+    });
     audioWakeCleanupRef.current?.();
     ctx.resume().catch(() => {});
     audioWakeCleanupRef.current = runWhenAudioContextRunning(
@@ -219,6 +272,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           }
 
           audioReadyRef.current = audioReadyRef.current || humStarted;
+          updateReleaseAudioDiagnostics({
+            synthHandoff: humStarted ? 'completed' : 'failed',
+            audioContextState: ctx.state,
+            lastEvent: `${source}-fallback-hum-handoff`,
+          });
           logGestureDebug(`${source}-fallback-hum-handoff`, {
             start,
             ctxState: ctx.state,
@@ -234,10 +292,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       1600,
       () => {
         audioWakeCleanupRef.current = null;
+        updateReleaseAudioDiagnostics({
+          synthHandoff: 'timeout',
+          audioContextState: ctx.state,
+          lastEvent: `${source}-fallback-hum-handoff-timeout`,
+        });
         logGestureDebug(`${source}-fallback-hum-handoff-timeout`, { ctxState: ctx.state });
       },
     );
-  }, [logGestureDebug, startShimmerSound]);
+  }, [logGestureDebug, startShimmerSound, updateReleaseAudioDiagnostics]);
 
   const markHoldReady = useCallback((source: string, reason: 'threshold' | 'audio-ready') => {
     if (!stateRef.current.holding || stateRef.current.holdReady) return;
@@ -385,7 +448,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const ctx = primeAudio();
     preloadDemoEntryFallbackAudio();
+    updateReleaseAudioDiagnostics({
+      fallbackArmed: s.hexAwake ? 'skipped' : 'arming',
+      fallbackFired: 'idle',
+      synthHandoff: s.hexAwake ? 'skipped' : 'idle',
+      audioContextState: ctx?.state ?? 'null',
+      lastEvent: `${source}-hold-start`,
+    });
+
     if (!ctx) {
+      updateReleaseAudioDiagnostics({
+        audioContextState: 'null',
+        lastEvent: `${source}-prime-audio-missed`,
+      });
       logGestureDebug(`${source}-prime-audio-missed`);
     }
 
@@ -396,6 +471,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       fallbackArmed = !!armDemoEntryFallbackGestureAudio();
       gongPrewarmed = prewarmSingingBowl();
       humPrewarmed = startShimmerSound(undefined, 0);
+      updateReleaseAudioDiagnostics({
+        fallbackArmed: fallbackArmed ? 'armed' : 'failed',
+        audioContextState: ctx?.state ?? 'null',
+        lastEvent: `${source}-entry-audio-prewarmed`,
+      });
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         humPrewarmed,
@@ -409,6 +489,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         ctx,
         () => {
           audioReadyRef.current = true;
+          updateReleaseAudioDiagnostics({
+            audioContextState: ctx.state,
+            lastEvent: `${source}-audio-running`,
+          });
           logGestureDebug(`${source}-audio-running`, { currentTime: ctx.currentTime });
           if (performance.now() - holdStartRef.current >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS) {
             markHoldReady(source, 'audio-ready');
@@ -416,6 +500,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         },
         1600,
         () => {
+          updateReleaseAudioDiagnostics({
+            audioContextState: ctx.state,
+            lastEvent: `${source}-audio-running-timeout`,
+          });
           logGestureDebug(`${source}-audio-running-timeout`, { ctxState: ctx.state });
         },
       );
@@ -468,6 +556,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const ctx = primeAudio() ?? getSharedAudioContext();
     const audioReady = Boolean(s.hexAwake || audioReadyRef.current || ctx);
     updateState({ holding: false, holdReady: false });
+    updateReleaseAudioDiagnostics({
+      audioContextState: ctx?.state ?? 'null',
+      lastEvent: `${source}-hold-end`,
+    });
     logGestureDebug(`${source}-hold-end`, {
       held,
       heldLongEnough,
@@ -489,6 +581,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         stopDemoEntryFallbackHum();
         setFallbackHumActive(false);
       }
+      updateReleaseAudioDiagnostics({
+        fallbackFired: 'idle',
+        synthHandoff: 'skipped',
+        audioContextState: ctx?.state ?? 'null',
+        lastEvent: `${source}-hold-end-too-early`,
+      });
       showHoldHint();
       return;
     }
@@ -525,6 +623,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }
 
         audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted || humStarted;
+        updateReleaseAudioDiagnostics({
+          fallbackFired: fallbackStarted ? 'fired' : 'missed',
+          audioContextState: ctx?.state ?? 'null',
+          synthHandoff: fallbackStarted ? 'pending' : 'not-needed',
+          lastEvent: `${source}-cinematic-reveal`,
+        });
         logGestureDebug(`${source}-cinematic-reveal`, {
           start: startTime,
           ctxState: ctx?.state ?? 'null',
@@ -539,6 +643,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
 
       playWelcomeTap(startTime);
+      updateReleaseAudioDiagnostics({
+        fallbackFired: 'skipped',
+        synthHandoff: 'skipped',
+        audioContextState: ctx?.state ?? 'null',
+        lastEvent: `${source}-welcome-tap`,
+      });
       logGestureDebug(`${source}-welcome-tap`, {
         start: startTime,
         ctxState: ctx?.state ?? 'null',
@@ -553,6 +663,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!ctx) {
       stopDemoEntryFallbackHum(false);
       setFallbackHumActive(false);
+      updateReleaseAudioDiagnostics({
+        fallbackFired: firstReveal ? 'missed' : 'skipped',
+        synthHandoff: firstReveal ? 'failed' : 'skipped',
+        audioContextState: 'null',
+        lastEvent: `${source}-reveal-visual-only-no-audio-ctx`,
+      });
       logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
       return;
     }
@@ -698,6 +814,16 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }}
     >
       {showAudioDebug && <AudioDebugOverlay />}
+      {showReleaseAudioDiagnostics && (
+        <ReleaseAudioDiagnostics
+          fallbackArmed={releaseAudioDiagnostics.fallbackArmed}
+          fallbackFired={releaseAudioDiagnostics.fallbackFired}
+          audioContextState={releaseAudioDiagnostics.audioContextState}
+          synthHandoff={releaseAudioDiagnostics.synthHandoff}
+          lastEvent={releaseAudioDiagnostics.lastEvent}
+          updatedAt={releaseAudioDiagnostics.updatedAt}
+        />
+      )}
 
       {/* ── Screen-wide energy shockwave — fires on successful hold release ── */}
       {shockwave !== null && (
