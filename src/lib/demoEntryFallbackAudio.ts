@@ -14,6 +14,8 @@ interface ArmDemoEntryFallbackOptions {
 
 type AudioKind = 'gong' | 'hum';
 
+type HumDecodeContext = Pick<BaseAudioContext, 'decodeAudioData'>;
+
 interface HumLoopGraph {
   ctx: AudioContext;
   source: AudioBufferSourceNode;
@@ -29,9 +31,8 @@ let humFetchedBuffer: ArrayBuffer | null = null;
 let humFetchPromise: Promise<ArrayBuffer | null> | null = null;
 let humDecodedBuffer: AudioBuffer | null = null;
 let humDecodePromise: Promise<AudioBuffer | null> | null = null;
+let humDecodeContext: HumDecodeContext | null = null;
 let humLoopGraph: HumLoopGraph | null = null;
-let humArmGeneration = 0;
-let humPendingRevealGeneration: number | null = null;
 const fallbackGestureArmed: Record<AudioKind, boolean> = {
   gong: false,
   hum: false,
@@ -71,6 +72,24 @@ function getAudioContext() {
   return getSharedAudioContext();
 }
 
+function getHumDecodeContext() {
+  if (typeof window === 'undefined') return null;
+  if (humDecodeContext) return humDecodeContext;
+
+  const OfflineAudioContextCtor = window.OfflineAudioContext || (window as Window & { webkitOfflineAudioContext?: typeof OfflineAudioContext }).webkitOfflineAudioContext;
+  if (typeof OfflineAudioContextCtor === 'function') {
+    humDecodeContext = new OfflineAudioContextCtor(1, 1, 48_000);
+    return humDecodeContext;
+  }
+
+  const ctx = getAudioContext();
+  if (ctx) {
+    humDecodeContext = ctx;
+  }
+
+  return humDecodeContext;
+}
+
 function fetchHumArrayBuffer() {
   if (humFetchedBuffer) {
     return Promise.resolve(humFetchedBuffer);
@@ -91,17 +110,6 @@ function fetchHumArrayBuffer() {
   }
 
   return humFetchPromise;
-}
-
-function beginHumArmCycle() {
-  humArmGeneration += 1;
-  humPendingRevealGeneration = null;
-  return humArmGeneration;
-}
-
-function cancelPendingHumStart() {
-  humArmGeneration += 1;
-  humPendingRevealGeneration = null;
 }
 
 function clearHumFadeFrame() {
@@ -267,14 +275,16 @@ function armMutedLoop(kind: AudioKind, audio: HTMLAudioElement, loop: boolean) {
   }
 }
 
-async function decodeHumBuffer(ctx: AudioContext) {
+async function decodeHumBuffer() {
   if (humDecodedBuffer) return humDecodedBuffer;
 
   if (!humDecodePromise) {
     humDecodePromise = fetchHumArrayBuffer()
       .then((arrayBuffer) => {
         if (!arrayBuffer) return null;
-        return ctx.decodeAudioData(arrayBuffer.slice(0));
+        const decoder = getHumDecodeContext();
+        if (!decoder) throw new Error('decode-context-unavailable');
+        return decoder.decodeAudioData(arrayBuffer.slice(0));
       })
       .then((buffer) => {
         if (!buffer) return null;
@@ -355,38 +365,6 @@ function getPreparedHumLoopGraph(ctx: AudioContext) {
   return createHumLoopGraph(ctx, humDecodedBuffer);
 }
 
-async function prepareHumLoopGraph() {
-  const ctx = getAudioContext();
-  if (!ctx) return null;
-
-  const buffer = await decodeHumBuffer(ctx);
-  if (!buffer) return null;
-
-  return getPreparedHumLoopGraph(ctx) ?? createHumLoopGraph(ctx, buffer);
-}
-
-function queueDeferredHumStart(generation: number) {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
-  void decodeHumBuffer(ctx).then((buffer) => {
-    if (!buffer || humPendingRevealGeneration !== generation || humArmGeneration !== generation || fallbackHumActive) {
-      return;
-    }
-
-    const graph = getPreparedHumLoopGraph(ctx) ?? createHumLoopGraph(ctx, buffer);
-    const started = startPreparedHumLoopGraph(graph);
-    humPendingRevealGeneration = null;
-    fallbackGestureArmed.hum = started;
-    fallbackHumActive = started;
-    logAudioDebug('entry-fallback-hum-deferred', {
-      humBuffered: true,
-      humStarted: started,
-      mode: started ? 'gapless-buffer-loop' : 'missed',
-    });
-  });
-}
-
 function startPreparedHumLoopGraph(graph: HumLoopGraph) {
   try {
     graph.source.start(graph.ctx.currentTime, HUM_LOOP_START);
@@ -412,7 +390,6 @@ function startPreparedHumLoopGraph(graph: HumLoopGraph) {
 export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: ArmDemoEntryFallbackOptions = {}) {
   const audio = ensureFallbackAudio();
   if (!audio) return false;
-  const generation = beginHumArmCycle();
 
   requestLoad(audio.gong);
   clearHumFadeFrame();
@@ -446,18 +423,19 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
         loopEnd: HUM_LOOP_END,
       });
     } else {
-      void prepareHumLoopGraph().then((preparedGraph) => {
-        if (humArmGeneration !== generation) return;
-        fallbackGestureArmed.hum = Boolean(preparedGraph);
-        if (preparedGraph) {
-          logArmSuccess('hum', {
-            mode: 'gapless-buffer-loop',
+      void decodeHumBuffer().then((buffer) => {
+        if (buffer) {
+          logAudioDebug('hum-buffer-ready', {
+            mode: 'offline-predecode',
             loopStart: HUM_LOOP_START,
             loopEnd: HUM_LOOP_END,
           });
-        } else {
-          logArmFailure('hum', new Error('buffer-unavailable'), { mode: 'gapless-buffer-loop' });
+          return;
         }
+
+        logArmFailure('hum', new Error('buffer-unavailable'), {
+          mode: 'gapless-buffer-loop',
+        });
       });
     }
   } else {
@@ -469,6 +447,7 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
     humEnabled: hum,
     gongArmed: fallbackGestureArmed.gong,
     humArmed: fallbackGestureArmed.hum,
+    humBuffered: Boolean(humDecodedBuffer),
     gongReady: audio.gong.readyState,
   });
 
@@ -523,10 +502,7 @@ export function preloadDemoEntryFallbackAudio() {
 
   requestLoad(audio.gong);
   void fetchHumArrayBuffer();
-  const ctx = getAudioContext();
-  if (ctx) {
-    void decodeHumBuffer(ctx);
-  }
+  void decodeHumBuffer();
 
   if (!preloadLogged) {
     preloadLogged = true;
@@ -542,7 +518,6 @@ export function preloadDemoEntryFallbackAudio() {
 export function playDemoEntryFallbackRevealAudio() {
   const audio = ensureFallbackAudio();
   if (!audio) return false;
-  const generation = humArmGeneration;
 
   requestLoad(audio.gong);
   clearHumFadeFrame();
@@ -575,43 +550,28 @@ export function playDemoEntryFallbackRevealAudio() {
     gongStarted = attemptPlay('gong', audio.gong, { armed: false });
   }
 
-  let humStarted = false;
-  if (humLoopGraph) {
-    humStarted = startPreparedHumLoopGraph(humLoopGraph);
-  }
+  const ctx = getAudioContext();
+  const graph = ctx ? getPreparedHumLoopGraph(ctx) : humLoopGraph;
+  const humStarted = graph ? startPreparedHumLoopGraph(graph) : false;
 
   if (!humStarted) {
-    const ctx = getAudioContext();
-    const graph = ctx ? getPreparedHumLoopGraph(ctx) : null;
-    if (graph) {
-      humStarted = startPreparedHumLoopGraph(graph);
-    }
+    void decodeHumBuffer();
   }
 
-  if (!humStarted) {
-    humPendingRevealGeneration = generation;
-    queueDeferredHumStart(generation);
-  } else {
-    humPendingRevealGeneration = null;
-  }
-
-  const humPending = humPendingRevealGeneration === generation;
   fallbackHumActive = humStarted;
   fallbackGestureArmed.gong = false;
-  fallbackGestureArmed.hum = humStarted || humPending;
+  fallbackGestureArmed.hum = humStarted;
   logAudioDebug('entry-fallback-triggered', {
     gongReady: audio.gong.readyState,
     humBuffered: Boolean(humDecodedBuffer),
     humArmed: humStarted,
-    humPending,
-    mode: humStarted ? 'gapless-buffer-loop' : humPending ? 'pending-decode' : 'missed',
+    mode: humStarted ? 'gapless-buffer-loop' : 'buffer-not-ready',
   });
 
-  return gongStarted || humStarted || humPending;
+  return gongStarted || humStarted;
 }
 
 export function handoffDemoEntryFallbackHum(durationMs = HUM_FADE_OUT_MS) {
-  cancelPendingHumStart();
   if (!humLoopGraph) return false;
 
   const graph = humLoopGraph;
@@ -638,18 +598,8 @@ export function handoffDemoEntryFallbackHum(durationMs = HUM_FADE_OUT_MS) {
 }
 
 export function playDemoEntryFallbackHum(): boolean {
-  if (humLoopGraph) {
-    const started = startPreparedHumLoopGraph(humLoopGraph);
-    logAudioDebug('entry-fallback-hum-triggered', {
-      humBuffered: Boolean(humDecodedBuffer),
-      humStarted: started,
-      mode: 'gapless-buffer-loop',
-    });
-    return started;
-  }
-
   const ctx = getAudioContext();
-  const graph = ctx ? getPreparedHumLoopGraph(ctx) : null;
+  const graph = ctx ? getPreparedHumLoopGraph(ctx) : humLoopGraph;
   if (!graph) {
     logAudioDebug('entry-fallback-hum-triggered', {
       humBuffered: Boolean(humDecodedBuffer),
@@ -669,7 +619,6 @@ export function playDemoEntryFallbackHum(): boolean {
 }
 
 export function stopDemoEntryFallbackHum(reset = true) {
-  cancelPendingHumStart();
   clearHumFadeFrame();
   clearHumStopTimer();
   destroyHumLoopGraph();
@@ -694,4 +643,8 @@ export function stopDemoEntryFallbackHum(reset = true) {
 
 export function isDemoEntryFallbackHumActive() {
   return fallbackHumActive;
+}
+
+if (typeof window !== 'undefined') {
+  void fetchHumArrayBuffer();
 }
