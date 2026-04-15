@@ -2,8 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronLeft, Hand, Wallet } from 'lucide-react';
 
-const HINTS_KEY = 'zen_demo_hints_shown';
-const ACCESS_KEY = 'zen_demo_access';
+const WALLET_HINT_KEY = 'zen_demo_wallet_hint_shown';
 const WALLET_HINT_KEY = 'zen_demo_wallet_hint_shown';
 
 type HintId = 'menu' | 'kpi' | 'wallet';
@@ -18,44 +17,22 @@ type HintId = 'menu' | 'kpi' | 'wallet';
 export function DemoOnboardingHints() {
   const [activeHints, setActiveHints] = useState<Set<HintId>>(new Set());
 
-  // Show initial hints (menu + kpi) on first visit
+  // Always show menu + kpi hints on mount
   useEffect(() => {
-    try {
-      const accessData = JSON.parse(localStorage.getItem(ACCESS_KEY) || '{}');
-      const accessTs = accessData.ts || 0;
-
-      const hintsData = JSON.parse(localStorage.getItem(HINTS_KEY) || '{}');
-      const hintsTs = hintsData.ts || 0;
-
-      if (accessTs > hintsTs) {
-        const timer = setTimeout(() => {
-          setActiveHints(new Set(['menu', 'kpi']));
-        }, 1500);
-        return () => clearTimeout(timer);
-      }
-    } catch {
-      // Storage unavailable
-    }
+    const timer = setTimeout(() => {
+      setActiveHints(new Set(['menu', 'kpi']));
+    }, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Listen for mint success to show wallet hint
   useEffect(() => {
     const handler = () => {
-      try {
-        const accessData = JSON.parse(localStorage.getItem(ACCESS_KEY) || '{}');
-        const accessTs = accessData.ts || 0;
-        const walletData = JSON.parse(localStorage.getItem(WALLET_HINT_KEY) || '{}');
-        const walletTs = walletData.ts || 0;
-
-        // Only show if not already shown this session
-        if (accessTs > walletTs) {
-          setActiveHints(prev => {
-            const next = new Set(prev);
-            next.add('wallet');
-            return next;
-          });
-        }
-      } catch { /* noop */ }
+      setActiveHints(prev => {
+        const next = new Set(prev);
+        next.add('wallet');
+        return next;
+      });
     };
 
     window.addEventListener('demo-mint-success', handler);
@@ -66,16 +43,6 @@ export function DemoOnboardingHints() {
     setActiveHints(prev => {
       const next = new Set(prev);
       next.delete(id);
-      if (next.size === 0) {
-        try {
-          localStorage.setItem(HINTS_KEY, JSON.stringify({ ts: Date.now() }));
-        } catch { /* noop */ }
-      }
-      if (id === 'wallet') {
-        try {
-          localStorage.setItem(WALLET_HINT_KEY, JSON.stringify({ ts: Date.now() }));
-        } catch { /* noop */ }
-      }
       return next;
     });
   }, []);
