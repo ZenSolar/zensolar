@@ -2,7 +2,9 @@ function formatTime(iso?: string) {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const tz = d.toLocaleTimeString([], { timeZoneName: 'short' }).split(' ').pop() || '';
+  return `${time} ${tz}`;
 }
 
 export function RefreshIndicators({
