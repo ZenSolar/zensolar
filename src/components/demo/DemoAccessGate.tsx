@@ -28,15 +28,16 @@ function isAccessGranted(): boolean {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return false;
-    const { ts } = JSON.parse(raw);
-    return Date.now() - ts < TTL_MS;
+    const { ts, ndaSigned } = JSON.parse(raw);
+    // Access requires both a valid timestamp AND a signed NDA
+    return ndaSigned === true && Date.now() - ts < TTL_MS;
   } catch {
     return false;
   }
 }
 
 function grantAccess() {
-  localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now() }));
+  localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }));
 }
 
 // ─── Burst particles ────
