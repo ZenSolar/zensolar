@@ -352,30 +352,36 @@ export function ActivityMetrics({
 
               {/* Right column: badges */}
               <div className="flex flex-col items-end gap-1.5 flex-shrink-0 pt-0.5">
-                <span 
-                  className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary whitespace-nowrap"
-                  style={{ textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)' }}
-                >
-                  Tap-to-Mint™
-                </span>
-                <span 
-                  className="text-[9px] font-semibold tracking-[0.15em] uppercase whitespace-nowrap"
-                  style={{ color: 'hsl(142 76% 50% / 0.85)', textShadow: '0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3)' }}
-                >
-                  Proof-of-Mint™
-                </span>
-                <span 
-                  className="text-[9px] font-semibold tracking-[0.15em] uppercase whitespace-nowrap"
-                  style={{ color: 'hsl(25 95% 60% / 0.85)', textShadow: '0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3)' }}
-                >
-                  Proof-of-Origin™
-                </span>
-                <span 
-                  className="text-[9px] font-semibold tracking-[0.15em] uppercase whitespace-nowrap"
-                  style={{ color: 'hsl(270 80% 68% / 0.85)', textShadow: '0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3)' }}
-                >
-                  Proof-of-Delta™
-                </span>
+                {[
+                  { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
+                  { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
+                  { label: 'Proof-of-Origin™', color: 'hsl(25 95% 60% / 0.85)', glow: 'hsl(25 95% 55% / 0.6)', glowFar: 'hsl(25 95% 55% / 0.3)' },
+                  { label: 'Proof-of-Delta™', color: 'hsl(270 80% 68% / 0.85)', glow: 'hsl(270 80% 60% / 0.6)', glowFar: 'hsl(270 80% 60% / 0.3)' },
+                ].map((badge, i) => (
+                  <motion.span
+                    key={badge.label}
+                    initial={{ opacity: 0, x: 12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + i * 0.15, duration: 0.4, ease: 'easeOut' }}
+                    className={cn(
+                      "text-[9px] font-semibold tracking-[0.15em] uppercase whitespace-nowrap",
+                      badge.useClass && "text-primary"
+                    )}
+                    style={{
+                      ...(badge.useClass ? {} : { color: badge.color }),
+                      textShadow: `0 0 10px ${badge.glow}, 0 0 20px ${badge.glowFar}`,
+                      animation: `badge-pulse-${i} 3s ease-in-out ${0.3 + i * 0.15 + 0.4}s infinite`,
+                    }}
+                  >
+                    {badge.label}
+                  </motion.span>
+                ))}
+                <style>{`
+                  @keyframes badge-pulse-0 { 0%, 100% { text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.25); } 50% { text-shadow: 0 0 14px hsl(var(--primary) / 0.7), 0 0 28px hsl(var(--primary) / 0.4); } }
+                  @keyframes badge-pulse-1 { 0%, 100% { text-shadow: 0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3); } 50% { text-shadow: 0 0 14px hsl(142 76% 45% / 0.8), 0 0 28px hsl(142 76% 45% / 0.5); } }
+                  @keyframes badge-pulse-2 { 0%, 100% { text-shadow: 0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3); } 50% { text-shadow: 0 0 14px hsl(25 95% 55% / 0.8), 0 0 28px hsl(25 95% 55% / 0.5); } }
+                  @keyframes badge-pulse-3 { 0%, 100% { text-shadow: 0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3); } 50% { text-shadow: 0 0 14px hsl(270 80% 60% / 0.8), 0 0 28px hsl(270 80% 60% / 0.5); } }
+                `}</style>
               </div>
             </div>
           </div>
