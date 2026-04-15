@@ -275,9 +275,24 @@ export function RewardProgress({
     setSelectedCategory(category);
   };
   
+  // Look up featured NFT milestone info by ID
+  const featuredMilestone = useMemo(() => {
+    if (!featuredNftId) return null;
+    const allMilestones: { milestone: NFTMilestone; category: CategoryType }[] = [
+      ...SOLAR_MILESTONES.map(m => ({ milestone: m, category: 'solar' as CategoryType })),
+      ...BATTERY_MILESTONES.map(m => ({ milestone: m, category: 'battery' as CategoryType })),
+      ...EV_MILES_MILESTONES.map(m => ({ milestone: m, category: 'ev_miles' as CategoryType })),
+      ...EV_CHARGING_MILESTONES.map(m => ({ milestone: m, category: 'charging' as CategoryType })),
+    ];
+    return allMilestones.find(m => m.milestone.id === featuredNftId) || null;
+  }, [featuredNftId]);
+
+  // Determine if we're showing the featured NFT (no manual selection)
+  const showingFeatured = !!(featuredNftId && !selectedCategory && featuredMilestone);
+
   // Get artwork - use featured NFT as default if provided and no manual selection
-  const artwork = (featuredNftId && !selectedCategory)
-    ? getNftArtwork(featuredNftId)
+  const artwork = showingFeatured
+    ? getNftArtwork(featuredNftId!)
     : (displayMilestone ? getNftArtwork(displayMilestone.id) : null);
   
   // Calculate progress percentage
@@ -285,9 +300,14 @@ export function RewardProgress({
     ? Math.min((displayMilestone.currentValue / displayMilestone.threshold) * 100, 100)
     : 100;
   
-  // Get styles for current category
-  const currentStyles = displayMilestone ? categoryStyles[displayMilestone.category] : categoryStyles.solar;
-  const CurrentIcon = displayMilestone ? categoryIcons[displayMilestone.category] : Sun;
+  // Get styles for current category - use featured NFT's category when showing featured
+  const activeCategory = showingFeatured ? featuredMilestone!.category : (displayMilestone?.category || 'solar');
+  const currentStyles = categoryStyles[activeCategory];
+  const CurrentIcon = categoryIcons[activeCategory];
+
+  // Display name and info - use featured NFT when showing featured
+  const displayName = showingFeatured ? featuredMilestone!.milestone.name : displayMilestone?.name;
+  const displayCategory = showingFeatured ? featuredMilestone!.category : (displayMilestone?.category || 'solar');
 
   // Check if current milestone is complete
   const isCurrentComplete = displayMilestone && displayMilestone.currentValue >= displayMilestone.threshold;
