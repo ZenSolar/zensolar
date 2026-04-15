@@ -134,6 +134,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [code, setCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [fallbackHumActive, setFallbackHumActive] = useState(false);
+  const [shimmerActive, setShimmerActive] = useState(false);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = true;
@@ -184,7 +185,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
     volume: 0.06,
-    enabled: stateRef.current.hexAwake,
+    enabled: shimmerActive,
     prewarm: false,
   });
 
