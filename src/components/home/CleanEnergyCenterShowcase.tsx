@@ -36,7 +36,7 @@ const kpiItems = [
   },
   {
     icon: Zap,
-    label: 'Tesla EV Charging',
+    label: 'Tesla Supercharging',
     value: '2,580',
     unit: 'kWh',
     name: '',
