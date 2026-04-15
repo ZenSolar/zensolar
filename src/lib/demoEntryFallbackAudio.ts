@@ -16,7 +16,7 @@ interface ArmDemoEntryFallbackOptions {
 type AudioKind = 'gong' | 'hum';
 type AudioTransport = 'media-element' | 'web-audio';
 
-type HumDecodeContext = Pick<BaseAudioContext, 'decodeAudioData'>;
+type HumDecodeContext = Pick<BaseAudioContext, 'createBuffer' | 'decodeAudioData'>;
 
 interface HumLoopGraph {
   ctx: AudioContext;
@@ -35,12 +35,14 @@ let humMediaHandoffTimer: number | null = null;
 let humFetchedBuffer: ArrayBuffer | null = null;
 let humFetchPromise: Promise<ArrayBuffer | null> | null = null;
 let humDecodedBuffer: AudioBuffer | null = null;
+let humLoopBuffer: AudioBuffer | null = null;
 let humDecodePromise: Promise<AudioBuffer | null> | null = null;
 let humDecodeContext: HumDecodeContext | null = null;
 let humLoopGraph: HumLoopGraph | null = null;
 let humMediaResumeCleanup: (() => void) | null = null;
 let humMediaBridgeActive = false;
 let humRevealStartedAt = 0;
+let humLoopTrimSeconds = 0;
 const fallbackGestureArmed: Record<AudioKind, boolean> = {
   gong: false,
   hum: false,
@@ -50,6 +52,7 @@ const GONG_VOLUME = 0.9;
 const HUM_VOLUME = 0.36;
 const HUM_LOOP_START = 0.56;
 const HUM_LOOP_END = 9.669333333333332;
+const HUM_LOOP_CROSSFADE_MS = 160;
 const HUM_FADE_IN_MS = 220;
 const HUM_FADE_OUT_MS = 180;
 const GONG_DURATION_S = 6.0;
@@ -277,6 +280,19 @@ function requestLoad(audio: HTMLAudioElement) {
   }
 }
 
+function createOutputAudioBuffer(channelCount: number, frameCount: number, sampleRate: number) {
+  const decodeContext = getHumDecodeContext();
+  if (decodeContext?.createBuffer) {
+    return decodeContext.createBuffer(channelCount, frameCount, sampleRate);
+  }
+
+  return new AudioBuffer({
+    length: frameCount,
+    numberOfChannels: channelCount,
+    sampleRate,
+  });
+}
+
 function getAudioTransport(kind: AudioKind, details?: Record<string, unknown>): AudioTransport {
   const explicitTransport = details?.transport;
   if (explicitTransport === 'media-element' || explicitTransport === 'web-audio') {
@@ -416,12 +432,17 @@ async function decodeHumBuffer() {
       .then((buffer) => {
         if (!buffer) return null;
         humDecodedBuffer = buffer;
+        const seamlessLoop = buildSeamlessHumLoopBuffer(buffer);
+        humLoopBuffer = seamlessLoop.buffer;
+        humLoopTrimSeconds = seamlessLoop.trimSeconds;
         logAudioDebug('hum-buffer-decoded', {
           duration: buffer.duration,
           sampleRate: buffer.sampleRate,
           channels: buffer.numberOfChannels,
           loopStart: HUM_LOOP_START,
           loopEnd: HUM_LOOP_END,
+          seamlessDuration: seamlessLoop.buffer.duration,
+          seamTrimMs: HUM_LOOP_CROSSFADE_MS,
         });
         return buffer;
       })
@@ -472,8 +493,8 @@ function createHumLoopGraph(ctx: AudioContext, buffer: AudioBuffer) {
   const source = ctx.createBufferSource();
   source.buffer = buffer;
   source.loop = true;
-  source.loopStart = HUM_LOOP_START;
-  source.loopEnd = Math.min(HUM_LOOP_END, buffer.duration);
+  source.loopStart = getHumLoopStart(buffer);
+  source.loopEnd = getHumLoopEnd(buffer);
   source.connect(gain);
   source.onended = () => {
     if (humLoopGraph?.source === source) {
@@ -488,20 +509,79 @@ function createHumLoopGraph(ctx: AudioContext, buffer: AudioBuffer) {
 
 function getPreparedHumLoopGraph(ctx: AudioContext) {
   if (humLoopGraph?.ctx === ctx) return humLoopGraph;
-  if (!humDecodedBuffer) return null;
-  return createHumLoopGraph(ctx, humDecodedBuffer);
+  const buffer = humLoopBuffer ?? humDecodedBuffer;
+  if (!buffer) return null;
+  return createHumLoopGraph(ctx, buffer);
+}
+
+function isProcessedHumLoopBuffer(buffer?: AudioBuffer | null) {
+  return Boolean(buffer && humLoopBuffer && buffer === humLoopBuffer);
+}
+
+function getHumLoopStart(buffer?: AudioBuffer | null) {
+  return isProcessedHumLoopBuffer(buffer) ? 0 : HUM_LOOP_START;
 }
 
 function getHumLoopEnd(buffer?: AudioBuffer | null) {
+  if (isProcessedHumLoopBuffer(buffer)) {
+    return Math.max(0.001, buffer?.duration ?? 0);
+  }
+
   return Math.max(HUM_LOOP_START + 0.001, Math.min(HUM_LOOP_END, buffer?.duration ?? HUM_LOOP_END));
 }
 
+function buildSeamlessHumLoopBuffer(buffer: AudioBuffer) {
+  const sampleRate = buffer.sampleRate;
+  const loopStartFrame = Math.max(0, Math.floor(HUM_LOOP_START * sampleRate));
+  const loopEndFrame = Math.min(buffer.length, Math.floor(getHumLoopEnd(buffer) * sampleRate));
+  const rawLoopFrameCount = Math.max(2, loopEndFrame - loopStartFrame);
+  const requestedTrimFrames = Math.round((sampleRate * HUM_LOOP_CROSSFADE_MS) / 1000);
+  const trimFrames = Math.max(1, Math.min(requestedTrimFrames, Math.floor((rawLoopFrameCount - 1) / 2)));
+  const bodyFrameCount = Math.max(1, rawLoopFrameCount - (trimFrames * 2));
+  const outputFrameCount = bodyFrameCount + trimFrames;
+  const seamlessBuffer = createOutputAudioBuffer(buffer.numberOfChannels, outputFrameCount, sampleRate);
+
+  for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+    const source = buffer.getChannelData(channel);
+    const output = seamlessBuffer.getChannelData(channel);
+
+    for (let i = 0; i < bodyFrameCount; i += 1) {
+      output[i] = source[loopStartFrame + trimFrames + i] ?? 0;
+    }
+
+    for (let i = 0; i < trimFrames; i += 1) {
+      const progress = trimFrames === 1 ? 1 : i / (trimFrames - 1);
+      const fadeOut = Math.cos(progress * Math.PI * 0.5);
+      const fadeIn = Math.sin(progress * Math.PI * 0.5);
+      const tailSample = source[loopEndFrame - trimFrames + i] ?? 0;
+      const headSample = source[loopStartFrame + i] ?? 0;
+      output[bodyFrameCount + i] = (tailSample * fadeOut) + (headSample * fadeIn);
+    }
+  }
+
+  return {
+    buffer: seamlessBuffer,
+    trimSeconds: trimFrames / sampleRate,
+  };
+}
+
 function getHumHandoffOffset(audio: HTMLAudioElement, buffer?: AudioBuffer | null) {
-  const loopEnd = getHumLoopEnd(buffer);
-  const loopDuration = Math.max(loopEnd - HUM_LOOP_START, 0.001);
+  const rawLoopDuration = Math.max(HUM_LOOP_END - HUM_LOOP_START, 0.001);
   const currentTime = Number.isFinite(audio.currentTime) ? audio.currentTime : HUM_LOOP_START;
-  const elapsed = currentTime <= HUM_LOOP_START ? 0 : (currentTime - HUM_LOOP_START) % loopDuration;
-  return Math.min(loopEnd - 0.001, HUM_LOOP_START + elapsed);
+  const normalizedRawOffset = currentTime <= HUM_LOOP_START
+    ? 0
+    : (currentTime - HUM_LOOP_START) % rawLoopDuration;
+
+  if (isProcessedHumLoopBuffer(buffer) && humLoopTrimSeconds > 0) {
+    const processedDuration = Math.max(buffer?.duration ?? 0, 0.001);
+    const processedOffset = normalizedRawOffset < humLoopTrimSeconds
+      ? (processedDuration - humLoopTrimSeconds) + normalizedRawOffset
+      : normalizedRawOffset - humLoopTrimSeconds;
+
+    return Math.min(processedDuration - 0.001, Math.max(0, processedOffset));
+  }
+
+  return Math.min(getHumLoopEnd(buffer) - 0.001, HUM_LOOP_START + normalizedRawOffset);
 }
 
 function resetHumMediaElement(audio: HTMLAudioElement, reset = true) {
@@ -530,17 +610,21 @@ function stopHumMediaBridge(reset = true) {
   }
 }
 
-function startPreparedHumLoopGraph(graph: HumLoopGraph, startOffset = HUM_LOOP_START) {
+function startPreparedHumLoopGraph(graph: HumLoopGraph, startOffset?: number) {
   try {
-    const safeOffset = Math.min(getHumLoopEnd(graph.source.buffer) - 0.001, Math.max(HUM_LOOP_START, startOffset));
+    const loopStart = getHumLoopStart(graph.source.buffer);
+    const safeOffset = Math.min(
+      getHumLoopEnd(graph.source.buffer) - 0.001,
+      Math.max(loopStart, startOffset ?? loopStart),
+    );
     graph.source.start(graph.ctx.currentTime, safeOffset);
     // Don't fade in yet — caller controls when volume ramps up
     fallbackHumActive = true;
     fallbackGestureArmed.hum = true;
     logPlaySuccess('hum', {
       mode: 'gapless-buffer-loop',
-      loopStart: HUM_LOOP_START,
-      loopEnd: HUM_LOOP_END,
+      loopStart,
+      loopEnd: getHumLoopEnd(graph.source.buffer),
       startOffset: safeOffset,
       duration: graph.source.buffer?.duration,
     });
