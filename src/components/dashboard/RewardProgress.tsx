@@ -189,8 +189,11 @@ export function RewardProgress({
   // Haptic feedback hook
   const { lightTap } = useHaptics();
   
-  // State for selected category (null = auto priority)
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(initialCategory || null);
+  // State for selected category (null = auto priority / featured NFT)
+  // When featuredNftId is provided, start with null so the featured NFT shows
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(
+    featuredNftId ? null : (initialCategory || null)
+  );
   
   // Calculate earned milestones for each category
   const solarEarned = calculateEarnedMilestones(solarKwh, SOLAR_MILESTONES);
