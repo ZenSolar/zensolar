@@ -1249,6 +1249,44 @@ export function isDemoEntryFallbackHumActive() {
   return fallbackHumActive;
 }
 
+export interface HumLoopDiagnostics {
+  active: boolean;
+  voices: number;
+  ctxTime: number;
+  ctxState: string;
+  nextStart: number | null;
+  nextOffset: number;
+  bufferDuration: number;
+  loopStart: number;
+  loopEnd: number;
+  overlapMs: number;
+  mediaBridge: boolean;
+  mediaTime: number;
+  mediaPlaying: boolean;
+  gainValue: number;
+}
+
+export function getHumLoopDiagnostics(): HumLoopDiagnostics {
+  const graph = humLoopGraph;
+  const audio = fallbackAudio?.hum;
+  return {
+    active: fallbackHumActive,
+    voices: graph?.voices.size ?? 0,
+    ctxTime: graph?.ctx.currentTime ?? 0,
+    ctxState: graph?.ctx.state ?? (getAudioContext()?.state ?? 'null'),
+    nextStart: graph?.nextVoiceStartTime ?? null,
+    nextOffset: graph?.nextVoiceOffset ?? 0,
+    bufferDuration: graph?.buffer.duration ?? 0,
+    loopStart: graph ? getHumLoopStart(graph.buffer) : HUM_LOOP_START,
+    loopEnd: graph ? getHumLoopEnd(graph.buffer) : HUM_LOOP_END,
+    overlapMs: HUM_LOOP_CROSSFADE_MS,
+    mediaBridge: humMediaBridgeActive,
+    mediaTime: audio?.currentTime ?? 0,
+    mediaPlaying: audio ? !audio.paused : false,
+    gainValue: graph?.gain.gain.value ?? 0,
+  };
+}
+
 if (typeof window !== 'undefined') {
   void fetchHumArrayBuffer();
 }
