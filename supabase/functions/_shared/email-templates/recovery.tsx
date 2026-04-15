@@ -27,7 +27,7 @@ export const RecoveryEmail = ({
 }: RecoveryEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Reset your password for {siteName}</Preview>
+    <Preview>Reset your password for ZenSolar</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -36,7 +36,7 @@ export const RecoveryEmail = ({
         <Hr style={divider} />
         <Heading style={h1}>Reset your password</Heading>
         <Text style={text}>
-          We received a request to reset your password for {siteName}. Click the button below to choose a new password.
+          We received a request to reset your password for <span style={solarBlue}><strong>ZenSolar</strong></span>. Click the button below to choose a new password.
         </Text>
         <Section style={buttonSection}>
           <Button style={button} href={confirmationUrl}>

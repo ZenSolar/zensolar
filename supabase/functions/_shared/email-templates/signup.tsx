@@ -32,7 +32,7 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Verify your email to get started with {siteName}</Preview>
+    <Preview>Verify your email to get started with ZenSolar</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -42,8 +42,8 @@ export const SignupEmail = ({
         <Heading style={h1}>Welcome aboard</Heading>
         <Text style={text}>
           Thanks for joining{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
+          <Link href={siteUrl} style={siteNameLink}>
+            <strong>Zen<span style={solarBlue}>Solar</span></strong>
           </Link>
           — where clean energy creates real value.
         </Text>
@@ -80,6 +80,7 @@ const divider = { borderColor: '#e2e8f0', margin: '16px 0 24px' }
 const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: 'hsl(220, 20%, 14%)', margin: '0 0 16px' }
 const text = { fontSize: '14px', color: 'hsl(215, 16%, 42%)', lineHeight: '1.6', margin: '0 0 20px' }
 const link = { color: 'hsl(142, 76%, 36%)', textDecoration: 'underline' }
+const siteNameLink = { color: '#2563EB', textDecoration: 'underline' }
 const buttonSection = { textAlign: 'center' as const, margin: '24px 0 32px' }
 const button = { backgroundColor: 'hsl(142, 76%, 36%)', color: '#ffffff', fontSize: '14px', fontWeight: 'bold' as const, borderRadius: '12px', padding: '14px 28px', textDecoration: 'none' }
 const footer = { fontSize: '12px', color: '#999999', margin: '0 0 8px' }
