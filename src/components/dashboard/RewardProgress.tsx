@@ -30,6 +30,7 @@ interface RewardProgressProps {
   lifetimeMinted?: number;
   isNewUser?: boolean;
   initialCategory?: 'solar' | 'battery' | 'ev_miles' | 'charging';
+  featuredNftId?: string;
 }
 
 // Color styles matching landing page gradients
@@ -182,6 +183,7 @@ export function RewardProgress({
   evChargingKwh,
   batteryDischargedKwh,
   initialCategory,
+  featuredNftId,
 }: RewardProgressProps) {
   // Haptic feedback hook
   const { lightTap } = useHaptics();
@@ -272,8 +274,10 @@ export function RewardProgress({
     setSelectedCategory(category);
   };
   
-  // Get artwork for displayed milestone
-  const artwork = displayMilestone ? getNftArtwork(displayMilestone.id) : null;
+  // Get artwork - use featured NFT as default if provided and no manual selection
+  const artwork = (featuredNftId && !selectedCategory)
+    ? getNftArtwork(featuredNftId)
+    : (displayMilestone ? getNftArtwork(displayMilestone.id) : null);
   
   // Calculate progress percentage
   const progressPercent = displayMilestone 
