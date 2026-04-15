@@ -45,6 +45,7 @@ let humFetchedBuffer: ArrayBuffer | null = null;
 let humFetchPromise: Promise<ArrayBuffer | null> | null = null;
 let humDecodedBuffer: AudioBuffer | null = null;
 let humLoopBuffer: AudioBuffer | null = null;
+let humLoopBlobUrl: string | null = null;
 let humDecodePromise: Promise<AudioBuffer | null> | null = null;
 let humDecodeContext: HumDecodeContext | null = null;
 let humLoopGraph: HumLoopGraph | null = null;
@@ -300,6 +301,118 @@ function createOutputAudioBuffer(channelCount: number, frameCount: number, sampl
     numberOfChannels: channelCount,
     sampleRate,
   });
+}
+
+interface SyncHumMediaSourceOptions {
+  allowWhilePlaying?: boolean;
+  resetCurrentTime?: boolean;
+}
+
+function writeAscii(view: DataView, offset: number, value: string) {
+  for (let index = 0; index < value.length; index += 1) {
+    view.setUint8(offset + index, value.charCodeAt(index));
+  }
+}
+
+function createHumLoopBlobUrl(buffer: AudioBuffer) {
+  const channelCount = buffer.numberOfChannels;
+  const frameCount = buffer.length;
+  const sampleRate = buffer.sampleRate;
+  const bytesPerSample = 2;
+  const blockAlign = channelCount * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = frameCount * blockAlign;
+  const wav = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(wav);
+
+  writeAscii(view, 0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeAscii(view, 8, 'WAVE');
+  writeAscii(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channelCount, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bytesPerSample * 8, true);
+  writeAscii(view, 36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    for (let channel = 0; channel < channelCount; channel += 1) {
+      const sample = buffer.getChannelData(channel)[frame] ?? 0;
+      const clamped = Math.max(-1, Math.min(1, sample));
+      const pcm = clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff;
+      view.setInt16(offset, Math.round(pcm), true);
+      offset += bytesPerSample;
+    }
+  }
+
+  return URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
+}
+
+function isSeamlessHumMediaSource(audio?: HTMLAudioElement | null) {
+  return audio?.dataset.zenHumLoopSource === 'seamless';
+}
+
+function getHumMediaLoopStart(audio?: HTMLAudioElement | null) {
+  return isSeamlessHumMediaSource(audio) ? 0 : HUM_LOOP_START;
+}
+
+function syncHumMediaSource(
+  audio: HTMLAudioElement,
+  { allowWhilePlaying = false, resetCurrentTime = false }: SyncHumMediaSourceOptions = {},
+) {
+  const nextMode = humLoopBlobUrl ? 'seamless' : 'raw';
+  const currentMode = audio.dataset.zenHumLoopSource ?? 'raw';
+
+  if (currentMode === nextMode) {
+    if (resetCurrentTime) {
+      try {
+        audio.currentTime = getHumMediaLoopStart(audio);
+      } catch {
+        // no-op
+      }
+    }
+    return true;
+  }
+
+  if (!allowWhilePlaying && (humMediaBridgeActive || !audio.paused)) {
+    return false;
+  }
+
+  const loop = audio.loop;
+  const muted = audio.muted;
+  const volume = audio.volume;
+
+  try {
+    audio.pause();
+    audio.src = humLoopBlobUrl ?? humUrl;
+    audio.dataset.zenHumLoopSource = nextMode;
+    audio.loop = loop;
+    audio.muted = muted;
+    audio.volume = volume;
+    requestLoad(audio);
+    if (resetCurrentTime) {
+      audio.currentTime = nextMode === 'seamless' ? 0 : HUM_LOOP_START;
+    }
+    logAudioDebug('hum-media-source-prepared', {
+      source: nextMode,
+      loopDuration: nextMode === 'seamless' ? humLoopBuffer?.duration : undefined,
+      loopStart: nextMode === 'seamless' ? 0 : HUM_LOOP_START,
+      loopEnd: nextMode === 'seamless' ? humLoopBuffer?.duration : HUM_LOOP_END,
+    });
+    return true;
+  } catch (error) {
+    logPlayFailure('hum', error, {
+      mode: 'media-source-sync',
+      source: nextMode,
+      transport: 'media-element',
+    });
+    return false;
+  }
 }
 
 function getAudioTransport(kind: AudioKind, details?: Record<string, unknown>): AudioTransport {
