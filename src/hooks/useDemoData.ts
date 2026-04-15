@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ActivityData, ConnectedAccount, calculateCO2Offset } from '@/types/dashboard';
 import { getAllEarnedNFTNames } from '@/lib/nftMilestones';
 
@@ -150,6 +150,24 @@ export function useDemoData() {
   const [hasWelcomeNFT, setHasWelcomeNFT] = useState(false);
   const [mintedNFTs, setMintedNFTs] = useState<number[]>([]);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+
+  // Backfill display_name when NDA name becomes available in localStorage
+  useEffect(() => {
+    const check = () => {
+      try {
+        const name = localStorage.getItem('zen_nda_name');
+        if (name && name !== profile.display_name) {
+          setProfile(prev => ({ ...prev, display_name: name }));
+        }
+      } catch {}
+    };
+    check();
+    // Also listen for storage events (from other tabs or async writes)
+    window.addEventListener('storage', check);
+    // Poll once after a short delay to catch async DB fetch
+    const t = setTimeout(check, 2000);
+    return () => { window.removeEventListener('storage', check); clearTimeout(t); };
+  }, []);
   
   // Provider refresh state for UI indicators
   const [providerRefresh] = useState({
