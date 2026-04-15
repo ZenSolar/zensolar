@@ -32,7 +32,6 @@ import type { HideableField } from '@/hooks/useHiddenActivityFields';
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 const providerLogos: Record<string, string> = {
   enphase: enphaseLogo,
