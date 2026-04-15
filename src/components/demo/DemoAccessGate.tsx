@@ -8,7 +8,6 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
   playDemoEntryFallbackGong,
-  playDemoEntryFallbackRevealAudio,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
 } from '@/lib/demoEntryFallbackAudio';
@@ -1374,7 +1373,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               autoCapitalize="off"
             />
 
-            {/* Unlock hint — only shown after awake */}
+            {/* Unlock / tap hint */}
             <div className="flex justify-center h-8">
               {showUnlockHint ? (
                 <span
@@ -1382,12 +1381,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
                 >
                   <Lock className="h-3 w-3" />
-                  {showTapAgain ? 'tap again to mint' : 'double tap $Z to continue'}
+                  {showTapAgain ? 'tap again to mint' : hexAwake ? 'single tap primes • double tap confirms' : 'press & hold $Z'}
                 </span>
               ) : (
                 <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" />
-                  {showTapAgain ? 'tap again to mint' : revealed ? 'double tap to mint' : 'press & hold $Z'}
+                  {showTapAgain ? 'tap again to mint' : hexAwake ? 'single tap sparks • double tap mints' : 'press & hold $Z'}
                 </span>
               )}
             </div>
