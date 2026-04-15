@@ -2,6 +2,9 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import chargepointLogo from '@/assets/logos/chargepoint-logo.png';
 
 function ManufacturerBadges() {
   const manufacturers = [
