@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
+  handoffDemoEntryFallbackHum,
   playDemoEntryFallbackGong,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
@@ -590,11 +591,59 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const firstReveal = !s.hexAwake;
 
-    const scheduleHumActivation = (origin: string, revealStartTime: number) => {
+    const scheduleHumActivation = (origin: string, revealStartTime: number, bootstrapFallbackActive: boolean) => {
       clearScheduledHumStart();
       const targetStartTime = revealStartTime + HUM_START_DELAY_MS / 1000;
       const started = startShimmerSound(targetStartTime, 0.3);
       const audioContextState = getSharedAudioContext()?.state ?? 'null';
+
+      if (started) {
+        setShimmerActive(true);
+      }
+
+      if (started && bootstrapFallbackActive && ctx) {
+        const queueHandoff = () => {
+          const delayMs = Math.max(180, Math.round((targetStartTime - ctx.currentTime) * 1000) + 220);
+          clearScheduledHumStart();
+          humStartTimerRef.current = window.setTimeout(() => {
+            humStartTimerRef.current = null;
+            const handedOff = handoffDemoEntryFallbackHum(260);
+            if (!handedOff) return;
+
+            setFallbackHumActive(false);
+            updateReleaseAudioDiagnostics({
+              audioContextState: getSharedAudioContext()?.state ?? 'null',
+              synthHandoff: 'fallback-handed-off',
+              lastEvent: `${origin}-hum-handed-off`,
+            });
+            logAudioDebug('hum-handed-off', {
+              ctx: getSharedAudioContext()?.state ?? 'null',
+              delayMs,
+            });
+          }, delayMs);
+        };
+
+        if (ctx.state === 'running') {
+          queueHandoff();
+        } else {
+          audioWakeCleanupRef.current?.();
+          audioWakeCleanupRef.current = runWhenAudioContextRunning(
+            ctx,
+            queueHandoff,
+            Math.max(HUM_START_DELAY_MS + 1800, 3200),
+            () => {
+              updateReleaseAudioDiagnostics({
+                audioContextState: ctx.state,
+                lastEvent: `${origin}-hum-handoff-timeout`,
+              });
+              logAudioDebug('hum-handoff-missed', {
+                reason: 'audio-running-timeout',
+                ctx: ctx.state,
+              });
+            },
+          );
+        }
+      }
 
       updateReleaseAudioDiagnostics({
         audioContextState,
@@ -627,20 +676,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
         const humFallbackStarted = playDemoEntryFallbackHum();
+        setFallbackHumActive(humFallbackStarted);
 
-        // Only start the Web Audio synth hum if the HTMLAudioElement fallback
-        // did NOT start. Running both causes an audible glitch when the synth
-        // boots seconds later on top of the already-playing fallback.
-        let humSynthStarted = false;
-        if (!humFallbackStarted) {
-          humSynthStarted = scheduleHumActivation(source, startTime);
-        }
+        const humSynthStarted = scheduleHumActivation(source, startTime, humFallbackStarted);
 
         audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: humFallbackStarted ? 'fallback-hum-playing' : humSynthStarted ? 'scheduled-in-gesture' : 'missed',
+          synthHandoff: humSynthStarted
+            ? humFallbackStarted
+              ? 'bootstrap-to-shimmer'
+              : 'scheduled-in-gesture'
+            : humFallbackStarted
+              ? 'fallback-hum-playing'
+              : 'missed',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -651,7 +701,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           gongStarted,
           humFallbackStarted,
           humSynthStarted,
-          audioMode: humFallbackStarted ? 'fallback-hum' : humSynthStarted ? 'gesture-shimmer' : 'missed',
+          audioMode: humSynthStarted
+            ? humFallbackStarted
+              ? 'fallback-to-shimmer'
+              : 'gesture-shimmer'
+            : humFallbackStarted
+              ? 'fallback-hum'
+              : 'missed',
           visualReveal: true,
         });
         return false;
@@ -697,6 +753,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
         const humFallbackStarted = playDemoEntryFallbackHum();
+        setFallbackHumActive(humFallbackStarted);
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
           synthHandoff: humFallbackStarted ? 'fallback-hum-playing' : 'missed',
