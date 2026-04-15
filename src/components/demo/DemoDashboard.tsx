@@ -248,7 +248,6 @@ export function DemoDashboard() {
             nftsEarned={activityData.nftsEarned}
             lifetimeMinted={activityData.lifetimeMinted}
             isNewUser={true}
-            initialCategory="ev_miles"
             featuredNftId="ev_8"
           />
         </AnimatedItem>
