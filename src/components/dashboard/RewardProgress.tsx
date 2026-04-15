@@ -387,10 +387,10 @@ export function RewardProgress({
                   <CurrentIcon className="h-3.5 w-3.5 text-white" />
                 </div>
                 <span className="text-xs font-medium text-white/80 uppercase tracking-wide">
-                  {getCategoryDisplayName(displayMilestone?.category || 'solar')} · {isCurrentComplete ? 'Earned' : 'Next Unlock'}
+                  {getCategoryDisplayName(displayCategory)} · {showingFeatured ? 'Featured' : (isCurrentComplete ? 'Earned' : 'Next Unlock')}
                 </span>
               </div>
-              <p className="text-xl font-bold text-white">{displayMilestone?.name}</p>
+              <p className="text-xl font-bold text-white">{displayName}</p>
             </div>
             
             {/* Glow effect on hover */}
@@ -468,6 +468,14 @@ export function RewardProgress({
           />
         </div>
         
+        {/* Mainnet upgrade note */}
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
+          <Rocket className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+          <span className="text-[11px] text-muted-foreground">
+            NFTs will be upgraded upon mainnet blockchain launch! 🚀
+          </span>
+        </div>
+
         {/* Footer: View Collection */}
         <div className="pt-3 border-t border-border/50">
           <Link 

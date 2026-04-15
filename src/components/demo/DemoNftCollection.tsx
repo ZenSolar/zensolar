@@ -1119,7 +1119,7 @@ export function DemoNftCollection() {
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span>
-                  NFTs are stored on Base blockchain. Keep tracking your clean energy activities to unlock more achievements!
+                  NFTs will be upgraded upon mainnet blockchain launch! 🚀
                 </span>
               </div>
             </CardContent>
