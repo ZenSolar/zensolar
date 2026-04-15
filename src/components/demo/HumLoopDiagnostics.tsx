@@ -36,6 +36,7 @@ export function HumLoopDiagnosticsOverlay() {
     ['loop', `${diag.loopStart.toFixed(2)}→${diag.loopEnd.toFixed(2)}`, 'text-foreground'],
     ['overlap', diag.overlapMs + 'ms', 'text-foreground'],
     ['media bridge', diag.mediaBridge ? 'ON' : 'off', diag.mediaBridge ? 'text-yellow-400' : 'text-muted-foreground'],
+    ['media src', diag.mediaSource, diag.mediaSource === 'seamless' ? 'text-primary' : 'text-yellow-400'],
     ['media time', diag.mediaTime.toFixed(2) + 's', 'text-foreground'],
     ['media playing', diag.mediaPlaying ? 'YES' : 'NO', diag.mediaPlaying ? 'text-yellow-400' : 'text-muted-foreground'],
   ];
