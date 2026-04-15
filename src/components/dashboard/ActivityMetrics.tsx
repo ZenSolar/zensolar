@@ -1410,7 +1410,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         <div className="flex items-center gap-1.5">
           <p 
             className={cn(
-              "text-sm font-medium truncate transition-all duration-300",
+              "text-[13px] font-medium leading-tight transition-all duration-300",
               active ? "text-foreground" : "text-muted-foreground"
             )}
           >{label}</p>
