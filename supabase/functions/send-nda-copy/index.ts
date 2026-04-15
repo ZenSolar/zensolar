@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Invoke the transactional email sender with the NDA template
+    // 1. Send NDA copy to the signer
     const idempotencyKey = `nda-copy-${recipientEmail}-${signedAt}`;
     const { error: invokeError } = await supabase.functions.invoke('send-transactional-email', {
       body: {
@@ -60,13 +60,35 @@ Deno.serve(async (req) => {
     });
 
     if (invokeError) {
-      console.error("send-transactional-email invoke error:", invokeError);
-      // Still return success — NDA was recorded, email is best-effort
-      return new Response(
-        JSON.stringify({ success: true, emailQueued: false, message: "NDA recorded. Email delivery pending domain verification." }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.error("send-transactional-email invoke error (signer copy):", invokeError);
     }
+
+    // 2. Send admin notification to joe@zen.solar
+    const adminIdempotencyKey = `nda-admin-${recipientEmail}-${signedAt}`;
+    const { error: adminError } = await supabase.functions.invoke('send-transactional-email', {
+      body: {
+        templateName: 'nda-admin-notification',
+        recipientEmail: 'joe@zen.solar',
+        idempotencyKey: adminIdempotencyKey,
+        templateData: {
+          signerName: recipientName,
+          signerEmail: recipientEmail,
+          signedAt,
+          ndaVersion,
+        },
+      },
+    });
+
+    if (adminError) {
+      console.error("send-transactional-email invoke error (admin notification):", adminError);
+    }
+
+    console.log("NDA emails queued:", { recipientEmail, recipientName, signedAt, ndaVersion });
+
+    return new Response(
+      JSON.stringify({ success: true, emailQueued: !invokeError, adminNotified: !adminError }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
 
     console.log("NDA copy email queued:", { recipientEmail, recipientName, signedAt, ndaVersion });
 
