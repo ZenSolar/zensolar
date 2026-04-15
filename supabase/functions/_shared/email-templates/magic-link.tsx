@@ -27,7 +27,7 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your login link for {siteName}</Preview>
+    <Preview>Your login link for ZenSolar</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -36,7 +36,7 @@ export const MagicLinkEmail = ({
         <Hr style={divider} />
         <Heading style={h1}>Your login link</Heading>
         <Text style={text}>
-          Click the button below to log in to {siteName}. This link will expire shortly.
+          Click the button below to log in to <span style={solarBlue}><strong>ZenSolar</strong></span>. This link will expire shortly.
         </Text>
         <Section style={buttonSection}>
           <Button style={button} href={confirmationUrl}>

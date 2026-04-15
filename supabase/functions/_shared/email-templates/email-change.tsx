@@ -32,7 +32,7 @@ export const EmailChangeEmail = ({
 }: EmailChangeEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirm your email change for {siteName}</Preview>
+    <Preview>Confirm your email change for ZenSolar</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -41,7 +41,7 @@ export const EmailChangeEmail = ({
         <Hr style={divider} />
         <Heading style={h1}>Confirm your email change</Heading>
         <Text style={text}>
-          You requested to change your email address for {siteName} from{' '}
+          You requested to change your email address for <span style={solarBlue}><strong>ZenSolar</strong></span> from{' '}
           <Link href={`mailto:${email}`} style={link}>
             {email}
           </Link>{' '}
