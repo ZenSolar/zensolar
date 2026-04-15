@@ -145,14 +145,9 @@ async function checkExistingNda(email: string): Promise<boolean> {
 
 async function fetchNdaName(email: string): Promise<string | null> {
   try {
-    const { data } = await supabase
-      .from('nda_signatures')
-      .select('full_name')
-      .eq('email', email)
-      .order('signed_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    return data?.full_name || null;
+    const { data, error } = await supabase.rpc('get_nda_signer_name', { _email: email });
+    if (error || !data) return null;
+    return data as string;
   } catch {
     return null;
   }
