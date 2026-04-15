@@ -226,5 +226,39 @@ export function useShimmerSound({
     setShimmerGraphCycleDuration(nodesRef.current, cycleDuration, nodesRef.current.ctx.currentTime);
   }, [cycleDuration]);
 
+  useEffect(() => {
+    if (!enabled) return;
+
+    const sustain = () => {
+      const nodes = nodesRef.current;
+      if (!nodes) return;
+
+      clearPendingDisposal();
+
+      if (nodes.ctx.state !== 'running') {
+        nodes.ctx.resume().catch(() => {});
+      }
+
+      const now = nodes.ctx.currentTime;
+      setShimmerGraphCycleDuration(nodes, cycleDurationRef.current, now, 0.15);
+      setShimmerGraphVolume(nodes, volumeRef.current, now, 0.15);
+    };
+
+    sustain();
+    const intervalId = window.setInterval(sustain, 1200);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') sustain();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pageshow', sustain);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', sustain);
+    };
+  }, [enabled, clearPendingDisposal]);
+
   return startSound;
 }
