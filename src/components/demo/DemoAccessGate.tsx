@@ -22,6 +22,7 @@ import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, run
 
 
 const LS_KEY = 'zen_demo_access';
+const NDA_EMAIL_KEY = 'zen_nda_email';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 function isAccessGranted(): boolean {
@@ -38,6 +39,28 @@ function isAccessGranted(): boolean {
 
 function grantAccess() {
   localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }));
+}
+
+function getSavedNdaEmail(): string | null {
+  return localStorage.getItem(NDA_EMAIL_KEY);
+}
+
+function saveNdaEmail(email: string) {
+  localStorage.setItem(NDA_EMAIL_KEY, email);
+}
+
+async function checkExistingNda(email: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('nda_signatures')
+      .select('id')
+      .eq('email', email)
+      .limit(1);
+    if (error) return false;
+    return (data?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
 }
 
 // ─── Burst particles ────
