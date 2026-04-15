@@ -427,6 +427,45 @@ export function handoffDemoEntryFallbackHum(durationMs = 220) {
   return true;
 }
 
+/**
+ * Fire the pre-armed fallback hum HTMLAudioElement immediately.
+ * Must be called synchronously inside a user gesture (touchend/pointerup).
+ * Returns true if the hum is now playing.
+ */
+export function playDemoEntryFallbackHum(): boolean {
+  const audio = ensureFallbackAudio();
+  if (!audio) return false;
+
+  requestLoad(audio.hum);
+  cancelHumFade();
+  cancelHumStopTimer();
+
+  let humStarted = false;
+
+  if (fallbackGestureArmed.hum && !audio.hum.paused) {
+    try {
+      audio.hum.loop = true;
+      audio.hum.volume = 0;
+      audio.hum.muted = false;
+      fadeHumTo(audio.hum, HUM_VOLUME, 350);
+      humStarted = true;
+      logPlaySuccess('hum', audio.hum, { armed: true, seamless: true, standalone: true });
+    } catch (error) {
+      logPlayFailure('hum', error, audio.hum, { armed: true, standalone: true });
+    }
+  } else {
+    audio.hum.loop = true;
+    audio.hum.muted = false;
+    audio.hum.volume = HUM_VOLUME;
+    try { if (audio.hum.paused) audio.hum.currentTime = 0; } catch {}
+    humStarted = audio.hum.paused ? attemptPlay('hum', audio.hum, { armed: false, standalone: true }) : true;
+  }
+
+  fallbackHumActive = humStarted;
+  logAudioDebug('entry-fallback-hum-triggered', { humReady: audio.hum.readyState, humStarted });
+  return humStarted;
+}
+
 export function stopDemoEntryFallbackHum(reset = true) {
   if (!fallbackAudio) return;
 
