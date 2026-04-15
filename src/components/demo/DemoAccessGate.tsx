@@ -180,7 +180,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     cycleDuration: 5,
     volume: 0.06,
     enabled: stateRef.current.hexAwake,
-    prewarm: false,
+    prewarm: true,
   });
 
   useEffect(() => {
