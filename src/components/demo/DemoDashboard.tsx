@@ -175,7 +175,7 @@ export function DemoDashboard() {
         )}
 
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
-        <AnimatedItem id="demo-kpi-section" data-hint-target="kpi">
+        <AnimatedItem>
           <ActivityMetrics
             data={activityData}
             currentActivity={currentActivity}
