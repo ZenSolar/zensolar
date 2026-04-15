@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronLeft, Hand, Wallet } from 'lucide-react';
-
-const WALLET_HINT_KEY = 'zen_demo_wallet_hint_shown';
-const WALLET_HINT_KEY = 'zen_demo_wallet_hint_shown';
+import { ChevronDown, ChevronLeft, Hand } from 'lucide-react';
 
 type HintId = 'menu' | 'kpi' | 'wallet';
 
