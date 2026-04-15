@@ -8,6 +8,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
   playDemoEntryFallbackGong,
+  playDemoEntryFallbackHum,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
 } from '@/lib/demoEntryFallbackAudio';
@@ -17,7 +18,6 @@ import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
-import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
 
@@ -88,7 +88,6 @@ const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
 const HOLD_THRESHOLD_MS = 550;     // Short enough to feel immediate, long enough to unlock audio on iOS
 const HOLD_RELEASE_GRACE_MS = 80;  // Absorb finger-lift timing variance on iPhone Safari/Chrome
-const HUM_START_DELAY_MS = 0;
 const HAPTIC_PULSE_PROGRESS = [0, 0.28, 0.52, 0.74, 0.92] as const;
 interface DemoAccessGateProps {
   children: React.ReactNode;
@@ -140,8 +139,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
-  const [, setFallbackHumActive] = useState(false);
-  const [shimmerActive, setShimmerActive] = useState(false);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = true;
   const showReleaseAudioDiagnostics = false;
@@ -190,22 +187,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const fallbackGestureTimeRef = useRef(0);
   const audioReadyRef = useRef(false);
   const audioWakeCleanupRef = useRef<(() => void) | null>(null);
-  const humStartTimerRef = useRef<number | null>(null);
-
-  const clearScheduledHumStart = useCallback(() => {
-    if (humStartTimerRef.current !== null) {
-      window.clearTimeout(humStartTimerRef.current);
-      humStartTimerRef.current = null;
-    }
-  }, []);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
-  const startShimmerSound = useShimmerSound({
-    cycleDuration: 5,
-    volume: 0.4,
-    enabled: shimmerActive,
-    prewarm: true,
-  });
 
   useEffect(() => {
     if (!showAudioDebug) return;
@@ -304,11 +287,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (lockedIndicatorTimerRef.current) clearTimeout(lockedIndicatorTimerRef.current);
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       audioWakeCleanupRef.current?.();
-      clearScheduledHumStart();
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
     };
-  }, [clearScheduledHumStart]);
+  }, []);
 
   // ── Core submit logic ──
   const submitCode = useCallback(async () => {
@@ -335,9 +317,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           // Blur input to dismiss keyboard & reset iOS viewport zoom before showing NDA
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
-          setFallbackHumActive(false);
-          clearScheduledHumStart();
-          setShimmerActive(false);
           // Force viewport zoom reset on iOS
           const vp = document.querySelector('meta[name="viewport"]');
           if (vp) {
@@ -458,7 +437,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let gongPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
-      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: true });
       gongPrewarmed = prewarmSingingBowl();
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
@@ -469,11 +448,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         fallbackArmed,
-        shimmerMode: 'hook-prewarm',
+        humMode: 'direct-file-loop',
       });
     }
 
-    audioReadyRef.current = Boolean(s.hexAwake || (ctx && ctx.state === 'running'));
+    audioReadyRef.current = Boolean(s.hexAwake || fallbackArmed || (ctx && ctx.state === 'running'));
     if (!s.hexAwake && ctx && ctx.state !== 'running') {
       audioWakeCleanupRef.current = runWhenAudioContextRunning(
         ctx,
@@ -532,7 +511,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }, 120);
       }
     }, HOLD_THRESHOLD_MS);
-  }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, startShimmerSound, updateState]);
+  }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, updateState]);
 
   const handleHoldEnd = useCallback((source = 'pointerup') => {
     const s = stateRef.current;
@@ -575,7 +554,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!heldLongEnough) {
       if (!s.hexAwake) {
         stopDemoEntryFallbackHum();
-        setFallbackHumActive(false);
       }
       updateReleaseAudioDiagnostics({
         fallbackFired: 'idle',
@@ -588,28 +566,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
 
     const firstReveal = !s.hexAwake;
-
-    const scheduleHumActivation = (origin: string, revealStartTime: number) => {
-      clearScheduledHumStart();
-      const targetStartTime = revealStartTime + HUM_START_DELAY_MS / 1000;
-      setShimmerActive(true);
-      const started = startShimmerSound(targetStartTime, 0.4);
-      const audioContextState = getSharedAudioContext()?.state ?? 'null';
-
-      updateReleaseAudioDiagnostics({
-        audioContextState,
-        synthHandoff: started ? 'scheduled-in-gesture' : 'enabled-awaiting-context',
-        lastEvent: `${origin}-${started ? 'hum-armed' : 'hum-enable-pending'}`,
-      });
-
-      logAudioDebug(started ? 'hum-armed' : 'hum-enable-pending', {
-        delayMs: HUM_START_DELAY_MS,
-        ctx: audioContextState,
-        start: targetStartTime,
-      });
-
-      return started;
-    };
 
     const revealVisuals = () => {
       triggerBurst();
@@ -625,14 +581,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
+        const humFallbackStarted = playDemoEntryFallbackHum();
         const gongStarted = playSingingBowl(startTime);
-        const humSynthStarted = scheduleHumActivation(source, startTime);
 
-        audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || gongStarted;
+        audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || humFallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
-          fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
+          fallbackFired: gongFallbackStarted || humFallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: humSynthStarted ? 'scheduled-in-gesture' : 'missed',
+          synthHandoff: humFallbackStarted ? 'direct-file-loop' : 'missed',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -640,9 +596,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           ctxState: ctx?.state ?? 'null',
           warmStart,
           gongFallbackStarted,
+          humFallbackStarted,
           gongStarted,
-          humSynthStarted,
-          audioMode: humSynthStarted ? 'gesture-shimmer' : 'missed',
+          audioMode: humFallbackStarted ? 'gesture-file-loop' : 'missed',
           visualReveal: true,
         });
         return false;
@@ -664,8 +620,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return false;
     };
 
-    // CRITICAL: Set hexAwake BEFORE firing audio so the shimmer hook's
-    // delayed activation can switch on cleanly after the reveal.
+    // CRITICAL: Set hexAwake BEFORE firing audio so the reveal state is already committed.
     if (firstReveal) {
       stateRef.current.hexAwake = true;
     }
@@ -684,14 +639,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       fireRevealAudio(startTime, ctx.state !== 'running');
     } else {
-      // No AudioContext — still try fallback gong synchronously in gesture context
+      // No AudioContext — still try direct media-element audio synchronously in gesture context
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
+        const humFallbackStarted = playDemoEntryFallbackHum();
         updateReleaseAudioDiagnostics({
-          fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
-          synthHandoff: 'missed',
+          fallbackFired: gongFallbackStarted || humFallbackStarted ? 'fired' : 'missed',
+          synthHandoff: humFallbackStarted ? 'direct-file-loop' : 'missed',
           audioContextState: 'null',
           lastEvent: `${source}-reveal-fallback-only`,
+        });
+        logGestureDebug(`${source}-reveal-fallback-only`, {
+          gongFallbackStarted,
+          humFallbackStarted,
+          audioMode: humFallbackStarted ? 'gesture-file-loop' : 'missed',
+          visualReveal: true,
         });
       }
     }
@@ -702,7 +664,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!ctx) {
       logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
     }
-  }, [clearScheduledHumStart, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateReleaseAudioDiagnostics, updateState]);
+  }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, triggerBurst, updateReleaseAudioDiagnostics, updateState]);
 
   // ── Double-tap mint after reveal, hold-to-reveal before ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
@@ -787,9 +749,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
-      clearScheduledHumStart();
       stopDemoEntryFallbackHum();
-      setFallbackHumActive(false);
       updateState({ holding: false, holdReady: false });
       logGestureDebug('touchcancel');
     };
@@ -840,13 +800,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   const handleNdaSigned = useCallback(() => {
     stopDemoEntryFallbackHum();
-    setFallbackHumActive(false);
-    clearScheduledHumStart();
-    setShimmerActive(false);
     setShowNda(false);
     grantAccess();
     setGranted(true);
-  }, [clearScheduledHumStart]);
+  }, []);
 
   if (granted) return <>{children}</>;
 
