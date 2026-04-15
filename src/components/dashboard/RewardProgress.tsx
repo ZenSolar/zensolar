@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Award, ChevronRight, Sun, Car, BatteryFull, Zap, Sparkles } from 'lucide-react';
+import { Award, ChevronRight, Sun, Car, BatteryFull, Zap, Sparkles, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +17,7 @@ import {
   getNextMilestone,
   getCategoryDisplayName,
   type PriorityMilestone,
+  type NFTMilestone,
 } from '@/lib/nftMilestones';
 import { getNftArtwork } from '@/lib/nftArtwork';
 
