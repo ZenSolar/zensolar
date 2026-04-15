@@ -373,6 +373,11 @@ export function RewardProgress({
             animate={{
               y: [0, 3, 0],
               scale: [1, 0.98, 1],
+              boxShadow: [
+                '0 6px 0 0 rgba(0,0,0,0.3), 0 0 12px 2px hsl(var(--primary) / 0.15)',
+                '0 2px 0 0 rgba(0,0,0,0.3), 0 0 20px 6px hsl(var(--primary) / 0.35)',
+                '0 6px 0 0 rgba(0,0,0,0.3), 0 0 12px 2px hsl(var(--primary) / 0.15)',
+              ],
             }}
             transition={{
               duration: 2,
@@ -380,7 +385,7 @@ export function RewardProgress({
               repeatDelay: 1.5,
               ease: 'easeInOut',
             }}
-            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-card/5 group cursor-pointer touch-manipulation shadow-[0_6px_0_0_rgba(0,0,0,0.3)]"
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-card/5 group cursor-pointer touch-manipulation"
           >
             <AnimatePresence mode="wait">
               {artwork && (
