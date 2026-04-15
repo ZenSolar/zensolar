@@ -385,7 +385,7 @@ export function RewardProgress({
               repeatDelay: 1.5,
               ease: 'easeInOut',
             }}
-            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-card/5 group cursor-pointer touch-manipulation">
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-card/5 group cursor-pointer touch-manipulation"
           >
             <AnimatePresence mode="wait">
               {artwork && (
