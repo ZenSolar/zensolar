@@ -1192,6 +1192,7 @@ export type Database = {
           provider: string
         }[]
       }
+      get_nda_signer_name: { Args: { _email: string }; Returns: string }
       get_profiles_for_viewer: {
         Args: { _user_id: string }
         Returns: {
