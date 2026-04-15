@@ -1446,23 +1446,24 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             >
               Mint
             </span>
-            {/* "Tap again" hint — fades in */}
+            {/* "Tap again" hint — fades in with strong pulse */}
             <span 
               className={cn(
-                "text-[11px] font-medium tracking-wide absolute right-0 transition-all duration-400 ease-out",
-                showTapAgain ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-95 blur-[2px]"
+                "text-[11px] font-bold tracking-wide absolute right-0 transition-all duration-300 ease-out text-primary",
+                showTapAgain ? "opacity-100 scale-105 blur-0" : "opacity-0 scale-95 blur-[2px]"
               )}
               style={showTapAgain ? {
-                animation: 'zenTapAgainPulse 1.2s ease-in-out infinite',
+                animation: 'zenTapAgainPulse 0.8s ease-in-out infinite',
+                textShadow: '0 0 8px hsl(var(--primary) / 0.5)',
               } : undefined}
             >
-              tap twice
+              ⚡ tap again
             </span>
           </div>
           <ChevronRight className={cn(
             "h-4 w-4 transition-all duration-300",
             isBursting && "translate-x-1",
-            showTapAgain && "animate-pulse opacity-70"
+            showTapAgain && "text-primary animate-bounce"
           )} />
         </div>
       )}
