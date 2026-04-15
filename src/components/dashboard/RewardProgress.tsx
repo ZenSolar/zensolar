@@ -183,6 +183,7 @@ export function RewardProgress({
   evChargingKwh,
   batteryDischargedKwh,
   initialCategory,
+  featuredNftId,
 }: RewardProgressProps) {
   // Haptic feedback hook
   const { lightTap } = useHaptics();
