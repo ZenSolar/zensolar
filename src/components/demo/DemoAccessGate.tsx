@@ -393,9 +393,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let humPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio();
       gongPrewarmed = prewarmSingingBowl();
       humPrewarmed = startShimmerSound(undefined, 0);
-      fallbackArmed = !!preloadDemoEntryFallbackAudio();
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         humPrewarmed,
