@@ -192,7 +192,7 @@ function FloatingHint({
   fallbackSelector: string;
   label: string;
   icon: 'hand' | 'down';
-  position: 'above' | 'below';
+  position: 'above' | 'below' | 'center';
   onDismiss: () => void;
   delay?: number;
 }) {
@@ -213,7 +213,7 @@ function FloatingHint({
         return;
       }
       setCoords({
-        top: position === 'above' ? rect.top - 44 : rect.bottom + 8,
+        top: position === 'above' ? rect.top - 44 : position === 'center' ? rect.top + rect.height / 2 - 22 : rect.bottom + 8,
         left: rect.left + rect.width / 2,
       });
     };
