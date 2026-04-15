@@ -296,10 +296,10 @@ export function ActivityMetrics({
           />
 
           <div className="relative">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <div 
-                  className="h-9 w-9 rounded-lg flex items-center justify-center"
+                  className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
                     boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
@@ -307,7 +307,7 @@ export function ActivityMetrics({
                 >
                   <Gauge className="h-5 w-5 text-white" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
                     Clean Energy Center
                   </h2>
@@ -323,7 +323,7 @@ export function ActivityMetrics({
                 </div>
               </div>
 
-              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <div className="flex flex-col items-end gap-1.5 flex-shrink-0 pt-0.5">
                 <span 
                   className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary whitespace-nowrap"
                   style={{ textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)' }}
