@@ -847,18 +847,23 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               style={{
                 willChange: 'transform, opacity',
                 backfaceVisibility: 'hidden',
-                boxShadow: isBursting || firstTapBurst
-                  ? '0 0 40px hsl(var(--primary) / 0.5)'
-                  : isDenied
-                    ? '0 0 40px hsl(var(--destructive) / 0.5)'
-                    : '0 0 24px hsl(var(--primary) / 0.3)',
+                backgroundColor: holdReady
+                  ? 'hsla(142, 76%, 36%, 0.35)'
+                  : undefined,
+                boxShadow: holdReady
+                  ? '0 0 48px hsla(142, 76%, 42%, 0.6), 0 0 16px hsla(142, 76%, 42%, 0.3)'
+                  : isBursting || firstTapBurst
+                    ? '0 0 40px hsl(var(--primary) / 0.5)'
+                    : isDenied
+                      ? '0 0 40px hsl(var(--destructive) / 0.5)'
+                      : '0 0 24px hsl(var(--primary) / 0.3)',
                 transform: holding
                   ? 'scale(0.92)'
                   : firstTapBurst || isBursting
                     ? 'scale(0.92)'
                     : undefined,
                 transition: holding
-                  ? 'transform 80ms ease-out, background-color 60ms, box-shadow 60ms'
+                  ? 'transform 80ms ease-out, background-color 120ms, box-shadow 120ms'
                   : firstTapBurst
                     ? 'transform 60ms, background-color 60ms, box-shadow 60ms'
                     : 'transform 200ms ease-out, background-color 200ms, box-shadow 200ms',
