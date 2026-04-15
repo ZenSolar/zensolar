@@ -15,6 +15,7 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
+import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 
@@ -818,6 +819,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }}
     >
       {showAudioDebug && <AudioDebugOverlay />}
+      {showAudioDebug && <HumLoopDiagnosticsOverlay />}
       {showReleaseAudioDiagnostics && (
         <ReleaseAudioDiagnostics
           fallbackArmed={releaseAudioDiagnostics.fallbackArmed}

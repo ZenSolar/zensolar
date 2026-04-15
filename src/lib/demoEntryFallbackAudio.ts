@@ -646,6 +646,10 @@ function scheduleHumLoopVoice(graph: HumLoopGraph, startTime: number, startOffse
 
   source.onended = () => {
     graph.voices.delete(voice);
+    logAudioDebug('hum-voice-ended', {
+      ctxNow: graph.ctx.currentTime.toFixed(3),
+      remainingVoices: graph.voices.size,
+    });
     try {
       source.disconnect();
       gain.disconnect();
@@ -656,6 +660,19 @@ function scheduleHumLoopVoice(graph: HumLoopGraph, startTime: number, startOffse
 
   source.start(startTime, safeOffset, duration);
   source.stop(startTime + duration + 0.03);
+
+  logAudioDebug('hum-voice-scheduled', {
+    startTime: startTime.toFixed(3),
+    ctxNow: graph.ctx.currentTime.toFixed(3),
+    offset: safeOffset.toFixed(3),
+    duration: duration.toFixed(3),
+    overlap: overlap.toFixed(3),
+    fadeIn,
+    voices: graph.voices.size,
+    bufDur: graph.buffer.duration.toFixed(3),
+    loopStart: loopStart.toFixed(3),
+    loopEnd: loopEnd.toFixed(3),
+  });
 
   return {
     duration,
@@ -1230,6 +1247,44 @@ export function stopDemoEntryFallbackHum(reset = true) {
 
 export function isDemoEntryFallbackHumActive() {
   return fallbackHumActive;
+}
+
+export interface HumLoopDiagnostics {
+  active: boolean;
+  voices: number;
+  ctxTime: number;
+  ctxState: string;
+  nextStart: number | null;
+  nextOffset: number;
+  bufferDuration: number;
+  loopStart: number;
+  loopEnd: number;
+  overlapMs: number;
+  mediaBridge: boolean;
+  mediaTime: number;
+  mediaPlaying: boolean;
+  gainValue: number;
+}
+
+export function getHumLoopDiagnostics(): HumLoopDiagnostics {
+  const graph = humLoopGraph;
+  const audio = fallbackAudio?.hum;
+  return {
+    active: fallbackHumActive,
+    voices: graph?.voices.size ?? 0,
+    ctxTime: graph?.ctx.currentTime ?? 0,
+    ctxState: graph?.ctx.state ?? (getAudioContext()?.state ?? 'null'),
+    nextStart: graph?.nextVoiceStartTime ?? null,
+    nextOffset: graph?.nextVoiceOffset ?? 0,
+    bufferDuration: graph?.buffer.duration ?? 0,
+    loopStart: graph ? getHumLoopStart(graph.buffer) : HUM_LOOP_START,
+    loopEnd: graph ? getHumLoopEnd(graph.buffer) : HUM_LOOP_END,
+    overlapMs: HUM_LOOP_CROSSFADE_MS,
+    mediaBridge: humMediaBridgeActive,
+    mediaTime: audio?.currentTime ?? 0,
+    mediaPlaying: audio ? !audio.paused : false,
+    gainValue: graph?.gain.gain.value ?? 0,
+  };
 }
 
 if (typeof window !== 'undefined') {
