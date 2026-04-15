@@ -63,6 +63,7 @@ const HUM_VOLUME = 0.36;
 const HUM_LOOP_START = 0.56;
 const HUM_LOOP_END = 9.669333333333332;
 const HUM_LOOP_CROSSFADE_MS = 160;
+const HUM_MEDIA_STITCH_REPEATS = 12;
 const HUM_FADE_IN_MS = 220;
 const HUM_FADE_OUT_MS = 180;
 const GONG_DURATION_S = 6.0;
@@ -321,11 +322,12 @@ function writeAscii(view: DataView, offset: number, value: string) {
 function createHumLoopBlobUrl(buffer: AudioBuffer) {
   const channelCount = buffer.numberOfChannels;
   const frameCount = buffer.length;
+  const repeatedFrameCount = frameCount * HUM_MEDIA_STITCH_REPEATS;
   const sampleRate = buffer.sampleRate;
   const bytesPerSample = 2;
   const blockAlign = channelCount * bytesPerSample;
   const byteRate = sampleRate * blockAlign;
-  const dataSize = frameCount * blockAlign;
+  const dataSize = repeatedFrameCount * blockAlign;
   const wav = new ArrayBuffer(44 + dataSize);
   const view = new DataView(wav);
 
@@ -344,13 +346,15 @@ function createHumLoopBlobUrl(buffer: AudioBuffer) {
   view.setUint32(40, dataSize, true);
 
   let offset = 44;
-  for (let frame = 0; frame < frameCount; frame += 1) {
-    for (let channel = 0; channel < channelCount; channel += 1) {
-      const sample = buffer.getChannelData(channel)[frame] ?? 0;
-      const clamped = Math.max(-1, Math.min(1, sample));
-      const pcm = clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff;
-      view.setInt16(offset, Math.round(pcm), true);
-      offset += bytesPerSample;
+  for (let repeat = 0; repeat < HUM_MEDIA_STITCH_REPEATS; repeat += 1) {
+    for (let frame = 0; frame < frameCount; frame += 1) {
+      for (let channel = 0; channel < channelCount; channel += 1) {
+        const sample = buffer.getChannelData(channel)[frame] ?? 0;
+        const clamped = Math.max(-1, Math.min(1, sample));
+        const pcm = clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff;
+        view.setInt16(offset, Math.round(pcm), true);
+        offset += bytesPerSample;
+      }
     }
   }
 
