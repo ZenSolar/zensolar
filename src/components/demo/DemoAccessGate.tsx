@@ -700,7 +700,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug(`${source}-first-tap-mint`, { hasCode });
 
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      doubleTapTimerRef.current = window.setTimeout(() => {
+      doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
         updateState({ showTapAgain: false });
       }, DOUBLE_TAP_WINDOW);
