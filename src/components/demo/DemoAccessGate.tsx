@@ -240,8 +240,6 @@ const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [granted, setGranted] = useState(() => {
-    // TEMP: bypass gate for preview testing
-    return true;
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
       removeStoredValue(LS_KEY);
@@ -250,6 +248,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
     return isAccessGranted();
   });
+
+  // Bypass gate for authenticated admin/editor users
+  useEffect(() => {
+    if (granted) return;
+    let cancelled = false;
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (cancelled || !data.user) return;
+      const { data: isAdminEditor } = await supabase.rpc('is_admin_or_editor', { _user_id: data.user.id });
+      if (!cancelled && isAdminEditor === true) {
+        setGranted(true);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [granted]);
   const [code, setCode] = useState('');
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');

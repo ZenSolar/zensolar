@@ -219,14 +219,14 @@ export function DemoDashboard() {
           />
         </AnimatedItem>
 
+        {/* API Partners Card — between actions and energy flow */}
+        <AnimatedItem>
+          <ApiPartnersCard />
+        </AnimatedItem>
+
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
           <EnergyFlowGlowCard />
-        </AnimatedItem>
-
-        {/* API Partners Card */}
-        <AnimatedItem>
-          <ApiPartnersCard />
         </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
