@@ -314,7 +314,7 @@ function KpiStickyHint() {
     targetId: 'cec-header',
     fallbackSelector: '#cec-header',
     position: 'below',
-    hideWhenOffscreen: false,
+    hideWhenOffscreen: true,
   });
 
   if (!coords) return null;

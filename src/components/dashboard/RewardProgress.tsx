@@ -368,8 +368,19 @@ export function RewardProgress({
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             onClick={handleCycleCategory}
-            whileTap={{ scale: 0.98 }}
-            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-card/5 group cursor-pointer touch-manipulation"
+            whileTap={{ scale: 0.95, y: 4, transition: { duration: 0.08 } }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            animate={{
+              y: [0, 3, 0],
+              scale: [1, 0.98, 1],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatDelay: 1.5,
+              ease: 'easeInOut',
+            }}
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-card/5 group cursor-pointer touch-manipulation shadow-[0_6px_0_0_rgba(0,0,0,0.3)]"
           >
             <AnimatePresence mode="wait">
               {artwork && (
