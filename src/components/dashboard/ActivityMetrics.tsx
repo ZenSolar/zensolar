@@ -820,6 +820,7 @@ interface ActivityFieldProps {
 function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator, showBadge }: ActivityFieldProps) {
   const navigate = useNavigate();
   const styles = colorStyles[color];
+  const colorIndex = Object.keys(colorStyles).indexOf(color);
   const isTappable = active && onTap && !isLoading;
 
   // --- Consolidated interaction state via ref + single render tick ---
@@ -1053,11 +1054,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       } : isPressing ? {
         scale: 0.93,
         y: 2,
+      } : isTappable ? {
+        y: [0, 2, 0],
+        scale: [1, 0.98, 1],
       } : {
         scale: 1,
         y: 0,
       }}
-      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.12, ease: 'easeOut' }}
+      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' as const } : isPressing ? { duration: 0.12, ease: 'easeOut' as const } : isTappable ? { duration: 1.6, repeat: Infinity, repeatDelay: colorIndex * 0.5 + 0.8, ease: 'easeInOut' as const } : { duration: 0.12, ease: 'easeOut' as const }}
       style={{
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,

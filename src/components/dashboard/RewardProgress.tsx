@@ -80,9 +80,10 @@ interface CategoryDotProps {
   color: CategoryType;
   isActive?: boolean;
   onClick?: () => void;
+  index?: number;
 }
 
-function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick }: CategoryDotProps) {
+function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick, index = 0 }: CategoryDotProps) {
   const styles = categoryStyles[color];
   
   // Touch tracking for scroll vs tap detection
@@ -116,6 +117,17 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
     touchStartRef.current = null;
   };
   
+  const pianoKeyAnimation = !isActive ? {
+    y: [0, 2, 0],
+    scale: [1, 0.97, 1],
+    transition: {
+      duration: 1.8,
+      repeat: Infinity,
+      repeatDelay: index * 0.6 + 1,
+      ease: 'easeInOut' as const,
+    }
+  } : { y: [0, -3, 0], transition: { duration: 0.3 } };
+
   return (
     <motion.button 
       onClick={onClick}
@@ -123,7 +135,7 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
       onTouchEnd={handleTouchEnd}
       whileHover={{ scale: 1.03, y: -2 }}
       whileTap={{ scale: 0.95, y: 3, transition: { duration: 0.08 } }}
-      animate={isActive ? { y: [0, -3, 0], transition: { duration: 0.3 } } : {}}
+      animate={pianoKeyAnimation}
       className={cn(
         "flex flex-col items-center gap-1 p-2 rounded-xl w-full touch-manipulation",
         "shadow-[0_4px_0_0_rgba(0,0,0,0.3)]",
@@ -443,6 +455,7 @@ export function RewardProgress({
             color="solar"
             isActive={activeCategory === 'solar'}
             onClick={() => handleSelectCategory('solar')}
+            index={0}
           />
           <CategoryDot 
             icon={BatteryFull}
@@ -452,6 +465,7 @@ export function RewardProgress({
             color="battery"
             isActive={activeCategory === 'battery'}
             onClick={() => handleSelectCategory('battery')}
+            index={1}
           />
           <CategoryDot 
             icon={Car}
@@ -461,6 +475,7 @@ export function RewardProgress({
             color="ev_miles"
             isActive={activeCategory === 'ev_miles'}
             onClick={() => handleSelectCategory('ev_miles')}
+            index={2}
           />
           <CategoryDot 
             icon={Zap}
@@ -470,6 +485,7 @@ export function RewardProgress({
             color="charging"
             isActive={activeCategory === 'charging'}
             onClick={() => handleSelectCategory('charging')}
+            index={3}
           />
         </div>
         
