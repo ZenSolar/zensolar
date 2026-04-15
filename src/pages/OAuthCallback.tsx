@@ -163,19 +163,14 @@ export default function OAuthCallback() {
           console.warn('[OAuthCallback] Edge fn poll failed:', e);
         }
 
-        // Strategy 2: Direct DB query fallback (works when session is strong)
+        // Strategy 2: RPC fallback (works when session is strong)
         try {
           const directResult = await withTimeout(
             Promise.resolve(
-              supabase
-                .from('energy_tokens')
-                .select('id')
-                .eq('user_id', session.user.id)
-                .eq('provider', 'tesla')
-                .maybeSingle()
-            ).then(({ data }) => data),
+              supabase.rpc('get_connected_providers', { _user_id: session.user.id })
+            ).then(({ data }) => data?.find((r: { provider: string }) => r.provider === 'tesla') ?? null),
             2000,
-            'check-tokens direct DB'
+            'check-tokens RPC'
           ).catch(() => null);
           
           if (directResult) {

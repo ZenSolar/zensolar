@@ -185,10 +185,7 @@ export function useDashboardData() {
         .select('tesla_connected, enphase_connected, solaredge_connected, wallbox_connected')
         .eq('user_id', userId)
         .maybeSingle(),
-      supabase
-        .from('energy_tokens')
-        .select('provider')
-        .eq('user_id', userId),
+      supabase.rpc('get_connected_providers', { _user_id: userId }),
     ]);
 
     if (error) {
