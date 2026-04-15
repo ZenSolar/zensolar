@@ -37,7 +37,9 @@ function formatDetails(details?: Record<string, unknown>) {
 
 export function isAudioDebugEnabled() {
   if (typeof window === 'undefined') return false;
-  return new URLSearchParams(window.location.search).has('audio-debug');
+  const searchParams = new URLSearchParams(window.location.search);
+  const forced = (window as Window & { __ZEN_FORCE_AUDIO_DEBUG__?: boolean }).__ZEN_FORCE_AUDIO_DEBUG__ === true;
+  return forced || searchParams.has('audio-debug');
 }
 
 export function getAudioDebugEntries() {
