@@ -16,6 +16,7 @@ import { Loader2, Images, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
+import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
