@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
+  playDemoEntryFallbackGong,
   playDemoEntryFallbackRevealAudio,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
@@ -595,21 +596,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
         }
 
-        audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted;
+        audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
-          fallbackFired: fallbackStarted ? 'fired' : 'missed',
+          fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: 'fallback-bridge+gesture-sync',
+          synthHandoff: 'synth-shimmer-only',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
           start: startTime,
           ctxState: ctx?.state ?? 'null',
           warmStart,
-          fallbackStarted,
+          gongFallbackStarted,
           gongStarted,
-          humStarted: 'fallback-bridge+gesture-sync',
-          audioMode: fallbackStarted ? 'fallback-hum+gesture-shimmer' : 'gesture-shimmer',
+          humStarted: 'synth-shimmer-only',
+          audioMode: 'synth-shimmer',
           visualReveal: true,
         });
         return false;
@@ -655,10 +656,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     } else {
       // No AudioContext — still try fallback gong synchronously in gesture context
       if (firstReveal) {
-        const fallbackStarted = playDemoEntryFallbackRevealAudio();
-        setFallbackHumActive(fallbackStarted);
+        const gongFallbackStarted = playDemoEntryFallbackGong();
+        setFallbackHumActive(false);
         updateReleaseAudioDiagnostics({
-          fallbackFired: fallbackStarted ? 'fired' : 'missed',
+          fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
           synthHandoff: 'failed',
           audioContextState: 'null',
           lastEvent: `${source}-reveal-fallback-only`,
