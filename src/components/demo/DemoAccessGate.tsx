@@ -15,6 +15,7 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
+import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 
@@ -132,6 +133,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return isAccessGranted();
   });
   const [code, setCode] = useState('');
+  const [showNda, setShowNda] = useState(false);
+  const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [fallbackHumActive, setFallbackHumActive] = useState(false);
   const [shimmerActive, setShimmerActive] = useState(false);
@@ -311,7 +314,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }
 
         setTimeout(() => {
-          // Blur input to dismiss keyboard & reset iOS viewport zoom before revealing app
+          // Blur input to dismiss keyboard & reset iOS viewport zoom before showing NDA
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
           setFallbackHumActive(false);
@@ -324,8 +327,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               vp.setAttribute('content', original);
             });
           }
-          grantAccess();
-          setGranted(true);
+          // Show NDA instead of granting access immediately
+          setVerifiedCode(code.trim());
+          setShowNda(true);
         }, 1000);
       } else {
         updateState({ phase: 'denied' });
@@ -742,6 +746,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   // Show unlock hint when input is focused or has text
   const showUnlockHint = inputFocused || code.trim().length > 0;
+
+  const handleNdaSigned = useCallback(() => {
+    setShowNda(false);
+    grantAccess();
+    setGranted(true);
+  }, []);
 
   if (granted) return <>{children}</>;
 
@@ -1250,6 +1260,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </p>
         </div>
       </div>
+
+      {/* NDA Signature Overlay */}
+      {showNda && (
+        <div
+          className="absolute inset-0 z-[110] bg-background/95 backdrop-blur-sm"
+          style={{
+            animation: 'zenSymbolFadeIn 400ms ease-out both',
+          }}
+        >
+          <NdaSignatureStep
+            accessCodeUsed={verifiedCode}
+            onSigned={handleNdaSigned}
+          />
+        </div>
+      )}
     </div>
   );
 }
