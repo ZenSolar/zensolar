@@ -51,13 +51,9 @@ function saveNdaEmail(email: string) {
 
 async function checkExistingNda(email: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
-      .from('nda_signatures')
-      .select('id')
-      .eq('email', email)
-      .limit(1);
+    const { data, error } = await supabase.rpc('check_nda_signed', { _email: email });
     if (error) return false;
-    return (data?.length ?? 0) > 0;
+    return data === true;
   } catch {
     return false;
   }
