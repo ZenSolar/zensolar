@@ -223,6 +223,56 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_access_log: {
+        Row: {
+          access_code: string
+          accessed_at: string
+          city: string | null
+          country: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          nda_signature_id: string | null
+          nda_signed: boolean
+          region: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_code: string
+          accessed_at?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          nda_signature_id?: string | null
+          nda_signed?: boolean
+          region?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_code?: string
+          accessed_at?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          nda_signature_id?: string | null
+          nda_signed?: boolean
+          region?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_access_log_nda_signature_id_fkey"
+            columns: ["nda_signature_id"]
+            isOneToOne: false
+            referencedRelation: "nda_signatures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       energy_production: {
         Row: {
           consumption_wh: number | null
