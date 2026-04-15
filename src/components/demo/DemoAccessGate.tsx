@@ -314,7 +314,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }
 
         setTimeout(() => {
-          // Blur input to dismiss keyboard & reset iOS viewport zoom before revealing app
+          // Blur input to dismiss keyboard & reset iOS viewport zoom before showing NDA
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
           setFallbackHumActive(false);
@@ -327,8 +327,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               vp.setAttribute('content', original);
             });
           }
-          grantAccess();
-          setGranted(true);
+          // Show NDA instead of granting access immediately
+          setVerifiedCode(code.trim());
+          setShowNda(true);
         }, 1000);
       } else {
         updateState({ phase: 'denied' });
