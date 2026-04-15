@@ -215,8 +215,9 @@ export function useShimmerSound({
     return pollUntilShimmerReady(() => {
       // Only boot if a manual startSound call hasn't already created the graph
       if (!nodesRef.current) {
-        startSound(undefined, initialVolume);
+        return startSound(undefined, initialVolume);
       }
+      return true;
     });
     // Cleanup: only force-stop if we're transitioning TO disabled (not to enabled)
     // eslint-disable-next-line react-hooks/exhaustive-deps
