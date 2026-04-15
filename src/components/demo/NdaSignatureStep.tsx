@@ -18,7 +18,7 @@ interface GeoInfo {
 
 interface NdaSignatureStepProps {
   accessCodeUsed: string;
-  onSigned: (email?: string) => void;
+  onSigned: (email?: string, fullName?: string) => void;
 }
 
 const NDA_VERSION = '1.0';
