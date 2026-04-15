@@ -64,8 +64,7 @@ export function DemoOnboardingHints() {
     }
 
     if (activeHints.has('kpi')) {
-      const el = document.getElementById('demo-kpi-section') ||
-                 document.querySelector('[data-hint-target="kpi"]');
+      const el = document.querySelector('[data-hint-target="kpi-cards"]');
       if (el) {
         const handler = () => dismissHint('kpi');
         el.addEventListener('pointerdown', handler, { passive: true });
@@ -99,11 +98,11 @@ export function DemoOnboardingHints() {
       <AnimatePresence>
         {activeHints.has('kpi') && (
           <FloatingHint
-            targetId="demo-kpi-section"
-            fallbackSelector="[data-hint-target='kpi']"
+            targetId=""
+            fallbackSelector="[data-hint-target='kpi-cards']"
             label="Tap to mint tokens"
             icon="hand"
-            position="above"
+            position="center"
             onDismiss={() => dismissHint('kpi')}
             delay={0.3}
           />
