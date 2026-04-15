@@ -6,17 +6,17 @@ import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet } from 'lucide-react';
 const kpiItems = [
   {
     icon: Sun,
-    label: 'Solar Energy Produced',
+    label: 'My Solar Roof Production',
     value: '28,742',
     unit: 'kWh',
-    name: 'Tesla Solar Roof',
+    name: '',
     borderColor: 'border-l-solar',
     iconColor: 'text-solar',
     iconBg: 'bg-solar/10',
   },
   {
     icon: BatteryFull,
-    label: 'Powerwall 3 kWh Export',
+    label: 'Powerwall 3 Exported kWh',
     value: '2,476',
     unit: 'kWh',
     name: '',
@@ -26,10 +26,10 @@ const kpiItems = [
   },
   {
     icon: Car,
-    label: 'EV Miles Driven',
+    label: 'Model Y EV Miles',
     value: '70,103',
     unit: 'mi',
-    name: 'Model Y Long Range',
+    name: '',
     borderColor: 'border-l-primary',
     iconColor: 'text-primary',
     iconBg: 'bg-primary/10',
@@ -102,7 +102,7 @@ export function CleanEnergyCenterShowcase() {
               <div className="flex flex-col items-center text-center mb-4">
                 <h3 className="text-lg font-bold text-foreground">Clean Energy Center</h3>
                 <span className="text-xs text-muted-foreground mb-2">Last updated 11:19 PM</span>
-                <div className="grid grid-cols-2 gap-x-1 gap-y-0 justify-items-center">
+                <div className="flex flex-col items-center gap-0.5">
                   <span className="text-[10px] tracking-wider uppercase font-medium text-secondary/70" style={{ textShadow: '0 0 8px hsl(142 76% 36% / 0.5)' }}>
                     Tap-to-Mint™
                   </span>

@@ -229,13 +229,9 @@ export function ActivityMetrics({
 
   // Device-specific labels (used when single device)
   // Format: (Name of system/device) + Activity Type
-  const solarLabel = deviceLabels?.solar 
-    ? `${deviceLabels.solar} Solar Energy Produced` 
-    : 'Solar Energy Produced';
-  const batteryLabel = 'Powerwall 3 kWh Export';
-  const evLabel = deviceLabels?.vehicle 
-    ? `${deviceLabels.vehicle} EV Miles Driven` 
-    : 'EV Miles Driven';
+  const solarLabel = 'My Solar Roof Production';
+  const batteryLabel = 'Powerwall 3 Exported kWh';
+  const evLabel = 'Model Y EV Miles';
   const superchargerLabel = 'Tesla Supercharging';
   const homeChargerLabel = 'Home Charging';
 
@@ -316,8 +312,8 @@ export function ActivityMetrics({
               </div>
             </div>
 
-            {/* Proof badges — 2x2 grid */}
-            <div className="grid grid-cols-2 gap-x-1 gap-y-0 justify-items-center">
+            {/* Proof badges — vertical stack */}
+            <div className="flex flex-col items-center gap-0.5">
               {[
                 { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
                 { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
