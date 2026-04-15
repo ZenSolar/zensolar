@@ -296,33 +296,61 @@ export function ActivityMetrics({
           />
 
           <div className="relative">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div 
-                  className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
-                    boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
-                  }}
-                >
-                  <Gauge className="h-5 w-5 text-white" />
-                </div>
-                <div className="min-w-0">
-                  <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
-                    Clean Energy Center
-                  </h2>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
-                    {isLoading && (
-                      <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                        Updating…
-                      </span>
-                    )}
+            <div className="flex justify-between gap-3">
+              {/* Left column: icon + title + connected */}
+              <div className="flex flex-col gap-1 min-w-0">
+                <div className="flex items-center gap-2.5">
+                  <div 
+                    className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
+                      boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
+                    }}
+                  >
+                    <Gauge className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
+                      Clean Energy Center
+                    </h2>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+                      {isLoading && (
+                        <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Updating…
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
+                {/* Connected providers — aligned with bottom of badges */}
+                {filteredProviders.length > 0 && (
+                  <div className="flex items-center gap-2 mt-auto">
+                    <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
+                    <div className="flex items-center gap-1.5">
+                      {filteredProviders.map((provider) => (
+                        <div 
+                          key={provider}
+                          className="h-6 w-6 rounded-md flex items-center justify-center border border-border/30 bg-card/10"
+                          title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                        >
+                          <img 
+                            src={providerLogos[provider]} 
+                            alt={provider}
+                            className={cn(
+                              "object-contain",
+                              provider === 'tesla' ? "h-4 w-4" : "h-3.5 w-3.5"
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
+              {/* Right column: badges */}
               <div className="flex flex-col items-end gap-1.5 flex-shrink-0 pt-0.5">
                 <span 
                   className="text-[9px] font-semibold tracking-[0.15em] uppercase text-primary whitespace-nowrap"
@@ -350,31 +378,6 @@ export function ActivityMetrics({
                 </span>
               </div>
             </div>
-
-            {/* Connected providers — clear row below header */}
-            {filteredProviders.length > 0 && (
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
-                <div className="flex items-center gap-1.5">
-                  {filteredProviders.map((provider) => (
-                    <div 
-                      key={provider}
-                      className="h-7 w-7 rounded-lg flex items-center justify-center border border-border/30 bg-card/10"
-                      title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                    >
-                      <img 
-                        src={providerLogos[provider]} 
-                        alt={provider}
-                        className={cn(
-                          "object-contain",
-                          provider === 'tesla' ? "h-5 w-5" : "h-4 w-4"
-                        )}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
