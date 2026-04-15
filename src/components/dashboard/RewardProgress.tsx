@@ -125,8 +125,8 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
       whileTap={{ scale: 0.95, y: 3, transition: { duration: 0.08 } }}
       animate={isActive ? { y: [0, -3, 0], transition: { duration: 0.3 } } : {}}
       className={cn(
-        "flex flex-col items-center gap-1 p-2 rounded-xl transition-all w-full touch-manipulation",
-        "shadow-[0_4px_0_0_rgba(0,0,0,0.3)] active:shadow-[0_1px_0_0_rgba(0,0,0,0.3)] active:translate-y-[3px]",
+        "flex flex-col items-center gap-1 p-2 rounded-xl w-full touch-manipulation",
+        "shadow-[0_4px_0_0_rgba(0,0,0,0.3)]",
         isActive 
           ? cn("bg-gradient-to-br", styles.gradient, "shadow-lg", styles.glow)
           : "bg-card/5 hover:bg-card/10"

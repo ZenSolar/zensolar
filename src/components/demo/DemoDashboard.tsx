@@ -1,4 +1,5 @@
 import { useRef, useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
@@ -406,9 +407,11 @@ function TodaysCleanEnergyStats() {
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {kpis.map((k, i) => (
-            <div 
+            <motion.div 
               key={k.label} 
-              className="rounded-xl p-3 border transition-all duration-150 cursor-pointer select-none active:translate-y-[3px] active:shadow-[0_1px_0_0_rgba(0,0,0,0.3)] hover:scale-[1.02] hover:-translate-y-[2px]"
+              whileTap={{ scale: 0.95, y: 3, boxShadow: `0 1px 0 0 ${k.color}30`, transition: { duration: 0.08 } }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              className="rounded-xl p-3 border cursor-pointer select-none touch-manipulation"
               style={{
                 background: `linear-gradient(135deg, ${k.color}1F, ${k.color}0A)`,
                 borderColor: `${k.color}40`,
@@ -423,7 +426,7 @@ function TodaysCleanEnergyStats() {
               <p className="text-xl font-bold tabular-nums" style={{ color: k.color }}>
                 {k.decimals > 0 ? k.value.toFixed(k.decimals) : k.value} <span className="text-xs font-normal text-muted-foreground">{k.unit}</span>
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
