@@ -179,8 +179,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
     volume: 0.06,
-      enabled: stateRef.current.hexAwake,
-      prewarm: stateRef.current.holding,
+    enabled: stateRef.current.hexAwake,
+    prewarm: false,
   });
 
   useEffect(() => {
