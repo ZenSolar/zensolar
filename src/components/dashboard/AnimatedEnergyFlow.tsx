@@ -510,8 +510,20 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             <stop offset="100%" stopColor={colors.solar} stopOpacity={0} />
           </radialGradient>
           <linearGradient id="houseFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a2235" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#141a28" stopOpacity="0.12" />
+            <stop offset="0%" stopColor="#1e2d42" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#141e30" stopOpacity="0.9" />
+          </linearGradient>
+          <linearGradient id="roofFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1a2840" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#0f1a2a" stopOpacity="0.85" />
+          </linearGradient>
+          <linearGradient id="windowGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3d3000" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#2a2200" stopOpacity="0.7" />
+          </linearGradient>
+          <linearGradient id="panelFill" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#1a4070" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#0f2a50" stopOpacity="0.7" />
           </linearGradient>
         </defs>
 
