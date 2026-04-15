@@ -455,6 +455,7 @@ export function RewardProgress({
             color="solar"
             isActive={activeCategory === 'solar'}
             onClick={() => handleSelectCategory('solar')}
+            index={0}
           />
           <CategoryDot 
             icon={BatteryFull}
@@ -464,6 +465,7 @@ export function RewardProgress({
             color="battery"
             isActive={activeCategory === 'battery'}
             onClick={() => handleSelectCategory('battery')}
+            index={1}
           />
           <CategoryDot 
             icon={Car}
@@ -473,6 +475,7 @@ export function RewardProgress({
             color="ev_miles"
             isActive={activeCategory === 'ev_miles'}
             onClick={() => handleSelectCategory('ev_miles')}
+            index={2}
           />
           <CategoryDot 
             icon={Zap}
@@ -482,6 +485,7 @@ export function RewardProgress({
             color="charging"
             isActive={activeCategory === 'charging'}
             onClick={() => handleSelectCategory('charging')}
+            index={3}
           />
         </div>
         
