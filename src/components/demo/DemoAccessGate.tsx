@@ -646,35 +646,27 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
-  // ── Double-tap to unlock (submit code) — still works after reveal ──
+  // ── Single-tap to submit after reveal, hold-to-reveal before ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
     if (Date.now() < ignorePointerUntilRef.current) return;
 
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
 
-    const now = Date.now();
-    const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
-
-    if (isDoubleTap && s.hexAwake) {
-      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      lastTapTimeRef.current = 0;
+    // After the initial hold-and-release reveal, a single tap submits the code
+    if (s.hexAwake) {
       triggerBurst();
       playMintSound();
       if ('vibrate' in navigator) {
         try { navigator.vibrate([15, 30, 10]); } catch {}
       }
-      ignorePointerUntilRef.current = now + GHOST_CLICK_SUPPRESSION;
+      ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
       if (code.trim()) submitCode();
-    } else {
-      lastTapTimeRef.current = now;
-      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      doubleTapTimerRef.current = setTimeout(() => {
-        lastTapTimeRef.current = 0;
-        updateState({ showTapAgain: false });
-      }, DOUBLE_TAP_WINDOW);
+      return;
     }
-  }, [code, triggerBurst, playMintSound, submitCode, updateState]);
+
+    // Pre-reveal: no tap-to-submit — hold gesture handles everything
+  }, [code, triggerBurst, playMintSound, submitCode]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
