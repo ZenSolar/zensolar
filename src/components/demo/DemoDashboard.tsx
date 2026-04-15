@@ -409,6 +409,8 @@ function TodaysCleanEnergyStats() {
           {kpis.map((k, i) => (
             <motion.div 
               key={k.label} 
+              animate={{ y: [0, 2, 0], scale: [1, 0.97, 1] }}
+              transition={{ duration: 1.6, repeat: Infinity, repeatDelay: i * 0.5 + 0.8, ease: 'easeInOut' as const }}
               whileTap={{ scale: 0.95, y: 3, boxShadow: `0 1px 0 0 ${k.color}30`, transition: { duration: 0.08 } }}
               whileHover={{ scale: 1.02, y: -2 }}
               className="rounded-xl p-3 border cursor-pointer select-none touch-manipulation"
