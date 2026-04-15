@@ -25,7 +25,7 @@ const fallbackGestureArmed: Record<AudioKind, boolean> = {
 };
 
 const GONG_VOLUME = 0.9;
-const HUM_VOLUME = 0.22;
+const HUM_VOLUME = 0.36;
 
 function createAudioElement(src: string, { loop = false, volume = 1 }: { loop?: boolean; volume?: number }) {
   const audio = new Audio(src);
