@@ -895,16 +895,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     fontSize: '1.5rem',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
-                    color: holding
-                      ? 'hsl(142, 76%, 52%, 1)'
-                      : 'hsl(142, 76%, 42%, 0.9)',
-                    textShadow: holding
-                      ? undefined
-                      : '0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25)',
+                    color: holdReady
+                      ? 'hsl(142, 76%, 56%)'
+                      : holding
+                        ? 'hsl(142, 76%, 52%)'
+                        : 'hsla(142, 76%, 42%, 0.9)',
+                    textShadow: holdReady
+                      ? '0 0 20px hsla(142, 76%, 50%, 0.8), 0 0 40px hsla(142, 76%, 50%, 0.4)'
+                      : holding
+                        ? undefined
+                        : '0 0 16px hsl(142 76% 42% / 0.55), 0 0 32px hsl(142 76% 42% / 0.25)',
                     willChange: 'transform, opacity, filter',
+                    transition: 'color 120ms, text-shadow 120ms',
                     animation: firstTapBurst
                       ? 'zenSymbolFadeOut 200ms ease-out both'
-                      : holding
+                      : holding && !holdReady
                         ? `zenPlasmaCore ${HOLD_THRESHOLD_MS}ms ease-in forwards`
                         : 'none',
                   }}
