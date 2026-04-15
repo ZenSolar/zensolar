@@ -44,6 +44,19 @@ const HUM_LOOP_START = 0.56;
 const HUM_LOOP_END = 9.669333333333332;
 const HUM_FADE_IN_MS = 220;
 const HUM_FADE_OUT_MS = 180;
+const GONG_DURATION_S = 6.0;
+const HUM_FADE_IN_DELAY_S = 1.8; // Start fading in hum partway through gong tail
+
+// Silent placeholder graph: a silent oscillator started synchronously inside
+// the gesture to keep the AudioContext "unlocked" on iOS/Chrome. Once the real
+// hum buffer is decoded we swap it in.
+interface SilentPlaceholderGraph {
+  ctx: AudioContext;
+  osc: OscillatorNode;
+  gain: GainNode;
+}
+let silentPlaceholder: SilentPlaceholderGraph | null = null;
+let humFadeInTimer: number | null = null;
 
 function createAudioElement(src: string, { loop = false, volume = 1 }: { loop?: boolean; volume?: number }) {
   const audio = new Audio(src);
@@ -122,6 +135,34 @@ function clearHumStopTimer() {
   if (typeof window === 'undefined' || humStopTimer === null) return;
   window.clearTimeout(humStopTimer);
   humStopTimer = null;
+}
+
+function clearHumFadeInTimer() {
+  if (typeof window === 'undefined' || humFadeInTimer === null) return;
+  window.clearTimeout(humFadeInTimer);
+  humFadeInTimer = null;
+}
+
+function destroySilentPlaceholder() {
+  if (!silentPlaceholder) return;
+  try { silentPlaceholder.osc.stop(); } catch { /* no-op */ }
+  try { silentPlaceholder.osc.disconnect(); silentPlaceholder.gain.disconnect(); } catch { /* no-op */ }
+  silentPlaceholder = null;
+}
+
+function createSilentPlaceholder(ctx: AudioContext): SilentPlaceholderGraph {
+  destroySilentPlaceholder();
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.connect(ctx.destination);
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(0, ctx.currentTime);
+  osc.connect(gain);
+  osc.start(ctx.currentTime);
+  silentPlaceholder = { ctx, osc, gain };
+  logAudioDebug('hum-silent-placeholder-started', { ctxState: ctx.state });
+  return silentPlaceholder;
 }
 
 function animateHumVolume(graph: HumLoopGraph, targetVolume: number, durationMs = 220) {
@@ -368,7 +409,7 @@ function getPreparedHumLoopGraph(ctx: AudioContext) {
 function startPreparedHumLoopGraph(graph: HumLoopGraph) {
   try {
     graph.source.start(graph.ctx.currentTime, HUM_LOOP_START);
-    animateHumVolume(graph, HUM_VOLUME, HUM_FADE_IN_MS);
+    // Don't fade in yet — caller controls when volume ramps up
     fallbackHumActive = true;
     fallbackGestureArmed.hum = true;
     logPlaySuccess('hum', {
@@ -385,6 +426,69 @@ function startPreparedHumLoopGraph(graph: HumLoopGraph) {
     fallbackGestureArmed.hum = false;
     return false;
   }
+}
+
+/**
+ * Start hum at zero gain and schedule fade-in after gong tail.
+ * If buffer is ready: create + start the real loop silently.
+ * If buffer is NOT ready: start a silent placeholder oscillator to keep
+ * the gesture context alive, then swap in the real buffer once decoded.
+ */
+function startHumSilentlyWithDeferredFadeIn(ctx: AudioContext) {
+  clearHumFadeInTimer();
+  destroySilentPlaceholder();
+
+  let humStartedSilently = false;
+
+  // Try to start the real hum buffer at zero gain
+  const graph = getPreparedHumLoopGraph(ctx);
+  if (graph) {
+    // Start at zero gain — no audible output yet
+    graph.gain.gain.setValueAtTime(0, ctx.currentTime);
+    humStartedSilently = startPreparedHumLoopGraph(graph);
+
+    if (humStartedSilently) {
+      // Schedule the fade-in after the gong's initial attack fades
+      humFadeInTimer = window.setTimeout(() => {
+        humFadeInTimer = null;
+        if (humLoopGraph === graph && fallbackHumActive) {
+          animateHumVolume(graph, HUM_VOLUME, HUM_FADE_IN_MS);
+          logAudioDebug('hum-fade-in-after-gong', { mode: 'buffer-ready' });
+        }
+      }, HUM_FADE_IN_DELAY_S * 1000);
+    }
+
+    return humStartedSilently;
+  }
+
+  // Buffer not decoded yet — start a silent placeholder synchronously
+  createSilentPlaceholder(ctx);
+
+  // Kick off decode and swap in the real hum once ready
+  void decodeHumBuffer().then((buffer) => {
+    if (!buffer || !silentPlaceholder || silentPlaceholder.ctx !== ctx) return;
+
+    destroySilentPlaceholder();
+    const realGraph = createHumLoopGraph(ctx, buffer);
+    realGraph.gain.gain.setValueAtTime(0, ctx.currentTime);
+    const started = startPreparedHumLoopGraph(realGraph);
+
+    if (started) {
+      // Schedule the fade-in
+      clearHumFadeInTimer();
+      humFadeInTimer = window.setTimeout(() => {
+        humFadeInTimer = null;
+        if (humLoopGraph === realGraph && fallbackHumActive) {
+          animateHumVolume(realGraph, HUM_VOLUME, HUM_FADE_IN_MS);
+          logAudioDebug('hum-fade-in-after-gong', { mode: 'deferred-decode' });
+        }
+      }, HUM_FADE_IN_DELAY_S * 1000);
+    }
+  });
+
+  // Return true because the placeholder keeps the gesture context alive
+  fallbackHumActive = true;
+  return true;
 }
 
 export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: ArmDemoEntryFallbackOptions = {}) {
@@ -522,6 +626,7 @@ export function playDemoEntryFallbackRevealAudio() {
   requestLoad(audio.gong);
   clearHumFadeFrame();
   clearHumStopTimer();
+  clearHumFadeInTimer();
 
   let gongStarted = false;
   if (fallbackGestureArmed.gong && !audio.gong.paused) {
@@ -550,13 +655,9 @@ export function playDemoEntryFallbackRevealAudio() {
     gongStarted = attemptPlay('gong', audio.gong, { armed: false });
   }
 
+  // Start hum SILENTLY synchronously in the gesture context, schedule fade-in
   const ctx = getAudioContext();
-  const graph = ctx ? getPreparedHumLoopGraph(ctx) : humLoopGraph;
-  const humStarted = graph ? startPreparedHumLoopGraph(graph) : false;
-
-  if (!humStarted) {
-    void decodeHumBuffer();
-  }
+  const humStarted = ctx ? startHumSilentlyWithDeferredFadeIn(ctx) : false;
 
   fallbackHumActive = humStarted;
   fallbackGestureArmed.gong = false;
@@ -565,13 +666,15 @@ export function playDemoEntryFallbackRevealAudio() {
     gongReady: audio.gong.readyState,
     humBuffered: Boolean(humDecodedBuffer),
     humArmed: humStarted,
-    mode: humStarted ? 'gapless-buffer-loop' : 'buffer-not-ready',
+    mode: humStarted ? 'silent-start-deferred-fade' : 'no-ctx',
   });
 
   return gongStarted || humStarted;
 }
 
 export function handoffDemoEntryFallbackHum(durationMs = HUM_FADE_OUT_MS) {
+  clearHumFadeInTimer();
+  destroySilentPlaceholder();
   if (!humLoopGraph) return false;
 
   const graph = humLoopGraph;
@@ -619,6 +722,8 @@ export function playDemoEntryFallbackHum(): boolean {
 }
 
 export function stopDemoEntryFallbackHum(reset = true) {
+  clearHumFadeInTimer();
+  destroySilentPlaceholder();
   clearHumFadeFrame();
   clearHumStopTimer();
   destroyHumLoopGraph();
