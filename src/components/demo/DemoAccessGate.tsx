@@ -386,12 +386,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
 
     let gongPrewarmed = false;
-    let humPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
       fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
       gongPrewarmed = prewarmSingingBowl();
-      humPrewarmed = startShimmerSound(undefined, 0);
+      // NOTE: Do NOT prewarm shimmer here — it creates a race condition where
+      // the prewarm boot at volume 0 fires during the hold, and then the
+      // release-time activation competes with React's useEffect for enabled state.
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
         audioContextState: ctx?.state ?? 'null',
@@ -399,7 +400,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       });
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
-        humPrewarmed,
         fallbackArmed,
       });
     }
