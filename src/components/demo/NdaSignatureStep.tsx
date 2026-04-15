@@ -160,7 +160,10 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
         sigText = canvasRef.current.toDataURL('image/png');
       }
 
+      // Insert NDA signature
+      const ndaId = crypto.randomUUID();
       const { error } = await supabase.from('nda_signatures').insert({
+        id: ndaId,
         full_name: fullName.trim(),
         email: email.trim(),
         signature_text: sigText,
@@ -172,20 +175,32 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
 
       if (error) throw error;
 
+      // Log demo access with geolocation (non-blocking)
+      const geo = geoRef.current;
+      supabase.from('demo_access_log').insert({
+        access_code: accessCodeUsed,
+        city: geo.city || null,
+        region: geo.region || null,
+        country: geo.country || null,
+        ip_address: geo.ip || null,
+        user_agent: navigator.userAgent,
+        nda_signed: true,
+        nda_signature_id: ndaId,
+      }).then(({ error: logErr }) => {
+        if (logErr) console.warn('Access log insert failed:', logErr);
+      });
+
       // Try to send email copy (non-blocking)
-      try {
-        await supabase.functions.invoke('send-nda-copy', {
-          body: {
-            recipientEmail: email.trim(),
-            recipientName: fullName.trim(),
-            signedAt: new Date().toISOString(),
-            ndaVersion: NDA_VERSION,
-          },
-        });
-      } catch {
-        // Email send failure shouldn't block access
+      supabase.functions.invoke('send-nda-copy', {
+        body: {
+          recipientEmail: email.trim(),
+          recipientName: fullName.trim(),
+          signedAt: new Date().toISOString(),
+          ndaVersion: NDA_VERSION,
+        },
+      }).catch(() => {
         console.warn('NDA email send failed — non-blocking');
-      }
+      });
 
       toast.success('Agreement signed', { description: 'A copy has been sent to your email.' });
       onSigned();
