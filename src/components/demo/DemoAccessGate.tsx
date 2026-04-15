@@ -462,7 +462,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     audioWakeCleanupRef.current = null;
 
     const held = performance.now() - holdStartRef.current;
-    const heldLongEnough = s.holdReady || held >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS;
+    // Snapshot holdReady BEFORE mutating stateRef (s is a live reference)
+    const wasHoldReady = s.holdReady;
+    const heldLongEnough = wasHoldReady || held >= HOLD_THRESHOLD_MS - HOLD_RELEASE_GRACE_MS;
     const ctx = primeAudio() ?? getSharedAudioContext();
     const audioReady = Boolean(s.hexAwake || audioReadyRef.current || ctx);
     updateState({ holding: false, holdReady: false });
