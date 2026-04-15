@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileText, PenTool, Type, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface GeoInfo {
   city?: string;
@@ -215,9 +216,12 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   return (
     <div className="flex flex-col h-full max-h-[100dvh] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 pt-5 pb-3 shrink-0">
-        <FileText className="h-5 w-5 text-secondary" />
-        <h2 className="text-base font-semibold text-foreground">Confidentiality Agreement</h2>
+      <div className="flex flex-col items-center px-5 pt-5 pb-3 shrink-0">
+        <img src={zenLogo} alt="ZenSolar" className="h-8 mb-2" />
+        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+          <FileText className="h-4 w-4 text-secondary" />
+          Confidentiality Agreement
+        </h2>
       </div>
       <p className="text-xs text-muted-foreground px-5 pb-3">
         Please review and sign before accessing the demo.
