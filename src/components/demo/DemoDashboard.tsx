@@ -1,4 +1,5 @@
 import { useRef, useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
