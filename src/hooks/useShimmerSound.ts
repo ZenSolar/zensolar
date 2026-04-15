@@ -126,6 +126,7 @@ export function useShimmerSound({
           requestedTime: scheduledStartTime,
           runningLead: IMMEDIATE_SOUND_LEAD,
           resumedLead: POST_RESUME_SOUND_LEAD,
+          timeoutMs: 20000,
           onTimeout: () => {
             pendingBootCleanupRef.current = null;
             pendingBootStartTimeRef.current = undefined;
