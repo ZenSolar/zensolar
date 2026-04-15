@@ -232,9 +232,7 @@ export function ActivityMetrics({
   const solarLabel = deviceLabels?.solar 
     ? `${deviceLabels.solar} Solar Energy Produced` 
     : 'Solar Energy Produced';
-  const batteryLabel = deviceLabels?.powerwall 
-    ? `${deviceLabels.powerwall} Battery Storage Exported` 
-    : 'Battery Storage Exported';
+  const batteryLabel = 'Powerwall 3 kWh Export';
   const evLabel = deviceLabels?.vehicle 
     ? `${deviceLabels.vehicle} EV Miles Driven` 
     : 'EV Miles Driven';
@@ -319,7 +317,7 @@ export function ActivityMetrics({
             </div>
 
             {/* Proof badges — 2x2 grid */}
-            <div className="grid grid-cols-2 gap-x-2 gap-y-0 justify-items-center">
+            <div className="grid grid-cols-2 gap-x-1 gap-y-0 justify-items-center">
               {[
                 { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
                 { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
