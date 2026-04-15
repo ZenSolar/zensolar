@@ -188,7 +188,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
-    volume: 0.18,
+    volume: 0.24,
     enabled: shimmerActive,
     prewarm: false,
   });
@@ -360,6 +360,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       updateState({ firstTapBurst: false });
     }, FIRST_TAP_BURST_MS);
   }, [updateState]);
+
+  const triggerConfirmedMintBurst = useCallback((onComplete?: () => void) => {
+    const s = stateRef.current;
+    updateState({
+      phase: 'burst',
+      burstKey: s.burstKey + 1,
+      firstTapBurst: false,
+      showTapAgain: false,
+    });
+
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+    playMintSound();
+
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate([20, 50, 30]); } catch {}
+    }
+
+    burstTimerRef.current = setTimeout(() => {
+      updateState({ phase: 'idle' });
+      onComplete?.();
+    }, FIRST_TAP_BURST_MS);
+  }, [playMintSound, updateState]);
 
   // ── Hold-to-unlock gesture ──
   // On press: prime audio synchronously (iOS gesture context), start charging ring.
@@ -547,20 +569,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const fallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
 
-        // Start the ambient hum synchronously within the gesture context to
-        // preserve iOS audio permission. The previous 1500ms delay was causing
-        // the browser to revoke the gesture context, killing the hum after ~2s.
-        // Instead, schedule the hum to fade in shortly after the gong attack.
+        // Start the ambient hum almost immediately after the strike so mobile
+        // browsers keep the graph alive and phone speakers can actually render it.
         const liveCtx = getSharedAudioContext();
         if (liveCtx) {
           if (liveCtx.state !== 'running') {
             liveCtx.resume().catch(() => {});
           }
-          // Schedule hum start 400ms into the future (still within gesture
-          // context window) so it layers under the gong tail rather than
-          // competing with the gong attack.
-          const humStart = getSafeAudioStartTime(liveCtx, undefined, 0.4);
-          startShimmerSound(humStart);
+          const humStart = Math.max(
+            startTime + 0.08,
+            getSafeAudioStartTime(liveCtx, undefined, 0.03),
+          );
+          startShimmerSound(humStart, 0.28);
           logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
         }
 
@@ -646,27 +666,49 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
-  // ── Single-tap to submit after reveal, hold-to-reveal before ──
+  // ── Double-tap mint after reveal, hold-to-reveal before ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
     if (Date.now() < ignorePointerUntilRef.current) return;
 
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
 
-    // After the initial hold-and-release reveal, a single tap submits the code
+    // After the initial hold-and-release reveal, the icon behaves like the KPI cards:
+    // first tap = burst cue, second tap inside the window = confirmed mint action.
     if (s.hexAwake) {
+      const now = Date.now();
+      const hasCode = Boolean(code.trim());
+      const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
+
+      ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
+
+      if (isDoubleTap) {
+        if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+        lastTapTimeRef.current = 0;
+        logGestureDebug(`${source}-double-tap-mint`, { hasCode });
+        triggerConfirmedMintBurst(hasCode ? () => { void submitCode(); } : undefined);
+        return;
+      }
+
+      lastTapTimeRef.current = now;
       triggerBurst();
       playMintSound();
       if ('vibrate' in navigator) {
         try { navigator.vibrate([15, 30, 10]); } catch {}
       }
-      ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
-      if (code.trim()) submitCode();
+      updateState({ showTapAgain: true });
+      logGestureDebug(`${source}-first-tap-mint`, { hasCode });
+
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = setTimeout(() => {
+        lastTapTimeRef.current = 0;
+        updateState({ showTapAgain: false });
+      }, DOUBLE_TAP_WINDOW);
       return;
     }
 
     // Pre-reveal: no tap-to-submit — hold gesture handles everything
-  }, [code, triggerBurst, playMintSound, submitCode]);
+  }, [code, logGestureDebug, playMintSound, submitCode, triggerBurst, triggerConfirmedMintBurst, updateState]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
@@ -683,10 +725,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     nativeGestureReadyRef.current = true;
     const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
-      // After reveal: single tap submits immediately (no hold needed)
+      // After reveal: tap handling switches to KPI-style mint confirmation
       if (stateRef.current.hexAwake) {
         handleLockPointerDown('touchstart');
-        logGestureDebug('touchstart-single-tap');
+        logGestureDebug('touchstart-post-reveal');
         return;
       }
       // Pre-reveal: hold gesture
@@ -710,10 +752,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
     const onPointer = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return;
-      // After reveal: single click submits
+      // After reveal: pointer interactions use the same mint confirmation flow
       if (stateRef.current.hexAwake) {
         handleLockPointerDown(`pointerdown-${e.pointerType}`);
-        logGestureDebug('pointerdown-single', { pointerType: e.pointerType });
+        logGestureDebug('pointerdown-post-reveal', { pointerType: e.pointerType });
         return;
       }
       handleHoldStart(`pointerdown-${e.pointerType}`);
@@ -1236,12 +1278,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
                 >
                   <Lock className="h-3 w-3" />
-                  double tap $Z to unlock
+                  {showTapAgain ? 'tap again to mint' : 'double tap $Z to continue'}
                 </span>
               ) : (
                 <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" />
-                  {revealed ? 'double tap to unlock' : 'press & hold $Z'}
+                  {showTapAgain ? 'tap again to mint' : revealed ? 'double tap to mint' : 'press & hold $Z'}
                 </span>
               )}
             </div>
