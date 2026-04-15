@@ -493,18 +493,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return;
     }
 
-    if (!ctx) {
-      logGestureDebug(`${source}-reveal-blocked-no-audio-ctx`);
-      showHoldHint();
-      return;
-    }
+    const firstReveal = !s.hexAwake;
 
     const revealVisuals = () => {
       const shockwaveOrigin = getLockVisualCenter();
       setShockwave({ key: Date.now(), ...shockwaveOrigin });
 
       triggerBurst();
-      updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false });
+      updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false, holdHint: false });
       ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
 
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
@@ -513,40 +509,46 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }, LOCK_FLASH_MS);
     };
 
-    const commitReveal = (startTime: number, warmStart: boolean) => {
-      const firstReveal = !stateRef.current.hexAwake;
-
+    const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
         const gongStarted = playSingingBowl(startTime);
         const humStarted = startShimmerSound(startTime);
 
-        if (!gongStarted && !humStarted) {
-          logGestureDebug(`${source}-reveal-blocked-audio-arm-failed`, { start: startTime, warmStart });
-          showHoldHint();
-          return;
-        }
-
         stopDemoEntryFallbackHum(false);
         setFallbackHumActive(false);
-        audioReadyRef.current = true;
+        audioReadyRef.current = audioReadyRef.current || gongStarted || humStarted;
         logGestureDebug(`${source}-cinematic-reveal`, {
           start: startTime,
-          ctxState: ctx.state,
+          ctxState: ctx?.state ?? 'null',
           warmStart,
           gongStarted,
           humStarted,
           audioMode: 'shared-shimmer',
+          visualReveal: true,
         });
-      } else {
-        playWelcomeTap(startTime);
-        logGestureDebug(`${source}-welcome-tap`, { start: startTime, ctxState: ctx.state, warmStart });
+        return;
       }
 
-      revealVisuals();
+      playWelcomeTap(startTime);
+      logGestureDebug(`${source}-welcome-tap`, {
+        start: startTime,
+        ctxState: ctx?.state ?? 'null',
+        warmStart,
+        visualReveal: true,
+      });
     };
 
+    revealVisuals();
+
+    if (!ctx) {
+      stopDemoEntryFallbackHum(false);
+      setFallbackHumActive(false);
+      logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
+      return;
+    }
+
     if (ctx.state === 'running') {
-      commitReveal(getSafeAudioStartTime(ctx, undefined, 0.005), false);
+      fireRevealAudio(getSafeAudioStartTime(ctx, undefined, 0.005), false);
       return;
     }
 
@@ -555,16 +557,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ctx,
       () => {
         audioWakeCleanupRef.current = null;
-        commitReveal(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD), true);
+        fireRevealAudio(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD), true);
       },
       1200,
       () => {
         audioWakeCleanupRef.current = null;
-        logGestureDebug(`${source}-reveal-blocked-audio-running-timeout`, { ctxState: ctx.state });
-        showHoldHint();
+        logGestureDebug(`${source}-reveal-audio-running-timeout`, {
+          ctxState: ctx.state,
+          visualReveal: true,
+        });
       },
     );
-    logGestureDebug(`${source}-reveal-armed-awaiting-running`, { ctxState: ctx.state, audioReady });
+    logGestureDebug(`${source}-reveal-visuals-armed-awaiting-running`, {
+      ctxState: ctx.state,
+      audioReady,
+      visualReveal: true,
+    });
   }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, scheduleFallbackHumHandoff, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
