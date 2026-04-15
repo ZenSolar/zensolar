@@ -611,7 +611,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
       handleHoldStart('touchstart');
-      handleLockPointerDown('touchstart');
+      // Only engage double-tap logic after the gate is already revealed
+      if (stateRef.current.hexAwake) {
+        handleLockPointerDown('touchstart');
+      }
       logGestureDebug('touchstart');
     };
     const onTouchEnd = () => {
