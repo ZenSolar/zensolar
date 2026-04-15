@@ -104,9 +104,20 @@ export function CleanEnergyCenterShowcase() {
                   <h3 className="text-lg font-bold text-foreground">Clean Energy Center</h3>
                   <span className="text-xs text-muted-foreground">Last updated 11:19 PM</span>
                 </div>
-                <span className="text-[10px] tracking-wider uppercase text-secondary/70 font-medium px-2 py-1 rounded-full border border-secondary/20 bg-secondary/5">
-                  Mint-on-Proof™
-                </span>
+                <div className="flex flex-col items-end gap-1.5">
+                  <span className="text-[10px] tracking-wider uppercase font-medium px-2 py-1 rounded-full border border-secondary/20 bg-secondary/5 text-secondary/70" style={{ textShadow: '0 0 8px hsl(142 76% 36% / 0.5)' }}>
+                    Tap-to-Mint™
+                  </span>
+                  <span className="text-[10px] tracking-wider uppercase font-medium px-2 py-1 rounded-full border border-[hsl(142,76%,36%)]/20 bg-[hsl(142,76%,36%)]/5" style={{ color: 'hsl(142 76% 50% / 0.85)', textShadow: '0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3)' }}>
+                    Proof-of-Mint™
+                  </span>
+                  <span className="text-[10px] tracking-wider uppercase font-medium px-2 py-1 rounded-full border border-[hsl(25,95%,55%)]/20 bg-[hsl(25,95%,55%)]/5" style={{ color: 'hsl(25 95% 60% / 0.85)', textShadow: '0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3)' }}>
+                    Proof-of-Origin™
+                  </span>
+                  <span className="text-[10px] tracking-wider uppercase font-medium px-2 py-1 rounded-full border border-[hsl(270,80%,60%)]/20 bg-[hsl(270,80%,60%)]/5" style={{ color: 'hsl(270 80% 68% / 0.85)', textShadow: '0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3)' }}>
+                    Proof-of-Delta™
+                  </span>
+                </div>
               </div>
 
               {/* KPI cards */}
