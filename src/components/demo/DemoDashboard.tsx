@@ -238,6 +238,7 @@ export function DemoDashboard() {
         {/* Today's Clean Energy Stats */}
         <AnimatedItem>
           <TodaysCleanEnergyStats />
+        </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
         <AnimatedItem className="py-2">
