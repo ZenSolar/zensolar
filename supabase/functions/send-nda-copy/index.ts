@@ -21,11 +21,13 @@ This Confidentiality Agreement ("Agreement") is entered into as of the date of e
 
 3. Obligations. Recipient shall: (a) use Confidential Information solely for the Purpose; (b) not disclose Confidential Information to any third party without ZenSolar's prior written consent; and (c) protect Confidential Information with at least the same degree of care used for its own confidential information, but no less than reasonable care.
 
-4. Intellectual Property. No disclosure hereunder grants Recipient any license, right, or interest in ZenSolar's intellectual property, including its patent-pending technology, trademarks (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™), or trade secrets.
+4. No Reverse Engineering. Recipient shall not reverse engineer, decompile, disassemble, or otherwise attempt to derive the source code, algorithms, data structures, or underlying ideas of any software, technology, or systems demonstrated in or accessible through the Demo. Recipient shall not attempt to replicate, recreate, or build competing products or services based on the Confidential Information or the Demo.
 
-5. Term & Governing Law. This Agreement remains in effect for five (5) years from the date of signature. This Agreement is governed by the laws of the State of Texas, with exclusive jurisdiction in Travis County, Texas.
+5. Intellectual Property. No disclosure hereunder grants Recipient any license, right, or interest in ZenSolar's intellectual property, including its patent-pending technology, trademarks (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™), or trade secrets.
 
-6. Remedies. Recipient acknowledges that breach of this Agreement may cause irreparable harm, and ZenSolar shall be entitled to equitable relief in addition to any other remedies available at law.`;
+6. Term & Governing Law. This Agreement remains in effect for five (5) years from the date of signature. This Agreement is governed by the laws of the State of Texas, with exclusive jurisdiction in Travis County, Texas.
+
+7. Remedies. Recipient acknowledges that breach of this Agreement may cause irreparable harm, and ZenSolar shall be entitled to equitable relief in addition to any other remedies available at law.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {

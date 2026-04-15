@@ -8,6 +8,13 @@ import { toast } from 'sonner';
 import { FileText, PenTool, Type, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+interface GeoInfo {
+  city?: string;
+  region?: string;
+  country?: string;
+  ip?: string;
+}
+
 interface NdaSignatureStepProps {
   accessCodeUsed: string;
   onSigned: () => void;
@@ -25,11 +32,13 @@ This Confidentiality Agreement ("Agreement") is entered into as of the date of e
 
 3. Obligations. Recipient shall: (a) use Confidential Information solely for the Purpose; (b) not disclose Confidential Information to any third party without ZenSolar's prior written consent; and (c) protect Confidential Information with at least the same degree of care used for its own confidential information, but no less than reasonable care.
 
-4. Intellectual Property. No disclosure hereunder grants Recipient any license, right, or interest in ZenSolar's intellectual property, including its patent-pending technology, trademarks (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™), or trade secrets.
+4. No Reverse Engineering. Recipient shall not reverse engineer, decompile, disassemble, or otherwise attempt to derive the source code, algorithms, data structures, or underlying ideas of any software, technology, or systems demonstrated in or accessible through the Demo. Recipient shall not attempt to replicate, recreate, or build competing products or services based on the Confidential Information or the Demo.
 
-5. Term & Governing Law. This Agreement remains in effect for five (5) years from the date of signature. This Agreement is governed by the laws of the State of Texas, with exclusive jurisdiction in Travis County, Texas.
+5. Intellectual Property. No disclosure hereunder grants Recipient any license, right, or interest in ZenSolar's intellectual property, including its patent-pending technology, trademarks (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™), or trade secrets.
 
-6. Remedies. Recipient acknowledges that breach of this Agreement may cause irreparable harm, and ZenSolar shall be entitled to equitable relief in addition to any other remedies available at law.`;
+6. Term & Governing Law. This Agreement remains in effect for five (5) years from the date of signature. This Agreement is governed by the laws of the State of Texas, with exclusive jurisdiction in Travis County, Texas.
+
+7. Remedies. Recipient acknowledges that breach of this Agreement may cause irreparable harm, and ZenSolar shall be entitled to equitable relief in addition to any other remedies available at law.`;
 
 type SignatureMethod = 'type' | 'draw';
 
@@ -41,6 +50,24 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
+  const geoRef = useRef<GeoInfo>({});
+
+  // Fetch IP geolocation on mount
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(data => {
+        geoRef.current = {
+          city: data.city,
+          region: data.region,
+          country: data.country_code,
+          ip: data.ip,
+        };
+      })
+      .catch(() => {
+        // Geolocation is best-effort
+      });
+  }, []);
 
   // Canvas refs for draw signature
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -133,7 +160,10 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
         sigText = canvasRef.current.toDataURL('image/png');
       }
 
+      // Insert NDA signature
+      const ndaId = crypto.randomUUID();
       const { error } = await supabase.from('nda_signatures').insert({
+        id: ndaId,
         full_name: fullName.trim(),
         email: email.trim(),
         signature_text: sigText,
@@ -145,20 +175,32 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
 
       if (error) throw error;
 
+      // Log demo access with geolocation (non-blocking)
+      const geo = geoRef.current;
+      supabase.from('demo_access_log').insert({
+        access_code: accessCodeUsed,
+        city: geo.city || null,
+        region: geo.region || null,
+        country: geo.country || null,
+        ip_address: geo.ip || null,
+        user_agent: navigator.userAgent,
+        nda_signed: true,
+        nda_signature_id: ndaId,
+      }).then(({ error: logErr }) => {
+        if (logErr) console.warn('Access log insert failed:', logErr);
+      });
+
       // Try to send email copy (non-blocking)
-      try {
-        await supabase.functions.invoke('send-nda-copy', {
-          body: {
-            recipientEmail: email.trim(),
-            recipientName: fullName.trim(),
-            signedAt: new Date().toISOString(),
-            ndaVersion: NDA_VERSION,
-          },
-        });
-      } catch {
-        // Email send failure shouldn't block access
+      supabase.functions.invoke('send-nda-copy', {
+        body: {
+          recipientEmail: email.trim(),
+          recipientName: fullName.trim(),
+          signedAt: new Date().toISOString(),
+          ndaVersion: NDA_VERSION,
+        },
+      }).catch(() => {
         console.warn('NDA email send failed — non-blocking');
-      }
+      });
 
       toast.success('Agreement signed', { description: 'A copy has been sent to your email.' });
       onSigned();
