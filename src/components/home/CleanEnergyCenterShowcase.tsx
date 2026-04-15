@@ -16,10 +16,10 @@ const kpiItems = [
   },
   {
     icon: BatteryFull,
-    label: 'Battery Storage Exported',
+    label: 'Powerwall 3 kWh Export',
     value: '2,476',
     unit: 'kWh',
-    name: 'Powerwall 2',
+    name: '',
     borderColor: 'border-l-secondary',
     iconColor: 'text-secondary',
     iconBg: 'bg-secondary/10',
