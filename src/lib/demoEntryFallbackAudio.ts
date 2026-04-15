@@ -18,10 +18,19 @@ type AudioTransport = 'media-element' | 'web-audio';
 
 type HumDecodeContext = Pick<BaseAudioContext, 'createBuffer' | 'decodeAudioData'>;
 
-interface HumLoopGraph {
-  ctx: AudioContext;
-  source: AudioBufferSourceNode;
+interface HumLoopVoice {
   gain: GainNode;
+  source: AudioBufferSourceNode;
+}
+
+interface HumLoopGraph {
+  buffer: AudioBuffer;
+  ctx: AudioContext;
+  gain: GainNode;
+  nextVoiceOffset: number;
+  nextVoiceStartTime: number | null;
+  schedulerTimer: number | null;
+  voices: Set<HumLoopVoice>;
 }
 
 let fallbackAudio: DemoEntryFallbackAudioElements | null = null;
@@ -462,55 +471,70 @@ function destroyHumLoopGraph(resetGain = true) {
 
   if (!humLoopGraph) return;
 
-  try {
-    humLoopGraph.source.onended = null;
-    humLoopGraph.source.stop();
-  } catch {
-    // no-op
+  if (typeof window !== 'undefined' && humLoopGraph.schedulerTimer !== null) {
+    window.clearTimeout(humLoopGraph.schedulerTimer);
+    humLoopGraph.schedulerTimer = null;
   }
 
-  try {
-    humLoopGraph.source.disconnect();
-    humLoopGraph.gain.disconnect();
-  } catch {
-    // no-op
+  for (const voice of humLoopGraph.voices) {
+    try {
+      voice.source.onended = null;
+      voice.source.stop();
+    } catch {
+      // no-op
+    }
+
+    try {
+      voice.source.disconnect();
+      voice.gain.disconnect();
+    } catch {
+      // no-op
+    }
   }
+
+  humLoopGraph.voices.clear();
 
   if (resetGain) {
     humLoopGraph.gain.gain.value = 0;
+  }
+
+  try {
+    humLoopGraph.gain.disconnect();
+  } catch {
+    // no-op
   }
 
   humLoopGraph = null;
 }
 
 function createHumLoopGraph(ctx: AudioContext, buffer: AudioBuffer) {
+  if (humLoopGraph?.ctx === ctx && humLoopGraph.buffer === buffer) {
+    return humLoopGraph;
+  }
+
   destroyHumLoopGraph(false);
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0, ctx.currentTime);
   gain.connect(ctx.destination);
 
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  source.loop = true;
-  source.loopStart = getHumLoopStart(buffer);
-  source.loopEnd = getHumLoopEnd(buffer);
-  source.connect(gain);
-  source.onended = () => {
-    if (humLoopGraph?.source === source) {
-      humLoopGraph = null;
-      fallbackHumActive = false;
-    }
+  humLoopGraph = {
+    buffer,
+    ctx,
+    gain,
+    nextVoiceOffset: getHumLoopStart(buffer),
+    nextVoiceStartTime: null,
+    schedulerTimer: null,
+    voices: new Set(),
   };
 
-  humLoopGraph = { ctx, source, gain };
   return humLoopGraph;
 }
 
 function getPreparedHumLoopGraph(ctx: AudioContext) {
-  if (humLoopGraph?.ctx === ctx) return humLoopGraph;
-  const buffer = humLoopBuffer ?? humDecodedBuffer;
+  const buffer = humDecodedBuffer;
   if (!buffer) return null;
+  if (humLoopGraph?.ctx === ctx && humLoopGraph.buffer === buffer) return humLoopGraph;
   return createHumLoopGraph(ctx, buffer);
 }
 
