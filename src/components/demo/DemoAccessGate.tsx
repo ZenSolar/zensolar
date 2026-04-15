@@ -336,7 +336,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           try { navigator.vibrate([15, 30, 10]); } catch {}
         }
 
-        setTimeout(() => {
+        setTimeout(async () => {
           // Blur input to dismiss keyboard & reset iOS viewport zoom before showing NDA
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
