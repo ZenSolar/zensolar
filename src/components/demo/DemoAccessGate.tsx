@@ -683,11 +683,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     nativeGestureReadyRef.current = true;
     const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
-      handleHoldStart('touchstart');
-      // Only engage double-tap logic after the gate is already revealed
+      // After reveal: single tap submits immediately (no hold needed)
       if (stateRef.current.hexAwake) {
         handleLockPointerDown('touchstart');
+        logGestureDebug('touchstart-single-tap');
+        return;
       }
+      // Pre-reveal: hold gesture
+      handleHoldStart('touchstart');
       logGestureDebug('touchstart');
     };
     const onTouchEnd = () => {
