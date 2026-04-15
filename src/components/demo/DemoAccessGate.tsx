@@ -547,32 +547,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return;
     }
 
-    if (ctx.state === 'running') {
-      fireRevealAudio(getSafeAudioStartTime(ctx, undefined, 0.005), false);
-      return;
+    const startTime = getSafeAudioStartTime(
+      ctx,
+      undefined,
+      ctx.state === 'running' ? 0.005 : IMMEDIATE_SOUND_LEAD,
+    );
+
+    if (ctx.state !== 'running') {
+      ctx.resume().catch(() => {});
     }
 
-    ctx.resume().catch(() => {});
-    audioWakeCleanupRef.current = runWhenAudioContextRunning(
-      ctx,
-      () => {
-        audioWakeCleanupRef.current = null;
-        fireRevealAudio(getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD), true);
-      },
-      1200,
-      () => {
-        audioWakeCleanupRef.current = null;
-        logGestureDebug(`${source}-reveal-audio-running-timeout`, {
-          ctxState: ctx.state,
-          visualReveal: true,
-        });
-      },
-    );
-    logGestureDebug(`${source}-reveal-visuals-armed-awaiting-running`, {
-      ctxState: ctx.state,
-      audioReady,
-      visualReveal: true,
-    });
+    fireRevealAudio(startTime, ctx.state !== 'running');
   }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, scheduleFallbackHumHandoff, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
