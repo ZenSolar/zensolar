@@ -295,95 +295,92 @@ export function ActivityMetrics({
             idleDelay="0.8s"
           />
 
-          <div className="relative">
-            <div className="flex justify-between gap-3">
-              {/* Left column: icon + title + connected */}
-              <div className="flex flex-col gap-1 min-w-0">
-                <div className="flex items-center gap-2.5">
-                  <div 
-                    className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
-                      boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
-                    }}
-                  >
-                    <Gauge className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
-                      Clean Energy Center
-                    </h2>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
-                      {isLoading && (
-                        <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          Updating…
-                        </span>
-                      )}
-                    </div>
-                  </div>
+          <div className="relative space-y-3">
+            {/* Centered title row */}
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
+                  Clean Energy Center
+                </h2>
+                <div 
+                  className="h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
+                    boxShadow: '0 0 10px hsl(var(--primary) / 0.35), 0 0 20px hsl(var(--primary) / 0.12)',
+                  }}
+                >
+                  <Gauge className="h-4 w-4 text-white" />
                 </div>
-                {/* Connected providers — aligned with bottom of badges */}
-                {filteredProviders.length > 0 && (
-                  <div className="flex items-center gap-2 mt-auto">
-                    <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
-                    <div className="flex items-center gap-1.5">
-                      {filteredProviders.map((provider) => (
-                        <div 
-                          key={provider}
-                          className="h-6 w-6 rounded-md flex items-center justify-center border border-border/30 bg-card/10"
-                          title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                        >
-                          <img 
-                            src={providerLogos[provider]} 
-                            alt={provider}
-                            className={cn(
-                              "object-contain",
-                              provider === 'tesla' ? "h-4 w-4" : "h-3.5 w-3.5"
-                            )}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+              </div>
+              <div className="flex items-center gap-2 mt-0.5">
+                <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+                {isLoading && (
+                  <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Updating…
+                  </span>
                 )}
               </div>
-
-              {/* Right column: badges */}
-              <div className="flex flex-col items-end gap-1.5 flex-shrink-0 pt-0.5">
-                {[
-                  { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
-                  { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
-                  { label: 'Proof-of-Origin™', color: 'hsl(25 95% 60% / 0.85)', glow: 'hsl(25 95% 55% / 0.6)', glowFar: 'hsl(25 95% 55% / 0.3)' },
-                  { label: 'Proof-of-Delta™', color: 'hsl(270 80% 68% / 0.85)', glow: 'hsl(270 80% 60% / 0.6)', glowFar: 'hsl(270 80% 60% / 0.3)' },
-                ].map((badge, i) => (
-                  <motion.span
-                    key={badge.label}
-                    initial={{ opacity: 0, x: 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + i * 0.15, duration: 0.4, ease: 'easeOut' }}
-                    className={cn(
-                      "text-[9px] font-semibold tracking-[0.15em] uppercase whitespace-nowrap",
-                      badge.useClass && "text-primary"
-                    )}
-                    style={{
-                      ...(badge.useClass ? {} : { color: badge.color }),
-                      textShadow: `0 0 10px ${badge.glow}, 0 0 20px ${badge.glowFar}`,
-                      animation: `badge-pulse-${i} 3s ease-in-out ${0.3 + i * 0.15 + 0.4}s infinite`,
-                    }}
-                  >
-                    {badge.label}
-                  </motion.span>
-                ))}
-                <style>{`
-                  @keyframes badge-pulse-0 { 0%, 100% { text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.25); } 50% { text-shadow: 0 0 14px hsl(var(--primary) / 0.7), 0 0 28px hsl(var(--primary) / 0.4); } }
-                  @keyframes badge-pulse-1 { 0%, 100% { text-shadow: 0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3); } 50% { text-shadow: 0 0 14px hsl(142 76% 45% / 0.8), 0 0 28px hsl(142 76% 45% / 0.5); } }
-                  @keyframes badge-pulse-2 { 0%, 100% { text-shadow: 0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3); } 50% { text-shadow: 0 0 14px hsl(25 95% 55% / 0.8), 0 0 28px hsl(25 95% 55% / 0.5); } }
-                  @keyframes badge-pulse-3 { 0%, 100% { text-shadow: 0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3); } 50% { text-shadow: 0 0 14px hsl(270 80% 60% / 0.8), 0 0 28px hsl(270 80% 60% / 0.5); } }
-                `}</style>
-              </div>
             </div>
+
+            {/* Proof badges row — centered */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              {[
+                { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
+                { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
+                { label: 'Proof-of-Origin™', color: 'hsl(25 95% 60% / 0.85)', glow: 'hsl(25 95% 55% / 0.6)', glowFar: 'hsl(25 95% 55% / 0.3)' },
+                { label: 'Proof-of-Delta™', color: 'hsl(270 80% 68% / 0.85)', glow: 'hsl(270 80% 60% / 0.6)', glowFar: 'hsl(270 80% 60% / 0.3)' },
+              ].map((badge, i) => (
+                <motion.span
+                  key={badge.label}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.12, duration: 0.4, ease: 'easeOut' }}
+                  className={cn(
+                    "text-[8px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap",
+                    badge.useClass && "text-primary"
+                  )}
+                  style={{
+                    ...(badge.useClass ? {} : { color: badge.color }),
+                    textShadow: `0 0 10px ${badge.glow}, 0 0 20px ${badge.glowFar}`,
+                    animation: `badge-pulse-${i} 3s ease-in-out ${0.3 + i * 0.12 + 0.4}s infinite`,
+                  }}
+                >
+                  {badge.label}
+                </motion.span>
+              ))}
+              <style>{`
+                @keyframes badge-pulse-0 { 0%, 100% { text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.25); } 50% { text-shadow: 0 0 14px hsl(var(--primary) / 0.7), 0 0 28px hsl(var(--primary) / 0.4); } }
+                @keyframes badge-pulse-1 { 0%, 100% { text-shadow: 0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3); } 50% { text-shadow: 0 0 14px hsl(142 76% 45% / 0.8), 0 0 28px hsl(142 76% 45% / 0.5); } }
+                @keyframes badge-pulse-2 { 0%, 100% { text-shadow: 0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3); } 50% { text-shadow: 0 0 14px hsl(25 95% 55% / 0.8), 0 0 28px hsl(25 95% 55% / 0.5); } }
+                @keyframes badge-pulse-3 { 0%, 100% { text-shadow: 0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3); } 50% { text-shadow: 0 0 14px hsl(270 80% 60% / 0.8), 0 0 28px hsl(270 80% 60% / 0.5); } }
+              `}</style>
+            </div>
+
+            {/* Connected providers — centered below */}
+            {filteredProviders.length > 0 && (
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
+                <div className="flex items-center gap-1.5">
+                  {filteredProviders.map((provider) => (
+                    <div 
+                      key={provider}
+                      className="h-6 w-6 rounded-md flex items-center justify-center border border-border/30 bg-card/10"
+                      title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                    >
+                      <img 
+                        src={providerLogos[provider]} 
+                        alt={provider}
+                        className={cn(
+                          "object-contain",
+                          provider === 'tesla' ? "h-4 w-4" : "h-3.5 w-3.5"
+                        )}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
