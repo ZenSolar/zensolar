@@ -65,14 +65,15 @@ const createSharedAudioContext = () => {
       logAudioDebug('audio-context-statechange', { ctx: ctx.state });
     });
 
-    // In PWA standalone mode, iOS aggressively suspends the AudioContext.
-    // Keep it alive by playing inaudible pulses every 4 seconds.
-    if (isStandalonePWA() && !keepAliveInterval) {
+    // iOS can suspend the shared AudioContext even outside standalone mode
+    // when the first interaction is brief or the output is extremely subtle.
+    // Keep it alive with inaudible pulses while the app is open.
+    if (!keepAliveInterval) {
       keepAliveInterval = setInterval(() => {
         if (sharedAudioContext && sharedAudioContext.state === 'running') {
           fireSilentUnlockPulse(sharedAudioContext);
         }
-      }, 4000);
+      }, 1500);
     }
   }
   return sharedAudioContext;
