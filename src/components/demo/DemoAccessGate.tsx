@@ -570,9 +570,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
-        const fallbackStarted = playDemoEntryFallbackRevealAudio();
+        // Play only the gong via the fallback system — the WAV hum loop is a
+        // different sound than the dashboard's synth shimmer hum, so we skip it
+        // and let startShimmerSound (the synth) be the sole ambient layer.
+        const gongFallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
-        setFallbackHumActive(fallbackStarted);
+        setFallbackHumActive(false);
 
         shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
         shimmerRetryTimersRef.current = [];
