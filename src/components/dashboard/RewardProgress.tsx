@@ -116,6 +116,18 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
     touchStartRef.current = null;
   };
   
+  // Continuous staggered piano key animation
+  const pianoKeyAnimation = !isActive ? {
+    y: [0, 2, 0],
+    scale: [1, 0.97, 1],
+    transition: {
+      duration: 1.8,
+      repeat: Infinity,
+      repeatDelay: delay * 4 + 1,
+      ease: 'easeInOut',
+    }
+  } : { y: [0, -3, 0], transition: { duration: 0.3 } };
+
   return (
     <motion.button 
       onClick={onClick}
@@ -123,7 +135,7 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
       onTouchEnd={handleTouchEnd}
       whileHover={{ scale: 1.03, y: -2 }}
       whileTap={{ scale: 0.95, y: 3, transition: { duration: 0.08 } }}
-      animate={isActive ? { y: [0, -3, 0], transition: { duration: 0.3 } } : {}}
+      animate={pianoKeyAnimation}
       className={cn(
         "flex flex-col items-center gap-1 p-2 rounded-xl w-full touch-manipulation",
         "shadow-[0_4px_0_0_rgba(0,0,0,0.3)]",
