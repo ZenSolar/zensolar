@@ -287,3 +287,31 @@ function FloatingHint({
     </motion.div>
   );
 }
+
+function KpiStickyHint() {
+  const coords = useHintPosition({
+    targetId: 'cec-header',
+    fallbackSelector: '#cec-header',
+    position: 'below',
+    hideWhenOffscreen: false,
+  });
+
+  if (!coords) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: 0.15 }}
+      className="fixed z-[120] pointer-events-none -translate-x-1/2"
+      style={{ top: coords.top, left: coords.left }}
+    >
+      <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-primary/15 backdrop-blur-md border border-primary/30 shadow-lg shadow-primary/20">
+        <Hand className="h-4 w-4 text-primary animate-bounce flex-shrink-0" />
+        <span className="text-xs font-semibold text-primary whitespace-nowrap">
+          Double-tap any field to mint tokens
+        </span>
+      </div>
+    </motion.div>
+  );
+}
