@@ -1,31 +1,128 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { ChevronDown, ChevronLeft, Hand } from 'lucide-react';
 
 type HintId = 'menu' | 'kpi' | 'wallet';
+type HintPosition = 'above' | 'below' | 'center';
+type Coordinates = { top: number; left: number };
 
-/**
- * Bouncing arrow hints for first-time demo visitors.
- * - menu: points to hamburger menu button
- * - kpi: hovers over KPI device cards in Clean Energy Center
- * - wallet: appears over wallet card AFTER a successful test mint
- * Resets when the 24-hour access gate resets.
- */
+const INITIAL_HINTS: HintId[] = ['menu', 'kpi', 'wallet'];
+const MENU_FALLBACK_COORDS: Coordinates = { top: 16, left: 52 };
+
+function getTargetElement(targetId?: string, fallbackSelector?: string) {
+  return (targetId ? document.getElementById(targetId) : null) ??
+    (fallbackSelector ? document.querySelector(fallbackSelector) : null);
+}
+
+function getFloatingCoords(rect: DOMRect, position: HintPosition): Coordinates {
+  return {
+    top:
+      position === 'above'
+        ? rect.top - 44
+        : position === 'center'
+          ? rect.top + rect.height / 2 - 22
+          : rect.bottom + 8,
+    left: rect.left + rect.width / 2,
+  };
+}
+
+function useHintPosition({
+  targetId,
+  fallbackSelector,
+  fallbackCoords,
+  position,
+  hideWhenOffscreen = false,
+}: {
+  targetId?: string;
+  fallbackSelector?: string;
+  fallbackCoords?: Coordinates;
+  position?: HintPosition;
+  hideWhenOffscreen?: boolean;
+}) {
+  const [coords, setCoords] = useState<Coordinates | null>(fallbackCoords ?? null);
+
+  useEffect(() => {
+    let attempts = 0;
+    let rafId = 0;
+    let retryTimer: number | null = null;
+
+    const updatePosition = () => {
+      const target = getTargetElement(targetId, fallbackSelector);
+
+      if (!target) {
+        if (fallbackCoords) {
+          setCoords(fallbackCoords);
+        }
+        if (attempts++ < 30) {
+          retryTimer = window.setTimeout(scheduleUpdate, 150);
+        }
+        return;
+      }
+
+      const rect = target.getBoundingClientRect();
+      if (!rect.width || !rect.height) {
+        if (attempts++ < 30) {
+          retryTimer = window.setTimeout(scheduleUpdate, 150);
+        }
+        return;
+      }
+
+      if (hideWhenOffscreen && (rect.top > window.innerHeight || rect.bottom < 0)) {
+        setCoords(null);
+        return;
+      }
+
+      attempts = 0;
+      setCoords(
+        position
+          ? getFloatingCoords(rect, position)
+          : {
+              top: rect.top + rect.height / 2 - 16,
+              left: rect.right + 12,
+            }
+      );
+    };
+
+    const scheduleUpdate = () => {
+      if (retryTimer) {
+        window.clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+      cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(updatePosition);
+    };
+
+    scheduleUpdate();
+    window.addEventListener('resize', scheduleUpdate);
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+
+    return () => {
+      if (retryTimer) {
+        window.clearTimeout(retryTimer);
+      }
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', scheduleUpdate);
+      window.removeEventListener('scroll', scheduleUpdate);
+    };
+  }, [targetId, fallbackSelector, fallbackCoords, position, hideWhenOffscreen]);
+
+  return coords;
+}
+
 export function DemoOnboardingHints() {
   const [activeHints, setActiveHints] = useState<Set<HintId>>(new Set());
 
-  // Always show menu + kpi hints on mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setActiveHints(new Set(['menu', 'kpi']));
-    }, 1500);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(() => {
+      setActiveHints(new Set(INITIAL_HINTS));
+    }, 900);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
-  // Listen for mint success to show wallet hint
   useEffect(() => {
     const handler = () => {
-      setActiveHints(prev => {
+      setActiveHints((prev) => {
         const next = new Set(prev);
         next.add('wallet');
         return next;
@@ -37,14 +134,13 @@ export function DemoOnboardingHints() {
   }, []);
 
   const dismissHint = useCallback((id: HintId) => {
-    setActiveHints(prev => {
+    setActiveHints((prev) => {
       const next = new Set(prev);
       next.delete(id);
       return next;
     });
   }, []);
 
-  // Auto-dismiss on target element clicks
   useEffect(() => {
     if (activeHints.size === 0) return;
 
@@ -77,97 +173,56 @@ export function DemoOnboardingHints() {
       }
     }
 
-    return () => cleanups.forEach(fn => fn());
+    return () => cleanups.forEach((fn) => fn());
   }, [activeHints, dismissHint]);
 
   if (activeHints.size === 0) return null;
 
   return (
     <>
-      <AnimatePresence>
-        {activeHints.has('menu') && (
-          <MenuHint onDismiss={() => dismissHint('menu')} />
-        )}
-      </AnimatePresence>
+      {activeHints.has('menu') && <MenuHint onDismiss={() => dismissHint('menu')} />}
 
-      <AnimatePresence>
-        {activeHints.has('kpi') && (
-          <FloatingHint
-            targetId=""
-            fallbackSelector="[data-hint-target='kpi-cards']"
-            label="Tap to mint tokens"
-            icon="hand"
-            position="center"
-            onDismiss={() => dismissHint('kpi')}
-            delay={0.3}
-          />
-        )}
-      </AnimatePresence>
+      {activeHints.has('kpi') && (
+        <FloatingHint
+          fallbackSelector="[data-hint-target='kpi-cards']"
+          label="Tap to mint tokens"
+          icon="hand"
+          position="center"
+          onDismiss={() => dismissHint('kpi')}
+          delay={0.15}
+        />
+      )}
 
-      <AnimatePresence>
-        {activeHints.has('wallet') && (
-          <FloatingHint
-            targetId="demo-wallet-card"
-            fallbackSelector="#demo-wallet-card"
-            label="Check your wallet"
-            icon="down"
-            position="above"
-            onDismiss={() => dismissHint('wallet')}
-            delay={0.2}
-          />
-        )}
-      </AnimatePresence>
+      {activeHints.has('wallet') && (
+        <FloatingHint
+          targetId="demo-wallet-card"
+          fallbackSelector="#demo-wallet-card"
+          label="Check your wallet"
+          icon="down"
+          position="above"
+          onDismiss={() => dismissHint('wallet')}
+          delay={0.25}
+        />
+      )}
     </>
   );
 }
 
-// ─── Menu Hint ───────────────────────────────────────────────
 function MenuHint({ onDismiss }: { onDismiss: () => void }) {
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const pos = useHintPosition({
+    targetId: 'zen-sidebar-trigger',
+    fallbackCoords: MENU_FALLBACK_COORDS,
+  });
 
-  useEffect(() => {
-    let attempts = 0;
-    let resizeCleanup: (() => void) | null = null;
-
-    const findTrigger = () => {
-      const trigger = document.getElementById('zen-sidebar-trigger');
-      if (!trigger) return false;
-      const rect = trigger.getBoundingClientRect();
-      setPos({
-        top: rect.top + rect.height / 2 - 16,
-        left: rect.right + 12,
-      });
-      return true;
-    };
-
-    const tryFind = () => {
-      if (findTrigger()) {
-        const handler = () => findTrigger();
-        window.addEventListener('resize', handler);
-        resizeCleanup = () => window.removeEventListener('resize', handler);
-        return;
-      }
-      if (attempts++ < 20) {
-        setTimeout(tryFind, 200);
-      }
-    };
-
-    const timer = setTimeout(tryFind, 800);
-
-    return () => {
-      clearTimeout(timer);
-      resizeCleanup?.();
-    };
-  }, []);
+  if (!pos) return null;
 
   return (
     <motion.div
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -8 }}
       transition={{ duration: 0.3 }}
       className="fixed z-[55] pointer-events-none"
-      style={pos ? { top: pos.top, left: pos.left } : { top: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)', left: '3.25rem' }}
+      style={{ top: pos.top, left: pos.left }}
     >
       <div className="flex items-center gap-1.5 pointer-events-auto" onClick={onDismiss}>
         <ChevronLeft className="h-5 w-5 text-primary animate-[bounceX_1s_ease-in-out_infinite]" />
@@ -179,7 +234,6 @@ function MenuHint({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
-// ─── Floating Hint (KPI / Wallet) ────────────────────────────
 function FloatingHint({
   targetId,
   fallbackSelector,
@@ -189,62 +243,20 @@ function FloatingHint({
   onDismiss,
   delay = 0,
 }: {
-  targetId: string;
+  targetId?: string;
   fallbackSelector: string;
   label: string;
   icon: 'hand' | 'down';
-  position: 'above' | 'below' | 'center';
+  position: HintPosition;
   onDismiss: () => void;
   delay?: number;
 }) {
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
-  const targetRef = useRef<Element | null>(null);
-
-  useEffect(() => {
-    let attempts = 0;
-    let scrollHandler: (() => void) | null = null;
-    let resizeHandler: (() => void) | null = null;
-
-    const updatePosition = () => {
-      if (!targetRef.current) return;
-      const rect = targetRef.current.getBoundingClientRect();
-      if (rect.top > window.innerHeight || rect.bottom < 0) {
-        setCoords(null);
-        return;
-      }
-      setCoords({
-        top: position === 'above' ? rect.top - 44 : position === 'center' ? rect.top + rect.height / 2 - 22 : rect.bottom + 8,
-        left: rect.left + rect.width / 2,
-      });
-    };
-
-    const findAndBind = () => {
-      const target = (targetId ? document.getElementById(targetId) : null) ||
-                     document.querySelector(fallbackSelector);
-      if (!target) {
-        if (attempts++ < 20) {
-          setTimeout(findAndBind, 200);
-        }
-        return;
-      }
-
-      targetRef.current = target;
-      updatePosition();
-
-      scrollHandler = updatePosition;
-      resizeHandler = updatePosition;
-      window.addEventListener('scroll', scrollHandler, { passive: true });
-      window.addEventListener('resize', resizeHandler);
-    };
-
-    const timer = setTimeout(findAndBind, 800);
-
-    return () => {
-      clearTimeout(timer);
-      if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
-      if (resizeHandler) window.removeEventListener('resize', resizeHandler);
-    };
-  }, [targetId, fallbackSelector, position]);
+  const coords = useHintPosition({
+    targetId,
+    fallbackSelector,
+    position,
+    hideWhenOffscreen: true,
+  });
 
   if (!coords) return null;
 
@@ -252,7 +264,6 @@ function FloatingHint({
     <motion.div
       initial={{ opacity: 0, y: position === 'above' ? 8 : -8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: position === 'above' ? 8 : -8 }}
       transition={{ duration: 0.3, delay }}
       className="fixed z-[55] pointer-events-none -translate-x-1/2"
       style={{ top: coords.top, left: coords.left }}
