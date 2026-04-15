@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
-import { preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
+import { armDemoEntryFallbackGestureAudio, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -393,9 +393,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let humPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio();
       gongPrewarmed = prewarmSingingBowl();
       humPrewarmed = startShimmerSound(undefined, 0);
-      fallbackArmed = !!preloadDemoEntryFallbackAudio();
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         humPrewarmed,
@@ -511,22 +511,31 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
-        const gongStarted = playSingingBowl(startTime);
-        const humStarted = startShimmerSound(startTime);
+        const fallbackStarted = playDemoEntryFallbackRevealAudio();
+        if (fallbackStarted) {
+          setFallbackHumActive(true);
+        }
 
-        stopDemoEntryFallbackHum(false);
-        setFallbackHumActive(false);
-        audioReadyRef.current = audioReadyRef.current || gongStarted || humStarted;
+        const gongStarted = playSingingBowl(startTime);
+        const humStarted = fallbackStarted ? false : startShimmerSound(startTime);
+
+        if (!fallbackStarted) {
+          stopDemoEntryFallbackHum(false);
+          setFallbackHumActive(false);
+        }
+
+        audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted || humStarted;
         logGestureDebug(`${source}-cinematic-reveal`, {
           start: startTime,
           ctxState: ctx?.state ?? 'null',
           warmStart,
+          fallbackStarted,
           gongStarted,
           humStarted,
-          audioMode: 'shared-shimmer',
+          audioMode: fallbackStarted ? 'fallback-media+gong' : 'shared-shimmer',
           visualReveal: true,
         });
-        return;
+        return fallbackStarted;
       }
 
       playWelcomeTap(startTime);
@@ -536,6 +545,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         warmStart,
         visualReveal: true,
       });
+      return false;
     };
 
     revealVisuals();
@@ -557,7 +567,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ctx.resume().catch(() => {});
     }
 
-    fireRevealAudio(startTime, ctx.state !== 'running');
+    const usedFallbackHum = fireRevealAudio(startTime, ctx.state !== 'running');
+    if (firstReveal && usedFallbackHum) {
+      scheduleFallbackHumHandoff(ctx, source);
+    }
   }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, scheduleFallbackHumHandoff, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
