@@ -240,6 +240,8 @@ const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [granted, setGranted] = useState(() => {
+    // TEMP: bypass gate for preview testing
+    return true;
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
       removeStoredValue(LS_KEY);
