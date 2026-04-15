@@ -30,6 +30,7 @@ interface RewardProgressProps {
   lifetimeMinted?: number;
   isNewUser?: boolean;
   initialCategory?: 'solar' | 'battery' | 'ev_miles' | 'charging';
+  featuredNftId?: string;
 }
 
 // Color styles matching landing page gradients
