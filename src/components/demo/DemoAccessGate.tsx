@@ -188,7 +188,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
-    volume: 0.06,
+    volume: 0.18,
     enabled: shimmerActive,
     prewarm: false,
   });
@@ -547,19 +547,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const fallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
 
-        // Delay the ambient hum by 1.5s so the AudioContext is fully warmed
-        // and running by the time the shimmer synth starts. This avoids the
-        // iOS gesture-context race that was killing the hum after 1-2 seconds.
-        setTimeout(() => {
-          const liveCtx = getSharedAudioContext();
-          if (!liveCtx) return;
+        // Start the ambient hum synchronously within the gesture context to
+        // preserve iOS audio permission. The previous 1500ms delay was causing
+        // the browser to revoke the gesture context, killing the hum after ~2s.
+        // Instead, schedule the hum to fade in shortly after the gong attack.
+        const liveCtx = getSharedAudioContext();
+        if (liveCtx) {
           if (liveCtx.state !== 'running') {
             liveCtx.resume().catch(() => {});
           }
-          const humStart = getSafeAudioStartTime(liveCtx, undefined, 0.01);
+          // Schedule hum start 400ms into the future (still within gesture
+          // context window) so it layers under the gong tail rather than
+          // competing with the gong attack.
+          const humStart = getSafeAudioStartTime(liveCtx, undefined, 0.4);
           startShimmerSound(humStart);
-          logAudioDebug('hum-delayed-start', { ctx: liveCtx.state, start: humStart });
-        }, 1500);
+          logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
+        }
 
         setFallbackHumActive(false);
 
@@ -567,7 +570,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateReleaseAudioDiagnostics({
           fallbackFired: fallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: 'delayed-1500ms',
+          synthHandoff: 'gesture-sync',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -576,8 +579,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           fallbackStarted,
           gongStarted,
-          humStarted: 'delayed',
-          audioMode: fallbackStarted ? 'fallback-gong+delayed-shimmer' : 'delayed-shimmer',
+          humStarted: 'gesture-sync',
+          audioMode: fallbackStarted ? 'fallback-gong+gesture-shimmer' : 'gesture-shimmer',
           visualReveal: true,
         });
         return false;
