@@ -312,8 +312,8 @@ export function ActivityMetrics({
               </div>
             </div>
 
-            {/* Proof badges — vertical stack */}
-            <div className="flex flex-col items-center gap-0.5">
+            {/* Proof badges — 2x2 grid */}
+            <div className="grid grid-cols-2 gap-x-0 gap-y-0 justify-items-center">
               {[
                 { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
                 { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
@@ -1410,7 +1410,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         <div className="flex items-center gap-1.5">
           <p 
             className={cn(
-              "text-sm font-medium truncate transition-all duration-300",
+              "text-[13px] font-medium leading-tight transition-all duration-300",
               active ? "text-foreground" : "text-muted-foreground"
             )}
           >{label}</p>
