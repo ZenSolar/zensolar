@@ -752,3 +752,10 @@
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(-6px); }
 }
+
+/* Reusable emerald glow border for dashboard cards */
+.emerald-glow-card {
+  border: 1px solid hsla(142, 76%, 36%, 0.1);
+  border-radius: 0.75rem;
+  animation: emeraldGlowIdle 4s ease-in-out infinite;
+}
