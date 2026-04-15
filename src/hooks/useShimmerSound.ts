@@ -3,8 +3,9 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import {
   getSharedAudioContext,
   IMMEDIATE_SOUND_LEAD,
-  WARM_START_SOUND_LEAD,
+  POST_RESUME_SOUND_LEAD,
   getSafeAudioStartTime,
+  scheduleWhenAudioRunning,
 } from './useMintSound';
 import {
   createShimmerAudioGraph,
@@ -45,6 +46,9 @@ export function useShimmerSound({
 }: ShimmerSoundOptions = {}) {
   const nodesRef = useRef<ShimmerNodes | null>(null);
   const disposeTimerRef = useRef<number | null>(null);
+  const pendingBootCleanupRef = useRef<(() => void) | null>(null);
+  const pendingBootVolumeRef = useRef(0);
+  const pendingBootStartTimeRef = useRef<number | undefined>(undefined);
   const volumeRef = useRef(volume);
   const cycleDurationRef = useRef(cycleDuration);
   volumeRef.current = volume;
@@ -54,7 +58,14 @@ export function useShimmerSound({
     disposeTimerRef.current = clearShimmerDisposalTimeout(disposeTimerRef.current);
   }, []);
 
+  const clearPendingBoot = useCallback(() => {
+    pendingBootCleanupRef.current?.();
+    pendingBootCleanupRef.current = null;
+    pendingBootStartTimeRef.current = undefined;
+  }, []);
+
   const stopSound = useCallback(() => {
+    clearPendingBoot();
     clearPendingDisposal();
 
     const nodes = nodesRef.current;
@@ -66,7 +77,7 @@ export function useShimmerSound({
       }
       disposeTimerRef.current = null;
     });
-  }, [clearPendingDisposal]);
+  }, [clearPendingBoot, clearPendingDisposal]);
 
   const startSound = useCallback(function startSoundInternal(
     scheduledStartTime?: number,
@@ -75,25 +86,77 @@ export function useShimmerSound({
     const targetVolume = activationVolume ?? volumeRef.current;
     const existingNodes = nodesRef.current;
 
+    const queueUntilRunning = (
+      ctx: AudioContext,
+      activate: (now: number, volume: number) => void,
+    ) => {
+      pendingBootStartTimeRef.current = scheduledStartTime;
+      pendingBootVolumeRef.current = targetVolume;
+
+      if (pendingBootCleanupRef.current) {
+        return true;
+      }
+
+      ctx.resume().catch(() => {});
+      pendingBootCleanupRef.current = scheduleWhenAudioRunning(
+        ctx,
+        (runningStartTime) => {
+          pendingBootCleanupRef.current = null;
+
+          const nextScheduledStartTime = pendingBootStartTimeRef.current;
+          const nextVolume = pendingBootVolumeRef.current;
+          pendingBootStartTimeRef.current = undefined;
+
+          activate(
+            nextScheduledStartTime !== undefined
+              ? getSafeAudioStartTime(ctx, nextScheduledStartTime, 0)
+              : runningStartTime,
+            nextVolume,
+          );
+        },
+        {
+          requestedTime: scheduledStartTime,
+          runningLead: IMMEDIATE_SOUND_LEAD,
+          resumedLead: POST_RESUME_SOUND_LEAD,
+          onTimeout: () => {
+            pendingBootCleanupRef.current = null;
+            pendingBootStartTimeRef.current = undefined;
+            logAudioDebug('hum-missed', { reason: 'audio-running-timeout' });
+          },
+        },
+      );
+
+      return true;
+    };
+
     if (existingNodes) {
       clearPendingDisposal();
+
+      const activateExistingNodes = (now: number, volumeToApply: number, mode: 'reactivate' | 'reactivate-cold') => {
+        setShimmerGraphCycleDuration(existingNodes, cycleDurationRef.current, now);
+        setShimmerGraphVolume(existingNodes, volumeToApply, now);
+
+        if (volumeToApply > 0) {
+          logAudioDebug('hum-fired', {
+            ctx: existingNodes.ctx.state,
+            mode,
+            start: now,
+            volume: volumeToApply,
+          });
+        }
+      };
+
+      if (existingNodes.ctx.state !== 'running') {
+        return queueUntilRunning(existingNodes.ctx, (now, volumeToApply) => {
+          activateExistingNodes(now, volumeToApply, 'reactivate-cold');
+        });
+      }
 
       const now = scheduledStartTime !== undefined
         ? getSafeAudioStartTime(existingNodes.ctx, scheduledStartTime, 0)
         : existingNodes.ctx.currentTime;
 
-      setShimmerGraphCycleDuration(existingNodes, cycleDurationRef.current, now);
-      setShimmerGraphVolume(existingNodes, targetVolume, now);
-
-      if (targetVolume > 0) {
-        logAudioDebug('hum-fired', {
-          ctx: existingNodes.ctx.state,
-          mode: 'reactivate',
-          start: now,
-          volume: targetVolume,
-        });
-      }
-
+      activateExistingNodes(now, targetVolume, 'reactivate');
       return true;
     }
 
@@ -103,36 +166,32 @@ export function useShimmerSound({
       return false;
     }
 
-    const finalizeBoot = (now: number, mode: 'boot' | 'boot-cold') => {
+    const finalizeBoot = (now: number, volumeToApply: number, mode: 'boot' | 'boot-cold') => {
       clearPendingDisposal();
       nodesRef.current = createShimmerAudioGraph(ctx, now, {
         cycleDuration: cycleDurationRef.current,
-        volume: targetVolume,
+        volume: volumeToApply,
       });
 
-      if (targetVolume > 0) {
-        logAudioDebug('hum-fired', { ctx: ctx.state, mode, start: now, volume: targetVolume });
+      if (volumeToApply > 0) {
+        logAudioDebug('hum-fired', { ctx: ctx.state, mode, start: now, volume: volumeToApply });
       }
     };
 
-    const now = scheduledStartTime !== undefined
-      ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
-      : getSafeAudioStartTime(
-          ctx,
-          undefined,
-          ctx.state === 'running' ? IMMEDIATE_SOUND_LEAD : WARM_START_SOUND_LEAD,
-        );
-
     if (ctx.state !== 'running') {
-      ctx.resume().catch(() => {});
-      finalizeBoot(now, 'boot-cold');
-      return true;
+      return queueUntilRunning(ctx, (now, volumeToApply) => {
+        finalizeBoot(now, volumeToApply, 'boot-cold');
+      });
     }
 
-    finalizeBoot(now, 'boot');
+    const now = scheduledStartTime !== undefined
+      ? getSafeAudioStartTime(ctx, scheduledStartTime, 0)
+      : getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
+
+    finalizeBoot(now, targetVolume, 'boot');
 
     return true;
-  }, [clearPendingDisposal]);
+  }, [clearPendingBoot, clearPendingDisposal]);
 
   useEffect(() => {
     if (!enabled && !prewarm) {
