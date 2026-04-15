@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
-import { armDemoEntryFallbackGestureAudio, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
+import { armDemoEntryFallbackGestureAudio, handoffDemoEntryFallbackHum, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -265,7 +265,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const doHandoff = () => {
           const start = getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
           const humStarted = startShimmerSound(start);
-          const fallbackStopped = humStarted ? (stopDemoEntryFallbackHum(false), true) : false;
+          const fallbackStopped = humStarted ? handoffDemoEntryFallbackHum(180) : false;
 
           if (humStarted) {
             setFallbackHumActive(false);
@@ -615,9 +615,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }
 
         const gongStarted = playSingingBowl(startTime);
-        const humStarted = fallbackStarted ? false : startShimmerSound(startTime);
+        const humStarted = warmStart ? false : startShimmerSound(startTime);
+        const fallbackHandedOff = humStarted ? handoffDemoEntryFallbackHum(180) : false;
 
-        if (!fallbackStarted) {
+        if (humStarted) {
+          setFallbackHumActive(false);
+        }
+
+        if (!fallbackStarted && !humStarted) {
           stopDemoEntryFallbackHum(false);
           setFallbackHumActive(false);
         }
@@ -634,12 +639,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           ctxState: ctx?.state ?? 'null',
           warmStart,
           fallbackStarted,
+          fallbackHandedOff,
           gongStarted,
           humStarted,
-          audioMode: fallbackStarted ? 'fallback-media+gong' : 'shared-shimmer',
+          audioMode: humStarted ? 'shared-shimmer+fallback-gong' : fallbackStarted ? 'fallback-media+gong' : 'shared-shimmer',
           visualReveal: true,
         });
-        return fallbackStarted;
+        return fallbackStarted && !humStarted;
       }
 
       playWelcomeTap(startTime);
