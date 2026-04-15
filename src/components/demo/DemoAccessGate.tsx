@@ -5,7 +5,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
-import { armDemoEntryFallbackGestureAudio, playDemoEntryFallbackGong, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
+import {
+  armDemoEntryFallbackGestureAudio,
+  handoffDemoEntryFallbackHum,
+  playDemoEntryFallbackRevealAudio,
+  preloadDemoEntryFallbackAudio,
+  stopDemoEntryFallbackHum,
+} from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -174,13 +180,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const fallbackGestureTimeRef = useRef(0);
   const audioReadyRef = useRef(false);
   const audioWakeCleanupRef = useRef<(() => void) | null>(null);
+  const humHandoffCleanupRef = useRef<(() => void) | null>(null);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
     volume: 0.06,
     enabled: stateRef.current.hexAwake,
-    prewarm: true,
+    prewarm: false,
   });
 
   useEffect(() => {
@@ -278,6 +285,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       audioWakeCleanupRef.current?.();
+      humHandoffCleanupRef.current?.();
       holdPulseTimersRef.current.forEach(t => clearTimeout(t));
       holdPulseTimersRef.current = [];
     };
@@ -388,7 +396,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let gongPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
-      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: true });
       gongPrewarmed = prewarmSingingBowl();
       // NOTE: Do NOT prewarm shimmer here — it creates a race condition where
       // the prewarm boot at volume 0 fires during the hold, and then the
@@ -533,17 +541,61 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
-        const fallbackStarted = playDemoEntryFallbackGong();
+        const fallbackStarted = playDemoEntryFallbackRevealAudio();
         const gongStarted = playSingingBowl(startTime);
         const humStarted = startShimmerSound(startTime);
 
-        setFallbackHumActive(false);
+        const completeHumHandoff = () => {
+          const handoffCompleted = handoffDemoEntryFallbackHum(humStarted ? 320 : 0);
+          setFallbackHumActive(!handoffCompleted);
+          updateReleaseAudioDiagnostics({
+            audioContextState: ctx?.state ?? 'null',
+            synthHandoff: handoffCompleted ? 'completed' : 'not-needed',
+            lastEvent: handoffCompleted ? `${source}-hum-handoff` : `${source}-hum-handoff-skipped`,
+          });
+          logGestureDebug(handoffCompleted ? `${source}-hum-handoff` : `${source}-hum-handoff-skipped`, {
+            ctxState: ctx?.state ?? 'null',
+            sharedHumQueued: humStarted,
+            fallbackRevealStarted: fallbackStarted,
+          });
+        };
+
+        humHandoffCleanupRef.current?.();
+        humHandoffCleanupRef.current = null;
+
+        if (ctx?.state === 'running') {
+          completeHumHandoff();
+        } else if (ctx) {
+          humHandoffCleanupRef.current = runWhenAudioContextRunning(
+            ctx,
+            () => {
+              humHandoffCleanupRef.current = null;
+              completeHumHandoff();
+            },
+            1800,
+            () => {
+              humHandoffCleanupRef.current = null;
+              updateReleaseAudioDiagnostics({
+                audioContextState: ctx.state,
+                synthHandoff: 'timeout',
+                lastEvent: `${source}-hum-handoff-timeout`,
+              });
+              logGestureDebug(`${source}-hum-handoff-timeout`, {
+                ctxState: ctx.state,
+                sharedHumQueued: humStarted,
+                fallbackRevealStarted: fallbackStarted,
+              });
+            },
+          );
+        }
+
+        setFallbackHumActive(fallbackStarted);
 
         audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted || humStarted;
         updateReleaseAudioDiagnostics({
           fallbackFired: fallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: fallbackStarted ? 'pending' : 'not-needed',
+          synthHandoff: ctx ? 'pending' : 'failed',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -553,7 +605,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           fallbackStarted,
           gongStarted,
           humStarted,
-          audioMode: fallbackStarted ? 'fallback-gong+shared-shimmer' : 'shared-shimmer',
+          audioMode: fallbackStarted ? 'fallback-gong+fallback-hum+shared-shimmer' : 'shared-shimmer',
           visualReveal: true,
         });
         return false;
@@ -596,9 +648,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
       fireRevealAudio(startTime, ctx.state !== 'running');
     } else {
-      // No AudioContext — still try fallback gong synchronously in gesture context
+      // No AudioContext — still try fallback reveal audio synchronously in gesture context
       if (firstReveal) {
-        const fallbackStarted = playDemoEntryFallbackGong();
+        const fallbackStarted = playDemoEntryFallbackRevealAudio();
+        setFallbackHumActive(fallbackStarted);
         updateReleaseAudioDiagnostics({
           fallbackFired: fallbackStarted ? 'fired' : 'missed',
           synthHandoff: 'failed',
