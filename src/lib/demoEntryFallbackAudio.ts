@@ -45,6 +45,7 @@ let humFetchedBuffer: ArrayBuffer | null = null;
 let humFetchPromise: Promise<ArrayBuffer | null> | null = null;
 let humDecodedBuffer: AudioBuffer | null = null;
 let humLoopBuffer: AudioBuffer | null = null;
+let humLoopBlobUrl: string | null = null;
 let humDecodePromise: Promise<AudioBuffer | null> | null = null;
 let humDecodeContext: HumDecodeContext | null = null;
 let humLoopGraph: HumLoopGraph | null = null;
@@ -92,10 +93,14 @@ function ensureFallbackAudio() {
   if (typeof window === 'undefined') return null;
 
   if (!fallbackAudio) {
+    const hum = createAudioElement(humLoopBlobUrl ?? humUrl, { loop: true, volume: 0 });
+    hum.dataset.zenHumLoopSource = humLoopBlobUrl ? 'seamless' : 'raw';
     fallbackAudio = {
       gong: createAudioElement(gongUrl, { volume: GONG_VOLUME }),
-      hum: createAudioElement(humUrl, { loop: true, volume: 0 }),
+      hum,
     };
+  } else if (humLoopBlobUrl && !humMediaBridgeActive && fallbackAudio.hum.paused) {
+    syncHumMediaSource(fallbackAudio.hum, { resetCurrentTime: false });
   }
 
   return fallbackAudio;
@@ -302,6 +307,118 @@ function createOutputAudioBuffer(channelCount: number, frameCount: number, sampl
   });
 }
 
+interface SyncHumMediaSourceOptions {
+  allowWhilePlaying?: boolean;
+  resetCurrentTime?: boolean;
+}
+
+function writeAscii(view: DataView, offset: number, value: string) {
+  for (let index = 0; index < value.length; index += 1) {
+    view.setUint8(offset + index, value.charCodeAt(index));
+  }
+}
+
+function createHumLoopBlobUrl(buffer: AudioBuffer) {
+  const channelCount = buffer.numberOfChannels;
+  const frameCount = buffer.length;
+  const sampleRate = buffer.sampleRate;
+  const bytesPerSample = 2;
+  const blockAlign = channelCount * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = frameCount * blockAlign;
+  const wav = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(wav);
+
+  writeAscii(view, 0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeAscii(view, 8, 'WAVE');
+  writeAscii(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channelCount, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bytesPerSample * 8, true);
+  writeAscii(view, 36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    for (let channel = 0; channel < channelCount; channel += 1) {
+      const sample = buffer.getChannelData(channel)[frame] ?? 0;
+      const clamped = Math.max(-1, Math.min(1, sample));
+      const pcm = clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff;
+      view.setInt16(offset, Math.round(pcm), true);
+      offset += bytesPerSample;
+    }
+  }
+
+  return URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
+}
+
+function isSeamlessHumMediaSource(audio?: HTMLAudioElement | null) {
+  return audio?.dataset.zenHumLoopSource === 'seamless';
+}
+
+function getHumMediaLoopStart(audio?: HTMLAudioElement | null) {
+  return isSeamlessHumMediaSource(audio) ? 0 : HUM_LOOP_START;
+}
+
+function syncHumMediaSource(
+  audio: HTMLAudioElement,
+  { allowWhilePlaying = false, resetCurrentTime = false }: SyncHumMediaSourceOptions = {},
+) {
+  const nextMode = humLoopBlobUrl ? 'seamless' : 'raw';
+  const currentMode = audio.dataset.zenHumLoopSource ?? 'raw';
+
+  if (currentMode === nextMode) {
+    if (resetCurrentTime) {
+      try {
+        audio.currentTime = getHumMediaLoopStart(audio);
+      } catch {
+        // no-op
+      }
+    }
+    return true;
+  }
+
+  if (!allowWhilePlaying && (humMediaBridgeActive || !audio.paused)) {
+    return false;
+  }
+
+  const loop = audio.loop;
+  const muted = audio.muted;
+  const volume = audio.volume;
+
+  try {
+    audio.pause();
+    audio.src = humLoopBlobUrl ?? humUrl;
+    audio.dataset.zenHumLoopSource = nextMode;
+    audio.loop = loop;
+    audio.muted = muted;
+    audio.volume = volume;
+    requestLoad(audio);
+    if (resetCurrentTime) {
+      audio.currentTime = nextMode === 'seamless' ? 0 : HUM_LOOP_START;
+    }
+    logAudioDebug('hum-media-source-prepared', {
+      source: nextMode,
+      loopDuration: nextMode === 'seamless' ? humLoopBuffer?.duration : undefined,
+      loopStart: nextMode === 'seamless' ? 0 : HUM_LOOP_START,
+      loopEnd: nextMode === 'seamless' ? humLoopBuffer?.duration : HUM_LOOP_END,
+    });
+    return true;
+  } catch (error) {
+    logPlayFailure('hum', error, {
+      mode: 'media-source-sync',
+      source: nextMode,
+      transport: 'media-element',
+    });
+    return false;
+  }
+}
+
 function getAudioTransport(kind: AudioKind, details?: Record<string, unknown>): AudioTransport {
   const explicitTransport = details?.transport;
   if (explicitTransport === 'media-element' || explicitTransport === 'web-audio') {
@@ -444,6 +561,17 @@ async function decodeHumBuffer() {
         const seamlessLoop = buildSeamlessHumLoopBuffer(buffer);
         humLoopBuffer = seamlessLoop.buffer;
         humLoopTrimSeconds = seamlessLoop.trimSeconds;
+
+        if (typeof window !== 'undefined') {
+          if (humLoopBlobUrl) {
+            URL.revokeObjectURL(humLoopBlobUrl);
+          }
+          humLoopBlobUrl = createHumLoopBlobUrl(seamlessLoop.buffer);
+          if (fallbackAudio && fallbackAudio.hum.paused && !humMediaBridgeActive) {
+            syncHumMediaSource(fallbackAudio.hum, { resetCurrentTime: false });
+          }
+        }
+
         logAudioDebug('hum-buffer-decoded', {
           duration: buffer.duration,
           sampleRate: buffer.sampleRate,
@@ -452,6 +580,7 @@ async function decodeHumBuffer() {
           loopEnd: HUM_LOOP_END,
           seamlessDuration: seamlessLoop.buffer.duration,
           seamTrimMs: HUM_LOOP_CROSSFADE_MS,
+          mediaSourceReady: humLoopBlobUrl ? 'yes' : 'no',
         });
         return buffer;
       })
@@ -532,7 +661,7 @@ function createHumLoopGraph(ctx: AudioContext, buffer: AudioBuffer) {
 }
 
 function getPreparedHumLoopGraph(ctx: AudioContext) {
-  const buffer = humDecodedBuffer;
+  const buffer = humLoopBuffer ?? humDecodedBuffer;
   if (!buffer) return null;
   if (humLoopGraph?.ctx === ctx && humLoopGraph.buffer === buffer) return humLoopGraph;
   return createHumLoopGraph(ctx, buffer);
@@ -590,11 +719,18 @@ function buildSeamlessHumLoopBuffer(buffer: AudioBuffer) {
 }
 
 function getHumHandoffOffset(audio: HTMLAudioElement, buffer?: AudioBuffer | null) {
-  const rawLoopDuration = Math.max(HUM_LOOP_END - HUM_LOOP_START, 0.001);
-  const currentTime = Number.isFinite(audio.currentTime) ? audio.currentTime : HUM_LOOP_START;
-  const normalizedRawOffset = currentTime <= HUM_LOOP_START
+  const currentTime = Number.isFinite(audio.currentTime) ? audio.currentTime : getHumMediaLoopStart(audio);
+
+  if (isSeamlessHumMediaSource(audio) && isProcessedHumLoopBuffer(buffer)) {
+    const processedDuration = Math.max(buffer?.duration ?? 0, 0.001);
+    return Math.min(processedDuration - 0.001, Math.max(0, currentTime % processedDuration));
+  }
+
+  const rawLoopStart = getHumMediaLoopStart(audio);
+  const rawLoopDuration = Math.max((isSeamlessHumMediaSource(audio) ? (audio.duration || (buffer?.duration ?? 0) || (HUM_LOOP_END - HUM_LOOP_START)) : (HUM_LOOP_END - HUM_LOOP_START)), 0.001);
+  const normalizedRawOffset = currentTime <= rawLoopStart
     ? 0
-    : (currentTime - HUM_LOOP_START) % rawLoopDuration;
+    : (currentTime - rawLoopStart) % rawLoopDuration;
 
   if (isProcessedHumLoopBuffer(buffer) && humLoopTrimSeconds > 0) {
     const processedDuration = Math.max(buffer?.duration ?? 0, 0.001);
@@ -605,7 +741,7 @@ function getHumHandoffOffset(audio: HTMLAudioElement, buffer?: AudioBuffer | nul
     return Math.min(processedDuration - 0.001, Math.max(0, processedOffset));
   }
 
-  return Math.min(getHumLoopEnd(buffer) - 0.001, HUM_LOOP_START + normalizedRawOffset);
+  return Math.min(getHumLoopEnd(buffer) - 0.001, rawLoopStart + normalizedRawOffset);
 }
 
 function clearHumLoopScheduler(graph: HumLoopGraph | null = humLoopGraph) {
@@ -705,8 +841,9 @@ function scheduleHumLoopVoicesAhead(graph: HumLoopGraph) {
 function resetHumMediaElement(audio: HTMLAudioElement, reset = true) {
   try {
     audio.pause();
+    syncHumMediaSource(audio, { allowWhilePlaying: true, resetCurrentTime: false });
     if (reset) {
-      audio.currentTime = 0;
+      audio.currentTime = getHumMediaLoopStart(audio);
     }
     audio.loop = true;
     audio.muted = true;
@@ -804,10 +941,11 @@ function startHumSilentlyWithDeferredFadeIn(ctx: AudioContext) {
 
   // Kick off decode and swap in the real hum once ready
   void decodeHumBuffer().then((buffer) => {
-    if (!buffer || !silentPlaceholder || silentPlaceholder.ctx !== ctx) return;
+    const loopBuffer = humLoopBuffer ?? buffer;
+    if (!loopBuffer || !silentPlaceholder || silentPlaceholder.ctx !== ctx) return;
 
     destroySilentPlaceholder();
-    const realGraph = createHumLoopGraph(ctx, buffer);
+    const realGraph = createHumLoopGraph(ctx, loopBuffer);
     realGraph.gain.gain.setValueAtTime(0, ctx.currentTime);
     const started = startPreparedHumLoopGraph(realGraph);
 
@@ -835,6 +973,7 @@ function startHumMediaBridge(audio: HTMLAudioElement) {
   clearHumMediaStopTimer();
   clearHumMediaHandoffTimer();
 
+  syncHumMediaSource(audio, { allowWhilePlaying: true, resetCurrentTime: false });
   requestLoad(audio);
   humRevealStartedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
@@ -842,7 +981,7 @@ function startHumMediaBridge(audio: HTMLAudioElement) {
     audio.loop = true;
     audio.muted = true;
     audio.volume = 0;
-    audio.currentTime = HUM_LOOP_START;
+    audio.currentTime = getHumMediaLoopStart(audio);
   } catch {
     // no-op
   }
@@ -919,14 +1058,15 @@ function queueHumMediaBridgeHandoff(ctx: AudioContext, audio: HTMLAudioElement) 
       });
     };
 
-    if (humDecodedBuffer) {
-      startHandoff(humDecodedBuffer);
+    if (humLoopBuffer || humDecodedBuffer) {
+      startHandoff(humLoopBuffer ?? humDecodedBuffer!);
       return;
     }
 
     void decodeHumBuffer().then((buffer) => {
-      if (buffer) {
-        startHandoff(buffer);
+      const loopBuffer = humLoopBuffer ?? buffer;
+      if (loopBuffer) {
+        startHandoff(loopBuffer);
       }
     });
   };
