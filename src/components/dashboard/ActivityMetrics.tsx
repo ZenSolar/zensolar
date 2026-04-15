@@ -3,6 +3,7 @@ import { ShimmerOverlay } from './ShimmerOverlay';
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { useMintSound } from '@/hooks/useMintSound';
+import { useShimmerSound } from '@/hooks/useShimmerSound';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
