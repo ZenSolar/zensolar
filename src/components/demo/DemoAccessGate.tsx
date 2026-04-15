@@ -970,7 +970,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 }}
               >
                 <span
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[9px] font-bold tracking-wider bg-primary/15 border border-primary/30 rounded-full px-2 py-0.5 backdrop-blur-sm"
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[9px] font-bold tracking-wider bg-card/80 border border-primary/30 rounded-full px-2 py-0.5"
                   style={{
                     textShadow: '0 0 10px hsl(var(--primary) / 0.55)',
                   }}
