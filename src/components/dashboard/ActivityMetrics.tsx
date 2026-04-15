@@ -388,7 +388,7 @@ export function ActivityMetrics({
 
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
-        <div className="relative overflow-hidden rounded-lg">
+        <div className="relative overflow-hidden rounded-lg" data-hint-target="kpi-cards">
           {/* KPI area shimmer */}
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 20%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 80%, transparent 100%)"

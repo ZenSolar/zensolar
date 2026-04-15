@@ -64,8 +64,7 @@ export function DemoOnboardingHints() {
     }
 
     if (activeHints.has('kpi')) {
-      const el = document.getElementById('demo-kpi-section') ||
-                 document.querySelector('[data-hint-target="kpi"]');
+      const el = document.querySelector('[data-hint-target="kpi-cards"]');
       if (el) {
         const handler = () => dismissHint('kpi');
         el.addEventListener('pointerdown', handler, { passive: true });
@@ -99,11 +98,11 @@ export function DemoOnboardingHints() {
       <AnimatePresence>
         {activeHints.has('kpi') && (
           <FloatingHint
-            targetId="demo-kpi-section"
-            fallbackSelector="[data-hint-target='kpi']"
+            targetId=""
+            fallbackSelector="[data-hint-target='kpi-cards']"
             label="Tap to mint tokens"
             icon="hand"
-            position="above"
+            position="center"
             onDismiss={() => dismissHint('kpi')}
             delay={0.3}
           />
@@ -193,7 +192,7 @@ function FloatingHint({
   fallbackSelector: string;
   label: string;
   icon: 'hand' | 'down';
-  position: 'above' | 'below';
+  position: 'above' | 'below' | 'center';
   onDismiss: () => void;
   delay?: number;
 }) {
@@ -214,7 +213,7 @@ function FloatingHint({
         return;
       }
       setCoords({
-        top: position === 'above' ? rect.top - 44 : rect.bottom + 8,
+        top: position === 'above' ? rect.top - 44 : position === 'center' ? rect.top + rect.height / 2 - 22 : rect.bottom + 8,
         left: rect.left + rect.width / 2,
       });
     };
