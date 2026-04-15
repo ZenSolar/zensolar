@@ -436,7 +436,7 @@ export function RewardProgress({
             count={solarEarned.length} 
             total={SOLAR_MILESTONES.length} 
             color="solar"
-            isActive={displayMilestone?.category === 'solar'}
+            isActive={activeCategory === 'solar'}
             onClick={() => handleSelectCategory('solar')}
           />
           <CategoryDot 
@@ -445,7 +445,7 @@ export function RewardProgress({
             count={batteryEarned.length} 
             total={BATTERY_MILESTONES.length} 
             color="battery"
-            isActive={displayMilestone?.category === 'battery'}
+            isActive={activeCategory === 'battery'}
             onClick={() => handleSelectCategory('battery')}
           />
           <CategoryDot 
@@ -454,7 +454,7 @@ export function RewardProgress({
             count={evMilesEarned.length} 
             total={EV_MILES_MILESTONES.length} 
             color="ev_miles"
-            isActive={displayMilestone?.category === 'ev_miles'}
+            isActive={activeCategory === 'ev_miles'}
             onClick={() => handleSelectCategory('ev_miles')}
           />
           <CategoryDot 
@@ -463,7 +463,7 @@ export function RewardProgress({
             count={evChargingEarned.length} 
             total={EV_CHARGING_MILESTONES.length} 
             color="charging"
-            isActive={displayMilestone?.category === 'charging'}
+            isActive={activeCategory === 'charging'}
             onClick={() => handleSelectCategory('charging')}
           />
         </div>
