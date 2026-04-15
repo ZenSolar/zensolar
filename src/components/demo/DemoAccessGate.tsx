@@ -694,6 +694,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug('touchstart');
     };
     const onTouchEnd = () => {
+      // After reveal, touchend is a no-op (single tap handled in touchstart)
+      if (!stateRef.current.holding) return;
       handleHoldEnd('touchend');
       logGestureDebug('touchend');
     };
@@ -708,8 +710,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
     const onPointer = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return;
+      // After reveal: single click submits
+      if (stateRef.current.hexAwake) {
+        handleLockPointerDown(`pointerdown-${e.pointerType}`);
+        logGestureDebug('pointerdown-single', { pointerType: e.pointerType });
+        return;
+      }
       handleHoldStart(`pointerdown-${e.pointerType}`);
-      handleLockPointerDown(`pointerdown-${e.pointerType}`);
       logGestureDebug('pointerdown', { pointerType: e.pointerType });
     };
     const onPointerUp = (e: PointerEvent) => {
