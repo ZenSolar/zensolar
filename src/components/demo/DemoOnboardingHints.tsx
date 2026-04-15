@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, ChevronLeft, Hand } from 'lucide-react';
 
 type HintId = 'menu' | 'kpi' | 'wallet';
@@ -198,18 +198,19 @@ export function DemoOnboardingHints() {
     return () => cleanups.forEach((fn) => fn());
   }, [activeHints, dismissHint, dismissMenuHint]);
 
-  if (!portalReady || activeHints.size === 0) return null;
+  if (!portalReady) return null;
 
   return createPortal(
-    <>
-      {activeHints.has('menu') && <MenuHint onDismiss={dismissMenuHint} />}
+    <AnimatePresence>
+      {activeHints.has('menu') && <MenuHint key="menu" onDismiss={dismissMenuHint} />}
 
       {activeHints.has('kpi') && (
-        <KpiStickyHint />
+        <KpiStickyHint key="kpi" />
       )}
 
       {activeHints.has('wallet') && (
         <FloatingHint
+          key="wallet"
           targetId="demo-wallet-card"
           fallbackSelector="#demo-wallet-card"
           label="Check your wallet"
@@ -219,7 +220,7 @@ export function DemoOnboardingHints() {
           delay={0.25}
         />
       )}
-    </>,
+    </AnimatePresence>,
     document.body
   );
 }
@@ -236,7 +237,8 @@ function MenuHint({ onDismiss }: { onDismiss: () => void }) {
     <motion.div
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, x: -8 }}
+      transition={{ duration: 0.4 }}
       className="fixed z-[120] pointer-events-none"
       style={{ top: pos.top, left: pos.left }}
     >
@@ -280,7 +282,8 @@ function FloatingHint({
     <motion.div
       initial={{ opacity: 0, y: position === 'above' ? 8 : -8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay }}
+      exit={{ opacity: 0, y: position === 'above' ? 8 : -8 }}
+      transition={{ duration: 0.4, delay }}
       className="fixed z-[120] pointer-events-none -translate-x-1/2"
       style={{ top: coords.top, left: coords.left }}
     >
@@ -312,7 +315,8 @@ function KpiStickyHint() {
     <motion.div
       initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: 0.15 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.4, delay: 0.15 }}
       className="fixed z-[120] pointer-events-none -translate-x-1/2"
       style={{ top: coords.top, left: coords.left }}
     >
