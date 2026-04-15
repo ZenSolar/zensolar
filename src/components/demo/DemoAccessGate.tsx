@@ -575,6 +575,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return false;
     };
 
+    // CRITICAL: Set hexAwake BEFORE firing audio so the shimmer hook's
+    // `enabled` prop is true when startShimmerSound is called. This ensures
+    // the useEffect-driven activation path also works correctly.
+    if (firstReveal) {
+      stateRef.current.hexAwake = true;
+    }
+
     // CRITICAL: Fire audio BEFORE any DOM mutations to preserve iOS gesture context
     if (ctx) {
       if (ctx.state !== 'running') {
@@ -601,7 +608,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
     }
 
-    // Visuals AFTER audio to keep gesture context intact
+    // Visuals AFTER audio to keep gesture context intact (hexAwake already set above)
     revealVisuals();
 
     if (!ctx) {
