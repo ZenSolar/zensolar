@@ -255,7 +255,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
-  
+
+  // Backfill NDA signer name if access was already granted but name isn't cached
+  useEffect(() => {
+    if (!granted) return;
+    const existingName = readStoredValue(NDA_NAME_KEY);
+    if (existingName) return; // already have it
+    const savedEmail = getSavedNdaEmail();
+    if (!savedEmail) return;
+    fetchNdaName(savedEmail).then(name => {
+      if (name) saveNdaName(name);
+    });
+  }, [granted]);
 
   // ── stateRef pattern: single ref holds all interaction state ──
   const stateRef = useRef<GateState>({
