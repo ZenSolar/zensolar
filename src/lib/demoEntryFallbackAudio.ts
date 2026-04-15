@@ -13,7 +13,7 @@ interface ArmDemoEntryFallbackOptions {
   hum?: boolean;
 }
 
-type AudioKind = keyof DemoEntryFallbackAudioElements;
+type AudioKind = 'gong' | 'hum';
 
 let fallbackAudio: DemoEntryFallbackAudioElements | null = null;
 let fallbackHumActive = false;
