@@ -468,6 +468,9 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide" style={{ color: '#6b7280' }}>
           First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>multi-manufacturer view</span>
         </p>
+        <p className="text-[9px] sm:text-[10px] mt-2 leading-relaxed max-w-xs mx-auto" style={{ color: '#6b7280' }}>
+          ZenSolar unifies Tesla, Enphase, SolarEdge, and Wallbox into a single real-time energy view — no other platform combines data across competing manufacturers into one dashboard.
+        </p>
       </div>
 
       <svg viewBox={vb} className="relative w-full h-full" style={{ maxHeight: maxH }}>
