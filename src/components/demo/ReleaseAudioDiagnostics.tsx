@@ -61,17 +61,12 @@ export function ReleaseAudioDiagnostics({
 
         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-[11px] leading-4">
           {rows.map((row) => (
-            <>
-              <dt key={`${row.label}-label`} className="font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                {row.label}
-              </dt>
-              <dd
-                key={`${row.label}-value`}
-                className={cn('justify-self-end font-mono text-[11px] uppercase', getStatusTone(row.value))}
-              >
+            <div key={row.label} className="contents">
+              <dt className="font-medium uppercase tracking-[0.14em] text-muted-foreground">{row.label}</dt>
+              <dd className={cn('justify-self-end font-mono text-[11px] uppercase', getStatusTone(row.value))}>
                 {row.value}
               </dd>
-            </>
+            </div>
           ))}
         </dl>
 
