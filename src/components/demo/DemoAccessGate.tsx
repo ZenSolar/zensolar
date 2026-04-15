@@ -599,6 +599,33 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         setShimmerActive(true);
       }
 
+      // If the shimmer didn't start (context null or suspended), retry once
+      // the AudioContext is confirmed running. The gesture token from
+      // primeAudio() keeps the resume() viable on iOS.
+      if (!started) {
+        const currentCtx = getSharedAudioContext();
+        if (currentCtx && currentCtx.state !== 'running') {
+          runWhenAudioContextRunning(
+            currentCtx,
+            () => {
+              const retryStart = getSafeAudioStartTime(currentCtx, undefined, IMMEDIATE_SOUND_LEAD);
+              const retryOk = startShimmerSound(retryStart, 0.3);
+              if (retryOk) {
+                setShimmerActive(true);
+              }
+              logAudioDebug(retryOk ? 'hum-retry-ok' : 'hum-retry-missed', {
+                ctx: currentCtx.state,
+                start: retryStart,
+              });
+            },
+            5000,
+            () => {
+              logAudioDebug('hum-retry-timeout', { ctx: currentCtx.state });
+            },
+          );
+        }
+      }
+
       updateReleaseAudioDiagnostics({
         audioContextState,
         synthHandoff: started ? 'scheduled-in-gesture' : 'missed',
