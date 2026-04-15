@@ -6,6 +6,7 @@ export type ShimmerNodes = {
   lfoGain: GainNode;
   baseOsc: OscillatorNode;
   harmOsc: OscillatorNode;
+  presenceOsc: OscillatorNode;
   subOsc: OscillatorNode;
   wobbleLfo: OscillatorNode;
   gongOsc: OscillatorNode;
@@ -49,15 +50,15 @@ export function createShimmerAudioGraph(
 
   const baseOsc = ctx.createOscillator();
   baseOsc.type = 'sawtooth';
-  baseOsc.frequency.setValueAtTime(92, now);
+  baseOsc.frequency.setValueAtTime(110, now);
 
   const baseLp = ctx.createBiquadFilter();
   baseLp.type = 'lowpass';
-  baseLp.frequency.setValueAtTime(220, now);
-  baseLp.Q.setValueAtTime(2.0, now);
+  baseLp.frequency.setValueAtTime(520, now);
+  baseLp.Q.setValueAtTime(1.2, now);
 
   const baseGain = ctx.createGain();
-  baseGain.gain.setValueAtTime(0.5, now);
+  baseGain.gain.setValueAtTime(0.34, now);
 
   baseOsc.connect(baseLp);
   baseLp.connect(baseGain);
@@ -65,35 +66,51 @@ export function createShimmerAudioGraph(
 
   const harmOsc = ctx.createOscillator();
   harmOsc.type = 'sine';
-  harmOsc.frequency.setValueAtTime(184, now);
+  harmOsc.frequency.setValueAtTime(220, now);
 
   const harmGain = ctx.createGain();
-  harmGain.gain.setValueAtTime(0.25, now);
+  harmGain.gain.setValueAtTime(0.18, now);
 
   harmOsc.connect(harmGain);
   harmGain.connect(master);
 
+  const presenceOsc = ctx.createOscillator();
+  presenceOsc.type = 'triangle';
+  presenceOsc.frequency.setValueAtTime(330, now);
+
+  const presenceBp = ctx.createBiquadFilter();
+  presenceBp.type = 'bandpass';
+  presenceBp.frequency.setValueAtTime(560, now);
+  presenceBp.Q.setValueAtTime(0.8, now);
+
+  const presenceGain = ctx.createGain();
+  presenceGain.gain.setValueAtTime(0.12, now);
+
+  presenceOsc.connect(presenceBp);
+  presenceBp.connect(presenceGain);
+  presenceGain.connect(master);
+
   const subOsc = ctx.createOscillator();
   subOsc.type = 'sine';
-  subOsc.frequency.setValueAtTime(46, now);
+  subOsc.frequency.setValueAtTime(55, now);
 
   const subGain = ctx.createGain();
-  subGain.gain.setValueAtTime(0.3, now);
+  subGain.gain.setValueAtTime(0.14, now);
 
   subOsc.connect(subGain);
   subGain.connect(master);
 
   const gongOsc = ctx.createOscillator();
   gongOsc.type = 'sine';
-  gongOsc.frequency.setValueAtTime(55, now);
+  gongOsc.frequency.setValueAtTime(165, now);
 
   const gongOsc2 = ctx.createOscillator();
   gongOsc2.type = 'sine';
-  gongOsc2.frequency.setValueAtTime(110, now);
+  gongOsc2.frequency.setValueAtTime(330, now);
 
   const gongOsc3 = ctx.createOscillator();
   gongOsc3.type = 'sine';
-  gongOsc3.frequency.setValueAtTime(165, now);
+  gongOsc3.frequency.setValueAtTime(495, now);
 
   const gongLfoGain = ctx.createGain();
   gongLfoGain.gain.setValueAtTime(0.4, now);
@@ -109,24 +126,24 @@ export function createShimmerAudioGraph(
   gongBias.connect(gongMaster.gain);
 
   const gong1Gain = ctx.createGain();
-  gong1Gain.gain.setValueAtTime(0.35, now);
+  gong1Gain.gain.setValueAtTime(0.18, now);
   gongOsc.connect(gong1Gain);
   gong1Gain.connect(gongMaster);
 
   const gong2Gain = ctx.createGain();
-  gong2Gain.gain.setValueAtTime(0.18, now);
+  gong2Gain.gain.setValueAtTime(0.11, now);
   gongOsc2.connect(gong2Gain);
   gong2Gain.connect(gongMaster);
 
   const gong3Gain = ctx.createGain();
-  gong3Gain.gain.setValueAtTime(0.08, now);
+  gong3Gain.gain.setValueAtTime(0.06, now);
   gongOsc3.connect(gong3Gain);
   gong3Gain.connect(gongMaster);
 
   const gongLp = ctx.createBiquadFilter();
   gongLp.type = 'lowpass';
-  gongLp.frequency.setValueAtTime(180, now);
-  gongLp.Q.setValueAtTime(0.7, now);
+  gongLp.frequency.setValueAtTime(620, now);
+  gongLp.Q.setValueAtTime(0.55, now);
 
   gongMaster.connect(gongLp);
   gongLp.connect(master);
@@ -136,14 +153,19 @@ export function createShimmerAudioGraph(
   wobbleLfo.frequency.setValueAtTime(5.5, now);
 
   const wobbleGain = ctx.createGain();
-  wobbleGain.gain.setValueAtTime(3, now);
+  wobbleGain.gain.setValueAtTime(4.2, now);
 
   wobbleLfo.connect(wobbleGain);
   wobbleGain.connect(baseOsc.frequency);
   wobbleGain.connect(harmOsc.frequency);
 
+  const presenceWobbleGain = ctx.createGain();
+  presenceWobbleGain.gain.setValueAtTime(2.6, now);
+  wobbleLfo.connect(presenceWobbleGain);
+  presenceWobbleGain.connect(presenceOsc.frequency);
+
   const gongWobbleGain = ctx.createGain();
-  gongWobbleGain.gain.setValueAtTime(1.2, now);
+  gongWobbleGain.gain.setValueAtTime(2.1, now);
   wobbleLfo.connect(gongWobbleGain);
   gongWobbleGain.connect(gongOsc.frequency);
 
@@ -152,6 +174,7 @@ export function createShimmerAudioGraph(
   gongBias.start(now);
   baseOsc.start(now);
   harmOsc.start(now);
+  presenceOsc.start(now);
   subOsc.start(now);
   gongOsc.start(now);
   gongOsc2.start(now);
@@ -166,6 +189,7 @@ export function createShimmerAudioGraph(
     lfoGain,
     baseOsc,
     harmOsc,
+    presenceOsc,
     subOsc,
     wobbleLfo,
     gongOsc,
@@ -204,6 +228,7 @@ export function stopShimmerGraph(nodes: ShimmerNodes) {
   try {
     nodes.baseOsc.stop();
     nodes.harmOsc.stop();
+    nodes.presenceOsc.stop();
     nodes.subOsc.stop();
     nodes.lfo.stop();
     nodes.biasNode.stop();
