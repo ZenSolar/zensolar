@@ -32,6 +32,7 @@ import type { HideableField } from '@/hooks/useHiddenActivityFields';
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
+import teslaWordmark from '@/assets/logos/tesla-wordmark.png';
 
 const providerLogos: Record<string, string> = {
   enphase: enphaseLogo,
@@ -296,7 +297,7 @@ export function ActivityMetrics({
           />
 
           <div className="relative space-y-3">
-            {/* Centered title row */}
+            {/* Centered title row with Tesla wordmark */}
             <div className="flex flex-col items-center text-center">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
@@ -312,6 +313,16 @@ export function ActivityMetrics({
                   <Gauge className="h-4 w-4 text-white" />
                 </div>
               </div>
+              {/* Tesla wordmark */}
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-[10px] text-muted-foreground/50">powered by</span>
+                <img 
+                  src={teslaWordmark} 
+                  alt="Tesla" 
+                  className="h-3 object-contain opacity-60"
+                  style={{ filter: 'brightness(2) grayscale(0.3)' }}
+                />
+              </div>
               <div className="flex items-center gap-2 mt-0.5">
                 <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
                 {isLoading && (
@@ -323,8 +334,8 @@ export function ActivityMetrics({
               </div>
             </div>
 
-            {/* Proof badges row — centered */}
-            <div className="flex items-center justify-center gap-3 flex-wrap">
+            {/* Proof badges — 2x2 grid */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 justify-items-center">
               {[
                 { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
                 { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
@@ -353,7 +364,7 @@ export function ActivityMetrics({
                 @keyframes badge-pulse-0 { 0%, 100% { text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.25); } 50% { text-shadow: 0 0 14px hsl(var(--primary) / 0.7), 0 0 28px hsl(var(--primary) / 0.4); } }
                 @keyframes badge-pulse-1 { 0%, 100% { text-shadow: 0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3); } 50% { text-shadow: 0 0 14px hsl(142 76% 45% / 0.8), 0 0 28px hsl(142 76% 45% / 0.5); } }
                 @keyframes badge-pulse-2 { 0%, 100% { text-shadow: 0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3); } 50% { text-shadow: 0 0 14px hsl(25 95% 55% / 0.8), 0 0 28px hsl(25 95% 55% / 0.5); } }
-                @keyframes badge-pulse-3 { 0%, 100% { text-shadow: 0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3); } 50% { text-shadow: 0 0 14px hsl(270 80% 60% / 0.8), 0 0 28px hsl(270 80% 60% / 0.5); } }
+                @keyframes badge-pulse-3 { 0%, 100% { text-shadow: 0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3); } 50% { text-shadow: 0 0 14px hsl(270 80% 60% / 0.8), 0 0 28px hsl(270 80% 60% / 0.3); } }
               `}</style>
             </div>
 
