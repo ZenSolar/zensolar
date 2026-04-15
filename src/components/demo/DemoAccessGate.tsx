@@ -8,7 +8,6 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
   playDemoEntryFallbackGong,
-  playDemoEntryFallbackHum,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
 } from '@/lib/demoEntryFallbackAudio';
@@ -18,6 +17,7 @@ import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
+import { useShimmerSound } from '@/hooks/useShimmerSound';
 
 
 
@@ -139,6 +139,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  const [shimmerActive, setShimmerActive] = useState(false);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = true;
   const showReleaseAudioDiagnostics = false;
@@ -189,6 +190,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const audioWakeCleanupRef = useRef<(() => void) | null>(null);
 
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
+
+  // Same continuous lightsaber hum as the Clean Energy Center dashboard.
+  const startShimmerSound = useShimmerSound({
+    cycleDuration: 5,
+    volume: 0.4,
+    enabled: shimmerActive,
+    prewarm: true,
+  });
 
   useEffect(() => {
     if (!showAudioDebug) return;
@@ -317,6 +326,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           // Blur input to dismiss keyboard & reset iOS viewport zoom before showing NDA
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
+          setShimmerActive(false);
           // Force viewport zoom reset on iOS
           const vp = document.querySelector('meta[name="viewport"]');
           if (vp) {
@@ -581,14 +591,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
-        const humFallbackStarted = playDemoEntryFallbackHum();
+        setShimmerActive(true);
+        const humSynthStarted = startShimmerSound(startTime, 0.4);
         const gongStarted = playSingingBowl(startTime);
 
-        audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || humFallbackStarted || gongStarted;
+        audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || humSynthStarted || gongStarted;
         updateReleaseAudioDiagnostics({
-          fallbackFired: gongFallbackStarted || humFallbackStarted ? 'fired' : 'missed',
+          fallbackFired: gongFallbackStarted || humSynthStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: humFallbackStarted ? 'direct-file-loop' : 'missed',
+          synthHandoff: humSynthStarted ? 'shimmer-synth' : 'missed',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -596,9 +607,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           ctxState: ctx?.state ?? 'null',
           warmStart,
           gongFallbackStarted,
-          humFallbackStarted,
+          humSynthStarted,
           gongStarted,
-          audioMode: humFallbackStarted ? 'gesture-file-loop' : 'missed',
+          audioMode: humSynthStarted ? 'shimmer-synth' : 'missed',
           visualReveal: true,
         });
         return false;
@@ -642,17 +653,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       // No AudioContext — still try direct media-element audio synchronously in gesture context
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
-        const humFallbackStarted = playDemoEntryFallbackHum();
+        setShimmerActive(true);
+        const humSynthStarted = startShimmerSound(startTime, 0.4);
         updateReleaseAudioDiagnostics({
-          fallbackFired: gongFallbackStarted || humFallbackStarted ? 'fired' : 'missed',
-          synthHandoff: humFallbackStarted ? 'direct-file-loop' : 'missed',
+          fallbackFired: gongFallbackStarted || humSynthStarted ? 'fired' : 'missed',
+          synthHandoff: humSynthStarted ? 'shimmer-synth' : 'missed',
           audioContextState: 'null',
           lastEvent: `${source}-reveal-fallback-only`,
         });
         logGestureDebug(`${source}-reveal-fallback-only`, {
           gongFallbackStarted,
-          humFallbackStarted,
-          audioMode: humFallbackStarted ? 'gesture-file-loop' : 'missed',
+          humSynthStarted,
+          audioMode: humSynthStarted ? 'shimmer-synth' : 'missed',
           visualReveal: true,
         });
       }
@@ -664,7 +676,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!ctx) {
       logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
     }
-  }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, triggerBurst, updateReleaseAudioDiagnostics, updateState]);
+  }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateReleaseAudioDiagnostics, updateState]);
 
   // ── Double-tap mint after reveal, hold-to-reveal before ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
@@ -800,6 +812,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   const handleNdaSigned = useCallback(() => {
     stopDemoEntryFallbackHum();
+    setShimmerActive(false);
     setShowNda(false);
     grantAccess();
     setGranted(true);
