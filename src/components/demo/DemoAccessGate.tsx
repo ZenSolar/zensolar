@@ -133,6 +133,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return isAccessGranted();
   });
   const [code, setCode] = useState('');
+  const [showNda, setShowNda] = useState(false);
+  const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [fallbackHumActive, setFallbackHumActive] = useState(false);
   const [shimmerActive, setShimmerActive] = useState(false);
