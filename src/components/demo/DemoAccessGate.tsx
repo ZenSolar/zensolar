@@ -175,21 +175,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const audioReadyRef = useRef(false);
   const audioWakeCleanupRef = useRef<(() => void) | null>(null);
 
-  const getLockVisualCenter = useCallback(() => {
-    const rect = lockButtonRef.current?.getBoundingClientRect();
-    if (!rect) {
-      return {
-        x: window.innerWidth / 2,
-        y: window.innerHeight * 0.45,
-      };
-    }
-
-    return {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
-  }, []);
-
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
@@ -622,7 +607,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
 
     fireRevealAudio(startTime, ctx.state !== 'running');
-  }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
+  }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
