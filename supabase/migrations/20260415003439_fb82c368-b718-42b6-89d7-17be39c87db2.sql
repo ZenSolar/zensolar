@@ -1,0 +1,1 @@
+UPDATE demo_access_codes SET code = 'D2-45-46-123-47-425-23' WHERE id = '44a330c0-8416-4706-a7b9-ff91a735c962';
