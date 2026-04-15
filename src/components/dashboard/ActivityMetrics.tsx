@@ -238,14 +238,8 @@ export function ActivityMetrics({
   const evLabel = deviceLabels?.vehicle 
     ? `${deviceLabels.vehicle} EV Miles Driven` 
     : 'EV Miles Driven';
-  const superchargerLabel = deviceLabels?.vehicle
-    ? `${deviceLabels.vehicle} Tesla Supercharging`
-    : 'Tesla Supercharging';
-  const homeChargerLabel = deviceLabels?.wallConnector 
-    ? `${deviceLabels.wallConnector} Home Charging` 
-    : deviceLabels?.homeCharger
-    ? `${deviceLabels.homeCharger} Home Charging`
-    : 'Home Charging';
+  const superchargerLabel = 'Tesla Supercharging';
+  const homeChargerLabel = 'Home Charging';
 
   // Separate charging values
   const superchargerKwh = current.superchargerKwh ?? 0;
@@ -325,7 +319,7 @@ export function ActivityMetrics({
             </div>
 
             {/* Proof badges — 2x2 grid */}
-            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 justify-items-center">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0 justify-items-center">
               {[
                 { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
                 { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
@@ -360,29 +354,37 @@ export function ActivityMetrics({
 
             {/* Connected providers — centered below */}
             {filteredProviders.length > 0 && (
-              <div className="flex flex-col items-center gap-1">
+              <div className="flex flex-col items-center gap-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
+                  <span 
+                    className="text-[10px] uppercase tracking-wider font-medium"
+                    style={{ 
+                      color: 'hsl(var(--primary) / 0.8)',
+                      textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.2)',
+                    }}
+                  >Connected</span>
                   <div className="flex items-center gap-1.5">
                     {filteredProviders.map((provider) => (
                       provider === 'tesla' ? (
                         <div 
                           key={provider}
-                          className="h-6 rounded-md flex items-center justify-center border border-border/30 bg-card/10 px-1.5"
+                          className="h-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5 px-1.5"
                           title="Tesla"
+                          style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.2)' }}
                         >
                           <img 
                             src={teslaWordmark} 
                             alt="Tesla" 
-                            className="h-3 object-contain opacity-70"
-                            style={{ filter: 'brightness(2) grayscale(0.3)' }}
+                            className="h-3 object-contain"
+                            style={{ filter: 'brightness(2.5) grayscale(0.1)', opacity: 0.85 }}
                           />
                         </div>
                       ) : (
                         <div 
                           key={provider}
-                          className="h-6 w-6 rounded-md flex items-center justify-center border border-border/30 bg-card/10"
+                          className="h-6 w-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5"
                           title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                          style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.2)' }}
                         >
                           <img 
                             src={providerLogos[provider]} 
@@ -394,7 +396,13 @@ export function ActivityMetrics({
                     ))}
                   </div>
                 </div>
-                <span className="text-[9px] text-muted-foreground/40">Model Y · Solar Roof · Powerwall 3 · Charging kWh</span>
+                <span 
+                  className="text-[9px] font-medium tracking-wide"
+                  style={{ 
+                    color: 'hsl(var(--primary) / 0.6)',
+                    textShadow: '0 0 6px hsl(var(--primary) / 0.3)',
+                  }}
+                >Your Model Y · Solar Roof · Powerwall 3 · Charging kWh</span>
               </div>
             )}
           </div>
