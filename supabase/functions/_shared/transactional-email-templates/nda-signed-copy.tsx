@@ -1,6 +1,6 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Preview, Text, Hr, Section,
+  Body, Container, Head, Heading, Html, Img, Preview, Text, Hr, Section,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
@@ -45,7 +45,9 @@ const NdaSignedCopyEmail = ({ recipientName, recipientEmail, signedAt, ndaVersio
       <Preview>Your signed Confidentiality Agreement with {SITE_NAME}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>{SITE_NAME}</Heading>
+          <Section style={logoSection}>
+            <Img src="https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png" alt="ZenSolar" width="160" height="auto" style={logoImg} />
+          </Section>
           <Text style={subtitle}>Confidentiality Agreement — Signed Copy</Text>
 
           <Section style={signatureBox}>
@@ -91,7 +93,8 @@ export const template = {
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Arial', 'Helvetica', sans-serif" }
 const container = { padding: '32px 24px', maxWidth: '600px', margin: '0 auto' }
-const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#1a1a2e', margin: '0 0 4px', textAlign: 'center' as const }
+const logoSection = { textAlign: 'center' as const, marginBottom: '8px' }
+const logoImg = { margin: '0 auto', display: 'block' as const }
 const subtitle = { fontSize: '13px', color: '#666666', margin: '0 0 24px', textAlign: 'center' as const }
 const signatureBox = { backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }
 const signatureText = { fontSize: '13px', color: '#333333', margin: '0', lineHeight: '1.6' }

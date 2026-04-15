@@ -8,6 +8,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Text,
   Hr,
@@ -25,7 +26,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logoText}>⚡ ZenSolar</Text>
+          <Img src="https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png" alt="ZenSolar" width="160" height="auto" style={logoImg} />
         </Section>
         <Hr style={divider} />
         <Heading style={h1}>Verification code</Heading>
@@ -49,7 +50,7 @@ export default ReauthenticationEmail
 const main = { backgroundColor: '#ffffff', fontFamily: "'Arial', 'Helvetica', sans-serif" }
 const container = { padding: '32px 24px', maxWidth: '480px', margin: '0 auto' }
 const logoSection = { textAlign: 'center' as const, marginBottom: '8px' }
-const logoText = { fontSize: '20px', fontWeight: 'bold' as const, color: 'hsl(142, 76%, 36%)', margin: '0', letterSpacing: '-0.5px' }
+const logoImg = { margin: '0 auto', display: 'block' as const }
 const divider = { borderColor: '#e2e8f0', margin: '16px 0 24px' }
 const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: 'hsl(220, 20%, 14%)', margin: '0 0 16px' }
 const text = { fontSize: '14px', color: 'hsl(215, 16%, 42%)', lineHeight: '1.6', margin: '0 0 20px' }
