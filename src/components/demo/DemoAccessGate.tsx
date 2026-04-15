@@ -1260,6 +1260,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </p>
         </div>
       </div>
+
+      {/* NDA Signature Overlay */}
+      {showNda && (
+        <div
+          className="absolute inset-0 z-[110] bg-background/95 backdrop-blur-sm"
+          style={{
+            animation: 'zenSymbolFadeIn 400ms ease-out both',
+          }}
+        >
+          <NdaSignatureStep
+            accessCodeUsed={verifiedCode}
+            onSigned={handleNdaSigned}
+          />
+        </div>
+      )}
     </div>
   );
 }
