@@ -309,7 +309,7 @@ function KpiStickyHint() {
       <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-primary/15 backdrop-blur-md border border-primary/30 shadow-lg shadow-primary/20">
         <Hand className="h-4 w-4 text-primary animate-bounce flex-shrink-0" />
         <span className="text-xs font-semibold text-primary whitespace-nowrap">
-          Double-tap any field to mint tokens
+          Tap-to-Mint™
         </span>
       </div>
     </motion.div>
