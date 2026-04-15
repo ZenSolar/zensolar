@@ -20,6 +20,7 @@ export function AudioDebugOverlay() {
   const lastCtxStateRef = useRef<string | null>(null);
 
   useEffect(() => {
+    (window as Window & { __ZEN_FORCE_AUDIO_DEBUG__?: boolean }).__ZEN_FORCE_AUDIO_DEBUG__ = true;
     clearAudioDebugEntries();
 
     const update = () => {
@@ -76,6 +77,7 @@ export function AudioDebugOverlay() {
       window.removeEventListener('touchstart', onGesture, true);
       window.removeEventListener('pointerdown', onGesture, true);
       window.removeEventListener(AUDIO_DEBUG_EVENT, onDebugEvent as EventListener);
+      (window as Window & { __ZEN_FORCE_AUDIO_DEBUG__?: boolean }).__ZEN_FORCE_AUDIO_DEBUG__ = false;
     };
   }, []);
 
