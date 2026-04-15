@@ -453,8 +453,9 @@
 
 /* Orbiting badge around lock icon — slow, mesmerizing float */
 @keyframes zenOrbit {
-  0%   { transform: rotate(0deg)   translateX(52px) rotate(0deg); }
-  100% { transform: rotate(360deg) translateX(52px) rotate(-360deg); }
+  0%   { transform: rotate(0deg)   translateX(52px) rotate(0deg);   opacity: 1; }
+  0.1% { transform: rotate(0.36deg) translateX(52px) rotate(-0.36deg); opacity: 1; }
+  100% { transform: rotate(360deg) translateX(52px) rotate(-360deg); opacity: 1; }
 }
 
 /* $Z → Lock crossfade */
