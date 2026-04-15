@@ -1177,6 +1177,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_nda_signed: { Args: { _email: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
