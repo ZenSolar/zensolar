@@ -88,6 +88,7 @@ const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
 const HOLD_THRESHOLD_MS = 550;     // Short enough to feel immediate, long enough to unlock audio on iOS
 const HOLD_RELEASE_GRACE_MS = 80;  // Absorb finger-lift timing variance on iPhone Safari/Chrome
+const HUM_RETRY_DELAYS_MS = [900, 2400, 5200] as const;
 const HAPTIC_PULSE_PROGRESS = [0, 0.28, 0.52, 0.74, 0.92] as const;
 interface DemoAccessGateProps {
   children: React.ReactNode;
@@ -101,6 +102,7 @@ interface GateState {
   burstKey: number;
   revealed: boolean;
   hexAwake: boolean;
+  lockedFlash: boolean;
   holding: boolean;       // true while finger is down & charging
   holdReady: boolean;     // true once hold threshold met (ring filled)
   holdHint: boolean;      // "hold longer" nudge after premature release
@@ -153,6 +155,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     burstKey: 0,
     revealed: false,
     hexAwake: false,
+    lockedFlash: false,
     holding: false,
     holdReady: false,
     holdHint: false,
@@ -177,6 +180,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lockedIndicatorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignorePointerUntilRef = useRef<number>(0);
   const holdTimerRef = useRef<number | null>(null);
   const holdPulseTimersRef = useRef<number[]>([]);
@@ -192,7 +197,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     cycleDuration: 5,
     volume: 0.3,
     enabled: shimmerActive,
-    prewarm: false,
+    prewarm: true,
   });
 
   useEffect(() => {
@@ -288,6 +293,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+      if (lockedIndicatorTimerRef.current) clearTimeout(lockedIndicatorTimerRef.current);
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       audioWakeCleanupRef.current?.();
       shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
@@ -323,6 +330,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
           setFallbackHumActive(false);
+          shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
+          shimmerRetryTimersRef.current = [];
           setShimmerActive(false);
           // Force viewport zoom reset on iOS
           const vp = document.querySelector('meta[name="viewport"]');
@@ -372,6 +381,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       phase: 'burst',
       burstKey: s.burstKey + 1,
       firstTapBurst: false,
+      lockedFlash: false,
       showTapAgain: false,
     });
 
@@ -387,6 +397,23 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       onComplete?.();
     }, FIRST_TAP_BURST_MS);
   }, [playMintSound, updateState]);
+
+  const triggerLockedIndicator = useCallback(() => {
+    if (lockedIndicatorTimerRef.current) clearTimeout(lockedIndicatorTimerRef.current);
+    updateState({
+      firstTapBurst: false,
+      lockedFlash: true,
+      showTapAgain: false,
+    });
+
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate([20, 40, 20]); } catch {}
+    }
+
+    lockedIndicatorTimerRef.current = setTimeout(() => {
+      updateState({ lockedFlash: false });
+    }, LOCK_FLASH_MS);
+  }, [updateState]);
 
   // ── Hold-to-unlock gesture ──
   // On press: prime audio synchronously (iOS gesture context), start charging ring.
@@ -427,7 +454,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let shimmerPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
-      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: true });
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
       gongPrewarmed = prewarmSingingBowl();
       // Prewarm the dashboard hum synth silently during the hold gesture so the
       // release can simply raise its volume instead of cold-booting audio.
@@ -563,13 +590,55 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const revealVisuals = () => {
       triggerBurst();
-      updateState({ showTapAgain: false, revealed: true, hexAwake: true, holdReady: false, holdHint: false });
+      updateState({ showTapAgain: false, revealed: true, hexAwake: true, holdReady: false, holdHint: false, lockedFlash: false });
       ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
 
-      if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
-      lockFlashTimerRef.current = setTimeout(() => {
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+      revealTimerRef.current = setTimeout(() => {
         updateState({ revealed: false });
       }, LOCK_FLASH_MS);
+    };
+
+    const scheduleShimmerRetries = (origin: string) => {
+      shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
+      shimmerRetryTimersRef.current = HUM_RETRY_DELAYS_MS.map((delayMs, index) => (
+        window.setTimeout(() => {
+          const retryCtx = getSharedAudioContext();
+          if (!retryCtx) {
+            updateReleaseAudioDiagnostics({
+              audioContextState: 'null',
+              synthHandoff: 'retry-missed',
+              lastEvent: `${origin}-hum-retry-${index + 1}-no-context`,
+            });
+            logAudioDebug('hum-retry-missed', { attempt: index + 1, delayMs, reason: 'no-context' });
+            return;
+          }
+
+          if (retryCtx.state !== 'running') {
+            retryCtx.resume().catch(() => {});
+          }
+
+          const retryStart = getSafeAudioStartTime(
+            retryCtx,
+            undefined,
+            retryCtx.state === 'running' ? 0.01 : IMMEDIATE_SOUND_LEAD,
+          );
+          const started = startShimmerSound(retryStart, 0.3);
+
+          updateReleaseAudioDiagnostics({
+            audioContextState: retryCtx.state,
+            synthHandoff: started ? 'retrying' : 'retry-missed',
+            lastEvent: `${origin}-hum-retry-${index + 1}`,
+          });
+          logAudioDebug('hum-retry-kick', {
+            attempt: index + 1,
+            delayMs,
+            ctx: retryCtx.state,
+            start: retryStart,
+            started,
+          });
+        }, delayMs)
+      ));
     };
 
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
@@ -596,6 +665,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             getSafeAudioStartTime(liveCtx, undefined, 0.01),
           );
           startShimmerSound(humStart, 0.3);
+          scheduleShimmerRetries(source);
           logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
         }
 
@@ -603,7 +673,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: 'synth-shimmer-only',
+          synthHandoff: 'synth-shimmer-retrying',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -695,8 +765,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (isDoubleTap) {
         if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
         lastTapTimeRef.current = 0;
-        logGestureDebug(`${source}-double-tap-mint`, { hasCode });
-        triggerConfirmedMintBurst(hasCode ? () => { void submitCode(); } : undefined);
+        if (!hasCode) {
+          logGestureDebug(`${source}-double-tap-locked`, { hasCode });
+          triggerLockedIndicator();
+          return;
+        }
+
+        logGestureDebug(`${source}-double-tap-access`, { hasCode });
+        triggerConfirmedMintBurst(() => { void submitCode(); });
         return;
       }
 
@@ -706,8 +782,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if ('vibrate' in navigator) {
         try { navigator.vibrate([15, 30, 10]); } catch {}
       }
-      updateState({ showTapAgain: true });
-      logGestureDebug(`${source}-first-tap-mint`, { hasCode });
+      updateState({ showTapAgain: true, lockedFlash: false });
+      logGestureDebug(`${source}-first-tap-sparks`, { hasCode });
 
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
@@ -808,6 +884,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const handleNdaSigned = useCallback(() => {
     stopDemoEntryFallbackHum();
     setFallbackHumActive(false);
+    shimmerRetryTimersRef.current.forEach((t) => window.clearTimeout(t));
+    shimmerRetryTimersRef.current = [];
     setShimmerActive(false);
     setShowNda(false);
     grantAccess();
@@ -816,7 +894,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   if (granted) return <>{children}</>;
 
-  const { phase, firstTapBurst, showTapAgain, burstKey, revealed, hexAwake, holding, holdReady, holdHint } = stateRef.current;
+  const { phase, firstTapBurst, showTapAgain, burstKey, revealed, hexAwake, lockedFlash, holding, holdReady, holdHint } = stateRef.current;
   const isBursting = phase === 'burst';
   const isDenied = phase === 'denied';
   const isVerifying = phase === 'verifying';
@@ -951,6 +1029,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
                 isBursting
                   ? 'bg-primary/30'
+                  : lockedFlash
+                    ? 'bg-destructive/25'
                   : isDenied
                     ? 'bg-destructive/30 animate-shake'
                     : isVerifying
@@ -967,6 +1047,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   : undefined,
                 boxShadow: holdReady
                   ? '0 0 48px hsla(142, 76%, 42%, 0.6), 0 0 16px hsla(142, 76%, 42%, 0.3)'
+                  : lockedFlash
+                    ? '0 0 44px hsl(var(--destructive) / 0.45), 0 0 16px hsl(var(--destructive) / 0.22)'
                   : isBursting || firstTapBurst
                     ? '0 0 40px hsl(var(--primary) / 0.5)'
                     : isDenied
@@ -974,11 +1056,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       : '0 0 24px hsl(var(--primary) / 0.3)',
                 transform: holding
                   ? 'scale(0.92)'
+                  : lockedFlash
+                    ? 'scale(0.94)'
                   : firstTapBurst || isBursting
                     ? 'scale(0.92)'
                     : undefined,
                 transition: holding
                   ? 'transform 80ms ease-out, background-color 120ms, box-shadow 120ms'
+                  : lockedFlash
+                    ? 'transform 70ms ease-out, background-color 120ms, box-shadow 120ms'
                   : firstTapBurst
                     ? 'transform 60ms, background-color 60ms, box-shadow 60ms'
                     : 'transform 200ms ease-out, background-color 200ms, box-shadow 200ms',
@@ -1000,6 +1086,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             >
               {isBursting ? (
                 <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
+              ) : lockedFlash ? (
+                <Lock className="h-8 w-8 text-destructive" style={{ animation: 'zenSymbolFadeIn 160ms ease-out both' }} />
               ) : revealed ? (
                 <Lock
                   className="h-8 w-8 text-primary"
@@ -1122,6 +1210,59 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     marginTop: -35,
                     background: `radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(${RGBA}, 0.15) 40%, transparent 70%)`,
                     animation: 'zenEnergyRelease 550ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+
+              {lockedFlash && !isBursting && (
+                <div
+                  key={`lock-glow-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: 70,
+                    height: 70,
+                    marginLeft: -35,
+                    marginTop: -35,
+                    background: 'radial-gradient(circle, hsl(var(--destructive) / 0.38) 0%, hsl(var(--destructive) / 0.14) 45%, transparent 72%)',
+                    animation: 'zenEnergyRelease 420ms ease-out forwards',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              )}
+
+              {lockedFlash && !isBursting && [0, 1].map((i) => (
+                <div
+                  key={`lock-ring-${burstKey}-${i}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: 18,
+                    height: 18,
+                    marginLeft: -9,
+                    marginTop: -9,
+                    borderRadius: '50%',
+                    border: `2px solid hsl(var(--destructive) / ${0.9 - i * 0.28})`,
+                    animation: `zenFlareRing 460ms ${i * 70}ms ease-out forwards`,
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
+
+              {lockedFlash && !isBursting && (
+                <div
+                  key={`lock-wave-${burstKey}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '240%',
+                    height: '240%',
+                    border: '2px solid hsl(var(--destructive) / 0.7)',
+                    animation: 'zenPressureWave 420ms ease-out forwards',
                     willChange: 'transform, opacity',
                   }}
                 />
@@ -1381,12 +1522,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
                 >
                   <Lock className="h-3 w-3" />
-                  {showTapAgain ? 'tap again to mint' : hexAwake ? 'single tap primes • double tap confirms' : 'press & hold $Z'}
+                  {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
                 </span>
               ) : (
                 <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" />
-                  {showTapAgain ? 'tap again to mint' : hexAwake ? 'single tap sparks • double tap mints' : 'press & hold $Z'}
+                  {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
                 </span>
               )}
             </div>
