@@ -49,6 +49,7 @@ export function useShimmerSound({
   const pendingBootCleanupRef = useRef<(() => void) | null>(null);
   const pendingBootVolumeRef = useRef(0);
   const pendingBootStartTimeRef = useRef<number | undefined>(undefined);
+  const lastManualStartRef = useRef(0);
   const volumeRef = useRef(volume);
   const cycleDurationRef = useRef(cycleDuration);
   volumeRef.current = volume;
@@ -64,7 +65,13 @@ export function useShimmerSound({
     pendingBootStartTimeRef.current = undefined;
   }, []);
 
-  const stopSound = useCallback(() => {
+  const stopSound = useCallback((force = false) => {
+    // Guard: don't let effect-driven cleanup kill a graph that was just
+    // manually started (e.g. via the gesture handler) within the last 2s.
+    if (!force && lastManualStartRef.current && Date.now() - lastManualStartRef.current < 2000) {
+      return;
+    }
+
     clearPendingBoot();
     clearPendingDisposal();
 
@@ -83,6 +90,7 @@ export function useShimmerSound({
     scheduledStartTime?: number,
     activationVolume?: number,
   ) {
+    lastManualStartRef.current = Date.now();
     const targetVolume = activationVolume ?? volumeRef.current;
     const existingNodes = nodesRef.current;
 
