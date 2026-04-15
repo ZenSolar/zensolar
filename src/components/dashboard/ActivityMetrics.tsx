@@ -32,6 +32,7 @@ import type { HideableField } from '@/hooks/useHiddenActivityFields';
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 const providerLogos: Record<string, string> = {
   enphase: enphaseLogo,
@@ -300,15 +301,14 @@ export function ActivityMetrics({
               {/* Left column: icon + title + connected */}
               <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex items-center gap-2.5">
-                  <div 
-                    className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                  <img 
+                    src={zenLogo} 
+                    alt="ZenSolar" 
+                    className="h-9 w-9 rounded-lg flex-shrink-0 object-contain"
                     style={{
-                      background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
-                      boxShadow: '0 0 12px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.15)',
+                      filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.4))',
                     }}
-                  >
-                    <Gauge className="h-5 w-5 text-white" />
-                  </div>
+                  />
                   <div className="min-w-0">
                     <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
                       Clean Energy Center
