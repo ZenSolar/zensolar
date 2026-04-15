@@ -11,6 +11,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 let sharedAudioContext: AudioContext | null = null;
 let unlockListenersInstalled = false;
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+let allowGestureCreation = false;
 
 type PrewarmedSingingBowlGraph = {
   ctx: AudioContext;
@@ -38,6 +39,15 @@ const SILENT_AUDIO_LEVEL = 0.00001;
 /** Expose the shared AudioContext for other audio hooks (e.g. useShimmerSound) */
 export function getSharedAudioContext(): AudioContext | null {
   return sharedAudioContext;
+}
+
+/**
+ * Allow the global gesture listener to lazily create the AudioContext.
+ * Call this once the dashboard is mounted and there is no competing
+ * gesture handler (e.g. the hex animation) that needs the gesture token.
+ */
+export function enableGestureCreation() {
+  allowGestureCreation = true;
 }
 
 export const IMMEDIATE_SOUND_LEAD = 0.02;
@@ -346,13 +356,17 @@ const installGlobalUnlockListeners = () => {
 
   const unlock = () => {
     try {
-      // IMPORTANT: On iOS WebKit (iPhone Chrome & Safari), do NOT create
-      // the AudioContext here. Creating it in a global capture-phase listener
-      // can "consume" the gesture token before the component's own handler
-      // gets to play audible nodes. Only resume an already-existing context.
       if (sharedAudioContext && sharedAudioContext.state !== 'running') {
         sharedAudioContext.resume().catch(() => {});
         warmAudioHardware(sharedAudioContext);
+      } else if (!sharedAudioContext && allowGestureCreation) {
+        // Dashboard is loaded and no competing gesture handler exists.
+        // Create the AudioContext now so the shimmer hum can start.
+        const ctx = createSharedAudioContext();
+        if (ctx.state !== 'running') {
+          ctx.resume().catch(() => {});
+        }
+        warmAudioHardware(ctx);
       }
     } catch {
       // Silent fail
