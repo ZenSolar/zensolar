@@ -162,14 +162,16 @@ export function DemoDashboard() {
 
         {/* Token Price & Wallet Card */}
         <AnimatedItem id="demo-wallet-card">
-          <TokenPriceCard 
-            tokensHeld={activityData.lifetimeMinted}
-            defaultPrice={0.10}
-            onPriceChange={setTokenPrice}
-            nftCount={mintedCount > 0 ? mintedCount : totalNftsAvailable}
-            nftLabel={nftLabel}
-            walletLink="/demo/wallet"
-          />
+          <div className="emerald-glow-card overflow-hidden">
+            <TokenPriceCard 
+              tokensHeld={activityData.lifetimeMinted}
+              defaultPrice={0.10}
+              onPriceChange={setTokenPrice}
+              nftCount={mintedCount > 0 ? mintedCount : totalNftsAvailable}
+              nftLabel={nftLabel}
+              walletLink="/demo/wallet"
+            />
+          </div>
         </AnimatedItem>
 
         {/* Onboarding Cards */}
@@ -189,15 +191,17 @@ export function DemoDashboard() {
 
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
         <AnimatedItem>
-          <ActivityMetrics
-            data={activityData}
-            currentActivity={currentActivity}
-            refreshInfo={{ lastUpdatedAt }}
-            connectedProviders={connectedProviders}
-            onMintRequest={profile.wallet_address ? handleMintRequest : undefined}
-            tokenPrice={tokenPrice}
-            lifetimeMinted={activityData.lifetimeMinted}
-          />
+          <div className="emerald-glow-card overflow-hidden">
+            <ActivityMetrics
+              data={activityData}
+              currentActivity={currentActivity}
+              refreshInfo={{ lastUpdatedAt }}
+              connectedProviders={connectedProviders}
+              onMintRequest={profile.wallet_address ? handleMintRequest : undefined}
+              tokenPrice={tokenPrice}
+              lifetimeMinted={activityData.lifetimeMinted}
+            />
+          </div>
         </AnimatedItem>
 
         {/* Reward Actions - same component as real dashboard */}
@@ -221,7 +225,9 @@ export function DemoDashboard() {
 
         {/* API Partners Card — between actions and energy flow */}
         <AnimatedItem>
-          <ApiPartnersCard />
+          <div className="emerald-glow-card overflow-hidden">
+            <ApiPartnersCard />
+          </div>
         </AnimatedItem>
 
         {/* Live Energy Flow Diagram */}
@@ -245,18 +251,20 @@ export function DemoDashboard() {
         
         {/* NFT Milestones */}
         <AnimatedItem id="reward-progress">
-          <RewardProgress
-            tokensEarned={activityData.tokensEarned}
-            solarKwh={activityData.solarEnergyProduced}
-            evMilesDriven={activityData.evMilesDriven}
-            evChargingKwh={activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
-            batteryDischargedKwh={activityData.batteryStorageDischarged}
-            nftsEarned={activityData.nftsEarned}
-            lifetimeMinted={activityData.lifetimeMinted}
-            isNewUser={true}
-            initialCategory="ev_miles"
-            featuredNftId="ev_8"
-          />
+          <div className="emerald-glow-card overflow-hidden">
+            <RewardProgress
+              tokensEarned={activityData.tokensEarned}
+              solarKwh={activityData.solarEnergyProduced}
+              evMilesDriven={activityData.evMilesDriven}
+              evChargingKwh={activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
+              batteryDischargedKwh={activityData.batteryStorageDischarged}
+              nftsEarned={activityData.nftsEarned}
+              lifetimeMinted={activityData.lifetimeMinted}
+              isNewUser={true}
+              initialCategory="ev_miles"
+              featuredNftId="ev_8"
+            />
+          </div>
         </AnimatedItem>
 
         {/* NFT Mint Button + Refresh - matches real dashboard */}
