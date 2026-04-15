@@ -561,6 +561,17 @@ async function decodeHumBuffer() {
         const seamlessLoop = buildSeamlessHumLoopBuffer(buffer);
         humLoopBuffer = seamlessLoop.buffer;
         humLoopTrimSeconds = seamlessLoop.trimSeconds;
+
+        if (typeof window !== 'undefined') {
+          if (humLoopBlobUrl) {
+            URL.revokeObjectURL(humLoopBlobUrl);
+          }
+          humLoopBlobUrl = createHumLoopBlobUrl(seamlessLoop.buffer);
+          if (fallbackAudio && fallbackAudio.hum.paused && !humMediaBridgeActive) {
+            syncHumMediaSource(fallbackAudio.hum, { resetCurrentTime: false });
+          }
+        }
+
         logAudioDebug('hum-buffer-decoded', {
           duration: buffer.duration,
           sampleRate: buffer.sampleRate,
@@ -569,6 +580,7 @@ async function decodeHumBuffer() {
           loopEnd: HUM_LOOP_END,
           seamlessDuration: seamlessLoop.buffer.duration,
           seamTrimMs: HUM_LOOP_CROSSFADE_MS,
+          mediaSourceReady: humLoopBlobUrl ? 'yes' : 'no',
         });
         return buffer;
       })
@@ -649,7 +661,7 @@ function createHumLoopGraph(ctx: AudioContext, buffer: AudioBuffer) {
 }
 
 function getPreparedHumLoopGraph(ctx: AudioContext) {
-  const buffer = humDecodedBuffer;
+  const buffer = humLoopBuffer ?? humDecodedBuffer;
   if (!buffer) return null;
   if (humLoopGraph?.ctx === ctx && humLoopGraph.buffer === buffer) return humLoopGraph;
   return createHumLoopGraph(ctx, buffer);
@@ -707,11 +719,18 @@ function buildSeamlessHumLoopBuffer(buffer: AudioBuffer) {
 }
 
 function getHumHandoffOffset(audio: HTMLAudioElement, buffer?: AudioBuffer | null) {
-  const rawLoopDuration = Math.max(HUM_LOOP_END - HUM_LOOP_START, 0.001);
-  const currentTime = Number.isFinite(audio.currentTime) ? audio.currentTime : HUM_LOOP_START;
-  const normalizedRawOffset = currentTime <= HUM_LOOP_START
+  const currentTime = Number.isFinite(audio.currentTime) ? audio.currentTime : getHumMediaLoopStart(audio);
+
+  if (isSeamlessHumMediaSource(audio) && isProcessedHumLoopBuffer(buffer)) {
+    const processedDuration = Math.max(buffer?.duration ?? 0, 0.001);
+    return Math.min(processedDuration - 0.001, Math.max(0, currentTime % processedDuration));
+  }
+
+  const rawLoopStart = getHumMediaLoopStart(audio);
+  const rawLoopDuration = Math.max((isSeamlessHumMediaSource(audio) ? (audio.duration || (buffer?.duration ?? 0) || (HUM_LOOP_END - HUM_LOOP_START)) : (HUM_LOOP_END - HUM_LOOP_START)), 0.001);
+  const normalizedRawOffset = currentTime <= rawLoopStart
     ? 0
-    : (currentTime - HUM_LOOP_START) % rawLoopDuration;
+    : (currentTime - rawLoopStart) % rawLoopDuration;
 
   if (isProcessedHumLoopBuffer(buffer) && humLoopTrimSeconds > 0) {
     const processedDuration = Math.max(buffer?.duration ?? 0, 0.001);
@@ -722,7 +741,7 @@ function getHumHandoffOffset(audio: HTMLAudioElement, buffer?: AudioBuffer | nul
     return Math.min(processedDuration - 0.001, Math.max(0, processedOffset));
   }
 
-  return Math.min(getHumLoopEnd(buffer) - 0.001, HUM_LOOP_START + normalizedRawOffset);
+  return Math.min(getHumLoopEnd(buffer) - 0.001, rawLoopStart + normalizedRawOffset);
 }
 
 function clearHumLoopScheduler(graph: HumLoopGraph | null = humLoopGraph) {
@@ -822,8 +841,9 @@ function scheduleHumLoopVoicesAhead(graph: HumLoopGraph) {
 function resetHumMediaElement(audio: HTMLAudioElement, reset = true) {
   try {
     audio.pause();
+    syncHumMediaSource(audio, { allowWhilePlaying: true, resetCurrentTime: false });
     if (reset) {
-      audio.currentTime = 0;
+      audio.currentTime = getHumMediaLoopStart(audio);
     }
     audio.loop = true;
     audio.muted = true;
@@ -921,10 +941,11 @@ function startHumSilentlyWithDeferredFadeIn(ctx: AudioContext) {
 
   // Kick off decode and swap in the real hum once ready
   void decodeHumBuffer().then((buffer) => {
-    if (!buffer || !silentPlaceholder || silentPlaceholder.ctx !== ctx) return;
+    const loopBuffer = humLoopBuffer ?? buffer;
+    if (!loopBuffer || !silentPlaceholder || silentPlaceholder.ctx !== ctx) return;
 
     destroySilentPlaceholder();
-    const realGraph = createHumLoopGraph(ctx, buffer);
+    const realGraph = createHumLoopGraph(ctx, loopBuffer);
     realGraph.gain.gain.setValueAtTime(0, ctx.currentTime);
     const started = startPreparedHumLoopGraph(realGraph);
 
@@ -952,6 +973,7 @@ function startHumMediaBridge(audio: HTMLAudioElement) {
   clearHumMediaStopTimer();
   clearHumMediaHandoffTimer();
 
+  syncHumMediaSource(audio, { allowWhilePlaying: true, resetCurrentTime: false });
   requestLoad(audio);
   humRevealStartedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
@@ -959,7 +981,7 @@ function startHumMediaBridge(audio: HTMLAudioElement) {
     audio.loop = true;
     audio.muted = true;
     audio.volume = 0;
-    audio.currentTime = HUM_LOOP_START;
+    audio.currentTime = getHumMediaLoopStart(audio);
   } catch {
     // no-op
   }
@@ -1036,14 +1058,15 @@ function queueHumMediaBridgeHandoff(ctx: AudioContext, audio: HTMLAudioElement) 
       });
     };
 
-    if (humDecodedBuffer) {
-      startHandoff(humDecodedBuffer);
+    if (humLoopBuffer || humDecodedBuffer) {
+      startHandoff(humLoopBuffer ?? humDecodedBuffer!);
       return;
     }
 
     void decodeHumBuffer().then((buffer) => {
-      if (buffer) {
-        startHandoff(buffer);
+      const loopBuffer = humLoopBuffer ?? buffer;
+      if (loopBuffer) {
+        startHandoff(loopBuffer);
       }
     });
   };
