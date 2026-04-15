@@ -184,7 +184,15 @@ export function DemoOnboardingHints() {
       }
     }
 
-    // KPI hint is NOT dismissed by tap — only by mint success
+    // KPI hint dismissed on first tap of any KPI field
+    if (activeHints.has('kpi')) {
+      const kpiFields = document.querySelectorAll('[data-kpi-field]');
+      const kpiHandler = () => dismissHint('kpi');
+      kpiFields.forEach((el) => {
+        el.addEventListener('pointerdown', kpiHandler, { once: true, passive: true });
+        cleanups.push(() => el.removeEventListener('pointerdown', kpiHandler));
+      });
+    }
 
     if (activeHints.has('wallet')) {
       const el = document.getElementById('demo-wallet-card');
