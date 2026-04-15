@@ -1062,7 +1062,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         scale: 1,
         y: 0,
       }}
-      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' as const } : isPressing ? { duration: 0.12, ease: 'easeOut' as const } : isTappable ? { duration: 1.6, repeat: Infinity, repeatDelay: index * 0.5 + 0.8, ease: 'easeInOut' as const } : { duration: 0.12, ease: 'easeOut' as const }}
+      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' as const } : isPressing ? { duration: 0.12, ease: 'easeOut' as const } : isTappable ? { duration: 1.6, repeat: Infinity, repeatDelay: colorIndex * 0.5 + 0.8, ease: 'easeInOut' as const } : { duration: 0.12, ease: 'easeOut' as const }}
       style={{
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,
