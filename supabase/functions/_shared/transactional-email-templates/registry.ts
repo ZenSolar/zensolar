@@ -10,7 +10,9 @@ export interface TemplateEntry {
 }
 
 import { template as ndaSignedCopy } from './nda-signed-copy.tsx'
+import { template as ndaAdminNotification } from './nda-admin-notification.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'nda-signed-copy': ndaSignedCopy,
+  'nda-admin-notification': ndaAdminNotification,
 }
