@@ -202,7 +202,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
-    volume: 0.3,
+    volume: 0.4,
     enabled: shimmerActive,
     prewarm: true,
   });
@@ -457,11 +457,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     let gongPrewarmed = false;
     let fallbackArmed = false;
-    let shimmerBootQueued = false;
     if (!s.hexAwake) {
       fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
       gongPrewarmed = prewarmSingingBowl();
-      shimmerBootQueued = !!ctx && startShimmerSound(undefined, 0);
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
         synthHandoff: 'waiting-reveal',
@@ -471,7 +469,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         fallbackArmed,
-        shimmerBootQueued,
         shimmerMode: 'hook-prewarm',
       });
     }
@@ -596,7 +593,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       clearScheduledHumStart();
       const targetStartTime = revealStartTime + HUM_START_DELAY_MS / 1000;
       setShimmerActive(true);
-      const started = startShimmerSound(targetStartTime, 0.3);
+      const started = startShimmerSound(targetStartTime, 0.4);
       const audioContextState = getSharedAudioContext()?.state ?? 'null';
 
       updateReleaseAudioDiagnostics({
