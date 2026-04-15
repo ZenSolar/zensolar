@@ -948,11 +948,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   // Show unlock hint when input is focused or has text
   const showUnlockHint = inputFocused || code.trim().length > 0;
 
-  const handleNdaSigned = useCallback((email?: string) => {
+  const handleNdaSigned = useCallback((email?: string, name?: string) => {
     stopDemoEntryFallbackHum();
     setShowNda(false);
     grantAccess();
     if (email) saveNdaEmail(email);
+    if (name) saveNdaName(name);
     setGranted(true);
   }, []);
 
