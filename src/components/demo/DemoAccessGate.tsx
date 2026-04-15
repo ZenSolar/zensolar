@@ -22,6 +22,7 @@ import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, run
 
 
 const LS_KEY = 'zen_demo_access';
+const NDA_EMAIL_KEY = 'zen_nda_email';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 function isAccessGranted(): boolean {
@@ -38,6 +39,24 @@ function isAccessGranted(): boolean {
 
 function grantAccess() {
   localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }));
+}
+
+function getSavedNdaEmail(): string | null {
+  return localStorage.getItem(NDA_EMAIL_KEY);
+}
+
+function saveNdaEmail(email: string) {
+  localStorage.setItem(NDA_EMAIL_KEY, email);
+}
+
+async function checkExistingNda(email: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.rpc('check_nda_signed', { _email: email });
+    if (error) return false;
+    return data === true;
+  } catch {
+    return false;
+  }
 }
 
 // ─── Burst particles ────
@@ -313,7 +332,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           try { navigator.vibrate([15, 30, 10]); } catch {}
         }
 
-        setTimeout(() => {
+        setTimeout(async () => {
           // Blur input to dismiss keyboard & reset iOS viewport zoom before showing NDA
           inputRef.current?.blur();
           stopDemoEntryFallbackHum();
@@ -326,7 +345,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               vp.setAttribute('content', original);
             });
           }
-          // Show NDA instead of granting access immediately
+          // Check if user has already signed NDA
+          const savedEmail = getSavedNdaEmail();
+          if (savedEmail) {
+            const alreadySigned = await checkExistingNda(savedEmail);
+            if (alreadySigned) {
+              // Skip NDA, grant access directly
+              grantAccess();
+              setGranted(true);
+              toast.success('Welcome back!', { description: 'NDA already on file.' });
+              return;
+            }
+          }
+          // Show NDA for new signers
           setVerifiedCode(code.trim());
           setShowNda(true);
         }, 1000);
@@ -792,10 +823,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   // Show unlock hint when input is focused or has text
   const showUnlockHint = inputFocused || code.trim().length > 0;
 
-  const handleNdaSigned = useCallback(() => {
+  const handleNdaSigned = useCallback((email?: string) => {
     stopDemoEntryFallbackHum();
     setShowNda(false);
     grantAccess();
+    if (email) saveNdaEmail(email);
     setGranted(true);
   }, []);
 
