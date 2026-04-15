@@ -8,6 +8,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
   playDemoEntryFallbackGong,
+  playDemoEntryFallbackHum,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
 } from '@/lib/demoEntryFallbackAudio';
