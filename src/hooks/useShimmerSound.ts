@@ -201,6 +201,9 @@ export function useShimmerSound({
     return true;
   }, [clearPendingBoot, clearPendingDisposal]);
 
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
+
   useEffect(() => {
     if (!enabled && !prewarm) {
       stopSound(true);
@@ -209,7 +212,15 @@ export function useShimmerSound({
 
     const initialVolume = enabled ? volumeRef.current : 0;
 
-    return pollUntilShimmerReady(() => startSound(undefined, initialVolume));
+    return pollUntilShimmerReady(() => {
+      // Only boot if a manual startSound call hasn't already created the graph
+      if (!nodesRef.current) {
+        return startSound(undefined, initialVolume);
+      }
+      return true;
+    });
+    // Cleanup: only force-stop if we're transitioning TO disabled (not to enabled)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, prewarm, startSound, stopSound]);
 
   useEffect(() => () => {
