@@ -581,32 +581,40 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return false;
     };
 
+    // CRITICAL: Fire audio BEFORE any DOM mutations to preserve iOS gesture context
+    if (ctx) {
+      if (ctx.state !== 'running') {
+        ctx.resume().catch(() => {});
+      }
+
+      const startTime = getSafeAudioStartTime(
+        ctx,
+        undefined,
+        ctx.state === 'running' ? 0.005 : IMMEDIATE_SOUND_LEAD,
+      );
+
+      fireRevealAudio(startTime, ctx.state !== 'running');
+    } else {
+      // No AudioContext — still try fallback gong synchronously in gesture context
+      if (firstReveal) {
+        const fallbackStarted = playDemoEntryFallbackGong();
+        updateReleaseAudioDiagnostics({
+          fallbackFired: fallbackStarted ? 'fired' : 'missed',
+          synthHandoff: 'failed',
+          audioContextState: 'null',
+          lastEvent: `${source}-reveal-fallback-only`,
+        });
+      }
+    }
+
+    // Visuals AFTER audio to keep gesture context intact
     revealVisuals();
 
     if (!ctx) {
       stopDemoEntryFallbackHum(false);
       setFallbackHumActive(false);
-      updateReleaseAudioDiagnostics({
-        fallbackFired: firstReveal ? 'missed' : 'skipped',
-        synthHandoff: firstReveal ? 'failed' : 'skipped',
-        audioContextState: 'null',
-        lastEvent: `${source}-reveal-visual-only-no-audio-ctx`,
-      });
       logGestureDebug(`${source}-reveal-visual-only-no-audio-ctx`, { audioReady, visualReveal: true });
-      return;
     }
-
-    const startTime = getSafeAudioStartTime(
-      ctx,
-      undefined,
-      ctx.state === 'running' ? 0.005 : IMMEDIATE_SOUND_LEAD,
-    );
-
-    if (ctx.state !== 'running') {
-      ctx.resume().catch(() => {});
-    }
-
-    fireRevealAudio(startTime, ctx.state !== 'running');
   }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
