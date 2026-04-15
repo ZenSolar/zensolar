@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
+import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
 
 import {
   SOLAR_MILESTONES,
@@ -119,6 +120,7 @@ export function DemoDashboard() {
       className="bg-background min-h-full w-full relative overflow-x-hidden"
     >
       <DashboardHexBackground />
+      <DemoOnboardingHints />
       <PullToRefreshIndicator 
         pullDistance={pullDistance} 
         isRefreshing={isRefreshing}
@@ -173,7 +175,7 @@ export function DemoDashboard() {
         )}
 
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
-        <AnimatedItem>
+        <AnimatedItem data-hint-target="kpi">
           <ActivityMetrics
             data={activityData}
             currentActivity={currentActivity}
@@ -241,17 +243,19 @@ export function DemoDashboard() {
 
         {/* NFT Mint Button + Refresh - matches real dashboard */}
         <AnimatedItem className="space-y-3">
-          <MintEffectButton
-            onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
-            disabled={isLoading}
-            className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"
-          >
-            <Images className="mr-2 h-4 w-4" />
-            MINT ZENSOLAR NFTs
-            <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
-              {totalNftsAvailable}
-            </Badge>
-          </MintEffectButton>
+          <div data-hint-target="mint">
+            <MintEffectButton
+              onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
+              disabled={isLoading}
+              className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"
+            >
+              <Images className="mr-2 h-4 w-4" />
+              MINT ZENSOLAR NFTs
+              <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
+                {totalNftsAvailable}
+              </Badge>
+            </MintEffectButton>
+          </div>
           
           <Button
             onClick={refreshDashboard}
