@@ -129,6 +129,10 @@ function saveNdaEmail(email: string) {
   writeStoredValue(NDA_EMAIL_KEY, JSON.stringify({ email, ts: Date.now() }), TTL_MS);
 }
 
+function saveNdaName(name: string) {
+  writeStoredValue(NDA_NAME_KEY, name, TTL_MS);
+}
+
 async function checkExistingNda(email: string): Promise<boolean> {
   try {
     const { data, error } = await supabase.rpc('check_nda_signed', { _email: email });
@@ -136,6 +140,21 @@ async function checkExistingNda(email: string): Promise<boolean> {
     return data === true;
   } catch {
     return false;
+  }
+}
+
+async function fetchNdaName(email: string): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from('nda_signatures')
+      .select('full_name')
+      .eq('email', email)
+      .order('signed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return data?.full_name || null;
+  } catch {
+    return null;
   }
 }
 
