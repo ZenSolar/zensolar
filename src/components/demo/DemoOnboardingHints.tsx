@@ -174,14 +174,7 @@ export function DemoOnboardingHints() {
       }
     }
 
-    if (activeHints.has('kpi')) {
-      const el = document.querySelector('[data-hint-target="kpi-cards"]');
-      if (el) {
-        const handler = () => dismissHint('kpi');
-        el.addEventListener('pointerdown', handler, { passive: true });
-        cleanups.push(() => el.removeEventListener('pointerdown', handler));
-      }
-    }
+    // KPI hint is NOT dismissed by tap — only by mint success
 
     if (activeHints.has('wallet')) {
       const el = document.getElementById('demo-wallet-card');
@@ -202,14 +195,7 @@ export function DemoOnboardingHints() {
       {activeHints.has('menu') && <MenuHint onDismiss={dismissMenuHint} />}
 
       {activeHints.has('kpi') && (
-        <FloatingHint
-          fallbackSelector="[data-hint-target='kpi-cards']"
-          label="Tap to mint tokens"
-          icon="hand"
-          position="center"
-          onDismiss={() => dismissHint('kpi')}
-          delay={0.15}
-        />
+        <KpiStickyHint />
       )}
 
       {activeHints.has('wallet') && (
