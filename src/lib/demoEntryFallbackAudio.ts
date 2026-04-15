@@ -1135,9 +1135,11 @@ export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: Ar
   }
 
   if (hum) {
+    syncHumMediaSource(audio.hum, { allowWhilePlaying: false, resetCurrentTime: false });
     fallbackGestureArmed.hum = armMutedLoop('hum', audio.hum, true, {
       mode: 'media-bridge',
       transport: 'media-element',
+      mediaSource: isSeamlessHumMediaSource(audio.hum) ? 'seamless' : 'raw',
     });
 
     const ctx = getAudioContext();
