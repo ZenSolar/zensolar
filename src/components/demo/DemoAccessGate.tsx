@@ -140,7 +140,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
-  const showAudioDebug = true;
+  const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
   
 
