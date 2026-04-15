@@ -1,7 +1,6 @@
-import { useRef, useCallback, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import { useConfetti } from '@/hooks/useConfetti';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from '@/components/dashboard/CompactWalletPrompt';
 import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMetrics';
@@ -48,13 +47,30 @@ export function DemoDashboard() {
   } = useDemoContext();
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
-  const { triggerConfetti } = useConfetti();
+  const hasHydratedMintedValueRef = useRef(false);
+  const previousLifetimeMintedRef = useRef(0);
   
   const [tokenPrice, setTokenPrice] = useState(0.10);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
   });
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!hasHydratedMintedValueRef.current) {
+      previousLifetimeMintedRef.current = activityData.lifetimeMinted;
+      hasHydratedMintedValueRef.current = true;
+      return;
+    }
+
+    if (activityData.lifetimeMinted > previousLifetimeMintedRef.current) {
+      window.dispatchEvent(new CustomEvent('demo-mint-success'));
+    }
+
+    previousLifetimeMintedRef.current = activityData.lifetimeMinted;
+  }, [activityData.lifetimeMinted, isLoading]);
 
   const handleMintRequest = (request: MintRequest) => {
     const mappedCategory: RewardMintCategory = 
@@ -65,14 +81,6 @@ export function DemoDashboard() {
       deviceName: request.deviceName 
     });
   };
-
-  const handleMintSuccess = useCallback(() => {
-    triggerConfetti();
-    // Trigger wallet hint after a short delay to let confetti settle
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('demo-mint-success'));
-    }, 1500);
-  }, [triggerConfetti]);
 
   const demoMintHandler: DemoMintHandler = useMemo(() => ({
     simulateMintTokens,
@@ -186,7 +194,6 @@ export function DemoDashboard() {
             refreshInfo={{ lastUpdatedAt }}
             connectedProviders={connectedProviders}
             onMintRequest={profile.wallet_address ? handleMintRequest : undefined}
-            onMintSuccess={handleMintSuccess}
             tokenPrice={tokenPrice}
             lifetimeMinted={activityData.lifetimeMinted}
           />
