@@ -2,6 +2,9 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import chargepointLogo from '@/assets/logos/chargepoint-logo.png';
 
 function ManufacturerBadges() {
   const manufacturers = [
@@ -9,34 +12,19 @@ function ManufacturerBadges() {
       name: 'ENPHASE',
       color: '#F59E0B',
       desc: 'Solar Inverters',
-      icon: (
-        <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none">
-          <circle cx="10" cy="10" r="5" stroke="#F59E0B" strokeWidth="1.5" />
-          <path d="M10 5v10M5 10h10" stroke="#F59E0B" strokeWidth="1" opacity="0.6" />
-          <circle cx="10" cy="10" r="2" fill="#F59E0B" opacity="0.4" />
-        </svg>
-      ),
+      logo: enphaseLogo,
     },
     {
       name: 'TESLA',
       color: '#22C55E',
       desc: 'Powerwall · Solar Roof',
-      icon: (
-        <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none">
-          <path d="M10 3L4 7v2l6-3 6 3V7L10 3z" fill="#22C55E" opacity="0.6" />
-          <path d="M10 8v9" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      ),
+      logo: teslaLogo,
     },
     {
       name: 'CHARGEPOINT',
       color: '#3B82F6',
       desc: 'EV Charging',
-      icon: (
-        <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none">
-          <polygon points="11 2 5 12 9 12 8 18 15 8 11 8 11 2" fill="#3B82F6" opacity="0.5" stroke="#3B82F6" strokeWidth="0.8" />
-        </svg>
-      ),
+      logo: chargepointLogo,
     },
   ];
 
@@ -53,10 +41,10 @@ function ManufacturerBadges() {
           style={{ borderColor: `${m.color}40` }}
         >
           <div
-            className="w-6 h-6 rounded-full flex items-center justify-center"
+            className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden"
             style={{ backgroundColor: `${m.color}15` }}
           >
-            {m.icon}
+            <img src={m.logo} alt={m.name} className="w-5 h-5 object-contain" loading="lazy" width={20} height={20} />
           </div>
           <div className="flex flex-col">
             <span
