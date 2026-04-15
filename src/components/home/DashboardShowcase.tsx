@@ -41,10 +41,10 @@ function ManufacturerBadges() {
           style={{ borderColor: `${m.color}40` }}
         >
           <div
-            className="w-6 h-6 rounded-full flex items-center justify-center"
+            className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden"
             style={{ backgroundColor: `${m.color}15` }}
           >
-            {m.icon}
+            <img src={m.logo} alt={m.name} className="w-5 h-5 object-contain" loading="lazy" width={20} height={20} />
           </div>
           <div className="flex flex-col">
             <span
