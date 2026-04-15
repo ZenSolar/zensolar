@@ -473,10 +473,16 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     });
 
     holdTimerRef.current = window.setTimeout(() => {
-      if (stateRef.current.hexAwake || audioReadyRef.current) {
+      if (stateRef.current.hexAwake || audioReadyRef.current || ctx) {
         markHoldReady(source, 'threshold');
       } else {
         logGestureDebug(`${source}-hold-threshold-waiting-audio`, { ctxState: ctx?.state ?? 'null' });
+        // Still mark ready after a short grace — the fallback gong handles audio
+        window.setTimeout(() => {
+          if (stateRef.current.holding && !stateRef.current.holdReady) {
+            markHoldReady(source, 'threshold');
+          }
+        }, 120);
       }
     }, HOLD_THRESHOLD_MS);
   }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, startShimmerSound, updateState]);
@@ -537,9 +543,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const firstReveal = !s.hexAwake;
 
     const revealVisuals = () => {
-      const shockwaveOrigin = getLockVisualCenter();
-      setShockwave({ key: Date.now(), ...shockwaveOrigin });
-
       triggerBurst();
       updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false, holdHint: false });
       ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
@@ -764,45 +767,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         />
       )}
 
-      {/* ── Screen-wide energy shockwave — fires on successful hold release ── */}
-      {shockwave !== null && (
-        <div
-          key={`shockwave-${shockwave.key}`}
-          className="fixed inset-0 pointer-events-none z-[200]"
-          onAnimationEnd={() => setShockwave(null)}
-        >
-          {/* Radial light burst */}
-          <div
-            className="absolute rounded-full"
-            style={{
-              left: shockwave.x,
-              top: shockwave.y,
-              width: '200vmax',
-              height: '200vmax',
-              marginLeft: '-100vmax',
-              marginTop: '-100vmax',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(34,197,94,0.15) 25%, rgba(34,197,94,0.05) 50%, transparent 70%)',
-              animation: 'zenShockwaveExpand 900ms cubic-bezier(0.22,1,0.36,1) forwards',
-              willChange: 'transform, opacity',
-            }}
-          />
-          {/* Bright core flash */}
-          <div
-            className="absolute rounded-full"
-            style={{
-              left: shockwave.x,
-              top: shockwave.y,
-              width: 120,
-              height: 120,
-              marginLeft: -60,
-              marginTop: -60,
-              background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,220,100,0.4) 40%, transparent 70%)',
-              animation: 'zenShockwaveFlash 500ms ease-out forwards',
-              willChange: 'transform, opacity',
-            }}
-          />
-        </div>
-      )}
 
       <div
         className="absolute inset-0"
