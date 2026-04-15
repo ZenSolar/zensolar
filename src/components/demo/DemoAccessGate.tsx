@@ -831,16 +831,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
-                holding && 'scale-[0.92]',
                 isBursting
-                  ? 'bg-primary/30 scale-[0.92]'
+                  ? 'bg-primary/30'
                   : isDenied
                     ? 'bg-destructive/30 animate-shake'
                     : isVerifying
                       ? 'bg-primary/20 animate-pulse'
                       : firstTapBurst
-                        ? 'bg-primary/30 scale-[0.92]'
-                        : 'bg-primary/20 hover:bg-primary/30 hover:scale-105',
+                        ? 'bg-primary/30'
+                        : 'bg-primary/20 hover:bg-primary/30',
               )}
               style={{
                 willChange: 'transform, opacity',
@@ -850,11 +849,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   : isDenied
                     ? '0 0 40px hsl(var(--destructive) / 0.5)'
                     : '0 0 24px hsl(var(--primary) / 0.3)',
-                transform: 'scale(1)',
-                transition: firstTapBurst
-                  ? 'background-color 60ms, box-shadow 60ms'
-                  : 'background-color 200ms, box-shadow 200ms',
-                animation: (!firstTapBurst && !isBursting && !isDenied && !isVerifying)
+                transform: holding
+                  ? 'scale(0.92)'
+                  : firstTapBurst || isBursting
+                    ? 'scale(0.92)'
+                    : undefined,
+                transition: holding
+                  ? 'transform 80ms ease-out, background-color 60ms, box-shadow 60ms'
+                  : firstTapBurst
+                    ? 'transform 60ms, background-color 60ms, box-shadow 60ms'
+                    : 'transform 200ms ease-out, background-color 200ms, box-shadow 200ms',
+                animation: (!firstTapBurst && !isBursting && !isDenied && !isVerifying && !holding)
                   ? 'zenCircleBreathe 2.8s ease-in-out infinite'
                   : 'none',
               }}
