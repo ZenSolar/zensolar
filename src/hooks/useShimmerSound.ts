@@ -221,11 +221,13 @@ export function useShimmerSound({
 
     const initialVolume = enabled ? volumeRef.current : 0;
     return pollUntilShimmerReady(() => {
-      // Only boot if a manual startSound call hasn't already created the graph
-      if (!nodesRef.current) {
-        return startSound(undefined, initialVolume);
+      // If a gesture-time boot is already queued, don't let the enabled
+      // effect clobber its scheduled start time/volume with a second call.
+      if (nodesRef.current || pendingBootCleanupRef.current) {
+        return true;
       }
-      return true;
+
+      return startSound(undefined, initialVolume);
     });
     // Cleanup: only force-stop if we're transitioning TO disabled (not to enabled)
     // eslint-disable-next-line react-hooks/exhaustive-deps
