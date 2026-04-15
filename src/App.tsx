@@ -20,6 +20,7 @@ import Home from "./pages/Home";
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
 const AppLayout = lazy(() => import("@/components/layout/AppLayout").then(m => ({ default: m.AppLayout })));
 const Auth = lazy(() => import("./pages/Auth"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
