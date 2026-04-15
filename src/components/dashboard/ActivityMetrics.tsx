@@ -149,6 +149,9 @@ export function ActivityMetrics({
   // Active charging session indicator
   const { data: isCharging = false } = useActiveChargingSession();
 
+  // Lightsaber ambient hum — synced with shimmer sweep
+  useShimmerSound({ cycleDuration: 5, volume: 0.06, enabled: !isNewUserView });
+
   // Check if provider is connected for each category (locked = cannot hide)
   const hasSolarConnected = effectiveConnectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
   const hasBatteryConnected = effectiveConnectedProviders.includes('tesla') && batteryDevices.length > 0;
