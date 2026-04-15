@@ -68,6 +68,10 @@ export function DemoDashboard() {
 
   const handleMintSuccess = useCallback(() => {
     triggerConfetti();
+    // Trigger wallet hint after a short delay to let confetti settle
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('demo-mint-success'));
+    }, 1500);
   }, [triggerConfetti]);
 
   const demoMintHandler: DemoMintHandler = useMemo(() => ({
@@ -148,7 +152,7 @@ export function DemoDashboard() {
         </AnimatedItem>
 
         {/* Token Price & Wallet Card */}
-        <AnimatedItem>
+        <AnimatedItem id="demo-wallet-card">
           <TokenPriceCard 
             tokensHeld={activityData.lifetimeMinted}
             defaultPrice={0.10}

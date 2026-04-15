@@ -1,20 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronLeft, Hand } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Hand, Wallet } from 'lucide-react';
 
 const HINTS_KEY = 'zen_demo_hints_shown';
 const ACCESS_KEY = 'zen_demo_access';
+const WALLET_HINT_KEY = 'zen_demo_wallet_hint_shown';
 
-type HintId = 'menu' | 'kpi' | 'mint';
+type HintId = 'menu' | 'kpi' | 'wallet';
 
 /**
  * Bouncing arrow hints for first-time demo visitors.
+ * - menu: points to hamburger menu button
+ * - kpi: hovers over KPI device cards in Clean Energy Center
+ * - wallet: appears over wallet card AFTER a successful test mint
  * Resets when the 24-hour access gate resets.
  */
 export function DemoOnboardingHints() {
   const [activeHints, setActiveHints] = useState<Set<HintId>>(new Set());
 
-  // Check if hints should show (tied to access gate timestamp)
+  // Show initial hints (menu + kpi) on first visit
   useEffect(() => {
     try {
       const accessData = JSON.parse(localStorage.getItem(ACCESS_KEY) || '{}');
@@ -23,16 +27,39 @@ export function DemoOnboardingHints() {
       const hintsData = JSON.parse(localStorage.getItem(HINTS_KEY) || '{}');
       const hintsTs = hintsData.ts || 0;
 
-      // Show hints if access was granted more recently than hints were shown
       if (accessTs > hintsTs) {
         const timer = setTimeout(() => {
-          setActiveHints(new Set(['menu', 'kpi', 'mint']));
+          setActiveHints(new Set(['menu', 'kpi']));
         }, 1500);
         return () => clearTimeout(timer);
       }
     } catch {
       // Storage unavailable
     }
+  }, []);
+
+  // Listen for mint success to show wallet hint
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const accessData = JSON.parse(localStorage.getItem(ACCESS_KEY) || '{}');
+        const accessTs = accessData.ts || 0;
+        const walletData = JSON.parse(localStorage.getItem(WALLET_HINT_KEY) || '{}');
+        const walletTs = walletData.ts || 0;
+
+        // Only show if not already shown this session
+        if (accessTs > walletTs) {
+          setActiveHints(prev => {
+            const next = new Set(prev);
+            next.add('wallet');
+            return next;
+          });
+        }
+      } catch { /* noop */ }
+    };
+
+    window.addEventListener('demo-mint-success', handler);
+    return () => window.removeEventListener('demo-mint-success', handler);
   }, []);
 
   const dismissHint = useCallback((id: HintId) => {
@@ -44,11 +71,16 @@ export function DemoOnboardingHints() {
           localStorage.setItem(HINTS_KEY, JSON.stringify({ ts: Date.now() }));
         } catch { /* noop */ }
       }
+      if (id === 'wallet') {
+        try {
+          localStorage.setItem(WALLET_HINT_KEY, JSON.stringify({ ts: Date.now() }));
+        } catch { /* noop */ }
+      }
       return next;
     });
   }, []);
 
-  // Listen for target element clicks to auto-dismiss
+  // Auto-dismiss on target element clicks
   useEffect(() => {
     if (activeHints.size === 0) return;
 
@@ -72,11 +104,10 @@ export function DemoOnboardingHints() {
       }
     }
 
-    if (activeHints.has('mint')) {
-      const el = document.getElementById('demo-mint-button') ||
-                 document.querySelector('[data-hint-target="mint"]');
+    if (activeHints.has('wallet')) {
+      const el = document.getElementById('demo-wallet-card');
       if (el) {
-        const handler = () => dismissHint('mint');
+        const handler = () => dismissHint('wallet');
         el.addEventListener('pointerdown', handler, { passive: true });
         cleanups.push(() => el.removeEventListener('pointerdown', handler));
       }
@@ -110,15 +141,15 @@ export function DemoOnboardingHints() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {activeHints.has('mint') && (
+        {activeHints.has('wallet') && (
           <FloatingHint
-            targetId="demo-mint-button"
-            fallbackSelector="[data-hint-target='mint']"
-            label="Mint your NFTs"
+            targetId="demo-wallet-card"
+            fallbackSelector="#demo-wallet-card"
+            label="Check your wallet"
             icon="down"
             position="above"
-            onDismiss={() => dismissHint('mint')}
-            delay={0.6}
+            onDismiss={() => dismissHint('wallet')}
+            delay={0.2}
           />
         )}
       </AnimatePresence>
@@ -131,6 +162,9 @@ function MenuHint({ onDismiss }: { onDismiss: () => void }) {
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
   useEffect(() => {
+    let attempts = 0;
+    let resizeCleanup: (() => void) | null = null;
+
     const findTrigger = () => {
       const trigger = document.getElementById('zen-sidebar-trigger');
       if (!trigger) return false;
@@ -142,20 +176,23 @@ function MenuHint({ onDismiss }: { onDismiss: () => void }) {
       return true;
     };
 
-    // Retry a few times in case element isn't ready
-    let attempts = 0;
     const tryFind = () => {
-      if (findTrigger()) return;
-      if (attempts++ < 10) {
-        requestAnimationFrame(tryFind);
+      if (findTrigger()) {
+        const handler = () => findTrigger();
+        window.addEventListener('resize', handler);
+        resizeCleanup = () => window.removeEventListener('resize', handler);
+        return;
+      }
+      if (attempts++ < 20) {
+        setTimeout(tryFind, 200);
       }
     };
-    
-    const raf = requestAnimationFrame(tryFind);
-    window.addEventListener('resize', () => findTrigger());
+
+    const timer = setTimeout(tryFind, 800);
+
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', () => findTrigger());
+      clearTimeout(timer);
+      resizeCleanup?.();
     };
   }, []);
 
@@ -178,7 +215,7 @@ function MenuHint({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
-// ─── Floating Hint (KPI / Mint) ──────────────────────────────
+// ─── Floating Hint (KPI / Wallet) ────────────────────────────
 function FloatingHint({
   targetId,
   fallbackSelector,
@@ -207,7 +244,6 @@ function FloatingHint({
     const updatePosition = () => {
       if (!targetRef.current) return;
       const rect = targetRef.current.getBoundingClientRect();
-      // Only show if element is in viewport
       if (rect.top > window.innerHeight || rect.bottom < 0) {
         setCoords(null);
         return;
@@ -219,7 +255,7 @@ function FloatingHint({
     };
 
     const findAndBind = () => {
-      const target = document.getElementById(targetId) ||
+      const target = (targetId ? document.getElementById(targetId) : null) ||
                      document.querySelector(fallbackSelector);
       if (!target) {
         if (attempts++ < 20) {
@@ -237,7 +273,6 @@ function FloatingHint({
       window.addEventListener('resize', resizeHandler);
     };
 
-    // Start looking after a short delay to let animations settle
     const timer = setTimeout(findAndBind, 800);
 
     return () => {
