@@ -38,7 +38,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
           This code will expire shortly. If you didn't request this, you can safely ignore this email.
         </Text>
         <Text style={footerBrand}>
-          © {new Date().getFullYear()} ZenSolar, LLC · Creating Currency From Energy
+          © {new Date().getFullYear()} Zen<span style={solarBlue}>Solar</span>, LLC · Creating Currency From Energy
         </Text>
       </Container>
     </Body>
@@ -58,3 +58,4 @@ const codeBox = { backgroundColor: '#f0fdf4', border: '2px solid hsl(142, 76%, 3
 const codeStyle = { fontFamily: "'Courier New', Courier, monospace", fontSize: '28px', fontWeight: 'bold' as const, color: 'hsl(220, 20%, 14%)', margin: '0', letterSpacing: '4px' }
 const footer = { fontSize: '12px', color: '#999999', margin: '0 0 8px' }
 const footerBrand = { fontSize: '11px', color: '#bbbbbb', margin: '16px 0 0', textAlign: 'center' as const }
+const solarBlue = { color: '#2563EB' }
