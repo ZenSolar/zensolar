@@ -403,7 +403,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       });
     }
 
-    audioReadyRef.current = Boolean(s.hexAwake || ctx || gongPrewarmed || humPrewarmed || fallbackArmed);
+    audioReadyRef.current = Boolean(s.hexAwake || (ctx && ctx.state === 'running'));
     if (!s.hexAwake && ctx && ctx.state !== 'running') {
       audioWakeCleanupRef.current = runWhenAudioContextRunning(
         ctx,
