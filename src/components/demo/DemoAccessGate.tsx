@@ -8,7 +8,6 @@ import { logAudioDebug } from '@/lib/audioDebug';
 import {
   armDemoEntryFallbackGestureAudio,
   playDemoEntryFallbackGong,
-  playDemoEntryFallbackRevealAudio,
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
 } from '@/lib/demoEntryFallbackAudio';
@@ -83,7 +82,8 @@ function generateAttractParticles() {
 
 // ─── Timing constants ────
 const DOUBLE_TAP_WINDOW = 500;
-const FIRST_TAP_BURST_MS = 700;
+const TAP_HINT_VISIBILITY_MS = 1800;
+const FIRST_TAP_BURST_MS = 620;
 const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
 const HOLD_THRESHOLD_MS = 550;     // Short enough to feel immediate, long enough to unlock audio on iOS
@@ -424,21 +424,24 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
 
     let gongPrewarmed = false;
+    let shimmerPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
       fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: true });
       gongPrewarmed = prewarmSingingBowl();
-      // NOTE: Do NOT prewarm shimmer here — it creates a race condition where
-      // the prewarm boot at volume 0 fires during the hold, and then the
-      // release-time activation competes with React's useEffect for enabled state.
+      // Prewarm the dashboard hum synth silently during the hold gesture so the
+      // release can simply raise its volume instead of cold-booting audio.
+      shimmerPrewarmed = !!startShimmerSound(undefined, 0.0001);
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
+        synthHandoff: shimmerPrewarmed ? 'prewarmed-silent' : 'idle',
         audioContextState: ctx?.state ?? 'null',
         lastEvent: `${source}-entry-audio-prewarmed`,
       });
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         fallbackArmed,
+        shimmerPrewarmed,
       });
     }
 
@@ -560,7 +563,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const revealVisuals = () => {
       triggerBurst();
-      updateState({ showTapAgain: true, revealed: true, hexAwake: true, holdReady: false, holdHint: false });
+      updateState({ showTapAgain: false, revealed: true, hexAwake: true, holdReady: false, holdHint: false });
       ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
 
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
@@ -710,7 +713,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
         updateState({ showTapAgain: false });
-      }, DOUBLE_TAP_WINDOW);
+      }, TAP_HINT_VISIBILITY_MS);
       return;
     }
 
@@ -979,9 +982,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   : firstTapBurst
                     ? 'transform 60ms, background-color 60ms, box-shadow 60ms'
                     : 'transform 200ms ease-out, background-color 200ms, box-shadow 200ms',
-                animation: (!firstTapBurst && !isBursting && !isDenied && !isVerifying && !holding)
-                  ? 'zenCircleBreathe 2.8s ease-in-out infinite'
-                  : 'none',
+                animation: holding
+                  ? 'none'
+                  : firstTapBurst || isBursting
+                    ? 'zenMintStampBurst 0.55s cubic-bezier(0.22, 1, 0.36, 1) both'
+                    : (!isDenied && !isVerifying ? 'zenCircleBreathe 2.8s ease-in-out infinite' : 'none'),
               }}
               onTouchStartCapture={(e) => {
                 if (nativeGestureReadyRef.current) return;
@@ -1368,7 +1373,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               autoCapitalize="off"
             />
 
-            {/* Unlock hint — only shown after awake */}
+            {/* Unlock / tap hint */}
             <div className="flex justify-center h-8">
               {showUnlockHint ? (
                 <span
@@ -1376,12 +1381,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
                 >
                   <Lock className="h-3 w-3" />
-                  {showTapAgain ? 'tap again to mint' : 'double tap $Z to continue'}
+                  {showTapAgain ? 'tap again to mint' : hexAwake ? 'single tap primes • double tap confirms' : 'press & hold $Z'}
                 </span>
               ) : (
                 <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" />
-                  {showTapAgain ? 'tap again to mint' : revealed ? 'double tap to mint' : 'press & hold $Z'}
+                  {showTapAgain ? 'tap again to mint' : hexAwake ? 'single tap sparks • double tap mints' : 'press & hold $Z'}
                 </span>
               )}
             </div>
