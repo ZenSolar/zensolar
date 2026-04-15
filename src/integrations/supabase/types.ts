@@ -448,6 +448,51 @@ export type Database = {
         }
         Relationships: []
       }
+      nda_signatures: {
+        Row: {
+          access_code_used: string | null
+          created_at: string
+          email: string
+          email_sent: boolean
+          full_name: string
+          id: string
+          ip_address: string | null
+          nda_version: string
+          signature_method: string
+          signature_text: string
+          signed_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          access_code_used?: string | null
+          created_at?: string
+          email: string
+          email_sent?: boolean
+          full_name: string
+          id?: string
+          ip_address?: string | null
+          nda_version?: string
+          signature_method?: string
+          signature_text: string
+          signed_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          access_code_used?: string | null
+          created_at?: string
+          email?: string
+          email_sent?: boolean
+          full_name?: string
+          id?: string
+          ip_address?: string | null
+          nda_version?: string
+          signature_method?: string
+          signature_text?: string
+          signed_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           body: string
