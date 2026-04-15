@@ -88,7 +88,7 @@ const GHOST_CLICK_SUPPRESSION = 400;
 const LOCK_FLASH_MS = 600;
 const HOLD_THRESHOLD_MS = 550;     // Short enough to feel immediate, long enough to unlock audio on iOS
 const HOLD_RELEASE_GRACE_MS = 80;  // Absorb finger-lift timing variance on iPhone Safari/Chrome
-const HUM_START_DELAY_MS = 1050;
+const HUM_START_DELAY_MS = 0;
 const HAPTIC_PULSE_PROGRESS = [0, 0.28, 0.52, 0.74, 0.92] as const;
 interface DemoAccessGateProps {
   children: React.ReactNode;
@@ -457,9 +457,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     let gongPrewarmed = false;
     let fallbackArmed = false;
+    let shimmerBootQueued = false;
     if (!s.hexAwake) {
       fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
       gongPrewarmed = prewarmSingingBowl();
+      shimmerBootQueued = !!ctx && startShimmerSound(undefined, 0);
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
         synthHandoff: 'waiting-reveal',
@@ -469,6 +471,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       logGestureDebug(`${source}-entry-audio-prewarmed`, {
         gongPrewarmed,
         fallbackArmed,
+        shimmerBootQueued,
         shimmerMode: 'hook-prewarm',
       });
     }
@@ -532,7 +535,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         }, 120);
       }
     }, HOLD_THRESHOLD_MS);
-  }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, updateState]);
+  }, [logGestureDebug, markHoldReady, prewarmSingingBowl, primeAudio, startShimmerSound, updateState]);
 
   const handleHoldEnd = useCallback((source = 'pointerup') => {
     const s = stateRef.current;
@@ -592,47 +595,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const scheduleHumActivation = (origin: string, revealStartTime: number) => {
       clearScheduledHumStart();
       const targetStartTime = revealStartTime + HUM_START_DELAY_MS / 1000;
+      setShimmerActive(true);
       const started = startShimmerSound(targetStartTime, 0.3);
       const audioContextState = getSharedAudioContext()?.state ?? 'null';
 
-      if (started) {
-        setShimmerActive(true);
-      }
-
-      // If the shimmer didn't start (context null or suspended), retry once
-      // the AudioContext is confirmed running. The gesture token from
-      // primeAudio() keeps the resume() viable on iOS.
-      if (!started) {
-        const currentCtx = getSharedAudioContext();
-        if (currentCtx && currentCtx.state !== 'running') {
-          runWhenAudioContextRunning(
-            currentCtx,
-            () => {
-              const retryStart = getSafeAudioStartTime(currentCtx, undefined, IMMEDIATE_SOUND_LEAD);
-              const retryOk = startShimmerSound(retryStart, 0.3);
-              if (retryOk) {
-                setShimmerActive(true);
-              }
-              logAudioDebug(retryOk ? 'hum-retry-ok' : 'hum-retry-missed', {
-                ctx: currentCtx.state,
-                start: retryStart,
-              });
-            },
-            5000,
-            () => {
-              logAudioDebug('hum-retry-timeout', { ctx: currentCtx.state });
-            },
-          );
-        }
-      }
-
       updateReleaseAudioDiagnostics({
         audioContextState,
-        synthHandoff: started ? 'scheduled-in-gesture' : 'missed',
-        lastEvent: `${origin}-${started ? 'hum-armed' : 'hum-arm-missed'}`,
+        synthHandoff: started ? 'scheduled-in-gesture' : 'enabled-awaiting-context',
+        lastEvent: `${origin}-${started ? 'hum-armed' : 'hum-enable-pending'}`,
       });
 
-      logAudioDebug(started ? 'hum-armed' : 'hum-missed', {
+      logAudioDebug(started ? 'hum-armed' : 'hum-enable-pending', {
         delayMs: HUM_START_DELAY_MS,
         ctx: audioContextState,
         start: targetStartTime,
