@@ -211,8 +211,15 @@ export function useShimmerSound({
       return;
     }
 
-    const initialVolume = enabled ? volumeRef.current : 0;
+    // Prewarm-only mode (enabled=false, prewarm=true): do NOT poll.
+    // There is no AudioContext yet before any user gesture, so polling
+    // would spam "hum-missed | reason=no-context" every 120ms forever.
+    // The gesture handler will call startSound() directly when ready.
+    if (!enabled && prewarm) {
+      return;
+    }
 
+    const initialVolume = enabled ? volumeRef.current : 0;
     return pollUntilShimmerReady(() => {
       // Only boot if a manual startSound call hasn't already created the graph
       if (!nodesRef.current) {
