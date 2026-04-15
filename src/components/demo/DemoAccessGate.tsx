@@ -511,19 +511,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
-        const gongStarted = playSingingBowl(startTime);
-        const humStarted = startShimmerSound(startTime);
+        const fallbackStarted = playDemoEntryFallbackRevealAudio();
+        if (fallbackStarted) {
+          setFallbackHumActive(true);
+        }
 
-        stopDemoEntryFallbackHum(false);
-        setFallbackHumActive(false);
-        audioReadyRef.current = audioReadyRef.current || gongStarted || humStarted;
+        const gongStarted = playSingingBowl(startTime);
+        const humStarted = fallbackStarted ? false : startShimmerSound(startTime);
+
+        if (!fallbackStarted) {
+          stopDemoEntryFallbackHum(false);
+          setFallbackHumActive(false);
+        }
+
+        audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted || humStarted;
         logGestureDebug(`${source}-cinematic-reveal`, {
           start: startTime,
           ctxState: ctx?.state ?? 'null',
           warmStart,
+          fallbackStarted,
           gongStarted,
           humStarted,
-          audioMode: 'shared-shimmer',
+          audioMode: fallbackStarted ? 'fallback-media+gong' : 'shared-shimmer',
           visualReveal: true,
         });
         return;
