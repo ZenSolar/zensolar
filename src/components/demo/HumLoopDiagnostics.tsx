@@ -42,7 +42,7 @@ export function HumLoopDiagnosticsOverlay() {
   ];
 
   return (
-    <div className="pointer-events-none fixed inset-x-2 top-2 z-[9998] flex justify-center">
+    <div className="pointer-events-none fixed inset-x-2 bottom-4 z-[9998] flex justify-center">
       <div className="w-full max-w-xs rounded-xl border border-border/60 bg-background/95 px-2.5 py-2 shadow-lg backdrop-blur-md">
         <div className="text-[10px] font-bold uppercase tracking-widest text-yellow-400 mb-1.5">
           🔁 Hum Loop Diag
