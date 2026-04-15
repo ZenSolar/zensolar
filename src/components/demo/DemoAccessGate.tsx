@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { logAudioDebug } from '@/lib/audioDebug';
-import { armDemoEntryFallbackGestureAudio, handoffDemoEntryFallbackHum, playDemoEntryFallbackRevealAudio, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
+import { armDemoEntryFallbackGestureAudio, playDemoEntryFallbackGong, preloadDemoEntryFallbackAudio, stopDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -201,8 +201,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
     volume: 0.06,
-    enabled: stateRef.current.hexAwake && !fallbackHumActive,
-    prewarm: stateRef.current.holding || fallbackHumActive,
+      enabled: stateRef.current.hexAwake,
+      prewarm: stateRef.current.holding,
   });
 
   useEffect(() => {
@@ -244,63 +244,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ...details,
     });
   }, []);
-
-  const scheduleFallbackHumHandoff = useCallback((ctx: AudioContext, source: string) => {
-    updateReleaseAudioDiagnostics({
-      synthHandoff: 'pending',
-      audioContextState: ctx.state,
-      lastEvent: `${source}-fallback-hum-handoff-pending`,
-    });
-    audioWakeCleanupRef.current?.();
-    ctx.resume().catch(() => {});
-    audioWakeCleanupRef.current = runWhenAudioContextRunning(
-      ctx,
-      () => {
-        audioWakeCleanupRef.current = null;
-
-        // Delay handoff so the fallback hum's 350ms fade-in has time to
-        // reach a stable volume before we cross-fade to the synth.
-        // Without this, an instantly-running context would cancel the
-        // fade-in mid-ramp, causing an audible click/glitch.
-        const doHandoff = () => {
-          const start = getSafeAudioStartTime(ctx, undefined, IMMEDIATE_SOUND_LEAD);
-          const humStarted = startShimmerSound(start);
-          const fallbackStopped = humStarted ? handoffDemoEntryFallbackHum(180) : false;
-
-          if (humStarted) {
-            setFallbackHumActive(false);
-          }
-
-          audioReadyRef.current = audioReadyRef.current || humStarted;
-          updateReleaseAudioDiagnostics({
-            synthHandoff: humStarted ? 'completed' : 'failed',
-            audioContextState: ctx.state,
-            lastEvent: `${source}-fallback-hum-handoff`,
-          });
-          logGestureDebug(`${source}-fallback-hum-handoff`, {
-            start,
-            ctxState: ctx.state,
-            humStarted,
-            fallbackStopped,
-          });
-        };
-
-        // If context was already running, give the fallback hum 400ms
-        // to finish its fade-in before starting the crossfade
-        setTimeout(doHandoff, 400);
-      },
-      1600,
-      () => {
-        audioWakeCleanupRef.current = null;
-        updateReleaseAudioDiagnostics({
-          synthHandoff: 'timeout',
-          audioContextState: ctx.state,
-          lastEvent: `${source}-fallback-hum-handoff-timeout`,
-        });
-        logGestureDebug(`${source}-fallback-hum-handoff-timeout`, { ctxState: ctx.state });
-      },
-    );
-  }, [logGestureDebug, startShimmerSound, updateReleaseAudioDiagnostics]);
 
   const markHoldReady = useCallback((source: string, reason: 'threshold' | 'audio-ready') => {
     if (!stateRef.current.holding || stateRef.current.holdReady) return;
@@ -468,7 +411,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let humPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
-      fallbackArmed = !!armDemoEntryFallbackGestureAudio();
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
       gongPrewarmed = prewarmSingingBowl();
       humPrewarmed = startShimmerSound(undefined, 0);
       updateReleaseAudioDiagnostics({
@@ -609,18 +552,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
     const fireRevealAudio = (startTime: number, warmStart: boolean) => {
       if (firstReveal) {
-        const fallbackStarted = playDemoEntryFallbackRevealAudio();
-        if (fallbackStarted) {
-          setFallbackHumActive(true);
-        }
-
+        const fallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
-        const humStarted = warmStart ? false : startShimmerSound(startTime);
-        const fallbackHandedOff = humStarted ? handoffDemoEntryFallbackHum(180) : false;
+        const humStarted = startShimmerSound(startTime);
 
-        if (humStarted) {
-          setFallbackHumActive(false);
-        }
+        stopDemoEntryFallbackHum(false);
+        setFallbackHumActive(false);
 
         if (!fallbackStarted && !humStarted) {
           stopDemoEntryFallbackHum(false);
@@ -639,13 +576,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           ctxState: ctx?.state ?? 'null',
           warmStart,
           fallbackStarted,
-          fallbackHandedOff,
           gongStarted,
           humStarted,
-          audioMode: humStarted ? 'shared-shimmer+fallback-gong' : fallbackStarted ? 'fallback-media+gong' : 'shared-shimmer',
+          audioMode: fallbackStarted ? 'fallback-gong+shared-shimmer' : 'shared-shimmer',
           visualReveal: true,
         });
-        return fallbackStarted && !humStarted;
+        return false;
       }
 
       playWelcomeTap(startTime);
@@ -689,11 +625,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ctx.resume().catch(() => {});
     }
 
-    const usedFallbackHum = fireRevealAudio(startTime, ctx.state !== 'running');
-    if (firstReveal && usedFallbackHum) {
-      scheduleFallbackHumHandoff(ctx, source);
-    }
-  }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, scheduleFallbackHumHandoff, startShimmerSound, triggerBurst, updateState]);
+    fireRevealAudio(startTime, ctx.state !== 'running');
+  }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
   // ── Double-tap to unlock (submit code) — still works after reveal ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
