@@ -530,7 +530,6 @@ export type Database = {
           id: string
           instagram_connected: boolean | null
           instagram_handle: string | null
-          is_admin: boolean | null
           last_login_at: string | null
           last_seen_at: string | null
           linkedin_connected: boolean | null
@@ -562,7 +561,6 @@ export type Database = {
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null
-          is_admin?: boolean | null
           last_login_at?: string | null
           last_seen_at?: string | null
           linkedin_connected?: boolean | null
@@ -594,7 +592,6 @@ export type Database = {
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null
-          is_admin?: boolean | null
           last_login_at?: string | null
           last_seen_at?: string | null
           linkedin_connected?: boolean | null
