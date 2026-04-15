@@ -20,6 +20,7 @@ import Home from "./pages/Home";
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
 const AppLayout = lazy(() => import("@/components/layout/AppLayout").then(m => ({ default: m.AppLayout })));
 const Auth = lazy(() => import("./pages/Auth"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
@@ -166,6 +167,7 @@ const App = () => {
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
                     <Route path="/install" element={<Install />} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
