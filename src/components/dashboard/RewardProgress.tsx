@@ -117,15 +117,14 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
     touchStartRef.current = null;
   };
   
-  // Continuous staggered piano key animation
   const pianoKeyAnimation = !isActive ? {
     y: [0, 2, 0],
     scale: [1, 0.97, 1],
     transition: {
       duration: 1.8,
       repeat: Infinity,
-      repeatDelay: delay * 4 + 1,
-      ease: 'easeInOut',
+      repeatDelay: index * 0.6 + 1,
+      ease: 'easeInOut' as const,
     }
   } : { y: [0, -3, 0], transition: { duration: 0.3 } };
 
