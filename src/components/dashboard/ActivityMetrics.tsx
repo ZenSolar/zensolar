@@ -815,7 +815,6 @@ interface ActivityFieldProps {
   historyLink?: string;
   liveIndicator?: boolean;
   showBadge?: boolean;
-  index?: number;
 }
 
 function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator, showBadge }: ActivityFieldProps) {
