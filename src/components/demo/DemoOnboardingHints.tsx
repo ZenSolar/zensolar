@@ -119,26 +119,36 @@ export function DemoOnboardingHints() {
     setPortalReady(true);
   }, []);
 
-  // On mint success: remove menu + kpi hints, show wallet
+  // On mint success: remove menu + kpi hints, show wallet for 5s
   useEffect(() => {
     const handler = () => {
       setMenuHintDismissed(true);
       setActiveHints(new Set(['wallet']));
+
+      const walletTimer = window.setTimeout(() => {
+        setActiveHints((prev) => {
+          const next = new Set(prev);
+          next.delete('wallet');
+          return next;
+        });
+      }, 5000);
+
+      return () => window.clearTimeout(walletTimer);
     };
 
     window.addEventListener('demo-mint-success', handler);
     return () => window.removeEventListener('demo-mint-success', handler);
   }, []);
 
-  // Show KPI hint after 5s if menu not yet dismissed
+  // Auto-dismiss menu hint after 5s, then show KPI hint
   useEffect(() => {
     if (menuHintDismissed) return;
 
     const timer = window.setTimeout(() => {
+      setMenuHintDismissed(true);
       setActiveHints((prev) => {
-        if (!prev.has('menu') || prev.has('kpi')) return prev;
-
         const next = new Set(prev);
+        next.delete('menu');
         next.add('kpi');
         return next;
       });
