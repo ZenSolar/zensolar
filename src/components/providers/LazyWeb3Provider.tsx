@@ -35,13 +35,18 @@ export function LazyWeb3Provider({ children }: LazyWeb3ProviderProps) {
 
   useEffect(() => {
     // Defer Web3 loading until after initial paint
-    if ('requestIdleCallback' in window) {
-      const id = (window as Window & typeof globalThis & { requestIdleCallback: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number; cancelIdleCallback: (handle: number) => void; }).requestIdleCallback(() => setShouldLoad(true), { timeout: 3000 });
-      return () => (window as Window & typeof globalThis & { cancelIdleCallback: (handle: number) => void; }).cancelIdleCallback(id);
+    const browserWindow = window as Window & typeof globalThis & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (typeof browserWindow.requestIdleCallback === 'function') {
+      const id = browserWindow.requestIdleCallback(() => setShouldLoad(true), { timeout: 3000 });
+      return () => browserWindow.cancelIdleCallback?.(id);
     }
 
-    const timer = window.setTimeout(() => setShouldLoad(true), 1500);
-    return () => window.clearTimeout(timer);
+    const timer = globalThis.setTimeout(() => setShouldLoad(true), 1500);
+    return () => globalThis.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
