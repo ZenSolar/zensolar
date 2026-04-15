@@ -326,7 +326,7 @@ export function ActivityMetrics({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + i * 0.12, duration: 0.4, ease: 'easeOut' }}
                   className={cn(
-                    "flex min-w-[120px] justify-center text-center text-[8px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap",
+                    "flex min-w-[105px] justify-center text-center text-[8px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap",
                     badge.useClass && "text-primary"
                   )}
                   style={{
@@ -1038,6 +1038,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   return (
     <motion.div
       ref={cardRef}
+      data-kpi-field
       onClick={handleClick}
       onTouchStart={isTappable ? handleTouchStart : undefined}
       onTouchEnd={isTappable ? handleTouchEnd : undefined}
