@@ -274,8 +274,10 @@ export function RewardProgress({
     setSelectedCategory(category);
   };
   
-  // Get artwork for displayed milestone
-  const artwork = displayMilestone ? getNftArtwork(displayMilestone.id) : null;
+  // Get artwork - use featured NFT as default if provided and no manual selection
+  const artwork = (featuredNftId && !selectedCategory)
+    ? getNftArtwork(featuredNftId)
+    : (displayMilestone ? getNftArtwork(displayMilestone.id) : null);
   
   // Calculate progress percentage
   const progressPercent = displayMilestone 
