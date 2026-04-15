@@ -313,16 +313,6 @@ export function ActivityMetrics({
                   <Gauge className="h-4 w-4 text-white" />
                 </div>
               </div>
-              {/* Tesla wordmark */}
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[10px] text-muted-foreground/50">powered by</span>
-                <img 
-                  src={teslaWordmark} 
-                  alt="Tesla" 
-                  className="h-3 object-contain opacity-60"
-                  style={{ filter: 'brightness(2) grayscale(0.3)' }}
-                />
-              </div>
               <div className="flex items-center gap-2 mt-0.5">
                 <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
                 {isLoading && (
@@ -335,7 +325,7 @@ export function ActivityMetrics({
             </div>
 
             {/* Proof badges — 2x2 grid */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 justify-items-center">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 justify-items-center">
               {[
                 { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
                 { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
@@ -370,26 +360,35 @@ export function ActivityMetrics({
 
             {/* Connected providers — centered below */}
             {filteredProviders.length > 0 && (
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
-                <div className="flex items-center gap-1.5">
-                  {filteredProviders.map((provider) => (
-                    <div 
-                      key={provider}
-                      className="h-6 w-6 rounded-md flex items-center justify-center border border-border/30 bg-card/10"
-                      title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                    >
-                      <img 
-                        src={providerLogos[provider]} 
-                        alt={provider}
+              <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Connected</span>
+                  <div className="flex items-center gap-1.5">
+                    {filteredProviders.map((provider) => (
+                      <div 
+                        key={provider}
                         className={cn(
-                          "object-contain",
-                          provider === 'tesla' ? "h-4 w-4" : "h-3.5 w-3.5"
+                          "rounded-md flex items-center justify-center border border-border/30 bg-card/10",
+                          provider === 'tesla' ? "h-6 px-2" : "h-6 w-6"
                         )}
-                      />
-                    </div>
-                  ))}
+                        title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                      >
+                        <img 
+                          src={provider === 'tesla' ? teslaWordmark : providerLogos[provider]} 
+                          alt={provider}
+                          className={cn(
+                            "object-contain",
+                            provider === 'tesla' ? "h-2.5" : "h-3.5 w-3.5"
+                          )}
+                          style={provider === 'tesla' ? { filter: 'brightness(2) grayscale(0.3)' } : undefined}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
+                {filteredProviders.includes('tesla') && (
+                  <span className="text-[9px] text-muted-foreground/50">Your Model Y, Solar Roof & Powerwall 3</span>
+                )}
               </div>
             )}
           </div>
