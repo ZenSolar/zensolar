@@ -18,7 +18,7 @@ interface GeoInfo {
 
 interface NdaSignatureStepProps {
   accessCodeUsed: string;
-  onSigned: (email?: string) => void;
+  onSigned: (email?: string, fullName?: string) => void;
 }
 
 const NDA_VERSION = '1.0';
@@ -203,11 +203,9 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
         console.warn('NDA email send failed — non-blocking');
       });
 
-      // Store signer name for demo dashboard greeting
-      try { sessionStorage.setItem('demo_signer_name', fullName.trim()); } catch {}
 
       toast.success('Agreement signed', { description: 'A copy has been sent to your email.' });
-      onSigned(email.trim());
+      onSigned(email.trim(), fullName.trim());
     } catch (err) {
       console.error('NDA sign error:', err);
       toast.error('Failed to record signature', { description: 'Please try again.' });

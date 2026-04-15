@@ -23,6 +23,7 @@ import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, run
 
 const LS_KEY = 'zen_demo_access';
 const NDA_EMAIL_KEY = 'zen_nda_email';
+const NDA_NAME_KEY = 'zen_nda_name';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 function readCookie(name: string): string | null {
@@ -128,6 +129,10 @@ function saveNdaEmail(email: string) {
   writeStoredValue(NDA_EMAIL_KEY, JSON.stringify({ email, ts: Date.now() }), TTL_MS);
 }
 
+function saveNdaName(name: string) {
+  writeStoredValue(NDA_NAME_KEY, name, TTL_MS);
+}
+
 async function checkExistingNda(email: string): Promise<boolean> {
   try {
     const { data, error } = await supabase.rpc('check_nda_signed', { _email: email });
@@ -135,6 +140,16 @@ async function checkExistingNda(email: string): Promise<boolean> {
     return data === true;
   } catch {
     return false;
+  }
+}
+
+async function fetchNdaName(email: string): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.rpc('get_nda_signer_name', { _email: email });
+    if (error || !data) return null;
+    return data as string;
+  } catch {
+    return null;
   }
 }
 
@@ -452,6 +467,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           if (savedEmail) {
             const alreadySigned = await checkExistingNda(savedEmail);
             if (alreadySigned) {
+              // Fetch and store the signer's name for the dashboard greeting
+              const name = await fetchNdaName(savedEmail);
+              if (name) saveNdaName(name);
               // Skip NDA, grant access directly
               grantAccess();
               setGranted(true);
@@ -925,11 +943,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   // Show unlock hint when input is focused or has text
   const showUnlockHint = inputFocused || code.trim().length > 0;
 
-  const handleNdaSigned = useCallback((email?: string) => {
+  const handleNdaSigned = useCallback((email?: string, name?: string) => {
     stopDemoEntryFallbackHum();
     setShowNda(false);
     grantAccess();
     if (email) saveNdaEmail(email);
+    if (name) saveNdaName(name);
     setGranted(true);
   }, []);
 
