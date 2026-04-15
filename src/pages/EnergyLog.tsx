@@ -50,11 +50,8 @@ export default function EnergyLog() {
         if (!session) return;
 
         // Enphase backfill
-        const { data: enphaseTokens } = await supabase
-          .from('energy_tokens')
-          .select('provider')
-          .eq('provider', 'enphase')
-          .limit(1);
+        const { data: allProviders } = await supabase.rpc('get_connected_providers', { _user_id: session.user.id });
+        const enphaseTokens = allProviders?.filter((r: { provider: string }) => r.provider === 'enphase');
 
         if (enphaseTokens && enphaseTokens.length > 0) {
           const backfillKey = `enphase_backfill_done_${session.user.id}`;
@@ -72,11 +69,7 @@ export default function EnergyLog() {
         }
 
         // Tesla backfill (solar + battery + EV charging)
-        const { data: teslaTokens } = await supabase
-          .from('energy_tokens')
-          .select('provider')
-          .eq('provider', 'tesla')
-          .limit(1);
+        const teslaTokens = allProviders?.filter((r: { provider: string }) => r.provider === 'tesla');
 
         if (teslaTokens && teslaTokens.length > 0) {
           const backfillKey = `tesla_backfill_v2_${session.user.id}`;

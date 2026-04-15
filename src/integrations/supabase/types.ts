@@ -1186,6 +1186,28 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_connected_providers: {
+        Args: { _user_id: string }
+        Returns: {
+          provider: string
+        }[]
+      }
+      get_profiles_for_viewer: {
+        Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          enphase_connected: boolean
+          last_seen_at: string
+          login_count: number
+          referral_code: string
+          solaredge_connected: boolean
+          tesla_connected: boolean
+          user_id: string
+          wallbox_connected: boolean
+        }[]
+      }
       get_schema_snapshot: { Args: never; Returns: Json }
       get_viewer_target_admin: { Args: never; Returns: string }
       has_dashboard_access: { Args: { _user_id: string }; Returns: boolean }

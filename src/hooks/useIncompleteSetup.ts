@@ -22,11 +22,7 @@ export function useIncompleteSetup() {
 
       // Check for Tesla and Enphase tokens and devices in parallel
       const [tokensResult, devicesResult] = await Promise.all([
-        supabase
-          .from('energy_tokens')
-          .select('provider')
-          .eq('user_id', user.id)
-          .in('provider', ['tesla', 'enphase']),
+        supabase.rpc('get_connected_providers', { _user_id: user.id }),
         supabase
           .from('connected_devices')
           .select('provider')
