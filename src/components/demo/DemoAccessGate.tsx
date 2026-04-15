@@ -541,15 +541,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (firstReveal) {
         const fallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
-        const humStarted = startShimmerSound(startTime);
+
+        // Delay the ambient hum by 1.5s so the AudioContext is fully warmed
+        // and running by the time the shimmer synth starts. This avoids the
+        // iOS gesture-context race that was killing the hum after 1-2 seconds.
+        setTimeout(() => {
+          const liveCtx = getSharedAudioContext();
+          if (!liveCtx) return;
+          if (liveCtx.state !== 'running') {
+            liveCtx.resume().catch(() => {});
+          }
+          const humStart = getSafeAudioStartTime(liveCtx, undefined, 0.01);
+          startShimmerSound(humStart);
+          logAudioDebug('hum-delayed-start', { ctx: liveCtx.state, start: humStart });
+        }, 1500);
 
         setFallbackHumActive(false);
 
-        audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted || humStarted;
+        audioReadyRef.current = audioReadyRef.current || fallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
           fallbackFired: fallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: humStarted ? 'completed' : (ctx ? 'pending' : 'failed'),
+          synthHandoff: 'delayed-1500ms',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -558,8 +571,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           fallbackStarted,
           gongStarted,
-          humStarted,
-          audioMode: fallbackStarted ? 'fallback-gong+synth-shimmer' : 'synth-shimmer',
+          humStarted: 'delayed',
+          audioMode: fallbackStarted ? 'fallback-gong+delayed-shimmer' : 'delayed-shimmer',
           visualReveal: true,
         });
         return false;
