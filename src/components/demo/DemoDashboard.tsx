@@ -406,11 +406,16 @@ function TodaysCleanEnergyStats() {
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {kpis.map((k, i) => (
-            <div key={k.label} className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02]" style={{
-              background: `linear-gradient(135deg, ${k.color}1F, ${k.color}0A)`,
-              borderColor: `${k.color}40`,
-              animation: isVisible ? `fade-in 0.5s ease-out ${i * 0.1}s both` : 'none',
-            }}>
+            <div 
+              key={k.label} 
+              className="rounded-xl p-3 border transition-all duration-150 cursor-pointer select-none active:translate-y-[3px] active:shadow-[0_1px_0_0_rgba(0,0,0,0.3)] hover:scale-[1.02] hover:-translate-y-[2px]"
+              style={{
+                background: `linear-gradient(135deg, ${k.color}1F, ${k.color}0A)`,
+                borderColor: `${k.color}40`,
+                boxShadow: `0 4px 0 0 ${k.color}30`,
+                animation: isVisible ? `fade-in 0.5s ease-out ${i * 0.1}s both` : 'none',
+              }}
+            >
               <div className="flex items-center gap-1.5 mb-1">
                 <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: k.color }} />
                 <p className="text-[10px] uppercase tracking-wider font-mono" style={{ color: k.color, opacity: 0.8 }}>{k.label}</p>
