@@ -60,8 +60,11 @@ const demoConnectedAccounts: ConnectedAccount[] = [
   { service: 'wallbox', connected: false, label: 'Wallbox' },
 ];
 
-const createDemoProfile = () => ({
-  display_name: 'Demo',
+const createDemoProfile = () => {
+  let signerName = 'Demo';
+  try { signerName = sessionStorage.getItem('demo_signer_name') || 'Demo'; } catch {}
+  return {
+  display_name: signerName,
   wallet_address: '0xDemo1234...5678', // Pre-connected wallet address
   referral_code: 'DEMO2026',
   tesla_connected: true,
@@ -78,7 +81,8 @@ const createDemoProfile = () => ({
   twitter_handle: 'zensolar_demo',
   linkedin_connected: false,
   linkedin_handle: null,
-});
+  };
+};
 
 // Demo eligibility data - calculated based on actual demo activity thresholds
 const createDemoEligibility = (hasWelcomeNFT: boolean, mintedNfts: number[]) => {
