@@ -102,7 +102,7 @@ export function CleanEnergyCenterShowcase() {
               <div className="flex flex-col items-center text-center mb-4">
                 <h3 className="text-lg font-bold text-foreground">Clean Energy Center</h3>
                 <span className="text-xs text-muted-foreground mb-2">Last updated 11:19 PM</span>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 justify-items-center">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 justify-items-center">
                   <span className="text-[10px] tracking-wider uppercase font-medium text-secondary/70" style={{ textShadow: '0 0 8px hsl(142 76% 36% / 0.5)' }}>
                     Tap-to-Mint™
                   </span>
