@@ -535,7 +535,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           audioMode: fallbackStarted ? 'fallback-media+gong' : 'shared-shimmer',
           visualReveal: true,
         });
-        return;
+        return fallbackStarted;
       }
 
       playWelcomeTap(startTime);
@@ -545,6 +545,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         warmStart,
         visualReveal: true,
       });
+      return false;
     };
 
     revealVisuals();
@@ -566,8 +567,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       ctx.resume().catch(() => {});
     }
 
-    fireRevealAudio(startTime, ctx.state !== 'running');
-    if (firstReveal && fallbackHumActive) {
+    const usedFallbackHum = fireRevealAudio(startTime, ctx.state !== 'running');
+    if (firstReveal && usedFallbackHum) {
       scheduleFallbackHumHandoff(ctx, source);
     }
   }, [getLockVisualCenter, logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, scheduleFallbackHumHandoff, startShimmerSound, triggerBurst, updateState]);
