@@ -119,6 +119,7 @@ export function DemoOnboardingHints() {
     setPortalReady(true);
   }, []);
 
+  // On mint success: remove menu + kpi hints, show wallet
   useEffect(() => {
     const handler = () => {
       setMenuHintDismissed(true);
@@ -129,6 +130,7 @@ export function DemoOnboardingHints() {
     return () => window.removeEventListener('demo-mint-success', handler);
   }, []);
 
+  // Show KPI hint after 5s if menu not yet dismissed
   useEffect(() => {
     if (menuHintDismissed) return;
 

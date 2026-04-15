@@ -279,6 +279,7 @@ export function ActivityMetrics({
       <CardContent className="p-2.5 pt-0 space-y-2">
         {/* Header — Clean Energy Center Hero */}
         <div 
+          id="cec-header"
           className="relative -mx-2.5 px-4 py-3.5 overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, transparent 50%, hsl(142 76% 36% / 0.03) 100%)',
