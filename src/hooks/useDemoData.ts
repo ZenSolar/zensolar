@@ -62,7 +62,7 @@ const demoConnectedAccounts: ConnectedAccount[] = [
 
 const createDemoProfile = () => {
   let signerName = 'Demo';
-  try { signerName = sessionStorage.getItem('demo_signer_name') || 'Demo'; } catch {}
+  try { signerName = localStorage.getItem('zen_nda_name') || 'Demo'; } catch {}
   return {
   display_name: signerName,
   wallet_address: '0xDemo1234...5678', // Pre-connected wallet address
