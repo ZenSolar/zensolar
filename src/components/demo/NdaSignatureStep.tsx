@@ -207,7 +207,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
       try { sessionStorage.setItem('demo_signer_name', fullName.trim()); } catch {}
 
       toast.success('Agreement signed', { description: 'A copy has been sent to your email.' });
-      onSigned(email.trim());
+      onSigned(email.trim(), fullName.trim());
     } catch (err) {
       console.error('NDA sign error:', err);
       toast.error('Failed to record signature', { description: 'Please try again.' });
