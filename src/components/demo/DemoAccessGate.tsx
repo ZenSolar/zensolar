@@ -11,6 +11,7 @@ import {
   preloadDemoEntryFallbackAudio,
   stopDemoEntryFallbackHum,
 } from '@/lib/demoEntryFallbackAudio';
+import { playDemoEntryFallbackHum } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
@@ -458,7 +459,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let gongPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
-      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: true });
       gongPrewarmed = prewarmSingingBowl();
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
@@ -625,14 +626,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
-        const humStarted = scheduleHumActivation(source, startTime);
-        setFallbackHumActive(false);
+        const humFallbackStarted = playDemoEntryFallbackHum();
+        const humSynthStarted = scheduleHumActivation(source, startTime);
 
         audioReadyRef.current = audioReadyRef.current || gongFallbackStarted || gongStarted;
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: humStarted ? 'scheduled-in-gesture' : 'missed',
+          synthHandoff: humFallbackStarted ? 'fallback-hum-playing' : humSynthStarted ? 'scheduled-in-gesture' : 'missed',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -641,8 +642,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           gongFallbackStarted,
           gongStarted,
-          humStarted,
-          audioMode: humStarted ? 'gesture-scheduled-shimmer' : 'gesture-scheduled-shimmer-missed',
+          humFallbackStarted,
+          humSynthStarted,
+          audioMode: humFallbackStarted ? 'fallback-hum' : humSynthStarted ? 'gesture-shimmer' : 'missed',
           visualReveal: true,
         });
         return false;
@@ -687,10 +689,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       // No AudioContext — still try fallback gong synchronously in gesture context
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
-        setFallbackHumActive(false);
+        const humFallbackStarted = playDemoEntryFallbackHum();
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted ? 'fired' : 'missed',
-          synthHandoff: 'missed',
+          synthHandoff: humFallbackStarted ? 'fallback-hum-playing' : 'missed',
           audioContextState: 'null',
           lastEvent: `${source}-reveal-fallback-only`,
         });
