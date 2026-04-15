@@ -188,7 +188,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const { primeAudio, prewarmSingingBowl, playDeniedSound, playMintSound, playWelcomeTap, playSingingBowl } = useMintSound();
   const startShimmerSound = useShimmerSound({
     cycleDuration: 5,
-    volume: 0.06,
+    volume: 0.18,
     enabled: shimmerActive,
     prewarm: false,
   });
@@ -547,19 +547,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         const fallbackStarted = playDemoEntryFallbackGong();
         const gongStarted = playSingingBowl(startTime);
 
-        // Delay the ambient hum by 1.5s so the AudioContext is fully warmed
-        // and running by the time the shimmer synth starts. This avoids the
-        // iOS gesture-context race that was killing the hum after 1-2 seconds.
-        setTimeout(() => {
-          const liveCtx = getSharedAudioContext();
-          if (!liveCtx) return;
+        // Start the ambient hum synchronously within the gesture context to
+        // preserve iOS audio permission. The previous 1500ms delay was causing
+        // the browser to revoke the gesture context, killing the hum after ~2s.
+        // Instead, schedule the hum to fade in shortly after the gong attack.
+        const liveCtx = getSharedAudioContext();
+        if (liveCtx) {
           if (liveCtx.state !== 'running') {
             liveCtx.resume().catch(() => {});
           }
-          const humStart = getSafeAudioStartTime(liveCtx, undefined, 0.01);
+          // Schedule hum start 400ms into the future (still within gesture
+          // context window) so it layers under the gong tail rather than
+          // competing with the gong attack.
+          const humStart = getSafeAudioStartTime(liveCtx, undefined, 0.4);
           startShimmerSound(humStart);
-          logAudioDebug('hum-delayed-start', { ctx: liveCtx.state, start: humStart });
-        }, 1500);
+          logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
+        }
 
         setFallbackHumActive(false);
 
@@ -567,7 +570,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         updateReleaseAudioDiagnostics({
           fallbackFired: fallbackStarted ? 'fired' : 'missed',
           audioContextState: ctx?.state ?? 'null',
-          synthHandoff: 'delayed-1500ms',
+          synthHandoff: 'gesture-sync',
           lastEvent: `${source}-cinematic-reveal`,
         });
         logGestureDebug(`${source}-cinematic-reveal`, {
@@ -576,8 +579,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           warmStart,
           fallbackStarted,
           gongStarted,
-          humStarted: 'delayed',
-          audioMode: fallbackStarted ? 'fallback-gong+delayed-shimmer' : 'delayed-shimmer',
+          humStarted: 'gesture-sync',
+          audioMode: fallbackStarted ? 'fallback-gong+gesture-shimmer' : 'gesture-shimmer',
           visualReveal: true,
         });
         return false;
@@ -643,35 +646,27 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [logGestureDebug, playSingingBowl, playWelcomeTap, primeAudio, startShimmerSound, triggerBurst, updateState]);
 
-  // ── Double-tap to unlock (submit code) — still works after reveal ──
+  // ── Single-tap to submit after reveal, hold-to-reveal before ──
   const handleLockPointerDown = useCallback((source = 'pointerdown') => {
     if (Date.now() < ignorePointerUntilRef.current) return;
 
     const s = stateRef.current;
     if (s.phase === 'verifying' || s.phase === 'burst') return;
 
-    const now = Date.now();
-    const isDoubleTap = lastTapTimeRef.current > 0 && now - lastTapTimeRef.current < DOUBLE_TAP_WINDOW;
-
-    if (isDoubleTap && s.hexAwake) {
-      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      lastTapTimeRef.current = 0;
+    // After the initial hold-and-release reveal, a single tap submits the code
+    if (s.hexAwake) {
       triggerBurst();
       playMintSound();
       if ('vibrate' in navigator) {
         try { navigator.vibrate([15, 30, 10]); } catch {}
       }
-      ignorePointerUntilRef.current = now + GHOST_CLICK_SUPPRESSION;
+      ignorePointerUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
       if (code.trim()) submitCode();
-    } else {
-      lastTapTimeRef.current = now;
-      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      doubleTapTimerRef.current = setTimeout(() => {
-        lastTapTimeRef.current = 0;
-        updateState({ showTapAgain: false });
-      }, DOUBLE_TAP_WINDOW);
+      return;
     }
-  }, [code, triggerBurst, playMintSound, submitCode, updateState]);
+
+    // Pre-reveal: no tap-to-submit — hold gesture handles everything
+  }, [code, triggerBurst, playMintSound, submitCode]);
 
   const handlePreboundGestureFallback = useCallback(() => {
     if (nativeGestureReadyRef.current) return;
@@ -688,14 +683,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     nativeGestureReadyRef.current = true;
     const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
-      handleHoldStart('touchstart');
-      // Only engage double-tap logic after the gate is already revealed
+      // After reveal: single tap submits immediately (no hold needed)
       if (stateRef.current.hexAwake) {
         handleLockPointerDown('touchstart');
+        logGestureDebug('touchstart-single-tap');
+        return;
       }
+      // Pre-reveal: hold gesture
+      handleHoldStart('touchstart');
       logGestureDebug('touchstart');
     };
     const onTouchEnd = () => {
+      // After reveal, touchend is a no-op (single tap handled in touchstart)
+      if (!stateRef.current.holding) return;
       handleHoldEnd('touchend');
       logGestureDebug('touchend');
     };
@@ -710,8 +710,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
     const onPointer = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return;
+      // After reveal: single click submits
+      if (stateRef.current.hexAwake) {
+        handleLockPointerDown(`pointerdown-${e.pointerType}`);
+        logGestureDebug('pointerdown-single', { pointerType: e.pointerType });
+        return;
+      }
       handleHoldStart(`pointerdown-${e.pointerType}`);
-      handleLockPointerDown(`pointerdown-${e.pointerType}`);
       logGestureDebug('pointerdown', { pointerType: e.pointerType });
     };
     const onPointerUp = (e: PointerEvent) => {
