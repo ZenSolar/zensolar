@@ -655,7 +655,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (firstReveal) {
         const gongFallbackStarted = playDemoEntryFallbackGong();
         setShimmerActive(true);
-        const humSynthStarted = startShimmerSound(startTime, 0.4);
+        const humSynthStarted = startShimmerSound(undefined, 0.4);
         updateReleaseAudioDiagnostics({
           fallbackFired: gongFallbackStarted || humSynthStarted ? 'fired' : 'missed',
           synthHandoff: humSynthStarted ? 'shimmer-synth' : 'missed',
