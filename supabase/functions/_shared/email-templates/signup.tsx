@@ -84,3 +84,4 @@ const buttonSection = { textAlign: 'center' as const, margin: '24px 0 32px' }
 const button = { backgroundColor: 'hsl(142, 76%, 36%)', color: '#ffffff', fontSize: '14px', fontWeight: 'bold' as const, borderRadius: '12px', padding: '14px 28px', textDecoration: 'none' }
 const footer = { fontSize: '12px', color: '#999999', margin: '0 0 8px' }
 const footerBrand = { fontSize: '11px', color: '#bbbbbb', margin: '16px 0 0', textAlign: 'center' as const }
+const solarBlue = { color: '#2563EB' }
