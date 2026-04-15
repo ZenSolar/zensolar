@@ -747,6 +747,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   // Show unlock hint when input is focused or has text
   const showUnlockHint = inputFocused || code.trim().length > 0;
 
+  const handleNdaSigned = useCallback(() => {
+    setShowNda(false);
+    grantAccess();
+    setGranted(true);
+  }, []);
+
   if (granted) return <>{children}</>;
 
   const { phase, firstTapBurst, showTapAgain, burstKey, revealed, hexAwake, holding, holdReady, holdHint } = stateRef.current;
