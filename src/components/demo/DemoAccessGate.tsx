@@ -589,21 +589,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             getSafeAudioStartTime(liveCtx, undefined, 0.01),
           );
           startShimmerSound(humStart, 0.3);
-
-          const queueHumRetry = (delay: number, volume: number) => {
-            const timer = window.setTimeout(() => {
-              startShimmerSound(undefined, volume);
-              logAudioDebug('hum-retrigger', {
-                delay,
-                volume,
-                ctx: getSharedAudioContext()?.state ?? 'null',
-              });
-            }, delay);
-            shimmerRetryTimersRef.current.push(timer);
-          };
-
-          queueHumRetry(260, 0.3);
-          queueHumRetry(1400, 0.32);
           logAudioDebug('hum-gesture-sync-start', { ctx: liveCtx.state, start: humStart });
         }
 
