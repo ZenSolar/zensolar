@@ -1,9 +1,4 @@
-import { ReactNode, lazy, Suspense, useState, useEffect, createContext, useContext } from 'react';
-
-// Lazy load the heavy Web3 dependencies
-const Web3Provider = lazy(() => 
-  import('./Web3Provider').then(module => ({ default: module.Web3Provider }))
-);
+import { type ComponentType, type ReactNode, useState, useEffect, createContext, useContext, useRef } from 'react';
 
 // Context so any component can check if wagmi hooks are safe to call
 const Web3ReadyContext = createContext(false);
@@ -26,36 +21,63 @@ interface LazyWeb3ProviderProps {
   children: ReactNode;
 }
 
+type LoadedWeb3Provider = ComponentType<{ children: ReactNode }>;
+
 /**
- * Deferred Web3Provider: renders children IMMEDIATELY, then wraps them in
- * Web3Provider once the chunk has loaded (after a short idle delay).
- * This prevents the ~400KB Web3/AppKit bundle from blocking FCP/LCP.
+ * Deferred Web3Provider: renders children immediately, then loads the heavy
+ * Web3/AppKit layer after first paint. If that chunk fails, keep the app usable
+ * instead of crashing the whole tree.
  */
 export function LazyWeb3Provider({ children }: LazyWeb3ProviderProps) {
   const [shouldLoad, setShouldLoad] = useState(false);
+  const [LoadedProvider, setLoadedProvider] = useState<LoadedWeb3Provider | null>(null);
+  const loadAttemptedRef = useRef(false);
 
   useEffect(() => {
     // Defer Web3 loading until after initial paint
-    if ('requestIdleCallback' in window) {
-      const id = (window as any).requestIdleCallback(() => setShouldLoad(true), { timeout: 3000 });
-      return () => (window as any).cancelIdleCallback(id);
-    } else {
-      const timer = setTimeout(() => setShouldLoad(true), 1500);
-      return () => clearTimeout(timer);
+    const browserWindow = window as Window & typeof globalThis & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (typeof browserWindow.requestIdleCallback === 'function') {
+      const id = browserWindow.requestIdleCallback(() => setShouldLoad(true), { timeout: 3000 });
+      return () => browserWindow.cancelIdleCallback?.(id);
     }
+
+    const timer = globalThis.setTimeout(() => setShouldLoad(true), 1500);
+    return () => globalThis.clearTimeout(timer);
   }, []);
 
-  if (!shouldLoad) {
-    // Render children immediately without Web3 - app is usable
-    // Web3ReadyContext stays false so wagmi hooks are guarded
+  useEffect(() => {
+    if (!shouldLoad || loadAttemptedRef.current) return;
+
+    let cancelled = false;
+    loadAttemptedRef.current = true;
+
+    import('./Web3Provider')
+      .then((module) => {
+        if (cancelled) return;
+        setLoadedProvider(() => module.Web3Provider);
+      })
+      .catch((error) => {
+        console.error('[LazyWeb3Provider] Failed to load Web3 provider chunk:', error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [shouldLoad]);
+
+  if (!shouldLoad || !LoadedProvider) {
+    // Render children immediately without Web3 - app is usable.
+    // Web3ReadyContext stays false so wagmi hooks are guarded.
     return <>{children}</>;
   }
 
   return (
-    <Suspense fallback={<>{children}</>}>
-      <Web3Provider>
-        <Web3ReadyGate>{children}</Web3ReadyGate>
-      </Web3Provider>
-    </Suspense>
+    <LoadedProvider>
+      <Web3ReadyGate>{children}</Web3ReadyGate>
+    </LoadedProvider>
   );
 }

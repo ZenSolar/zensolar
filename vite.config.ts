@@ -30,9 +30,8 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Split heavy Web3 dependencies
-          'appkit': ['@reown/appkit', '@reown/appkit-adapter-wagmi'],
-          'wagmi': ['wagmi', 'viem'],
+          // Let the lazy-loaded Web3 stack stay naturally grouped.
+          // Splitting AppKit and wagmi manually creates circular chunk graphs.
           // Split UI framework
           'radix': [
             '@radix-ui/react-dialog',
