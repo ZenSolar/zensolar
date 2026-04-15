@@ -235,78 +235,9 @@ export function DemoDashboard() {
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
-        {/* Today's Energy Stats */}
+        {/* Today's Clean Energy Stats */}
         <AnimatedItem>
-          <div className="emerald-glow-card rounded-2xl p-5 space-y-4 relative overflow-hidden">
-            {/* Animated background shimmer */}
-            <div className="absolute inset-0 opacity-[0.03]" style={{
-              background: 'linear-gradient(135deg, #F59E0B 0%, #3B82F6 25%, #22C55E 50%, #8B5CF6 75%, #F59E0B 100%)',
-              backgroundSize: '400% 400%',
-              animation: 'gradient-shift 8s ease infinite',
-            }} />
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <h3 className="text-sm font-bold text-foreground tracking-wide">Today's —</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {/* Solar — amber */}
-                <div className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02]" style={{
-                  background: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04))',
-                  borderColor: 'rgba(245,158,11,0.25)',
-                }}>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#F59E0B' }} />
-                    <p className="text-[10px] uppercase tracking-wider font-mono" style={{ color: '#F59E0B', opacity: 0.8 }}>Solar Produced</p>
-                  </div>
-                  <p className="text-xl font-bold tabular-nums" style={{ color: '#F59E0B' }}>
-                    24.7 <span className="text-xs font-normal text-muted-foreground">kWh</span>
-                  </p>
-                </div>
-                {/* EV Charging — blue */}
-                <div className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02]" style={{
-                  background: 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.04))',
-                  borderColor: 'rgba(59,130,246,0.25)',
-                }}>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#3B82F6' }} />
-                    <p className="text-[10px] uppercase tracking-wider font-mono" style={{ color: '#3B82F6', opacity: 0.8 }}>EV Charging</p>
-                  </div>
-                  <p className="text-xl font-bold tabular-nums" style={{ color: '#3B82F6' }}>
-                    18.3 <span className="text-xs font-normal text-muted-foreground">kWh</span>
-                  </p>
-                </div>
-                {/* EV Mileage — cyan/teal */}
-                <div className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02]" style={{
-                  background: 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(6,182,212,0.04))',
-                  borderColor: 'rgba(6,182,212,0.25)',
-                }}>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#06B6D4' }} />
-                    <p className="text-[10px] uppercase tracking-wider font-mono" style={{ color: '#06B6D4', opacity: 0.8 }}>EV Mileage</p>
-                  </div>
-                  <p className="text-xl font-bold tabular-nums" style={{ color: '#06B6D4' }}>
-                    62 <span className="text-xs font-normal text-muted-foreground">mi</span>
-                  </p>
-                </div>
-                {/* Battery Export — green */}
-                <div className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02]" style={{
-                  background: 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04))',
-                  borderColor: 'rgba(34,197,94,0.25)',
-                }}>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#22C55E' }} />
-                    <p className="text-[10px] uppercase tracking-wider font-mono" style={{ color: '#22C55E', opacity: 0.8 }}>Battery Exported</p>
-                  </div>
-                  <p className="text-xl font-bold tabular-nums" style={{ color: '#22C55E' }}>
-                    8.1 <span className="text-xs font-normal text-muted-foreground">kWh</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </AnimatedItem>
+          <TodaysCleanEnergyStats />
 
         {/* Aesthetic Section Divider */}
         <AnimatedItem className="py-2">
