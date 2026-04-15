@@ -7,6 +7,11 @@ interface DemoEntryFallbackAudioElements {
   hum: HTMLAudioElement;
 }
 
+interface ArmDemoEntryFallbackOptions {
+  gong?: boolean;
+  hum?: boolean;
+}
+
 type AudioKind = keyof DemoEntryFallbackAudioElements;
 
 let fallbackAudio: DemoEntryFallbackAudioElements | null = null;
@@ -179,7 +184,7 @@ function armMutedLoop(kind: AudioKind, audio: HTMLAudioElement, loop: boolean) {
   }
 }
 
-export function armDemoEntryFallbackGestureAudio() {
+export function armDemoEntryFallbackGestureAudio({ gong = true, hum = true }: ArmDemoEntryFallbackOptions = {}) {
   const audio = ensureFallbackAudio();
   if (!audio) return false;
 
@@ -189,10 +194,36 @@ export function armDemoEntryFallbackGestureAudio() {
   cancelHumStopTimer();
 
   fallbackHumActive = false;
-  fallbackGestureArmed.gong = armMutedLoop('gong', audio.gong, true);
-  fallbackGestureArmed.hum = armMutedLoop('hum', audio.hum, true);
+  fallbackGestureArmed.gong = gong ? armMutedLoop('gong', audio.gong, true) : false;
+  fallbackGestureArmed.hum = hum ? armMutedLoop('hum', audio.hum, true) : false;
+
+  if (!gong) {
+    try {
+      audio.gong.pause();
+      audio.gong.currentTime = 0;
+      audio.gong.loop = false;
+      audio.gong.muted = false;
+      audio.gong.volume = GONG_VOLUME;
+    } catch {
+      // no-op
+    }
+  }
+
+  if (!hum) {
+    try {
+      audio.hum.pause();
+      audio.hum.currentTime = 0;
+      audio.hum.loop = true;
+      audio.hum.muted = false;
+      audio.hum.volume = HUM_VOLUME;
+    } catch {
+      // no-op
+    }
+  }
 
   logAudioDebug('entry-fallback-armed', {
+    gongEnabled: gong,
+    humEnabled: hum,
     gongArmed: fallbackGestureArmed.gong,
     humArmed: fallbackGestureArmed.hum,
     gongReady: audio.gong.readyState,
@@ -200,6 +231,48 @@ export function armDemoEntryFallbackGestureAudio() {
   });
 
   return fallbackGestureArmed.gong || fallbackGestureArmed.hum;
+}
+
+export function playDemoEntryFallbackGong() {
+  const audio = ensureFallbackAudio();
+  if (!audio) return false;
+
+  requestLoad(audio.gong);
+
+  let gongStarted = false;
+  if (fallbackGestureArmed.gong && !audio.gong.paused) {
+    try {
+      audio.gong.loop = false;
+      audio.gong.currentTime = 0;
+      audio.gong.volume = GONG_VOLUME;
+      audio.gong.muted = false;
+      gongStarted = true;
+      logPlaySuccess('gong', audio.gong, { armed: true, humDisabled: true });
+    } catch (error) {
+      logPlayFailure('gong', error, audio.gong, { armed: true, humDisabled: true });
+    }
+  } else {
+    audio.gong.loop = false;
+    audio.gong.volume = GONG_VOLUME;
+    audio.gong.muted = false;
+
+    try {
+      audio.gong.pause();
+      audio.gong.currentTime = 0;
+    } catch {
+      // no-op
+    }
+
+    gongStarted = attemptPlay('gong', audio.gong, { armed: false, humDisabled: true });
+  }
+
+  fallbackGestureArmed.gong = false;
+  logAudioDebug('entry-fallback-gong-triggered', {
+    gongReady: audio.gong.readyState,
+    gongArmed: gongStarted,
+  });
+
+  return gongStarted;
 }
 
 export function preloadDemoEntryFallbackAudio() {
