@@ -31,7 +31,7 @@ export function ApiPartnersCard() {
               key={alt}
               src={src}
               alt={alt}
-              className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[400px] max-h-20' : 'max-w-[120px] max-h-10'}`}
+              className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[400px] max-h-20' : alt === 'Enphase' ? 'max-w-[200px] max-h-16' : 'max-w-[120px] max-h-10'}`}
               initial={{ opacity: 0, y: 8 }}
               whileInView={{ opacity: 0.6, y: 0 }}
               viewport={{ once: true }}
