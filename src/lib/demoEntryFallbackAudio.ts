@@ -18,10 +18,19 @@ type AudioTransport = 'media-element' | 'web-audio';
 
 type HumDecodeContext = Pick<BaseAudioContext, 'createBuffer' | 'decodeAudioData'>;
 
-interface HumLoopGraph {
-  ctx: AudioContext;
-  source: AudioBufferSourceNode;
+interface HumLoopVoice {
   gain: GainNode;
+  source: AudioBufferSourceNode;
+}
+
+interface HumLoopGraph {
+  buffer: AudioBuffer;
+  ctx: AudioContext;
+  gain: GainNode;
+  nextVoiceOffset: number;
+  nextVoiceStartTime: number | null;
+  schedulerTimer: number | null;
+  voices: Set<HumLoopVoice>;
 }
 
 let fallbackAudio: DemoEntryFallbackAudioElements | null = null;
@@ -462,55 +471,70 @@ function destroyHumLoopGraph(resetGain = true) {
 
   if (!humLoopGraph) return;
 
-  try {
-    humLoopGraph.source.onended = null;
-    humLoopGraph.source.stop();
-  } catch {
-    // no-op
+  if (typeof window !== 'undefined' && humLoopGraph.schedulerTimer !== null) {
+    window.clearTimeout(humLoopGraph.schedulerTimer);
+    humLoopGraph.schedulerTimer = null;
   }
 
-  try {
-    humLoopGraph.source.disconnect();
-    humLoopGraph.gain.disconnect();
-  } catch {
-    // no-op
+  for (const voice of humLoopGraph.voices) {
+    try {
+      voice.source.onended = null;
+      voice.source.stop();
+    } catch {
+      // no-op
+    }
+
+    try {
+      voice.source.disconnect();
+      voice.gain.disconnect();
+    } catch {
+      // no-op
+    }
   }
+
+  humLoopGraph.voices.clear();
 
   if (resetGain) {
     humLoopGraph.gain.gain.value = 0;
+  }
+
+  try {
+    humLoopGraph.gain.disconnect();
+  } catch {
+    // no-op
   }
 
   humLoopGraph = null;
 }
 
 function createHumLoopGraph(ctx: AudioContext, buffer: AudioBuffer) {
+  if (humLoopGraph?.ctx === ctx && humLoopGraph.buffer === buffer) {
+    return humLoopGraph;
+  }
+
   destroyHumLoopGraph(false);
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0, ctx.currentTime);
   gain.connect(ctx.destination);
 
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  source.loop = true;
-  source.loopStart = getHumLoopStart(buffer);
-  source.loopEnd = getHumLoopEnd(buffer);
-  source.connect(gain);
-  source.onended = () => {
-    if (humLoopGraph?.source === source) {
-      humLoopGraph = null;
-      fallbackHumActive = false;
-    }
+  humLoopGraph = {
+    buffer,
+    ctx,
+    gain,
+    nextVoiceOffset: getHumLoopStart(buffer),
+    nextVoiceStartTime: null,
+    schedulerTimer: null,
+    voices: new Set(),
   };
 
-  humLoopGraph = { ctx, source, gain };
   return humLoopGraph;
 }
 
 function getPreparedHumLoopGraph(ctx: AudioContext) {
-  if (humLoopGraph?.ctx === ctx) return humLoopGraph;
-  const buffer = humLoopBuffer ?? humDecodedBuffer;
+  const buffer = humDecodedBuffer;
   if (!buffer) return null;
+  if (humLoopGraph?.ctx === ctx && humLoopGraph.buffer === buffer) return humLoopGraph;
   return createHumLoopGraph(ctx, buffer);
 }
 
@@ -584,6 +608,83 @@ function getHumHandoffOffset(audio: HTMLAudioElement, buffer?: AudioBuffer | nul
   return Math.min(getHumLoopEnd(buffer) - 0.001, HUM_LOOP_START + normalizedRawOffset);
 }
 
+function clearHumLoopScheduler(graph: HumLoopGraph | null = humLoopGraph) {
+  if (typeof window === 'undefined' || !graph || graph.schedulerTimer === null) return;
+  window.clearTimeout(graph.schedulerTimer);
+  graph.schedulerTimer = null;
+}
+
+function getHumLoopOverlapSeconds(loopDuration: number, startOffset: number) {
+  const availableDuration = Math.max(0.02, loopDuration - (startOffset - HUM_LOOP_START));
+  return Math.max(0.02, Math.min(HUM_LOOP_CROSSFADE_MS / 1000, availableDuration * 0.45));
+}
+
+function scheduleHumLoopVoice(graph: HumLoopGraph, startTime: number, startOffset: number, fadeIn: boolean) {
+  const loopStart = getHumLoopStart(graph.buffer);
+  const loopEnd = getHumLoopEnd(graph.buffer);
+  const safeOffset = Math.min(loopEnd - 0.001, Math.max(loopStart, startOffset));
+  const duration = Math.max(0.02, loopEnd - safeOffset);
+  const overlap = getHumLoopOverlapSeconds(loopEnd - loopStart, safeOffset);
+  const fadeOutStart = Math.max(startTime, startTime + duration - overlap);
+
+  const source = graph.ctx.createBufferSource();
+  source.buffer = graph.buffer;
+
+  const gain = graph.ctx.createGain();
+  gain.gain.setValueAtTime(fadeIn ? 0 : 1, startTime);
+  if (fadeIn && overlap > 0) {
+    gain.gain.linearRampToValueAtTime(1, startTime + overlap);
+  }
+  gain.gain.setValueAtTime(1, fadeOutStart);
+  gain.gain.linearRampToValueAtTime(0, startTime + duration);
+
+  source.connect(gain);
+  gain.connect(graph.gain);
+
+  const voice: HumLoopVoice = { gain, source };
+  graph.voices.add(voice);
+
+  source.onended = () => {
+    graph.voices.delete(voice);
+    try {
+      source.disconnect();
+      gain.disconnect();
+    } catch {
+      // no-op
+    }
+  };
+
+  source.start(startTime, safeOffset, duration);
+  source.stop(startTime + duration + 0.03);
+
+  return {
+    duration,
+    overlap,
+    startOffset: safeOffset,
+  };
+}
+
+function scheduleHumLoopVoicesAhead(graph: HumLoopGraph) {
+  if (typeof window === 'undefined' || humLoopGraph !== graph || !fallbackHumActive) return;
+
+  clearHumLoopScheduler(graph);
+
+  const lookAheadSeconds = 0.8;
+  while (graph.nextVoiceStartTime !== null && graph.nextVoiceStartTime <= graph.ctx.currentTime + lookAheadSeconds) {
+    const scheduled = scheduleHumLoopVoice(graph, graph.nextVoiceStartTime, graph.nextVoiceOffset, true);
+    graph.nextVoiceStartTime = graph.nextVoiceStartTime + scheduled.duration - scheduled.overlap;
+    graph.nextVoiceOffset = getHumLoopStart(graph.buffer);
+  }
+
+  if (graph.nextVoiceStartTime === null) return;
+
+  const delayMs = Math.max(40, (graph.nextVoiceStartTime - graph.ctx.currentTime - 0.35) * 1000);
+  graph.schedulerTimer = window.setTimeout(() => {
+    graph.schedulerTimer = null;
+    scheduleHumLoopVoicesAhead(graph);
+  }, delayMs);
+}
+
 function resetHumMediaElement(audio: HTMLAudioElement, reset = true) {
   try {
     audio.pause();
@@ -612,25 +713,35 @@ function stopHumMediaBridge(reset = true) {
 
 function startPreparedHumLoopGraph(graph: HumLoopGraph, startOffset?: number) {
   try {
-    const loopStart = getHumLoopStart(graph.source.buffer);
-    const safeOffset = Math.min(
-      getHumLoopEnd(graph.source.buffer) - 0.001,
+    if (graph.voices.size > 0) {
+      fallbackHumActive = true;
+      fallbackGestureArmed.hum = true;
+      return true;
+    }
+
+    const loopStart = getHumLoopStart(graph.buffer);
+    const initialOffset = Math.min(
+      getHumLoopEnd(graph.buffer) - 0.001,
       Math.max(loopStart, startOffset ?? loopStart),
     );
-    graph.source.start(graph.ctx.currentTime, safeOffset);
-    // Don't fade in yet — caller controls when volume ramps up
+    const scheduled = scheduleHumLoopVoice(graph, graph.ctx.currentTime, initialOffset, false);
+    graph.nextVoiceStartTime = graph.ctx.currentTime + scheduled.duration - scheduled.overlap;
+    graph.nextVoiceOffset = getHumLoopStart(graph.buffer);
+    scheduleHumLoopVoicesAhead(graph);
+
     fallbackHumActive = true;
     fallbackGestureArmed.hum = true;
     logPlaySuccess('hum', {
-      mode: 'gapless-buffer-loop',
+      mode: 'crossfaded-overlap-loop',
       loopStart,
-      loopEnd: getHumLoopEnd(graph.source.buffer),
-      startOffset: safeOffset,
-      duration: graph.source.buffer?.duration,
+      loopEnd: getHumLoopEnd(graph.buffer),
+      startOffset: initialOffset,
+      overlapMs: HUM_LOOP_CROSSFADE_MS,
+      duration: graph.buffer.duration,
     });
     return true;
   } catch (error) {
-    logPlayFailure('hum', error, { mode: 'gapless-buffer-loop-start' });
+    logPlayFailure('hum', error, { mode: 'crossfaded-overlap-loop-start' });
     destroyHumLoopGraph();
     fallbackHumActive = false;
     fallbackGestureArmed.hum = false;
@@ -1045,6 +1156,8 @@ export function handoffDemoEntryFallbackHum(durationMs = HUM_FADE_OUT_MS) {
   if (!humLoopGraph) return false;
 
   const graph = humLoopGraph;
+  clearHumLoopScheduler(graph);
+  graph.nextVoiceStartTime = null;
   clearHumFadeFrame();
   clearHumStopTimer();
   animateHumVolume(graph, 0, durationMs);
