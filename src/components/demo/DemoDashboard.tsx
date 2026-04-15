@@ -175,7 +175,7 @@ export function DemoDashboard() {
         )}
 
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
-        <AnimatedItem data-hint-target="kpi">
+        <AnimatedItem id="demo-kpi-section" data-hint-target="kpi">
           <ActivityMetrics
             data={activityData}
             currentActivity={currentActivity}
@@ -243,7 +243,7 @@ export function DemoDashboard() {
 
         {/* NFT Mint Button + Refresh - matches real dashboard */}
         <AnimatedItem className="space-y-3">
-          <div data-hint-target="mint">
+          <div id="demo-mint-button" data-hint-target="mint">
             <MintEffectButton
               onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
               disabled={isLoading}
