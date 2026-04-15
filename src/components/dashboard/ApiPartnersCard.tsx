@@ -1,14 +1,27 @@
 import { motion } from 'framer-motion';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
 import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
+/** Inline SVG Enphase logo — matches official branding, crisp at any size on dark bg */
+function EnphaseLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 220 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      {/* Orange "e" circle icon */}
+      <circle cx="20" cy="20" r="16" stroke="#F26522" strokeWidth="3" fill="none" />
+      <path d="M10 22h20" stroke="#F26522" strokeWidth="3" strokeLinecap="round" />
+      <path d="M30 18c0-5.5-4.5-10-10-10s-10 4.5-10 10" stroke="#F26522" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* ENPHASE wordmark */}
+      <text x="48" y="27" fill="white" fontSize="22" fontWeight="600" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="3">ENPHASE</text>
+    </svg>
+  );
+}
+
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', extra: '' },
-  { src: enphaseLogo, alt: 'Enphase', extra: '' },
-  { src: solaredgeLogo, alt: 'SolarEdge', extra: '' },
-  { src: wallboxLogo, alt: 'Wallbox', extra: '' },
+  { src: teslaLogo, alt: 'Tesla' },
+  { src: null, alt: 'Enphase' },
+  { src: solaredgeLogo, alt: 'SolarEdge' },
+  { src: wallboxLogo, alt: 'Wallbox' },
 ];
 
 export function ApiPartnersCard() {
@@ -26,19 +39,33 @@ export function ApiPartnersCard() {
           transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
         />
         <div className="relative grid grid-cols-2 gap-6 place-items-center">
-          {brandLogos.map(({ src, alt, extra }, idx) => (
-            <motion.img
-              key={alt}
-              src={src}
-              alt={alt}
-              className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[400px] max-h-20' : alt === 'Enphase' ? 'max-w-[200px] max-h-16' : 'max-w-[120px] max-h-10'}`}
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 0.6, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-              loading="lazy"
-            />
+          {brandLogos.map(({ src, alt }, idx) => (
+            alt === 'Enphase' ? (
+              <motion.div
+                key={alt}
+                className="opacity-60 hover:opacity-100 transition-all duration-500"
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 0.6, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <EnphaseLogo className="w-[180px] h-auto" />
+              </motion.div>
+            ) : (
+              <motion.img
+                key={alt}
+                src={src!}
+                alt={alt}
+                className={`w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[400px] max-h-20' : 'max-w-[120px] max-h-10'}`}
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 0.6, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+                loading="lazy"
+              />
+            )
           ))}
         </div>
       </div>

@@ -672,51 +672,53 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
         {/* ── Footer ── */}
         <g>
-          {/* Today's Stats — bottom left, polished card style */}
+          {/* Today's Stats — full width bottom panel */}
           {(() => {
-            const sx = compact ? 10 : 12;
-            const sy = compact ? 348 : 435;
-            const rowH = compact ? 17 : 20;
-            const cardW = compact ? 125 : 150;
-            const cardH = compact ? 72 : 84;
-            const valueFontSize = compact ? 9 : 11;
-            const labelFontSize = compact ? 5.5 : 6.5;
-            const headerFs = compact ? 5.5 : 6.5;
+            const sx = compact ? 10 : 14;
+            const sy = compact ? 340 : 425;
+            const cardW = compact ? 370 : 380;
+            const cardH = compact ? 82 : 96;
+            const valueFontSize = compact ? 12 : 14;
+            const unitFontSize = compact ? 7 : 8;
+            const labelFontSize = compact ? 6 : 7;
+            const headerFs = compact ? 7 : 8;
+            const colW = cardW / 3;
 
             const stats = [
               { color: colors.solar, value: `${(flow.solarPower * 4.2).toFixed(1)}`, unit: 'kWh', label: 'Solar Generated', active: flow.solarPower > 0 },
-              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Storage Exported', active: flow.batteryPower < 0 },
+              { color: colors.battery, value: `${(Math.abs(flow.batteryPower) * 2.9).toFixed(1)}`, unit: 'kWh', label: 'Battery Exported', active: flow.batteryPower < 0 },
               { color: colors.ev, value: `${(flow.evPower * 3.2).toFixed(1)}`, unit: 'kWh', label: 'EV Charged', active: flow.evPower > 0 },
             ];
             return (
               <g>
                 {/* Card background */}
-                <rect x={sx} y={sy - 2} width={cardW} height={cardH} rx={6} fill="none" stroke="hsl(var(--border))" strokeWidth={0.5} strokeOpacity={0.15} />
+                <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill="#0f172a" fillOpacity={0.6} stroke="hsl(142 76% 36% / 0.15)" strokeWidth={0.8} />
                 {/* Header */}
-                <text x={sx + 8} y={sy + 10} fill="#6b7280" fontSize={headerFs} fontWeight="700" letterSpacing="1.5">
+                <text x={sx + cardW / 2} y={sy + 14} textAnchor="middle" fill="#6b7280" fontSize={headerFs} fontWeight="700" letterSpacing="2">
                   TODAY&apos;S ENERGY
                 </text>
                 {/* Divider line */}
-                <line x1={sx + 8} y1={sy + 14} x2={sx + cardW - 8} y2={sy + 14} stroke="#1e293b" strokeWidth={0.5} />
-                {/* Stats rows */}
+                <line x1={sx + 12} y1={sy + 20} x2={sx + cardW - 12} y2={sy + 20} stroke="#1e293b" strokeWidth={0.5} />
+                {/* Stats columns */}
                 {stats.map((s, i) => {
-                  const rowY = sy + 20 + i * rowH;
+                  const cx = sx + colW * i + colW / 2;
+                  const baseY = sy + 30;
                   return (
                     <g key={s.label}>
-                      {/* Color bar indicator */}
-                      <rect x={sx + 8} y={rowY} width={2.5} height={compact ? 10 : 12} rx={1.25} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.9 : 0.3}>
-                        {s.active && <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />}
-                      </rect>
+                      {/* Color dot */}
+                      <circle cx={cx} cy={baseY + 2} r={3} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.9 : 0.3}>
+                        {s.active && <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />}
+                      </circle>
                       {/* Value */}
-                      <text x={sx + 16} y={rowY + (compact ? 6 : 7)} fill={s.active ? '#f3f4f6' : '#4b5563'} fontSize={valueFontSize} fontWeight="800">
+                      <text x={cx} y={baseY + 20} textAnchor="middle" fill={s.active ? '#f3f4f6' : '#4b5563'} fontSize={valueFontSize} fontWeight="800">
                         {s.value}
                       </text>
                       {/* Unit */}
-                      <text x={sx + 16 + s.value.length * (valueFontSize * 0.62)} y={rowY + (compact ? 6 : 7)} fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={valueFontSize - 2} fontWeight="500">
-                        {' '}{s.unit}
+                      <text x={cx} y={baseY + 30} textAnchor="middle" fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={unitFontSize} fontWeight="500">
+                        {s.unit}
                       </text>
                       {/* Label */}
-                      <text x={sx + 16} y={rowY + (compact ? 14 : 16)} fill={s.active ? '#6b7280' : '#374151'} fontSize={labelFontSize} fontWeight="400">
+                      <text x={cx} y={baseY + 42} textAnchor="middle" fill={s.active ? '#6b7280' : '#374151'} fontSize={labelFontSize} fontWeight="500" letterSpacing="0.5">
                         {s.label}
                       </text>
                     </g>
@@ -726,37 +728,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             );
           })()}
 
-          {/* Stacked manufacturer pills — bottom right */}
-          {(() => {
-            const bx = compact ? 350 : 362;
-            const by = compact ? 368 : 458;
-            const gap = compact ? 14 : 16;
-            const pillW = compact ? 50 : 58;
-            const pillH = compact ? 11 : 13;
-            const fs = compact ? 5.5 : 6.5;
-            const manufacturers = [
-              { label: 'ENPHASE', color: '#F59E0B' },
-              { label: 'TESLA', color: '#22C55E' },
-              { label: 'CHARGEPOINT', color: '#3B82F6' },
-            ];
-            return manufacturers.map((m, i) => (
-              <g key={m.label}>
-                <rect
-                  x={bx - pillW / 2} y={by + i * gap}
-                  width={pillW} height={pillH} rx={pillH / 2}
-                  fill={m.color} fillOpacity={0.08}
-                  stroke={m.color} strokeWidth={0.4} strokeOpacity={0.3}
-                />
-                <text
-                  x={bx} y={by + i * gap + pillH / 2 + (compact ? 1.8 : 2.2)}
-                  textAnchor="middle" fill={m.color}
-                  fontSize={fs} fontWeight="600" letterSpacing="0.3" opacity="0.9"
-                >
-                  {m.label}
-                </text>
-              </g>
-            ));
-          })()}
+          {/* Manufacturer pills are now inline next to each node */}
         </g>
       </svg>
     </div>
