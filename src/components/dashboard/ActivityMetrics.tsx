@@ -313,7 +313,7 @@ export function ActivityMetrics({
             </div>
 
             {/* Proof badges — 2x2 grid */}
-            <div className="grid grid-cols-2 gap-x-0 gap-y-0 justify-items-center">
+            <div className="inline-grid grid-cols-2 gap-x-3 gap-y-0 mx-auto">
               {[
                 { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
                 { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
