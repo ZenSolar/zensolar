@@ -50,6 +50,24 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
+  const geoRef = useRef<GeoInfo>({});
+
+  // Fetch IP geolocation on mount
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(data => {
+        geoRef.current = {
+          city: data.city,
+          region: data.region,
+          country: data.country_code,
+          ip: data.ip,
+        };
+      })
+      .catch(() => {
+        // Geolocation is best-effort
+      });
+  }, []);
 
   // Canvas refs for draw signature
   const canvasRef = useRef<HTMLCanvasElement>(null);
