@@ -166,6 +166,7 @@ const App = () => {
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
                     <Route path="/install" element={<Install />} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
