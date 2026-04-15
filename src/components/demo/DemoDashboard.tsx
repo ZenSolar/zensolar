@@ -224,6 +224,11 @@ export function DemoDashboard() {
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
+        {/* API Partners Card */}
+        <AnimatedItem>
+          <ApiPartnersCard />
+        </AnimatedItem>
+
         {/* Aesthetic Section Divider */}
         <AnimatedItem className="py-2">
           <div className="relative flex items-center justify-center">
