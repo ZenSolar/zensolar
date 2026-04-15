@@ -437,21 +437,21 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         home: { x: 200, y: 190 },
         battery: { x: 55, y: 210 },
         grid: { x: 345, y: 210 },
-        ev: { x: 200, y: 325 },
+        ev: { x: 200, y: 305 },
       }
     : {
         solar: { x: 200, y: 70 },
         home: { x: 200, y: 230 },
         battery: { x: 50, y: 265 },
         grid: { x: 350, y: 265 },
-        ev: { x: 200, y: 405 },
+        ev: { x: 200, y: 380 },
       };
 
   // Meter position (right side of house)
   const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 440' : '0 0 400 530';
-  const maxH = compact ? '450px' : '640px';
+  const vb = compact ? '0 0 400 460' : '0 0 400 550';
+  const maxH = compact ? '470px' : '660px';
   const labelFs = compact ? 8 : 10;
   const valueFs = compact ? 13 : 18;
   const subValueFs = compact ? 10 : 15;
@@ -675,7 +675,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Today's Stats — full width bottom panel */}
           {(() => {
             const sx = compact ? 10 : 14;
-            const sy = compact ? 340 : 425;
+            const sy = compact ? 375 : 450;
             const cardW = compact ? 370 : 380;
             const cardH = compact ? 82 : 96;
             const valueFontSize = compact ? 12 : 14;
