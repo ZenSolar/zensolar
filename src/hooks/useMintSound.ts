@@ -11,6 +11,7 @@ import { logAudioDebug } from '@/lib/audioDebug';
 let sharedAudioContext: AudioContext | null = null;
 let unlockListenersInstalled = false;
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+let allowGestureCreation = false;
 
 type PrewarmedSingingBowlGraph = {
   ctx: AudioContext;
