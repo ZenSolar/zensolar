@@ -119,11 +119,13 @@ export function DashboardHexBackground() {
           const phC = ((dC - driftC) / 860) * TAU;
           const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 4);
 
-          const shimmer = (Math.sin(dA * 0.012 - time * 3) + 1) * 0.5;
-          const shimmer2 = (Math.sin(dB * 0.018 + time * 4.5) + 1) * 0.5;
-          const sparkle = Math.pow((Math.sin(dA * 0.025 + dB * 0.015 - time * 6) + 1) * 0.5, 8);
+          const shimmer = (Math.sin(dA * 0.018 - time * 5) + 1) * 0.5;
+          const shimmer2 = (Math.sin(dB * 0.025 + time * 7) + 1) * 0.5;
+          const shimmer3 = (Math.sin(dC * 0.014 - time * 4.2) + 1) * 0.5;
+          const sparkle = Math.pow((Math.sin(dA * 0.035 + dB * 0.02 - time * 9) + 1) * 0.5, 6);
+          const sparkle2 = Math.pow((Math.sin(dB * 0.028 - dC * 0.018 + time * 11) + 1) * 0.5, 7);
 
-          alpha += bA * 0.17 + bB * 0.13 + bC * 0.1 + shimmer * 0.04 + shimmer2 * 0.03 + sparkle * 0.25;
+          alpha += bA * 0.17 + bB * 0.13 + bC * 0.1 + shimmer * 0.06 + shimmer2 * 0.05 + shimmer3 * 0.04 + sparkle * 0.35 + sparkle2 * 0.28;
           alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.85);
 
           if (alpha < 0.05) continue;
