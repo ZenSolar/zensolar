@@ -1648,10 +1648,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             className="h-6 w-auto object-contain brightness-125 opacity-70 dark:animate-logo-glow dark:brightness-150" 
           />
           <div
-            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-gradient-to-r from-primary via-[hsl(280,80%,65%)] to-secondary bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
+            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
             style={{
-              backgroundSize: '200% 100%',
-              animation: 'gateTaglineShimmer 3s ease-in-out infinite alternate',
+              backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 30%, hsl(280,80%,65%) 45%, hsl(var(--secondary)) 55%, hsl(var(--primary)) 70%, hsl(var(--primary)) 100%)',
+              backgroundSize: '300% 100%',
+              animation: 'gateTaglineSpotlight 4s cubic-bezier(0.4, 0, 0.2, 1) infinite',
             }}
           >
             <span>The World's First One-Tap,</span>
