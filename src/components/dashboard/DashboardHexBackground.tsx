@@ -62,12 +62,12 @@ export function DashboardHexBackground() {
       const dt = lastFrameTime ? Math.min((now - lastFrameTime) / 16.667, 2) : 1;
       lastFrameTime = now;
 
-      time += 0.009 * dt;
+      time += 0.005 * dt;
       currentScrollY = window.scrollY;
 
       // Re-check theme every frame for live switching
       const isDark = document.documentElement.classList.contains('dark');
-      const alphaMultiplier = isDark ? 1 : 2.2;
+      const alphaMultiplier = isDark ? 1 : 1.4;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
@@ -75,9 +75,9 @@ export function DashboardHexBackground() {
       // Warm gradient overlay in light mode
       if (!isDark) {
         const grad = ctx.createRadialGradient(w * 0.3, h * 0.2, 0, w * 0.5, h * 0.5, w * 0.8);
-        grad.addColorStop(0, 'hsla(220, 70%, 55%, 0.07)');
-        grad.addColorStop(0.5, 'hsla(225, 60%, 45%, 0.04)');
-        grad.addColorStop(1, 'hsla(230, 50%, 35%, 0)');
+        grad.addColorStop(0, 'hsla(220, 60%, 55%, 0.04)');
+        grad.addColorStop(0.5, 'hsla(225, 50%, 45%, 0.02)');
+        grad.addColorStop(1, 'hsla(230, 40%, 35%, 0)');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
       }
@@ -86,9 +86,9 @@ export function DashboardHexBackground() {
       const endRow = startRow + Math.ceil(h / hexHeight) + 3;
       const cols = Math.ceil(w / (hexWidth * 0.75)) + 2;
 
-      const driftA = time * 360;
-      const driftB = time * 270;
-      const driftC = time * 200;
+      const driftA = time * 200;
+      const driftB = time * 150;
+      const driftC = time * 110;
 
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
@@ -104,7 +104,7 @@ export function DashboardHexBackground() {
 
           if (cyScreen < -hexSize || cyScreen > h + hexSize) continue;
 
-          let alpha = 0.09;
+          let alpha = 0.06;
 
           const dA = cx + cyPage * 0.55;
           const dB = cx * 0.78 + cyPage * 0.82;
@@ -119,14 +119,14 @@ export function DashboardHexBackground() {
           const phC = ((dC - driftC) / 860) * TAU;
           const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 4);
 
-          const shimmer = (Math.sin(dA * 0.018 - time * 5) + 1) * 0.5;
-          const shimmer2 = (Math.sin(dB * 0.025 + time * 7) + 1) * 0.5;
-          const shimmer3 = (Math.sin(dC * 0.014 - time * 4.2) + 1) * 0.5;
-          const sparkle = Math.pow((Math.sin(dA * 0.035 + dB * 0.02 - time * 9) + 1) * 0.5, 6);
-          const sparkle2 = Math.pow((Math.sin(dB * 0.028 - dC * 0.018 + time * 11) + 1) * 0.5, 7);
+          const shimmer = (Math.sin(dA * 0.01 - time * 2.5) + 1) * 0.5;
+          const shimmer2 = (Math.sin(dB * 0.014 + time * 3.2) + 1) * 0.5;
+          const shimmer3 = (Math.sin(dC * 0.008 - time * 2.0) + 1) * 0.5;
+          const sparkle = Math.pow((Math.sin(dA * 0.02 + dB * 0.012 - time * 4) + 1) * 0.5, 8);
+          const sparkle2 = Math.pow((Math.sin(dB * 0.016 - dC * 0.01 + time * 5) + 1) * 0.5, 9);
 
-          alpha += bA * 0.17 + bB * 0.13 + bC * 0.1 + shimmer * 0.06 + shimmer2 * 0.05 + shimmer3 * 0.04 + sparkle * 0.35 + sparkle2 * 0.28;
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.85);
+          alpha += bA * 0.1 + bB * 0.08 + bC * 0.06 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.15 + sparkle2 * 0.12;
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.38);
 
           if (alpha < 0.05) continue;
 
@@ -134,13 +134,10 @@ export function DashboardHexBackground() {
           const alphaStr = roundedAlpha.toFixed(2);
 
           if (!isDark) {
-            // Dual-tone: blend between light sky blue and deeper blue based on shimmer
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            // Light hexes: bright sky blue (hue 200, high lightness)
-            // Dark hexes: richer navy-indigo (hue 225, lower lightness)
-            const hue = 195 + colorMix * 35;       // 195–230 range
-            const sat = 90 + colorMix * 10;         // 90–100%
-            const lgt = 72 - colorMix * 22;         // 72–50% lightness
+            const hue = 200 + colorMix * 25;       // 200–225 range (tighter)
+            const sat = 70 + colorMix * 20;         // 70–90%
+            const lgt = 78 - colorMix * 18;         // 78–60% lightness (lighter overall)
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
@@ -150,14 +147,14 @@ export function DashboardHexBackground() {
           }
           lastAlphaStr = alphaStr;
 
-          const needsGlow = alpha > (isDark ? 0.32 : 0.22);
+          const needsGlow = alpha > (isDark ? 0.32 : 0.28);
           if (needsGlow !== lastGlow) {
             if (needsGlow) {
-              ctx.lineWidth = isDark ? 0.7 : 1.1;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(205,100%,70%,0.5)';
-              ctx.shadowBlur = isDark ? 6 : 14;
+              ctx.lineWidth = isDark ? 0.7 : 0.8;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(210,80%,70%,0.25)';
+              ctx.shadowBlur = isDark ? 6 : 8;
             } else {
-              ctx.lineWidth = isDark ? 0.5 : 0.7;
+              ctx.lineWidth = isDark ? 0.5 : 0.5;
               ctx.shadowColor = 'transparent';
               ctx.shadowBlur = 0;
             }
