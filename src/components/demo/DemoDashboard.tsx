@@ -422,9 +422,9 @@ function TodaysCleanEnergyStats() {
               whileHover={{ scale: 1.02, y: -2 }}
               className="rounded-xl p-3 border cursor-pointer select-none touch-manipulation"
               style={{
-                background: `linear-gradient(135deg, ${k.color}1F, ${k.color}0A)`,
-                borderColor: `${k.color}40`,
-                boxShadow: `0 4px 0 0 ${k.color}30`,
+                background: `linear-gradient(135deg, ${k.color}38, ${k.color}1A)`,
+                borderColor: `${k.color}50`,
+                boxShadow: `0 4px 0 0 ${k.color}40`,
                 animation: isVisible ? `fade-in 0.5s ease-out ${i * 0.1}s both` : 'none',
               }}
             >

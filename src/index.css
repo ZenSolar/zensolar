@@ -714,48 +714,12 @@
   75% { box-shadow: inset 0 0 10px 0 var(--shimmer-glow, hsla(142, 76%, 36%, 0.04)); }
 }
 
-/* Neon rainbow glow border for dashboard cards */
-@keyframes neonBorderGlow {
-  0% { 
-    box-shadow: 0 0 12px 2px hsla(340, 90%, 55%, 0.2), 
-                0 0 24px 4px hsla(340, 90%, 55%, 0.08),
-                inset 0 0 8px 0 hsla(340, 90%, 55%, 0.06);
-    border-color: hsla(340, 90%, 55%, 0.3);
-  }
-  20% { 
-    box-shadow: 0 0 14px 3px hsla(30, 95%, 55%, 0.22), 
-                0 0 28px 5px hsla(30, 95%, 55%, 0.1),
-                inset 0 0 10px 0 hsla(30, 95%, 55%, 0.06);
-    border-color: hsla(30, 95%, 55%, 0.35);
-  }
-  40% { 
-    box-shadow: 0 0 14px 3px hsla(155, 90%, 45%, 0.25), 
-                0 0 28px 5px hsla(155, 90%, 45%, 0.1),
-                inset 0 0 10px 0 hsla(155, 90%, 45%, 0.06);
-    border-color: hsla(155, 90%, 45%, 0.35);
-  }
-  60% { 
-    box-shadow: 0 0 14px 3px hsla(210, 90%, 55%, 0.22), 
-                0 0 28px 5px hsla(210, 90%, 55%, 0.1),
-                inset 0 0 10px 0 hsla(210, 90%, 55%, 0.06);
-    border-color: hsla(210, 90%, 55%, 0.35);
-  }
-  80% { 
-    box-shadow: 0 0 12px 2px hsla(280, 75%, 60%, 0.2), 
-                0 0 24px 4px hsla(280, 75%, 60%, 0.08),
-                inset 0 0 8px 0 hsla(280, 75%, 60%, 0.06);
-    border-color: hsla(280, 75%, 60%, 0.3);
-  }
-  100% { 
-    box-shadow: 0 0 12px 2px hsla(340, 90%, 55%, 0.2), 
-                0 0 24px 4px hsla(340, 90%, 55%, 0.08),
-                inset 0 0 8px 0 hsla(340, 90%, 55%, 0.06);
-    border-color: hsla(340, 90%, 55%, 0.3);
-  }
-}
-
+/* Static dark glow border for dashboard cards */
 .card-neon-glow {
-  animation: neonBorderGlow 3.5s ease-in-out infinite;
+  box-shadow: 0 0 8px 1px hsla(210, 70%, 40%, 0.15), 
+              0 0 16px 2px hsla(210, 70%, 40%, 0.06),
+              inset 0 0 6px 0 hsla(210, 70%, 40%, 0.04);
+  border-color: hsla(210, 70%, 40%, 0.22);
 }
 
 /* Emerald glow pulse for energy flow card — syncs with green cascade */
