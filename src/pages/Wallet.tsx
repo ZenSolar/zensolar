@@ -129,9 +129,8 @@ export default function Wallet() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
-      <SEO title="Wallet | ZenSolar" />
-      
+    <div className="max-w-lg mx-auto px-4 py-5 space-y-3.5">
+      <SEO title="My Wallet | ZenSolar" />
       {/* ── Hero Balance Card ── */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -379,31 +378,23 @@ export default function Wallet() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.25 }}
+        className="space-y-2"
       >
-        <div className="rounded-2xl border border-border/40 bg-muted/20 dark:bg-muted/10 p-4 space-y-3">
-          {/* Privacy */}
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-card/80 border border-border/50">
-            <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs font-semibold text-foreground">Privacy Protected</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                Only your <span className="font-medium text-foreground">ZenSolar</span> tokens and NFTs are displayed. We cannot see any other assets in your wallet.
-              </p>
-            </div>
-          </div>
-
-          {/* Network */}
-          <div className="flex items-center justify-between text-xs px-1">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-eco animate-pulse" />
-              <span className="text-muted-foreground">Network</span>
-            </div>
-            <Badge variant="outline" className="text-[10px] font-medium">Base Sepolia</Badge>
-          </div>
-
-          <p className="text-[10px] text-muted-foreground/60 text-center">
-            Balances update automatically every 30 seconds
+        {/* Privacy */}
+        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/20 border border-border/40">
+          <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0" />
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Only your <span className="font-medium text-foreground">ZenSolar</span> tokens and NFTs are displayed. We cannot access other wallet assets.
           </p>
+        </div>
+
+        {/* Network + auto-refresh */}
+        <div className="flex items-center justify-between px-2 py-1.5 text-[10px]">
+          <div className="flex items-center gap-1.5">
+            <div className="h-1.5 w-1.5 rounded-full bg-eco animate-pulse" />
+            <span className="text-muted-foreground">Base Sepolia</span>
+          </div>
+          <span className="text-muted-foreground/50">Auto-refresh every 30s</span>
         </div>
       </motion.div>
     </div>
