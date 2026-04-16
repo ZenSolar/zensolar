@@ -559,13 +559,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
-        hapticSuccess();
         triggerConfetti();
-        try {
-          const audio = new Audio('/sounds/mint-chime.mp3');
-          audio.volume = 0.6;
-          audio.play().catch(() => {});
-        } catch {}
         
         if (!hasTokenBeenAdded() && supportsWatchAsset && walletType === 'metamask') {
           addZsolarToWallet().then(added => {
