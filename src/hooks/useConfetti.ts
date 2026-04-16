@@ -34,7 +34,7 @@ function playCelebrationGongChaChing() {
 
     // Master gain
     const master = ctx.createGain();
-    master.gain.setValueAtTime(0.55, now);
+    master.gain.setValueAtTime(0.6, now);
     master.connect(ctx.destination);
 
     // ═══════════════════════════════════════════
@@ -44,35 +44,37 @@ function playCelebrationGongChaChing() {
     // Sub-bass foundation (30Hz) — long, slow decay
     const subGain = ctx.createGain();
     subGain.gain.setValueAtTime(0, now);
-    subGain.gain.linearRampToValueAtTime(0.22, now + 0.008);
-    subGain.gain.setValueAtTime(0.22, now + 0.15);
-    subGain.gain.exponentialRampToValueAtTime(0.08, now + 1.5);
-    subGain.gain.exponentialRampToValueAtTime(0.001, now + 4.0);
+    subGain.gain.linearRampToValueAtTime(0.28, now + 0.008);
+    subGain.gain.setValueAtTime(0.28, now + 0.15);
+    subGain.gain.exponentialRampToValueAtTime(0.12, now + 2.0);
+    subGain.gain.exponentialRampToValueAtTime(0.04, now + 4.5);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 6.0);
     subGain.connect(master);
     const sub = ctx.createOscillator();
     sub.type = 'sine';
     sub.frequency.setValueAtTime(30, now);
-    sub.frequency.exponentialRampToValueAtTime(27, now + 3.5);
+    sub.frequency.exponentialRampToValueAtTime(27, now + 5.0);
     sub.connect(subGain);
     sub.start(now);
-    sub.stop(now + 4.2);
+    sub.stop(now + 6.2);
 
     // Fundamental — C2 (65Hz) deep singing bowl body — long sustain
     const fundGain = ctx.createGain();
     fundGain.gain.setValueAtTime(0, now);
-    fundGain.gain.linearRampToValueAtTime(0.32, now + 0.005);
-    fundGain.gain.setValueAtTime(0.32, now + 0.12);
-    fundGain.gain.exponentialRampToValueAtTime(0.15, now + 1.0);
-    fundGain.gain.exponentialRampToValueAtTime(0.06, now + 2.5);
-    fundGain.gain.exponentialRampToValueAtTime(0.001, now + 4.5);
+    fundGain.gain.linearRampToValueAtTime(0.38, now + 0.005);
+    fundGain.gain.setValueAtTime(0.38, now + 0.12);
+    fundGain.gain.exponentialRampToValueAtTime(0.2, now + 1.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.1, now + 3.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.03, now + 5.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.001, now + 7.0);
     fundGain.connect(master);
     const fund = ctx.createOscillator();
     fund.type = 'sine';
     fund.frequency.setValueAtTime(65, now);
-    fund.frequency.exponentialRampToValueAtTime(61, now + 4.0);
+    fund.frequency.exponentialRampToValueAtTime(61, now + 6.0);
     fund.connect(fundGain);
     fund.start(now);
-    fund.stop(now + 4.7);
+    fund.stop(now + 7.2);
 
     // Second partial — inharmonic (~155Hz) — medium sustain
     const p2Gain = ctx.createGain();
@@ -141,13 +143,13 @@ function playCelebrationGongChaChing() {
     //  Classic two-tone "ding-ding!" — B5→E6
     //  Starts ~300ms after gong strike
     // ═══════════════════════════════════════════
-    const coinT = now + 0.3;
+    const coinT = now + 0.5;
 
     // --- First tone: B5 (988Hz) — short staccato ---
     const t1Gain = ctx.createGain();
     t1Gain.gain.setValueAtTime(0, coinT);
-    t1Gain.gain.linearRampToValueAtTime(0.28, coinT + 0.001);
-    t1Gain.gain.setValueAtTime(0.28, coinT + 0.04);
+    t1Gain.gain.linearRampToValueAtTime(0.16, coinT + 0.001);
+    t1Gain.gain.setValueAtTime(0.16, coinT + 0.04);
     t1Gain.gain.exponentialRampToValueAtTime(0.001, coinT + 0.08);
     t1Gain.connect(master);
 
@@ -164,7 +166,7 @@ function playCelebrationGongChaChing() {
     t1h.frequency.value = 988 * 2;
     const t1hG = ctx.createGain();
     t1hG.gain.setValueAtTime(0, coinT);
-    t1hG.gain.linearRampToValueAtTime(0.08, coinT + 0.001);
+    t1hG.gain.linearRampToValueAtTime(0.04, coinT + 0.001);
     t1hG.gain.exponentialRampToValueAtTime(0.001, coinT + 0.06);
     t1h.connect(t1hG);
     t1hG.connect(master);
@@ -175,8 +177,8 @@ function playCelebrationGongChaChing() {
     const t2Start = coinT + 0.075;
     const t2Gain = ctx.createGain();
     t2Gain.gain.setValueAtTime(0, t2Start);
-    t2Gain.gain.linearRampToValueAtTime(0.3, t2Start + 0.001);
-    t2Gain.gain.setValueAtTime(0.3, t2Start + 0.15);
+    t2Gain.gain.linearRampToValueAtTime(0.18, t2Start + 0.001);
+    t2Gain.gain.setValueAtTime(0.18, t2Start + 0.15);
     t2Gain.gain.exponentialRampToValueAtTime(0.12, t2Start + 0.4);
     t2Gain.gain.exponentialRampToValueAtTime(0.001, t2Start + 0.8);
     t2Gain.connect(master);
@@ -194,7 +196,7 @@ function playCelebrationGongChaChing() {
     t2h.frequency.value = 1319 * 2;
     const t2hG = ctx.createGain();
     t2hG.gain.setValueAtTime(0, t2Start);
-    t2hG.gain.linearRampToValueAtTime(0.1, t2Start + 0.001);
+    t2hG.gain.linearRampToValueAtTime(0.05, t2Start + 0.001);
     t2hG.gain.setValueAtTime(0.1, t2Start + 0.1);
     t2hG.gain.exponentialRampToValueAtTime(0.001, t2Start + 0.5);
     t2h.connect(t2hG);
