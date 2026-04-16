@@ -270,12 +270,12 @@ export function ActivityMetrics({
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
       >
-        {/* KPI area rainbow shimmer — at card edge for full-width sweep */}
+        {/* KPI area rainbow shimmer — synced cascade: wallet 0s → header 0.5s → body 1.0s */}
         <ShimmerOverlay
           gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 8%, hsl(30 90% 55% / 0.35) 22%, hsl(60 85% 50% / 0.3) 36%, hsl(155 90% 50% / 0.45) 52%, hsl(210 85% 55% / 0.4) 68%, hsl(280 70% 58% / 0.3) 84%, transparent 100%)"
           glowColor="hsla(155, 85%, 45%, 0.15)"
-          duration="4.5s"
-          idleDelay="1.2s"
+          duration="4s"
+          idleDelay="1.0s"
           className="z-0 inset-0"
         />
       <CardContent className="p-2.5 pt-0 space-y-2">
@@ -294,7 +294,7 @@ export function ActivityMetrics({
             gradient="linear-gradient(90deg, transparent 0%, hsl(210 90% 55% / 0.45) 20%, hsl(215 85% 48% / 0.55) 40%, hsl(220 80% 52% / 0.5) 60%, hsl(210 90% 55% / 0.4) 80%, transparent 100%)"
             glowColor="hsla(210, 90%, 50%, 0.25)"
             duration="4s"
-            idleDelay="0.4s"
+            idleDelay="0.5s"
           />
 
           <div className="relative space-y-3">
