@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { 
   TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, 
   ChevronDown, ChevronUp, Images, ExternalLink, ShieldCheck, 
-  ArrowUpRight, Zap, Banknote, Receipt, Clock, X, Lock
+  ArrowUpRight, Zap, Banknote, Receipt, Clock, X, Lock,
+  ArrowLeftRight, Bitcoin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
