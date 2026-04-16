@@ -1224,6 +1224,30 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
                   <CheckCircle2 className="h-12 w-12 text-green-500" />
                 </div>
+              ) : mintingProgress.step === 'transmitting' ? (
+                <div className="relative w-full h-full">
+                  {/* Expanding pulse rings */}
+                  <div className="absolute inset-[-12px] rounded-full border border-primary/20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+                  <div className="absolute inset-[-6px] rounded-full border border-primary/15 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
+                  <div className="absolute inset-[-20px] rounded-full border border-primary/10 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
+                  
+                  {/* Orbiting nodes */}
+                  <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite]">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
+                  </div>
+                  <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite_reverse]">
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary/70 shadow-[0_0_6px_hsl(var(--primary)/0.5)]" />
+                  </div>
+                  <div className="absolute inset-[-16px] animate-[spin_6s_linear_infinite]">
+                    <div className="absolute top-1/2 left-0 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary/50 shadow-[0_0_4px_hsl(var(--primary)/0.3)]" />
+                  </div>
+                  
+                  {/* Core glow */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/25 via-primary/15 to-primary/5 animate-pulse shadow-[0_0_30px_hsl(var(--primary)/0.3)]" />
+                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-2 ring-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.2)]">
+                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                  </div>
+                </div>
               ) : (
                 <>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 animate-pulse" />
