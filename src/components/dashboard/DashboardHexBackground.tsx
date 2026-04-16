@@ -86,9 +86,9 @@ export function DashboardHexBackground() {
       const endRow = startRow + Math.ceil(h / hexHeight) + 3;
       const cols = Math.ceil(w / (hexWidth * 0.75)) + 2;
 
-      const driftA = time * 360;
-      const driftB = time * 270;
-      const driftC = time * 200;
+      const driftA = time * 200;
+      const driftB = time * 150;
+      const driftC = time * 110;
 
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
