@@ -1231,15 +1231,28 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   <div className="absolute inset-[-6px] rounded-full border border-primary/15 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
                   <div className="absolute inset-[-20px] rounded-full border border-primary/10 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
                   
-                  {/* Orbiting nodes */}
+                  {/* Orbiting nodes with sparkle trails */}
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite]">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
+                      {/* Trail particles */}
+                      <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-primary/40 animate-[ping_1s_ease-out_infinite]" />
+                      <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-primary/25 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
+                      <div className="absolute top-1 left-3 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.2s_ease-out_infinite_0.6s]" />
+                    </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite_reverse]">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary/70 shadow-[0_0_6px_hsl(var(--primary)/0.5)]" />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+                      <div className="w-2 h-2 rounded-full bg-primary/70 shadow-[0_0_6px_hsl(var(--primary)/0.5)]" />
+                      <div className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-primary/30 animate-[ping_1.3s_ease-out_infinite_0.2s]" />
+                      <div className="absolute -top-2 right-1 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.6s_ease-out_infinite_0.5s]" />
+                    </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_6s_linear_infinite]">
-                    <div className="absolute top-1/2 left-0 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary/50 shadow-[0_0_4px_hsl(var(--primary)/0.3)]" />
+                    <div className="absolute top-1/2 left-0 -translate-y-1/2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary/50 shadow-[0_0_4px_hsl(var(--primary)/0.3)]" />
+                      <div className="absolute -top-1 left-2 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.4s_ease-out_infinite_0.4s]" />
+                    </div>
                   </div>
                   
                   {/* Core glow */}
