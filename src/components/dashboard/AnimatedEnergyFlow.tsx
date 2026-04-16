@@ -433,28 +433,28 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
   // Responsive node positions — tighter on mobile
   const nodes = compact
     ? {
-        solar: { x: 200, y: 55 },
+        solar: { x: 200, y: 42 },
         home: { x: 200, y: 190 },
-        battery: { x: 55, y: 210 },
-        grid: { x: 345, y: 210 },
-        ev: { x: 200, y: 305 },
+        battery: { x: 48, y: 220 },
+        grid: { x: 352, y: 220 },
+        ev: { x: 200, y: 320 },
       }
     : {
-        solar: { x: 200, y: 70 },
+        solar: { x: 200, y: 55 },
         home: { x: 200, y: 230 },
-        battery: { x: 50, y: 265 },
-        grid: { x: 350, y: 265 },
-        ev: { x: 200, y: 380 },
+        battery: { x: 45, y: 275 },
+        grid: { x: 355, y: 275 },
+        ev: { x: 200, y: 395 },
       };
 
   // Meter position (right side of house)
   const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 460' : '0 0 400 550';
-  const maxH = compact ? '470px' : '660px';
-  const labelFs = compact ? 9 : 11;
-  const valueFs = compact ? 22 : 28;
-  const subValueFs = compact ? 17 : 22;
+  const vb = compact ? '0 0 400 490' : '0 0 400 570';
+  const maxH = compact ? '500px' : '680px';
+  const labelFs = compact ? 8 : 10;
+  const valueFs = compact ? 20 : 26;
+  const subValueFs = compact ? 15 : 20;
 
   return (
     <div className={`relative ${className}`}>
@@ -586,22 +586,22 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
         {/* ── SOLAR ── */}
         <g>
-          <circle cx={nodes.solar.x} cy={nodes.solar.y} r={compact ? 16 : 20} fill={colors.solar} fillOpacity={0.1} stroke={colors.solar} strokeWidth={1} strokeOpacity={0.4} />
-          <foreignObject x={nodes.solar.x - 10} y={nodes.solar.y - 10} width={20} height={20}>
+          <circle cx={nodes.solar.x} cy={nodes.solar.y} r={compact ? 14 : 18} fill={colors.solar} fillOpacity={0.1} stroke={colors.solar} strokeWidth={0.8} strokeOpacity={0.35} />
+          <foreignObject x={nodes.solar.x - 8} y={nodes.solar.y - 8} width={16} height={16}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.solar} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.solar} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                 <circle cx="12" cy="12" r="4" />
                 <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
               </svg>
             </div>
           </foreignObject>
-          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 22 : 30)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">SOLAR</text>
-          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 33 : 42)} textAnchor="middle" fill={colors.solar} fontSize={valueFs} fontWeight="800" filter="url(#valueGlow)">
+          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 20 : 26)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">SOLAR</text>
+          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 29 : 37)} textAnchor="middle" fill={colors.solar} fontSize={valueFs} fontWeight="800" filter="url(#valueGlow)">
             {flow.solarPower.toFixed(1)} kW
           </text>
           {/* Enphase pill */}
-          <rect x={nodes.solar.x + (compact ? 20 : 24)} y={nodes.solar.y - 7} width={compact ? 42 : 50} height={14} rx={7} fill="#F26522" fillOpacity={0.15} stroke="#F26522" strokeWidth={0.6} strokeOpacity={0.5} />
-          <text x={nodes.solar.x + (compact ? 41 : 49)} y={nodes.solar.y + 3} textAnchor="middle" fill="#F26522" fontSize={compact ? 6 : 7} fontWeight="700" letterSpacing="0.3">ENPHASE</text>
+          <rect x={nodes.solar.x + (compact ? 18 : 22)} y={nodes.solar.y - 6} width={compact ? 40 : 48} height={12} rx={6} fill="#F26522" fillOpacity={0.12} stroke="#F26522" strokeWidth={0.5} strokeOpacity={0.4} />
+          <text x={nodes.solar.x + (compact ? 38 : 46)} y={nodes.solar.y + 2} textAnchor="middle" fill="#F26522" fontSize={compact ? 5.5 : 6.5} fontWeight="700" letterSpacing="0.3">ENPHASE</text>
         </g>
 
         {/* ── HOME ── centered in house body */}
@@ -615,41 +615,40 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
         {/* ── POWERWALL ── */}
         <g>
-          <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 16 : 20} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={1} strokeOpacity={0.4} />
+          <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={0.8} strokeOpacity={0.35} />
           <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">POWERWALL</text>
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
           {/* Tesla pill */}
-          <rect x={nodes.battery.x + (compact ? 20 : 24)} y={nodes.battery.y - 7} width={compact ? 34 : 40} height={14} rx={7} fill="#E82127" fillOpacity={0.15} stroke="#E82127" strokeWidth={0.6} strokeOpacity={0.5} />
-          <text x={nodes.battery.x + (compact ? 37 : 44)} y={nodes.battery.y + 3} textAnchor="middle" fill="#E82127" fontSize={compact ? 6 : 7} fontWeight="700" letterSpacing="0.3">TESLA</text>
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 38 : 50)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
+          <rect x={nodes.battery.x + (compact ? 18 : 22)} y={nodes.battery.y - 6} width={compact ? 32 : 38} height={12} rx={6} fill="#E82127" fillOpacity={0.12} stroke="#E82127" strokeWidth={0.5} strokeOpacity={0.4} />
+          <text x={nodes.battery.x + (compact ? 34 : 41)} y={nodes.battery.y + 2} textAnchor="middle" fill="#E82127" fontSize={compact ? 5.5 : 6.5} fontWeight="700" letterSpacing="0.3">TESLA</text>
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {Math.abs(flow.batteryPower).toFixed(1)} kW
           </text>
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 48 : 63)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 9 : 11}>
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 8 : 10}>
             · {flow.batteryPercent}%
           </text>
-          <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36} height={5} rx={2.5} fill="#1a2030" fillOpacity={0.15} />
-          <rect x={nodes.battery.x - 18} y={nodes.battery.y + (compact ? 52 : 68)} width={36 * (flow.batteryPercent / 100)} height={5} rx={2.5} fill={colors.battery} fillOpacity={0.6} />
+          <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32} height={4} rx={2} fill="#1a2030" fillOpacity={0.15} />
+          <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32 * (flow.batteryPercent / 100)} height={4} rx={2} fill={colors.battery} fillOpacity={0.6} />
         </g>
 
         {/* ── GRID (power tower icon) ── */}
         <g>
-          <circle cx={nodes.grid.x} cy={nodes.grid.y} r={compact ? 16 : 20} fill={colors.grid} fillOpacity={0.1} stroke={colors.grid} strokeWidth={1} strokeOpacity={0.4} />
-          <foreignObject x={nodes.grid.x - 10} y={nodes.grid.y - 10} width={20} height={20}>
+          <circle cx={nodes.grid.x} cy={nodes.grid.y} r={compact ? 14 : 18} fill={colors.grid} fillOpacity={0.1} stroke={colors.grid} strokeWidth={0.8} strokeOpacity={0.35} />
+          <foreignObject x={nodes.grid.x - 8} y={nodes.grid.y - 8} width={16} height={16}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.grid} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                {/* Power transmission tower */}
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.grid} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                 <path d="M8 2h8l-2 6h3l-5 14 1-8H9l1-6H8z" fill="none" />
                 <line x1="4" y1="8" x2="20" y2="8" />
                 <line x1="6" y1="4" x2="18" y2="4" />
               </svg>
             </div>
           </foreignObject>
-          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">GRID</text>
-          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 38 : 50)} textAnchor="middle" fill={colors.grid} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
+          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">GRID</text>
+          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.grid} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {Math.abs(flow.gridPower).toFixed(1)} kW
           </text>
           {flow.gridPower !== 0 && (
-            <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 48 : 63)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 8 : 10}>
+            <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 45 : 55)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 7 : 9}>
               {flow.gridPower > 0 ? 'importing' : 'exporting'}
             </text>
           )}
@@ -657,34 +656,33 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
         {/* ── EV CHARGER ── */}
         <g>
-          <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 16 : 20} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={1} strokeOpacity={0.4} />
-          {/* Lightning bolt icon for EV charger */}
-          <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 10} width={20} height={20}>
+          <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 14 : 18} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={0.8} strokeOpacity={0.35} />
+          <foreignObject x={nodes.ev.x - 8} y={nodes.ev.y - 8} width={16} height={16}>
             <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
               </svg>
             </div>
           </foreignObject>
           {flow.evPower > 0 && (
-            <g opacity="0.6">
+            <g opacity="0.5">
               <path
-                d={`M${nodes.ev.x + 13},${nodes.ev.y - 1} Q${nodes.ev.x + 22},${nodes.ev.y - 8} ${nodes.ev.x + 18},${nodes.ev.y - 20}`}
-                fill="none" stroke={colors.ev} strokeWidth="1.2" strokeDasharray="3 2"
+                d={`M${nodes.ev.x + 12},${nodes.ev.y - 1} Q${nodes.ev.x + 20},${nodes.ev.y - 8} ${nodes.ev.x + 16},${nodes.ev.y - 18}`}
+                fill="none" stroke={colors.ev} strokeWidth="1" strokeDasharray="3 2"
               >
                 <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite" />
               </path>
             </g>
           )}
-          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">EV CHARGER</text>
+          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">EV CHARGER</text>
           {/* Wallbox pill */}
-          <rect x={nodes.ev.x + (compact ? 20 : 24)} y={nodes.ev.y - 7} width={compact ? 46 : 54} height={14} rx={7} fill="#00B4AA" fillOpacity={0.15} stroke="#00B4AA" strokeWidth={0.6} strokeOpacity={0.5} />
-          <text x={nodes.ev.x + (compact ? 43 : 51)} y={nodes.ev.y + 3} textAnchor="middle" fill="#00B4AA" fontSize={compact ? 6 : 7} fontWeight="700" letterSpacing="0.3">WALLBOX</text>
-          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 38 : 50)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
+          <rect x={nodes.ev.x + (compact ? 18 : 22)} y={nodes.ev.y - 6} width={compact ? 44 : 52} height={12} rx={6} fill="#00B4AA" fillOpacity={0.12} stroke="#00B4AA" strokeWidth={0.5} strokeOpacity={0.4} />
+          <text x={nodes.ev.x + (compact ? 40 : 48)} y={nodes.ev.y + 2} textAnchor="middle" fill="#00B4AA" fontSize={compact ? 5.5 : 6.5} fontWeight="700" letterSpacing="0.3">WALLBOX</text>
+          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {flow.evPower.toFixed(1)} kW
           </text>
           {flow.evPower > 0 && (
-            <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 48 : 63)} textAnchor="middle" fill={colors.ev} fontSize={compact ? 7 : 9} fontWeight="500">
+            <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 45 : 55)} textAnchor="middle" fill={colors.ev} fontSize={compact ? 6.5 : 8.5} fontWeight="500">
               <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
               ⚡ CHARGING
             </text>
@@ -696,13 +694,13 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Today's Stats — full width bottom panel */}
           {(() => {
             const sx = compact ? 10 : 14;
-            const sy = compact ? 375 : 450;
+            const sy = compact ? 400 : 470;
             const cardW = compact ? 370 : 380;
-            const cardH = compact ? 82 : 96;
-            const valueFontSize = compact ? 22 : 26;
-            const unitFontSize = compact ? 9 : 10;
-            const labelFontSize = compact ? 7 : 8;
-            const headerFs = compact ? 8 : 9;
+            const cardH = compact ? 78 : 90;
+            const valueFontSize = compact ? 20 : 24;
+            const unitFontSize = compact ? 8 : 9;
+            const labelFontSize = compact ? 6.5 : 7.5;
+            const headerFs = compact ? 7.5 : 8.5;
             const colW = cardW / 3;
 
             const stats = [
@@ -713,7 +711,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             return (
               <g>
                 {/* Card background */}
-                <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill="#0f172a" fillOpacity={0.6} stroke="hsl(142 76% 36% / 0.15)" strokeWidth={0.8} />
+                <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill="#0f172a" fillOpacity={0.45} stroke="hsl(142 76% 36% / 0.12)" strokeWidth={0.6} />
                 {/* Header with live indicator */}
                 <circle cx={sx + cardW / 2 - 38} cy={sy + 11} r={3} fill="#22C55E">
                   <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
