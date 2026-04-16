@@ -1234,16 +1234,55 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       {/* Minting Progress Dialog */}
       <Dialog open={mintingProgressDialog} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="py-10 text-center space-y-6">
+          <div className="py-8 text-center space-y-6 relative overflow-hidden">
+            {/* Background ambient glow effect */}
+            {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-primary/5 animate-pulse blur-3xl" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-primary/8 animate-[pulse_3s_ease-in-out_infinite] blur-2xl" />
+              </div>
+            )}
+            {mintingProgress.step === 'complete' && (
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-green-500/8 animate-pulse blur-3xl" />
+              </div>
+            )}
+
+            {/* Step indicators */}
+            {mintingProgress.step !== 'error' && (
+              <div className="flex items-center justify-center gap-1.5 relative">
+                {['preparing', 'submitting', 'transmitting', 'confirming', 'complete'].map((step, i) => {
+                  const steps = ['preparing', 'submitting', 'transmitting', 'confirming', 'complete'];
+                  const currentIdx = steps.indexOf(mintingProgress.step);
+                  const isActive = i === currentIdx;
+                  const isDone = i < currentIdx;
+                  return (
+                    <div key={step} className="flex items-center gap-1.5">
+                      <div className={`h-1.5 rounded-full transition-all duration-500 ${
+                        isDone ? 'w-6 bg-primary' :
+                        isActive ? 'w-8 bg-primary animate-pulse' :
+                        'w-4 bg-muted'
+                      }`} />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Animated Icon */}
-            <div className="relative w-24 h-24 mx-auto">
+            <div className="relative w-28 h-28 mx-auto">
               {mintingProgress.step === 'error' ? (
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-destructive/20 via-destructive/10 to-destructive/5 flex items-center justify-center ring-2 ring-destructive/20 shadow-xl">
                   <AlertCircle className="h-12 w-12 text-destructive" />
                 </div>
               ) : mintingProgress.step === 'complete' ? (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
-                  <CheckCircle2 className="h-12 w-12 text-green-500" />
+                <div className="relative">
+                  {/* Success burst rings */}
+                  <div className="absolute inset-[-8px] rounded-full border-2 border-green-500/20 animate-[ping_1.5s_ease-out_1]" />
+                  <div className="absolute inset-[-16px] rounded-full border border-green-500/10 animate-[ping_2s_ease-out_1]" />
+                  <div className="w-28 h-28 rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                    <CheckCircle2 className="h-14 w-14 text-green-500" />
+                  </div>
                 </div>
               ) : mintingProgress.step === 'transmitting' ? (
                 <div className="relative w-full h-full">
@@ -1253,25 +1292,24 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   <div className="absolute inset-[-20px] rounded-full border border-primary/10 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
                   
                   {/* Network graph connecting lines */}
-                  <svg className="absolute inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)]" viewBox="0 0 104 104">
-                    {/* Animated dashed lines connecting nodes to center */}
-                    <line x1="52" y1="4" x2="52" y2="52" className="stroke-primary/20" strokeWidth="0.5" strokeDasharray="3 3">
+                  <svg className="absolute inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)]" viewBox="0 0 120 120">
+                    <line x1="60" y1="4" x2="60" y2="60" className="stroke-primary/20" strokeWidth="0.5" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1s" repeatCount="indefinite" />
                     </line>
-                    <line x1="52" y1="100" x2="52" y2="52" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
+                    <line x1="60" y1="116" x2="60" y2="60" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="4" y1="52" x2="52" y2="52" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
+                    <line x1="4" y1="60" x2="60" y2="60" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.4s" repeatCount="indefinite" />
                     </line>
-                    {/* Cross connections between outer nodes */}
-                    <line x1="52" y1="4" x2="4" y2="52" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
+                    <line x1="116" y1="60" x2="60" y2="60" className="stroke-primary/12" strokeWidth="0.5" strokeDasharray="3 3">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1.1s" repeatCount="indefinite" />
+                    </line>
+                    {/* Cross connections */}
+                    <line x1="60" y1="4" x2="4" y2="60" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="52" y1="4" x2="52" y2="100" className="stroke-primary/8" strokeWidth="0.3" strokeDasharray="2 4">
-                      <animate attributeName="stroke-dashoffset" values="0;6" dur="2.2s" repeatCount="indefinite" />
-                    </line>
-                    <line x1="4" y1="52" x2="52" y2="100" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
+                    <line x1="116" y1="60" x2="60" y2="116" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.8s" repeatCount="indefinite" />
                     </line>
                   </svg>
@@ -1279,44 +1317,59 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   {/* Orbiting nodes with sparkle trails */}
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite]">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]" />
                       <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-primary/40 animate-[ping_1s_ease-out_infinite]" />
                       <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-primary/25 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
-                      <div className="absolute top-1 left-3 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.2s_ease-out_infinite_0.6s]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite_reverse]">
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
                       <div className="w-2 h-2 rounded-full bg-primary/70 shadow-[0_0_6px_hsl(var(--primary)/0.5)]" />
                       <div className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-primary/30 animate-[ping_1.3s_ease-out_infinite_0.2s]" />
-                      <div className="absolute -top-2 right-1 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.6s_ease-out_infinite_0.5s]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_6s_linear_infinite]">
                     <div className="absolute top-1/2 left-0 -translate-y-1/2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary/50 shadow-[0_0_4px_hsl(var(--primary)/0.3)]" />
-                      <div className="absolute -top-1 left-2 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.4s_ease-out_infinite_0.4s]" />
+                    </div>
+                  </div>
+                  <div className="absolute inset-[-16px] animate-[spin_5s_linear_infinite]">
+                    <div className="absolute top-1/2 right-0 -translate-y-1/2">
+                      <div className="w-2 h-2 rounded-full bg-primary/60 shadow-[0_0_5px_hsl(var(--primary)/0.4)]" />
+                      <div className="absolute top-1 left-2 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.2s_ease-out_infinite_0.5s]" />
                     </div>
                   </div>
                   
                   {/* Core glow */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/25 via-primary/15 to-primary/5 animate-pulse shadow-[0_0_30px_hsl(var(--primary)/0.3)]" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/25 via-primary/15 to-primary/5 animate-pulse shadow-[0_0_40px_hsl(var(--primary)/0.3)]" />
                   <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-2 ring-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.2)]">
                     <Loader2 className="h-10 w-10 text-primary animate-spin" />
                   </div>
                 </div>
+              ) : mintingProgress.step === 'confirming' ? (
+                <div className="relative w-full h-full">
+                  {/* Pulsing ring for confirming */}
+                  <div className="absolute inset-[-4px] rounded-full border-2 border-primary/30 animate-[pulse_1.5s_ease-in-out_infinite]" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 animate-pulse shadow-[0_0_25px_hsl(var(--primary)/0.25)]" />
+                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-2 ring-primary/25 shadow-xl">
+                    <CheckCircle2 className="h-10 w-10 text-primary animate-pulse" />
+                  </div>
+                </div>
               ) : (
-                <>
+                <div className="relative w-full h-full">
+                  {/* Subtle rotating ring for preparing/submitting */}
+                  <div className="absolute inset-[-4px] rounded-full border border-primary/15 animate-[spin_8s_linear_infinite]" 
+                    style={{ borderTopColor: 'hsl(var(--primary) / 0.4)' }} />
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 animate-pulse" />
                   <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-2 ring-primary/20 shadow-xl">
                     <Loader2 className="h-10 w-10 text-primary animate-spin" />
                   </div>
-                </>
+                </div>
               )}
             </div>
 
             {/* Title */}
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <h3 className="text-xl font-bold">
                 {mintingProgress.step === 'preparing' && 'Preparing Transaction'}
                 {mintingProgress.step === 'submitting' && 'Submitting Transaction'}
@@ -1331,30 +1384,48 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             {/* Progress bar */}
             {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
               <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-5 border border-border/60 max-w-xs mx-auto">
-               <div className="h-2.5 bg-muted rounded-full overflow-hidden ring-1 ring-border/50">
+               <div className="h-2.5 bg-muted rounded-full overflow-hidden ring-1 ring-border/50 relative">
                   <div 
-                    className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out rounded-full"
+                    className="h-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-700 ease-out rounded-full relative"
                     style={{
                       width: mintingProgress.step === 'preparing' ? '20%' : 
                              mintingProgress.step === 'submitting' ? '40%' : 
                              mintingProgress.step === 'transmitting' ? '65%' :
                              mintingProgress.step === 'confirming' ? '85%' : '100%'
                     }}
-                  />
+                  >
+                    {/* Shimmer sweep on progress bar */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_ease-in-out_infinite]" 
+                      style={{ backgroundSize: '200% 100%' }} />
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Please wait while your transaction is being processed...
+                  {mintingProgress.step === 'preparing' && 'Validating your energy data…'}
+                  {mintingProgress.step === 'submitting' && 'Signing transaction with your wallet…'}
+                  {mintingProgress.step === 'transmitting' && 'Broadcasting to the blockchain network…'}
+                  {mintingProgress.step === 'confirming' && 'Waiting for block confirmation…'}
                 </p>
               </div>
             )}
             
             {/* Success message */}
             {mintingProgress.step === 'complete' && (
-              <div className="bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl p-4 border border-green-500/20 max-w-xs mx-auto">
+              <div className="bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl p-4 border border-green-500/20 max-w-xs mx-auto shadow-[0_0_20px_rgba(34,197,94,0.1)]">
                 <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                   ✨ Your tokens have been minted successfully!
                 </p>
               </div>
+            )}
+
+            {/* Error retry */}
+            {mintingProgress.step === 'error' && (
+              <Button
+                variant="outline"
+                onClick={() => setMintingProgressDialog(false)}
+                className="mx-auto"
+              >
+                Close
+              </Button>
             )}
           </div>
         </DialogContent>
