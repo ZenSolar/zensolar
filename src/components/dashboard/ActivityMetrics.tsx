@@ -270,14 +270,7 @@ export function ActivityMetrics({
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
       >
-        {/* KPI area rainbow shimmer — synced cascade: wallet 0s → header 0.5s → body 1.0s */}
-        <ShimmerOverlay
-          gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 8%, hsl(30 90% 55% / 0.35) 22%, hsl(60 85% 50% / 0.3) 36%, hsl(155 90% 50% / 0.45) 52%, hsl(210 85% 55% / 0.4) 68%, hsl(280 70% 58% / 0.3) 84%, transparent 100%)"
-          glowColor="hsla(155, 85%, 45%, 0.15)"
-          duration="4s"
-          idleDelay="1.0s"
-          className="z-0 inset-0"
-        />
+        {/* KPI area rainbow shimmer — moved inside body so it doesn't bleed into the header */}
       <CardContent className="p-2.5 pt-0 space-y-2">
         {/* Header — Clean Energy Center Hero */}
         <div 
