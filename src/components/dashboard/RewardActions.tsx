@@ -1174,29 +1174,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         </p>
                       )}
 
-                      {/* Supercharger vs Home Charger breakdown for charging category */}
-                      {pendingMintRequest.category === 'charging' && (pendingRewards.superchargerKwh || pendingRewards.homeChargerKwh) ? (
-                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                          {(pendingRewards.superchargerKwh ?? 0) > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5">
-                                <Zap className="h-3 w-3 text-purple-500" />
-                                Tesla Supercharger
-                              </span>
-                              <span className="font-medium text-foreground tabular-nums">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} kWh</span>
-                            </div>
-                          )}
-                          {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5">
-                                <Zap className="h-3 w-3 text-emerald-500" />
-                                Home Charger
-                              </span>
-                              <span className="font-medium text-foreground tabular-nums">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} kWh</span>
-                            </div>
-                          )}
-                        </div>
-                      ) : null}
+                      {/* Activity amount for this specific category */}
                       
                       <div className="flex items-center justify-between pt-1.5 border-t border-primary/20">
                         <span className="text-xs text-muted-foreground">Tokens to<br/>receive:</span>
@@ -1268,11 +1246,34 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   <div className="absolute inset-[-6px] rounded-full border border-primary/15 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
                   <div className="absolute inset-[-20px] rounded-full border border-primary/10 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
                   
+                  {/* Network graph connecting lines */}
+                  <svg className="absolute inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)]" viewBox="0 0 104 104">
+                    {/* Animated dashed lines connecting nodes to center */}
+                    <line x1="52" y1="4" x2="52" y2="52" className="stroke-primary/20" strokeWidth="0.5" strokeDasharray="3 3">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="52" y1="100" x2="52" y2="52" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1.2s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="4" y1="52" x2="52" y2="52" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1.4s" repeatCount="indefinite" />
+                    </line>
+                    {/* Cross connections between outer nodes */}
+                    <line x1="52" y1="4" x2="4" y2="52" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="2s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="52" y1="4" x2="52" y2="100" className="stroke-primary/8" strokeWidth="0.3" strokeDasharray="2 4">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="2.2s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="4" y1="52" x2="52" y2="100" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1.8s" repeatCount="indefinite" />
+                    </line>
+                  </svg>
+                  
                   {/* Orbiting nodes with sparkle trails */}
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite]">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2">
                       <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
-                      {/* Trail particles */}
                       <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-primary/40 animate-[ping_1s_ease-out_infinite]" />
                       <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-primary/25 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
                       <div className="absolute top-1 left-3 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.2s_ease-out_infinite_0.6s]" />
