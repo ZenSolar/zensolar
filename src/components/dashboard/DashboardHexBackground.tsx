@@ -135,9 +135,9 @@ export function DashboardHexBackground() {
 
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            const hue = 200 + colorMix * 25;       // 200–225 range (tighter)
-            const sat = 70 + colorMix * 20;         // 70–90%
-            const lgt = 78 - colorMix * 18;         // 78–60% lightness (lighter overall)
+            const hue = 207 + colorMix * 15;       // 207–222 range (brand blue → deeper blue)
+            const sat = 75 + colorMix * 15;         // 75–90%
+            const lgt = 62 - colorMix * 16;         // 62–46% lightness (richer, deeper)
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
