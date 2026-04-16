@@ -341,8 +341,8 @@ function EnergyFlowGlowCard() {
     <div
       className="rounded-xl overflow-hidden bg-card/5"
       style={{
-        border: '1.5px solid hsla(170, 80%, 40%, 0.3)',
-        boxShadow: '0 0 10px 2px hsla(170, 80%, 40%, 0.15), 0 0 22px 4px hsla(170, 80%, 40%, 0.07), inset 0 0 6px 0 hsla(170, 80%, 40%, 0.04)',
+        border: '2px solid hsla(170, 80%, 40%, 0.45)',
+        boxShadow: '0 0 12px 3px hsla(170, 80%, 40%, 0.25), 0 0 28px 6px hsla(170, 80%, 40%, 0.12), inset 0 0 10px 2px hsla(170, 80%, 40%, 0.06)',
       }}
     >
       <AnimatedEnergyFlow className="w-full" />
@@ -397,7 +397,7 @@ function TodaysCleanEnergyStats() {
   return (
     <div ref={ref} className="emerald-glow-card rounded-2xl p-4 pt-3 relative overflow-hidden">
       {/* Tinted background for less transparency */}
-      <div className="absolute inset-0" style={{ background: 'hsl(220 20% 10% / 0.6)' }} />
+      <div className="absolute inset-0" style={{ background: 'hsl(220 20% 10% / 0.75)' }} />
       {/* Animated gradient background */}
       <div className="absolute inset-0 opacity-[0.06]" style={{
         background: 'linear-gradient(135deg, #F59E0B 0%, #3B82F6 25%, #22C55E 50%, #8B5CF6 75%, #F59E0B 100%)',

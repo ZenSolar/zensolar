@@ -714,12 +714,13 @@
   75% { box-shadow: inset 0 0 10px 0 var(--shimmer-glow, hsla(142, 76%, 36%, 0.04)); }
 }
 
-/* Static dark glow border for dashboard cards */
+/* Static dark glow border for dashboard cards — bold & vivid */
 .card-neon-glow {
-  box-shadow: 0 0 10px 2px hsla(170, 80%, 40%, 0.2),
-              0 0 22px 4px hsla(170, 80%, 40%, 0.1),
-              inset 0 0 8px 1px hsla(170, 80%, 40%, 0.06);
-  border-color: hsla(170, 80%, 40%, 0.35);
+  box-shadow: 0 0 14px 3px hsla(170, 80%, 40%, 0.28),
+              0 0 30px 6px hsla(170, 80%, 40%, 0.14),
+              inset 0 0 10px 2px hsla(170, 80%, 40%, 0.08);
+  border-color: hsla(170, 80%, 40%, 0.5);
+  border-width: 2px;
 }
 
 /* Emerald glow pulse for energy flow card — syncs with green cascade */
@@ -768,13 +769,13 @@
   50% { transform: translateX(-6px); }
 }
 
-/* Reusable emerald glow border for dashboard cards */
+/* Reusable emerald glow border for dashboard cards — bold & vivid */
 .emerald-glow-card {
-  border: 1.5px solid hsla(170, 80%, 40%, 0.3);
+  border: 2px solid hsla(170, 80%, 40%, 0.45);
   border-radius: 0.75rem;
-  box-shadow: 0 0 10px 2px hsla(170, 80%, 40%, 0.15),
-              0 0 22px 4px hsla(170, 80%, 40%, 0.07),
-              inset 0 0 6px 0 hsla(170, 80%, 40%, 0.04);
+  box-shadow: 0 0 12px 3px hsla(170, 80%, 40%, 0.25),
+              0 0 28px 6px hsla(170, 80%, 40%, 0.12),
+              inset 0 0 10px 2px hsla(170, 80%, 40%, 0.06);
 }
 
 @keyframes gradient-shift {
