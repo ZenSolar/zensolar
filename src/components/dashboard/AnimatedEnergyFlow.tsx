@@ -452,9 +452,9 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
   const vb = compact ? '0 0 400 460' : '0 0 400 550';
   const maxH = compact ? '470px' : '660px';
-  const labelFs = compact ? 8 : 10;
-  const valueFs = compact ? 13 : 18;
-  const subValueFs = compact ? 10 : 15;
+  const labelFs = compact ? 9 : 11;
+  const valueFs = compact ? 18 : 24;
+  const subValueFs = compact ? 14 : 19;
 
   return (
     <div className={`relative ${className}`}>
@@ -463,10 +463,10 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
       {/* Title header */}
       <div className="relative z-10 pt-4 pb-1 px-4 text-center">
         <h3 className="text-sm sm:text-base font-bold tracking-wide" style={{ color: '#F59E0B' }}>
-          ⚡ Live Energy Flow
+          ⚡ EnergyView™
         </h3>
         <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide" style={{ color: '#6b7280' }}>
-          First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>multi-manufacturer view</span>
+          First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>live multi-manufacturer energy view</span>
         </p>
         <p className="text-[9px] sm:text-[10px] mt-2 leading-relaxed max-w-xs mx-auto" style={{ color: '#6b7280' }}>
           ZenSolar unifies Tesla, Enphase, SolarEdge, and Wallbox into a single real-time energy view — no other platform combines data across competing manufacturers into one dashboard.
@@ -481,6 +481,10 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           </filter>
           <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="6" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <filter id="valueGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
           <radialGradient id="solarAmbient" cx="50%" cy="50%" r="50%">
@@ -575,7 +579,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             </div>
           </foreignObject>
           <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 22 : 30)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">SOLAR</text>
-          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 33 : 42)} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
+          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 33 : 42)} textAnchor="middle" fill={colors.solar} fontSize={valueFs} fontWeight="800" filter="url(#valueGlow)">
             {flow.solarPower.toFixed(1)} kW
           </text>
           {/* Enphase pill */}
@@ -586,7 +590,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         {/* ── HOME ── centered in house body */}
         <g>
           {/* Compact: house body y=180-253, center~216. Desktop: y=192-295, center~243 */}
-          <text x={nodes.home.x} y={compact ? 220 : 248} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
+          <text x={nodes.home.x} y={compact ? 220 : 248} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="800" filter="url(#valueGlow)">
             {flow.homePower.toFixed(1)} kW
           </text>
           <text x={nodes.home.x} y={compact ? 232 : 261} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
@@ -600,7 +604,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Tesla pill */}
           <rect x={nodes.battery.x + (compact ? 20 : 24)} y={nodes.battery.y - 7} width={compact ? 34 : 40} height={14} rx={7} fill="#E82127" fillOpacity={0.15} stroke="#E82127" strokeWidth={0.6} strokeOpacity={0.5} />
           <text x={nodes.battery.x + (compact ? 37 : 44)} y={nodes.battery.y + 3} textAnchor="middle" fill="#E82127" fontSize={compact ? 6 : 7} fontWeight="700" letterSpacing="0.3">TESLA</text>
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 38 : 50)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {Math.abs(flow.batteryPower).toFixed(1)} kW
           </text>
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 48 : 63)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 9 : 11}>
@@ -624,7 +628,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             </div>
           </foreignObject>
           <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 26 : 35)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">GRID</text>
-          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
+          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 38 : 50)} textAnchor="middle" fill={colors.grid} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {Math.abs(flow.gridPower).toFixed(1)} kW
           </text>
           {flow.gridPower !== 0 && (
@@ -659,7 +663,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {/* Wallbox pill */}
           <rect x={nodes.ev.x + (compact ? 20 : 24)} y={nodes.ev.y - 7} width={compact ? 46 : 54} height={14} rx={7} fill="#00B4AA" fillOpacity={0.15} stroke="#00B4AA" strokeWidth={0.6} strokeOpacity={0.5} />
           <text x={nodes.ev.x + (compact ? 43 : 51)} y={nodes.ev.y + 3} textAnchor="middle" fill="#00B4AA" fontSize={compact ? 6 : 7} fontWeight="700" letterSpacing="0.3">WALLBOX</text>
-          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 38 : 50)} textAnchor="middle" fill="white" fontSize={subValueFs} fontWeight="700">
+          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 38 : 50)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {flow.evPower.toFixed(1)} kW
           </text>
           {flow.evPower > 0 && (
@@ -678,10 +682,10 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             const sy = compact ? 375 : 450;
             const cardW = compact ? 370 : 380;
             const cardH = compact ? 82 : 96;
-            const valueFontSize = compact ? 12 : 14;
-            const unitFontSize = compact ? 7 : 8;
-            const labelFontSize = compact ? 6 : 7;
-            const headerFs = compact ? 7 : 8;
+            const valueFontSize = compact ? 18 : 22;
+            const unitFontSize = compact ? 9 : 10;
+            const labelFontSize = compact ? 7 : 8;
+            const headerFs = compact ? 8 : 9;
             const colW = cardW / 3;
 
             const stats = [
@@ -713,7 +717,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
                         {s.active && <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />}
                       </circle>
                       {/* Value */}
-                      <text x={cx} y={baseY + 20} textAnchor="middle" fill={s.active ? '#f3f4f6' : '#4b5563'} fontSize={valueFontSize} fontWeight="800">
+                      <text x={cx} y={baseY + 22} textAnchor="middle" fill={s.active ? s.color : '#4b5563'} fontSize={valueFontSize} fontWeight="900">
                         {s.value}
                       </text>
                       {/* Unit */}
