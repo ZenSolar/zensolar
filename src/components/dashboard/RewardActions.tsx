@@ -474,7 +474,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   // Actually execute the mint after confirmation
   const handleConfirmMint = async () => {
     if (!pendingMintRequest) return;
-    
+    // Warm up AudioContext on user gesture so celebration chime works after async delays
+    warmAudioContext();
     setConfirmMintDialog(false);
     const { category, deviceId, deviceName } = pendingMintRequest;
     setPendingMintRequest(null);
