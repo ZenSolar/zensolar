@@ -1639,15 +1639,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
 
         {/* Subtle branding footer */}
-        <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-1.5 pointer-events-none z-10">
+        <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-2 pointer-events-none z-10">
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
             width="108" 
             height="32" 
-            className="h-8 w-auto object-contain opacity-40 dark:animate-logo-glow" 
+            className="h-8 w-auto object-contain brightness-125 opacity-70 dark:animate-logo-glow dark:brightness-150" 
           />
-          <p className="text-[10px] text-muted-foreground/40 text-center leading-tight">
+          <p
+            className="text-[10px] font-medium tracking-widest uppercase text-center leading-tight bg-gradient-to-r from-primary/60 via-foreground/50 to-secondary/60 bg-clip-text text-transparent"
+            style={{
+              backgroundSize: '200% 100%',
+              animation: 'gateTaglineShimmer 4s ease-in-out infinite alternate',
+            }}
+          >
             The World's First One-Tap, Mint-on-Proof™ Clean Energy Platform
           </p>
         </div>
