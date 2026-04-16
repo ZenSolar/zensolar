@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Store, BookOpen, FileText, ExternalLink } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { useBasePath } from '@/hooks/useBasePath';
 
 export function DashboardFooter() {
+  const basePath = useBasePath();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -26,21 +28,21 @@ export function DashboardFooter() {
         {/* Navigation Links */}
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 mb-6">
           <Link 
-            to="/store" 
+            to={`${basePath}/store`} 
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <Store className="h-4 w-4" />
             $ZSOLAR Store
           </Link>
           <Link 
-            to="/how-it-works" 
+            to={`${basePath}/learn`} 
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <BookOpen className="h-4 w-4" />
             How It Works
           </Link>
           <Link 
-            to="/white-paper" 
+            to={`${basePath}/white-paper`} 
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <FileText className="h-4 w-4" />

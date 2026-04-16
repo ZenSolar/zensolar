@@ -7,6 +7,7 @@ import { useShimmerSound } from '@/hooks/useShimmerSound';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
+import { useBasePath } from '@/hooks/useBasePath';
 import {
   Sun,
   Car,
@@ -95,6 +96,7 @@ export function ActivityMetrics({
   teslaNeedsReauth = false,
   isLoading = false,
 }: ActivityMetricsProps) {
+  const basePath = useBasePath();
   // In new user view mode, show empty state
   const effectiveData = isNewUserView ? {
     ...data,
@@ -414,7 +416,7 @@ export function ActivityMetrics({
               <span className="text-foreground font-medium">Tesla connection expired</span>
             </div>
             <Link 
-              to="/profile" 
+              to={`${basePath}/profile`} 
               className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1"
             >
               Reconnect

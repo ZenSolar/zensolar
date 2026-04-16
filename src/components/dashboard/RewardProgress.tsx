@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Award, ChevronRight, Sun, Car, BatteryFull, Zap, Sparkles, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useBasePath } from '@/hooks/useBasePath';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -200,8 +201,8 @@ export function RewardProgress({
   initialCategory,
   featuredNftId,
 }: RewardProgressProps) {
-  // Haptic feedback hook
   const { lightTap } = useHaptics();
+  const basePath = useBasePath();
   
   // State for selected category (null = auto priority / featured NFT)
   // When featuredNftId is provided, start with null so the featured NFT shows
@@ -516,7 +517,7 @@ export function RewardProgress({
         {/* Footer: View Collection */}
         <div className="pt-3 border-t border-border/50">
           <Link 
-            to="/nft-collection" 
+            to={`${basePath}/nft-collection`} 
             className="flex items-center gap-2.5 p-2.5 rounded-xl bg-card/5 border border-border/50 hover:bg-card/10 transition-all group"
           >
             <div className="p-1.5 rounded-lg bg-primary/10">
