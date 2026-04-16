@@ -7,6 +7,7 @@ import { useShimmerSound } from '@/hooks/useShimmerSound';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
+import { useBasePath } from '@/hooks/useBasePath';
 import {
   Sun,
   Car,
