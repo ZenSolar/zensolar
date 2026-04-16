@@ -157,9 +157,9 @@ export function DashboardHexBackground() {
               ctx.shadowColor = 'hsla(155,90%,45%,0.4)';
               ctx.shadowBlur = 14;
             } else if (needsGlow) {
-              ctx.lineWidth = isDark ? 0.7 : 0.8;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(210,80%,70%,0.25)';
-              ctx.shadowBlur = isDark ? 6 : 8;
+              ctx.lineWidth = isDark ? 0.7 : 1.0;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(215,85%,55%,0.35)';
+              ctx.shadowBlur = isDark ? 6 : 12;
             } else {
               ctx.lineWidth = isDark ? 0.5 : 0.5;
               ctx.shadowColor = 'transparent';
