@@ -45,6 +45,7 @@ export function DemoDashboard() {
     simulateBatchMintNFTs,
     getEligibility,
     mintedNFTs,
+    mintHistory,
     hasWelcomeNFT,
   } = useDemoContext();
   
@@ -171,6 +172,7 @@ export function DemoDashboard() {
               nftCount={mintedCount > 0 ? mintedCount : totalNftsAvailable}
               nftLabel={nftLabel}
               walletLink="/demo/wallet"
+              mintHistory={mintHistory}
             />
           </div>
         </AnimatedItem>
