@@ -1,8 +1,44 @@
 import { useCallback } from 'react';
 import confetti from 'canvas-confetti';
 
+/** Play a short celebratory chime via Web Audio API */
+function playCelebrationChime() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.5);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.5);
+    });
+    // Clean up after last note
+    setTimeout(() => ctx.close(), 1200);
+  } catch {
+    // Silently fail if Web Audio unavailable
+  }
+}
+
+/** Trigger haptic celebration pattern */
+function triggerCelebrationHaptic() {
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([15, 40, 15, 40, 30, 60, 50]);
+    } catch {}
+  }
+}
+
 export function useConfetti() {
   const triggerConfetti = useCallback(() => {
+    // Haptic + sound
+    triggerCelebrationHaptic();
+    playCelebrationChime();
+
     // Fire confetti from the left
     confetti({
       particleCount: 100,
@@ -21,6 +57,9 @@ export function useConfetti() {
   }, []);
 
   const triggerCelebration = useCallback(() => {
+    triggerCelebrationHaptic();
+    playCelebrationChime();
+
     const duration = 3000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
@@ -36,7 +75,6 @@ export function useConfetti() {
 
       const particleCount = 50 * (timeLeft / duration);
 
-      // Since particles fall down, start a bit higher than random
       confetti({
         ...defaults,
         particleCount,
@@ -55,6 +93,7 @@ export function useConfetti() {
   }, []);
 
   const triggerStars = useCallback(() => {
+    triggerCelebrationHaptic();
     confetti({
       particleCount: 80,
       spread: 100,
@@ -66,6 +105,8 @@ export function useConfetti() {
   }, []);
 
   const triggerGoldBurst = useCallback(() => {
+    triggerCelebrationHaptic();
+    playCelebrationChime();
     confetti({
       particleCount: 150,
       spread: 180,

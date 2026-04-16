@@ -169,7 +169,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   } | null>(null);
   const [showNftImportPanel, setShowNftImportPanel] = useState(false);
   const [mintingProgress, setMintingProgress] = useState<{
-    step: 'preparing' | 'submitting' | 'confirming' | 'complete' | 'error';
+    step: 'preparing' | 'submitting' | 'transmitting' | 'confirming' | 'complete' | 'error';
     message: string;
   }>({ step: 'preparing', message: 'Preparing transaction...' });
   
@@ -484,7 +484,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       // Demo mode: use local simulation
       if (demoMintHandler) {
         setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        setMintingProgress({ step: 'transmitting', message: 'Transmitting to Base L2 Blockchain...' });
         const result = await demoMintHandler.simulateMintTokens(category);
+        await new Promise(resolve => setTimeout(resolve, 2500));
         
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -510,7 +513,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         throw new Error("Not authenticated");
       }
 
-      setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
+      setMintingProgress({ step: 'transmitting', message: `Transmitting to Base L2 Blockchain...` });
 
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
@@ -537,7 +540,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         throw new Error(data.message || 'Contract simulation failed. Please contact support.');
       }
 
-      setMintingProgress({ step: 'confirming', message: 'Waiting for confirmation...' });
+      setMintingProgress({ step: 'confirming', message: 'Confirming on Base L2...' });
 
       const result = data as MintResult;
 
@@ -1235,8 +1238,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             <div className="space-y-2">
               <h3 className="text-xl font-bold">
                 {mintingProgress.step === 'preparing' && 'Preparing Transaction'}
-                {mintingProgress.step === 'submitting' && 'Submitting to Blockchain'}
-                {mintingProgress.step === 'confirming' && 'Confirming Transaction'}
+                {mintingProgress.step === 'submitting' && 'Submitting Transaction'}
+                {mintingProgress.step === 'transmitting' && 'Transmitting to Base L2 Blockchain…'}
+                {mintingProgress.step === 'confirming' && 'Confirming on Base L2'}
                 {mintingProgress.step === 'complete' && 'Transaction Complete!'}
                 {mintingProgress.step === 'error' && 'Transaction Failed'}
               </h3>
@@ -1246,13 +1250,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             {/* Progress bar */}
             {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
               <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-5 border border-border/60 max-w-xs mx-auto">
-                <div className="h-2.5 bg-muted rounded-full overflow-hidden ring-1 ring-border/50">
+               <div className="h-2.5 bg-muted rounded-full overflow-hidden ring-1 ring-border/50">
                   <div 
                     className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out rounded-full"
                     style={{
-                      width: mintingProgress.step === 'preparing' ? '25%' : 
-                             mintingProgress.step === 'submitting' ? '50%' : 
-                             mintingProgress.step === 'confirming' ? '75%' : '100%'
+                      width: mintingProgress.step === 'preparing' ? '20%' : 
+                             mintingProgress.step === 'submitting' ? '40%' : 
+                             mintingProgress.step === 'transmitting' ? '65%' :
+                             mintingProgress.step === 'confirming' ? '85%' : '100%'
                     }}
                   />
                 </div>
