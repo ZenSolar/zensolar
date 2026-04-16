@@ -149,8 +149,14 @@ export function DashboardHexBackground() {
           lastAlphaStr = alphaStr;
 
           const needsGlow = alpha > (isDark ? 0.32 : 0.28);
-          if (needsGlow !== lastGlow) {
-            if (needsGlow) {
+          const needsGreenGlow = !isDark && (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25) > 0.65;
+          const glowKey = needsGreenGlow ? 2 : needsGlow ? 1 : 0;
+          if (glowKey !== (lastGlow ? (lastGlow === true ? 1 : lastGlow) : 0)) {
+            if (needsGreenGlow) {
+              ctx.lineWidth = 1.1;
+              ctx.shadowColor = 'hsla(155,90%,45%,0.4)';
+              ctx.shadowBlur = 14;
+            } else if (needsGlow) {
               ctx.lineWidth = isDark ? 0.7 : 0.8;
               ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(210,80%,70%,0.25)';
               ctx.shadowBlur = isDark ? 6 : 8;
@@ -159,7 +165,7 @@ export function DashboardHexBackground() {
               ctx.shadowColor = 'transparent';
               ctx.shadowBlur = 0;
             }
-            lastGlow = needsGlow;
+            lastGlow = glowKey as any;
           }
 
           ctx.setTransform(dpr, 0, 0, dpr, cx * dpr, cyScreen * dpr);

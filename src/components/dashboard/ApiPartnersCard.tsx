@@ -28,7 +28,7 @@ export function ApiPartnersCard() {
   return (
     <div className="w-full">
       <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5 text-center">Connects with</p>
-      <div className="relative overflow-hidden rounded-2xl pt-1 pb-6 px-6 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
+      <div className="relative overflow-hidden rounded-2xl pt-1 pb-6 px-6 border border-border/20 bg-card/90 backdrop-blur-sm bg-gradient-to-br from-primary/[0.06] via-card/80 to-solar/[0.04]">
         {/* Ambient glow spots */}
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
         <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
