@@ -67,7 +67,7 @@ export function DashboardHexBackground() {
 
       // Re-check theme every frame for live switching
       const isDark = document.documentElement.classList.contains('dark');
-      const alphaMultiplier = isDark ? 1 : 0.95;
+      const alphaMultiplier = isDark ? 1 : 1.4;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
@@ -131,7 +131,7 @@ export function DashboardHexBackground() {
           } else {
             alpha += bA * 0.10 + bB * 0.08 + bC * 0.06 + shimmer * 0.04 + shimmer2 * 0.035 + shimmer3 * 0.025 + sparkle * 0.20 + sparkle2 * 0.16;
           }
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.45);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.55);
 
           if (alpha < 0.04) continue;
 
