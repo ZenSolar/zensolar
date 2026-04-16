@@ -32,11 +32,12 @@ export function ApiPartnersCard() {
         {/* Ambient glow spots */}
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
         <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
-        {/* Subtle shimmer sweep */}
+        {/* Rainbow shimmer sweep */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent -skew-x-12 pointer-events-none"
+          className="absolute inset-0 pointer-events-none -skew-x-12"
+          style={{ background: 'linear-gradient(90deg, transparent 0%, hsla(340,85%,58%,0.15) 10%, hsla(30,90%,55%,0.2) 25%, hsla(155,90%,50%,0.3) 50%, hsla(210,85%,55%,0.2) 75%, hsla(280,70%,58%,0.15) 90%, transparent 100%)' }}
           animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1, ease: 'easeInOut' }}
         />
         <div className="relative grid grid-cols-2 gap-6 place-items-center">
           {brandLogos.map(({ src, alt }, idx) => (
