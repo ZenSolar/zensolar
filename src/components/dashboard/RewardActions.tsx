@@ -492,15 +492,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         await new Promise(resolve => setTimeout(resolve, 1000));
         setMintingProgressDialog(false);
-        hapticSuccess();
         triggerConfetti();
-        // Play celebration sound
-        try {
-          const audio = new Audio('/sounds/mint-chime.mp3');
-          audio.volume = 0.6;
-          audio.play().catch(() => {});
-        } catch {}
-        hapticSuccess();
         
         setResultDialog({
           open: true,
