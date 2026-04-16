@@ -309,6 +309,11 @@ export function DemoDashboard() {
             )}
           </Button>
         </AnimatedItem>
+
+        {/* Got Questions CTA */}
+        <AnimatedItem>
+          <GotQuestionsCTA />
+        </AnimatedItem>
       </AnimatedContainer>
       
       {/* Dashboard Footer */}
@@ -431,6 +436,29 @@ function TodaysCleanEnergyStats() {
             </motion.div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function GotQuestionsCTA() {
+  return (
+    <div className="emerald-glow-card rounded-2xl p-5 text-center space-y-3 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        background: 'radial-gradient(circle at 50% 0%, hsl(var(--primary)), transparent 70%)',
+      }} />
+      <div className="relative z-10">
+        <p className="text-lg font-bold text-foreground">Got Questions? 🤔</p>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
+          This is truly cutting-edge tech — we'd love to hear what you're thinking. Tap the 
+          <span className="text-primary font-medium"> 💬 button</span> below or reach out directly.
+        </p>
+        <a
+          href="mailto:joe@zen.solar?subject=Question%20about%20ZenSolar"
+          className="inline-flex items-center gap-2 mt-3 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/20 transition-colors"
+        >
+          ✉️ joe@zen.solar
+        </a>
       </div>
     </div>
   );
