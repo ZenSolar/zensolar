@@ -1648,7 +1648,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             className="h-6 w-auto object-contain brightness-125 opacity-70 dark:animate-logo-glow dark:brightness-150" 
           />
           <div
-            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-gradient-to-r from-primary/70 via-foreground/60 to-secondary/70 bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
+            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-gradient-to-r from-primary via-[hsl(280,80%,65%)] to-secondary bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
             style={{
               backgroundSize: '200% 100%',
               animation: 'gateTaglineShimmer 3s ease-in-out infinite alternate',
