@@ -134,13 +134,10 @@ export function DashboardHexBackground() {
           const alphaStr = roundedAlpha.toFixed(2);
 
           if (!isDark) {
-            // Dual-tone: blend between light sky blue and deeper blue based on shimmer
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            // Light hexes: bright sky blue (hue 200, high lightness)
-            // Dark hexes: richer navy-indigo (hue 225, lower lightness)
-            const hue = 195 + colorMix * 35;       // 195–230 range
-            const sat = 90 + colorMix * 10;         // 90–100%
-            const lgt = 72 - colorMix * 22;         // 72–50% lightness
+            const hue = 200 + colorMix * 25;       // 200–225 range (tighter)
+            const sat = 70 + colorMix * 20;         // 70–90%
+            const lgt = 78 - colorMix * 18;         // 78–60% lightness (lighter overall)
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
@@ -150,14 +147,14 @@ export function DashboardHexBackground() {
           }
           lastAlphaStr = alphaStr;
 
-          const needsGlow = alpha > (isDark ? 0.32 : 0.22);
+          const needsGlow = alpha > (isDark ? 0.32 : 0.28);
           if (needsGlow !== lastGlow) {
             if (needsGlow) {
-              ctx.lineWidth = isDark ? 0.7 : 1.1;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(205,100%,70%,0.5)';
-              ctx.shadowBlur = isDark ? 6 : 14;
+              ctx.lineWidth = isDark ? 0.7 : 0.8;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(210,80%,70%,0.25)';
+              ctx.shadowBlur = isDark ? 6 : 8;
             } else {
-              ctx.lineWidth = isDark ? 0.5 : 0.7;
+              ctx.lineWidth = isDark ? 0.5 : 0.5;
               ctx.shadowColor = 'transparent';
               ctx.shadowBlur = 0;
             }
