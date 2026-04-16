@@ -385,6 +385,7 @@ export function useDemoData() {
     // Demo minting
     hasWelcomeNFT,
     mintedNFTs,
+    mintHistory,
     getEligibility,
     simulateMintWelcomeNFT,
     simulateMintTokens,
