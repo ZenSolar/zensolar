@@ -38,7 +38,7 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
   const usdValue = calculateUsdValue(tokenBalance, price);
 
   return (
-    <Card className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-primary/20">
+    <Card className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-primary/20 card-neon-glow">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">

@@ -312,11 +312,11 @@ export function TokenPriceCard({
             background: 'radial-gradient(ellipse 55% 25% at 50% 75%, hsl(160 100% 10% / 0.2), transparent 55%)',
           }}
         />
-        <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10">
-          {/* Purple shimmer sweep */}
+        <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10 card-neon-glow">
+          {/* Rainbow shimmer sweep */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <ShimmerOverlay
-              gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 20%, hsl(280 72% 70% / 0.55) 50%, hsl(280 68% 60% / 0.3) 80%, transparent 100%)"
+              gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 10%, hsl(30 90% 55% / 0.3) 25%, hsl(155 90% 50% / 0.45) 50%, hsl(210 85% 55% / 0.3) 75%, hsl(280 70% 58% / 0.25) 90%, transparent 100%)"
               glowColor="hsla(280, 68%, 60%, 0.15)"
               duration="4s"
               idleDelay="0s"
@@ -518,12 +518,12 @@ export function TokenPriceCard({
           background: 'radial-gradient(ellipse 55% 25% at 50% 75%, hsl(160 100% 10% / 0.2), transparent 55%)',
         }}
       />
-      <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10" style={{ boxShadow: '0 0 10px hsl(160 100% 10% / 0.15), 0 0 4px hsl(158 95% 8% / 0.1)' }}>
+      <Card className="wallet-card-glass relative overflow-hidden border-primary/30 z-10 card-neon-glow">
         {/* Background effects */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(280 68% 60% / 0.3) 20%, hsl(280 72% 70% / 0.55) 50%, hsl(280 68% 60% / 0.3) 80%, transparent 100%)"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 10%, hsl(30 90% 55% / 0.3) 25%, hsl(155 90% 50% / 0.45) 50%, hsl(210 85% 55% / 0.3) 75%, hsl(280 70% 58% / 0.25) 90%, transparent 100%)"
             glowColor="hsla(280, 68%, 60%, 0.15)"
             duration="4s"
             idleDelay="0s"

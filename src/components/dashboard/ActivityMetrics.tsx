@@ -262,10 +262,9 @@ export function ActivityMetrics({
       )}
       <Card 
         className={cn(
-          "relative z-10 overflow-hidden transition-all bg-card/95 backdrop-blur-md",
+          "relative z-10 overflow-hidden transition-all bg-card/95 backdrop-blur-md card-neon-glow",
           activityUnits > 0 ? 'border-primary/40' : 'border-border/50'
         )}
-        style={activityUnits > 0 ? { boxShadow: '0 0 2px hsl(160 100% 10% / 0.005), 0 0 1px hsl(158 95% 8% / 0.004)' } : undefined}
       >
       <CardContent className="p-2.5 pt-0 space-y-2">
         {/* Header — Clean Energy Center Hero */}
@@ -280,10 +279,10 @@ export function ActivityMetrics({
         >
           {/* Shimmer sweep */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(205 85% 45% / 0.3) 20%, hsl(210 90% 55% / 0.5) 50%, hsl(205 85% 45% / 0.3) 80%, transparent 100%)"
-            glowColor="hsla(210, 90%, 50%, 0.12)"
-            duration="4.5s"
-            idleDelay="0.8s"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(340 90% 60% / 0.3) 10%, hsl(30 95% 55% / 0.4) 25%, hsl(60 90% 50% / 0.35) 40%, hsl(155 90% 50% / 0.5) 55%, hsl(210 90% 55% / 0.4) 70%, hsl(280 75% 60% / 0.35) 85%, transparent 100%)"
+            glowColor="hsla(160, 90%, 45%, 0.15)"
+            duration="4s"
+            idleDelay="0.4s"
           />
 
           <div className="relative space-y-3">
@@ -438,10 +437,10 @@ export function ActivityMetrics({
         <div className="relative overflow-hidden rounded-lg" data-hint-target="kpi-cards">
           {/* KPI area shimmer */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(142 76% 50% / 0.12) 20%, hsl(142 76% 65% / 0.25) 50%, hsl(142 76% 50% / 0.12) 80%, transparent 100%)"
-            glowColor="hsla(142, 76%, 45%, 0.07)"
-            duration="5s"
-            idleDelay="1.6s"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.2) 8%, hsl(30 90% 55% / 0.3) 22%, hsl(60 85% 50% / 0.25) 36%, hsl(155 90% 50% / 0.4) 52%, hsl(210 85% 55% / 0.35) 68%, hsl(280 70% 58% / 0.25) 84%, transparent 100%)"
+            glowColor="hsla(155, 85%, 45%, 0.12)"
+            duration="4.5s"
+            idleDelay="1.2s"
             className="z-10 rounded-lg"
           />
           <div className="space-y-2">
