@@ -309,6 +309,11 @@ export function DemoDashboard() {
             )}
           </Button>
         </AnimatedItem>
+
+        {/* Got Questions CTA */}
+        <AnimatedItem>
+          <GotQuestionsCTA />
+        </AnimatedItem>
       </AnimatedContainer>
       
       {/* Dashboard Footer */}
