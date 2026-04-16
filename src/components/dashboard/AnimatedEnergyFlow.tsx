@@ -461,12 +461,12 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
       {/* Fully transparent — hex grid shows through */}
 
       {/* Title header */}
-      <div className="relative z-10 pt-4 pb-2 px-4 text-center">
-        <h3 className="text-base sm:text-lg font-extrabold tracking-wide" style={{ color: '#22C55E', textShadow: '0 0 20px hsla(142, 76%, 36%, 0.4)' }}>
+      <div className="relative z-10 pt-4 pb-1 px-4 text-center">
+        <h3 className="text-lg sm:text-xl font-black tracking-wider uppercase" style={{ color: '#22C55E', textShadow: '0 0 24px hsla(142, 76%, 36%, 0.5), 0 0 48px hsla(142, 76%, 36%, 0.2)', letterSpacing: '0.08em' }}>
           ⚡ ZenEnergy Monitor™
         </h3>
-        <p className="text-[10px] sm:text-xs mt-1 tracking-wide font-medium" style={{ color: '#9ca3af' }}>
-          First of its kind — <span style={{ color: '#d1d5db', fontWeight: 700 }}>live multi-manufacturer energy monitor</span>
+        <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide font-medium" style={{ color: '#9ca3af' }}>
+          Live multi-manufacturer energy intelligence
         </p>
       </div>
 

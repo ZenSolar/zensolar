@@ -11,15 +11,26 @@ export function DashboardTopControls() {
 
   const handleToggleTheme = useCallback(() => {
     setIsTransitioning(true);
-    // Add a brief whole-page fade transition
-    document.documentElement.style.transition = 'background-color 0.4s ease, color 0.4s ease';
-    document.body.style.transition = 'background-color 0.4s ease, color 0.4s ease';
+    // Smooth whole-page crossfade for theme switch
+    const allEls = 'background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease';
+    document.documentElement.style.transition = allEls;
+    document.body.style.transition = allEls;
+    // Apply a brief opacity dip on the root for a cinematic feel
+    const root = document.getElementById('root');
+    if (root) {
+      root.style.transition = 'opacity 0.25s ease';
+      root.style.opacity = '0.85';
+    }
     toggleTheme();
+    setTimeout(() => {
+      if (root) { root.style.opacity = '1'; }
+    }, 150);
     setTimeout(() => {
       setIsTransitioning(false);
       document.documentElement.style.transition = '';
       document.body.style.transition = '';
-    }, 450);
+      if (root) { root.style.transition = ''; }
+    }, 550);
   }, [toggleTheme]);
 
   return (
