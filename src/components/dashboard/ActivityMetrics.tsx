@@ -4,6 +4,7 @@ import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
+import { useSoundPreference } from '@/hooks/useSoundPreference';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
@@ -152,8 +153,11 @@ export function ActivityMetrics({
   // Active charging session indicator
   const { data: isCharging = false } = useActiveChargingSession();
 
+  // Sound preference — respects global toggle
+  const { soundEnabled } = useSoundPreference();
+
   // Lightsaber ambient hum — synced with shimmer sweep
-  useShimmerSound({ cycleDuration: 5, volume: 0.03, enabled: !isNewUserView });
+  useShimmerSound({ cycleDuration: 5, volume: 0.03, enabled: !isNewUserView && soundEnabled });
 
   // Check if provider is connected for each category (locked = cannot hide)
   const hasSolarConnected = effectiveConnectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
