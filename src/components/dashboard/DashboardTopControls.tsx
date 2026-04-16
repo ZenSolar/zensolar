@@ -1,11 +1,10 @@
 import { Sun, Moon, Volume2, VolumeX } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { useThemeToggle } from '@/hooks/useThemeToggle';
 import { useSoundPreference } from '@/hooks/useSoundPreference';
 
 export function DashboardTopControls() {
-  const { theme, setTheme } = useTheme();
+  const { isDark, toggle: toggleTheme } = useThemeToggle();
   const { soundEnabled, toggleSound } = useSoundPreference();
-  const isDark = theme === 'dark';
 
   return (
     <div className="flex items-center gap-1.5">
@@ -22,13 +21,13 @@ export function DashboardTopControls() {
         )}
       </button>
       <button
-        onClick={() => setTheme(isDark ? 'light' : 'dark')}
+        onClick={toggleTheme}
         className="h-8 w-8 rounded-full flex items-center justify-center bg-card/60 backdrop-blur-sm border border-border/40 hover:bg-card/80 transition-all duration-200"
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
         title={isDark ? 'Light Mode' : 'Dark Mode'}
       >
         {isDark ? (
-          <Sun className="h-3.5 w-3.5 text-solar" />
+          <Sun className="h-3.5 w-3.5 text-amber-400" />
         ) : (
           <Moon className="h-3.5 w-3.5 text-primary/80" />
         )}
