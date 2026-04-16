@@ -218,7 +218,7 @@ function triggerCelebrationHaptic() {
 export function useConfetti() {
   const triggerConfetti = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationPop();
+    playCelebrationGongChaChing();
 
     confetti({
       particleCount: 100,
@@ -239,7 +239,7 @@ export function useConfetti() {
 
   const triggerCelebration = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationPop();
+    playCelebrationGongChaChing();
 
     const duration = 3000;
     const animationEnd = Date.now() + duration;
@@ -285,7 +285,7 @@ export function useConfetti() {
 
   const triggerGoldBurst = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationPop();
+    playCelebrationGongChaChing();
     confetti({
       particleCount: 150,
       spread: 180,
