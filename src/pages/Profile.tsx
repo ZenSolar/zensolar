@@ -384,35 +384,6 @@ export default function Profile() {
           </div>
         </motion.div>
 
-          <Card className="bg-gradient-to-br from-accent/5 to-transparent border-accent/20 hover:border-accent/40 transition-colors">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-accent/10">
-                  <Sparkles className="h-5 w-5 text-accent-foreground" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Referral Code</p>
-                  <p className="text-sm font-semibold font-mono truncate">
-                    {profile?.referral_code || 'N/A'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500/5 to-transparent border-purple-500/20 hover:border-purple-500/40 transition-colors">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-purple-500/10">
-                  <Users className="h-5 w-5 text-purple-500" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Network</p>
-                  <p className="text-sm font-semibold">Base Sepolia</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </motion.div>
 
         {/* Wallet Management */}
