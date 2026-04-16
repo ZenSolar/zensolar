@@ -136,9 +136,9 @@ export function DashboardHexBackground() {
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
             // Two-tone: blue base transitioning to vivid emerald green on shimmer peaks
-            const hue = 215 - colorMix * 60;        // 215 (soft blue) → 155 (vivid emerald)
-            const sat = 65 + colorMix * 30;          // 65–95%
-            const lgt = 58 + colorMix * 4;           // 58–62% (keep green rich, not washed out)
+            const hue = 215 - colorMix * 60;        // 215 (blue) → 155 (vivid emerald)
+            const sat = 70 + colorMix * 25;          // 70–95%
+            const lgt = 48 + colorMix * 6;           // 48–54% (darker blue base)
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
