@@ -183,9 +183,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
            <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
-            <p className="text-[11px] sm:text-xs text-muted-foreground/60 font-medium tracking-widest uppercase max-w-xs mx-auto leading-snug">
-              The World's First One-Tap, Mint-on-Proof Clean Energy Platform
-            </p>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
               Real energy. Real Tokens. All on-chain
               <br />
