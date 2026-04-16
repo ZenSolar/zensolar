@@ -146,7 +146,7 @@ export default function AdminLiveEnergyFlow() {
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>• <strong>SVG particle animation</strong> with glow trails — speed and count scale with kW values</p>
           <p>• <strong>Always-dark canvas</strong> with stylized house + solar panel illustration</p>
-          <p>• <strong>5 nodes</strong>: Solar, Powerwall, Home, Grid, Tesla Model X — exceeds Tesla's 4-node view</p>
+          <p>• <strong>5 nodes</strong>: Solar, Powerwall, Home, Grid, EV Charger — exceeds Tesla's 4-node view</p>
           <p>• <strong>No new dependencies</strong> — pure SVG + existing Framer Motion</p>
           <p>• Ready for real-time API data from Tesla/Enphase/SolarEdge edge functions</p>
         </CardContent>
