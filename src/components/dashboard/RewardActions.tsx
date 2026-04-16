@@ -1033,31 +1033,61 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     </Button>
                   </div>
 
-                  {/* EV Charging */}
-                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-accent/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm">
-                        <Zap className="h-4 w-4 text-accent" />
+                  {/* Tesla Supercharging */}
+                  {(pendingRewards.superchargerKwh ?? 0) > 0 && (
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-red-500/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-red-500/20 to-red-500/10 shadow-sm">
+                          <Zap className="h-4 w-4 text-red-500" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">Tesla Supercharging</p>
+                          <p className="text-xs text-muted-foreground">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">EV Charging</p>
-                        <p className="text-xs text-muted-foreground">{pendingRewards.charging.toLocaleString()} $ZSOLAR</p>
-                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRequestMint('supercharging')}
+                        disabled={(pendingRewards.superchargerKwh ?? 0) === 0 || isMinting}
+                        className="rounded-lg h-9 px-4 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-colors"
+                      >
+                        {mintingState.category === 'supercharging' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Mint'
+                        )}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRequestMint('charging')}
-                      disabled={pendingRewards.charging === 0 || isMinting}
-                      className="rounded-lg h-9 px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-colors"
-                    >
-                      {mintingState.category === 'charging' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        'Mint'
-                      )}
-                    </Button>
-                  </div>
+                  )}
+
+                  {/* Home Charging */}
+                  {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-accent/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm">
+                          <Zap className="h-4 w-4 text-accent" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">Home Charging</p>
+                          <p className="text-xs text-muted-foreground">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRequestMint('home_charging')}
+                        disabled={(pendingRewards.homeChargerKwh ?? 0) === 0 || isMinting}
+                        className="rounded-lg h-9 px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-colors"
+                      >
+                        {mintingState.category === 'home_charging' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Mint'
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Divider */}
