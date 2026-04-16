@@ -169,7 +169,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   } | null>(null);
   const [showNftImportPanel, setShowNftImportPanel] = useState(false);
   const [mintingProgress, setMintingProgress] = useState<{
-    step: 'preparing' | 'submitting' | 'confirming' | 'complete' | 'error';
+    step: 'preparing' | 'submitting' | 'transmitting' | 'confirming' | 'complete' | 'error';
     message: string;
   }>({ step: 'preparing', message: 'Preparing transaction...' });
   
@@ -484,12 +484,23 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       // Demo mode: use local simulation
       if (demoMintHandler) {
         setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        setMintingProgress({ step: 'transmitting', message: 'Transmitting to Base L2 Blockchain...' });
         const result = await demoMintHandler.simulateMintTokens(category);
+        await new Promise(resolve => setTimeout(resolve, 2500));
         
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         await new Promise(resolve => setTimeout(resolve, 1000));
         setMintingProgressDialog(false);
+        hapticSuccess();
         triggerConfetti();
+        // Play celebration sound
+        try {
+          const audio = new Audio('/sounds/mint-chime.mp3');
+          audio.volume = 0.6;
+          audio.play().catch(() => {});
+        } catch {}
+        hapticSuccess();
         
         setResultDialog({
           open: true,
@@ -510,7 +521,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         throw new Error("Not authenticated");
       }
 
-      setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
+      setMintingProgress({ step: 'transmitting', message: `Transmitting to Base L2 Blockchain...` });
 
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
@@ -537,7 +548,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         throw new Error(data.message || 'Contract simulation failed. Please contact support.');
       }
 
-      setMintingProgress({ step: 'confirming', message: 'Waiting for confirmation...' });
+      setMintingProgress({ step: 'confirming', message: 'Confirming on Base L2...' });
 
       const result = data as MintResult;
 
