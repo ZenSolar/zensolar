@@ -2,6 +2,15 @@ import { useState, useCallback, useEffect } from 'react';
 import { ActivityData, ConnectedAccount, calculateCO2Offset } from '@/types/dashboard';
 import { getAllEarnedNFTNames } from '@/lib/nftMilestones';
 
+export interface MintReceipt {
+  id: string;
+  category: string;
+  tokens: number;
+  txHash: string;
+  timestamp: Date;
+  type: 'token' | 'nft';
+}
+
 // Demo data based on real user KPIs - substantial values showing active usage
 // Values chosen to demonstrate realistic achievements across all categories
 const DEMO_SOLAR_KWH = 12847;      // Earns: Sunspark, Photonic, Rayforge, Solaris, Helios
@@ -149,6 +158,7 @@ export function useDemoData() {
   const [profile, setProfile] = useState(createDemoProfile);
   const [hasWelcomeNFT, setHasWelcomeNFT] = useState(false);
   const [mintedNFTs, setMintedNFTs] = useState<number[]>([]);
+  const [mintHistory, setMintHistory] = useState<MintReceipt[]>([]);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(new Date().toISOString());
 
   // Backfill display_name when NDA name becomes available in localStorage
@@ -285,10 +295,22 @@ export function useDemoData() {
       lifetimeMinted: prev.lifetimeMinted + userTokens,
       tokensEarned: prev.tokensEarned + userTokens,
     }));
+
+    const txHash = '0xdemo' + Math.random().toString(16).slice(2, 10) + '...';
+    
+    // Track receipt
+    setMintHistory(prev => [...prev, {
+      id: crypto.randomUUID(),
+      category,
+      tokens: userTokens,
+      txHash,
+      timestamp: new Date(),
+      type: 'token',
+    }]);
     
     return {
       success: true,
-      txHash: '0xdemo' + Math.random().toString(16).slice(2, 10) + '...',
+      txHash,
       message: `${userTokens.toLocaleString()} $ZSOLAR tokens successfully minted to Base Sepolia! 🎉`,
       tokensMinted: userTokens,
     };
@@ -363,6 +385,7 @@ export function useDemoData() {
     // Demo minting
     hasWelcomeNFT,
     mintedNFTs,
+    mintHistory,
     getEligibility,
     simulateMintWelcomeNFT,
     simulateMintTokens,

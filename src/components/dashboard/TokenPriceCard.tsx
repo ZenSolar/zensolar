@@ -5,12 +5,15 @@ import { Input } from '@/components/ui/input';
 import { 
   TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, 
   ChevronDown, ChevronUp, Images, ExternalLink, ShieldCheck, 
-  ArrowUpRight, Zap 
+  ArrowUpRight, Zap, Banknote, Receipt, Clock, X, Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMintSound } from '@/hooks/useMintSound';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import type { MintReceipt } from '@/hooks/useDemoData';
 
 // Touch threshold constants
 const TOUCH_DELTA_THRESHOLD = 15;
@@ -31,11 +34,12 @@ interface TokenPriceCardProps {
   nftCount?: number;
   nftLabel?: string;
   walletLink?: string;
+  mintHistory?: MintReceipt[];
 }
 
 export function TokenPriceCard({ 
   tokensHeld, defaultPrice = 0.10, onPriceChange, 
-  nftCount, nftLabel = 'earned', walletLink 
+  nftCount, nftLabel = 'earned', walletLink, mintHistory = []
 }: TokenPriceCardProps) {
   const [tokenPrice, setTokenPrice] = useState<number>(defaultPrice);
   const [isEditing, setIsEditing] = useState(false);
@@ -43,6 +47,7 @@ export function TokenPriceCard({
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [showCashOut, setShowCashOut] = useState(false);
 
   // Burst effect state
   const [isBursting, setIsBursting] = useState(false);
@@ -645,6 +650,48 @@ export function TokenPriceCard({
             </div>
           )}
 
+          {/* Mint Receipts */}
+          {mintHistory.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Receipt className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Transaction History</span>
+              </div>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto overscroll-contain">
+                {[...mintHistory].reverse().map((receipt) => {
+                  const categoryLabels: Record<string, string> = {
+                    solar: '☀️ Solar',
+                    ev_miles: '🚗 EV Miles',
+                    battery: '🔋 Battery',
+                    home_charging: '🏠 Home Charging',
+                    supercharging: '⚡ Supercharging',
+                    charging: '⚡ EV Charging',
+                    all: '🌍 All Categories',
+                  };
+                  const label = categoryLabels[receipt.category] || receipt.category;
+                  const timeStr = receipt.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  
+                  return (
+                    <div key={receipt.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/20 border border-border/30">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-foreground">{label}</span>
+                          <span className="text-xs font-bold text-emerald-400 tabular-nums">+{receipt.tokens.toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Clock className="h-2.5 w-2.5 text-muted-foreground/60" />
+                          <span className="text-[10px] text-muted-foreground/60 tabular-nums">{timeStr}</span>
+                          <span className="text-muted-foreground/30">·</span>
+                          <span className="text-[10px] text-muted-foreground/60 font-mono truncate">{receipt.txHash}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Quick action buttons */}
           <div className="flex gap-2">
             {walletLink && (
@@ -663,17 +710,79 @@ export function TokenPriceCard({
             <Button 
               variant="default" 
               size="sm" 
-              asChild 
               className="flex-1 h-9 text-xs font-medium"
+              onClick={() => setShowCashOut(true)}
             >
-              <Link to={walletLink ? walletLink.replace('wallet', '') : '/'}>
-                <Zap className="h-3.5 w-3.5 mr-1.5" />
-                Mint More
-              </Link>
+              <Banknote className="h-3.5 w-3.5 mr-1.5" />
+              Cash Out
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Cash Out Dialog */}
+      <Dialog open={showCashOut} onOpenChange={setShowCashOut}>
+        <DialogContent className="max-w-[calc(100vw-24px)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Banknote className="h-5 w-5 text-primary" />
+              Cash Out $ZSOLAR
+            </DialogTitle>
+            <DialogDescription>
+              Enter your banking details to withdraw your $ZSOLAR balance as USD.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 pt-2">
+            {/* Balance summary */}
+            <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Available Balance</span>
+                <div className="text-right">
+                  <span className="text-lg font-bold text-foreground tabular-nums">{tokensHeld.toLocaleString()}</span>
+                  <span className="text-xs text-muted-foreground ml-1">$ZSOLAR</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-xs text-muted-foreground">Estimated USD</span>
+                <span className="text-sm font-semibold text-emerald-400 tabular-nums">${(tokensHeld * tokenPrice).toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Banking form */}
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Account Holder Name</Label>
+                <Input placeholder="John Doe" className="h-9 text-sm" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Routing Number</Label>
+                <Input placeholder="021000021" className="h-9 text-sm font-mono" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Account Number</Label>
+                <Input placeholder="•••• •••• 4829" className="h-9 text-sm font-mono" type="password" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Bank Name</Label>
+                <Input placeholder="Chase, Wells Fargo, etc." className="h-9 text-sm" />
+              </div>
+            </div>
+
+            {/* Disabled submit */}
+            <Button 
+              disabled
+              className="w-full h-10 text-sm font-medium opacity-50 cursor-not-allowed"
+            >
+              <Lock className="h-3.5 w-3.5 mr-1.5" />
+              Coming Soon — Cash Out Unavailable
+            </Button>
+            <p className="text-[10px] text-muted-foreground/60 text-center">
+              Cash out will be available when $ZSOLAR launches on mainnet. Stay tuned!
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
