@@ -5,12 +5,15 @@ import { Input } from '@/components/ui/input';
 import { 
   TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, 
   ChevronDown, ChevronUp, Images, ExternalLink, ShieldCheck, 
-  ArrowUpRight, Zap 
+  ArrowUpRight, Zap, Banknote, Receipt, Clock, X, Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useMintSound } from '@/hooks/useMintSound';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import type { MintReceipt } from '@/hooks/useDemoData';
 
 // Touch threshold constants
 const TOUCH_DELTA_THRESHOLD = 15;
