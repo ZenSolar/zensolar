@@ -177,8 +177,8 @@ function playCelebrationGongChaChing() {
     const t2Start = coinT + 0.075;
     const t2Gain = ctx.createGain();
     t2Gain.gain.setValueAtTime(0, t2Start);
-    t2Gain.gain.linearRampToValueAtTime(0.3, t2Start + 0.001);
-    t2Gain.gain.setValueAtTime(0.3, t2Start + 0.15);
+    t2Gain.gain.linearRampToValueAtTime(0.18, t2Start + 0.001);
+    t2Gain.gain.setValueAtTime(0.18, t2Start + 0.15);
     t2Gain.gain.exponentialRampToValueAtTime(0.12, t2Start + 0.4);
     t2Gain.gain.exponentialRampToValueAtTime(0.001, t2Start + 0.8);
     t2Gain.connect(master);
