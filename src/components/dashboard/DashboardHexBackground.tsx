@@ -126,7 +126,7 @@ export function DashboardHexBackground() {
           const sparkle2 = Math.pow((Math.sin(dB * 0.016 - dC * 0.01 + time * 5) + 1) * 0.5, 9);
 
           alpha += bA * 0.1 + bB * 0.08 + bC * 0.06 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.15 + sparkle2 * 0.12;
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.38);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.50);
 
           if (alpha < 0.05) continue;
 
