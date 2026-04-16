@@ -716,11 +716,11 @@
 
 /* Static dark glow border for dashboard cards — bold & vivid */
 .card-neon-glow {
-  box-shadow: 0 0 14px 3px hsla(170, 80%, 40%, 0.28),
-              0 0 30px 6px hsla(170, 80%, 40%, 0.14),
-              inset 0 0 10px 2px hsla(170, 80%, 40%, 0.08);
-  border-color: hsla(170, 80%, 40%, 0.5);
-  border-width: 2px;
+  box-shadow: 0 0 8px 1px hsla(170, 80%, 40%, 0.15),
+              0 0 20px 3px hsla(170, 80%, 40%, 0.07),
+              inset 0 0 6px 1px hsla(170, 80%, 40%, 0.04);
+  border-color: hsla(170, 80%, 40%, 0.3);
+  border-width: 1px;
 }
 
 /* Emerald glow pulse for energy flow card — syncs with green cascade */
@@ -771,11 +771,11 @@
 
 /* Reusable emerald glow border for dashboard cards — bold & vivid */
 .emerald-glow-card {
-  border: 2px solid hsla(170, 80%, 40%, 0.45);
+  border: 1px solid hsla(170, 80%, 40%, 0.3);
   border-radius: 0.75rem;
-  box-shadow: 0 0 12px 3px hsla(170, 80%, 40%, 0.25),
-              0 0 28px 6px hsla(170, 80%, 40%, 0.12),
-              inset 0 0 10px 2px hsla(170, 80%, 40%, 0.06);
+  box-shadow: 0 0 8px 1px hsla(170, 80%, 40%, 0.15),
+              0 0 20px 3px hsla(170, 80%, 40%, 0.07),
+              inset 0 0 6px 1px hsla(170, 80%, 40%, 0.04);
 }
 
 @keyframes gradient-shift {
