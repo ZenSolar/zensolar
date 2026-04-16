@@ -136,9 +136,9 @@ export function DashboardHexBackground() {
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
             // Two-tone: blue base transitioning to vivid emerald green on shimmer peaks
-            const hue = 215 - colorMix * 60;        // 215 (soft blue) → 155 (vivid emerald)
-            const sat = 65 + colorMix * 30;          // 65–95%
-            const lgt = 58 + colorMix * 4;           // 58–62% (keep green rich, not washed out)
+            const hue = 215 - colorMix * 60;        // 215 (blue) → 155 (vivid emerald)
+            const sat = 70 + colorMix * 25;          // 70–95%
+            const lgt = 48 + colorMix * 6;           // 48–54% (darker blue base)
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
@@ -157,9 +157,9 @@ export function DashboardHexBackground() {
               ctx.shadowColor = 'hsla(155,90%,45%,0.4)';
               ctx.shadowBlur = 14;
             } else if (needsGlow) {
-              ctx.lineWidth = isDark ? 0.7 : 0.8;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(210,80%,70%,0.25)';
-              ctx.shadowBlur = isDark ? 6 : 8;
+              ctx.lineWidth = isDark ? 0.7 : 1.0;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(215,85%,55%,0.35)';
+              ctx.shadowBlur = isDark ? 6 : 12;
             } else {
               ctx.lineWidth = isDark ? 0.5 : 0.5;
               ctx.shadowColor = 'transparent';
