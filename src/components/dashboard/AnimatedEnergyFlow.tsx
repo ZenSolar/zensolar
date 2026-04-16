@@ -463,7 +463,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
       {/* Title header */}
       <div className="relative z-10 pt-4 pb-1 px-4 text-center">
         <h3
-          className="text-lg sm:text-xl font-black tracking-wider uppercase"
+          className="text-lg sm:text-xl font-black tracking-wider"
           style={{
             color: '#3B82F6',
             textShadow: '0 0 24px hsla(217, 91%, 60%, 0.6), 0 0 48px hsla(217, 91%, 60%, 0.3), 0 0 72px hsla(217, 91%, 60%, 0.15)',
