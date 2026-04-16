@@ -4,6 +4,7 @@ import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
 import { DemoProvider } from '@/contexts/DemoContext';
 import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
+import { FeedbackFab } from '@/components/FeedbackFab';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
@@ -19,6 +20,7 @@ export function DemoLayout() {
             </main>
           </div>
         </div>
+        <FeedbackFab />
       </SidebarProvider>
     </DemoProvider>
   );
