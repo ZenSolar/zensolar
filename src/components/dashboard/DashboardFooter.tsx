@@ -49,7 +49,7 @@ export function DashboardFooter() {
             White Paper
           </Link>
           <Link 
-            to="/blog" 
+            to={`${basePath}/blog`} 
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <BookOpen className="h-4 w-4" />
@@ -63,13 +63,13 @@ export function DashboardFooter() {
         {/* Legal Links and Copyright */}
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-            <Link to="/terms" className="hover:text-foreground transition-colors">
+            <Link to={`${basePath}/terms`} className="hover:text-foreground transition-colors">
               Terms
             </Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">
+            <Link to={`${basePath}/privacy`} className="hover:text-foreground transition-colors">
               Privacy
             </Link>
-            <Link to="/help" className="hover:text-foreground transition-colors">
+            <Link to={`${basePath}/help`} className="hover:text-foreground transition-colors">
               Help & Support
             </Link>
           </div>
