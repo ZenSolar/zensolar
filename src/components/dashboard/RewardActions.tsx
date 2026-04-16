@@ -3,7 +3,7 @@ import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, S
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
-import { useConfetti } from '@/hooks/useConfetti';
+import { useConfetti, warmAudioContext } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useSafeAccount, useSafeWalletClient, useSafeWatchAsset } from '@/hooks/useSafeWagmi';
