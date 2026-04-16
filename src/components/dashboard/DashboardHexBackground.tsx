@@ -126,7 +126,7 @@ export function DashboardHexBackground() {
           const sparkle2 = Math.pow((Math.sin(dB * 0.016 - dC * 0.01 + time * 5) + 1) * 0.5, 9);
 
           alpha += bA * 0.1 + bB * 0.08 + bC * 0.06 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.15 + sparkle2 * 0.12;
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.38);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.50);
 
           if (alpha < 0.05) continue;
 
@@ -135,9 +135,9 @@ export function DashboardHexBackground() {
 
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            const hue = 207 + colorMix * 15;       // 207–222 range (brand blue → deeper blue)
-            const sat = 75 + colorMix * 15;         // 75–90%
-            const lgt = 62 - colorMix * 16;         // 62–46% lightness (richer, deeper)
+            const hue = 210 + colorMix * 12;       // 210–222 range (deep blue)
+            const sat = 82 + colorMix * 12;         // 82–94%
+            const lgt = 42 - colorMix * 10;         // 42–32% lightness (much darker)
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
