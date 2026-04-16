@@ -65,8 +65,22 @@ export function DashboardHexBackground() {
       time += 0.009 * dt;
       currentScrollY = window.scrollY;
 
+      // Re-check theme every frame for live switching
+      const isDark = document.documentElement.classList.contains('dark');
+      const alphaMultiplier = isDark ? 1 : 2.2;
+
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
+
+      // Warm gradient overlay in light mode
+      if (!isDark) {
+        const grad = ctx.createRadialGradient(w * 0.3, h * 0.2, 0, w * 0.5, h * 0.5, w * 0.8);
+        grad.addColorStop(0, 'hsla(40, 80%, 70%, 0.06)');
+        grad.addColorStop(0.5, 'hsla(35, 70%, 60%, 0.03)');
+        grad.addColorStop(1, 'hsla(30, 60%, 50%, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+      }
 
       const startRow = Math.floor(currentScrollY / hexHeight) - 1;
       const endRow = startRow + Math.ceil(h / hexHeight) + 3;
