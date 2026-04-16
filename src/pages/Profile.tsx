@@ -384,7 +384,7 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        </motion.div>
+
 
         {/* Wallet Management */}
         <motion.div
