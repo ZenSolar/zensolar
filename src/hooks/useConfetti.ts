@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import confetti from 'canvas-confetti';
 
 const CONFETTI_Z = 99999;
@@ -11,7 +11,6 @@ function getAudioCtx(): AudioContext | null {
     if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
       sharedAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-    // Resume if suspended (browsers auto-suspend after idle)
     if (sharedAudioCtx.state === 'suspended') {
       sharedAudioCtx.resume();
     }
@@ -21,30 +20,88 @@ function getAudioCtx(): AudioContext | null {
   }
 }
 
-/** Warm up the AudioContext on a user gesture so it's ready later */
+/** Warm up the AudioContext on a user gesture so celebration sound works after async delays */
 export function warmAudioContext() {
   getAudioCtx();
 }
 
-/** Play a short celebratory chime via Web Audio API */
-function playCelebrationChime() {
+/** Play a confetti popping / crackling celebration sound */
+function playCelebrationPop() {
   const ctx = getAudioCtx();
   if (!ctx) return;
   try {
-    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.12);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.5);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(ctx.currentTime + i * 0.12);
-      osc.stop(ctx.currentTime + i * 0.12 + 0.5);
-    });
+    const now = ctx.currentTime;
+
+    // 1. Initial POP — short burst of filtered noise
+    const popLen = 0.08;
+    const popBuffer = ctx.createBuffer(1, ctx.sampleRate * popLen, ctx.sampleRate);
+    const popData = popBuffer.getChannelData(0);
+    for (let i = 0; i < popData.length; i++) {
+      // Sharp attack, fast decay
+      const env = Math.exp(-i / (popData.length * 0.15));
+      popData[i] = (Math.random() * 2 - 1) * env;
+    }
+    const popSrc = ctx.createBufferSource();
+    popSrc.buffer = popBuffer;
+    const popFilter = ctx.createBiquadFilter();
+    popFilter.type = 'bandpass';
+    popFilter.frequency.value = 1800;
+    popFilter.Q.value = 1.2;
+    const popGain = ctx.createGain();
+    popGain.gain.setValueAtTime(0.35, now);
+    popGain.gain.exponentialRampToValueAtTime(0.001, now + popLen);
+    popSrc.connect(popFilter).connect(popGain).connect(ctx.destination);
+    popSrc.start(now);
+    popSrc.stop(now + popLen);
+
+    // 2. Low thump for body
+    const thumpOsc = ctx.createOscillator();
+    thumpOsc.type = 'sine';
+    thumpOsc.frequency.setValueAtTime(120, now);
+    thumpOsc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+    const thumpGain = ctx.createGain();
+    thumpGain.gain.setValueAtTime(0.25, now);
+    thumpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    thumpOsc.connect(thumpGain).connect(ctx.destination);
+    thumpOsc.start(now);
+    thumpOsc.stop(now + 0.15);
+
+    // 3. Crackle scatter — several tiny noise pops spread over ~300ms
+    for (let j = 0; j < 6; j++) {
+      const delay = 0.03 + Math.random() * 0.25;
+      const crackleLen = 0.02 + Math.random() * 0.03;
+      const crackleBuffer = ctx.createBuffer(1, ctx.sampleRate * crackleLen, ctx.sampleRate);
+      const crackleData = crackleBuffer.getChannelData(0);
+      for (let i = 0; i < crackleData.length; i++) {
+        crackleData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (crackleData.length * 0.3));
+      }
+      const crackleSrc = ctx.createBufferSource();
+      crackleSrc.buffer = crackleBuffer;
+      const crackleFilter = ctx.createBiquadFilter();
+      crackleFilter.type = 'highpass';
+      crackleFilter.frequency.value = 2000 + Math.random() * 3000;
+      const crackleGain = ctx.createGain();
+      crackleGain.gain.setValueAtTime(0.08 + Math.random() * 0.12, now + delay);
+      crackleGain.gain.exponentialRampToValueAtTime(0.001, now + delay + crackleLen);
+      crackleSrc.connect(crackleFilter).connect(crackleGain).connect(ctx.destination);
+      crackleSrc.start(now + delay);
+      crackleSrc.stop(now + delay + crackleLen + 0.01);
+    }
+
+    // 4. Bright shimmer tail — short high-freq sweep for sparkle
+    const shimmerOsc = ctx.createOscillator();
+    shimmerOsc.type = 'sine';
+    shimmerOsc.frequency.setValueAtTime(4000, now + 0.05);
+    shimmerOsc.frequency.exponentialRampToValueAtTime(8000, now + 0.25);
+    const shimmerGain = ctx.createGain();
+    shimmerGain.gain.setValueAtTime(0, now);
+    shimmerGain.gain.linearRampToValueAtTime(0.06, now + 0.08);
+    shimmerGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    shimmerOsc.connect(shimmerGain).connect(ctx.destination);
+    shimmerOsc.start(now + 0.05);
+    shimmerOsc.stop(now + 0.35);
   } catch {
-    // Silently fail if Web Audio unavailable
+    // Silently fail
   }
 }
 
@@ -60,7 +117,7 @@ function triggerCelebrationHaptic() {
 export function useConfetti() {
   const triggerConfetti = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationChime();
+    playCelebrationPop();
 
     confetti({
       particleCount: 100,
@@ -81,7 +138,7 @@ export function useConfetti() {
 
   const triggerCelebration = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationChime();
+    playCelebrationPop();
 
     const duration = 3000;
     const animationEnd = Date.now() + duration;
@@ -127,7 +184,7 @@ export function useConfetti() {
 
   const triggerGoldBurst = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationChime();
+    playCelebrationPop();
     confetti({
       particleCount: 150,
       spread: 180,

@@ -692,6 +692,12 @@
   100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
+/* Progress bar shimmer sweep */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+
+
 /* Shimmer sweep with afterglow trail — the beam brightens then leaves a soft wake */
 @keyframes zenHeaderShimmer {
   0% { transform: translateX(-100%) skewX(-2deg); filter: brightness(1); }
