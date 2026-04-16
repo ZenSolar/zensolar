@@ -1643,20 +1643,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <img 
             src={zenLogo} 
             alt="ZenSolar" 
-            width="108" 
-            height="32" 
-            className="h-8 w-auto object-contain brightness-125 opacity-70 dark:animate-logo-glow dark:brightness-150" 
+            width="90" 
+            height="27" 
+            className="h-6 w-auto object-contain brightness-125 opacity-70 dark:animate-logo-glow dark:brightness-150" 
           />
           <div
-            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-gradient-to-r from-primary/60 via-foreground/50 to-secondary/60 bg-clip-text text-transparent"
+            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-gradient-to-r from-primary/70 via-foreground/60 to-secondary/70 bg-clip-text text-transparent"
             style={{
               backgroundSize: '200% 100%',
-              animation: 'gateTaglineShimmer 8s ease-in-out infinite alternate',
+              animation: 'gateTaglineShimmer 5s ease-in-out infinite alternate',
             }}
           >
-            <span>The World's First One-Tap Clean Energy Platform</span>
+            <span>The World's First One-Tap,</span>
             <br />
-            <span className="tracking-[0.25em]">Mint-on-Proof™️</span>
+            <span>Mint-on-Proof™️ Clean Energy Platform</span>
           </div>
         </div>
       </div>
