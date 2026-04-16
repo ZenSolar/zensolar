@@ -119,7 +119,7 @@ export function DashboardHexBackground() {
           const alphaStr = roundedAlpha.toFixed(2);
 
           if (alphaStr !== lastAlphaStr) {
-            ctx.strokeStyle = isDark ? `hsla(160,84%,39%,${alphaStr})` : `hsla(152,76%,32%,${alphaStr})`;
+            ctx.strokeStyle = isDark ? `hsla(160,84%,39%,${alphaStr})` : `hsla(43,92%,55%,${alphaStr})`;
             lastAlphaStr = alphaStr;
           }
 
