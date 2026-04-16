@@ -341,11 +341,8 @@ function EnergyFlowGlowCard() {
     <div
       className="rounded-xl overflow-hidden bg-card/5"
       style={{
-        border: '1px solid hsla(142, 76%, 36%, 0.1)',
-        animation: burstDone
-          ? 'emeraldGlowIdle 4s ease-in-out infinite'
-          : 'emeraldGlowBurst 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-        animationDelay: burstDone ? '0s' : '0.25s',
+        border: '1.5px solid hsla(170, 80%, 40%, 0.3)',
+        boxShadow: '0 0 10px 2px hsla(170, 80%, 40%, 0.15), 0 0 22px 4px hsla(170, 80%, 40%, 0.07), inset 0 0 6px 0 hsla(170, 80%, 40%, 0.04)',
       }}
     >
       <AnimatedEnergyFlow className="w-full" />
@@ -399,8 +396,10 @@ function TodaysCleanEnergyStats() {
 
   return (
     <div ref={ref} className="emerald-glow-card rounded-2xl p-4 pt-3 relative overflow-hidden">
+      {/* Tinted background for less transparency */}
+      <div className="absolute inset-0" style={{ background: 'hsl(220 20% 10% / 0.6)' }} />
       {/* Animated gradient background */}
-      <div className="absolute inset-0 opacity-[0.04]" style={{
+      <div className="absolute inset-0 opacity-[0.06]" style={{
         background: 'linear-gradient(135deg, #F59E0B 0%, #3B82F6 25%, #22C55E 50%, #8B5CF6 75%, #F59E0B 100%)',
         backgroundSize: '400% 400%',
         animation: 'gradient-shift 8s ease infinite',
@@ -427,9 +426,9 @@ function TodaysCleanEnergyStats() {
               whileHover={{ scale: 1.02, y: -2 }}
               className="rounded-xl p-3 border cursor-pointer select-none touch-manipulation"
               style={{
-                background: `linear-gradient(135deg, ${k.color}38, ${k.color}1A)`,
-                borderColor: `${k.color}50`,
-                boxShadow: `0 4px 0 0 ${k.color}40`,
+                background: `linear-gradient(135deg, ${k.color}48, ${k.color}28)`,
+                borderColor: `${k.color}60`,
+                boxShadow: `0 4px 0 0 ${k.color}50`,
                 animation: isVisible ? `fade-in 0.5s ease-out ${i * 0.1}s both` : 'none',
               }}
             >
