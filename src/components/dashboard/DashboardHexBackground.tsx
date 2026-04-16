@@ -36,7 +36,7 @@ export function DashboardHexBackground() {
     const isMobile = window.innerWidth < 768;
     const isDark = document.documentElement.classList.contains('dark') ||
       window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const alphaMultiplier = isDark ? 1 : 1.6; // Moderately brighter in light mode
+    const alphaMultiplier = isDark ? 1 : 2.2; // Much brighter in light mode
     const TARGET_FPS = isMobile ? 24 : 40;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
@@ -111,7 +111,7 @@ export function DashboardHexBackground() {
           const shimmer = (Math.sin(dA * 0.012 - time * 3) + 1) * 0.5;
 
           alpha += bA * 0.17 + bB * 0.13 + bC * 0.1 + shimmer * 0.03;
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.52);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.65);
 
           if (alpha < 0.05) continue;
 
@@ -119,18 +119,18 @@ export function DashboardHexBackground() {
           const alphaStr = roundedAlpha.toFixed(2);
 
           if (alphaStr !== lastAlphaStr) {
-            ctx.strokeStyle = isDark ? `hsla(160,84%,39%,${alphaStr})` : `hsla(152,76%,32%,${alphaStr})`;
+            ctx.strokeStyle = isDark ? `hsla(160,84%,39%,${alphaStr})` : `hsla(43,92%,55%,${alphaStr})`;
             lastAlphaStr = alphaStr;
           }
 
-          const needsGlow = alpha > 0.32;
+          const needsGlow = alpha > (isDark ? 0.32 : 0.28);
           if (needsGlow !== lastGlow) {
             if (needsGlow) {
-              ctx.lineWidth = 0.7;
-              ctx.shadowColor = 'hsla(160,84%,50%,0.12)';
-              ctx.shadowBlur = 6;
+              ctx.lineWidth = isDark ? 0.7 : 1.0;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(43,92%,58%,0.35)';
+              ctx.shadowBlur = isDark ? 6 : 10;
             } else {
-              ctx.lineWidth = 0.5;
+              ctx.lineWidth = isDark ? 0.5 : 0.7;
               ctx.shadowColor = 'transparent';
               ctx.shadowBlur = 0;
             }
