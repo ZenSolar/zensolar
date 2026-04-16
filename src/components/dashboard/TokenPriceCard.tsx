@@ -47,6 +47,7 @@ export function TokenPriceCard({
   const [showPulse, setShowPulse] = useState(false);
   const [prevTokens, setPrevTokens] = useState(tokensHeld);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [showCashOut, setShowCashOut] = useState(false);
 
   // Burst effect state
   const [isBursting, setIsBursting] = useState(false);
