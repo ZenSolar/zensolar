@@ -731,22 +731,26 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
                 {stats.map((s, i) => {
                   const cx = sx + colW * i + colW / 2;
                   const baseY = sy + 30;
+                  const unitColor = isDark ? (s.active ? '#9ca3af' : '#4b5563') : (s.active ? '#64748b' : '#94a3b8');
+                  const labelColor = isDark ? (s.active ? '#6b7280' : '#374151') : (s.active ? '#475569' : '#94a3b8');
+                  const inactiveDot = isDark ? '#374151' : '#cbd5e1';
+                  const inactiveValue = isDark ? '#4b5563' : '#94a3b8';
                   return (
                     <g key={s.label}>
                       {/* Color dot */}
-                      <circle cx={cx} cy={baseY + 2} r={3} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.9 : 0.3}>
+                      <circle cx={cx} cy={baseY + 2} r={3} fill={s.active ? s.color : inactiveDot} opacity={s.active ? 0.9 : 0.3}>
                         {s.active && <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />}
                       </circle>
                       {/* Value */}
-                      <text x={cx} y={baseY + 22} textAnchor="middle" fill={s.active ? s.color : '#4b5563'} fontSize={valueFontSize} fontWeight="900">
+                      <text x={cx} y={baseY + 22} textAnchor="middle" fill={s.active ? s.color : inactiveValue} fontSize={valueFontSize} fontWeight="900">
                         {s.value}
                       </text>
                       {/* Unit */}
-                      <text x={cx} y={baseY + 30} textAnchor="middle" fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={unitFontSize} fontWeight="500">
+                      <text x={cx} y={baseY + 30} textAnchor="middle" fill={unitColor} fontSize={unitFontSize} fontWeight="500">
                         {s.unit}
                       </text>
                       {/* Label */}
-                      <text x={cx} y={baseY + 42} textAnchor="middle" fill={s.active ? '#6b7280' : '#374151'} fontSize={labelFontSize} fontWeight="500" letterSpacing="0.5">
+                      <text x={cx} y={baseY + 42} textAnchor="middle" fill={labelColor} fontSize={labelFontSize} fontWeight="500" letterSpacing="0.5">
                         {s.label}
                       </text>
                     </g>
