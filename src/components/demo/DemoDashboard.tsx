@@ -152,7 +152,7 @@ export function DemoDashboard() {
           </div>
           <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
-            <p className="text-xs text-muted-foreground/70 italic tracking-wide max-w-xs mx-auto leading-snug">
+            <p className="text-[11px] sm:text-xs text-muted-foreground/60 font-medium tracking-widest uppercase max-w-xs mx-auto leading-snug">
               The World's First One-Tap, Mint-on-Proof Clean Energy Platform
             </p>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
