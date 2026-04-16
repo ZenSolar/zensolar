@@ -193,6 +193,9 @@ const App = () => {
                       <Route path="help" element={<Navigate to="/demo/help-center?tab=help" replace />} />
                       <Route path="feedback" element={<Navigate to="/demo/help-center?tab=feedback" replace />} />
                       <Route path="about" element={<Navigate to="/demo/profile" replace />} />
+                      <Route path="terms" element={<Terms />} />
+                      <Route path="privacy" element={<Privacy />} />
+                      <Route path="blog" element={<Blog />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
                     <Route path="/competition/gridpay" element={<GridPayCompetition />} />
