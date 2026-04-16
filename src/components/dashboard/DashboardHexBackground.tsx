@@ -75,9 +75,9 @@ export function DashboardHexBackground() {
       // Warm gradient overlay in light mode
       if (!isDark) {
         const grad = ctx.createRadialGradient(w * 0.3, h * 0.2, 0, w * 0.5, h * 0.5, w * 0.8);
-        grad.addColorStop(0, 'hsla(40, 80%, 70%, 0.06)');
-        grad.addColorStop(0.5, 'hsla(35, 70%, 60%, 0.03)');
-        grad.addColorStop(1, 'hsla(30, 60%, 50%, 0)');
+        grad.addColorStop(0, 'hsla(220, 70%, 55%, 0.07)');
+        grad.addColorStop(0.5, 'hsla(225, 60%, 45%, 0.04)');
+        grad.addColorStop(1, 'hsla(230, 50%, 35%, 0)');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
       }
@@ -136,7 +136,7 @@ export function DashboardHexBackground() {
           if (alphaStr !== lastAlphaStr) {
             ctx.strokeStyle = isDark
               ? `hsla(160,84%,39%,${alphaStr})`
-              : `hsla(185,100%,55%,${alphaStr})`;
+              : `hsla(215,100%,60%,${alphaStr})`;
             lastAlphaStr = alphaStr;
           }
 
@@ -144,7 +144,7 @@ export function DashboardHexBackground() {
           if (needsGlow !== lastGlow) {
             if (needsGlow) {
               ctx.lineWidth = isDark ? 0.7 : 1.3;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(185,100%,60%,0.6)';
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(215,100%,65%,0.6)';
               ctx.shadowBlur = isDark ? 6 : 18;
             } else {
               ctx.lineWidth = isDark ? 0.5 : 0.8;
