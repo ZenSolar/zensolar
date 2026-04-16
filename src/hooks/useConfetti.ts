@@ -206,6 +206,32 @@ function playCelebrationGongChaChing() {
   }
 }
 
+/** Trigger a subtle screen shake effect */
+function triggerScreenShake() {
+  try {
+    const el = document.documentElement;
+    el.style.transition = 'none';
+    const frames = [
+      { t: 0, x: 0, y: 0 },
+      { t: 30, x: -3, y: 2 },
+      { t: 60, x: 4, y: -2 },
+      { t: 90, x: -2, y: 3 },
+      { t: 120, x: 3, y: -1 },
+      { t: 150, x: -1, y: 1 },
+      { t: 200, x: 0, y: 0 },
+    ];
+    frames.forEach(({ t, x, y }) => {
+      setTimeout(() => {
+        el.style.transform = `translate(${x}px, ${y}px)`;
+      }, t);
+    });
+    setTimeout(() => {
+      el.style.transform = '';
+      el.style.transition = '';
+    }, 250);
+  } catch {}
+}
+
 /** Trigger haptic celebration pattern */
 function triggerCelebrationHaptic() {
   if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
