@@ -317,143 +317,74 @@ export default function Profile() {
 
   return (
     <PullToRefreshWrapper onRefresh={handleRefresh}>
-      <div className="container max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Hero Header */}
+      <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
+        {/* Hero Header — compact */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 border border-primary/20 p-6 md:p-8"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/[0.08] via-transparent to-secondary/[0.06] border border-primary/15 p-5"
         >
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-          
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-            {/* Avatar with glow effect */}
+          <div className="flex items-center gap-4">
+            {/* Avatar */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full blur-lg opacity-50 scale-110" />
-              <Avatar className="h-24 w-24 md:h-28 md:w-28 border-4 border-background shadow-xl relative z-10">
+              <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
                 <AvatarImage src={profile?.avatar_url ?? undefined} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-primary-foreground text-2xl md:text-3xl font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-primary-foreground text-lg font-bold">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
             </div>
             
             {/* User info */}
-            <div className="flex-1 text-center md:text-left space-y-2">
-              <div className="flex flex-col md:flex-row md:items-center gap-2">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                  {profile?.display_name ?? 'ZenSolar User'}
-                </h1>
-              </div>
+            <div className="flex-1 min-w-0 space-y-1.5">
+              <h1 className="text-lg font-bold text-foreground truncate">
+                {profile?.display_name ?? 'ZenSolar User'}
+              </h1>
               
-              <div className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground">
-                <Mail className="h-4 w-4" />
-                <span className="text-sm">{user?.email}</span>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Mail className="h-3 w-3 shrink-0" />
+                <span className="text-xs truncate">{user?.email}</span>
               </div>
               
               {profile?.wallet_address && (
-                <div className="flex items-center justify-center md:justify-start gap-2">
-                  <Badge variant="outline" className="font-mono text-xs px-3 py-1.5 gap-2 cursor-pointer hover:bg-muted/50 transition-colors" onClick={copyWalletAddress}>
-                    <Wallet className="h-3 w-3" />
-                    {`${profile.wallet_address.slice(0, 6)}...${profile.wallet_address.slice(-4)}`}
-                    <Copy className="h-3 w-3 opacity-50" />
-                  </Badge>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                    <a 
-                      href={`https://sepolia.basescan.org/address/${profile.wallet_address}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                </div>
+                <Badge variant="outline" className="font-mono text-[10px] px-2 py-0.5 gap-1.5 cursor-pointer hover:bg-muted/50 transition-colors" onClick={copyWalletAddress}>
+                  <Wallet className="h-2.5 w-2.5" />
+                  {`${profile.wallet_address.slice(0, 6)}...${profile.wallet_address.slice(-4)}`}
+                  <Copy className="h-2.5 w-2.5 opacity-50" />
+                </Badge>
               )}
-            </div>
-            
-            {/* Quick stats */}
-            <div className="flex gap-4 md:gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{connectedEnergyProviders}</div>
-                <div className="text-xs text-muted-foreground">Energy</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-secondary">{connectedSocialAccounts}</div>
-                <div className="text-xs text-muted-foreground">Social</div>
-              </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
+        {/* Stats Row — compact */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid gap-4 grid-cols-2 md:grid-cols-4"
+          transition={{ delay: 0.05 }}
+          className="grid gap-2.5 grid-cols-4"
         >
-          <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/20 hover:border-primary/40 transition-colors">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-primary/10">
-                  <Calendar className="h-5 w-5 text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Member since</p>
-                  <p className="text-sm font-semibold truncate">
-                    {profile?.created_at ? formatDate(profile.created_at).split(',')[0] : 'N/A'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-secondary/5 to-transparent border-secondary/20 hover:border-secondary/40 transition-colors">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-secondary/10">
-                  <Zap className="h-5 w-5 text-secondary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Status</p>
-                  <p className="text-sm font-semibold">Active</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-accent/5 to-transparent border-accent/20 hover:border-accent/40 transition-colors">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-accent/10">
-                  <Sparkles className="h-5 w-5 text-accent-foreground" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Referral Code</p>
-                  <p className="text-sm font-semibold font-mono truncate">
-                    {profile?.referral_code || 'N/A'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500/5 to-transparent border-purple-500/20 hover:border-purple-500/40 transition-colors">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-purple-500/10">
-                  <Users className="h-5 w-5 text-purple-500" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Network</p>
-                  <p className="text-sm font-semibold">Base Sepolia</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/15 text-center">
+            <Calendar className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
+            <p className="text-[10px] font-medium truncate">
+              {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : 'N/A'}
+            </p>
+          </div>
+          <div className="p-2.5 rounded-xl bg-secondary/5 border border-secondary/15 text-center">
+            <Zap className="h-3.5 w-3.5 text-secondary mx-auto mb-1" />
+            <p className="text-[10px] font-medium">Active</p>
+          </div>
+          <div className="p-2.5 rounded-xl bg-accent/5 border border-accent/15 text-center">
+            <Sparkles className="h-3.5 w-3.5 text-accent-foreground mx-auto mb-1" />
+            <p className="text-[10px] font-medium font-mono truncate">{profile?.referral_code || '—'}</p>
+          </div>
+          <div className="p-2.5 rounded-xl bg-purple-500/5 border border-purple-500/15 text-center">
+            <Users className="h-3.5 w-3.5 text-purple-500 mx-auto mb-1" />
+            <p className="text-[10px] font-medium">Sepolia</p>
+          </div>
         </motion.div>
+
+
 
         {/* Wallet Management */}
         <motion.div

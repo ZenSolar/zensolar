@@ -58,20 +58,18 @@ export default function Settings() {
   const pushStatus = getPushStatus();
 
   return (
-    <div className="container max-w-3xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
       {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-4"
+        className="space-y-1"
       >
-        <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
-          <SettingsIcon className="h-6 w-6 text-primary" />
+        <div className="flex items-center gap-2.5">
+          <SettingsIcon className="h-5 w-5 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">Settings</h1>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground">Customize your ZenSolar experience</p>
-        </div>
+        <p className="text-sm text-muted-foreground">Customize your ZenSolar experience</p>
       </motion.div>
 
       {/* Wallet Setup */}
@@ -85,45 +83,39 @@ export default function Settings() {
 
       {/* Appearance */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-purple-500/5 to-transparent border-b border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-500/10">
-                <Palette className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Appearance</CardTitle>
-                <CardDescription>Customize how ZenSolar looks</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
+        <Card className="overflow-hidden border-border/50">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <Label className="text-base">Theme</Label>
-                <p className="text-sm text-muted-foreground">Switch between light and dark mode</p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted/50">
+                  <Palette className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Theme</p>
+                  <p className="text-xs text-muted-foreground">Light or dark mode</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
+              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
                 <Button
                   variant={theme === 'light' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setTheme('light')}
-                  className="gap-2"
+                  className="h-8 px-3 gap-1.5 text-xs"
                 >
-                  <Sun className="h-4 w-4" />
+                  <Sun className="h-3.5 w-3.5" />
                   Light
                 </Button>
                 <Button
                   variant={theme === 'dark' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setTheme('dark')}
-                  className="gap-2"
+                  className="h-8 px-3 gap-1.5 text-xs"
                 >
-                  <Moon className="h-4 w-4" />
+                  <Moon className="h-3.5 w-3.5" />
                   Dark
                 </Button>
               </div>
@@ -134,40 +126,31 @@ export default function Settings() {
 
       {/* Notifications */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Bell className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Notifications</CardTitle>
-                  <CardDescription>Manage how you receive updates</CardDescription>
-                </div>
-              </div>
-              <Badge variant="outline" className={`gap-1.5 ${pushStatus.color}`}>
-                <pushStatus.icon className="h-3 w-3" />
-                {pushStatus.label}
-              </Badge>
+        <Card className="overflow-hidden border-border/50">
+          <div className="flex items-center justify-between p-4 pb-0">
+            <div className="flex items-center gap-2.5">
+              <Bell className="h-4 w-4 text-primary" />
+              <p className="text-sm font-semibold">Notifications</p>
             </div>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-5">
+            <Badge variant="outline" className={`gap-1 text-[10px] ${pushStatus.color}`}>
+              <pushStatus.icon className="h-2.5 w-2.5" />
+              {pushStatus.label}
+            </Badge>
+          </div>
+          <CardContent className="p-4 space-y-1">
             {/* iOS PWA Install Prompt */}
             {isIOSDevice && !isPWAInstalled && (
-              <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/20 shrink-0">
-                    <Smartphone className="h-4 w-4 text-primary" />
-                  </div>
+              <div className="p-3 rounded-xl bg-primary/5 border border-primary/15 mb-3">
+                <div className="flex items-start gap-2.5">
+                  <Smartphone className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm mb-1">Install App for Push Notifications</p>
-                    <p className="text-xs text-muted-foreground">
-                      Tap the Share button <span className="inline-block">⬆️</span> then "Add to Home Screen" to enable push notifications on iOS.
+                    <p className="font-medium text-xs mb-0.5">Install for Push Notifications</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Tap Share ⬆️ → "Add to Home Screen"
                     </p>
                   </div>
                 </div>
@@ -209,25 +192,18 @@ export default function Settings() {
         </Card>
       </motion.div>
 
-      {/* Privacy */}
+      {/* Privacy & Preferences */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-secondary/5 to-transparent border-b border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-secondary/10">
-                <Shield className="h-5 w-5 text-secondary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Privacy</CardTitle>
-                <CardDescription>Control your data and visibility</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-5">
+        <Card className="overflow-hidden border-border/50">
+          <div className="flex items-center gap-2.5 p-4 pb-0">
+            <Shield className="h-4 w-4 text-secondary" />
+            <p className="text-sm font-semibold">Privacy & Preferences</p>
+          </div>
+          <CardContent className="p-4 space-y-1">
             <SettingRow
               icon={<Globe className="h-4 w-4" />}
               label="Public Profile"
@@ -243,29 +219,7 @@ export default function Settings() {
             >
               <Switch />
             </SettingRow>
-          </CardContent>
-        </Card>
-      </motion.div>
 
-      {/* App Preferences */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-accent/5 to-transparent border-b border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-accent/10">
-                <Smartphone className="h-5 w-5 text-accent-foreground" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">App Preferences</CardTitle>
-                <CardDescription>Customize your experience</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-5">
             <SettingRow
               icon={<Zap className="h-4 w-4" />}
               label="Auto-refresh Data"
@@ -277,42 +231,31 @@ export default function Settings() {
         </Card>
       </motion.div>
 
-      {/* Network */}
+      {/* Blockchain Network */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
+        transition={{ delay: 0.2 }}
       >
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-blue-500/5 to-transparent border-b border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Globe className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Blockchain Network</CardTitle>
-                <CardDescription>Current network configuration</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-500/20">
+        <Card className="overflow-hidden border-border/50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="h-3 w-3 rounded-full bg-secondary" />
-                  <div className="absolute inset-0 h-3 w-3 rounded-full bg-secondary animate-ping opacity-50" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-secondary" />
+                  <div className="absolute inset-0 h-2.5 w-2.5 rounded-full bg-secondary animate-ping opacity-40" />
                 </div>
                 <div>
-                  <p className="font-semibold">Base Sepolia Testnet</p>
-                  <p className="text-sm text-muted-foreground">Beta testing environment</p>
+                  <p className="text-sm font-medium">Base Sepolia Testnet</p>
+                  <p className="text-xs text-muted-foreground">Beta testing environment</p>
                 </div>
               </div>
-              <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/30">
+              <Badge variant="outline" className="text-[10px] bg-secondary/10 text-secondary border-secondary/30">
                 Active
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-4 text-center">
-              Mainnet support coming after beta testing phase.
+            <p className="text-[10px] text-muted-foreground mt-3 text-center">
+              Mainnet support coming after beta.
             </p>
           </CardContent>
         </Card>
@@ -333,14 +276,14 @@ function SettingRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-muted/30 transition-colors -mx-3">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-muted/50 text-muted-foreground">
+    <div className="flex items-center justify-between gap-3 py-3 px-1 border-b border-border/30 last:border-0">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="text-muted-foreground/60 shrink-0">
           {icon}
         </div>
-        <div className="space-y-0.5">
-          <Label className="text-base font-medium">{label}</Label>
-          <p className="text-sm text-muted-foreground">{description}</p>
+        <div className="min-w-0">
+          <p className="text-sm font-medium leading-tight">{label}</p>
+          <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{description}</p>
         </div>
       </div>
       {children}

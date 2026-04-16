@@ -40,7 +40,7 @@ const mainNavItems = [
   { title: "Dashboard", url: "/demo", icon: LayoutDashboard },
   { title: "Mint History", url: "/demo/mint-history", icon: History },
   { title: "$ZSOLAR Store", url: "/demo/store", icon: ShoppingBag },
-  { title: "Energy Log", url: "/demo/energy-log", icon: BarChart3 },
+  { title: "My Energy Logs", url: "/demo/energy-log", icon: BarChart3 },
   { title: "NFT Collection", url: "/demo/nft-collection", icon: Award },
   { title: "Learn", url: "/demo/learn", icon: BookOpen },
   { title: "White Paper", url: "/demo/white-paper", icon: FileText },
