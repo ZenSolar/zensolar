@@ -1639,14 +1639,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
 
         {/* Subtle branding footer */}
-        <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-2 pointer-events-none z-10">
-          <img 
-            src={zenLogo} 
-            alt="ZenSolar" 
-            width="90" 
-            height="27" 
-            className="h-6 w-auto object-contain brightness-125 opacity-70 dark:animate-logo-glow dark:brightness-150" 
-          />
+        <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
           <div
             className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
             style={{
@@ -1659,6 +1652,16 @@ backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--prima
             <br />
             <span>Mint-on-Proof™️ Clean Energy Platform</span>
           </div>
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            width="90" 
+            height="27" 
+            className="h-6 w-auto object-contain brightness-125 opacity-80 dark:brightness-150"
+            style={{
+              filter: 'drop-shadow(0 0 8px hsla(142, 76%, 42%, 0.4)) drop-shadow(0 0 20px hsla(142, 76%, 42%, 0.15))',
+            }}
+          />
         </div>
       </div>
 
