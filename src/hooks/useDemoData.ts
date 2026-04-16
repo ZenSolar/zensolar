@@ -158,6 +158,7 @@ export function useDemoData() {
   const [profile, setProfile] = useState(createDemoProfile);
   const [hasWelcomeNFT, setHasWelcomeNFT] = useState(false);
   const [mintedNFTs, setMintedNFTs] = useState<number[]>([]);
+  const [mintHistory, setMintHistory] = useState<MintReceipt[]>([]);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(new Date().toISOString());
 
   // Backfill display_name when NDA name becomes available in localStorage
