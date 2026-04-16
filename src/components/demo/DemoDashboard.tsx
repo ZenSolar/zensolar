@@ -341,11 +341,8 @@ function EnergyFlowGlowCard() {
     <div
       className="rounded-xl overflow-hidden bg-card/5"
       style={{
-        border: '1px solid hsla(142, 76%, 36%, 0.1)',
-        animation: burstDone
-          ? 'emeraldGlowIdle 4s ease-in-out infinite'
-          : 'emeraldGlowBurst 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-        animationDelay: burstDone ? '0s' : '0.25s',
+        border: '1.5px solid hsla(170, 80%, 40%, 0.3)',
+        boxShadow: '0 0 10px 2px hsla(170, 80%, 40%, 0.15), 0 0 22px 4px hsla(170, 80%, 40%, 0.07), inset 0 0 6px 0 hsla(170, 80%, 40%, 0.04)',
       }}
     >
       <AnimatedEnergyFlow className="w-full" />
