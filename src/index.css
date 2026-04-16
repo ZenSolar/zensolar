@@ -469,7 +469,8 @@
 }
 @keyframes gateTaglineShimmer {
   0%   { background-position: 0% 50%; }
-  60%  { background-position: 40% 50%; }
+  80%  { background-position: 80% 50%; }
+  90%  { background-position: 160% 50%; }
   100% { background-position: 200% 50%; }
 }
 
