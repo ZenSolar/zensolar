@@ -283,8 +283,8 @@ export function ActivityMetrics({
         >
           {/* Shimmer sweep */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(215 85% 45% / 0.35) 20%, hsl(240 70% 50% / 0.4) 40%, hsl(270 65% 50% / 0.45) 60%, hsl(240 70% 50% / 0.35) 80%, transparent 100%)"
-            glowColor="hsla(240, 70%, 45%, 0.2)"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(210 90% 50% / 0.4) 20%, hsl(215 85% 45% / 0.5) 40%, hsl(220 80% 50% / 0.45) 60%, hsl(210 90% 50% / 0.35) 80%, transparent 100%)"
+            glowColor="hsla(210, 90%, 50%, 0.2)"
             duration="4s"
             idleDelay="0.4s"
           />
@@ -438,14 +438,14 @@ export function ActivityMetrics({
 
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
-        <div className="relative overflow-hidden rounded-lg p-1" data-hint-target="kpi-cards">
-          {/* KPI area rainbow shimmer — covers the outer padding around fields */}
+        <div className="relative overflow-hidden rounded-lg p-2" data-hint-target="kpi-cards">
+          {/* KPI area rainbow shimmer — starts at the outer border edge */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.2) 8%, hsl(30 90% 55% / 0.3) 22%, hsl(60 85% 50% / 0.25) 36%, hsl(155 90% 50% / 0.4) 52%, hsl(210 85% 55% / 0.35) 68%, hsl(280 70% 58% / 0.25) 84%, transparent 100%)"
-            glowColor="hsla(155, 85%, 45%, 0.12)"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 8%, hsl(30 90% 55% / 0.35) 22%, hsl(60 85% 50% / 0.3) 36%, hsl(155 90% 50% / 0.45) 52%, hsl(210 85% 55% / 0.4) 68%, hsl(280 70% 58% / 0.3) 84%, transparent 100%)"
+            glowColor="hsla(155, 85%, 45%, 0.15)"
             duration="4.5s"
             idleDelay="1.2s"
-            className="z-0 rounded-lg"
+            className="z-0 rounded-lg -inset-0"
           />
           <div className="space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
