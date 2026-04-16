@@ -25,81 +25,182 @@ export function warmAudioContext() {
   getAudioCtx();
 }
 
-/** Play a confetti popping / crackling celebration sound */
-function playCelebrationPop() {
+/** Play a gong strike + cha-ching celebration sound */
+function playCelebrationGongChaChing() {
   const ctx = getAudioCtx();
   if (!ctx) return;
   try {
     const now = ctx.currentTime;
 
-    // 1. Initial POP — short burst of filtered noise
-    const popLen = 0.08;
-    const popBuffer = ctx.createBuffer(1, ctx.sampleRate * popLen, ctx.sampleRate);
-    const popData = popBuffer.getChannelData(0);
-    for (let i = 0; i < popData.length; i++) {
-      // Sharp attack, fast decay
-      const env = Math.exp(-i / (popData.length * 0.15));
-      popData[i] = (Math.random() * 2 - 1) * env;
+    // Master gain for the whole celebration
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.5, now);
+    master.connect(ctx.destination);
+
+    // ═══════════════════════════════════════════
+    //  LAYER 1: ZEN GONG STRIKE (singing bowl)
+    // ═══════════════════════════════════════════
+
+    // Fundamental — C2 (65Hz) deep resonance
+    const gongFundGain = ctx.createGain();
+    gongFundGain.gain.setValueAtTime(0, now);
+    gongFundGain.gain.linearRampToValueAtTime(0.3, now + 0.004);
+    gongFundGain.gain.setValueAtTime(0.3, now + 0.08);
+    gongFundGain.gain.exponentialRampToValueAtTime(0.12, now + 0.5);
+    gongFundGain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+    gongFundGain.connect(master);
+    const gongFund = ctx.createOscillator();
+    gongFund.type = 'sine';
+    gongFund.frequency.setValueAtTime(65, now);
+    gongFund.frequency.exponentialRampToValueAtTime(62, now + 1.5);
+    gongFund.connect(gongFundGain);
+    gongFund.start(now);
+    gongFund.stop(now + 2.2);
+
+    // Second partial — inharmonic gong character (~155Hz)
+    const gong2Gain = ctx.createGain();
+    gong2Gain.gain.setValueAtTime(0, now);
+    gong2Gain.gain.linearRampToValueAtTime(0.12, now + 0.003);
+    gong2Gain.gain.exponentialRampToValueAtTime(0.04, now + 0.2);
+    gong2Gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    gong2Gain.connect(master);
+    const gong2 = ctx.createOscillator();
+    gong2.type = 'sine';
+    gong2.frequency.setValueAtTime(155, now);
+    gong2.connect(gong2Gain);
+    gong2.start(now);
+    gong2.stop(now + 1.2);
+
+    // Third partial — shimmer (~310Hz)
+    const gong3Gain = ctx.createGain();
+    gong3Gain.gain.setValueAtTime(0, now);
+    gong3Gain.gain.linearRampToValueAtTime(0.06, now + 0.002);
+    gong3Gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    gong3Gain.connect(master);
+    const gong3 = ctx.createOscillator();
+    gong3.type = 'sine';
+    gong3.frequency.setValueAtTime(310, now);
+    gong3.connect(gong3Gain);
+    gong3.start(now);
+    gong3.stop(now + 0.8);
+
+    // Strike transient — filtered noise burst for the "hit"
+    const strikeLen = 0.04;
+    const strikeBuf = ctx.createBuffer(1, ctx.sampleRate * strikeLen, ctx.sampleRate);
+    const strikeData = strikeBuf.getChannelData(0);
+    for (let i = 0; i < strikeData.length; i++) {
+      strikeData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (strikeData.length * 0.1));
     }
-    const popSrc = ctx.createBufferSource();
-    popSrc.buffer = popBuffer;
-    const popFilter = ctx.createBiquadFilter();
-    popFilter.type = 'bandpass';
-    popFilter.frequency.value = 1800;
-    popFilter.Q.value = 1.2;
-    const popGain = ctx.createGain();
-    popGain.gain.setValueAtTime(0.35, now);
-    popGain.gain.exponentialRampToValueAtTime(0.001, now + popLen);
-    popSrc.connect(popFilter).connect(popGain).connect(ctx.destination);
-    popSrc.start(now);
-    popSrc.stop(now + popLen);
+    const strikeSrc = ctx.createBufferSource();
+    strikeSrc.buffer = strikeBuf;
+    const strikeFilter = ctx.createBiquadFilter();
+    strikeFilter.type = 'bandpass';
+    strikeFilter.frequency.value = 2500;
+    strikeFilter.Q.value = 0.8;
+    const strikeGain = ctx.createGain();
+    strikeGain.gain.setValueAtTime(0.2, now);
+    strikeGain.gain.exponentialRampToValueAtTime(0.001, now + strikeLen);
+    strikeSrc.connect(strikeFilter).connect(strikeGain).connect(master);
+    strikeSrc.start(now);
+    strikeSrc.stop(now + strikeLen + 0.01);
 
-    // 2. Low thump for body
-    const thumpOsc = ctx.createOscillator();
-    thumpOsc.type = 'sine';
-    thumpOsc.frequency.setValueAtTime(120, now);
-    thumpOsc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
-    const thumpGain = ctx.createGain();
-    thumpGain.gain.setValueAtTime(0.25, now);
-    thumpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-    thumpOsc.connect(thumpGain).connect(ctx.destination);
-    thumpOsc.start(now);
-    thumpOsc.stop(now + 0.15);
+    // ═══════════════════════════════════════════
+    //  LAYER 2: CHA-CHING (cash register bell)
+    //  Starts ~150ms after gong for layered impact
+    // ═══════════════════════════════════════════
+    const chaStart = now + 0.15;
 
-    // 3. Crackle scatter — several tiny noise pops spread over ~300ms
-    for (let j = 0; j < 6; j++) {
-      const delay = 0.03 + Math.random() * 0.25;
-      const crackleLen = 0.02 + Math.random() * 0.03;
-      const crackleBuffer = ctx.createBuffer(1, ctx.sampleRate * crackleLen, ctx.sampleRate);
-      const crackleData = crackleBuffer.getChannelData(0);
-      for (let i = 0; i < crackleData.length; i++) {
-        crackleData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (crackleData.length * 0.3));
-      }
-      const crackleSrc = ctx.createBufferSource();
-      crackleSrc.buffer = crackleBuffer;
-      const crackleFilter = ctx.createBiquadFilter();
-      crackleFilter.type = 'highpass';
-      crackleFilter.frequency.value = 2000 + Math.random() * 3000;
-      const crackleGain = ctx.createGain();
-      crackleGain.gain.setValueAtTime(0.08 + Math.random() * 0.12, now + delay);
-      crackleGain.gain.exponentialRampToValueAtTime(0.001, now + delay + crackleLen);
-      crackleSrc.connect(crackleFilter).connect(crackleGain).connect(ctx.destination);
-      crackleSrc.start(now + delay);
-      crackleSrc.stop(now + delay + crackleLen + 0.01);
+    // "Cha" — first bell hit (high metallic ping ~3200Hz)
+    const cha1Gain = ctx.createGain();
+    cha1Gain.gain.setValueAtTime(0, chaStart);
+    cha1Gain.gain.linearRampToValueAtTime(0.18, chaStart + 0.002);
+    cha1Gain.gain.exponentialRampToValueAtTime(0.06, chaStart + 0.08);
+    cha1Gain.gain.exponentialRampToValueAtTime(0.001, chaStart + 0.3);
+    cha1Gain.connect(master);
+    const cha1 = ctx.createOscillator();
+    cha1.type = 'sine';
+    cha1.frequency.setValueAtTime(3200, chaStart);
+    cha1.frequency.exponentialRampToValueAtTime(2800, chaStart + 0.15);
+    cha1.connect(cha1Gain);
+    cha1.start(chaStart);
+    cha1.stop(chaStart + 0.35);
+
+    // Harmonic overlay for cha (~4800Hz)
+    const cha1hGain = ctx.createGain();
+    cha1hGain.gain.setValueAtTime(0, chaStart);
+    cha1hGain.gain.linearRampToValueAtTime(0.08, chaStart + 0.002);
+    cha1hGain.gain.exponentialRampToValueAtTime(0.001, chaStart + 0.15);
+    cha1hGain.connect(master);
+    const cha1h = ctx.createOscillator();
+    cha1h.type = 'sine';
+    cha1h.frequency.value = 4800;
+    cha1h.connect(cha1hGain);
+    cha1h.start(chaStart);
+    cha1h.stop(chaStart + 0.2);
+
+    // "Ching" — second bell hit (~3800Hz, slightly delayed)
+    const chingStart = chaStart + 0.12;
+    const chingGain = ctx.createGain();
+    chingGain.gain.setValueAtTime(0, chingStart);
+    chingGain.gain.linearRampToValueAtTime(0.22, chingStart + 0.002);
+    chingGain.gain.exponentialRampToValueAtTime(0.08, chingStart + 0.1);
+    chingGain.gain.exponentialRampToValueAtTime(0.001, chingStart + 0.5);
+    chingGain.connect(master);
+    const ching = ctx.createOscillator();
+    ching.type = 'sine';
+    ching.frequency.setValueAtTime(3800, chingStart);
+    ching.frequency.exponentialRampToValueAtTime(3400, chingStart + 0.2);
+    ching.connect(chingGain);
+    ching.start(chingStart);
+    ching.stop(chingStart + 0.55);
+
+    // Ching harmonic (~5700Hz)
+    const chinghGain = ctx.createGain();
+    chinghGain.gain.setValueAtTime(0, chingStart);
+    chinghGain.gain.linearRampToValueAtTime(0.1, chingStart + 0.002);
+    chinghGain.gain.exponentialRampToValueAtTime(0.001, chingStart + 0.2);
+    chinghGain.connect(master);
+    const chingh = ctx.createOscillator();
+    chingh.type = 'sine';
+    chingh.frequency.value = 5700;
+    chingh.connect(chinghGain);
+    chingh.start(chingStart);
+    chingh.stop(chingStart + 0.25);
+
+    // Mechanical click noise (cash register drawer)
+    const clickLen = 0.015;
+    const clickBuf = ctx.createBuffer(1, ctx.sampleRate * clickLen, ctx.sampleRate);
+    const clickData = clickBuf.getChannelData(0);
+    for (let i = 0; i < clickData.length; i++) {
+      clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (clickData.length * 0.08));
     }
+    const clickSrc = ctx.createBufferSource();
+    clickSrc.buffer = clickBuf;
+    const clickFilter = ctx.createBiquadFilter();
+    clickFilter.type = 'highpass';
+    clickFilter.frequency.value = 4000;
+    const clickGain = ctx.createGain();
+    clickGain.gain.setValueAtTime(0.12, chaStart);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, chaStart + clickLen);
+    clickSrc.connect(clickFilter).connect(clickGain).connect(master);
+    clickSrc.start(chaStart);
+    clickSrc.stop(chaStart + clickLen + 0.01);
 
-    // 4. Bright shimmer tail — short high-freq sweep for sparkle
-    const shimmerOsc = ctx.createOscillator();
-    shimmerOsc.type = 'sine';
-    shimmerOsc.frequency.setValueAtTime(4000, now + 0.05);
-    shimmerOsc.frequency.exponentialRampToValueAtTime(8000, now + 0.25);
-    const shimmerGain = ctx.createGain();
-    shimmerGain.gain.setValueAtTime(0, now);
-    shimmerGain.gain.linearRampToValueAtTime(0.06, now + 0.08);
-    shimmerGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    shimmerOsc.connect(shimmerGain).connect(ctx.destination);
-    shimmerOsc.start(now + 0.05);
-    shimmerOsc.stop(now + 0.35);
+    // Coin jingle scatter — tiny metallic pings
+    for (let j = 0; j < 4; j++) {
+      const delay = 0.25 + Math.random() * 0.3;
+      const coinGain = ctx.createGain();
+      coinGain.gain.setValueAtTime(0, now + delay);
+      coinGain.gain.linearRampToValueAtTime(0.04 + Math.random() * 0.04, now + delay + 0.001);
+      coinGain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.12);
+      coinGain.connect(master);
+      const coin = ctx.createOscillator();
+      coin.type = 'sine';
+      coin.frequency.value = 5000 + Math.random() * 3000;
+      coin.connect(coinGain);
+      coin.start(now + delay);
+      coin.stop(now + delay + 0.15);
+    }
   } catch {
     // Silently fail
   }
@@ -117,7 +218,7 @@ function triggerCelebrationHaptic() {
 export function useConfetti() {
   const triggerConfetti = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationPop();
+    playCelebrationGongChaChing();
 
     confetti({
       particleCount: 100,
@@ -138,7 +239,7 @@ export function useConfetti() {
 
   const triggerCelebration = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationPop();
+    playCelebrationGongChaChing();
 
     const duration = 3000;
     const animationEnd = Date.now() + duration;
@@ -184,7 +285,7 @@ export function useConfetti() {
 
   const triggerGoldBurst = useCallback(() => {
     triggerCelebrationHaptic();
-    playCelebrationPop();
+    playCelebrationGongChaChing();
     confetti({
       particleCount: 150,
       spread: 180,
