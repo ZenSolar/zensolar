@@ -1650,7 +1650,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <div
             className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
             style={{
-backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(280,80%,65%) 15%, hsl(var(--secondary)) 35%, hsl(280,80%,65%) 65%, hsl(var(--primary)) 85%, hsl(280,80%,65%) 100%)',
+backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 11%, hsl(280,80%,65%) 22%, hsl(280,80%,65%) 44%, hsl(var(--secondary)) 55%, hsl(var(--secondary)) 77%, hsl(var(--primary)) 88%, hsl(var(--primary)) 100%)',
               backgroundSize: '200% 100%',
               animation: 'gateTaglineSpotlight 7s cubic-bezier(0.4, 0, 0.2, 1) infinite',
             }}
