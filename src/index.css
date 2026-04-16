@@ -697,6 +697,7 @@
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 
+}
 
 /* Shimmer sweep with afterglow trail — the beam brightens then leaves a soft wake */
 @keyframes zenHeaderShimmer {
