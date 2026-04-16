@@ -276,14 +276,14 @@ function SettingRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-muted/30 transition-colors -mx-3">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-muted/50 text-muted-foreground">
+    <div className="flex items-center justify-between gap-3 py-3 px-1 border-b border-border/30 last:border-0">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="text-muted-foreground/60 shrink-0">
           {icon}
         </div>
-        <div className="space-y-0.5">
-          <Label className="text-base font-medium">{label}</Label>
-          <p className="text-sm text-muted-foreground">{description}</p>
+        <div className="min-w-0">
+          <p className="text-sm font-medium leading-tight">{label}</p>
+          <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{description}</p>
         </div>
       </div>
       {children}
