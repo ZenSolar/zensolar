@@ -61,19 +61,20 @@ function playCelebrationGongChaChing() {
     // Fundamental — C2 (65Hz) deep singing bowl body — long sustain
     const fundGain = ctx.createGain();
     fundGain.gain.setValueAtTime(0, now);
-    fundGain.gain.linearRampToValueAtTime(0.32, now + 0.005);
-    fundGain.gain.setValueAtTime(0.32, now + 0.12);
-    fundGain.gain.exponentialRampToValueAtTime(0.15, now + 1.0);
-    fundGain.gain.exponentialRampToValueAtTime(0.06, now + 2.5);
-    fundGain.gain.exponentialRampToValueAtTime(0.001, now + 4.5);
+    fundGain.gain.linearRampToValueAtTime(0.38, now + 0.005);
+    fundGain.gain.setValueAtTime(0.38, now + 0.12);
+    fundGain.gain.exponentialRampToValueAtTime(0.2, now + 1.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.1, now + 3.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.03, now + 5.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.001, now + 7.0);
     fundGain.connect(master);
     const fund = ctx.createOscillator();
     fund.type = 'sine';
     fund.frequency.setValueAtTime(65, now);
-    fund.frequency.exponentialRampToValueAtTime(61, now + 4.0);
+    fund.frequency.exponentialRampToValueAtTime(61, now + 6.0);
     fund.connect(fundGain);
     fund.start(now);
-    fund.stop(now + 4.7);
+    fund.stop(now + 7.2);
 
     // Second partial — inharmonic (~155Hz) — medium sustain
     const p2Gain = ctx.createGain();
