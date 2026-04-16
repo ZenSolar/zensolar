@@ -1652,7 +1652,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             style={{
               backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 30%, hsl(280,80%,65%) 45%, hsl(var(--secondary)) 55%, hsl(var(--primary)) 70%, hsl(var(--primary)) 100%)',
               backgroundSize: '300% 100%',
-              animation: 'gateTaglineSpotlight 4s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+              animation: 'gateTaglineSpotlight 6s cubic-bezier(0.4, 0, 0.2, 1) infinite',
             }}
           >
             <span>The World's First One-Tap,</span>
