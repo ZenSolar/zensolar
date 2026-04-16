@@ -1647,15 +1647,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             height="32" 
             className="h-8 w-auto object-contain brightness-125 opacity-70 dark:animate-logo-glow dark:brightness-150" 
           />
-          <p
-            className="text-[10px] font-medium tracking-widest uppercase text-center leading-tight bg-gradient-to-r from-primary/60 via-foreground/50 to-secondary/60 bg-clip-text text-transparent"
+          <div
+            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-gradient-to-r from-primary/60 via-foreground/50 to-secondary/60 bg-clip-text text-transparent"
             style={{
               backgroundSize: '200% 100%',
-              animation: 'gateTaglineShimmer 4s ease-in-out infinite alternate',
+              animation: 'gateTaglineShimmer 8s ease-in-out infinite alternate',
             }}
           >
-            The World's First One-Tap, Mint-on-Proof™ Clean Energy Platform
-          </p>
+            <span>The World's First One-Tap Clean Energy Platform</span>
+            <br />
+            <span className="tracking-[0.25em]">Mint-on-Proof™️</span>
+          </div>
         </div>
       </div>
 
