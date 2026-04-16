@@ -1064,7 +1064,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           height: 'var(--gate-visible-height, 100dvh)',
         }}
       >
-        <div className={cn("relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none", hexAwake ? 'gap-8' : 'gap-4')} style={{ justifyContent: 'start', paddingTop: 'max(env(safe-area-inset-top, 0px) + 4rem, 18vh)' }}>
+        <div className={cn("relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none", hexAwake ? 'gap-8' : 'gap-4')} style={{ justifyContent: 'start', paddingTop: 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)' }}>
           {/* Logo */}
           <img
             src={zenLogo}
