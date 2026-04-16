@@ -125,8 +125,8 @@ export function DashboardHexBackground() {
           const sparkle = Math.pow((Math.sin(dA * 0.02 + dB * 0.012 - time * 4) + 1) * 0.5, 8);
           const sparkle2 = Math.pow((Math.sin(dB * 0.016 - dC * 0.01 + time * 5) + 1) * 0.5, 9);
 
-          alpha += bA * 0.1 + bB * 0.08 + bC * 0.06 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.15 + sparkle2 * 0.12;
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.50);
+          alpha += bA * 0.1 + bB * 0.08 + bC * 0.06 + shimmer * 0.04 + shimmer2 * 0.035 + shimmer3 * 0.025 + sparkle * 0.22 + sparkle2 * 0.18;
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.55);
 
           if (alpha < 0.05) continue;
 
@@ -135,10 +135,10 @@ export function DashboardHexBackground() {
 
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            // Two-tone: blue base transitioning to emerald green on shimmer peaks
-            const hue = 215 - colorMix * 55;        // 215 (soft blue) → 160 (emerald green)
-            const sat = 65 + colorMix * 25;          // 65–90%
-            const lgt = 58 + colorMix * 10;          // 58–68% (lighter blue, bright green)
+            // Two-tone: blue base transitioning to vivid emerald green on shimmer peaks
+            const hue = 215 - colorMix * 60;        // 215 (soft blue) → 155 (vivid emerald)
+            const sat = 65 + colorMix * 30;          // 65–95%
+            const lgt = 58 + colorMix * 4;           // 58–62% (keep green rich, not washed out)
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
