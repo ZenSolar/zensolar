@@ -1637,6 +1637,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             </a>
           </p>
         </div>
+
+        {/* Subtle branding footer */}
+        <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-1.5 pointer-events-none z-10">
+          <img 
+            src={zenLogo} 
+            alt="ZenSolar" 
+            width="108" 
+            height="32" 
+            className="h-8 w-auto object-contain opacity-40 dark:animate-logo-glow" 
+          />
+          <p className="text-[10px] text-muted-foreground/40 text-center leading-tight">
+            The World's First One-Tap, Mint-on-Proof™ Clean Energy Platform
+          </p>
+        </div>
       </div>
 
       {/* NDA Signature Overlay */}
