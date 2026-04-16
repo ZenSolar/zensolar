@@ -58,7 +58,7 @@ export default function AdminLiveEnergyFlow() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Activity className="h-6 w-6 text-primary" />
-            ZenEnergy Monitor™
+            ZenEnergy Monitoring™
           </h1>
           <p className="text-muted-foreground mt-1">
             First-of-its-kind multi-manufacturer energy monitor — prototype for dashboard integration
