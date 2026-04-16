@@ -44,18 +44,19 @@ function playCelebrationGongChaChing() {
     // Sub-bass foundation (30Hz) — long, slow decay
     const subGain = ctx.createGain();
     subGain.gain.setValueAtTime(0, now);
-    subGain.gain.linearRampToValueAtTime(0.22, now + 0.008);
-    subGain.gain.setValueAtTime(0.22, now + 0.15);
-    subGain.gain.exponentialRampToValueAtTime(0.08, now + 1.5);
-    subGain.gain.exponentialRampToValueAtTime(0.001, now + 4.0);
+    subGain.gain.linearRampToValueAtTime(0.28, now + 0.008);
+    subGain.gain.setValueAtTime(0.28, now + 0.15);
+    subGain.gain.exponentialRampToValueAtTime(0.12, now + 2.0);
+    subGain.gain.exponentialRampToValueAtTime(0.04, now + 4.5);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 6.0);
     subGain.connect(master);
     const sub = ctx.createOscillator();
     sub.type = 'sine';
     sub.frequency.setValueAtTime(30, now);
-    sub.frequency.exponentialRampToValueAtTime(27, now + 3.5);
+    sub.frequency.exponentialRampToValueAtTime(27, now + 5.0);
     sub.connect(subGain);
     sub.start(now);
-    sub.stop(now + 4.2);
+    sub.stop(now + 6.2);
 
     // Fundamental — C2 (65Hz) deep singing bowl body — long sustain
     const fundGain = ctx.createGain();
