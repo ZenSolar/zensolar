@@ -702,6 +702,12 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             const labelFontSize = compact ? 6.5 : 7.5;
             const headerFs = compact ? 7.5 : 8.5;
             const colW = cardW / 3;
+            const isDark = document.documentElement.classList.contains('dark');
+            const cardBg = isDark ? '#0f172a' : '#f8fafc';
+            const cardBgOpacity = isDark ? 0.65 : 0.85;
+            const cardStroke = isDark ? 'hsl(142 76% 36% / 0.15)' : 'hsl(170 60% 40% / 0.25)';
+            const headerColor = isDark ? '#9ca3af' : '#64748b';
+            const dividerColor = isDark ? '#1e293b' : '#e2e8f0';
 
             const stats = [
               { color: colors.solar, value: `${flow.solarPower.toFixed(1)}`, unit: 'kW', label: 'Solar Output', active: flow.solarPower > 0 },
@@ -711,36 +717,40 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             return (
               <g>
                 {/* Card background */}
-                <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill="#0f172a" fillOpacity={0.45} stroke="hsl(142 76% 36% / 0.12)" strokeWidth={0.6} />
+                <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill={cardBg} fillOpacity={cardBgOpacity} stroke={cardStroke} strokeWidth={0.6} />
                 {/* Header with live indicator */}
                 <circle cx={sx + cardW / 2 - 38} cy={sy + 11} r={3} fill="#22C55E">
                   <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
                 </circle>
-                <text x={sx + cardW / 2} y={sy + 14} textAnchor="middle" fill="#9ca3af" fontSize={headerFs} fontWeight="700" letterSpacing="2">
+                <text x={sx + cardW / 2} y={sy + 14} textAnchor="middle" fill={headerColor} fontSize={headerFs} fontWeight="700" letterSpacing="2">
                   LIVE ENERGY
                 </text>
                 {/* Divider line */}
-                <line x1={sx + 12} y1={sy + 20} x2={sx + cardW - 12} y2={sy + 20} stroke="#1e293b" strokeWidth={0.5} />
+                <line x1={sx + 12} y1={sy + 20} x2={sx + cardW - 12} y2={sy + 20} stroke={dividerColor} strokeWidth={0.5} />
                 {/* Stats columns */}
                 {stats.map((s, i) => {
                   const cx = sx + colW * i + colW / 2;
                   const baseY = sy + 30;
+                  const unitColor = isDark ? (s.active ? '#9ca3af' : '#4b5563') : (s.active ? '#64748b' : '#94a3b8');
+                  const labelColor = isDark ? (s.active ? '#6b7280' : '#374151') : (s.active ? '#475569' : '#94a3b8');
+                  const inactiveDot = isDark ? '#374151' : '#cbd5e1';
+                  const inactiveValue = isDark ? '#4b5563' : '#94a3b8';
                   return (
                     <g key={s.label}>
                       {/* Color dot */}
-                      <circle cx={cx} cy={baseY + 2} r={3} fill={s.active ? s.color : '#374151'} opacity={s.active ? 0.9 : 0.3}>
+                      <circle cx={cx} cy={baseY + 2} r={3} fill={s.active ? s.color : inactiveDot} opacity={s.active ? 0.9 : 0.3}>
                         {s.active && <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />}
                       </circle>
                       {/* Value */}
-                      <text x={cx} y={baseY + 22} textAnchor="middle" fill={s.active ? s.color : '#4b5563'} fontSize={valueFontSize} fontWeight="900">
+                      <text x={cx} y={baseY + 22} textAnchor="middle" fill={s.active ? s.color : inactiveValue} fontSize={valueFontSize} fontWeight="900">
                         {s.value}
                       </text>
                       {/* Unit */}
-                      <text x={cx} y={baseY + 30} textAnchor="middle" fill={s.active ? '#9ca3af' : '#4b5563'} fontSize={unitFontSize} fontWeight="500">
+                      <text x={cx} y={baseY + 30} textAnchor="middle" fill={unitColor} fontSize={unitFontSize} fontWeight="500">
                         {s.unit}
                       </text>
                       {/* Label */}
-                      <text x={cx} y={baseY + 42} textAnchor="middle" fill={s.active ? '#6b7280' : '#374151'} fontSize={labelFontSize} fontWeight="500" letterSpacing="0.5">
+                      <text x={cx} y={baseY + 42} textAnchor="middle" fill={labelColor} fontSize={labelFontSize} fontWeight="500" letterSpacing="0.5">
                         {s.label}
                       </text>
                     </g>

@@ -34,23 +34,23 @@ export function DashboardTopControls() {
   }, [toggleTheme]);
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-2">
       <button
         onClick={toggleSound}
-        className="h-8 w-8 rounded-full flex items-center justify-center bg-card/60 backdrop-blur-sm border border-border/40 hover:bg-card/80 transition-all duration-200"
+        className="h-9 w-9 rounded-full flex items-center justify-center bg-card/80 backdrop-blur-sm border border-border/60 hover:bg-card shadow-sm transition-all duration-200"
         aria-label={soundEnabled ? 'Mute ambient sound' : 'Enable ambient sound'}
         title={soundEnabled ? 'Sound On' : 'Sound Off'}
       >
         {soundEnabled ? (
-          <Volume2 className="h-3.5 w-3.5 text-primary/80" />
+          <Volume2 className="h-4 w-4 text-primary" />
         ) : (
-          <VolumeX className="h-3.5 w-3.5 text-muted-foreground/60" />
+          <VolumeX className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
       <button
         onClick={handleToggleTheme}
         className={cn(
-          "h-8 w-8 rounded-full flex items-center justify-center bg-card/60 backdrop-blur-sm border border-border/40 hover:bg-card/80 transition-all duration-200",
+          "h-9 w-9 rounded-full flex items-center justify-center bg-card/80 backdrop-blur-sm border border-border/60 hover:bg-card shadow-sm transition-all duration-200",
           isTransitioning && "scale-110"
         )}
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -61,9 +61,9 @@ export function DashboardTopControls() {
           isTransitioning ? "rotate-180 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
         )}>
           {isDark ? (
-            <Sun className="h-3.5 w-3.5 text-amber-400" />
+            <Sun className="h-4 w-4 text-amber-400" />
           ) : (
-            <Moon className="h-3.5 w-3.5 text-primary/80" />
+            <Moon className="h-4 w-4 text-foreground/70" />
           )}
         </div>
       </button>

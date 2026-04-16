@@ -341,8 +341,8 @@ function EnergyFlowGlowCard() {
     <div
       className="rounded-xl overflow-hidden bg-card/5"
       style={{
-        border: '2px solid hsla(170, 80%, 40%, 0.45)',
-        boxShadow: '0 0 12px 3px hsla(170, 80%, 40%, 0.25), 0 0 28px 6px hsla(170, 80%, 40%, 0.12), inset 0 0 10px 2px hsla(170, 80%, 40%, 0.06)',
+        border: '1px solid hsla(170, 80%, 40%, 0.3)',
+        boxShadow: '0 0 8px 1px hsla(170, 80%, 40%, 0.15), 0 0 20px 3px hsla(170, 80%, 40%, 0.07)',
       }}
     >
       <AnimatedEnergyFlow className="w-full" />
@@ -396,10 +396,10 @@ function TodaysCleanEnergyStats() {
 
   return (
     <div ref={ref} className="emerald-glow-card rounded-2xl p-4 pt-3 relative overflow-hidden">
-      {/* Tinted background for less transparency */}
-      <div className="absolute inset-0" style={{ background: 'hsl(220 20% 10% / 0.45)' }} />
+      {/* Theme-aware tinted background */}
+      <div className="absolute inset-0 bg-card/80 dark:bg-[hsl(220_20%_10%/0.45)]" />
       {/* Animated gradient background */}
-      <div className="absolute inset-0 opacity-[0.06]" style={{
+      <div className="absolute inset-0 opacity-[0.08] dark:opacity-[0.06]" style={{
         background: 'linear-gradient(135deg, #F59E0B 0%, #3B82F6 25%, #22C55E 50%, #8B5CF6 75%, #F59E0B 100%)',
         backgroundSize: '400% 400%',
         animation: 'gradient-shift 8s ease infinite',
