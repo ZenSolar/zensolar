@@ -682,7 +682,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             const sy = compact ? 375 : 450;
             const cardW = compact ? 370 : 380;
             const cardH = compact ? 82 : 96;
-            const valueFontSize = compact ? 18 : 22;
+            const valueFontSize = compact ? 22 : 26;
             const unitFontSize = compact ? 9 : 10;
             const labelFontSize = compact ? 7 : 8;
             const headerFs = compact ? 8 : 9;
