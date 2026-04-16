@@ -119,9 +119,9 @@ export default function EnergyLog() {
   }, [queryClient]);
 
   return (
-    <AnimatedContainer className="w-full max-w-lg mx-auto px-3 sm:px-4 py-6 space-y-4">
+    <AnimatedContainer className="w-full max-w-lg mx-auto px-3 sm:px-4 py-5 space-y-3.5">
       {/* Header */}
-      <AnimatedItem className="space-y-1">
+      <AnimatedItem className="space-y-0.5">
         <div className="flex items-center gap-2">
           <Sun className="h-5 w-5 text-primary" />
           <h1 className="text-xl font-bold text-foreground">
