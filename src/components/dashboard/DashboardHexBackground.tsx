@@ -134,12 +134,12 @@ export function DashboardHexBackground() {
             lastAlphaStr = alphaStr;
           }
 
-          const needsGlow = alpha > (isDark ? 0.32 : 0.28);
+          const needsGlow = alpha > (isDark ? 0.32 : 0.2);
           if (needsGlow !== lastGlow) {
             if (needsGlow) {
-              ctx.lineWidth = isDark ? 0.7 : 1.0;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(43,92%,58%,0.35)';
-              ctx.shadowBlur = isDark ? 6 : 10;
+              ctx.lineWidth = isDark ? 0.7 : 1.2;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(45,100%,55%,0.55)';
+              ctx.shadowBlur = isDark ? 6 : 16;
             } else {
               ctx.lineWidth = isDark ? 0.5 : 0.7;
               ctx.shadowColor = 'transparent';
