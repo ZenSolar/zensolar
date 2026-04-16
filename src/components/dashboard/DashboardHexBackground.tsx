@@ -122,7 +122,7 @@ export function DashboardHexBackground() {
           const shimmer = (Math.sin(dA * 0.012 - time * 3) + 1) * 0.5;
 
           alpha += bA * 0.17 + bB * 0.13 + bC * 0.1 + shimmer * 0.03;
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.65);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.82);
 
           if (alpha < 0.05) continue;
 
