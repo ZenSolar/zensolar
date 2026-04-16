@@ -623,36 +623,26 @@ export function TokenPriceCard({
             </div>
           </div>
 
-          {/* On-chain verified badge */}
+          {/* ★ $ZSOLAR — Hero holding */}
           {tokensHeld > 0 && (
-            <div className="mb-4 p-3 rounded-xl bg-eco/[0.07] border border-eco/15">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-lg bg-eco/15">
-                  <ShieldCheck className="h-3.5 w-3.5 text-eco" />
+            <div className="mb-4 p-3.5 rounded-xl bg-gradient-to-br from-primary/[0.12] via-eco/[0.06] to-primary/[0.08] border border-primary/25 shadow-[0_0_20px_hsl(var(--primary)/0.1)]">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/20 shadow-inner shadow-primary/10">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-foreground">On-Chain Verified</p>
-                  <p className="text-[11px] text-muted-foreground">{tokensHeld.toLocaleString()} $ZSOLAR minted to your wallet</p>
+                  <p className="text-sm font-bold text-foreground">$ZSOLAR</p>
+                  <p className="text-[11px] text-muted-foreground">On-Chain Verified · Base L2</p>
                 </div>
-                <Check className="h-3.5 w-3.5 text-eco flex-shrink-0" />
+                <div className="text-right">
+                  <p className="text-lg font-bold text-primary tabular-nums">{tokensHeld.toLocaleString()}</p>
+                  <p className="text-[11px] font-medium text-eco tabular-nums">≈ ${formattedValue}</p>
+                </div>
               </div>
             </div>
           )}
 
-          {/* NFT count row */}
-          {nftCount !== undefined && (
-            <div className="mb-4 flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/30 border border-border/50">
-              <div className="p-1.5 rounded-lg bg-primary/10">
-                <Images className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <span className="text-sm text-muted-foreground flex-1">
-                <span className="font-semibold text-foreground tabular-nums">{nftCount}</span> NFTs {nftLabel}
-              </span>
-            </div>
-          )}
-
-
-          {/* Crypto Holdings */}
+          {/* Other Crypto Holdings */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
               <Coins className="h-3.5 w-3.5 text-muted-foreground" />
@@ -660,7 +650,7 @@ export function TokenPriceCard({
             </div>
             <div className="space-y-1.5">
               {/* BTC */}
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/20 border border-border/30">
+              <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/20 border border-border/30">
                 <div className="p-1.5 rounded-lg bg-amber-500/10">
                   <Bitcoin className="h-3.5 w-3.5 text-amber-500" />
                 </div>
@@ -669,12 +659,12 @@ export function TokenPriceCard({
                   <span className="text-[11px] text-muted-foreground ml-1.5">BTC</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-foreground tabular-nums">0.00</p>
-                  <p className="text-[10px] text-muted-foreground tabular-nums">≈ $0.00</p>
+                  <p className="text-sm font-semibold text-foreground tabular-nums">0.56348</p>
+                  <p className="text-[10px] text-muted-foreground tabular-nums">≈ $59,432.18</p>
                 </div>
               </div>
               {/* ETH */}
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/20 border border-border/30">
+              <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/20 border border-border/30">
                 <div className="p-1.5 rounded-lg bg-blue-500/10">
                   <svg className="h-3.5 w-3.5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z" />
@@ -685,7 +675,21 @@ export function TokenPriceCard({
                   <span className="text-[11px] text-muted-foreground ml-1.5">ETH</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-foreground tabular-nums">0.00</p>
+                  <p className="text-sm font-semibold text-foreground tabular-nums">7.2347</p>
+                  <p className="text-[10px] text-muted-foreground tabular-nums">≈ $23,162.87</p>
+                </div>
+              </div>
+              {/* USDC */}
+              <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/20 border border-border/30">
+                <div className="p-1.5 rounded-lg bg-blue-400/10">
+                  <DollarSign className="h-3.5 w-3.5 text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium text-foreground">USD Coin</span>
+                  <span className="text-[11px] text-muted-foreground ml-1.5">USDC</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-foreground tabular-nums">0.00</p>
                   <p className="text-[10px] text-muted-foreground tabular-nums">≈ $0.00</p>
                 </div>
               </div>
@@ -704,14 +708,14 @@ export function TokenPriceCard({
                   <div className="p-1 rounded-md bg-primary/10">
                     <Coins className="h-3 w-3 text-primary" />
                   </div>
-                  <span className="text-xs font-medium text-foreground">$ZSOLAR → USDC</span>
+                  <span className="text-xs font-medium text-foreground">$ZSOLAR → USDC / USDT</span>
                 </div>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 font-medium">
                   Coming Soon
                 </span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">
-                Convert your $ZSOLAR tokens to USDC via Uniswap on Base L2. Liquidity pool launching soon.
+                Convert $ZSOLAR to USDC or USDT via Uniswap on Base L2. Liquidity pool launching soon.
               </p>
               <Button 
                 disabled
