@@ -148,8 +148,8 @@ function playCelebrationGongChaChing() {
     // --- First tone: B5 (988Hz) — short staccato ---
     const t1Gain = ctx.createGain();
     t1Gain.gain.setValueAtTime(0, coinT);
-    t1Gain.gain.linearRampToValueAtTime(0.28, coinT + 0.001);
-    t1Gain.gain.setValueAtTime(0.28, coinT + 0.04);
+    t1Gain.gain.linearRampToValueAtTime(0.16, coinT + 0.001);
+    t1Gain.gain.setValueAtTime(0.16, coinT + 0.04);
     t1Gain.gain.exponentialRampToValueAtTime(0.001, coinT + 0.08);
     t1Gain.connect(master);
 
