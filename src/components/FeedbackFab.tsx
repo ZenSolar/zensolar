@@ -54,7 +54,7 @@ export function FeedbackFab() {
               </button>
             </div>
             <Textarea
-              placeholder="What's on your mind?"
+              placeholder="We'd love to hear your feedback! What do you like? What's confusing? What else should we have?"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
