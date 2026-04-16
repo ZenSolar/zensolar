@@ -196,7 +196,7 @@ function playCelebrationGongChaChing() {
     t2h.frequency.value = 1319 * 2;
     const t2hG = ctx.createGain();
     t2hG.gain.setValueAtTime(0, t2Start);
-    t2hG.gain.linearRampToValueAtTime(0.1, t2Start + 0.001);
+    t2hG.gain.linearRampToValueAtTime(0.05, t2Start + 0.001);
     t2hG.gain.setValueAtTime(0.1, t2Start + 0.1);
     t2hG.gain.exponentialRampToValueAtTime(0.001, t2Start + 0.5);
     t2h.connect(t2hG);
