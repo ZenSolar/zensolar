@@ -258,6 +258,14 @@ export function useDemoData() {
       breakdown.chargingKwh = activityData.pendingChargingKwh || 0;
       tokens += breakdown.chargingKwh;
     }
+    if (category === 'home_charging') {
+      breakdown.chargingKwh = activityData.pendingHomeChargerKwh || 0;
+      tokens += breakdown.chargingKwh;
+    }
+    if (category === 'supercharging') {
+      breakdown.chargingKwh = activityData.pendingSuperchargerKwh || 0;
+      tokens += breakdown.chargingKwh;
+    }
     
     // User receives 75% (20% burn, 3% LP, 2% treasury)
     const userTokens = Math.floor(tokens * 0.75);
@@ -268,9 +276,12 @@ export function useDemoData() {
       pendingSolarKwh: category === 'all' || category === 'solar' ? 0 : prev.pendingSolarKwh,
       pendingEvMiles: category === 'all' || category === 'ev_miles' ? 0 : prev.pendingEvMiles,
       pendingBatteryKwh: category === 'all' || category === 'battery' ? 0 : prev.pendingBatteryKwh,
-      pendingChargingKwh: category === 'all' || category === 'charging' ? 0 : prev.pendingChargingKwh,
-      pendingSuperchargerKwh: category === 'all' || category === 'charging' ? 0 : prev.pendingSuperchargerKwh,
-      pendingHomeChargerKwh: category === 'all' || category === 'charging' ? 0 : prev.pendingHomeChargerKwh,
+      pendingChargingKwh: category === 'all' || category === 'charging' ? 0 : 
+        (category === 'home_charging' ? (prev.pendingChargingKwh - (prev.pendingHomeChargerKwh || 0)) :
+         category === 'supercharging' ? (prev.pendingChargingKwh - (prev.pendingSuperchargerKwh || 0)) :
+         prev.pendingChargingKwh),
+      pendingSuperchargerKwh: category === 'all' || category === 'charging' || category === 'supercharging' ? 0 : prev.pendingSuperchargerKwh,
+      pendingHomeChargerKwh: category === 'all' || category === 'charging' || category === 'home_charging' ? 0 : prev.pendingHomeChargerKwh,
       lifetimeMinted: prev.lifetimeMinted + userTokens,
       tokensEarned: prev.tokensEarned + userTokens,
     }));

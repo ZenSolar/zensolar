@@ -3,7 +3,7 @@ import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, S
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
-import { useConfetti } from '@/hooks/useConfetti';
+import { useConfetti, warmAudioContext } from '@/hooks/useConfetti';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useSafeAccount, useSafeWalletClient, useSafeWatchAsset } from '@/hooks/useSafeWagmi';
@@ -31,7 +31,7 @@ import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
 
-export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
+export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'home_charging' | 'supercharging' | 'all';
 
 export interface MintRequest {
   category: MintCategory;
@@ -297,6 +297,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return pendingRewards.evMiles;
     if (category === 'battery') return pendingRewards.battery;
     if (category === 'charging') return pendingRewards.charging;
+    if (category === 'home_charging') return pendingRewards.homeChargerKwh ?? 0;
+    if (category === 'supercharging') return pendingRewards.superchargerKwh ?? 0;
     return 0;
   };
   
@@ -410,6 +412,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return 'EV Miles Driven';
     if (category === 'battery') return 'Battery Storage Discharged';
     if (category === 'charging') return 'EV Charging';
+    if (category === 'home_charging') return 'Home Charging';
+    if (category === 'supercharging') return 'Tesla Supercharging';
     return category;
   };
 
@@ -420,6 +424,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return 'EV Miles Driven';
     if (category === 'battery') return 'Battery Storage — kWh';
     if (category === 'charging') return 'EV Charging — kWh';
+    if (category === 'home_charging') return 'Home Charging — kWh';
+    if (category === 'supercharging') return 'Tesla Supercharging — kWh';
     return category;
   };
 
@@ -435,7 +441,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'solar') return Sun;
     if (category === 'ev_miles') return Car;
     if (category === 'battery') return BatteryFull;
-    if (category === 'charging') return Zap;
+    if (category === 'charging' || category === 'home_charging' || category === 'supercharging') return Zap;
     return Coins; // Default for 'all'
   };
 
@@ -444,7 +450,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'solar') return 'from-amber-500/20 to-amber-500/10 text-amber-500';
     if (category === 'ev_miles') return 'from-blue-500/20 to-blue-500/10 text-blue-500';
     if (category === 'battery') return 'from-emerald-500/20 to-emerald-500/10 text-emerald-500';
-    if (category === 'charging') return 'from-purple-500/20 to-purple-500/10 text-purple-500';
+    if (category === 'charging' || category === 'home_charging') return 'from-purple-500/20 to-purple-500/10 text-purple-500';
+    if (category === 'supercharging') return 'from-red-500/20 to-red-500/10 text-red-500';
     return 'from-primary/20 to-primary/10 text-primary'; // Default for 'all'
   };
 
@@ -467,7 +474,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   // Actually execute the mint after confirmation
   const handleConfirmMint = async () => {
     if (!pendingMintRequest) return;
-    
+    // Warm up AudioContext on user gesture so celebration chime works after async delays
+    warmAudioContext();
     setConfirmMintDialog(false);
     const { category, deviceId, deviceName } = pendingMintRequest;
     setPendingMintRequest(null);
@@ -515,11 +523,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       setMintingProgress({ step: 'transmitting', message: `Transmitting to Base L2 Blockchain...` });
 
+      // Map subcategories back to 'charging' for the edge function, with subcategory hint
+      const mintCategory = (category === 'home_charging' || category === 'supercharging') ? 'charging' : category;
+      const subCategory = (category === 'home_charging' || category === 'supercharging') ? category : undefined;
+
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-rewards',
           walletAddress,
-          category,
+          category: mintCategory,
+          subCategory,
           deviceId,
           isBetaMint: getLiveBetaMode(),
         },
@@ -1026,31 +1039,61 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     </Button>
                   </div>
 
-                  {/* EV Charging */}
-                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-accent/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm">
-                        <Zap className="h-4 w-4 text-accent" />
+                  {/* Tesla Supercharging */}
+                  {(pendingRewards.superchargerKwh ?? 0) > 0 && (
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-red-500/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-red-500/20 to-red-500/10 shadow-sm">
+                          <Zap className="h-4 w-4 text-red-500" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">Tesla Supercharging</p>
+                          <p className="text-xs text-muted-foreground">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">EV Charging</p>
-                        <p className="text-xs text-muted-foreground">{pendingRewards.charging.toLocaleString()} $ZSOLAR</p>
-                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRequestMint('supercharging')}
+                        disabled={(pendingRewards.superchargerKwh ?? 0) === 0 || isMinting}
+                        className="rounded-lg h-9 px-4 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-colors"
+                      >
+                        {mintingState.category === 'supercharging' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Mint'
+                        )}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRequestMint('charging')}
-                      disabled={pendingRewards.charging === 0 || isMinting}
-                      className="rounded-lg h-9 px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-colors"
-                    >
-                      {mintingState.category === 'charging' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        'Mint'
-                      )}
-                    </Button>
-                  </div>
+                  )}
+
+                  {/* Home Charging */}
+                  {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-accent/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm">
+                          <Zap className="h-4 w-4 text-accent" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">Home Charging</p>
+                          <p className="text-xs text-muted-foreground">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRequestMint('home_charging')}
+                        disabled={(pendingRewards.homeChargerKwh ?? 0) === 0 || isMinting}
+                        className="rounded-lg h-9 px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-colors"
+                      >
+                        {mintingState.category === 'home_charging' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Mint'
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Divider */}
@@ -1137,29 +1180,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         </p>
                       )}
 
-                      {/* Supercharger vs Home Charger breakdown for charging category */}
-                      {pendingMintRequest.category === 'charging' && (pendingRewards.superchargerKwh || pendingRewards.homeChargerKwh) ? (
-                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                          {(pendingRewards.superchargerKwh ?? 0) > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5">
-                                <Zap className="h-3 w-3 text-purple-500" />
-                                Tesla Supercharger
-                              </span>
-                              <span className="font-medium text-foreground tabular-nums">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} kWh</span>
-                            </div>
-                          )}
-                          {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5">
-                                <Zap className="h-3 w-3 text-emerald-500" />
-                                Home Charger
-                              </span>
-                              <span className="font-medium text-foreground tabular-nums">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} kWh</span>
-                            </div>
-                          )}
-                        </div>
-                      ) : null}
+                      {/* Activity amount for this specific category */}
                       
                       <div className="flex items-center justify-between pt-1.5 border-t border-primary/20">
                         <span className="text-xs text-muted-foreground">Tokens to<br/>receive:</span>
@@ -1231,11 +1252,34 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   <div className="absolute inset-[-6px] rounded-full border border-primary/15 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
                   <div className="absolute inset-[-20px] rounded-full border border-primary/10 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
                   
+                  {/* Network graph connecting lines */}
+                  <svg className="absolute inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)]" viewBox="0 0 104 104">
+                    {/* Animated dashed lines connecting nodes to center */}
+                    <line x1="52" y1="4" x2="52" y2="52" className="stroke-primary/20" strokeWidth="0.5" strokeDasharray="3 3">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="52" y1="100" x2="52" y2="52" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1.2s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="4" y1="52" x2="52" y2="52" className="stroke-primary/15" strokeWidth="0.5" strokeDasharray="3 3">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1.4s" repeatCount="indefinite" />
+                    </line>
+                    {/* Cross connections between outer nodes */}
+                    <line x1="52" y1="4" x2="4" y2="52" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="2s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="52" y1="4" x2="52" y2="100" className="stroke-primary/8" strokeWidth="0.3" strokeDasharray="2 4">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="2.2s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="4" y1="52" x2="52" y2="100" className="stroke-primary/10" strokeWidth="0.3" strokeDasharray="2 4">
+                      <animate attributeName="stroke-dashoffset" values="0;6" dur="1.8s" repeatCount="indefinite" />
+                    </line>
+                  </svg>
+                  
                   {/* Orbiting nodes with sparkle trails */}
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite]">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2">
                       <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
-                      {/* Trail particles */}
                       <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-primary/40 animate-[ping_1s_ease-out_infinite]" />
                       <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-primary/25 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
                       <div className="absolute top-1 left-3 w-1 h-1 rounded-full bg-primary/20 animate-[ping_1.2s_ease-out_infinite_0.6s]" />

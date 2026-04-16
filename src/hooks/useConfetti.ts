@@ -1,12 +1,36 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import confetti from 'canvas-confetti';
 
 const CONFETTI_Z = 99999;
 
+// Shared AudioContext — created on first user gesture, reused forever
+let sharedAudioCtx: AudioContext | null = null;
+
+function getAudioCtx(): AudioContext | null {
+  try {
+    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+      sharedAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    // Resume if suspended (browsers auto-suspend after idle)
+    if (sharedAudioCtx.state === 'suspended') {
+      sharedAudioCtx.resume();
+    }
+    return sharedAudioCtx;
+  } catch {
+    return null;
+  }
+}
+
+/** Warm up the AudioContext on a user gesture so it's ready later */
+export function warmAudioContext() {
+  getAudioCtx();
+}
+
 /** Play a short celebratory chime via Web Audio API */
 function playCelebrationChime() {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
   try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
@@ -19,7 +43,6 @@ function playCelebrationChime() {
       osc.start(ctx.currentTime + i * 0.12);
       osc.stop(ctx.currentTime + i * 0.12 + 0.5);
     });
-    setTimeout(() => ctx.close(), 1200);
   } catch {
     // Silently fail if Web Audio unavailable
   }
