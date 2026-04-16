@@ -155,9 +155,6 @@ export function DashboardHexBackground() {
           lastAlphaStr = alphaStr;
 
           const needsGlow = alpha > (isDark ? 0.32 : 0.22);
-          const needsGreenGlow = !isDark && colorMix > 0.7;
-          const glowKey = needsGreenGlow ? 2 : needsGlow ? 1 : 0;
-          // Scope colorMix for glow check
           const colorMixForGlow = !isDark ? (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25) : 0;
           const glowKeyFinal = (!isDark && colorMixForGlow > 0.7) ? 2 : needsGlow ? 1 : 0;
           if (glowKeyFinal !== (lastGlow ? (lastGlow === true ? 1 : lastGlow) : 0)) {
