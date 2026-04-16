@@ -31,7 +31,7 @@ import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
 
-export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
+export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'home_charging' | 'supercharging' | 'all';
 
 export interface MintRequest {
   category: MintCategory;
@@ -297,6 +297,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return pendingRewards.evMiles;
     if (category === 'battery') return pendingRewards.battery;
     if (category === 'charging') return pendingRewards.charging;
+    if (category === 'home_charging') return pendingRewards.homeChargerKwh ?? 0;
+    if (category === 'supercharging') return pendingRewards.superchargerKwh ?? 0;
     return 0;
   };
   
@@ -410,6 +412,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return 'EV Miles Driven';
     if (category === 'battery') return 'Battery Storage Discharged';
     if (category === 'charging') return 'EV Charging';
+    if (category === 'home_charging') return 'Home Charging';
+    if (category === 'supercharging') return 'Tesla Supercharging';
     return category;
   };
 
@@ -420,6 +424,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return 'EV Miles Driven';
     if (category === 'battery') return 'Battery Storage — kWh';
     if (category === 'charging') return 'EV Charging — kWh';
+    if (category === 'home_charging') return 'Home Charging — kWh';
+    if (category === 'supercharging') return 'Tesla Supercharging — kWh';
     return category;
   };
 
@@ -435,7 +441,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'solar') return Sun;
     if (category === 'ev_miles') return Car;
     if (category === 'battery') return BatteryFull;
-    if (category === 'charging') return Zap;
+    if (category === 'charging' || category === 'home_charging' || category === 'supercharging') return Zap;
     return Coins; // Default for 'all'
   };
 
@@ -444,7 +450,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'solar') return 'from-amber-500/20 to-amber-500/10 text-amber-500';
     if (category === 'ev_miles') return 'from-blue-500/20 to-blue-500/10 text-blue-500';
     if (category === 'battery') return 'from-emerald-500/20 to-emerald-500/10 text-emerald-500';
-    if (category === 'charging') return 'from-purple-500/20 to-purple-500/10 text-purple-500';
+    if (category === 'charging' || category === 'home_charging') return 'from-purple-500/20 to-purple-500/10 text-purple-500';
+    if (category === 'supercharging') return 'from-red-500/20 to-red-500/10 text-red-500';
     return 'from-primary/20 to-primary/10 text-primary'; // Default for 'all'
   };
 
