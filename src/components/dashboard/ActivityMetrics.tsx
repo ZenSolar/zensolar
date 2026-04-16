@@ -289,10 +289,10 @@ export function ActivityMetrics({
             boxShadow: 'inset 0 -1px 8px hsl(142 76% 36% / 0.06), inset 0 1px 8px hsl(142 76% 36% / 0.04)',
           }}
         >
-          {/* Shimmer sweep — blue */}
+          {/* Shimmer sweep — vivid electric blue */}
           <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(210 90% 55% / 0.45) 20%, hsl(215 85% 48% / 0.55) 40%, hsl(220 80% 52% / 0.5) 60%, hsl(210 90% 55% / 0.4) 80%, transparent 100%)"
-            glowColor="hsla(210, 90%, 50%, 0.25)"
+            gradient="linear-gradient(90deg, transparent 0%, hsl(210 100% 62% / 0.55) 15%, hsl(200 100% 55% / 0.7) 35%, hsl(215 100% 60% / 0.75) 50%, hsl(200 100% 55% / 0.65) 65%, hsl(210 100% 62% / 0.5) 85%, transparent 100%)"
+            glowColor="hsla(210, 100%, 58%, 0.35)"
             duration="4s"
             idleDelay="0.5s"
           />

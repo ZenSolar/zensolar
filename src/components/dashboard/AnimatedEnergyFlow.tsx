@@ -465,22 +465,22 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         <h3
           className="text-lg sm:text-xl font-black tracking-wider uppercase"
           style={{
-            color: '#22C55E',
-            textShadow: '0 0 24px hsla(142, 76%, 36%, 0.6), 0 0 48px hsla(142, 76%, 36%, 0.3), 0 0 72px hsla(142, 76%, 36%, 0.15)',
+            color: '#3B82F6',
+            textShadow: '0 0 24px hsla(217, 91%, 60%, 0.6), 0 0 48px hsla(217, 91%, 60%, 0.3), 0 0 72px hsla(217, 91%, 60%, 0.15)',
             letterSpacing: '0.08em',
             animation: 'zenEnergyTitlePulse 3s ease-in-out infinite',
           }}
         >
-          ⚡ ZenEnergy Monitor™
+          ⚡ ZenEnergy Monitoring™
         </h3>
         <style>{`
           @keyframes zenEnergyTitlePulse {
             0%, 100% {
-              text-shadow: 0 0 24px hsla(142, 76%, 36%, 0.6), 0 0 48px hsla(142, 76%, 36%, 0.3), 0 0 72px hsla(142, 76%, 36%, 0.15);
+              text-shadow: 0 0 24px hsla(217, 91%, 60%, 0.6), 0 0 48px hsla(217, 91%, 60%, 0.3), 0 0 72px hsla(217, 91%, 60%, 0.15);
               filter: brightness(1);
             }
             50% {
-              text-shadow: 0 0 32px hsla(142, 76%, 50%, 0.85), 0 0 64px hsla(142, 76%, 42%, 0.5), 0 0 96px hsla(142, 76%, 36%, 0.25);
+              text-shadow: 0 0 32px hsla(217, 91%, 70%, 0.85), 0 0 64px hsla(217, 91%, 60%, 0.5), 0 0 96px hsla(217, 91%, 60%, 0.25);
               filter: brightness(1.15);
             }
           }
