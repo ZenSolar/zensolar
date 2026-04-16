@@ -702,6 +702,12 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             const labelFontSize = compact ? 6.5 : 7.5;
             const headerFs = compact ? 7.5 : 8.5;
             const colW = cardW / 3;
+            const isDark = document.documentElement.classList.contains('dark');
+            const cardBg = isDark ? '#0f172a' : '#f8fafc';
+            const cardBgOpacity = isDark ? 0.65 : 0.85;
+            const cardStroke = isDark ? 'hsl(142 76% 36% / 0.15)' : 'hsl(170 60% 40% / 0.25)';
+            const headerColor = isDark ? '#9ca3af' : '#64748b';
+            const dividerColor = isDark ? '#1e293b' : '#e2e8f0';
 
             const stats = [
               { color: colors.solar, value: `${flow.solarPower.toFixed(1)}`, unit: 'kW', label: 'Solar Output', active: flow.solarPower > 0 },
@@ -711,16 +717,16 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             return (
               <g>
                 {/* Card background */}
-                <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill="#0f172a" fillOpacity={0.45} stroke="hsl(142 76% 36% / 0.12)" strokeWidth={0.6} />
+                <rect x={sx} y={sy} width={cardW} height={cardH} rx={8} fill={cardBg} fillOpacity={cardBgOpacity} stroke={cardStroke} strokeWidth={0.6} />
                 {/* Header with live indicator */}
                 <circle cx={sx + cardW / 2 - 38} cy={sy + 11} r={3} fill="#22C55E">
                   <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
                 </circle>
-                <text x={sx + cardW / 2} y={sy + 14} textAnchor="middle" fill="#9ca3af" fontSize={headerFs} fontWeight="700" letterSpacing="2">
+                <text x={sx + cardW / 2} y={sy + 14} textAnchor="middle" fill={headerColor} fontSize={headerFs} fontWeight="700" letterSpacing="2">
                   LIVE ENERGY
                 </text>
                 {/* Divider line */}
-                <line x1={sx + 12} y1={sy + 20} x2={sx + cardW - 12} y2={sy + 20} stroke="#1e293b" strokeWidth={0.5} />
+                <line x1={sx + 12} y1={sy + 20} x2={sx + cardW - 12} y2={sy + 20} stroke={dividerColor} strokeWidth={0.5} />
                 {/* Stats columns */}
                 {stats.map((s, i) => {
                   const cx = sx + colW * i + colW / 2;
