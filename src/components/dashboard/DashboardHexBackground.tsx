@@ -133,21 +133,31 @@ export function DashboardHexBackground() {
           const roundedAlpha = ((alpha * 50 + 0.5) | 0) / 50;
           const alphaStr = roundedAlpha.toFixed(2);
 
-          if (alphaStr !== lastAlphaStr) {
-            ctx.strokeStyle = isDark
-              ? `hsla(160,84%,39%,${alphaStr})`
-              : `hsla(215,100%,60%,${alphaStr})`;
-            lastAlphaStr = alphaStr;
+          if (!isDark) {
+            // Dual-tone: blend between light sky blue and deeper blue based on shimmer
+            const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
+            // Light hexes: bright sky blue (hue 200, high lightness)
+            // Dark hexes: richer navy-indigo (hue 225, lower lightness)
+            const hue = 195 + colorMix * 35;       // 195–230 range
+            const sat = 90 + colorMix * 10;         // 90–100%
+            const lgt = 72 - colorMix * 22;         // 72–50% lightness
+            const h = hue | 0;
+            const s = sat | 0;
+            const l = lgt | 0;
+            ctx.strokeStyle = `hsla(${h},${s}%,${l}%,${alphaStr})`;
+          } else if (alphaStr !== lastAlphaStr) {
+            ctx.strokeStyle = `hsla(160,84%,39%,${alphaStr})`;
           }
+          lastAlphaStr = alphaStr;
 
-          const needsGlow = alpha > (isDark ? 0.32 : 0.18);
+          const needsGlow = alpha > (isDark ? 0.32 : 0.22);
           if (needsGlow !== lastGlow) {
             if (needsGlow) {
-              ctx.lineWidth = isDark ? 0.7 : 1.3;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(215,100%,65%,0.6)';
-              ctx.shadowBlur = isDark ? 6 : 18;
+              ctx.lineWidth = isDark ? 0.7 : 1.1;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(205,100%,70%,0.5)';
+              ctx.shadowBlur = isDark ? 6 : 14;
             } else {
-              ctx.lineWidth = isDark ? 0.5 : 0.8;
+              ctx.lineWidth = isDark ? 0.5 : 0.7;
               ctx.shadowColor = 'transparent';
               ctx.shadowBlur = 0;
             }
