@@ -74,10 +74,11 @@ export function DashboardHexBackground() {
 
       // Warm gradient overlay in light mode
       if (!isDark) {
-        const grad = ctx.createRadialGradient(w * 0.3, h * 0.2, 0, w * 0.5, h * 0.5, w * 0.8);
-        grad.addColorStop(0, 'hsla(220, 60%, 55%, 0.04)');
-        grad.addColorStop(0.5, 'hsla(225, 50%, 45%, 0.02)');
-        grad.addColorStop(1, 'hsla(230, 40%, 35%, 0)');
+        const grad = ctx.createRadialGradient(w * 0.3, h * 0.15, 0, w * 0.5, h * 0.4, w * 0.7);
+        grad.addColorStop(0, 'hsla(160, 70%, 45%, 0.035)');
+        grad.addColorStop(0.4, 'hsla(190, 60%, 50%, 0.025)');
+        grad.addColorStop(0.7, 'hsla(215, 55%, 50%, 0.015)');
+        grad.addColorStop(1, 'hsla(220, 40%, 45%, 0)');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
       }
