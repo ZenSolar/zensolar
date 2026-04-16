@@ -776,7 +776,6 @@
               0 0 22px 4px hsla(170, 80%, 40%, 0.07),
               inset 0 0 6px 0 hsla(170, 80%, 40%, 0.04);
 }
-}
 
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
