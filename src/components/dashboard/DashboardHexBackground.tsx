@@ -67,7 +67,7 @@ export function DashboardHexBackground() {
 
       // Re-check theme every frame for live switching
       const isDark = document.documentElement.classList.contains('dark');
-      const alphaMultiplier = isDark ? 1 : 0.95;
+      const alphaMultiplier = isDark ? 1 : 1.4;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
