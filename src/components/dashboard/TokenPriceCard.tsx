@@ -34,6 +34,7 @@ interface TokenPriceCardProps {
   nftCount?: number;
   nftLabel?: string;
   walletLink?: string;
+  mintHistory?: MintReceipt[];
 }
 
 export function TokenPriceCard({ 
