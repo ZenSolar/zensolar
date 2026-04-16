@@ -1463,7 +1463,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         <DialogContent className="max-w-[calc(100vw-24px)] w-[calc(100vw-24px)] sm:max-w-md max-h-[calc(100dvh_-_24px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] mt-[env(safe-area-inset-top)] p-0 overflow-hidden">
           <div className="grid max-h-[calc(100dvh_-_24px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] grid-rows-[auto,1fr,auto]">
             {/* Header */}
-            <div className="px-4 pt-4 sm:px-6 sm:pt-6 pr-14">
+            <div className="px-4 pt-4 sm:px-6 sm:pt-6">
               <div className="space-y-2">
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto">
                   {resultDialog.success ? (
