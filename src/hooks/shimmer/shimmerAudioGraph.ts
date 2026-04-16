@@ -113,10 +113,10 @@ export function createShimmerAudioGraph(
   gongOsc3.frequency.setValueAtTime(495, now);
 
   const gongLfoGain = ctx.createGain();
-  gongLfoGain.gain.setValueAtTime(0.4, now);
+  gongLfoGain.gain.setValueAtTime(0.3, now);
 
   const gongBias = ctx.createConstantSource();
-  gongBias.offset.setValueAtTime(0.35, now);
+  gongBias.offset.setValueAtTime(0.2625, now);
 
   const gongMaster = ctx.createGain();
   gongMaster.gain.setValueAtTime(0, now);
