@@ -313,6 +313,7 @@ export function useConfetti() {
 
   const triggerGoldBurst = useCallback(() => {
     triggerCelebrationHaptic();
+    triggerScreenShake();
     playCelebrationGongChaChing();
     confetti({
       particleCount: 150,
