@@ -67,18 +67,18 @@ export function DashboardHexBackground() {
 
       // Re-check theme every frame for live switching
       const isDark = document.documentElement.classList.contains('dark');
-      const alphaMultiplier = isDark ? 1 : 1.4;
+      const alphaMultiplier = isDark ? 1 : 0.7;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      // Warm gradient overlay in light mode
+      // Soft radial wash in light mode — very subtle depth cue
       if (!isDark) {
-        const grad = ctx.createRadialGradient(w * 0.3, h * 0.15, 0, w * 0.5, h * 0.4, w * 0.7);
-        grad.addColorStop(0, 'hsla(160, 70%, 45%, 0.035)');
-        grad.addColorStop(0.4, 'hsla(190, 60%, 50%, 0.025)');
-        grad.addColorStop(0.7, 'hsla(215, 55%, 50%, 0.015)');
-        grad.addColorStop(1, 'hsla(220, 40%, 45%, 0)');
+        const grad = ctx.createRadialGradient(w * 0.3, h * 0.12, 0, w * 0.5, h * 0.4, w * 0.8);
+        grad.addColorStop(0, 'hsla(165, 50%, 55%, 0.025)');
+        grad.addColorStop(0.4, 'hsla(200, 40%, 58%, 0.015)');
+        grad.addColorStop(0.7, 'hsla(220, 35%, 55%, 0.008)');
+        grad.addColorStop(1, 'hsla(220, 30%, 50%, 0)');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
       }
@@ -105,7 +105,7 @@ export function DashboardHexBackground() {
 
           if (cyScreen < -hexSize || cyScreen > h + hexSize) continue;
 
-          let alpha = 0.06;
+          let alpha = isDark ? 0.06 : 0.04;
 
           const dA = cx + cyPage * 0.55;
           const dB = cx * 0.78 + cyPage * 0.82;
@@ -126,20 +126,25 @@ export function DashboardHexBackground() {
           const sparkle = Math.pow((Math.sin(dA * 0.02 + dB * 0.012 - time * 4) + 1) * 0.5, 8);
           const sparkle2 = Math.pow((Math.sin(dB * 0.016 - dC * 0.01 + time * 5) + 1) * 0.5, 9);
 
-          alpha += bA * 0.12 + bB * 0.1 + bC * 0.08 + shimmer * 0.05 + shimmer2 * 0.045 + shimmer3 * 0.03 + sparkle * 0.28 + sparkle2 * 0.22;
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.65);
+          if (isDark) {
+            alpha += bA * 0.12 + bB * 0.1 + bC * 0.08 + shimmer * 0.05 + shimmer2 * 0.045 + shimmer3 * 0.03 + sparkle * 0.28 + sparkle2 * 0.22;
+          } else {
+            // Light mode: gentler wave amplitudes for a refined, airy feel
+            alpha += bA * 0.08 + bB * 0.06 + bC * 0.05 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.14 + sparkle2 * 0.10;
+          }
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.32);
 
-          if (alpha < 0.05) continue;
+          if (alpha < 0.04) continue;
 
           const roundedAlpha = ((alpha * 50 + 0.5) | 0) / 50;
           const alphaStr = roundedAlpha.toFixed(2);
 
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            // Two-tone: blue base transitioning to vivid emerald green on shimmer peaks
-            const hue = 280 - colorMix * 125;        // 280 (violet) → 155 (emerald green)
-            const sat = 65 + colorMix * 30;          // 65–95%
-            const lgt = 50 + colorMix * 4;           // 50–54%
+            // Soft teal → slate blue with occasional emerald highlights
+            const hue = 200 - colorMix * 40;          // 200 (sky blue) → 160 (teal)
+            const sat = 35 + colorMix * 30;            // 35–65% — muted not neon
+            const lgt = 55 + colorMix * 8;             // 55–63% — lighter strokes
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
@@ -149,24 +154,24 @@ export function DashboardHexBackground() {
           }
           lastAlphaStr = alphaStr;
 
-          const needsGlow = alpha > (isDark ? 0.32 : 0.28);
-          const needsGreenGlow = !isDark && (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25) > 0.65;
-          const glowKey = needsGreenGlow ? 2 : needsGlow ? 1 : 0;
-          if (glowKey !== (lastGlow ? (lastGlow === true ? 1 : lastGlow) : 0)) {
-            if (needsGreenGlow) {
-              ctx.lineWidth = 1.1;
-              ctx.shadowColor = 'hsla(155,90%,45%,0.4)';
-              ctx.shadowBlur = 14;
-            } else if (needsGlow) {
-              ctx.lineWidth = isDark ? 0.7 : 1.0;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(215,85%,55%,0.35)';
-              ctx.shadowBlur = isDark ? 6 : 12;
+          const needsGlow = alpha > (isDark ? 0.32 : 0.22);
+          const colorMixForGlow = !isDark ? (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25) : 0;
+          const glowKeyFinal = (!isDark && colorMixForGlow > 0.7) ? 2 : needsGlow ? 1 : 0;
+          if (glowKeyFinal !== (lastGlow ? (lastGlow === true ? 1 : lastGlow) : 0)) {
+            if (glowKeyFinal === 2) {
+              ctx.lineWidth = 0.8;
+              ctx.shadowColor = 'hsla(170,60%,50%,0.2)';
+              ctx.shadowBlur = 8;
+            } else if (glowKeyFinal === 1) {
+              ctx.lineWidth = isDark ? 0.7 : 0.6;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(200,50%,55%,0.15)';
+              ctx.shadowBlur = isDark ? 6 : 6;
             } else {
-              ctx.lineWidth = isDark ? 0.5 : 0.5;
+              ctx.lineWidth = 0.5;
               ctx.shadowColor = 'transparent';
               ctx.shadowBlur = 0;
             }
-            lastGlow = glowKey as any;
+            lastGlow = glowKeyFinal as any;
           }
 
           ctx.setTransform(dpr, 0, 0, dpr, cx * dpr, cyScreen * dpr);
