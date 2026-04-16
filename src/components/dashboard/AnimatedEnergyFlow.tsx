@@ -453,8 +453,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
   const vb = compact ? '0 0 400 460' : '0 0 400 550';
   const maxH = compact ? '470px' : '660px';
   const labelFs = compact ? 9 : 11;
-  const valueFs = compact ? 18 : 24;
-  const subValueFs = compact ? 14 : 19;
+  const valueFs = compact ? 22 : 28;
+  const subValueFs = compact ? 17 : 22;
 
   return (
     <div className={`relative ${className}`}>
@@ -463,13 +463,13 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
       {/* Title header */}
       <div className="relative z-10 pt-4 pb-1 px-4 text-center">
         <h3 className="text-sm sm:text-base font-bold tracking-wide" style={{ color: '#F59E0B' }}>
-          ⚡ EnergyView™
+          ⚡ ZenEnergy Monitor™
         </h3>
         <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide" style={{ color: '#6b7280' }}>
-          First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>live multi-manufacturer energy view</span>
+          First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>live multi-manufacturer energy monitor</span>
         </p>
         <p className="text-[9px] sm:text-[10px] mt-2 leading-relaxed max-w-xs mx-auto" style={{ color: '#6b7280' }}>
-          ZenSolar unifies Tesla, Enphase, SolarEdge, and Wallbox into a single real-time energy view — no other platform combines data across competing manufacturers into one dashboard.
+          ZenSolar unifies Tesla, Enphase, SolarEdge, and Wallbox into a single real-time energy monitor — no other platform combines data across competing manufacturers into one dashboard.
         </p>
       </div>
 

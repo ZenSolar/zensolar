@@ -316,8 +316,8 @@ export function TokenPriceCard({
           {/* Rainbow shimmer sweep */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <ShimmerOverlay
-              gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 10%, hsl(30 90% 55% / 0.3) 25%, hsl(155 90% 50% / 0.45) 50%, hsl(210 85% 55% / 0.3) 75%, hsl(280 70% 58% / 0.25) 90%, transparent 100%)"
-              glowColor="hsla(280, 68%, 60%, 0.15)"
+              gradient="linear-gradient(90deg, transparent 0%, hsl(215 80% 42% / 0.35) 20%, hsl(250 70% 48% / 0.4) 40%, hsl(280 65% 50% / 0.45) 60%, hsl(250 70% 48% / 0.35) 80%, transparent 100%)"
+              glowColor="hsla(260, 68%, 45%, 0.2)"
               duration="4s"
               idleDelay="0s"
             />
