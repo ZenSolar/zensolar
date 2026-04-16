@@ -75,9 +75,9 @@ export function DashboardHexBackground() {
       // Warm gradient overlay in light mode
       if (!isDark) {
         const grad = ctx.createRadialGradient(w * 0.3, h * 0.2, 0, w * 0.5, h * 0.5, w * 0.8);
-        grad.addColorStop(0, 'hsla(40, 80%, 70%, 0.06)');
-        grad.addColorStop(0.5, 'hsla(35, 70%, 60%, 0.03)');
-        grad.addColorStop(1, 'hsla(30, 60%, 50%, 0)');
+        grad.addColorStop(0, 'hsla(220, 70%, 55%, 0.07)');
+        grad.addColorStop(0.5, 'hsla(225, 60%, 45%, 0.04)');
+        grad.addColorStop(1, 'hsla(230, 50%, 35%, 0)');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
       }
@@ -119,11 +119,13 @@ export function DashboardHexBackground() {
           const phC = ((dC - driftC) / 860) * TAU;
           const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 4);
 
-          const shimmer = (Math.sin(dA * 0.012 - time * 3) + 1) * 0.5;
-          const shimmer2 = (Math.sin(dB * 0.018 + time * 4.5) + 1) * 0.5;
-          const sparkle = Math.pow((Math.sin(dA * 0.025 + dB * 0.015 - time * 6) + 1) * 0.5, 8);
+          const shimmer = (Math.sin(dA * 0.018 - time * 5) + 1) * 0.5;
+          const shimmer2 = (Math.sin(dB * 0.025 + time * 7) + 1) * 0.5;
+          const shimmer3 = (Math.sin(dC * 0.014 - time * 4.2) + 1) * 0.5;
+          const sparkle = Math.pow((Math.sin(dA * 0.035 + dB * 0.02 - time * 9) + 1) * 0.5, 6);
+          const sparkle2 = Math.pow((Math.sin(dB * 0.028 - dC * 0.018 + time * 11) + 1) * 0.5, 7);
 
-          alpha += bA * 0.17 + bB * 0.13 + bC * 0.1 + shimmer * 0.04 + shimmer2 * 0.03 + sparkle * 0.25;
+          alpha += bA * 0.17 + bB * 0.13 + bC * 0.1 + shimmer * 0.06 + shimmer2 * 0.05 + shimmer3 * 0.04 + sparkle * 0.35 + sparkle2 * 0.28;
           alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.85);
 
           if (alpha < 0.05) continue;
@@ -134,7 +136,7 @@ export function DashboardHexBackground() {
           if (alphaStr !== lastAlphaStr) {
             ctx.strokeStyle = isDark
               ? `hsla(160,84%,39%,${alphaStr})`
-              : `hsla(185,100%,55%,${alphaStr})`;
+              : `hsla(215,100%,60%,${alphaStr})`;
             lastAlphaStr = alphaStr;
           }
 
@@ -142,7 +144,7 @@ export function DashboardHexBackground() {
           if (needsGlow !== lastGlow) {
             if (needsGlow) {
               ctx.lineWidth = isDark ? 0.7 : 1.3;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(185,100%,60%,0.6)';
+              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(215,100%,65%,0.6)';
               ctx.shadowBlur = isDark ? 6 : 18;
             } else {
               ctx.lineWidth = isDark ? 0.5 : 0.8;
