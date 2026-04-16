@@ -465,11 +465,11 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         <h3 className="text-sm sm:text-base font-bold tracking-wide" style={{ color: '#F59E0B' }}>
           ⚡ ZenEnergy Monitor™
         </h3>
-        <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide" style={{ color: '#6b7280' }}>
-          First of its kind — <span style={{ color: '#9ca3af', fontWeight: 500 }}>live multi-manufacturer energy monitor</span>
+        <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide" style={{ color: '#9ca3af' }}>
+          Live unified energy intelligence — <span style={{ color: '#d1d5db', fontWeight: 600 }}>across all your devices</span>
         </p>
-        <p className="text-[9px] sm:text-[10px] mt-2 leading-relaxed max-w-xs mx-auto" style={{ color: '#6b7280' }}>
-          ZenSolar unifies Tesla, Enphase, SolarEdge, and Wallbox into a single real-time energy monitor — no other platform combines data across competing manufacturers into one dashboard.
+        <p className="text-[9px] sm:text-[10px] mt-1.5 leading-relaxed max-w-[280px] mx-auto" style={{ color: '#6b7280' }}>
+          The first platform to unify Tesla, Enphase, SolarEdge &amp; Wallbox into one real-time view.
         </p>
       </div>
 

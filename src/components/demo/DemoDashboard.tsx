@@ -14,6 +14,7 @@ import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-sectio
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
+import { DashboardTopControls } from '@/components/dashboard/DashboardTopControls';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
@@ -144,7 +145,11 @@ export function DemoDashboard() {
       
       <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
         {/* Dashboard Header - matches real dashboard exactly */}
-        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
+        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center relative">
+          {/* Top controls — absolute positioned top-right */}
+          <div className="absolute top-0 right-0">
+            <DashboardTopControls />
+          </div>
           <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">

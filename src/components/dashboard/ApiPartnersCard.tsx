@@ -35,9 +35,9 @@ export function ApiPartnersCard() {
         {/* Rainbow shimmer sweep */}
         <motion.div
           className="absolute inset-0 pointer-events-none -skew-x-12"
-          style={{ background: 'linear-gradient(90deg, transparent 0%, hsla(340,85%,58%,0.15) 10%, hsla(30,90%,55%,0.2) 25%, hsla(155,90%,50%,0.3) 50%, hsla(210,85%,55%,0.2) 75%, hsla(280,70%,58%,0.15) 90%, transparent 100%)' }}
+          style={{ background: 'linear-gradient(90deg, transparent 0%, hsla(340,85%,55%,0.25) 8%, hsla(30,90%,50%,0.35) 20%, hsla(60,85%,48%,0.3) 35%, hsla(155,90%,45%,0.5) 50%, hsla(210,85%,50%,0.4) 65%, hsla(280,70%,55%,0.35) 80%, hsla(340,80%,55%,0.2) 92%, transparent 100%)' }}
           animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1, ease: 'easeInOut' }}
+          transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 0.6, ease: 'easeInOut' }}
         />
         <div className="relative grid grid-cols-2 gap-6 place-items-center">
           {brandLogos.map(({ src, alt }, idx) => (
