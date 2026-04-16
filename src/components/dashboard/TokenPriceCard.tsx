@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { 
   TrendingUp, DollarSign, Coins, Edit2, Check, Wallet, 
   ChevronDown, ChevronUp, Images, ExternalLink, ShieldCheck, 
-  ArrowUpRight, Zap, Banknote, Receipt, Clock, X, Lock
+  ArrowUpRight, Zap, Banknote, Receipt, Clock, X, Lock,
+  ArrowLeftRight, Bitcoin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -649,6 +650,80 @@ export function TokenPriceCard({
               </span>
             </div>
           )}
+
+
+          {/* Crypto Holdings */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Coins className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Other Holdings</span>
+            </div>
+            <div className="space-y-1.5">
+              {/* BTC */}
+              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/20 border border-border/30">
+                <div className="p-1.5 rounded-lg bg-amber-500/10">
+                  <Bitcoin className="h-3.5 w-3.5 text-amber-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium text-foreground">Bitcoin</span>
+                  <span className="text-[11px] text-muted-foreground ml-1.5">BTC</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-foreground tabular-nums">0.00</p>
+                  <p className="text-[10px] text-muted-foreground tabular-nums">≈ $0.00</p>
+                </div>
+              </div>
+              {/* ETH */}
+              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/20 border border-border/30">
+                <div className="p-1.5 rounded-lg bg-blue-500/10">
+                  <svg className="h-3.5 w-3.5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium text-foreground">Ethereum</span>
+                  <span className="text-[11px] text-muted-foreground ml-1.5">ETH</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-foreground tabular-nums">0.00</p>
+                  <p className="text-[10px] text-muted-foreground tabular-nums">≈ $0.00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Swap Widget — Uniswap Integration */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Swap</span>
+            </div>
+            <div className="p-3.5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-muted/30 border border-primary/15">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 rounded-md bg-primary/10">
+                    <Coins className="h-3 w-3 text-primary" />
+                  </div>
+                  <span className="text-xs font-medium text-foreground">$ZSOLAR → USDC</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 font-medium">
+                  Coming Soon
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">
+                Convert your $ZSOLAR tokens to USDC via Uniswap on Base L2. Liquidity pool launching soon.
+              </p>
+              <Button 
+                disabled
+                variant="outline"
+                size="sm" 
+                className="w-full h-8 text-xs font-medium opacity-50 cursor-not-allowed border-primary/20"
+              >
+                <ArrowLeftRight className="h-3 w-3 mr-1.5" />
+                Swap on Uniswap — Pool Not Live Yet
+              </Button>
+            </div>
+          </div>
 
           {/* Mint Receipts */}
           {mintHistory.length > 0 && (
