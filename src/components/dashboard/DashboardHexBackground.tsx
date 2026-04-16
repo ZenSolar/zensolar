@@ -131,7 +131,7 @@ export function DashboardHexBackground() {
           } else {
             alpha += bA * 0.10 + bB * 0.08 + bC * 0.06 + shimmer * 0.04 + shimmer2 * 0.035 + shimmer3 * 0.025 + sparkle * 0.20 + sparkle2 * 0.16;
           }
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.45);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.55);
 
           if (alpha < 0.04) continue;
 
