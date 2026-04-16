@@ -1,6 +1,7 @@
 import { Sun, Zap, Coins, Wallet, Gift } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
+import { useBasePath } from '@/hooks/useBasePath';
 
 const steps = [
   {
@@ -30,6 +31,7 @@ interface HowItWorksProps {
 }
 
 export function HowItWorks({ showCard = true }: HowItWorksProps) {
+  const basePath = useBasePath();
   const content = (
     <div className="space-y-4">
       {steps.map((step, index) => (
@@ -63,7 +65,7 @@ export function HowItWorks({ showCard = true }: HowItWorksProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">How It Works</CardTitle>
           <Link 
-            to="/how-it-works" 
+            to={`${basePath}/learn`} 
             className="text-xs text-primary hover:underline"
           >
             Learn more

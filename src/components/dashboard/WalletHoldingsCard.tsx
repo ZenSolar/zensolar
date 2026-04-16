@@ -5,6 +5,7 @@ import { useOnChainHoldings } from '@/hooks/useOnChainHoldings';
 import { useTokenPrice, calculateUsdValue } from '@/hooks/useTokenPrice';
 import { Wallet, Coins, Images, ExternalLink, RefreshCw, ShieldCheck, TrendingUp, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useBasePath } from '@/hooks/useBasePath';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface WalletHoldingsCardProps {

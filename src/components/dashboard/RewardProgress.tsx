@@ -516,7 +516,7 @@ export function RewardProgress({
         {/* Footer: View Collection */}
         <div className="pt-3 border-t border-border/50">
           <Link 
-            to="/nft-collection" 
+            to={`${basePath}/nft-collection`} 
             className="flex items-center gap-2.5 p-2.5 rounded-xl bg-card/5 border border-border/50 hover:bg-card/10 transition-all group"
           >
             <div className="p-1.5 rounded-lg bg-primary/10">
