@@ -1064,7 +1064,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           height: 'var(--gate-visible-height, 100dvh)',
         }}
       >
-        <div className={cn("relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center px-6 pointer-events-none", hexAwake ? 'gap-8' : 'gap-4')}>
+        <div className={cn("relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none", hexAwake ? 'gap-8' : 'gap-4')} style={{ justifyContent: 'start', paddingTop: 'max(env(safe-area-inset-top, 0px) + 4rem, 18vh)' }}>
           {/* Logo */}
           <img
             src={zenLogo}
@@ -1651,7 +1651,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-gradient-to-r from-primary/70 via-foreground/60 to-secondary/70 bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
             style={{
               backgroundSize: '200% 100%',
-              animation: 'gateTaglineShimmer 5s ease-in-out infinite alternate',
+              animation: 'gateTaglineShimmer 3s ease-in-out infinite alternate',
             }}
           >
             <span>The World's First One-Tap,</span>
