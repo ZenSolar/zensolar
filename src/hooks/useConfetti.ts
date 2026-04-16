@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 import confetti from 'canvas-confetti';
 
+const CONFETTI_Z = 99999;
+
 /** Play a short celebratory chime via Web Audio API */
 function playCelebrationChime() {
   try {
@@ -17,7 +19,6 @@ function playCelebrationChime() {
       osc.start(ctx.currentTime + i * 0.12);
       osc.stop(ctx.currentTime + i * 0.12 + 0.5);
     });
-    // Clean up after last note
     setTimeout(() => ctx.close(), 1200);
   } catch {
     // Silently fail if Web Audio unavailable
@@ -35,24 +36,23 @@ function triggerCelebrationHaptic() {
 
 export function useConfetti() {
   const triggerConfetti = useCallback(() => {
-    // Haptic + sound
     triggerCelebrationHaptic();
     playCelebrationChime();
 
-    // Fire confetti from the left
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { x: 0.1, y: 0.6 },
       colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'],
+      zIndex: CONFETTI_Z,
     });
 
-    // Fire confetti from the right
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { x: 0.9, y: 0.6 },
       colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'],
+      zIndex: CONFETTI_Z,
     });
   }, []);
 
@@ -62,16 +62,13 @@ export function useConfetti() {
 
     const duration = 3000;
     const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: CONFETTI_Z };
 
     const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
     const interval = setInterval(() => {
       const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
+      if (timeLeft <= 0) return clearInterval(interval);
 
       const particleCount = 50 * (timeLeft / duration);
 
@@ -101,6 +98,7 @@ export function useConfetti() {
       shapes: ['star'],
       colors: ['#FFD700', '#FFA500', '#FFFF00'],
       scalar: 1.2,
+      zIndex: CONFETTI_Z,
     });
   }, []);
 
@@ -114,6 +112,7 @@ export function useConfetti() {
       colors: ['#FFD700', '#FFC107', '#FF9800', '#FFEB3B'],
       gravity: 0.8,
       scalar: 1.5,
+      zIndex: CONFETTI_Z,
     });
   }, []);
 
