@@ -41,82 +41,85 @@ function playCelebrationGongChaChing() {
     //  LAYER 1: DEEP ZEN GONG (extended resonance)
     // ═══════════════════════════════════════════
 
-    // Sub-bass foundation (30Hz) — long, slow decay
+    // Sub-bass warmth (110Hz A2) — audible on most speakers
     const subGain = ctx.createGain();
     subGain.gain.setValueAtTime(0, now);
-    subGain.gain.linearRampToValueAtTime(0.28, now + 0.008);
-    subGain.gain.setValueAtTime(0.28, now + 0.15);
-    subGain.gain.exponentialRampToValueAtTime(0.12, now + 2.0);
-    subGain.gain.exponentialRampToValueAtTime(0.04, now + 4.5);
-    subGain.gain.exponentialRampToValueAtTime(0.001, now + 6.0);
+    subGain.gain.linearRampToValueAtTime(0.3, now + 0.008);
+    subGain.gain.setValueAtTime(0.3, now + 0.2);
+    subGain.gain.exponentialRampToValueAtTime(0.15, now + 2.5);
+    subGain.gain.exponentialRampToValueAtTime(0.06, now + 5.0);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 7.5);
     subGain.connect(master);
     const sub = ctx.createOscillator();
     sub.type = 'sine';
-    sub.frequency.setValueAtTime(30, now);
-    sub.frequency.exponentialRampToValueAtTime(27, now + 5.0);
+    sub.frequency.setValueAtTime(110, now);
+    sub.frequency.exponentialRampToValueAtTime(104, now + 6.0);
     sub.connect(subGain);
     sub.start(now);
-    sub.stop(now + 6.2);
+    sub.stop(now + 7.7);
 
-    // Fundamental — C2 (65Hz) deep singing bowl body — long sustain
+    // Fundamental — G3 (196Hz) deep singing bowl body — LONG sustain
     const fundGain = ctx.createGain();
     fundGain.gain.setValueAtTime(0, now);
-    fundGain.gain.linearRampToValueAtTime(0.38, now + 0.005);
-    fundGain.gain.setValueAtTime(0.38, now + 0.12);
-    fundGain.gain.exponentialRampToValueAtTime(0.2, now + 1.5);
-    fundGain.gain.exponentialRampToValueAtTime(0.1, now + 3.5);
-    fundGain.gain.exponentialRampToValueAtTime(0.03, now + 5.5);
-    fundGain.gain.exponentialRampToValueAtTime(0.001, now + 7.0);
+    fundGain.gain.linearRampToValueAtTime(0.4, now + 0.005);
+    fundGain.gain.setValueAtTime(0.4, now + 0.15);
+    fundGain.gain.exponentialRampToValueAtTime(0.25, now + 2.0);
+    fundGain.gain.exponentialRampToValueAtTime(0.12, now + 4.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.04, now + 6.5);
+    fundGain.gain.exponentialRampToValueAtTime(0.001, now + 8.0);
     fundGain.connect(master);
     const fund = ctx.createOscillator();
     fund.type = 'sine';
-    fund.frequency.setValueAtTime(65, now);
-    fund.frequency.exponentialRampToValueAtTime(61, now + 6.0);
+    fund.frequency.setValueAtTime(196, now);
+    fund.frequency.exponentialRampToValueAtTime(185, now + 7.0);
     fund.connect(fundGain);
     fund.start(now);
-    fund.stop(now + 7.2);
+    fund.stop(now + 8.2);
 
-    // Second partial — inharmonic (~155Hz) — medium sustain
+    // Second partial — inharmonic (~470Hz) — carries on phone speakers
     const p2Gain = ctx.createGain();
     p2Gain.gain.setValueAtTime(0, now);
-    p2Gain.gain.linearRampToValueAtTime(0.14, now + 0.004);
-    p2Gain.gain.exponentialRampToValueAtTime(0.06, now + 0.4);
-    p2Gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+    p2Gain.gain.linearRampToValueAtTime(0.2, now + 0.004);
+    p2Gain.gain.exponentialRampToValueAtTime(0.1, now + 1.0);
+    p2Gain.gain.exponentialRampToValueAtTime(0.04, now + 3.5);
+    p2Gain.gain.exponentialRampToValueAtTime(0.001, now + 6.0);
     p2Gain.connect(master);
     const p2 = ctx.createOscillator();
     p2.type = 'sine';
-    p2.frequency.setValueAtTime(155, now);
-    p2.frequency.exponentialRampToValueAtTime(148, now + 2.0);
+    p2.frequency.setValueAtTime(470, now);
+    p2.frequency.exponentialRampToValueAtTime(450, now + 5.0);
     p2.connect(p2Gain);
     p2.start(now);
-    p2.stop(now + 2.7);
+    p2.stop(now + 6.2);
 
-    // Third partial — shimmer (~310Hz)
+    // Third partial — shimmer (~740Hz) — extended
     const p3Gain = ctx.createGain();
     p3Gain.gain.setValueAtTime(0, now);
-    p3Gain.gain.linearRampToValueAtTime(0.07, now + 0.003);
-    p3Gain.gain.exponentialRampToValueAtTime(0.02, now + 0.3);
-    p3Gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+    p3Gain.gain.linearRampToValueAtTime(0.1, now + 0.003);
+    p3Gain.gain.exponentialRampToValueAtTime(0.04, now + 1.0);
+    p3Gain.gain.exponentialRampToValueAtTime(0.01, now + 3.0);
+    p3Gain.gain.exponentialRampToValueAtTime(0.001, now + 5.0);
     p3Gain.connect(master);
     const p3 = ctx.createOscillator();
     p3.type = 'sine';
-    p3.frequency.setValueAtTime(310, now);
+    p3.frequency.setValueAtTime(740, now);
     p3.connect(p3Gain);
     p3.start(now);
-    p3.stop(now + 1.7);
+    p3.stop(now + 5.2);
 
-    // Fourth partial — bell-like overtone (~520Hz)
+    // Fourth partial — bell-like overtone (~1180Hz) — extended
     const p4Gain = ctx.createGain();
     p4Gain.gain.setValueAtTime(0, now);
-    p4Gain.gain.linearRampToValueAtTime(0.04, now + 0.002);
-    p4Gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    p4Gain.gain.linearRampToValueAtTime(0.06, now + 0.002);
+    p4Gain.gain.exponentialRampToValueAtTime(0.02, now + 1.5);
+    p4Gain.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
     p4Gain.connect(master);
     const p4 = ctx.createOscillator();
     p4.type = 'sine';
-    p4.frequency.value = 520;
+    p4.frequency.value = 1180;
     p4.connect(p4Gain);
     p4.start(now);
-    p4.stop(now + 1.0);
+    p4.stop(now + 3.7);
 
     // Strike transient — filtered noise for the mallet "hit"
     const strikeLen = 0.05;
