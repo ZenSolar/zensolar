@@ -71,7 +71,7 @@ const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Mint History", url: "/mint-history", icon: History },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag },
-  { title: "Energy Log", url: "/energy-log", icon: BarChart3 },
+  { title: "My Energy Logs", url: "/energy-log", icon: BarChart3 },
   { title: "NFT Collection", url: "/nft-collection", icon: Award },
   { title: "Learn", url: "/learn", icon: BookOpen },
   { title: "White Paper", url: "/white-paper", icon: FileText },
