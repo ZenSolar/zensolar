@@ -1252,8 +1252,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             <div className="space-y-2">
               <h3 className="text-xl font-bold">
                 {mintingProgress.step === 'preparing' && 'Preparing Transaction'}
-                {mintingProgress.step === 'submitting' && 'Submitting to Blockchain'}
-                {mintingProgress.step === 'confirming' && 'Confirming Transaction'}
+                {mintingProgress.step === 'submitting' && 'Submitting Transaction'}
+                {mintingProgress.step === 'transmitting' && 'Transmitting to Base L2 Blockchain…'}
+                {mintingProgress.step === 'confirming' && 'Confirming on Base L2'}
                 {mintingProgress.step === 'complete' && 'Transaction Complete!'}
                 {mintingProgress.step === 'error' && 'Transaction Failed'}
               </h3>
@@ -1263,13 +1264,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             {/* Progress bar */}
             {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
               <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-5 border border-border/60 max-w-xs mx-auto">
-                <div className="h-2.5 bg-muted rounded-full overflow-hidden ring-1 ring-border/50">
+               <div className="h-2.5 bg-muted rounded-full overflow-hidden ring-1 ring-border/50">
                   <div 
                     className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out rounded-full"
                     style={{
-                      width: mintingProgress.step === 'preparing' ? '25%' : 
-                             mintingProgress.step === 'submitting' ? '50%' : 
-                             mintingProgress.step === 'confirming' ? '75%' : '100%'
+                      width: mintingProgress.step === 'preparing' ? '20%' : 
+                             mintingProgress.step === 'submitting' ? '40%' : 
+                             mintingProgress.step === 'transmitting' ? '65%' :
+                             mintingProgress.step === 'confirming' ? '85%' : '100%'
                     }}
                   />
                 </div>
