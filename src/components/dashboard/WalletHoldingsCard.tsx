@@ -13,6 +13,7 @@ interface WalletHoldingsCardProps {
 }
 
 export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
+  const basePath = useBasePath();
   const { tokenBalance, nftCount, isLoading, refetch } = useOnChainHoldings(walletAddress);
   const { price, priceFormatted, isPlaceholder } = useTokenPrice();
 
@@ -55,7 +56,7 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
               <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
             <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-xs">
-              <Link to="/wallet">
+              <Link to={`${basePath}/wallet`}>
                 View All
                 <ExternalLink className="h-3 w-3 ml-1" />
               </Link>
