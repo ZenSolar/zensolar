@@ -266,6 +266,7 @@ export function useConfetti() {
 
   const triggerCelebration = useCallback(() => {
     triggerCelebrationHaptic();
+    triggerScreenShake();
     playCelebrationGongChaChing();
 
     const duration = 3000;
