@@ -2,6 +2,15 @@ import { useState, useCallback, useEffect } from 'react';
 import { ActivityData, ConnectedAccount, calculateCO2Offset } from '@/types/dashboard';
 import { getAllEarnedNFTNames } from '@/lib/nftMilestones';
 
+export interface MintReceipt {
+  id: string;
+  category: string;
+  tokens: number;
+  txHash: string;
+  timestamp: Date;
+  type: 'token' | 'nft';
+}
+
 // Demo data based on real user KPIs - substantial values showing active usage
 // Values chosen to demonstrate realistic achievements across all categories
 const DEMO_SOLAR_KWH = 12847;      // Earns: Sunspark, Photonic, Rayforge, Solaris, Helios
