@@ -34,9 +34,6 @@ export function DashboardHexBackground() {
     let h = 0;
 
     const isMobile = window.innerWidth < 768;
-    const isDark = document.documentElement.classList.contains('dark') ||
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const alphaMultiplier = isDark ? 1 : 2.2; // Much brighter in light mode
     const TARGET_FPS = isMobile ? 24 : 40;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
