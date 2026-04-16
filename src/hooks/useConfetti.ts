@@ -137,86 +137,83 @@ function playCelebrationGongChaChing() {
     strikeSrc.stop(now + strikeLen + 0.01);
 
     // ═══════════════════════════════════════════
-    //  LAYER 2: COINS DROPPING (metallic clinks)
-    //  Multiple coin impacts at slightly different times
-    //  like coins tumbling onto a counter
+    //  LAYER 2: MARIO COIN SOUND
+    //  Classic two-tone "ding-ding!" — B5→E6
+    //  Starts ~300ms after gong strike
     // ═══════════════════════════════════════════
+    const coinT = now + 0.3;
 
-    // Generate 8 coin impacts spread over ~600ms starting 200ms after gong
-    const coinStart = now + 0.2;
-    const coinTimings = [0, 0.06, 0.14, 0.2, 0.28, 0.38, 0.46, 0.55];
-    const coinFreqs = [6200, 5400, 7100, 4800, 6800, 5900, 7500, 5100];
-    
-    for (let c = 0; c < coinTimings.length; c++) {
-      const t = coinStart + coinTimings[c];
-      const freq = coinFreqs[c];
-      const vol = 0.08 + Math.random() * 0.06;
-      
-      // Each coin = sharp metallic ping with fast decay
-      const coinG = ctx.createGain();
-      coinG.gain.setValueAtTime(0, t);
-      coinG.gain.linearRampToValueAtTime(vol, t + 0.001);
-      coinG.gain.exponentialRampToValueAtTime(vol * 0.4, t + 0.02);
-      coinG.gain.exponentialRampToValueAtTime(0.001, t + 0.12 + Math.random() * 0.08);
-      coinG.connect(master);
-      
-      // Primary ping
-      const coinOsc = ctx.createOscillator();
-      coinOsc.type = 'sine';
-      coinOsc.frequency.setValueAtTime(freq, t);
-      coinOsc.frequency.exponentialRampToValueAtTime(freq * 0.92, t + 0.05);
-      coinOsc.connect(coinG);
-      coinOsc.start(t);
-      coinOsc.stop(t + 0.25);
-      
-      // Coin harmonic (slight inharmonicity for realism)
-      const coinH = ctx.createOscillator();
-      coinH.type = 'sine';
-      coinH.frequency.value = freq * 2.76; // Non-integer ratio = metallic
-      const coinHG = ctx.createGain();
-      coinHG.gain.setValueAtTime(0, t);
-      coinHG.gain.linearRampToValueAtTime(vol * 0.3, t + 0.001);
-      coinHG.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-      coinH.connect(coinHG);
-      coinHG.connect(master);
-      coinH.start(t);
-      coinH.stop(t + 0.1);
+    // --- First tone: B5 (988Hz) — short staccato ---
+    const t1Gain = ctx.createGain();
+    t1Gain.gain.setValueAtTime(0, coinT);
+    t1Gain.gain.linearRampToValueAtTime(0.28, coinT + 0.001);
+    t1Gain.gain.setValueAtTime(0.28, coinT + 0.04);
+    t1Gain.gain.exponentialRampToValueAtTime(0.001, coinT + 0.08);
+    t1Gain.connect(master);
 
-      // Tiny noise click for each coin impact
-      const clickLen = 0.008;
-      const clickBuf = ctx.createBuffer(1, ctx.sampleRate * clickLen, ctx.sampleRate);
-      const cd = clickBuf.getChannelData(0);
-      for (let i = 0; i < cd.length; i++) {
-        cd[i] = (Math.random() * 2 - 1) * Math.exp(-i / (cd.length * 0.05));
-      }
-      const clickSrc = ctx.createBufferSource();
-      clickSrc.buffer = clickBuf;
-      const clickFlt = ctx.createBiquadFilter();
-      clickFlt.type = 'highpass';
-      clickFlt.frequency.value = 3000 + Math.random() * 2000;
-      const clickG = ctx.createGain();
-      clickG.gain.setValueAtTime(vol * 0.5, t);
-      clickG.gain.exponentialRampToValueAtTime(0.001, t + clickLen);
-      clickSrc.connect(clickFlt).connect(clickG).connect(master);
-      clickSrc.start(t);
-      clickSrc.stop(t + clickLen + 0.005);
-    }
+    const t1 = ctx.createOscillator();
+    t1.type = 'square';
+    t1.frequency.value = 988;
+    t1.connect(t1Gain);
+    t1.start(coinT);
+    t1.stop(coinT + 0.1);
 
-    // Final "settling" — a couple of quiet, soft pings as coins settle
-    for (let s = 0; s < 3; s++) {
-      const t = coinStart + 0.7 + s * 0.12;
-      const sG = ctx.createGain();
-      sG.gain.setValueAtTime(0, t);
-      sG.gain.linearRampToValueAtTime(0.03 - s * 0.008, t + 0.001);
-      sG.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-      sG.connect(master);
-      const sO = ctx.createOscillator();
-      sO.type = 'sine';
-      sO.frequency.value = 5500 + Math.random() * 2000;
-      sO.connect(sG);
-      sO.start(t);
-      sO.stop(t + 0.1);
-    }
+    // Harmonic overlay for first tone (adds brightness)
+    const t1h = ctx.createOscillator();
+    t1h.type = 'sine';
+    t1h.frequency.value = 988 * 2;
+    const t1hG = ctx.createGain();
+    t1hG.gain.setValueAtTime(0, coinT);
+    t1hG.gain.linearRampToValueAtTime(0.08, coinT + 0.001);
+    t1hG.gain.exponentialRampToValueAtTime(0.001, coinT + 0.06);
+    t1h.connect(t1hG);
+    t1hG.connect(master);
+    t1h.start(coinT);
+    t1h.stop(coinT + 0.08);
+
+    // --- Second tone: E6 (1319Hz) — longer sustain, the "payoff" ---
+    const t2Start = coinT + 0.075;
+    const t2Gain = ctx.createGain();
+    t2Gain.gain.setValueAtTime(0, t2Start);
+    t2Gain.gain.linearRampToValueAtTime(0.3, t2Start + 0.001);
+    t2Gain.gain.setValueAtTime(0.3, t2Start + 0.15);
+    t2Gain.gain.exponentialRampToValueAtTime(0.12, t2Start + 0.4);
+    t2Gain.gain.exponentialRampToValueAtTime(0.001, t2Start + 0.8);
+    t2Gain.connect(master);
+
+    const t2 = ctx.createOscillator();
+    t2.type = 'square';
+    t2.frequency.value = 1319;
+    t2.connect(t2Gain);
+    t2.start(t2Start);
+    t2.stop(t2Start + 0.85);
+
+    // Harmonic overlay for second tone
+    const t2h = ctx.createOscillator();
+    t2h.type = 'sine';
+    t2h.frequency.value = 1319 * 2;
+    const t2hG = ctx.createGain();
+    t2hG.gain.setValueAtTime(0, t2Start);
+    t2hG.gain.linearRampToValueAtTime(0.1, t2Start + 0.001);
+    t2hG.gain.setValueAtTime(0.1, t2Start + 0.1);
+    t2hG.gain.exponentialRampToValueAtTime(0.001, t2Start + 0.5);
+    t2h.connect(t2hG);
+    t2hG.connect(master);
+    t2h.start(t2Start);
+    t2h.stop(t2Start + 0.55);
+
+    // Third harmonic for extra sparkle
+    const t2h3 = ctx.createOscillator();
+    t2h3.type = 'sine';
+    t2h3.frequency.value = 1319 * 3;
+    const t2h3G = ctx.createGain();
+    t2h3G.gain.setValueAtTime(0, t2Start);
+    t2h3G.gain.linearRampToValueAtTime(0.04, t2Start + 0.001);
+    t2h3G.gain.exponentialRampToValueAtTime(0.001, t2Start + 0.3);
+    t2h3.connect(t2h3G);
+    t2h3G.connect(master);
+    t2h3.start(t2Start);
+    t2h3.stop(t2Start + 0.35);
   } catch {
     // Silently fail
   }
