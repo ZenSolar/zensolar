@@ -39,7 +39,7 @@ interface TokenPriceCardProps {
 
 export function TokenPriceCard({ 
   tokensHeld, defaultPrice = 0.10, onPriceChange, 
-  nftCount, nftLabel = 'earned', walletLink 
+  nftCount, nftLabel = 'earned', walletLink, mintHistory = []
 }: TokenPriceCardProps) {
   const [tokenPrice, setTokenPrice] = useState<number>(defaultPrice);
   const [isEditing, setIsEditing] = useState(false);
