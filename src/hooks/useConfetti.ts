@@ -143,7 +143,7 @@ function playCelebrationGongChaChing() {
     //  Classic two-tone "ding-ding!" — B5→E6
     //  Starts ~300ms after gong strike
     // ═══════════════════════════════════════════
-    const coinT = now + 0.3;
+    const coinT = now + 0.5;
 
     // --- First tone: B5 (988Hz) — short staccato ---
     const t1Gain = ctx.createGain();
