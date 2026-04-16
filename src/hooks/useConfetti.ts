@@ -34,7 +34,7 @@ function playCelebrationGongChaChing() {
 
     // Master gain
     const master = ctx.createGain();
-    master.gain.setValueAtTime(0.55, now);
+    master.gain.setValueAtTime(0.6, now);
     master.connect(ctx.destination);
 
     // ═══════════════════════════════════════════
