@@ -244,6 +244,7 @@ function triggerCelebrationHaptic() {
 export function useConfetti() {
   const triggerConfetti = useCallback(() => {
     triggerCelebrationHaptic();
+    triggerScreenShake();
     playCelebrationGongChaChing();
 
     confetti({
