@@ -523,11 +523,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       setMintingProgress({ step: 'transmitting', message: `Transmitting to Base L2 Blockchain...` });
 
+      // Map subcategories back to 'charging' for the edge function, with subcategory hint
+      const mintCategory = (category === 'home_charging' || category === 'supercharging') ? 'charging' : category;
+      const subCategory = (category === 'home_charging' || category === 'supercharging') ? category : undefined;
+
       const { data, error } = await supabase.functions.invoke('mint-onchain', {
         body: {
           action: 'mint-rewards',
           walletAddress,
-          category,
+          category: mintCategory,
+          subCategory,
           deviceId,
           isBetaMint: getLiveBetaMode(),
         },
