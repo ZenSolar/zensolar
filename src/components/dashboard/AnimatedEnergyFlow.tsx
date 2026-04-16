@@ -462,9 +462,29 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
       {/* Title header */}
       <div className="relative z-10 pt-4 pb-1 px-4 text-center">
-        <h3 className="text-lg sm:text-xl font-black tracking-wider uppercase" style={{ color: '#22C55E', textShadow: '0 0 24px hsla(142, 76%, 36%, 0.5), 0 0 48px hsla(142, 76%, 36%, 0.2)', letterSpacing: '0.08em' }}>
+        <h3
+          className="text-lg sm:text-xl font-black tracking-wider uppercase"
+          style={{
+            color: '#22C55E',
+            textShadow: '0 0 24px hsla(142, 76%, 36%, 0.6), 0 0 48px hsla(142, 76%, 36%, 0.3), 0 0 72px hsla(142, 76%, 36%, 0.15)',
+            letterSpacing: '0.08em',
+            animation: 'zenEnergyTitlePulse 3s ease-in-out infinite',
+          }}
+        >
           ⚡ ZenEnergy Monitor™
         </h3>
+        <style>{`
+          @keyframes zenEnergyTitlePulse {
+            0%, 100% {
+              text-shadow: 0 0 24px hsla(142, 76%, 36%, 0.6), 0 0 48px hsla(142, 76%, 36%, 0.3), 0 0 72px hsla(142, 76%, 36%, 0.15);
+              filter: brightness(1);
+            }
+            50% {
+              text-shadow: 0 0 32px hsla(142, 76%, 50%, 0.85), 0 0 64px hsla(142, 76%, 42%, 0.5), 0 0 96px hsla(142, 76%, 36%, 0.25);
+              filter: brightness(1.15);
+            }
+          }
+        `}</style>
         <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide font-medium" style={{ color: '#9ca3af' }}>
           Live multi-manufacturer energy intelligence
         </p>
