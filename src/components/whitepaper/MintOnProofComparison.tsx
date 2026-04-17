@@ -16,7 +16,7 @@ interface MintOnProofComparisonProps {
 
 const mintOnProofSteps = [
   { id: 'energy', emoji: '☀️', label: 'Energy Generated', color: 'from-amber-400 to-orange-500' },
-  { id: 'verify', icon: Shield, label: 'SEGI Verifies', color: 'from-primary to-emerald-500' },
+  { id: 'verify', icon: Shield, label: 'SEGI™ Verifies', color: 'from-primary to-emerald-500' },
   { id: 'mint', emoji: '🪙', label: 'Token Minted', color: 'from-emerald-400 to-green-500' },
   { id: 'wallet', emoji: '👛', label: 'Your Wallet', color: 'from-blue-400 to-cyan-500' },
 ];

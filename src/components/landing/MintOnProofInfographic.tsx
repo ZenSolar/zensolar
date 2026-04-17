@@ -192,7 +192,7 @@ export function MintOnProofInfographic({ showCTA = true, compact = false }: Mint
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <ShieldCheck className="h-4 w-4" />
-            Learn more about SEGI technology
+            Learn more about SEGI™ technology
             <ArrowRight className="h-4 w-4" />
           </Link>
         </motion.div>
