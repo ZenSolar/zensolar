@@ -180,6 +180,7 @@ const App = () => {
                       <Route path="mint-history" element={<MintHistory />} />
                       <Route path="learn" element={<Learn />} />
                       <Route path="white-paper" element={<WhitePaper />} />
+                      <Route path="engineering" element={<Engineering />} />
                       <Route path="technology" element={<Technology />} />
                       <Route path="store" element={<Store />} />
                       <Route path="referrals" element={<Referrals />} />
@@ -334,6 +335,16 @@ const App = () => {
                       } 
                     />
                     <Route path="/white-paper" element={<WhitePaperWrapper />} />
+                    <Route
+                      path="/engineering"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Engineering />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route 
                       path="/technology" 
                       element={
