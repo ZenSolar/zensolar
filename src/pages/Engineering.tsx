@@ -304,11 +304,13 @@ export default function Engineering() {
 
           <Separator className="bg-border/40" />
 
-          {/* Chapter 3 — Mint flow */}
+          {/* Chapter 4 — Mint flow */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={3}
+              chapter={4}
               title="What Happens When You Tap 'Mint'"
+              subtitle="A second-by-second tour of the most important button in the app."
+            />
               subtitle="A second-by-second tour of the most important button in the app."
             />
             <Card className="bg-card/50 backdrop-blur border-border/50">
@@ -368,11 +370,13 @@ export default function Engineering() {
             </Card>
           </motion.section>
 
-          {/* Chapter 4 — Patent-Pending Core */}
+          {/* Chapter 5 — Patent-Pending Core */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={4}
+              chapter={5}
               title="The Patent-Pending Core"
+              subtitle="Four ideas that, taken together, are novel enough to defend — and the reason a tap can be trusted."
+            />
               subtitle="Four ideas that, taken together, are novel enough to defend — and the reason a tap can be trusted."
             />
 
