@@ -238,7 +238,8 @@ const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
   updatedAt: null,
 };
 
-// Routes that bypass the demo access gate entirely (founder/preview-only pages)
+// Routes that bypass the demo access gate entirely (founder/preview-only pages
+// that live under /demo/* but should not require an access code).
 const GATE_BYPASS_PATHS = ['/engineering', '/demo/engineering'];
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {

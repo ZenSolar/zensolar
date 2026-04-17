@@ -164,7 +164,6 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <GoogleAnalytics />
-                  <DemoAccessGate>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
@@ -172,8 +171,8 @@ const App = () => {
                     <Route path="/install" element={<Install />} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
-                    {/* Demo routes with full sidebar */}
-                    <Route path="/demo" element={<DemoLayout />}>
+                    {/* Demo routes with full sidebar — gated by access code + NDA */}
+                    <Route path="/demo" element={<DemoAccessGate><DemoLayout /></DemoAccessGate>}>
                       <Route index element={<DemoDashboard />} />
                       <Route path="energy-log" element={<DemoEnergyLog />} />
                       <Route path="nft-collection" element={<DemoNftCollection />} />
@@ -853,7 +852,6 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
-                  </DemoAccessGate>
                 </BrowserRouter>
               </BotProtection>
             </ErrorBoundary>
