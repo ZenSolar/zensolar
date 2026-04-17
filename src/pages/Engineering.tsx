@@ -377,8 +377,9 @@ export default function Engineering() {
               title="The Patent-Pending Core"
               subtitle="Four ideas that, taken together, are novel enough to defend — and the reason a tap can be trusted."
             />
-              subtitle="Four ideas that, taken together, are novel enough to defend — and the reason a tap can be trusted."
-            />
+
+            <SEGIProofOfDeltaDiagram />
+
 
             <Card className="bg-gradient-to-br from-amber-500/5 to-transparent border-amber-500/20">
               <CardContent className="p-5 sm:p-6 space-y-2">
@@ -541,6 +542,48 @@ export default function Engineering() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <MintOnProofFlowDiagram />
+          </motion.section>
+
+          <Separator className="bg-border/40" />
+
+          {/* Chapter 6 — Tokenomics flywheel */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={6}
+              title="The Deflationary Flywheel"
+              subtitle="Why every mint quietly makes the next $ZSOLAR scarcer — and what that means for token holders."
+            />
+            <Card className="bg-card/50 backdrop-blur border-border/50">
+              <CardContent className="p-6 space-y-4">
+                <p className="text-sm text-foreground/85 leading-relaxed">
+                  Every mint and every transfer routes a portion of supply into
+                  one of three sinks: <strong>burn</strong> (gone forever),
+                  <strong> liquidity</strong> (deepens the pool), or
+                  <strong> treasury</strong> (funds the protocol). The supply
+                  curve only ever points in one direction — down.
+                </p>
+                <DeflationaryFlywheel />
+                <div className="grid sm:grid-cols-3 gap-3 pt-2">
+                  <div className="p-3 rounded-lg border border-border/40 bg-background/40">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Hard cap</p>
+                    <p className="text-lg font-bold">10,000,000,000</p>
+                    <p className="text-xs text-muted-foreground">$ZSOLAR, ever.</p>
+                  </div>
+                  <div className="p-3 rounded-lg border border-border/40 bg-background/40">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Mint split</p>
+                    <p className="text-lg font-bold">75 / 20 / 3 / 2</p>
+                    <p className="text-xs text-muted-foreground">user / burn / LP / treasury</p>
+                  </div>
+                  <div className="p-3 rounded-lg border border-border/40 bg-background/40">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Burn logic</p>
+                    <p className="text-lg font-bold">Irreversible</p>
+                    <p className="text-xs text-muted-foreground">Enforced on-chain.</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
