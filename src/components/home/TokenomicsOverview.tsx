@@ -25,7 +25,7 @@ const tokenFeatures = [
   {
     icon: Shield,
     title: 'Patent-Pending Proof',
-    description: 'Proof-of-Delta ensures every token is backed by verified, real-world energy production.',
+    description: 'Proof-of-Delta™ ensures every token is backed by verified, real-world energy production.',
     color: 'text-primary',
   },
   {

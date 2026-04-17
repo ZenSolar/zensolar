@@ -6,8 +6,8 @@ import { Shield, Hexagon, TrendingUp, Globe, Fingerprint } from 'lucide-react';
 const edges = [
   {
     icon: Hexagon,
-    title: 'Mint-on-Proof Architecture',
-    description: 'Unlike legacy systems that distribute from pre-minted pools, SEGI creates tokens on-demand—each one backed by verified clean energy activity.',
+    title: 'Mint-on-Proof™ Architecture',
+    description: 'Unlike legacy systems that distribute from pre-minted pools, SEGI™ creates tokens on-demand—each one backed by verified clean energy activity.',
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
   },
@@ -35,7 +35,7 @@ const edges = [
   {
     icon: Shield,
     title: 'Patent-Pending IP',
-    description: "SEGI's software-only gateway, Proof-of-Delta™ verification, and Proof-of-Origin™ Device Watermark Registry are all protected by pending patents.",
+    description: "SEGI™'s software-only gateway, Proof-of-Delta™ verification, and Proof-of-Origin™ Device Watermark Registry are all protected by pending patents.",
     iconBg: 'bg-energy/10',
     iconColor: 'text-energy',
   },

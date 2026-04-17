@@ -142,7 +142,7 @@ export function MintOnProofFlowDiagram() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">Mint $ZSOLAR + NFTs right from the app! 🚀</p>
-              <p className="text-sm text-muted-foreground">Tap a button, and Mint-on-Proof sends tokens & achievement NFTs directly to your connected wallet.</p>
+              <p className="text-sm text-muted-foreground">Tap a button, and Mint-on-Proof™ sends tokens & achievement NFTs directly to your connected wallet.</p>
             </div>
           </div>
         </motion.div>
