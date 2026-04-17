@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageSquarePlus, X, Send, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,29 @@ export function FeedbackFab() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [showBlurb, setShowBlurb] = useState(true);
   const { toast } = useToast();
+
+  // Hide blurb 10 seconds after the user starts scrolling
+  useEffect(() => {
+    if (!showBlurb) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const handleScroll = () => {
+      if (timer) return;
+      timer = setTimeout(() => setShowBlurb(false), 10000);
+      window.removeEventListener('scroll', handleScroll);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timer) clearTimeout(timer);
+    };
+  }, [showBlurb]);
+
+  // Hide blurb once the user opens the panel
+  useEffect(() => {
+    if (open) setShowBlurb(false);
+  }, [open]);
 
   const handleSubmit = async () => {
     if (!message.trim()) return;
@@ -37,7 +59,7 @@ export function FeedbackFab() {
   };
 
   return (
-    <div className="fixed bottom-20 right-4 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <AnimatePresence>
         {open && (
           <motion.div
@@ -74,10 +96,27 @@ export function FeedbackFab() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showBlurb && !open && (
+          <motion.button
+            type="button"
+            onClick={() => setOpen(true)}
+            initial={{ opacity: 0, y: 6, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.9 }}
+            transition={{ duration: 0.25 }}
+            className="mb-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary shadow-md backdrop-blur animate-pulse hover:bg-primary/15 transition-colors"
+            aria-label="Open feedback"
+          >
+            I'd love to hear your feedback 💬
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => setOpen((o) => !o)}
-        className="ml-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
         aria-label="Send feedback"
       >
         {open ? <X className="h-5 w-5" /> : <MessageSquarePlus className="h-5 w-5" />}
