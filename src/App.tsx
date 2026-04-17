@@ -95,6 +95,7 @@ const AdminPatentComparison = lazy(() => import("./pages/AdminPatentComparison")
 const AdminUtilityPatentDraft = lazy(() => import("./pages/AdminUtilityPatentDraft"));
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
+const Engineering = lazy(() => import("./pages/Engineering"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
