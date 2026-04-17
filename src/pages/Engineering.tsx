@@ -311,8 +311,6 @@ export default function Engineering() {
               title="What Happens When You Tap 'Mint'"
               subtitle="A second-by-second tour of the most important button in the app."
             />
-              subtitle="A second-by-second tour of the most important button in the app."
-            />
             <Card className="bg-card/50 backdrop-blur border-border/50">
               <CardContent className="p-6 space-y-5">
                 {[
