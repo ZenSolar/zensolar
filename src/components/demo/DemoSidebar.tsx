@@ -15,7 +15,9 @@ import {
   History,
   FileText,
   Cpu,
+  Wrench,
 } from "lucide-react";
+import { isPreviewMode } from "@/lib/previewMode";
 import { useTheme } from "next-themes";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
@@ -46,6 +48,10 @@ const mainNavItems = [
   { title: "White Paper", url: "/demo/white-paper", icon: FileText },
   { title: "Patent Technology", url: "/demo/technology", icon: Cpu },
   { title: "Referrals", url: "/demo/referrals", icon: Users },
+];
+
+const previewOnlyNavItems = [
+  { title: "Engineering", url: "/demo/engineering", icon: Wrench },
 ];
 
 const secondaryNavItems = [
@@ -94,7 +100,7 @@ export function DemoSidebar() {
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNavItems.map((item) => (
+              {[...mainNavItems, ...(isPreviewMode() ? previewOnlyNavItems : [])].map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink 
