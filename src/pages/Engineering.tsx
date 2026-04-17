@@ -143,10 +143,10 @@ export default function Engineering() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <StatCard icon: Database label="Database tables" value="40+" hint="With row-level security" />
-              <StatCard icon: Cloud label="Backend functions" value="50+" hint="Serverless, auto-scaled" />
-              <StatCard icon: Network label="Device integrations" value="6" hint="Tesla, Enphase & more" />
-              <StatCard icon: Shield label="Security layers" value="7" hint="From wallet to RLS" />
+              <StatCard icon={Database} label="Database tables" value="40+" hint="With row-level security" />
+              <StatCard icon={Cloud} label="Backend functions" value="50+" hint="Serverless, auto-scaled" />
+              <StatCard icon={Network} label="Device integrations" value="6" hint="Tesla, Enphase & more" />
+              <StatCard icon={Shield} label="Security layers" value="7" hint="From wallet to RLS" />
             </div>
           </motion.section>
 
