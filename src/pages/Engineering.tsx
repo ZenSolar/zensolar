@@ -320,10 +320,186 @@ export default function Engineering() {
             </Card>
           </motion.section>
 
-          {/* Chapter 4 — Security */}
+          {/* Chapter 4 — Patent-Pending Core */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
               chapter={4}
+              title="The Patent-Pending Core"
+              subtitle="Four ideas that, taken together, are novel enough to defend — and the reason a tap can be trusted."
+            />
+
+            <Card className="bg-gradient-to-br from-amber-500/5 to-transparent border-amber-500/20">
+              <CardContent className="p-5 sm:p-6 space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className="bg-gradient-to-r from-primary to-emerald-600 text-primary-foreground border-0 gap-1.5">
+                    <Sparkles className="h-3 w-3" />
+                    Patent Reference
+                  </Badge>
+                  <Badge variant="outline" className="text-amber-600 dark:text-amber-400 border-amber-500/40 gap-1.5">
+                    <FileText className="h-3 w-3" />
+                    Provisional filing — pending
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed pt-1">
+                  Most "energy + crypto" projects pre-mint a giant pool of tokens
+                  and hand them out. ZenSolar does the opposite: tokens only
+                  exist <em>because</em> verified energy happened. The four
+                  claims below describe how we do that — and why it's hard to
+                  copy.
+                </p>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-3">
+              {[
+                {
+                  num: 1,
+                  icon: Layers,
+                  title: "Software-Enabled Gateway Interface (SEGI)",
+                  plain:
+                    "One software layer that speaks fluent Tesla, Enphase, SolarEdge, and Wallbox — so we never have to ship hardware.",
+                  technical:
+                    "Hardware-agnostic OAuth 2.0 aggregation with a normalized data schema, bridging manufacturer cloud APIs to on-chain smart contracts.",
+                  novelty:
+                    "Eliminates custom IoT hardware by leveraging existing manufacturer clouds.",
+                },
+                {
+                  num: 2,
+                  icon: Zap,
+                  title: "Mint-on-Proof Architecture",
+                  plain:
+                    "Tokens are created at the exact moment we can prove the energy happened — not before, not in bulk.",
+                  technical:
+                    "Token issuance is gated by cryptographic verification of real-world activity, ensuring 1:1 correspondence between energy production and circulating supply.",
+                  novelty:
+                    "Replaces pre-minted pool distribution with verifiable, just-in-time issuance.",
+                },
+                {
+                  num: 3,
+                  icon: Fingerprint,
+                  title: "Device Watermark Registry",
+                  plain:
+                    "Every solar panel, battery, and EV gets a permanent record of how much it has already earned — even if it changes owners.",
+                  technical:
+                    "Cumulative per-device tokenization watermark, bound to the physical device (not the user account), preventing double-counting across transfers.",
+                  novelty:
+                    "Device-bound (not user-bound) tracking keeps token integrity intact when ownership changes.",
+                },
+                {
+                  num: 4,
+                  icon: CheckCircle2,
+                  title: "Delta-Only Minting",
+                  plain:
+                    "We only ever mint the difference since last time — never the lifetime total. Yesterday's energy can't be re-claimed today.",
+                  technical:
+                    "Smart contract accepts only the increment between the current device reading and the last recorded watermark.",
+                  novelty:
+                    "Prevents retroactive claims and guarantees every token represents only new, verified activity.",
+                },
+              ].map((claim) => (
+                <Card key={claim.num} className="bg-card/50 backdrop-blur border-border/50">
+                  <CardContent className="p-5 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <claim.icon className="h-4.5 w-4.5 text-primary" />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono font-bold text-primary/60">
+                            CLAIM {String(claim.num).padStart(2, "0")}
+                          </span>
+                        </div>
+                        <h3 className="font-semibold text-sm sm:text-base leading-snug">
+                          {claim.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <p className="text-sm text-foreground/90 leading-relaxed">
+                      {claim.plain}
+                    </p>
+                    <div className="pt-2 border-t border-border/40 space-y-2">
+                      <p className="text-xs font-mono text-muted-foreground leading-relaxed">
+                        <span className="text-primary/70 font-semibold">
+                          Under the hood:{" "}
+                        </span>
+                        {claim.technical}
+                      </p>
+                      <div className="flex items-start gap-2">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] border-emerald-500/40 text-emerald-600 dark:text-emerald-400 shrink-0 gap-1"
+                        >
+                          <Lightbulb className="h-2.5 w-2.5" />
+                          Novelty
+                        </Badge>
+                        <span className="text-xs text-muted-foreground italic leading-relaxed">
+                          {claim.novelty}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Why this is a moat */}
+            <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Scale className="h-4 w-4 text-primary" />
+                  Why these four together form a moat
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {[
+                    {
+                      icon: Zap,
+                      title: "60-second onboarding",
+                      desc: "No installs, no shipping, no technician — just sign in.",
+                    },
+                    {
+                      icon: Shield,
+                      title: "Tamper-evident by design",
+                      desc: "Data pulled from manufacturer APIs, hashed at the moment of mint.",
+                    },
+                    {
+                      icon: Sparkles,
+                      title: "Token integrity, guaranteed",
+                      desc: "Every $ZSOLAR token is backed by a unique, non-duplicated kWh.",
+                    },
+                    {
+                      icon: Scale,
+                      title: "Defensible IP position",
+                      desc: "Software gateway + on-chain verification is the patentable combination.",
+                    },
+                  ].map((adv) => (
+                    <div
+                      key={adv.title}
+                      className="flex gap-3 p-3 rounded-lg bg-background/60 border border-border/40"
+                    >
+                      <adv.icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-semibold leading-tight">
+                          {adv.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground leading-snug">
+                          {adv.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          <Separator className="bg-border/40" />
+
+          {/* Chapter 5 — Security */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={5}
               title="Security in Layers"
               subtitle="No single line of defense — seven of them, working together."
             />
