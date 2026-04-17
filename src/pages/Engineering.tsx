@@ -25,6 +25,9 @@ import {
   FileText,
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { SEGIProofOfDeltaDiagram } from "@/components/technology/SEGIProofOfDeltaDiagram";
+import { MintOnProofFlowDiagram } from "@/components/whitepaper/MintOnProofFlowDiagram";
+import { DeflationaryFlywheel } from "@/components/how-it-works/DeflationaryFlywheel";
 
 const fadeIn = {
   initial: { opacity: 0, y: 16 },
