@@ -19,6 +19,10 @@ import {
   Code2,
   Cloud,
   Wrench,
+  Fingerprint,
+  Scale,
+  Lightbulb,
+  FileText,
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
