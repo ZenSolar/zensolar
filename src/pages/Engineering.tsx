@@ -531,7 +531,7 @@ export default function Engineering() {
           {/* Chapter 5 — The stack */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={5}
+              chapter={6}
               title="The Stack, In One Page"
               subtitle="What's actually running, in plain terms."
             />
