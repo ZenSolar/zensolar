@@ -1,0 +1,408 @@
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Cpu,
+  Shield,
+  Database,
+  Zap,
+  Smartphone,
+  Lock,
+  GitBranch,
+  Workflow,
+  Layers,
+  Network,
+  Bell,
+  Sparkles,
+  CheckCircle2,
+  Code2,
+  Cloud,
+  Wrench,
+} from "lucide-react";
+import { SEO } from "@/components/SEO";
+
+const fadeIn = {
+  initial: { opacity: 0, y: 16 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-80px" },
+  transition: { duration: 0.5 },
+};
+
+function ChapterHeader({
+  chapter,
+  title,
+  subtitle,
+}: {
+  chapter: number;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-primary/60">
+          Chapter {chapter}
+        </span>
+        <div className="flex-1 h-px bg-gradient-to-r from-primary/30 to-transparent" />
+      </div>
+      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h2>
+      {subtitle && (
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
+          {subtitle}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  hint?: string;
+}) {
+  return (
+    <Card className="bg-card/50 backdrop-blur border-border/50">
+      <CardContent className="p-4 space-y-2">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Icon className="h-4 w-4 text-primary" />
+          <span className="text-xs uppercase tracking-wider">{label}</span>
+        </div>
+        <div className="text-2xl font-bold tracking-tight">{value}</div>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function PillarCard({
+  icon: Icon,
+  title,
+  plain,
+  technical,
+}: {
+  icon: React.ElementType;
+  title: string;
+  plain: string;
+  technical: string;
+}) {
+  return (
+    <Card className="bg-card/50 backdrop-blur border-border/50 h-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+          <CardTitle className="text-base">{title}</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-foreground/90">{plain}</p>
+        <div className="pt-2 border-t border-border/40">
+          <p className="text-xs font-mono text-muted-foreground leading-relaxed">
+            <span className="text-primary/70 font-semibold">Under the hood: </span>
+            {technical}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function Engineering() {
+  return (
+    <>
+      <SEO
+        title="ZenSolar Engineering"
+        url="https://zensolar.lovable.app/engineering"
+      />
+      <div className="min-h-screen bg-background">
+        <div className="container max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-12">
+          {/* Hero */}
+          <motion.section {...fadeIn} className="space-y-6 pt-4">
+            <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
+              <Wrench className="h-3 w-3" />
+              Preview only — internal
+            </Badge>
+            <div className="space-y-4">
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">
+                The Engineering Behind{" "}
+                <span className="text-primary">ZenSolar</span>
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
+                A plain-English tour of how a one-tap clean-energy app actually
+                works — from a solar panel on your roof to a token in your
+                wallet, and every guardrail in between.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <StatCard icon: Database label="Database tables" value="40+" hint="With row-level security" />
+              <StatCard icon: Cloud label="Backend functions" value="50+" hint="Serverless, auto-scaled" />
+              <StatCard icon: Network label="Device integrations" value="6" hint="Tesla, Enphase & more" />
+              <StatCard icon: Shield label="Security layers" value="7" hint="From wallet to RLS" />
+            </div>
+          </motion.section>
+
+          <Separator className="bg-border/40" />
+
+          {/* Chapter 1 */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={1}
+              title="The Big Picture"
+              subtitle="ZenSolar turns real, verified clean-energy activity into digital tokens. The app is the friendly face on top of a careful, multi-layered system."
+            />
+            <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+              <CardContent className="p-6 space-y-4">
+                <p className="text-sm leading-relaxed">
+                  Think of ZenSolar as three layers stacked on top of each other:
+                </p>
+                <div className="space-y-3">
+                  {[
+                    {
+                      label: "1. The App",
+                      desc: "What you see and tap — built mobile-first, works offline, installs to your home screen like a native app.",
+                    },
+                    {
+                      label: "2. The Brain",
+                      desc: "A secure backend that talks to your solar panels, batteries, and EVs, then verifies every kilowatt-hour before anything is rewarded.",
+                    },
+                    {
+                      label: "3. The Ledger",
+                      desc: "A blockchain (Base) that issues your $ZSOLAR tokens. Public, permanent, and tamper-proof.",
+                    },
+                  ].map((row) => (
+                    <div key={row.label} className="flex gap-3">
+                      <span className="text-primary font-semibold text-sm shrink-0 w-20">
+                        {row.label}
+                      </span>
+                      <span className="text-sm text-foreground/85">{row.desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          {/* Chapter 2 — Pillars */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={2}
+              title="The Engineering Pillars"
+              subtitle="Eight systems that make the magic feel simple."
+            />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <PillarCard
+                icon={Smartphone}
+                title="Mobile-First, App-Like Feel"
+                plain="The app is built so your phone treats it like a real installed app — full screen, smooth, with safe-area handling for notches and home bars."
+                technical="React 18 + Vite + Tailwind. PWA service worker, 100svh/100dvh viewport math, and pull-to-refresh patterns hand-tuned for iOS Safari quirks."
+              />
+              <PillarCard
+                icon={Lock}
+                title="Wallet, Without the Headache"
+                plain="You don't need to install MetaMask or remember a seed phrase. A wallet is created and embedded for you behind the scenes."
+                technical="Coinbase Embedded Wallets via Reown AppKit. Hard-redirect OAuth flows to dodge in-app browser sandboxing on iOS."
+              />
+              <PillarCard
+                icon={Zap}
+                title="Mint-on-Proof™"
+                plain="Tokens are only issued when the system has cryptographic proof that the energy actually happened. No proof, no mint."
+                technical="Each mint carries a proof chain (device ID, timestamps, baseline + delta, signed metadata). Smart contract accepts deltas only — never lifetime totals — to prevent double-issuance."
+              />
+              <PillarCard
+                icon={Network}
+                title="Real Device Integrations"
+                plain="The app connects directly to your Tesla, Enphase, SolarEdge, or Wallbox account to read what really happened."
+                technical="OAuth 2.0 with refresh token rotation, per-provider rate limit handling, automatic re-auth detection, and ownership-transfer logic when devices change hands."
+              />
+              <PillarCard
+                icon={Database}
+                title="A Database That Defends Itself"
+                plain="Every row of data has rules about who's allowed to see or change it — enforced by the database itself, not just the app."
+                technical="Postgres with Row-Level Security on every user table. Roles stored in a dedicated user_roles table (never on profiles) to prevent privilege escalation. Security definer functions for safe role checks."
+              />
+              <PillarCard
+                icon={Workflow}
+                title="The Tokenomics Engine"
+                plain="Every mint is split four ways automatically: most goes to you, some is burned forever, some seeds liquidity, and a sliver funds the treasury."
+                technical="On-chain split: 75% user / 20% burn / 3% LP / 2% treasury. Hard cap of 10B tokens. Burn logic is irreversible. LP automation routes through the pool atomically."
+              />
+              <PillarCard
+                icon={Bell}
+                title="Live Notifications"
+                plain="The app can ping you the moment something mintable happens — even when it's closed."
+                technical="Web Push via the service worker, per-device subscription records, template-driven payloads with dismissal tracking and delivery logs."
+              />
+              <PillarCard
+                icon={Sparkles}
+                title="Sensory Feedback"
+                plain="A successful mint feels good — a gentle gong, a confetti burst, a glowing flow of energy."
+                technical="Web Audio API graphs (oscillators + biquad filters + LFO modulation), Framer Motion choreography, and Canvas-based particle system. Tuned for 60fps on mid-range phones."
+              />
+            </div>
+          </motion.section>
+
+          <Separator className="bg-border/40" />
+
+          {/* Chapter 3 — Mint flow */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={3}
+              title="What Happens When You Tap 'Mint'"
+              subtitle="A second-by-second tour of the most important button in the app."
+            />
+            <Card className="bg-card/50 backdrop-blur border-border/50">
+              <CardContent className="p-6 space-y-5">
+                {[
+                  {
+                    step: "01",
+                    title: "Sync the device",
+                    plain: "The app asks your solar/EV provider for the latest readings.",
+                    tech: "Refreshes OAuth token if expired, fetches lifetime totals, caches on failure.",
+                  },
+                  {
+                    step: "02",
+                    title: "Calculate the delta",
+                    plain: "It subtracts what was already minted to find only what's new.",
+                    tech: "current_lifetime − baseline = pending. Floor to integer; never negative.",
+                  },
+                  {
+                    step: "03",
+                    title: "Build the proof",
+                    plain: "It packages the new activity with timestamps and device signatures.",
+                    tech: "Proof chain stored as JSONB; hashed and referenced on-chain.",
+                  },
+                  {
+                    step: "04",
+                    title: "Submit to the chain",
+                    plain: "The smart contract verifies and mints your tokens.",
+                    tech: "mintRewards() accepts delta values only. Tx hash, block number, gas used logged.",
+                  },
+                  {
+                    step: "05",
+                    title: "Reset the baseline",
+                    plain: "The system marks that activity as 'minted' so it can never be counted again.",
+                    tech: "baseline_data updated atomically with last_minted_at. Pending resets to 0.",
+                  },
+                  {
+                    step: "06",
+                    title: "Celebrate",
+                    plain: "Confetti, gong, and your new balance — instantly visible.",
+                    tech: "Optimistic UI update, then reconciled against on-chain balance via wagmi.",
+                  },
+                ].map((s) => (
+                  <div key={s.step} className="flex gap-4">
+                    <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center font-mono text-sm font-bold text-primary">
+                      {s.step}
+                    </div>
+                    <div className="space-y-1.5 flex-1">
+                      <h3 className="font-semibold text-sm">{s.title}</h3>
+                      <p className="text-sm text-foreground/85">{s.plain}</p>
+                      <p className="text-xs font-mono text-muted-foreground">
+                        {s.tech}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          {/* Chapter 4 — Security */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={4}
+              title="Security in Layers"
+              subtitle="No single line of defense — seven of them, working together."
+            />
+            <div className="grid sm:grid-cols-2 gap-3">
+              {[
+                { icon: Lock, label: "Wallet auth", desc: "Embedded wallet, no seed phrase exposure." },
+                { icon: Shield, label: "RLS policies", desc: "Postgres enforces who can read each row." },
+                { icon: GitBranch, label: "Role separation", desc: "Roles in dedicated table; no escalation paths." },
+                { icon: Code2, label: "Security definer functions", desc: "Safe SQL helpers with locked search paths." },
+                { icon: CheckCircle2, label: "Delta-only minting", desc: "Smart contract refuses cumulative totals." },
+                { icon: Database, label: "Validation triggers", desc: "Time-sensitive rules over CHECK constraints." },
+                { icon: Layers, label: "Bot protection", desc: "Page-level filtering on public surfaces." },
+                { icon: Cloud, label: "Edge function isolation", desc: "Each function runs sandboxed and stateless." },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="flex gap-3 p-3 rounded-lg border border-border/40 bg-card/40"
+                >
+                  <s.icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-semibold">{s.label}</p>
+                    <p className="text-xs text-muted-foreground">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Chapter 5 — The stack */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={5}
+              title="The Stack, In One Page"
+              subtitle="What's actually running, in plain terms."
+            />
+            <Card className="bg-card/50 backdrop-blur border-border/50">
+              <CardContent className="p-6">
+                <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                  {[
+                    ["Frontend", "React 18, Vite, TypeScript, Tailwind"],
+                    ["UI system", "shadcn/ui + custom design tokens (HSL)"],
+                    ["Animation", "Framer Motion + Canvas particles"],
+                    ["Audio", "Web Audio API (custom graphs)"],
+                    ["Mobile", "PWA, service worker, safe-area aware"],
+                    ["Backend", "Postgres + serverless functions"],
+                    ["Auth", "Email + Google OAuth, email verification"],
+                    ["Wallet", "Coinbase Embedded + Reown AppKit"],
+                    ["Chain", "Base L2 (low fees, Ethereum security)"],
+                    ["Contracts", "Solidity, delta-only mint interface"],
+                    ["Notifications", "Web Push via service worker"],
+                    ["Analytics", "Privacy-first, server-side"],
+                  ].map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="flex justify-between gap-4 border-b border-border/30 pb-2"
+                    >
+                      <span className="text-muted-foreground">{k}</span>
+                      <span className="font-mono text-xs text-right">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          {/* Closing */}
+          <motion.section {...fadeIn} className="space-y-4 pt-4">
+            <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
+              <CardContent className="p-6 sm:p-8 space-y-4 text-center">
+                <Cpu className="h-8 w-8 text-primary mx-auto" />
+                <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
+                  Simple to use. Serious underneath.
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                  Everything in this document exists for one reason: so a tap
+                  feels like a tap, while the system underneath holds the line
+                  on truth, security, and fairness.
+                </p>
+              </CardContent>
+            </Card>
+          </motion.section>
+        </div>
+      </div>
+    </>
+  );
+}
