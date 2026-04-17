@@ -482,7 +482,7 @@ export default function Engineering() {
                 {
                   num: 1,
                   icon: Layers,
-                  title: "Software-Enabled Gateway Interface (SEGI)",
+                  title: "Software-Enabled Gateway Interface (SEGI™)",
                   plain:
                     "One software layer that speaks fluent Tesla, Enphase, SolarEdge, and Wallbox — so we never have to ship hardware.",
                   technical:
@@ -493,7 +493,7 @@ export default function Engineering() {
                 {
                   num: 2,
                   icon: Zap,
-                  title: "Mint-on-Proof Architecture",
+                  title: "Mint-on-Proof™ Architecture",
                   plain:
                     "Tokens are created at the exact moment we can prove the energy happened — not before, not in bulk.",
                   technical:
@@ -515,7 +515,7 @@ export default function Engineering() {
                 {
                   num: 4,
                   icon: CheckCircle2,
-                  title: "Delta-Only Minting",
+                  title: "Proof-of-Delta™ (Delta-Only Minting)",
                   plain:
                     "We only ever mint the difference since last time — never the lifetime total. Yesterday's energy can't be re-claimed today.",
                   technical:
