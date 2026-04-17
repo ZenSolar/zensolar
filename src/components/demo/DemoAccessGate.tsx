@@ -238,25 +238,11 @@ const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
   updatedAt: null,
 };
 
-// The demo access gate only applies to the investor demo at /demo*.
-// Everywhere else (live PWA at /, /auth, /admin, etc.) renders children directly
-// so authenticated founder/user accounts are never blocked.
-const GATED_PATH_PREFIX = '/demo';
-// Routes that always bypass the gate even within /demo* (founder/preview-only pages)
+// Routes that bypass the demo access gate entirely (founder/preview-only pages
+// that live under /demo/* but should not require an access code).
 const GATE_BYPASS_PATHS = ['/engineering', '/demo/engineering'];
 
-function isGatedPath(pathname: string): boolean {
-  if (GATE_BYPASS_PATHS.includes(pathname)) return false;
-  return pathname === GATED_PATH_PREFIX || pathname.startsWith(`${GATED_PATH_PREFIX}/`);
-}
-
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
-  // If we're not on a gated path, render children immediately — no gate logic, no async checks.
-  // This must be checked before any hooks so the gate component truly no-ops on /, /auth, /admin, etc.
-  if (typeof window !== 'undefined' && !isGatedPath(window.location.pathname)) {
-    return <>{children}</>;
-  }
-
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
@@ -264,6 +250,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       window.history.replaceState({}, '', window.location.pathname);
       return false;
     }
+    if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     return isAccessGranted();
   });
 
