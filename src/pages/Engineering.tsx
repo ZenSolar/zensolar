@@ -198,7 +198,52 @@ export default function Engineering() {
             </Card>
           </motion.section>
 
-          {/* Chapter 2 — Pillars */}
+          {/* Chapter 1.5 — The 60-second user story */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={2}
+              title="What The User Actually Does"
+              subtitle="Before the engineering, here's the entire human experience — four steps, about a minute total."
+            />
+            <Card className="bg-card/50 backdrop-blur border-border/50">
+              <CardContent className="p-6">
+                <ol className="space-y-4">
+                  {[
+                    {
+                      n: "1",
+                      t: "Connect your gear",
+                      d: "Sign in to Tesla, Enphase, SolarEdge, or Wallbox with one tap. No hardware, no installer.",
+                    },
+                    {
+                      n: "2",
+                      t: "Go live your life",
+                      d: "Drive your EV. Let your panels do their thing. The app silently keeps score in the background.",
+                    },
+                    {
+                      n: "3",
+                      t: "Tap to Mint™",
+                      d: "When you're ready, one tap turns your verified clean energy into $ZSOLAR tokens in your embedded wallet.",
+                    },
+                    {
+                      n: "4",
+                      t: "Use your rewards",
+                      d: "Hold, swap, or spend. NFTs unlock as you hit clean-energy milestones.",
+                    },
+                  ].map((s) => (
+                    <li key={s.n} className="flex gap-4">
+                      <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-mono font-bold text-sm">
+                        {s.n}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm">{s.t}</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </CardContent>
+            </Card>
+          </motion.section>
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
               chapter={2}
