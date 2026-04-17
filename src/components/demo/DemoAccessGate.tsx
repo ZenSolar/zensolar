@@ -238,6 +238,9 @@ const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
   updatedAt: null,
 };
 
+// Routes that bypass the demo access gate entirely (founder/preview-only pages)
+const GATE_BYPASS_PATHS = ['/engineering', '/demo/engineering'];
+
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -246,6 +249,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       window.history.replaceState({}, '', window.location.pathname);
       return false;
     }
+    if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     return isAccessGranted();
   });
 
