@@ -41,7 +41,9 @@ import {
   Search,
   Sprout,
   Gauge,
+  Wrench,
 } from "lucide-react";
+import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -77,6 +79,11 @@ const mainNavItems = [
   { title: "White Paper", url: "/white-paper", icon: FileText },
   { title: "Patent Technology", url: "/technology", icon: Cpu },
   { title: "Referrals", url: "/referrals", icon: Users },
+  // Preview-only items appended below at render time
+];
+
+const previewOnlyNavItems = [
+  { title: "Engineering", url: "/engineering", icon: Wrench },
 ];
 
 const secondaryNavItems = [
@@ -235,7 +242,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNavItems.map((item) => (
+              {[...mainNavItems, ...(isPreviewMode() ? previewOnlyNavItems : [])].map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink 

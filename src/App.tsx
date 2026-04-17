@@ -95,6 +95,7 @@ const AdminPatentComparison = lazy(() => import("./pages/AdminPatentComparison")
 const AdminUtilityPatentDraft = lazy(() => import("./pages/AdminUtilityPatentDraft"));
 const EmbeddedWalletDemo = lazy(() => import("./pages/EmbeddedWalletDemo"));
 const WhitePaper = lazy(() => import("./pages/WhitePaper"));
+const Engineering = lazy(() => import("./pages/Engineering"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
@@ -179,6 +180,7 @@ const App = () => {
                       <Route path="mint-history" element={<MintHistory />} />
                       <Route path="learn" element={<Learn />} />
                       <Route path="white-paper" element={<WhitePaper />} />
+                      <Route path="engineering" element={<Engineering />} />
                       <Route path="technology" element={<Technology />} />
                       <Route path="store" element={<Store />} />
                       <Route path="referrals" element={<Referrals />} />
@@ -333,6 +335,16 @@ const App = () => {
                       } 
                     />
                     <Route path="/white-paper" element={<WhitePaperWrapper />} />
+                    <Route
+                      path="/engineering"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Engineering />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route 
                       path="/technology" 
                       element={
