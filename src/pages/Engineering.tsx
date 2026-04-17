@@ -591,12 +591,12 @@ export default function Engineering() {
 
           <Separator className="bg-border/40" />
 
-          {/* Chapter 5 — Security */}
+          {/* Chapter 7 — Security */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={5}
+              chapter={7}
               title="Security in Layers"
-              subtitle="No single line of defense — seven of them, working together."
+              subtitle="No single line of defense — eight of them, working together."
             />
             <div className="grid sm:grid-cols-2 gap-3">
               {[
@@ -623,10 +623,10 @@ export default function Engineering() {
             </div>
           </motion.section>
 
-          {/* Chapter 5 — The stack */}
+          {/* Chapter 8 — The stack */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={6}
+              chapter={8}
               title="The Stack, In One Page"
               subtitle="What's actually running, in plain terms."
             />
