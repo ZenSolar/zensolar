@@ -378,6 +378,82 @@ export default function Engineering() {
 
             <SEGIProofOfDeltaDiagram />
 
+            {/* Trademark Glossary — front and center */}
+            <Card className="bg-gradient-to-br from-violet-500/10 via-primary/5 to-transparent border-violet-500/30">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className="bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0 gap-1.5">
+                    <Sparkles className="h-3 w-3" />
+                    Trademark Glossary
+                  </Badge>
+                  <Badge variant="outline" className="text-violet-600 dark:text-violet-400 border-violet-500/40 text-[10px]">
+                    ™ filings in progress
+                  </Badge>
+                </div>
+                <CardTitle className="text-base sm:text-lg pt-2">
+                  The four words that define our category
+                </CardTitle>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  These aren't buzzwords — each is a specific, defensible term we coined for a process that didn't have a name before. Trademarks protect the <em>names</em>; patents protect the <em>processes</em> behind them.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {[
+                  {
+                    mark: "SEGI™",
+                    expansion: "Software-Enabled Gateway Interface",
+                    etymology: "Coined to name the entire category of hardware-free energy bridges. Pronounced “SEH-jee.”",
+                    means: "The single software layer that talks to every solar / battery / EV cloud and turns their data into mintable proofs. No box, no installer.",
+                  },
+                  {
+                    mark: "Mint-on-Proof™",
+                    expansion: "Verification-before-issuance model",
+                    etymology: "A direct rebuttal to “pre-mint and distribute.” The proof comes first; the mint follows.",
+                    means: "A token is only created the instant a cryptographic proof of real energy is accepted on-chain. No proof → no mint. Ever.",
+                  },
+                  {
+                    mark: "Proof-of-Delta™",
+                    expansion: "Device-watermarked incremental verification",
+                    etymology: "“Delta” = the change since last time. Named to distinguish from Proof-of-Work / Proof-of-Stake.",
+                    means: "We never mint your lifetime total — only the new kWh since your last mint. Yesterday's energy can't be re-claimed today.",
+                  },
+                  {
+                    mark: "Tap-to-Mint™",
+                    expansion: "The user-facing gesture of Mint-on-Proof",
+                    etymology: "One tap. One proof. One mint. The simplest possible expression of the entire stack.",
+                    means: "What the user sees: a single button that triggers the SEGI fetch, the Proof-of-Delta calculation, and the on-chain Mint-on-Proof — in about 60 seconds.",
+                  },
+                ].map((tm) => (
+                  <div
+                    key={tm.mark}
+                    className="p-4 rounded-lg bg-background/70 border border-violet-500/20 space-y-2"
+                  >
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-violet-600 to-primary bg-clip-text text-transparent">
+                        {tm.mark}
+                      </span>
+                      <span className="text-xs sm:text-sm text-muted-foreground font-mono">
+                        — {tm.expansion}
+                      </span>
+                    </div>
+                    <p className="text-sm text-foreground/90 leading-relaxed">
+                      <span className="text-primary/70 font-semibold text-xs uppercase tracking-wider">Means: </span>
+                      {tm.means}
+                    </p>
+                    <p className="text-xs text-muted-foreground italic leading-relaxed">
+                      <span className="not-italic font-semibold text-violet-600/80 dark:text-violet-400/80">Origin: </span>
+                      {tm.etymology}
+                    </p>
+                  </div>
+                ))}
+                <div className="pt-1 flex items-start gap-2 text-[11px] text-muted-foreground italic">
+                  <Scale className="h-3 w-3 shrink-0 mt-0.5 text-violet-500/70" />
+                  <span>
+                    The ™ symbol indicates an unregistered trademark in active use. Federal registration (®) is in progress with the USPTO.
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
 
             <Card className="bg-gradient-to-br from-amber-500/5 to-transparent border-amber-500/20">
               <CardContent className="p-5 sm:p-6 space-y-2">
@@ -406,7 +482,7 @@ export default function Engineering() {
                 {
                   num: 1,
                   icon: Layers,
-                  title: "Software-Enabled Gateway Interface (SEGI)",
+                  title: "Software-Enabled Gateway Interface (SEGI™)",
                   plain:
                     "One software layer that speaks fluent Tesla, Enphase, SolarEdge, and Wallbox — so we never have to ship hardware.",
                   technical:
@@ -417,7 +493,7 @@ export default function Engineering() {
                 {
                   num: 2,
                   icon: Zap,
-                  title: "Mint-on-Proof Architecture",
+                  title: "Mint-on-Proof™ Architecture",
                   plain:
                     "Tokens are created at the exact moment we can prove the energy happened — not before, not in bulk.",
                   technical:
@@ -439,7 +515,7 @@ export default function Engineering() {
                 {
                   num: 4,
                   icon: CheckCircle2,
-                  title: "Delta-Only Minting",
+                  title: "Proof-of-Delta™ (Delta-Only Minting)",
                   plain:
                     "We only ever mint the difference since last time — never the lifetime total. Yesterday's energy can't be re-claimed today.",
                   technical:
