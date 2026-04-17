@@ -25,6 +25,9 @@ import {
   FileText,
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { SEGIProofOfDeltaDiagram } from "@/components/technology/SEGIProofOfDeltaDiagram";
+import { MintOnProofFlowDiagram } from "@/components/whitepaper/MintOnProofFlowDiagram";
+import { DeflationaryFlywheel } from "@/components/how-it-works/DeflationaryFlywheel";
 
 const fadeIn = {
   initial: { opacity: 0, y: 16 },
@@ -195,10 +198,55 @@ export default function Engineering() {
             </Card>
           </motion.section>
 
-          {/* Chapter 2 — Pillars */}
+          {/* Chapter 1.5 — The 60-second user story */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
               chapter={2}
+              title="What The User Actually Does"
+              subtitle="Before the engineering, here's the entire human experience — four steps, about a minute total."
+            />
+            <Card className="bg-card/50 backdrop-blur border-border/50">
+              <CardContent className="p-6">
+                <ol className="space-y-4">
+                  {[
+                    {
+                      n: "1",
+                      t: "Connect your gear",
+                      d: "Sign in to Tesla, Enphase, SolarEdge, or Wallbox with one tap. No hardware, no installer.",
+                    },
+                    {
+                      n: "2",
+                      t: "Go live your life",
+                      d: "Drive your EV. Let your panels do their thing. The app silently keeps score in the background.",
+                    },
+                    {
+                      n: "3",
+                      t: "Tap to Mint™",
+                      d: "When you're ready, one tap turns your verified clean energy into $ZSOLAR tokens in your embedded wallet.",
+                    },
+                    {
+                      n: "4",
+                      t: "Use your rewards",
+                      d: "Hold, swap, or spend. NFTs unlock as you hit clean-energy milestones.",
+                    },
+                  ].map((s) => (
+                    <li key={s.n} className="flex gap-4">
+                      <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-mono font-bold text-sm">
+                        {s.n}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm">{s.t}</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </CardContent>
+            </Card>
+          </motion.section>
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={3}
               title="The Engineering Pillars"
               subtitle="Eight systems that make the magic feel simple."
             />
@@ -256,11 +304,13 @@ export default function Engineering() {
 
           <Separator className="bg-border/40" />
 
-          {/* Chapter 3 — Mint flow */}
+          {/* Chapter 4 — Mint flow */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={3}
+              chapter={4}
               title="What Happens When You Tap 'Mint'"
+              subtitle="A second-by-second tour of the most important button in the app."
+            />
               subtitle="A second-by-second tour of the most important button in the app."
             />
             <Card className="bg-card/50 backdrop-blur border-border/50">
@@ -320,13 +370,16 @@ export default function Engineering() {
             </Card>
           </motion.section>
 
-          {/* Chapter 4 — Patent-Pending Core */}
+          {/* Chapter 5 — Patent-Pending Core */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={4}
+              chapter={5}
               title="The Patent-Pending Core"
               subtitle="Four ideas that, taken together, are novel enough to defend — and the reason a tap can be trusted."
             />
+
+            <SEGIProofOfDeltaDiagram />
+
 
             <Card className="bg-gradient-to-br from-amber-500/5 to-transparent border-amber-500/20">
               <CardContent className="p-5 sm:p-6 space-y-2">
@@ -492,16 +545,58 @@ export default function Engineering() {
                 </div>
               </CardContent>
             </Card>
+
+            <MintOnProofFlowDiagram />
           </motion.section>
 
           <Separator className="bg-border/40" />
 
-          {/* Chapter 5 — Security */}
+          {/* Chapter 6 — Tokenomics flywheel */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={5}
+              chapter={6}
+              title="The Deflationary Flywheel"
+              subtitle="Why every mint quietly makes the next $ZSOLAR scarcer — and what that means for token holders."
+            />
+            <Card className="bg-card/50 backdrop-blur border-border/50">
+              <CardContent className="p-6 space-y-4">
+                <p className="text-sm text-foreground/85 leading-relaxed">
+                  Every mint and every transfer routes a portion of supply into
+                  one of three sinks: <strong>burn</strong> (gone forever),
+                  <strong> liquidity</strong> (deepens the pool), or
+                  <strong> treasury</strong> (funds the protocol). The supply
+                  curve only ever points in one direction — down.
+                </p>
+                <DeflationaryFlywheel />
+                <div className="grid sm:grid-cols-3 gap-3 pt-2">
+                  <div className="p-3 rounded-lg border border-border/40 bg-background/40">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Hard cap</p>
+                    <p className="text-lg font-bold">10,000,000,000</p>
+                    <p className="text-xs text-muted-foreground">$ZSOLAR, ever.</p>
+                  </div>
+                  <div className="p-3 rounded-lg border border-border/40 bg-background/40">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Mint split</p>
+                    <p className="text-lg font-bold">75 / 20 / 3 / 2</p>
+                    <p className="text-xs text-muted-foreground">user / burn / LP / treasury</p>
+                  </div>
+                  <div className="p-3 rounded-lg border border-border/40 bg-background/40">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Burn logic</p>
+                    <p className="text-lg font-bold">Irreversible</p>
+                    <p className="text-xs text-muted-foreground">Enforced on-chain.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          <Separator className="bg-border/40" />
+
+          {/* Chapter 7 — Security */}
+          <motion.section {...fadeIn} className="space-y-6">
+            <ChapterHeader
+              chapter={7}
               title="Security in Layers"
-              subtitle="No single line of defense — seven of them, working together."
+              subtitle="No single line of defense — eight of them, working together."
             />
             <div className="grid sm:grid-cols-2 gap-3">
               {[
@@ -528,10 +623,10 @@ export default function Engineering() {
             </div>
           </motion.section>
 
-          {/* Chapter 5 — The stack */}
+          {/* Chapter 8 — The stack */}
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={6}
+              chapter={8}
               title="The Stack, In One Page"
               subtitle="What's actually running, in plain terms."
             />
