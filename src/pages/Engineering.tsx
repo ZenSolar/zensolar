@@ -246,7 +246,7 @@ export default function Engineering() {
           </motion.section>
           <motion.section {...fadeIn} className="space-y-6">
             <ChapterHeader
-              chapter={2}
+              chapter={3}
               title="The Engineering Pillars"
               subtitle="Eight systems that make the magic feel simple."
             />
