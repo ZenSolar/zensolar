@@ -1686,16 +1686,6 @@ backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--prima
             <br />
             <span>Mint-on-Proof™️ Clean Energy Platform</span>
           </div>
-          <img 
-            src={zenLogo} 
-            alt="ZenSolar" 
-            width="90" 
-            height="27" 
-            className="h-6 w-auto object-contain brightness-125 opacity-80 dark:brightness-150"
-            style={{
-              filter: 'drop-shadow(0 0 8px hsla(142, 76%, 42%, 0.4)) drop-shadow(0 0 20px hsla(142, 76%, 42%, 0.15))',
-            }}
-          />
         </div>
       </div>
 
