@@ -1186,6 +1186,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_admin_live_snapshot: { Args: never; Returns: Json }
       get_connected_providers: {
         Args: { _user_id: string }
         Returns: {

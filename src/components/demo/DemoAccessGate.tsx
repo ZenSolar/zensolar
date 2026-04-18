@@ -18,6 +18,7 @@ import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnosti
 import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
+import { activateVipMirror, isVipMirrorCode, clearVipMirror } from '@/lib/vipDemo';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 
 
@@ -983,6 +984,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (email) saveNdaEmail(email);
     if (name) saveNdaName(name);
 
+    // VIP-mirror codes (TODD-2026, etc.) get a live mirror of the admin's real dashboard
+    if (isVipMirrorCode(verifiedCode)) {
+      activateVipMirror(verifiedCode);
+    } else {
+      clearVipMirror();
+    }
+
     // VIP welcome screen for codes like TODD-2026 — shown once between NDA and dashboard
     if (getVipWelcomeForCode(verifiedCode)) {
       setShowVipWelcome(true);
@@ -1678,16 +1686,6 @@ backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--prima
             <br />
             <span>Mint-on-Proof™️ Clean Energy Platform</span>
           </div>
-          <img 
-            src={zenLogo} 
-            alt="ZenSolar" 
-            width="90" 
-            height="27" 
-            className="h-6 w-auto object-contain brightness-125 opacity-80 dark:brightness-150"
-            style={{
-              filter: 'drop-shadow(0 0 8px hsla(142, 76%, 42%, 0.4)) drop-shadow(0 0 20px hsla(142, 76%, 42%, 0.15))',
-            }}
-          />
         </div>
       </div>
 

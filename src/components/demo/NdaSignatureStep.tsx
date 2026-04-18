@@ -218,7 +218,6 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
     <div className="flex flex-col h-full max-h-[100dvh] overflow-hidden">
       {/* Header */}
       <div className="flex flex-col items-center px-5 pt-5 pb-3 shrink-0">
-        <img src={zenLogo} alt="ZenSolar" className="h-8 mb-2" />
         <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
           <FileText className="h-4 w-4 text-secondary" />
           Confidentiality Agreement
