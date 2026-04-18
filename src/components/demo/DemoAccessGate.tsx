@@ -17,6 +17,7 @@ import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
 import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
+import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 
 
@@ -973,14 +974,34 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   // Show unlock hint when input is focused or has text
   const showUnlockHint = inputFocused || code.trim().length > 0;
 
+  const [showVipWelcome, setShowVipWelcome] = useState(false);
+
   const handleNdaSigned = useCallback((email?: string, name?: string) => {
     stopDemoEntryFallbackHum();
     setShowNda(false);
     grantAccess();
     if (email) saveNdaEmail(email);
     if (name) saveNdaName(name);
-    setGranted(true);
-  }, []);
+
+    // VIP welcome screen for codes like TODD-2026 — shown once between NDA and dashboard
+    if (getVipWelcomeForCode(verifiedCode)) {
+      setShowVipWelcome(true);
+    } else {
+      setGranted(true);
+    }
+  }, [verifiedCode]);
+
+  if (showVipWelcome) {
+    return (
+      <VipWelcomeScreen
+        accessCode={verifiedCode}
+        onContinue={() => {
+          setShowVipWelcome(false);
+          setGranted(true);
+        }}
+      />
+    );
+  }
 
   if (granted) return <>{children}</>;
 
