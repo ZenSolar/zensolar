@@ -119,7 +119,7 @@ export function LiveMirrorDashboard() {
       tokensEarned: minted,
       pendingTokens: 0,
       referralTokens: 0,
-      nftsEarned: Array.from({ length: nftCount }, (_, i) => i),
+      nftsEarned: Array.from({ length: nftCount }, (_, i) => `nft-${i}`),
       co2OffsetPounds: solarKwh * 0.92,
       deviceLabels: undefined,
       solarDevices,
