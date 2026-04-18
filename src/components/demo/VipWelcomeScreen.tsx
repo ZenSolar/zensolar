@@ -69,13 +69,13 @@ export function VipWelcomeScreen({ accessCode, onContinue }: VipWelcomeScreenPro
     };
   }, [config, triggerCelebration]);
 
-  if (!config) {
-    // Defensive: if no config, just continue immediately
-    useEffect(() => {
-      onContinue();
-    }, []);
-    return null;
-  }
+  // Defensive auto-continue if no config (always called, never conditional)
+  useEffect(() => {
+    if (!config) onContinue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config]);
+
+  if (!config) return null;
 
   return (
     <div className="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-background overflow-hidden">
