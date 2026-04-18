@@ -21,7 +21,7 @@ const VIP_WELCOMES: Record<
 > = {
   'TODD-2026': {
     firstName: 'Todd',
-    title: 'Welcome back to ZenSolar, Todd.',
+    title: 'Welcome back, Todd!',
     body:
       "You believed in ZenSolar from kind of the beginning, but you've been part of my journey in Solar from the beginning. The original ZenSolar LLC dissolved, but the mission didn't. What you're about to see is everything we rebuilt — patent-pending, on-chain, and live. This is the second chapter. Thanks for being here for it.",
     signoff: '— Joe',
