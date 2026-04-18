@@ -1,13 +1,19 @@
 {
-  "name": "$ZSOLAR",
-  "short_name": "$ZSOLAR",
-  "description": "Earn blockchain rewards for sustainable energy actions. Track solar production, EV miles, and CO2 offsets.",
+  "name": "ZenSolar — $ZSOLAR Clean Energy Center",
+  "short_name": "ZenSolar",
+  "description": "Tap-to-Mint™ blockchain rewards for solar production, EV charging, and clean energy. Patent-pending Mint-on-Proof™ technology.",
   "theme_color": "#0a1628",
   "background_color": "#0a1628",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait",
   "scope": "/",
   "start_url": "/auth",
+  "id": "/?source=pwa",
+  "categories": ["finance", "utilities", "productivity"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/zs-icon-192.png",
@@ -27,5 +33,57 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Open your Clean Energy Center",
+      "url": "/?source=shortcut",
+      "icons": [{ "src": "/zs-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mint $ZSOLAR",
+      "short_name": "Mint",
+      "description": "Tap to mint your earned $ZSOLAR",
+      "url": "/?source=shortcut&action=mint",
+      "icons": [{ "src": "/zs-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Wallet",
+      "short_name": "Wallet",
+      "description": "View your wallet & balance",
+      "url": "/wallet?source=shortcut",
+      "icons": [{ "src": "/zs-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Energy Logs",
+      "short_name": "Energy",
+      "description": "View your energy production",
+      "url": "/energy-log?source=shortcut",
+      "icons": [{ "src": "/zs-icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "ZenSolar Clean Energy Center"
+    },
+    {
+      "src": "/og-demo.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tap-to-Mint $ZSOLAR demo"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }

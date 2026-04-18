@@ -161,6 +161,9 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin, isViewer, hasDashboardAccess } = useAdminCheck();
+  // Admin menu is shown ONLY to admins/editors, never to pure viewers (e.g. Todd, Lyndon).
+  // Viewers still get full dashboard data (mirrored from admin) but a clean user-style sidebar.
+  const showAdminMenu = isAdmin && !isViewer;
   const { theme, setTheme } = useTheme();
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -292,8 +295,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Admin Navigation - Visible to admins, editors, and viewers (read-only for viewers) */}
-        {hasDashboardAccess && (
+        {/* Admin Navigation - Visible to admins/editors only. Viewers (Todd, Lyndon, etc.) see standard user menu. */}
+        {showAdminMenu && (
           <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
