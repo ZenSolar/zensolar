@@ -309,6 +309,12 @@ const sigContactLine = {
   margin: '0 0 4px',
   lineHeight: '1.5',
 }
+const sigContactLineLast = {
+  fontSize: '14px',
+  color: '#4b5563',
+  margin: '0',
+  lineHeight: '1.5',
+}
 const sigLink = {
   color: '#10b981',
   textDecoration: 'underline',
