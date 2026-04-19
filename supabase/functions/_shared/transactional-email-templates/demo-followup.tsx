@@ -349,6 +349,15 @@ const footerDivider = {
   borderColor: '#f3f4f6',
   margin: '8px 0 16px',
 }
+const footerGracias = {
+  fontSize: '14px',
+  color: '#10b981',
+  fontWeight: 600 as const,
+  fontStyle: 'italic' as const,
+  textAlign: 'center' as const,
+  letterSpacing: '0.01em',
+  margin: '0 0 12px',
+}
 const footer = {
   fontSize: '11px',
   color: '#9ca3af',
