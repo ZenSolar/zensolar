@@ -95,35 +95,32 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
 
         <Text style={signoff}>Muchas gracias,</Text>
 
-        {/* Signature — modern card layout with logo + identity */}
-        <Section style={sigCard}>
-          <Row>
-            <Column style={sigLogoCol}>
-              <Img
-                src={LOGO_URL}
-                alt="ZenSolar"
-                width="56"
-                height="56"
-                style={sigLogoImg}
-              />
-            </Column>
-            <Column style={sigTextCol}>
-              <Text style={sigName}>Joe Maushart</Text>
-              <Text style={sigTitle}>Founder · {SITE_NAME}</Text>
-              <Text style={sigContact}>
-                <Link href="mailto:joe@zen.solar" style={sigLink}>joe@zen.solar</Link>
-                <span style={sigDot}> · </span>
-                <Link href="tel:+17202246233" style={sigLink}>720.224.6233</Link>
-              </Text>
-              <Text style={sigContact}>
-                <Link href="https://joemaushart.com" style={sigLink}>joemaushart.com</Link>
-              </Text>
-            </Column>
-          </Row>
+        {/* Signature — name/title/contact, then logo at bottom */}
+        <Section style={sigSection}>
+          <Text style={sigName}>Joe Maushart</Text>
+          <Text style={sigTitle}>Founder, {SITE_NAME}</Text>
+          <Text style={sigContactLine}>
+            <Link href="mailto:joe@zen.solar" style={sigLink}>joe@zen.solar</Link>
+          </Text>
+          <Text style={sigContactLine}>
+            <Link href="tel:+17202246233" style={sigLink}>720.224.6233</Link>
+            <span style={sigDot}>  ·  </span>
+            <Link href="sms:+17202246233" style={sigLink}>text</Link>
+          </Text>
+          <Text style={sigContactLine}>
+            <Link href="https://joemaushart.com" style={sigLink}>joemaushart.com</Link>
+          </Text>
+
+          <Img
+            src={LOGO_URL}
+            alt="ZenSolar"
+            width="160"
+            height="auto"
+            style={sigLogoBottom}
+          />
         </Section>
 
         <Hr style={footerDivider} />
-        <Text style={footerGracias}>Muchas gracias 🙏</Text>
         <Text style={footer}>
           © {new Date().getFullYear()} ZenSolar, LLC<br />
           Patent Pending — U.S. Application No. 19/634,402
