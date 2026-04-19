@@ -123,6 +123,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
         </Section>
 
         <Hr style={footerDivider} />
+        <Text style={footerGracias}>Muchas gracias 🙏</Text>
         <Text style={footer}>
           © {new Date().getFullYear()} ZenSolar, LLC<br />
           Patent Pending — U.S. Application No. 19/634,402
