@@ -318,7 +318,7 @@ const sigDot = {
   color: '#d1d5db',
 }
 const sigLogoBottom = {
-  marginTop: '18px',
+  marginTop: '6px',
   display: 'block' as const,
   width: '160px',
   height: 'auto',
