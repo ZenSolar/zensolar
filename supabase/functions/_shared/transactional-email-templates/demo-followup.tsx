@@ -107,7 +107,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
             <span style={sigDot}>  ·  </span>
             <Link href="sms:+17202246233" style={sigLink}>text</Link>
           </Text>
-          <Text style={sigContactLine}>
+          <Text style={sigContactLineLast}>
             <Link href="https://joemaushart.com" style={sigLink}>joemaushart.com</Link>
           </Text>
 
