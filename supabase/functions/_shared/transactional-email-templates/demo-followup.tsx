@@ -89,7 +89,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
 
         <Section style={pullQuote}>
           <Text style={pullQuoteText}>
-            I'm actively in conversations with investors right now — which is exactly why your honest reaction matters so much. What you tell me shapes what they see next.
+            Your eyes are on this early — and that's a gift. Whatever you notice, whatever you feel, whatever makes you tilt your head… that's exactly what I want to hear.
           </Text>
         </Section>
 
