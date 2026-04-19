@@ -95,35 +95,32 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
 
         <Text style={signoff}>Muchas gracias,</Text>
 
-        {/* Signature — modern card layout with logo + identity */}
-        <Section style={sigCard}>
-          <Row>
-            <Column style={sigLogoCol}>
-              <Img
-                src={LOGO_URL}
-                alt="ZenSolar"
-                width="56"
-                height="56"
-                style={sigLogoImg}
-              />
-            </Column>
-            <Column style={sigTextCol}>
-              <Text style={sigName}>Joe Maushart</Text>
-              <Text style={sigTitle}>Founder · {SITE_NAME}</Text>
-              <Text style={sigContact}>
-                <Link href="mailto:joe@zen.solar" style={sigLink}>joe@zen.solar</Link>
-                <span style={sigDot}> · </span>
-                <Link href="tel:+17202246233" style={sigLink}>720.224.6233</Link>
-              </Text>
-              <Text style={sigContact}>
-                <Link href="https://joemaushart.com" style={sigLink}>joemaushart.com</Link>
-              </Text>
-            </Column>
-          </Row>
+        {/* Signature — name/title/contact, then logo at bottom */}
+        <Section style={sigSection}>
+          <Text style={sigName}>Joe Maushart</Text>
+          <Text style={sigTitle}>Founder, {SITE_NAME}</Text>
+          <Text style={sigContactLine}>
+            <Link href="mailto:joe@zen.solar" style={sigLink}>joe@zen.solar</Link>
+          </Text>
+          <Text style={sigContactLine}>
+            <Link href="tel:+17202246233" style={sigLink}>720.224.6233</Link>
+            <span style={sigDot}>  ·  </span>
+            <Link href="sms:+17202246233" style={sigLink}>text</Link>
+          </Text>
+          <Text style={sigContactLine}>
+            <Link href="https://joemaushart.com" style={sigLink}>joemaushart.com</Link>
+          </Text>
+
+          <Img
+            src={LOGO_URL}
+            alt="ZenSolar"
+            width="160"
+            height="auto"
+            style={sigLogoBottom}
+          />
         </Section>
 
         <Hr style={footerDivider} />
-        <Text style={footerGracias}>Muchas gracias 🙏</Text>
         <Text style={footer}>
           © {new Date().getFullYear()} ZenSolar, LLC<br />
           Patent Pending — U.S. Application No. 19/634,402
@@ -289,27 +286,9 @@ const signoff = {
   margin: '24px 0 20px',
 }
 
-// Signature card
-const sigCard = {
-  backgroundColor: '#ffffff',
-  border: '1px solid #e5e7eb',
-  borderRadius: '14px',
-  padding: '18px 20px',
+// Signature
+const sigSection = {
   margin: '0 0 24px',
-}
-const sigLogoCol = {
-  width: '72px',
-  verticalAlign: 'top' as const,
-  paddingRight: '14px',
-}
-const sigLogoImg = {
-  width: '56px',
-  height: '56px',
-  display: 'block' as const,
-  objectFit: 'contain' as const,
-}
-const sigTextCol = {
-  verticalAlign: 'top' as const,
 }
 const sigName = {
   fontSize: '16px',
@@ -319,24 +298,30 @@ const sigName = {
   letterSpacing: '-0.01em',
 }
 const sigTitle = {
-  fontSize: '13px',
+  fontSize: '14px',
   color: '#6b7280',
-  margin: '0 0 8px',
+  margin: '0 0 10px',
   fontWeight: 500 as const,
 }
-const sigContact = {
-  fontSize: '13px',
+const sigContactLine = {
+  fontSize: '14px',
   color: '#4b5563',
-  margin: '0 0 2px',
+  margin: '0 0 4px',
   lineHeight: '1.5',
 }
 const sigLink = {
   color: '#10b981',
-  textDecoration: 'none',
+  textDecoration: 'underline',
   fontWeight: 500 as const,
 }
 const sigDot = {
   color: '#d1d5db',
+}
+const sigLogoBottom = {
+  marginTop: '18px',
+  display: 'block' as const,
+  width: '160px',
+  height: 'auto',
 }
 const inlineLink = {
   color: '#10b981',
@@ -348,15 +333,6 @@ const inlineLink = {
 const footerDivider = {
   borderColor: '#f3f4f6',
   margin: '8px 0 16px',
-}
-const footerGracias = {
-  fontSize: '14px',
-  color: '#10b981',
-  fontWeight: 600 as const,
-  fontStyle: 'italic' as const,
-  textAlign: 'center' as const,
-  letterSpacing: '0.01em',
-  margin: '0 0 12px',
 }
 const footer = {
   fontSize: '11px',
