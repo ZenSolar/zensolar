@@ -286,27 +286,9 @@ const signoff = {
   margin: '24px 0 20px',
 }
 
-// Signature card
-const sigCard = {
-  backgroundColor: '#ffffff',
-  border: '1px solid #e5e7eb',
-  borderRadius: '14px',
-  padding: '18px 20px',
+// Signature
+const sigSection = {
   margin: '0 0 24px',
-}
-const sigLogoCol = {
-  width: '72px',
-  verticalAlign: 'top' as const,
-  paddingRight: '14px',
-}
-const sigLogoImg = {
-  width: '56px',
-  height: '56px',
-  display: 'block' as const,
-  objectFit: 'contain' as const,
-}
-const sigTextCol = {
-  verticalAlign: 'top' as const,
 }
 const sigName = {
   fontSize: '16px',
@@ -316,24 +298,30 @@ const sigName = {
   letterSpacing: '-0.01em',
 }
 const sigTitle = {
-  fontSize: '13px',
+  fontSize: '14px',
   color: '#6b7280',
-  margin: '0 0 8px',
+  margin: '0 0 10px',
   fontWeight: 500 as const,
 }
-const sigContact = {
-  fontSize: '13px',
+const sigContactLine = {
+  fontSize: '14px',
   color: '#4b5563',
-  margin: '0 0 2px',
+  margin: '0 0 4px',
   lineHeight: '1.5',
 }
 const sigLink = {
   color: '#10b981',
-  textDecoration: 'none',
+  textDecoration: 'underline',
   fontWeight: 500 as const,
 }
 const sigDot = {
   color: '#d1d5db',
+}
+const sigLogoBottom = {
+  marginTop: '18px',
+  display: 'block' as const,
+  width: '160px',
+  height: 'auto',
 }
 const inlineLink = {
   color: '#10b981',
@@ -345,15 +333,6 @@ const inlineLink = {
 const footerDivider = {
   borderColor: '#f3f4f6',
   margin: '8px 0 16px',
-}
-const footerGracias = {
-  fontSize: '14px',
-  color: '#10b981',
-  fontWeight: 600 as const,
-  fontStyle: 'italic' as const,
-  textAlign: 'center' as const,
-  letterSpacing: '0.01em',
-  margin: '0 0 12px',
 }
 const footer = {
   fontSize: '11px',
