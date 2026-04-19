@@ -89,7 +89,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
 
         <Section style={pullQuote}>
           <Text style={pullQuoteText}>
-            I'm actively in conversations with investors right now — which is exactly why your honest reaction matters so much. What you tell me shapes what they see next.
+            Your eyes are on this early — and that's a gift. Whatever you notice, whatever you feel, whatever makes you tilt your head… that's exactly what I want to hear.
           </Text>
         </Section>
 
@@ -107,7 +107,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
             <span style={sigDot}>  ·  </span>
             <Link href="sms:+17202246233" style={sigLink}>text</Link>
           </Text>
-          <Text style={sigContactLine}>
+          <Text style={sigContactLineLast}>
             <Link href="https://joemaushart.com" style={sigLink}>joemaushart.com</Link>
           </Text>
 
@@ -309,6 +309,12 @@ const sigContactLine = {
   margin: '0 0 4px',
   lineHeight: '1.5',
 }
+const sigContactLineLast = {
+  fontSize: '14px',
+  color: '#4b5563',
+  margin: '0',
+  lineHeight: '1.5',
+}
 const sigLink = {
   color: '#10b981',
   textDecoration: 'underline',
@@ -318,7 +324,7 @@ const sigDot = {
   color: '#d1d5db',
 }
 const sigLogoBottom = {
-  marginTop: '18px',
+  marginTop: '6px',
   display: 'block' as const,
   width: '160px',
   height: 'auto',
