@@ -123,6 +123,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
         </Section>
 
         <Hr style={footerDivider} />
+        <Text style={footerGracias}>Muchas gracias 🙏</Text>
         <Text style={footer}>
           © {new Date().getFullYear()} ZenSolar, LLC<br />
           Patent Pending — U.S. Application No. 19/634,402
@@ -347,6 +348,15 @@ const inlineLink = {
 const footerDivider = {
   borderColor: '#f3f4f6',
   margin: '8px 0 16px',
+}
+const footerGracias = {
+  fontSize: '14px',
+  color: '#10b981',
+  fontWeight: 600 as const,
+  fontStyle: 'italic' as const,
+  textAlign: 'center' as const,
+  letterSpacing: '0.01em',
+  margin: '0 0 12px',
 }
 const footer = {
   fontSize: '11px',
