@@ -89,7 +89,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
 
         <Section style={pullQuote}>
           <Text style={pullQuoteText}>
-            Your eyes are on this early — and that's a gift. Whatever you notice, whatever you feel, whatever makes you tilt your head… that's exactly what I want to hear.
+            You're seeing this early, and your perspective genuinely shapes where it goes next. Whatever you notice, whatever you feel, whatever makes you tilt your head… that's exactly what I want to hear.
           </Text>
         </Section>
 
