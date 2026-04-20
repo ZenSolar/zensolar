@@ -8,13 +8,10 @@ const corsHeaders = {
 /**
  * notify-mint-access-request
  *
- * Triggered when a VIP demo viewer taps the "Want to mint? Text Joe" FAB.
- * Inserts a row into mint_access_requests, then sends push + email to admins.
- *
- * The SMS link is opened client-side — this function only handles logging + notification.
+ * Logs a row into mint_access_requests when a VIP demo viewer taps the
+ * "Want to mint? Text Joe" FAB. Notifications (email/push) are intentionally
+ * skipped — the SMS link itself is the notification channel.
  */
-
-const ADMIN_EMAIL = "jo@zen.solar";
 
 interface RequestBody {
   access_code?: string;
@@ -32,7 +29,6 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
     const body = (await req.json()) as RequestBody;
@@ -57,65 +53,6 @@ Deno.serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-    }
-
-    const requesterLabel = body.requester_name || body.requester_email || body.access_code || "A VIP";
-
-    // Find admin user_ids
-    const { data: adminRoles } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "admin");
-    const adminIds = (adminRoles ?? []).map((r) => r.user_id);
-
-    // Push notification
-    if (adminIds.length > 0) {
-      try {
-        await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${serviceKey}`,
-          },
-          body: JSON.stringify({
-            user_ids: adminIds,
-            title: `⚡ ${requesterLabel} wants to mint`,
-            body: `Mint access requested from ${body.access_code || "demo"}. Tap to follow up.`,
-            notification_type: "mint_access_request",
-            data: { url: "/admin", request_id: inserted.id },
-          }),
-        });
-      } catch (e) {
-        console.error("push failed:", e);
-      }
-    }
-
-    // Email — gateway requires apikey to be a valid JWT (anon), Bearer for privileges.
-    try {
-      const r = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: anonKey,
-          Authorization: `Bearer ${serviceKey}`,
-        },
-        body: JSON.stringify({
-          templateName: "mint-access-request",
-          recipientEmail: ADMIN_EMAIL,
-          idempotencyKey: `mint-request-${inserted.id}`,
-          templateData: {
-            requesterName: body.requester_name,
-            requesterEmail: body.requester_email,
-            accessCode: body.access_code,
-            requestedAt: inserted.created_at,
-            source: body.source ?? "live_mirror_fab",
-          },
-        }),
-      });
-      const txt = await r.text().catch(() => "");
-      console.log(`[notify-mint-access-request] email status: ${r.status} body: ${txt.slice(0, 200)}`);
-    } catch (e) {
-      console.error("email failed:", e);
     }
 
     return new Response(JSON.stringify({ success: true, request_id: inserted.id }), {
