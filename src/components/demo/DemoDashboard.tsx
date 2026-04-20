@@ -22,6 +22,7 @@ import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
+import { isVipMirrorActive } from '@/lib/vipDemo';
 
 import {
   SOLAR_MILESTONES,
