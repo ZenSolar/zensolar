@@ -18,7 +18,7 @@ import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnosti
 import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
-import { activateVipMirror, isVipMirrorCode, clearVipMirror } from '@/lib/vipDemo';
+import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activateVipCode, clearVipCode } from '@/lib/vipDemo';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 
 
@@ -984,11 +984,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (email) saveNdaEmail(email);
     if (name) saveNdaName(name);
 
-    // VIP-mirror codes (TODD-2026, etc.) get a live mirror of the admin's real dashboard
+    // VIP-mirror codes (TODD-2026, etc.) — mirror is unwired but flag kept for compat
     if (isVipMirrorCode(verifiedCode)) {
       activateVipMirror(verifiedCode);
     } else {
       clearVipMirror();
+    }
+
+    // VIP codes get the ★ VIP badge on the demo dashboard
+    if (isVipCode(verifiedCode)) {
+      activateVipCode(verifiedCode);
+    } else {
+      clearVipCode();
     }
 
     // VIP welcome screen for codes like TODD-2026 — shown once between NDA and dashboard

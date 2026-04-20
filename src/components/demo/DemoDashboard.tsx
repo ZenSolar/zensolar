@@ -22,7 +22,7 @@ import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
-import { isVipMirrorActive } from '@/lib/vipDemo';
+import { isVipActive } from '@/lib/vipDemo';
 
 import {
   SOLAR_MILESTONES,
@@ -152,7 +152,7 @@ export function DemoDashboard() {
             <DashboardTopControls />
           </div>
           <div className="space-y-1.5">
-            {isVipMirrorActive() && (
+            {isVipActive() && (
               <Badge
                 variant="outline"
                 className="mx-auto border-primary/40 bg-primary/10 text-primary text-[10px] tracking-[0.18em] uppercase px-2.5 py-0.5"
