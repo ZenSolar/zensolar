@@ -113,11 +113,13 @@ Deno.serve(async (req) => {
     }
 
     // Send transactional email
+    // send-transactional-email has verify_jwt=true, so we need BOTH apikey + Authorization headers.
     try {
       const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          apikey: serviceKey,
           Authorization: `Bearer ${serviceKey}`,
         },
         body: JSON.stringify({
@@ -135,7 +137,8 @@ Deno.serve(async (req) => {
           },
         }),
       });
-      console.log(`[notify-vip-demo-access] email status: ${emailRes.status}`);
+      const emailText = await emailRes.text().catch(() => "");
+      console.log(`[notify-vip-demo-access] email status: ${emailRes.status} body: ${emailText.slice(0, 200)}`);
     } catch (e) {
       console.error("[notify-vip-demo-access] email failed:", e);
     }
