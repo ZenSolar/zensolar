@@ -546,6 +546,9 @@ export type Database = {
           notified: boolean
           requester_email: string | null
           requester_name: string | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
           source: string
           user_agent: string | null
         }
@@ -557,6 +560,9 @@ export type Database = {
           notified?: boolean
           requester_email?: string | null
           requester_name?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
           source?: string
           user_agent?: string | null
         }
@@ -568,6 +574,9 @@ export type Database = {
           notified?: boolean
           requester_email?: string | null
           requester_name?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
           source?: string
           user_agent?: string | null
         }
