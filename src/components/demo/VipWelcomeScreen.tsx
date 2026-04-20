@@ -27,6 +27,14 @@ const VIP_WELCOMES: Record<
     signoff: '— Joe',
     cta: 'Enter the Clean Energy Center',
   },
+  'JO-2026': {
+    firstName: 'Jo',
+    title: 'Welcome, Jo!',
+    body:
+      "You've watched this whole thing come together from the inside — the late nights, the rebuilds, the wins. This demo is for you to explore at your own pace. Tap anything, mint anything, break anything. It's all yours.",
+    signoff: '— Joe',
+    cta: 'Enter the Clean Energy Center',
+  },
 };
 
 export function getVipWelcomeForCode(code: string | null | undefined) {
