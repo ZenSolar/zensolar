@@ -89,29 +89,30 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Email — send-transactional-email has verify_jwt=true, so we need BOTH apikey + Authorization.
+    // Email via supabase-js to handle auth correctly across signing-key formats.
     try {
-      const r = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
-        },
-        body: JSON.stringify({
-          templateName: "mint-access-request",
-          recipientEmail: ADMIN_EMAIL,
-          idempotencyKey: `mint-request-${inserted.id}`,
-          templateData: {
-            requesterName: body.requester_name,
-            requesterEmail: body.requester_email,
-            accessCode: body.access_code,
-            requestedAt: inserted.created_at,
-            source: body.source ?? "live_mirror_fab",
+      const { data: emailData, error: emailErr } = await supabase.functions.invoke(
+        "send-transactional-email",
+        {
+          body: {
+            templateName: "mint-access-request",
+            recipientEmail: ADMIN_EMAIL,
+            idempotencyKey: `mint-request-${inserted.id}`,
+            templateData: {
+              requesterName: body.requester_name,
+              requesterEmail: body.requester_email,
+              accessCode: body.access_code,
+              requestedAt: inserted.created_at,
+              source: body.source ?? "live_mirror_fab",
+            },
           },
-        }),
-      });
-      console.log(`[notify-mint-access-request] email status: ${r.status}`);
+        }
+      );
+      if (emailErr) {
+        console.error("[notify-mint-access-request] email error:", emailErr);
+      } else {
+        console.log(`[notify-mint-access-request] email queued:`, JSON.stringify(emailData).slice(0, 200));
+      }
     } catch (e) {
       console.error("email failed:", e);
     }

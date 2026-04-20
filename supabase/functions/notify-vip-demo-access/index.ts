@@ -112,33 +112,33 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Send transactional email
-    // send-transactional-email has verify_jwt=true, so we need BOTH apikey + Authorization headers.
+    // Send transactional email via supabase-js — it handles auth headers correctly
+    // for both legacy JWT service keys and the new sb_secret_... signing-keys format.
     try {
-      const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
-        },
-        body: JSON.stringify({
-          templateName: "vip-access-alert",
-          recipientEmail: ADMIN_EMAIL,
-          idempotencyKey: `vip-alert-${code}`,
-          templateData: {
-            accessCode: code,
-            signerName: body.signer_name,
-            signerEmail: body.signer_email,
-            signedAt: body.signed_at ?? new Date().toISOString(),
-            city: body.city,
-            region: body.region,
-            country: body.country,
+      const { data: emailData, error: emailErr } = await supabase.functions.invoke(
+        "send-transactional-email",
+        {
+          body: {
+            templateName: "vip-access-alert",
+            recipientEmail: ADMIN_EMAIL,
+            idempotencyKey: `vip-alert-${code}`,
+            templateData: {
+              accessCode: code,
+              signerName: body.signer_name,
+              signerEmail: body.signer_email,
+              signedAt: body.signed_at ?? new Date().toISOString(),
+              city: body.city,
+              region: body.region,
+              country: body.country,
+            },
           },
-        }),
-      });
-      const emailText = await emailRes.text().catch(() => "");
-      console.log(`[notify-vip-demo-access] email status: ${emailRes.status} body: ${emailText.slice(0, 200)}`);
+        }
+      );
+      if (emailErr) {
+        console.error("[notify-vip-demo-access] email error:", emailErr);
+      } else {
+        console.log(`[notify-vip-demo-access] email queued:`, JSON.stringify(emailData).slice(0, 200));
+      }
     } catch (e) {
       console.error("[notify-vip-demo-access] email failed:", e);
     }
