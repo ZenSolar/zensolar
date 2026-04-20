@@ -537,6 +537,42 @@ export type Database = {
         }
         Relationships: []
       }
+      mint_access_requests: {
+        Row: {
+          access_code: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          notified: boolean
+          requester_email: string | null
+          requester_name: string | null
+          source: string
+          user_agent: string | null
+        }
+        Insert: {
+          access_code?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          notified?: boolean
+          requester_email?: string | null
+          requester_name?: string | null
+          source?: string
+          user_agent?: string | null
+        }
+        Update: {
+          access_code?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          notified?: boolean
+          requester_email?: string | null
+          requester_name?: string | null
+          source?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       mint_transactions: {
         Row: {
           action: string
@@ -1052,6 +1088,33 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      vip_code_notifications: {
+        Row: {
+          access_code: string
+          first_used_at: string
+          id: string
+          notified_at: string
+          signer_email: string | null
+          signer_name: string | null
+        }
+        Insert: {
+          access_code: string
+          first_used_at?: string
+          id?: string
+          notified_at?: string
+          signer_email?: string | null
+          signer_name?: string | null
+        }
+        Update: {
+          access_code?: string
+          first_used_at?: string
+          id?: string
+          notified_at?: string
+          signer_email?: string | null
+          signer_name?: string | null
         }
         Relationships: []
       }

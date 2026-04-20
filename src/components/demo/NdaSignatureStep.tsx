@@ -203,6 +203,21 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
         console.warn('NDA email send failed — non-blocking');
       });
 
+      // VIP first-access alert (no-op for non-VIP codes — handled server-side)
+      supabase.functions.invoke('notify-vip-demo-access', {
+        body: {
+          access_code: accessCodeUsed,
+          signer_name: fullName.trim(),
+          signer_email: email.trim(),
+          signed_at: new Date().toISOString(),
+          city: geo.city || null,
+          region: geo.region || null,
+          country: geo.country || null,
+        },
+      }).catch(() => {
+        console.warn('VIP notify failed — non-blocking');
+      });
+
 
       toast.success('Agreement signed', { description: 'A copy has been sent to your email.' });
       onSigned(email.trim(), fullName.trim());
