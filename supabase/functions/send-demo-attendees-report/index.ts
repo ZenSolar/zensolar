@@ -80,7 +80,6 @@ Deno.serve(async (req) => {
 
     console.log(`[send-demo-attendees-report] ${attendees.length} attendees`);
 
-    const supabase = createClient(supabaseUrl, serviceKey);
     const { data: emailData, error: emailErr } = await supabase.functions.invoke(
       "send-transactional-email",
       {
