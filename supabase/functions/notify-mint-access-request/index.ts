@@ -90,30 +90,30 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Email via supabase-js to handle auth correctly across signing-key formats.
+    // Email — gateway requires apikey to be a valid JWT (anon), Bearer for privileges.
     try {
-      const { data: emailData, error: emailErr } = await supabase.functions.invoke(
-        "send-transactional-email",
-        {
-          body: {
-            templateName: "mint-access-request",
-            recipientEmail: ADMIN_EMAIL,
-            idempotencyKey: `mint-request-${inserted.id}`,
-            templateData: {
-              requesterName: body.requester_name,
-              requesterEmail: body.requester_email,
-              accessCode: body.access_code,
-              requestedAt: inserted.created_at,
-              source: body.source ?? "live_mirror_fab",
-            },
+      const r = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: anonKey,
+          Authorization: `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({
+          templateName: "mint-access-request",
+          recipientEmail: ADMIN_EMAIL,
+          idempotencyKey: `mint-request-${inserted.id}`,
+          templateData: {
+            requesterName: body.requester_name,
+            requesterEmail: body.requester_email,
+            accessCode: body.access_code,
+            requestedAt: inserted.created_at,
+            source: body.source ?? "live_mirror_fab",
           },
-        }
-      );
-      if (emailErr) {
-        console.error("[notify-mint-access-request] email error:", emailErr);
-      } else {
-        console.log(`[notify-mint-access-request] email queued:`, JSON.stringify(emailData).slice(0, 200));
-      }
+        }),
+      });
+      const txt = await r.text().catch(() => "");
+      console.log(`[notify-mint-access-request] email status: ${r.status} body: ${txt.slice(0, 200)}`);
     } catch (e) {
       console.error("email failed:", e);
     }

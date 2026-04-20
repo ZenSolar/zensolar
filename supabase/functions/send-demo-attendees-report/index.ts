@@ -25,6 +25,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
     // Pull every logged demo access where they signed the NDA
@@ -80,20 +81,27 @@ Deno.serve(async (req) => {
 
     console.log(`[send-demo-attendees-report] ${attendees.length} attendees`);
 
-    const { data: emailData, error: emailErr } = await supabase.functions.invoke(
-      "send-transactional-email",
-      {
-        body: {
-          templateName: "demo-attendees-report",
-          recipientEmail: ADMIN_EMAIL,
-          idempotencyKey: `demo-attendees-report-${new Date().toISOString().slice(0, 16)}`,
-          templateData: {
-            attendees,
-            generatedAt: new Date().toISOString(),
-          },
+    const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: anonKey,
+        Authorization: `Bearer ${serviceKey}`,
+      },
+      body: JSON.stringify({
+        templateName: "demo-attendees-report",
+        recipientEmail: ADMIN_EMAIL,
+        idempotencyKey: `demo-attendees-report-${new Date().toISOString().slice(0, 16)}`,
+        templateData: {
+          attendees,
+          generatedAt: new Date().toISOString(),
         },
-      }
-    );
+      }),
+    });
+    const emailBody = await emailRes.text().catch(() => "");
+    const ok = emailRes.ok;
+    const emailData = ok ? (() => { try { return JSON.parse(emailBody); } catch { return emailBody; } })() : null;
+    const emailErr = ok ? null : { message: `status ${emailRes.status}: ${emailBody.slice(0, 200)}` };
 
     if (emailErr) {
       console.error("[send-demo-attendees-report] email error:", emailErr);
