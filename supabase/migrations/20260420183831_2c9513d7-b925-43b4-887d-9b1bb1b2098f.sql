@@ -1,0 +1,1 @@
+INSERT INTO public.demo_access_codes (code, label, is_active) VALUES ('JO-2026', 'vip:jo_ferriter', true) ON CONFLICT (code) DO UPDATE SET is_active = true, label = EXCLUDED.label;
