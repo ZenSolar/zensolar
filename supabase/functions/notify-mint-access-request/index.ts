@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
     const body = (await req.json()) as RequestBody;
@@ -89,12 +90,13 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Email
+    // Email — gateway requires apikey to be a valid JWT (anon), Bearer for privileges.
     try {
-      await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+      const r = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          apikey: anonKey,
           Authorization: `Bearer ${serviceKey}`,
         },
         body: JSON.stringify({
@@ -110,6 +112,8 @@ Deno.serve(async (req) => {
           },
         }),
       });
+      const txt = await r.text().catch(() => "");
+      console.log(`[notify-mint-access-request] email status: ${r.status} body: ${txt.slice(0, 200)}`);
     } catch (e) {
       console.error("email failed:", e);
     }

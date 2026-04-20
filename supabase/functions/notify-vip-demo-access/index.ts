@@ -36,6 +36,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
     const body = (await req.json()) as RequestBody;
@@ -112,12 +113,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Send transactional email
+    // Send transactional email — send-transactional-email has verify_jwt=true so the
+    // gateway requires `apikey` to be a valid JWT. The new signing-keys SERVICE key
+    // is `sb_secret_…` (not a JWT), so we send the ANON key as `apikey` to satisfy
+    // the gateway, then service-role as Bearer for in-function authorization.
     try {
       const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          apikey: anonKey,
           Authorization: `Bearer ${serviceKey}`,
         },
         body: JSON.stringify({
@@ -135,7 +140,8 @@ Deno.serve(async (req) => {
           },
         }),
       });
-      console.log(`[notify-vip-demo-access] email status: ${emailRes.status}`);
+      const emailText = await emailRes.text().catch(() => "");
+      console.log(`[notify-vip-demo-access] email status: ${emailRes.status} body: ${emailText.slice(0, 200)}`);
     } catch (e) {
       console.error("[notify-vip-demo-access] email failed:", e);
     }

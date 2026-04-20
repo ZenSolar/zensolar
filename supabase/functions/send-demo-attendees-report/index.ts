@@ -25,6 +25,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
     // Pull every logged demo access where they signed the NDA
@@ -84,6 +85,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        apikey: anonKey,
         Authorization: `Bearer ${serviceKey}`,
       },
       body: JSON.stringify({
@@ -96,12 +98,22 @@ Deno.serve(async (req) => {
         },
       }),
     });
+    const emailBody = await emailRes.text().catch(() => "");
+    const ok = emailRes.ok;
+    const emailData = ok ? (() => { try { return JSON.parse(emailBody); } catch { return emailBody; } })() : null;
+    const emailErr = ok ? null : { message: `status ${emailRes.status}: ${emailBody.slice(0, 200)}` };
 
-    const emailBody = await emailRes.text();
-    console.log(`[send-demo-attendees-report] email status: ${emailRes.status} body: ${emailBody.slice(0, 200)}`);
+    if (emailErr) {
+      console.error("[send-demo-attendees-report] email error:", emailErr);
+      return new Response(
+        JSON.stringify({ success: false, attendee_count: attendees.length, error: emailErr.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
+    console.log(`[send-demo-attendees-report] email queued:`, JSON.stringify(emailData).slice(0, 200));
     return new Response(
-      JSON.stringify({ success: true, attendee_count: attendees.length, email_status: emailRes.status }),
+      JSON.stringify({ success: true, attendee_count: attendees.length, email_data: emailData }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
