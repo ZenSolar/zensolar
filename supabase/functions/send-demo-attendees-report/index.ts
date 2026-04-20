@@ -80,29 +80,33 @@ Deno.serve(async (req) => {
 
     console.log(`[send-demo-attendees-report] ${attendees.length} attendees`);
 
-    const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
-      },
-      body: JSON.stringify({
-        templateName: "demo-attendees-report",
-        recipientEmail: ADMIN_EMAIL,
-        idempotencyKey: `demo-attendees-report-${new Date().toISOString().slice(0, 16)}`,
-        templateData: {
-          attendees,
-          generatedAt: new Date().toISOString(),
+    const supabase = createClient(supabaseUrl, serviceKey);
+    const { data: emailData, error: emailErr } = await supabase.functions.invoke(
+      "send-transactional-email",
+      {
+        body: {
+          templateName: "demo-attendees-report",
+          recipientEmail: ADMIN_EMAIL,
+          idempotencyKey: `demo-attendees-report-${new Date().toISOString().slice(0, 16)}`,
+          templateData: {
+            attendees,
+            generatedAt: new Date().toISOString(),
+          },
         },
-      }),
-    });
+      }
+    );
 
-    const emailBody = await emailRes.text();
-    console.log(`[send-demo-attendees-report] email status: ${emailRes.status} body: ${emailBody.slice(0, 200)}`);
+    if (emailErr) {
+      console.error("[send-demo-attendees-report] email error:", emailErr);
+      return new Response(
+        JSON.stringify({ success: false, attendee_count: attendees.length, error: emailErr.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
+    console.log(`[send-demo-attendees-report] email queued:`, JSON.stringify(emailData).slice(0, 200));
     return new Response(
-      JSON.stringify({ success: true, attendee_count: attendees.length, email_status: emailRes.status }),
+      JSON.stringify({ success: true, attendee_count: attendees.length, email_data: emailData }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
