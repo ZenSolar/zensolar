@@ -22,6 +22,7 @@ import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
+import { isVipMirrorActive } from '@/lib/vipDemo';
 
 import {
   SOLAR_MILESTONES,
@@ -151,6 +152,14 @@ export function DemoDashboard() {
             <DashboardTopControls />
           </div>
           <div className="space-y-1.5">
+            {isVipMirrorActive() && (
+              <Badge
+                variant="outline"
+                className="mx-auto border-primary/40 bg-primary/10 text-primary text-[10px] tracking-[0.18em] uppercase px-2.5 py-0.5"
+              >
+                ★ VIP Access
+              </Badge>
+            )}
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
               Real energy. Real Tokens.

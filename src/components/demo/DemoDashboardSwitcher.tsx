@@ -1,22 +1,19 @@
 import { lazy, Suspense } from 'react';
-import { isVipMirrorActive } from '@/lib/vipDemo';
 import { Loader2 } from 'lucide-react';
 
 const DemoDashboard = lazy(() =>
   import('@/components/demo/DemoDashboard').then(m => ({ default: m.DemoDashboard }))
 );
-const LiveMirrorDashboard = lazy(() =>
-  import('@/components/demo/LiveMirrorDashboard').then(m => ({ default: m.LiveMirrorDashboard }))
-);
 
 /**
- * Routes the /demo index to either:
- *  - LiveMirrorDashboard for VIP-mirror codes (TODD-2026, etc.) — shows admin's real data
- *  - DemoDashboard for everyone else — synthetic showcase data
+ * Routes the /demo index to the synthetic showcase DemoDashboard for everyone,
+ * including VIP-mirror codes (TODD-2026, etc.). VIPs still get the personalized
+ * VipWelcomeScreen before entering, plus a small "VIP" badge inside DemoDashboard.
+ *
+ * The LiveMirrorDashboard is intentionally left in the codebase (unwired) in
+ * case we want to bring it back later.
  */
 export function DemoDashboardSwitcher() {
-  const useLiveMirror = isVipMirrorActive();
-
   return (
     <Suspense
       fallback={
@@ -25,7 +22,7 @@ export function DemoDashboardSwitcher() {
         </div>
       }
     >
-      {useLiveMirror ? <LiveMirrorDashboard /> : <DemoDashboard />}
+      <DemoDashboard />
     </Suspense>
   );
 }
