@@ -28,7 +28,7 @@ interface MintRequest {
 
 export default function AdminMintRequests() {
   const { user } = useAuth();
-  const { isAdmin, isLoading: roleLoading } = useAdminCheck();
+  const { isAdmin, isChecking: roleLoading } = useAdminCheck();
   const [requests, setRequests] = useState<MintRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"open" | "resolved" | "all">("open");
