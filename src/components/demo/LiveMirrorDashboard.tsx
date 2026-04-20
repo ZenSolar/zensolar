@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAdminLiveSnapshot } from '@/hooks/useAdminLiveSnapshot';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMetrics';
+import { MintRequestFAB } from '@/components/demo/MintRequestFAB';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
 import { TokenPriceCard } from '@/components/dashboard/TokenPriceCard';
 import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
@@ -292,6 +293,9 @@ export function LiveMirrorDashboard() {
       </AnimatedContainer>
 
       <DashboardFooter />
+
+      {/* Floating "Want to mint?" CTA — opens SMS to Joe + logs request */}
+      <MintRequestFAB accessCode={typeof window !== 'undefined' ? localStorage.getItem('zen_vip_mirror_active') : null} />
     </div>
   );
 }
