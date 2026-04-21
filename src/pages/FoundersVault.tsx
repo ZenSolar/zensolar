@@ -102,11 +102,16 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
   if (error || !snapshot || !view) {
     return (
       <div className="min-h-[100svh] flex items-center justify-center bg-background p-6">
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-4 max-w-sm">
           <p className="text-destructive text-sm">{error ?? "Vault unavailable"}</p>
-          <Button onClick={refresh} variant="outline" size="sm">
-            <RefreshCw className="h-3 w-3 mr-1" /> Retry
-          </Button>
+          <div className="flex items-center justify-center gap-2">
+            <Button onClick={refresh} variant="outline" size="sm">
+              <RefreshCw className="h-3 w-3 mr-1" /> Retry
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/">Home</Link>
+            </Button>
+          </div>
         </div>
       </div>
     );

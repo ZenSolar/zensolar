@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Fingerprint, ShieldAlert, Loader2, KeyRound, ArrowLeft, RefreshCw } from "lucide-react";
+import { Fingerprint, ShieldAlert, Loader2, KeyRound, ArrowLeft, Home, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useVaultBiometric } from "@/hooks/useVaultBiometric";
@@ -46,14 +46,24 @@ export function VaultBiometricGate({ userId, children }: Props) {
 
   return (
     <div className="min-h-[100svh] flex items-center justify-center p-6 bg-background relative">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate("/")}
-        className="absolute top-4 left-4 text-muted-foreground"
-      >
-        <ArrowLeft className="h-4 w-4 mr-1" /> Exit
-      </Button>
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="text-muted-foreground"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/")}
+          className="text-muted-foreground"
+        >
+          <Home className="h-4 w-4 mr-1" /> Home
+        </Button>
+      </div>
       <div className="w-full max-w-sm space-y-6 text-center">
         <div className="flex justify-center">
           <div className="h-20 w-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
