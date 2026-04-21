@@ -928,6 +928,7 @@ const App = () => {
                     } />
                     {/* Founders Vault - direct URL only, no nav link */}
                     <Route path="/founders" element={<FoundersVault />} />
+                    <Route path="/founder-pack" element={<FounderPack />} />
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<Deason />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
