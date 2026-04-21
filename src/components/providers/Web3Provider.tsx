@@ -1,10 +1,10 @@
 import { WagmiProvider } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config, wagmiAdapter, networks, metadata, WALLETCONNECT_PROJECT_ID, HAS_WALLETCONNECT_PROJECT_ID } from '@/lib/wagmi';
 import { ReactNode, useEffect, useState, createContext, useContext } from 'react';
 import { createAppKit } from '@reown/appkit/react';
 
-const queryClient = new QueryClient();
+// QueryClientProvider is now at the App.tsx root so it's available
+// to ALL components, including those that render before LazyWeb3Provider mounts.
 
 // Context to share AppKit initialization state
 interface AppKitContextValue {
@@ -103,9 +103,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
   return (
     <AppKitContext.Provider value={{ isInitialized, hasProjectId }}>
       <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        {children}
       </WagmiProvider>
     </AppKitContext.Provider>
   );

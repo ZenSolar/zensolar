@@ -4,7 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
+
+// Single shared QueryClient — must wrap everything that may use react-query,
+// including components that render before LazyWeb3Provider mounts wagmi.
+const queryClient = new QueryClient();
 import { DemoAccessGate } from "@/components/demo/DemoAccessGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
@@ -164,6 +169,7 @@ const App = () => {
       enableSystem={false}
       forcedTheme={undefined}
     >
+      <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ViewAsUserProvider>
           <LazyWeb3Provider>
@@ -931,6 +937,7 @@ const App = () => {
         </LazyWeb3Provider>
       </ViewAsUserProvider>
     </AuthProvider>
+    </QueryClientProvider>
     </ThemeProvider>
   );
 };
