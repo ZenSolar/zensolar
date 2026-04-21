@@ -149,7 +149,7 @@ export function useVaultBiometric(userId: string | undefined) {
             challenge,
           rp: { name: "ZenSolar Founders Vault", id: window.location.hostname },
             user: {
-              id: new TextEncoder().encode(userId) as BufferSource,
+              id: new Uint8Array(new TextEncoder().encode(userId)).buffer as ArrayBuffer,
               name: deviceLabel || "Founder",
               displayName: deviceLabel || "Founder",
             },
@@ -231,7 +231,7 @@ export function useVaultBiometric(userId: string | undefined) {
           (ch) => ch.charCodeAt(0),
         );
         return {
-          id: raw as BufferSource,
+          id: raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength) as ArrayBuffer,
           type: "public-key" as const,
           transports: [
             "internal",
