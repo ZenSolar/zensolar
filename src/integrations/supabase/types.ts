@@ -1435,7 +1435,7 @@ export type Database = {
       verify_demo_code: { Args: { _code: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "user" | "editor" | "viewer"
+      app_role: "admin" | "user" | "editor" | "viewer" | "founder"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1563,7 +1563,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "editor", "viewer"],
+      app_role: ["admin", "user", "editor", "viewer", "founder"],
     },
   },
 } as const
