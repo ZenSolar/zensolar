@@ -53,10 +53,10 @@ function bufferToB64Url(buf: ArrayBuffer): string {
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function randomChallenge(): Uint8Array {
+function randomChallenge(): ArrayBuffer {
   const c = new Uint8Array(32);
   crypto.getRandomValues(c);
-  return c;
+  return c.buffer.slice(0) as ArrayBuffer;
 }
 
 export function useVaultBiometric(userId: string | undefined) {
