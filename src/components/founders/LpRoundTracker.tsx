@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Droplets, TrendingUp, Lock as LockIcon } from "lucide-react";
+import { Droplets, TrendingUp, Lock as LockIcon, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface LpRound {
   id: string;
@@ -63,6 +72,19 @@ export function LpRoundTracker({
   );
   const latest = rounds[rounds.length - 1];
   const totalLocked = josephAllocation + michaelAllocation;
+
+  // Build cumulative chart data
+  let cumUsdc = 0;
+  let cumTokens = 0;
+  const chartData = rounds.map((r) => {
+    cumUsdc += Number(r.usdc_injected);
+    cumTokens += Number(r.tokens_released);
+    return {
+      round: `R${r.round_number}`,
+      depth: cumUsdc,
+      tokens: cumTokens,
+    };
+  });
 
   // Liquid value = max you could realistically pull from LP without breaking it (~the USDC side)
   const josephLiquid = Math.min(
