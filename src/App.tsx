@@ -937,6 +937,7 @@ const App = () => {
         </LazyWeb3Provider>
       </ViewAsUserProvider>
     </AuthProvider>
+    </QueryClientProvider>
     </ThemeProvider>
   );
 };
