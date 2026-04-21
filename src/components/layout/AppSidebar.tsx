@@ -45,6 +45,7 @@ import {
   Lock,
   Sparkles,
   ScrollText,
+  Banknote,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -341,6 +342,22 @@ export function AppSidebar() {
                     >
                       <Rocket className="h-4 w-4 text-amber-400" />
                       <span>White Paper · Phase 2</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Seed Ask · Lyndon">
+                    <NavLink
+                      to="/founders/seed-ask"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <Banknote className="h-4 w-4 text-amber-400" />
+                      <span>Seed Ask · Lyndon</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
