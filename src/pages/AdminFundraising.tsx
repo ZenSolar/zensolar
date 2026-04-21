@@ -405,8 +405,8 @@ export default function AdminFundraising() {
             <div className="flex items-center gap-2">
               <Coins className="h-5 w-5 text-yellow-500" />
               <div>
-                <p className="text-2xl font-bold">10B</p>
-                <p className="text-xs text-muted-foreground">Total Supply</p>
+                <p className="text-2xl font-bold">{SUPPLY_LABEL_SHORT}</p>
+                <p className="text-xs text-muted-foreground">Total Supply (1 Trillion hard cap)</p>
               </div>
             </div>
           </CardContent>
