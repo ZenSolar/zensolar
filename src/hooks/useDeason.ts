@@ -65,10 +65,19 @@ export function useDeason() {
           signal: ac.signal,
         });
 
-        if (res.status === 429) throw new Error("Rate limited — please wait a moment.");
-        if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Lovable settings.");
-        if (res.status === 403) throw new Error("Founders only.");
-        if (!res.ok || !res.body) throw new Error(`Request failed (${res.status})`);
+        if (!res.ok) {
+          let detail = `HTTP ${res.status}`;
+          try {
+            const j = await res.clone().json();
+            detail = `${j.error ?? "error"}${j.stage ? ` @ ${j.stage}` : ""}${j.detail ? `: ${j.detail}` : ""} (req ${j.reqId ?? "?"})`;
+          } catch { /* non-JSON */ }
+          if (res.status === 429) throw new Error(`Rate limited — ${detail}`);
+          if (res.status === 402) throw new Error(`AI credits exhausted — ${detail}`);
+          if (res.status === 403) throw new Error(`Founders only — ${detail}`);
+          if (res.status === 401) throw new Error(`Auth rejected by server — ${detail}`);
+          throw new Error(detail);
+        }
+        if (!res.body) throw new Error("Empty response body");
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
