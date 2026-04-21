@@ -1010,6 +1010,63 @@ export type Database = {
         }
         Relationships: []
       }
+      tokenomics_archive: {
+        Row: {
+          allocations: Json
+          archived_at: string
+          archived_by: string | null
+          created_at: string
+          id: string
+          lp_seed: Json
+          max_supply: number
+          mint_distribution: Json
+          model_name: string
+          model_version: string
+          notes: string | null
+          prices: Json
+          reason: string
+          reward_rates: Json
+          superseded_by: string | null
+          transfer_tax: Json
+        }
+        Insert: {
+          allocations: Json
+          archived_at?: string
+          archived_by?: string | null
+          created_at?: string
+          id?: string
+          lp_seed: Json
+          max_supply: number
+          mint_distribution: Json
+          model_name: string
+          model_version: string
+          notes?: string | null
+          prices: Json
+          reason: string
+          reward_rates: Json
+          superseded_by?: string | null
+          transfer_tax: Json
+        }
+        Update: {
+          allocations?: Json
+          archived_at?: string
+          archived_by?: string | null
+          created_at?: string
+          id?: string
+          lp_seed?: Json
+          max_supply?: number
+          mint_distribution?: Json
+          model_name?: string
+          model_version?: string
+          notes?: string | null
+          prices?: Json
+          reason?: string
+          reward_rates?: Json
+          superseded_by?: string | null
+          transfer_tax?: Json
+        }
+        Relationships: []
+      }
       tokenomics_framework_responses: {
         Row: {
           answers: Json
