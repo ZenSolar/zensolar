@@ -360,7 +360,7 @@ export default function AdminFundraising() {
               Phase: p.name, Raise: p.raise, Valuation: p.valuation, 
               Users: `${p.users.start.toLocaleString()} → ${p.users.end.toLocaleString()}`,
               "LP Locked": p.lpLocked, "Total LP": p.totalLP,
-              "Circulating Supply": p.circulatingSupply, "% of 10B": p.supplyPercent,
+              "Circulating Supply": p.circulatingSupply, [`% of ${SUPPLY_LABEL_SHORT}`]: p.supplyPercent,
               "Price Target": p.priceTarget, ARR: p.arr,
               "Cumulative Revenue": p.cumulativeRevenue
             })),
