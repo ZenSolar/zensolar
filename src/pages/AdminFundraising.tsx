@@ -303,7 +303,9 @@ const priceImpactData = [
 ];
 
 function formatTokens(m: number): string {
-  if (m >= 1000) return `${(m / 1000).toFixed(1)}B`;
+  // Input is in MILLIONS. Scale up to T at 1,000,000M and B at 1,000M.
+  if (m >= 1_000_000) return `${(m / 1_000_000).toFixed(2)}T`;
+  if (m >= 1_000) return `${(m / 1_000).toFixed(1)}B`;
   return `${m}M`;
 }
 
