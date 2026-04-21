@@ -471,6 +471,33 @@ export type Database = {
         }
         Relationships: []
       }
+      founder_vault_access: {
+        Row: {
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          is_active: boolean
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          email: string
+          id?: string
+          is_active?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       home_charging_sessions: {
         Row: {
           charger_power_kw: number | null
@@ -1211,6 +1238,117 @@ export type Database = {
         }
         Relationships: []
       }
+      vault_access_log: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          success: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      vault_state: {
+        Row: {
+          current_price_usd: number
+          family_legacy_pact_active: boolean
+          id: number
+          joseph_allocation: number
+          joseph_trillionaire_price: number
+          michael_allocation: number
+          michael_trillionaire_price: number
+          pact_start_date: string
+          total_supply: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          current_price_usd?: number
+          family_legacy_pact_active?: boolean
+          id?: number
+          joseph_allocation?: number
+          joseph_trillionaire_price?: number
+          michael_allocation?: number
+          michael_trillionaire_price?: number
+          pact_start_date?: string
+          total_supply?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          current_price_usd?: number
+          family_legacy_pact_active?: boolean
+          id?: number
+          joseph_allocation?: number
+          joseph_trillionaire_price?: number
+          michael_allocation?: number
+          michael_trillionaire_price?: number
+          pact_start_date?: string
+          total_supply?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      vault_webauthn_credentials: {
+        Row: {
+          counter: number
+          created_at: string
+          credential_id: string
+          device_label: string | null
+          id: string
+          last_used_at: string | null
+          public_key: string
+          transports: string[] | null
+          user_id: string
+        }
+        Insert: {
+          counter?: number
+          created_at?: string
+          credential_id: string
+          device_label?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key: string
+          transports?: string[] | null
+          user_id: string
+        }
+        Update: {
+          counter?: number
+          created_at?: string
+          credential_id?: string
+          device_label?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key?: string
+          transports?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       vip_code_notifications: {
         Row: {
           access_code: string
@@ -1413,6 +1551,7 @@ export type Database = {
         }
         Returns: Json
       }
+      is_founder: { Args: { _user_id: string }; Returns: boolean }
       is_viewer: { Args: { _user_id: string }; Returns: boolean }
       lookup_referral_code: { Args: { code: string }; Returns: string }
       move_to_dlq: {
