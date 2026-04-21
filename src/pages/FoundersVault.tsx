@@ -157,6 +157,30 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           </h1>
         </motion.div>
 
+        {/* Founder Pack CTA */}
+        <Link
+          to="/founder-pack"
+          className="block rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-400/10 via-amber-400/5 to-transparent p-4 hover:border-amber-400/70 transition-colors group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-amber-400/15 flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-amber-400">
+                  Eyes-Only
+                </p>
+                <p className="text-sm font-semibold">The Founder Pack</p>
+                <p className="text-[11px] text-muted-foreground">
+                  The full story — patent, pivot, and the math
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </Link>
+
         {/* Live Price */}
         <section className="rounded-2xl border border-border/60 bg-card/40 p-4 space-y-3">
           <div className="flex items-baseline justify-between">
