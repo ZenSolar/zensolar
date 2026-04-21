@@ -45,6 +45,7 @@ const MintHistory = lazy(() => import("./pages/MintHistory"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const FoundersVault = lazy(() => import("./pages/FoundersVault"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -917,6 +918,8 @@ const App = () => {
                         </ArchivedPageWrapper>
                       </AppLayout></ProtectedRoute>
                     } />
+                    {/* Founders Vault - direct URL only, no nav link */}
+                    <Route path="/founders" element={<FoundersVault />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
