@@ -918,6 +918,8 @@ const App = () => {
                         </ArchivedPageWrapper>
                       </AppLayout></ProtectedRoute>
                     } />
+                    {/* Founders Vault - direct URL only, no nav link */}
+                    <Route path="/founders" element={<FoundersVault />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
