@@ -29,6 +29,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { ExportButtons } from "@/components/admin/ExportButtons";
+import {
+  MAX_SUPPLY,
+  ALLOCATIONS,
+  LP_SEED,
+  SUBSCRIPTION,
+  formatTokenAmount,
+} from "@/lib/tokenomics";
+
+// 1T = 1,000,000,000,000. Display helpers built off the single source of truth.
+const SUPPLY_LABEL = formatTokenAmount(MAX_SUPPLY); // "1.00T"
+const SUPPLY_LABEL_SHORT = "1T";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
