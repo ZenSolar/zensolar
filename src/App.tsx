@@ -52,6 +52,8 @@ const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
 const FounderPack = lazy(() => import("./pages/FounderPack"));
+const WhitepaperPhase1 = lazy(() => import("./pages/WhitepaperPhase1"));
+const WhitepaperPhase2 = lazy(() => import("./pages/WhitepaperPhase2"));
 const Deason = lazy(() => import("./pages/Deason"));
 import { DeasonFloatingBubble } from "./components/deason/DeasonFloatingBubble";
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -931,6 +933,8 @@ const App = () => {
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
                     <Route path="/founders" element={<FoundersVault />} />
                     <Route path="/founder-pack" element={<FounderPack />} />
+                    <Route path="/whitepaper-phase-1" element={<WhitepaperPhase1 />} />
+                    <Route path="/whitepaper-phase-2" element={<WhitepaperPhase2 />} />
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<Deason />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

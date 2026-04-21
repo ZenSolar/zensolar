@@ -313,6 +313,38 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="White Paper · Phase 1">
+                    <NavLink
+                      to="/whitepaper-phase-1"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <FileText className="h-4 w-4 text-amber-400" />
+                      <span>White Paper · Phase 1</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="White Paper · Phase 2">
+                    <NavLink
+                      to="/whitepaper-phase-2"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <Rocket className="h-4 w-4 text-amber-400" />
+                      <span>White Paper · Phase 2</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Deason (AI)">
                     <NavLink
                       to="/deason"
