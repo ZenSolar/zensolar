@@ -44,6 +44,7 @@ import {
   Wrench,
   Lock,
   Sparkles,
+  ScrollText,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -292,6 +293,22 @@ export function AppSidebar() {
                     >
                       <Lock className="h-4 w-4 text-amber-400" />
                       <span>Founders Vault</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Founder Pack">
+                    <NavLink
+                      to="/founder-pack"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <ScrollText className="h-4 w-4 text-amber-400" />
+                      <span>Founder Pack</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
