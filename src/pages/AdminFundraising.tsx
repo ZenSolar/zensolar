@@ -29,6 +29,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { ExportButtons } from "@/components/admin/ExportButtons";
+import {
+  MAX_SUPPLY,
+  ALLOCATIONS,
+  LP_SEED,
+  SUBSCRIPTION,
+  formatTokenAmount,
+} from "@/lib/tokenomics";
+
+// 1T = 1,000,000,000,000. Display helpers built off the single source of truth.
+const SUPPLY_LABEL = formatTokenAmount(MAX_SUPPLY); // "1.00T"
+const SUPPLY_LABEL_SHORT = "1T";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -63,7 +74,7 @@ const phases = [
     lpTierColor: "text-muted-foreground",
     status: "active",
     milestones: [
-      { text: "Smart contract deployed (10B supply)", done: true },
+      { text: `Smart contract deployed (${SUPPLY_LABEL_SHORT} supply — 1 Trillion hard cap)`, done: true },
       { text: "Proof-of-Delta™ validation with real devices", done: true },
       { text: "127+ on-chain mints completed", done: true },
       { text: "50+ active beta users", done: false },
@@ -83,10 +94,10 @@ const phases = [
     raise: "$3M – $5M",
     valuation: "$15M – $25M pre-money",
     users: { start: 100, end: 5000 },
-    lpLocked: "$1.5M",
+    lpLocked: "$200K (Round 1 tranche)",
     lpFromRevenue: "$150K",
-    totalLP: "$1.65M",
-    circulatingSupply: "60M",
+    totalLP: "$350K",
+    circulatingSupply: "6B",
     supplyPercent: "0.6%",
     priceTarget: "$0.10 – $0.25",
     monthlyRevenue: "$25K (at 5K users)",
@@ -97,26 +108,26 @@ const phases = [
     status: "upcoming",
     milestones: [
       { text: "Mainnet launch on Base L2", done: false },
-      { text: "$1.5M LP locked for 10 years (on-chain)", done: false },
+      { text: "Round 1 LP tranche live: $200K USDC + 2M $ZSOLAR seeded at $0.10", done: false },
       { text: "1,000 paying subscribers", done: false },
       { text: "Patent filing completed", done: false },
       { text: "App Store live (iOS + Android)", done: false },
       { text: "First $100K cumulative revenue", done: false },
     ],
     tokenRelease: [
-      { event: "LP Seed", tokens: 15_000_000, destination: "Locked LP" },
-      { event: "User Rewards (Mo 7-12)", tokens: 7_500_000, destination: "User wallets (vested)" },
-      { event: "User Rewards (Mo 13-18)", tokens: 37_500_000, destination: "User wallets (vested)" },
+      { event: "LP Seed (Round 1 tranche)", tokens: 2_000_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Mo 7-12)", tokens: 750_000_000, destination: "User wallets (vested)" },
+      { event: "User Rewards (Mo 13-18)", tokens: 3_750_000_000, destination: "User wallets (vested)" },
     ],
     useOfFunds: [
-      { category: "Locked LP (10-year lock)", amount: "$1.5M", percentage: 37.5 },
+      { category: "Locked LP (tranche-seeded, 10-yr)", amount: "$1.5M", percentage: 37.5 },
       { category: "Engineering (12 months)", amount: "$1M", percentage: 25 },
       { category: "Legal / IP / Compliance", amount: "$400K", percentage: 10 },
       { category: "Marketing & Growth", amount: "$500K", percentage: 12.5 },
       { category: "Operations & Infrastructure", amount: "$400K", percentage: 10 },
       { category: "Reserve / Contingency", amount: "$200K", percentage: 5 },
     ],
-    investorNarrative: "We've proven the technology works. We're locking $1.5M to build the permanent financial foundation."
+    investorNarrative: "We've proven the technology works. We're seeding LP in tranches — Round 1 pairs $200K USDC with 2M $ZSOLAR at $0.10 — and locking it for the long haul."
   },
   {
     id: "seriesA",
@@ -128,7 +139,7 @@ const phases = [
     lpLocked: "$7.5M",
     lpFromRevenue: "$2.5M",
     totalLP: "$10M",
-    circulatingSupply: "350M",
+    circulatingSupply: "35B",
     supplyPercent: "3.5%",
     priceTarget: "$0.20 – $0.60",
     monthlyRevenue: "$375K (at 50K users)",
@@ -146,9 +157,9 @@ const phases = [
       { text: "$ZSOLAR debit card pilot", done: false },
     ],
     tokenRelease: [
-      { event: "LP Expansion", tokens: 60_000_000, destination: "Locked LP" },
-      { event: "User Rewards (Mo 19-36)", tokens: 180_000_000, destination: "User wallets (vested)" },
-      { event: "Treasury Unlock (Year 2)", tokens: 50_000_000, destination: "Treasury ops" },
+      { event: "LP Expansion (multi-round tranches)", tokens: 6_000_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Mo 19-36)", tokens: 18_000_000_000, destination: "User wallets (vested)" },
+      { event: "Treasury Unlock (Year 2)", tokens: 5_000_000_000, destination: "Treasury ops" },
     ],
     useOfFunds: [
       { category: "Locked LP (added to lock)", amount: "$6M", percentage: 30 },
@@ -170,7 +181,7 @@ const phases = [
     lpLocked: "$25M",
     lpFromRevenue: "$35M",
     totalLP: "$60M",
-    circulatingSupply: "1.1B",
+    circulatingSupply: "110B",
     supplyPercent: "11%",
     priceTarget: "$0.50 – $2.00",
     monthlyRevenue: "$5M (at 500K users)",
@@ -188,10 +199,11 @@ const phases = [
       { text: "Token price sustainably above $1.00", done: false },
     ],
     tokenRelease: [
-      { event: "LP Expansion", tokens: 175_000_000, destination: "Locked LP" },
-      { event: "User Rewards (Mo 37-60)", tokens: 450_000_000, destination: "User wallets (vested)" },
-      { event: "Treasury Operations", tokens: 75_000_000, destination: "Ecosystem growth" },
-      { event: "Founder Vesting (Year 3+)", tokens: 50_000_000, destination: "Founder (vested)" },
+      { event: "LP Expansion (Fortress tranches)", tokens: 17_500_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Mo 37-60)", tokens: 45_000_000_000, destination: "User wallets (vested)" },
+      { event: "Treasury Operations", tokens: 7_500_000_000, destination: "Ecosystem growth" },
+      { event: "Founder Vesting — Joseph (Year 3+)", tokens: 37_500_000_000, destination: "Joseph 150B grant (4yr vest, 12mo cliff)" },
+      { event: "Co-Founder Vesting — Michael (Year 3+)", tokens: 12_500_000_000, destination: "Michael 50B grant (4yr vest, 12mo cliff)" },
     ],
     useOfFunds: [
       { category: "Locked LP (fortress level)", amount: "$17.5M", percentage: 29 },
@@ -213,7 +225,7 @@ const phases = [
     lpLocked: "$50M",
     lpFromRevenue: "$350M",
     totalLP: "$400M",
-    circulatingSupply: "4B",
+    circulatingSupply: "400B",
     supplyPercent: "40%",
     priceTarget: "$1.00 – $10.00",
     monthlyRevenue: "$40M (at 3M users)",
@@ -231,10 +243,11 @@ const phases = [
       { text: "$ZSOLAR accepted at major retailers", done: false },
     ],
     tokenRelease: [
-      { event: "LP Expansion", tokens: 500_000_000, destination: "Locked LP" },
-      { event: "User Rewards (Year 5-10)", tokens: 2_000_000_000, destination: "User wallets" },
-      { event: "Treasury Operations", tokens: 200_000_000, destination: "Ecosystem growth" },
-      { event: "Founder Vesting (complete)", tokens: 200_000_000, destination: "Founder" },
+      { event: "LP Expansion", tokens: 50_000_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Year 5-10)", tokens: 200_000_000_000, destination: "User wallets" },
+      { event: "Treasury Operations", tokens: 20_000_000_000, destination: "Ecosystem growth" },
+      { event: "Founder Vesting Complete — Joseph", tokens: 112_500_000_000, destination: "Joseph 150B (fully vested)" },
+      { event: "Co-Founder Vesting Complete — Michael", tokens: 37_500_000_000, destination: "Michael 50B (fully vested)" },
     ],
     useOfFunds: [
       { category: "Global Dominance", amount: "$80M+", percentage: 40 },
@@ -254,13 +267,15 @@ const lpTiers = [
   { name: "Unshakeable", lp: "$50M+", impact: "<1%", phase: "Series C", emoji: "💎" },
 ];
 
-// Token release summary
+// Token release summary (values in MILLIONS for chart compatibility).
+// 1T cap = 1,000,000 (in millions). 100x scaled from the legacy 10B model so
+// circulating-supply percentages stay anchored to the new MAX_SUPPLY.
 const tokenReleaseSummary = [
   { phase: "Pre-seed", tokens: 0, cumulative: 0, percent: "0%", price: "$0.10 (test)" },
-  { phase: "Seed", tokens: 60, cumulative: 60, percent: "0.6%", price: "$0.10 – $0.25" },
-  { phase: "Series A", tokens: 290, cumulative: 350, percent: "3.5%", price: "$0.20 – $0.60" },
-  { phase: "Series B", tokens: 750, cumulative: 1100, percent: "11%", price: "$0.50 – $2.00" },
-  { phase: "Series C", tokens: 2900, cumulative: 4000, percent: "40%", price: "$1.00 – $10.00" },
+  { phase: "Seed", tokens: 6_000, cumulative: 6_000, percent: "0.6%", price: "$0.10 – $0.25" },
+  { phase: "Series A", tokens: 29_000, cumulative: 35_000, percent: "3.5%", price: "$0.20 – $0.60" },
+  { phase: "Series B", tokens: 75_000, cumulative: 110_000, percent: "11%", price: "$0.50 – $2.00" },
+  { phase: "Series C", tokens: 290_000, cumulative: 400_000, percent: "40%", price: "$1.00 – $10.00" },
 ];
 
 // Revenue projection chart data
@@ -288,7 +303,9 @@ const priceImpactData = [
 ];
 
 function formatTokens(m: number): string {
-  if (m >= 1000) return `${(m / 1000).toFixed(1)}B`;
+  // Input is in MILLIONS. Scale up to T at 1,000,000M and B at 1,000M.
+  if (m >= 1_000_000) return `${(m / 1_000_000).toFixed(2)}T`;
+  if (m >= 1_000) return `${(m / 1_000).toFixed(1)}B`;
   return `${m}M`;
 }
 
@@ -343,7 +360,7 @@ export default function AdminFundraising() {
               Phase: p.name, Raise: p.raise, Valuation: p.valuation, 
               Users: `${p.users.start.toLocaleString()} → ${p.users.end.toLocaleString()}`,
               "LP Locked": p.lpLocked, "Total LP": p.totalLP,
-              "Circulating Supply": p.circulatingSupply, "% of 10B": p.supplyPercent,
+              "Circulating Supply": p.circulatingSupply, [`% of ${SUPPLY_LABEL_SHORT}`]: p.supplyPercent,
               "Price Target": p.priceTarget, ARR: p.arr,
               "Cumulative Revenue": p.cumulativeRevenue
             })),
@@ -388,8 +405,8 @@ export default function AdminFundraising() {
             <div className="flex items-center gap-2">
               <Coins className="h-5 w-5 text-yellow-500" />
               <div>
-                <p className="text-2xl font-bold">10B</p>
-                <p className="text-xs text-muted-foreground">Total Supply</p>
+                <p className="text-2xl font-bold">{SUPPLY_LABEL_SHORT}</p>
+                <p className="text-xs text-muted-foreground">Total Supply (1 Trillion hard cap)</p>
               </div>
             </div>
           </CardContent>
@@ -479,7 +496,7 @@ export default function AdminFundraising() {
                         { label: "LP from Revenue", key: "lpFromRevenue" },
                         { label: "Total LP Depth", key: "totalLP", highlight: true },
                         { label: "Circulating Supply", key: "circulatingSupply" },
-                        { label: "% of 10B Supply", key: "supplyPercent" },
+                        { label: `% of ${SUPPLY_LABEL_SHORT} Supply`, key: "supplyPercent" },
                         { label: "Price Target", key: "priceTarget", highlight: true },
                         { label: "Cumulative Revenue", key: "cumulativeRevenue" },
                         { label: "ARR", key: "arr" },
@@ -582,10 +599,10 @@ export default function AdminFundraising() {
               <CardHeader className="bg-gradient-to-r from-yellow-500/10 to-transparent">
                 <CardTitle className="flex items-center gap-2">
                   <Coins className="h-5 w-5 text-yellow-500" />
-                  10B Supply Release Schedule
+                  {SUPPLY_LABEL_SHORT} Supply Release Schedule
                 </CardTitle>
                 <CardDescription>
-                  Managed supply curve: token supply matches real demand, not flooding the market.
+                  Managed supply curve: tranche-by-tranche LP seeding (Round 1: $200K USDC + 2M $ZSOLAR at $0.10). Token supply tracks real demand — never floods the market. Founder grants (Joseph 150B / Michael 50B) vest over 4 years with a 12-month cliff.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -596,7 +613,7 @@ export default function AdminFundraising() {
                         <TableHead>Phase</TableHead>
                         <TableHead className="text-right">Released</TableHead>
                         <TableHead className="text-right">Cumulative</TableHead>
-                        <TableHead className="text-right">% of 10B</TableHead>
+                        <TableHead className="text-right">% of {SUPPLY_LABEL_SHORT}</TableHead>
                         <TableHead className="text-right">Price Target</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -615,7 +632,7 @@ export default function AdminFundraising() {
                       <TableRow className="border-t-2 bg-muted/20">
                         <TableCell className="font-bold">Remaining (Year 10+)</TableCell>
                         <TableCell className="text-right">—</TableCell>
-                        <TableCell className="text-right font-bold">6.0B</TableCell>
+                        <TableCell className="text-right font-bold">600B</TableCell>
                         <TableCell className="text-right"><Badge variant="outline" className="font-mono">60%</Badge></TableCell>
                         <TableCell className="text-right text-muted-foreground">Long-term ecosystem</TableCell>
                       </TableRow>
@@ -687,7 +704,7 @@ export default function AdminFundraising() {
               <CardContent className="p-5">
                 <h4 className="font-semibold mb-2 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                  Remaining 6B Tokens (60% of supply)
+                  Remaining 600B Tokens (60% of {SUPPLY_LABEL_SHORT} supply)
                 </h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2"><ArrowRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />Long-term user reward runway (decades of growth)</li>
