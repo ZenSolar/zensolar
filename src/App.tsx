@@ -928,6 +928,7 @@ const App = () => {
                       </AppLayout></ProtectedRoute>
                     } />
                     {/* Founders Vault - direct URL only, no nav link */}
+                    <Route path="/founder" element={<Navigate to="/founders" replace />} />
                     <Route path="/founders" element={<FoundersVault />} />
                     <Route path="/founder-pack" element={<FounderPack />} />
                     {/* Deason — founders-only AI agent */}

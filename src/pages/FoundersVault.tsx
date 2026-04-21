@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -73,6 +73,34 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
   const { snapshot, loading, error, refresh } = useVaultSnapshot(true);
   const { lock } = useVaultBiometric(user?.id);
   const [scenarioPrice, setScenarioPrice] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const goHome = () => {
+    navigate("/", { replace: true });
+    window.setTimeout(() => {
+      if (window.location.pathname !== "/") {
+        window.location.assign("/");
+      }
+    }, 120);
+  };
+
+  const goBack = () => {
+    if (window.history.length > 1) {
+      const currentPath = window.location.pathname + window.location.search + window.location.hash;
+      navigate(-1);
+      window.setTimeout(() => {
+        const stillHere =
+          window.location.pathname + window.location.search + window.location.hash === currentPath;
+        if (stillHere) {
+          goHome();
+        }
+      }, 160);
+      return;
+    }
+
+    goHome();
+  };
 
   // Recompute net worth client-side when scenario toggle is active
   const view = useMemo(() => {
@@ -101,12 +129,28 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
 
   if (error || !snapshot || !view) {
     return (
-      <div className="min-h-[100svh] flex items-center justify-center bg-background p-6">
+      <div className="min-h-[100svh] flex items-center justify-center bg-background p-6 relative">
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+          <Button variant="ghost" size="sm" onClick={goBack} className="text-muted-foreground">
+            Back
+          </Button>
+          <Button variant="ghost" size="sm" onClick={goHome} className="text-muted-foreground">
+            Home
+          </Button>
+        </div>
         <div className="text-center space-y-4 max-w-sm">
           <p className="text-destructive text-sm">{error ?? "Vault unavailable"}</p>
-          <div className="flex items-center justify-center gap-2">
+          <p className="text-xs text-muted-foreground">
+            {location.pathname === "/founders"
+              ? "Your account is signed in, but this vault session is being denied right now."
+              : "This page is unavailable right now."}
+          </p>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             <Button onClick={refresh} variant="outline" size="sm">
               <RefreshCw className="h-3 w-3 mr-1" /> Retry
+            </Button>
+            <Button onClick={lock} variant="outline" size="sm">
+              <Lock className="h-3 w-3 mr-1" /> Re-lock
             </Button>
             <Button asChild variant="ghost" size="sm">
               <Link to="/">Home</Link>

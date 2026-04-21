@@ -26,6 +26,7 @@ interface AccessRow {
   email: string;
   display_name: string;
   user_id: string | null;
+  is_active?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -86,6 +87,27 @@ Deno.serve(async (req) => {
           );
 
         accessRow = { ...emailRow, user_id: user.id };
+      }
+    }
+
+    if (!accessRow || !accessRow.is_active) {
+      const { data: adminRole } = await admin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (adminRole) {
+        accessRow = {
+          email: user.email ?? "",
+          display_name:
+            (user.user_metadata?.display_name as string | undefined) ??
+            user.email ??
+            "Admin",
+          user_id: user.id,
+          is_active: true,
+        };
       }
     }
 
