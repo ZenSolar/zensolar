@@ -43,6 +43,7 @@ import {
   Gauge,
   Wrench,
   Lock,
+  Sparkles,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -291,6 +292,22 @@ export function AppSidebar() {
                     >
                       <Lock className="h-4 w-4 text-amber-400" />
                       <span>Founders Vault</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Deason (AI)">
+                    <NavLink
+                      to="/deason"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <Sparkles className="h-4 w-4 text-amber-400" />
+                      <span>Deason</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
