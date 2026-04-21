@@ -496,7 +496,7 @@ export default function AdminFundraising() {
                         { label: "LP from Revenue", key: "lpFromRevenue" },
                         { label: "Total LP Depth", key: "totalLP", highlight: true },
                         { label: "Circulating Supply", key: "circulatingSupply" },
-                        { label: "% of 10B Supply", key: "supplyPercent" },
+                        { label: `% of ${SUPPLY_LABEL_SHORT} Supply`, key: "supplyPercent" },
                         { label: "Price Target", key: "priceTarget", highlight: true },
                         { label: "Cumulative Revenue", key: "cumulativeRevenue" },
                         { label: "ARR", key: "arr" },
