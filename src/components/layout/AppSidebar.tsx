@@ -171,27 +171,29 @@ export function AppSidebar() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [isFounder, setIsFounder] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserEmail(user.email ?? null);
-        
-        // Fetch profile for avatar and display name
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('avatar_url, display_name')
-          .eq('user_id', user.id)
-          .single();
-        
+
+        // Fetch profile + roles in parallel
+        const [{ data: profile }, { data: roles }] = await Promise.all([
+          supabase.from('profiles').select('avatar_url, display_name').eq('user_id', user.id).single(),
+          supabase.from('user_roles').select('role').eq('user_id', user.id),
+        ]);
+
         if (profile) {
           setAvatarUrl(profile.avatar_url);
           setDisplayName(profile.display_name);
         }
+        const roleSet = new Set((roles ?? []).map((r: { role: string }) => r.role));
+        setIsFounder(roleSet.has('founder') || roleSet.has('admin'));
       }
     };
-    
+
     fetchUserInfo();
   }, []);
 
