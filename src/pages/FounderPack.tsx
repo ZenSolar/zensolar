@@ -383,7 +383,7 @@ function PackContent() {
         </div>
       </Section>
 
-      <footer className="max-w-3xl mx-auto px-6 py-16 text-center">
+      <footer className="max-w-3xl mx-auto px-5 md:px-6 py-12 md:py-16 text-center">
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
           ZenSolar · Founder Pack · Eyes-Only
         </p>
@@ -407,19 +407,19 @@ function Section({
   return (
     <section
       id={id}
-      className="max-w-3xl mx-auto px-6 py-20 md:py-28 scroll-mt-32"
+      className="max-w-3xl mx-auto px-5 md:px-6 py-14 md:py-24 scroll-mt-36"
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.6 }}
-        className="mb-10"
+        className="mb-8 md:mb-10"
       >
-        <p className="text-[11px] uppercase tracking-[0.3em] text-amber-400 mb-3">
+        <p className="text-[11px] uppercase tracking-[0.24em] md:tracking-[0.3em] text-amber-400 mb-3">
           {eyebrow}
         </p>
-        <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-[1.1]">
+        <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl tracking-tight leading-[1.05]">
           {title}
         </h2>
       </motion.div>
@@ -428,7 +428,7 @@ function Section({
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="space-y-6"
+        className="space-y-5 md:space-y-6"
       >
         {children}
       </motion.div>
@@ -438,21 +438,21 @@ function Section({
 
 function Lead({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground/90">
+    <p className="font-serif text-lg sm:text-xl md:text-2xl leading-relaxed text-foreground/90">
       {children}
     </p>
   );
 }
 function P({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-base md:text-[17px] leading-[1.75] text-muted-foreground">
+    <p className="text-[15px] md:text-[17px] leading-[1.8] text-muted-foreground">
       {children}
     </p>
   );
 }
 function Pull({ children }: { children: React.ReactNode }) {
   return (
-    <blockquote className="border-l-2 border-primary pl-6 my-10 font-serif text-2xl md:text-3xl leading-snug italic text-foreground">
+    <blockquote className="border-l-2 border-primary pl-4 md:pl-6 my-8 md:my-10 font-serif text-xl sm:text-2xl md:text-3xl leading-snug italic text-foreground">
       {children}
     </blockquote>
   );
@@ -474,14 +474,14 @@ function StatRow({
   sub: string;
 }) {
   return (
-    <div className="flex items-center justify-between px-5 py-4">
-      <div>
+    <div className="flex items-center justify-between gap-4 px-4 md:px-5 py-4">
+      <div className="min-w-0">
         <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
           {label}
         </p>
         <p className="text-[10px] text-muted-foreground/70 mt-0.5">{sub}</p>
       </div>
-      <p className="font-serif text-2xl tabular-nums">{value}</p>
+      <p className="font-serif text-xl md:text-2xl tabular-nums shrink-0">{value}</p>
     </div>
   );
 }
@@ -505,13 +505,13 @@ function Ladder({
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.06 }}
-          className="grid grid-cols-[80px_1fr_auto] items-center gap-4 rounded-xl border border-border/40 bg-card/30 px-5 py-4"
+          className="grid grid-cols-[72px_1fr_auto] md:grid-cols-[80px_1fr_auto] items-center gap-3 md:gap-4 rounded-xl border border-border/40 bg-card/30 px-4 md:px-5 py-4"
         >
-          <span className="font-serif text-2xl tabular-nums text-primary">
+          <span className="font-serif text-xl md:text-2xl tabular-nums text-primary">
             ${r.price >= 1 ? r.price.toFixed(0) : r.price.toFixed(2)}
           </span>
-          <span className="text-sm text-muted-foreground">{r.label}</span>
-          <span className="font-serif text-xl tabular-nums">
+          <span className="text-xs md:text-sm text-muted-foreground">{r.label}</span>
+          <span className="font-serif text-lg md:text-xl tabular-nums text-right">
             {fmt(r.networth)} <span className="text-xs text-muted-foreground">each</span>
           </span>
         </motion.div>
