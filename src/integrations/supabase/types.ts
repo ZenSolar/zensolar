@@ -1100,6 +1100,60 @@ export type Database = {
         }
         Relationships: []
       }
+      tokenomics_models: {
+        Row: {
+          allocations: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          lp_seed: Json
+          max_supply: number
+          mint_distribution: Json
+          model_name: string
+          notes: string | null
+          prices: Json
+          reward_rates: Json
+          subscription: Json
+          transfer_tax: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          allocations?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lp_seed?: Json
+          max_supply: number
+          mint_distribution?: Json
+          model_name: string
+          notes?: string | null
+          prices?: Json
+          reward_rates?: Json
+          subscription?: Json
+          transfer_tax?: Json
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          allocations?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lp_seed?: Json
+          max_supply?: number
+          mint_distribution?: Json
+          model_name?: string
+          notes?: string | null
+          prices?: Json
+          reward_rates?: Json
+          subscription?: Json
+          transfer_tax?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       user_rewards: {
         Row: {
           calculated_at: string
