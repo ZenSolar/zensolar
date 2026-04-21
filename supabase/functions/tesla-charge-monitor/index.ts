@@ -456,16 +456,20 @@ async function processVehicle(
     if (!activeSession) {
       // ── START new session ──
       const now = new Date().toISOString();
-      const genesisHash = await buildSnapshotHash(vin, now, chargeEnergyAdded, batteryLevel, "genesis");
-      const proofChain = [{ ts: now, kwh: chargeEnergyAdded, bat: batteryLevel, hash: genesisHash }];
+      const genesisHash = await buildSnapshotHash(vin, now, 0, batteryLevel, "genesis");
+      const firstObservedHash = await buildSnapshotHash(vin, now, chargeEnergyAdded, batteryLevel, genesisHash);
+      const proofChain = [
+        { ts: now, kwh: 0, bat: batteryLevel, hash: genesisHash, inferred_start: true },
+        { ts: now, kwh: chargeEnergyAdded, bat: batteryLevel, hash: firstObservedHash },
+      ];
 
       const { error } = await supabase.from("home_charging_sessions").insert({
         user_id: userId,
         device_id: vin,
         start_time: now,
-        start_kwh_added: chargeEnergyAdded,
+        start_kwh_added: 0,
         end_kwh_added: chargeEnergyAdded,
-        total_session_kwh: 0,
+        total_session_kwh: chargeEnergyAdded,
         status: "charging",
         location: homeAddress || "Home",
         latitude: vehicleLat,
@@ -475,6 +479,7 @@ async function processVehicle(
         verified: false,
         session_metadata: {
           battery_level_start: batteryLevel,
+          first_observed_kwh: chargeEnergyAdded,
           distance_from_home_mi: distFromHome,
         },
       });
@@ -482,7 +487,7 @@ async function processVehicle(
       if (error) {
         console.error(`[ChargeMonitor] Insert error:`, error);
       } else {
-        console.log(`[ChargeMonitor] ▶ STARTED session for ${vin}: ${chargeEnergyAdded} kWh (hash: ${genesisHash.slice(0, 12)}…)`);
+        console.log(`[ChargeMonitor] ▶ STARTED session for ${vin}: ${chargeEnergyAdded} kWh already observed (hash: ${firstObservedHash.slice(0, 12)}…)`);
         // Send push notification that charging has started
         await sendChargingStartNotification(userId, chargerPower, homeAddress || "Home");
       }
@@ -522,7 +527,7 @@ async function processVehicle(
     chargingState === "Disconnected" ||
     (chargingState === "Charging" && !isAcCharging) // switched to DC
   ) {
-    // ── END session if one is active ──
+    // ── END session if one is active, or recover the retained last AC session ──
     if (activeSession) {
       const finalEnergy = chargeEnergyAdded > 0
         ? chargeEnergyAdded
@@ -571,6 +576,24 @@ async function processVehicle(
 
       results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
     } else {
+      const isHome = isNearHome || (!homeCoords && isAcCharging) || (homeCoords && !vehicleLat && !vehicleLng && isAcCharging);
+      if (isAcCharging && isHome && chargeEnergyAdded >= 1) {
+        const recovered = await recoverCompletedHomeSession(
+          supabase,
+          userId,
+          vin,
+          chargeEnergyAdded,
+          batteryLevel,
+          chargerPower,
+          homeAddress,
+          vehicleLat,
+          vehicleLng,
+          distFromHome,
+          userTimezone,
+        );
+        results.push({ vin, ...recovered });
+        return;
+      }
       results.push({ vin, action: "no_active_session", state: chargingState });
     }
   } else {
