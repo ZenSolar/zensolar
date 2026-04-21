@@ -267,13 +267,15 @@ const lpTiers = [
   { name: "Unshakeable", lp: "$50M+", impact: "<1%", phase: "Series C", emoji: "💎" },
 ];
 
-// Token release summary
+// Token release summary (values in MILLIONS for chart compatibility).
+// 1T cap = 1,000,000 (in millions). 100x scaled from the legacy 10B model so
+// circulating-supply percentages stay anchored to the new MAX_SUPPLY.
 const tokenReleaseSummary = [
   { phase: "Pre-seed", tokens: 0, cumulative: 0, percent: "0%", price: "$0.10 (test)" },
-  { phase: "Seed", tokens: 60, cumulative: 60, percent: "0.6%", price: "$0.10 – $0.25" },
-  { phase: "Series A", tokens: 290, cumulative: 350, percent: "3.5%", price: "$0.20 – $0.60" },
-  { phase: "Series B", tokens: 750, cumulative: 1100, percent: "11%", price: "$0.50 – $2.00" },
-  { phase: "Series C", tokens: 2900, cumulative: 4000, percent: "40%", price: "$1.00 – $10.00" },
+  { phase: "Seed", tokens: 6_000, cumulative: 6_000, percent: "0.6%", price: "$0.10 – $0.25" },
+  { phase: "Series A", tokens: 29_000, cumulative: 35_000, percent: "3.5%", price: "$0.20 – $0.60" },
+  { phase: "Series B", tokens: 75_000, cumulative: 110_000, percent: "11%", price: "$0.50 – $2.00" },
+  { phase: "Series C", tokens: 290_000, cumulative: 400_000, percent: "40%", price: "$1.00 – $10.00" },
 ];
 
 // Revenue projection chart data
