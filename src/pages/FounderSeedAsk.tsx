@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
 
-const PDF_PATH = "/founder-docs/seed-ask-lyndon-v3.pdf";
+const PDF_PATH = "/founder-docs/seed-ask-lyndon-v5.pdf";
 
 export default function FounderSeedAsk() {
   const { user, isLoading } = useAuth();
@@ -46,7 +46,7 @@ export default function FounderSeedAsk() {
           Round One · Seed Ask
         </p>
         <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-[1.0] tracking-tight">
-          $4.5M Seed Round
+          $5M Seed Round
           <br />
           <span className="italic text-primary">for Lyndon Rive</span>
         </h1>
@@ -59,21 +59,26 @@ export default function FounderSeedAsk() {
 
       {/* Runway stat strip */}
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <StatCard
             kpi="24 months"
             label="Runway @ $0 revenue"
             sub="Fully-loaded burn including founder salaries"
           />
           <StatCard
-            kpi="$187.5K"
+            kpi="$208,333"
             label="Monthly burn"
-            sub="$4.5M ÷ 24 months"
+            sub="$5.0M ÷ 24 months"
           />
           <StatCard
-            kpi="Q2 2028"
+            kpi="$20M"
             label="Series A target"
-            sub="At $40–60M post-money"
+            sub="At $80–120M post-money"
+          />
+          <StatCard
+            kpi="6–12 mo"
+            label="Post-mainnet to A"
+            sub="Triggered by metrics, not calendar"
           />
         </div>
         <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
@@ -90,7 +95,7 @@ export default function FounderSeedAsk() {
         <div className="flex flex-wrap gap-3">
           <a
             href={PDF_PATH}
-            download="ZenSolar_Seed_Ask_Lyndon_v3.pdf"
+            download="ZenSolar_Seed_Ask_Lyndon_v5.pdf"
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90"
           >
             <Download className="h-4 w-4" />
@@ -107,7 +112,7 @@ export default function FounderSeedAsk() {
           </a>
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/5 px-4 py-2.5 text-xs text-amber-400">
             <Banknote className="h-3.5 w-3.5" />
-            v3.0 · Eyes-only: Joseph & Michael
+            v5.0 · Eyes-only: Joseph & Michael
           </div>
         </div>
       </section>
