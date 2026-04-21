@@ -125,6 +125,94 @@ function Phase1Content() {
             </ol>
           </section>
 
+          <section>
+            <h2 className="text-2xl font-semibold mb-3">7. Mint-on-Proof Cryptographic Flow</h2>
+            <p className="text-muted-foreground mb-4">
+              Every mint event traverses a six-step proof chain. Each step produces a signed artifact that the
+              next step references, so any tampering breaks the chain and the contract rejects the mint.
+            </p>
+            <div className="rounded-lg border border-border bg-muted/10 p-5 space-y-3 font-mono text-[13px] leading-relaxed">
+              <div><span className="text-amber-400">[1] Device Claim</span> &rarr; user wallet signs <code>claim(device_id, provider)</code>. One device → one wallet, lifetime. Stored in <code>connected_devices</code>.</div>
+              <div className="pl-4 text-muted-foreground">↓ wallet signature + device fingerprint</div>
+              <div><span className="text-amber-400">[2] Baseline Snapshot</span> &rarr; edge function pulls provider API at claim time. Stored in <code>baseline_data</code> JSON.</div>
+              <div className="pl-4 text-muted-foreground">↓ baseline kWh / mile / session count</div>
+              <div><span className="text-amber-400">[3] Signed Delta</span> &rarr; current reading − baseline = mintable units. Edge function signs <code>delta(device_id, units, ts)</code> with service key.</div>
+              <div className="pl-4 text-muted-foreground">↓ HMAC-signed delta payload</div>
+              <div><span className="text-amber-400">[4] Attestation</span> &rarr; oracle submits <code>(delta, sig, baseline_hash)</code> to mint contract. Contract verifies sig + dedupe.</div>
+              <div className="pl-4 text-muted-foreground">↓ on-chain attestation event</div>
+              <div><span className="text-amber-400">[5] Proportional Mint</span> &rarr; contract mints <code>units × rate</code> tokens, applies 75/20/3/2 split atomically.</div>
+              <div className="pl-4 text-muted-foreground">↓ Transfer events to user / burn / LP / treasury</div>
+              <div><span className="text-amber-400">[6] Settlement</span> &rarr; <code>last_minted_at</code> + <code>lifetime_totals</code> updated. Next mint baselines off this point.</div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Replay protection: <code>(device_id, delta_window_end)</code> is unique. Time-window collisions revert.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold mb-3">8. LP Tranche Schedule</h2>
+            <p className="text-muted-foreground mb-3">
+              Liquidity is seeded in paired tranches at $0.10. Each round adds USDC + $ZSOLAR at the same ratio,
+              keeping the floor stable while expanding depth. Subscription revenue auto-compounds the LP at 50%.
+            </p>
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/30">
+                  <tr>
+                    <th className="text-left p-3 font-semibold">Round</th>
+                    <th className="text-left p-3 font-semibold">USDC In</th>
+                    <th className="text-left p-3 font-semibold">$ZSOLAR Released</th>
+                    <th className="text-left p-3 font-semibold">Spot Price</th>
+                    <th className="text-left p-3 font-semibold">Trigger</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Beta Seed</td><td className="p-3">$5,000</td><td className="p-3">50,000</td><td className="p-3">$0.10</td><td className="p-3">Live Beta launch (10 users)</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Round 1</td><td className="p-3">$200,000</td><td className="p-3">2,000,000</td><td className="p-3">$0.10</td><td className="p-3">Public launch / mainnet</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Round 2</td><td className="p-3">$300,000</td><td className="p-3">3,000,000</td><td className="p-3">$0.10 floor</td><td className="p-3">25K subs (tipping point)</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Round 3</td><td className="p-3">$1,000,000</td><td className="p-3">10,000,000</td><td className="p-3">≥ $0.10</td><td className="p-3">100K subs (scale target)</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Round 4+</td><td className="p-3">market-driven</td><td className="p-3">paired @ spot</td><td className="p-3">discovered</td><td className="p-3">$1M+ ARR milestones</td></tr>
+                  <tr className="border-t border-border bg-muted/10"><td className="p-3 font-medium text-foreground">Auto (monthly)</td><td className="p-3">50% of sub revenue</td><td className="p-3">3% of every mint</td><td className="p-3">spot</td><td className="p-3">continuous</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              At $19.99/mo Tier-1, every 1,000 subscribers contributes ~$10K/mo to LP. 10K subs ≈ $100K/mo organic LP growth.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold mb-3">Appendix A — Per-Category Mint Rates</h2>
+            <p className="text-muted-foreground mb-3">
+              Base rate is 1 $ZSOLAR per kWh / mile for scarcity. Live Beta applies a 10× multiplier for testing only;
+              mainnet reverts to 1×. All rates are pre-split (raw mint amount); user receives 75%.
+            </p>
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/30">
+                  <tr>
+                    <th className="text-left p-3 font-semibold">Category</th>
+                    <th className="text-left p-3 font-semibold">Unit</th>
+                    <th className="text-left p-3 font-semibold">Base Rate</th>
+                    <th className="text-left p-3 font-semibold">User Receives</th>
+                    <th className="text-left p-3 font-semibold">Source</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Solar production</td><td className="p-3">1 kWh</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">SolarEdge / Enphase / Tesla</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Battery discharge</td><td className="p-3">1 kWh</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">Powerwall API</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">EV charging</td><td className="p-3">1 kWh added</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">Tesla / Wallbox session</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">EV miles</td><td className="p-3">1 mile</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">Tesla odometer delta</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">FSD-supervised mile</td><td className="p-3">1 mile</td><td className="p-3">1.00 (1× mult)</td><td className="p-3">0.75</td><td className="p-3">Tesla autopilot flag</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">FSD-unsupervised mile</td><td className="p-3">1 mile</td><td className="p-3">1.00 (Phase 2)</td><td className="p-3">0.75</td><td className="p-3">Tesla autonomy log</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Split applied per mint: 75% user · 20% burn · 3% LP · 2% treasury. Transfer tax adds 7% (3 burn / 2 LP / 2 treasury).
+            </p>
+          </section>
+
           <section className="border-t border-border pt-6 text-xs text-muted-foreground">
             Confidential. Do not share outside Joseph & Michael. Numbers reflect current Phase 1 model
             (1T cap · $0.10 launch · 75/20/3/2). Subject to revision.
