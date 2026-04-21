@@ -139,7 +139,7 @@ const phases = [
     lpLocked: "$7.5M",
     lpFromRevenue: "$2.5M",
     totalLP: "$10M",
-    circulatingSupply: "350M",
+    circulatingSupply: "35B",
     supplyPercent: "3.5%",
     priceTarget: "$0.20 – $0.60",
     monthlyRevenue: "$375K (at 50K users)",
@@ -157,9 +157,9 @@ const phases = [
       { text: "$ZSOLAR debit card pilot", done: false },
     ],
     tokenRelease: [
-      { event: "LP Expansion", tokens: 60_000_000, destination: "Locked LP" },
-      { event: "User Rewards (Mo 19-36)", tokens: 180_000_000, destination: "User wallets (vested)" },
-      { event: "Treasury Unlock (Year 2)", tokens: 50_000_000, destination: "Treasury ops" },
+      { event: "LP Expansion (multi-round tranches)", tokens: 6_000_000_000, destination: "Locked LP" },
+      { event: "User Rewards (Mo 19-36)", tokens: 18_000_000_000, destination: "User wallets (vested)" },
+      { event: "Treasury Unlock (Year 2)", tokens: 5_000_000_000, destination: "Treasury ops" },
     ],
     useOfFunds: [
       { category: "Locked LP (added to lock)", amount: "$6M", percentage: 30 },
