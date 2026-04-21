@@ -42,6 +42,7 @@ import {
   Sprout,
   Gauge,
   Wrench,
+  Lock,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
