@@ -16,6 +16,7 @@ import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
 import { FounderCard } from "@/components/founders/FounderCard";
 import { PriceScenarioToggle } from "@/components/founders/PriceScenarioToggle";
 import { PriceAdminPanel } from "@/components/founders/PriceAdminPanel";
+import { LpRoundTracker } from "@/components/founders/LpRoundTracker";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
@@ -192,6 +193,13 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           <FounderCard founder={view.joseph} isViewer={viewerIsJoseph} />
           <FounderCard founder={view.michael} isViewer={!viewerIsJoseph} />
         </section>
+
+        {/* LP Round Tracker */}
+        <LpRoundTracker
+          currentPrice={view.price}
+          josephAllocation={view.joseph.allocation}
+          michaelAllocation={view.michael.allocation}
+        />
 
         {/* Family Legacy Pact banner */}
         <motion.section
