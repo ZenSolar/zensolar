@@ -124,17 +124,20 @@ const CONTRACT_BATTERY_MILESTONES = [500, 1000, 2500, 5000, 10000, 25000, 50000]
 const CONTRACT_CHARGING_MILESTONES = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000]; // 8 tiers
 const CONTRACT_EV_MILES_MILESTONES = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000]; // 10 tiers
 
-// Tokenomics from contracts (10B Strategy - OPTIMIZED $0.10 FLOOR)
+// Tokenomics from contracts (1T Trillionaire Strategy - $0.10 FLOOR)
+// Sourced from src/lib/tokenomics.ts (single source of truth)
 const TOKENOMICS = {
-  maxSupply: '10,000,000,000',
-  founderAllocation: '250,000,000', // 2.5% with 3-year vest, 6-month cliff
-  treasuryAllocation: '750,000,000', // 7.5% with 2-year vest
-  communityRewards: '9,000,000,000', // 90% dual-gated for subscribers
-  tokensPerUnit: '1 ZSOLAR per kWh/mile',
-  launchPrice: 0.10, // $0.10 launch floor (10x narrative to $1.00)
-  targetPrice: 1.00, // $1.00 long-term target
+  maxSupply: '1,000,000,000,000', // 1 TRILLION hard cap
+  founderJosephAllocation: '150,000,000,000', // 15% Joseph Maushart, 4yr vest, 12mo cliff
+  cofounderMichaelAllocation: '50,000,000,000', // 5% Michael Tschida, 4yr vest, 12mo cliff
+  treasuryAllocation: '75,000,000,000', // 7.5% with 2-year vest
+  teamPoolAllocation: '25,000,000,000', // 2.5% future hires & advisors
+  communityRewards: '700,000,000,000', // 70% dual-gated for subscribers
+  tokensPerUnit: '1 ZSOLAR per kWh/mile (1:1 — scarcity by design)',
+  launchPrice: 0.10, // $0.10 launch floor
+  targetPrice: 1.00, // $1.00 long-term target ($150B Joseph / $50B Michael at $1)
   lpSeed: 300_000, // $300K USDC paired with 3M tokens
-  // OPTIMIZED: 20% Mint Burn Rate
+  // 20% Mint Burn Rate (deflationary)
   mintDistribution: {
     user: 75,
     burn: 20,
@@ -149,6 +152,9 @@ const TOKENOMICS = {
     total: 7,
   },
   redemptionBurnFee: 5, // 5% store redemption burn
+  subscriptionTier1: 19.99,
+  subscriptionTier2: 29.99,
+  subscriptionTier3: 49.99,
 };
 
 export default function AdminContracts() {
