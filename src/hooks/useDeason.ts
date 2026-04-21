@@ -38,8 +38,22 @@ export function useDeason() {
       abortRef.current = ac;
 
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error("Not authenticated");
+        // Try cached session first, then force-refresh from server if missing.
+        let { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.warn("[Deason] No cached session, attempting refresh…");
+          const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession();
+          if (refreshErr) console.warn("[Deason] refreshSession error:", refreshErr.message);
+          session = refreshed?.session ?? null;
+        }
+        if (!session) {
+          const { data: userData } = await supabase.auth.getUser();
+          throw new Error(
+            userData?.user
+              ? "Session expired — please reload the page."
+              : "Not signed in. Open Deason from a logged-in tab."
+          );
+        }
 
         const res = await fetch(FUNCTIONS_URL, {
           method: "POST",
