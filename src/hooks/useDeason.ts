@@ -38,8 +38,22 @@ export function useDeason() {
       abortRef.current = ac;
 
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error("Not authenticated");
+        // Try cached session first, then force-refresh from server if missing.
+        let { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.warn("[Deason] No cached session, attempting refresh…");
+          const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession();
+          if (refreshErr) console.warn("[Deason] refreshSession error:", refreshErr.message);
+          session = refreshed?.session ?? null;
+        }
+        if (!session) {
+          const { data: userData } = await supabase.auth.getUser();
+          throw new Error(
+            userData?.user
+              ? "Session expired — please reload the page."
+              : "Not signed in. Open Deason from a logged-in tab."
+          );
+        }
 
         const res = await fetch(FUNCTIONS_URL, {
           method: "POST",
@@ -51,10 +65,19 @@ export function useDeason() {
           signal: ac.signal,
         });
 
-        if (res.status === 429) throw new Error("Rate limited — please wait a moment.");
-        if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Lovable settings.");
-        if (res.status === 403) throw new Error("Founders only.");
-        if (!res.ok || !res.body) throw new Error(`Request failed (${res.status})`);
+        if (!res.ok) {
+          let detail = `HTTP ${res.status}`;
+          try {
+            const j = await res.clone().json();
+            detail = `${j.error ?? "error"}${j.stage ? ` @ ${j.stage}` : ""}${j.detail ? `: ${j.detail}` : ""} (req ${j.reqId ?? "?"})`;
+          } catch { /* non-JSON */ }
+          if (res.status === 429) throw new Error(`Rate limited — ${detail}`);
+          if (res.status === 402) throw new Error(`AI credits exhausted — ${detail}`);
+          if (res.status === 403) throw new Error(`Founders only — ${detail}`);
+          if (res.status === 401) throw new Error(`Auth rejected by server — ${detail}`);
+          throw new Error(detail);
+        }
+        if (!res.body) throw new Error("Empty response body");
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
