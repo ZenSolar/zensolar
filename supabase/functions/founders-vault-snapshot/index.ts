@@ -155,7 +155,8 @@ Deno.serve(async (req) => {
       founders: { joseph, michael },
       all_founders: allFounders ?? [],
       moonshot_targets: [
-        { price: 1, label: "Target" },
+        { price: 0.10, label: "Launch (LP)" },
+        { price: 1, label: "10x Launch" },
         { price: 5, label: "Top-3 Wealth" },
         { price: 6.67, label: "Joseph $1T" },
         { price: 10, label: "> Elon Today" },
