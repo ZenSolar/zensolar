@@ -3,7 +3,7 @@ import { ArrowLeft, Download, ExternalLink, Loader2, Lock, Banknote } from "luci
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 
-const PDF_PATH = "/founder-docs/seed-ask-lyndon-v1.pdf";
+const PDF_PATH = "/founder-docs/seed-ask-lyndon-v2.pdf";
 
 export default function FounderSeedAsk() {
   const { user, isLoading } = useAuth();
@@ -88,7 +88,7 @@ export default function FounderSeedAsk() {
         <div className="flex flex-wrap gap-3">
           <a
             href={PDF_PATH}
-            download="ZenSolar_Seed_Ask_Lyndon_v1.pdf"
+            download="ZenSolar_Seed_Ask_Lyndon_v2.pdf"
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90"
           >
             <Download className="h-4 w-4" />
@@ -105,7 +105,7 @@ export default function FounderSeedAsk() {
           </a>
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/5 px-4 py-2.5 text-xs text-amber-400">
             <Banknote className="h-3.5 w-3.5" />
-            v1.0 · Eyes-only: Joseph & Michael
+            v2.0 · Eyes-only: Joseph & Michael
           </div>
         </div>
       </section>
