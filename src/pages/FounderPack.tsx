@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowLeft,
   Compass,
+  Home,
   Rocket,
   Coins,
   Gem,
@@ -100,27 +101,38 @@ function PackContent() {
   };
 
   return (
-    <div className="min-h-[100svh] bg-background text-foreground">
+    <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       {/* Sticky header + progress */}
-      <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/85 border-b border-border/40">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            to="/founders"
-            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Vault
-          </Link>
-          <div className="flex items-center gap-2">
-            <img src={zenLogo} alt="ZenSolar" className="h-5 w-auto opacity-80" />
-            <span className="text-[10px] uppercase tracking-widest text-amber-400 border-l border-border/40 pl-2">
-              Founder Pack
-            </span>
+      <header className="sticky top-0 z-30 border-b border-border/40 bg-background/92 pt-safe backdrop-blur-xl">
+        <div className="px-safe">
+          <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Link
+                to="/founders"
+                className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary shrink-0"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Vault
+              </Link>
+              <div className="flex items-center gap-2 min-w-0">
+                <img src={zenLogo} alt="ZenSolar" className="h-5 w-auto opacity-80 shrink-0" />
+                <span className="text-[10px] uppercase tracking-widest text-amber-400 border-l border-border/40 pl-2 truncate">
+                  Founder Pack
+                </span>
+              </div>
+            </div>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/40 px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground hover:border-border shrink-0"
+            >
+              <Home className="h-3 w-3" />
+              Home
+            </Link>
           </div>
-          <span className="w-12" />
         </div>
         {/* Section chip nav */}
-        <nav className="max-w-3xl mx-auto px-4 pb-3 flex gap-1.5 overflow-x-auto no-scrollbar">
+        <nav className="px-safe">
+          <div className="max-w-3xl mx-auto px-4 pb-3 flex gap-1.5 overflow-x-auto no-scrollbar snap-x pr-8">
           {SECTIONS.map((s) => {
             const Icon = s.icon;
             const isActive = active === s.id;
@@ -128,7 +140,7 @@ function PackContent() {
               <button
                 key={s.id}
                 onClick={() => scrollTo(s.id)}
-                className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-widest transition-all ${
+                className={`shrink-0 snap-start inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-widest transition-all ${
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary/40 text-muted-foreground hover:bg-secondary/70"
@@ -139,6 +151,7 @@ function PackContent() {
               </button>
             );
           })}
+          </div>
         </nav>
         {/* Reading progress bar */}
         <motion.div
@@ -148,11 +161,11 @@ function PackContent() {
       </header>
 
       {/* Cover */}
-      <section className="max-w-3xl mx-auto px-6 pt-16 pb-24 text-center">
+      <section className="max-w-3xl mx-auto px-5 md:px-6 pt-10 md:pt-14 pb-14 md:pb-20 text-center">
         <motion.p
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-[11px] uppercase tracking-[0.3em] text-amber-400 mb-6"
+          className="text-[11px] uppercase tracking-[0.28em] text-amber-400 mb-4 md:mb-6"
         >
           Joseph & Michael · Founders Only
         </motion.p>
@@ -160,7 +173,7 @@ function PackContent() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="font-serif text-5xl md:text-7xl leading-[1.05] tracking-tight"
+          className="font-serif text-4xl sm:text-5xl md:text-7xl leading-[0.98] tracking-tight"
         >
           The ZenSolar
           <br />
@@ -170,13 +183,13 @@ function PackContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mt-8 text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
+          className="mt-6 md:mt-8 text-[15px] sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
         >
           A complete chronicle of the pivot — the patent, the tokenomics, the
           Lyndon &amp; Elon angle, and the math that takes two ordinary
           builders to historic wealth.
         </motion.p>
-        <div className="mt-12 inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+        <div className="mt-8 md:mt-10 inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
           <Lock className="h-3 w-3 text-amber-400" />
           Eyes-only · Joseph & Michael
         </div>
