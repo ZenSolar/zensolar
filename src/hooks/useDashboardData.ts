@@ -845,8 +845,14 @@ export function useDashboardData() {
         fetchHomeChargingTotal(),
       ]);
 
+      // Re-read after Tesla refresh because fetchTeslaData runs the live charge monitor,
+      // which may have just started/finalized a home charging session.
+      const effectiveHomeChargingResult = profileConnections?.tesla_connected
+        ? await fetchHomeChargingTotal()
+        : homeChargingResult;
+
       // Calculate pending home charging based on last mint timestamp
-      const homeChargingMonitorKwh = homeChargingResult?.lifetime || 0;
+      const homeChargingMonitorKwh = effectiveHomeChargingResult?.lifetime || 0;
       const allDevicesForMintTs = devicesSnapshot || [];
       // Home charging uses its OWN baseline — only charger-type devices' mint timestamps
       const chargerMintTimestamps = allDevicesForMintTs
@@ -857,7 +863,7 @@ export function useDashboardData() {
         ? new Date(Math.max(...chargerMintTimestamps.map((t: string) => new Date(t).getTime()))).toISOString()
         : null;
       const pendingHomeChargingMonitorKwh = homeChargerMintTimestamp
-        ? (homeChargingResult?.sessions || [])
+        ? (effectiveHomeChargingResult?.sessions || [])
             .filter((s: any) => new Date(s.start_time) > new Date(homeChargerMintTimestamp))
             .reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0)
         : homeChargingMonitorKwh;
