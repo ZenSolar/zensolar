@@ -652,6 +652,85 @@ async function finalizeStaleSession(supabase: any, userId: string, vin: string, 
   }
 }
 
+async function recoverCompletedHomeSession(
+  supabase: any,
+  userId: string,
+  vin: string,
+  totalKwh: number,
+  batteryLevel: number,
+  chargerPower: number,
+  homeAddress: string,
+  vehicleLat: number | null,
+  vehicleLng: number | null,
+  distFromHome: number | null,
+  userTimezone: string | null,
+) {
+  const now = new Date();
+  const since = new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString();
+  const { data: duplicate } = await supabase
+    .from("home_charging_sessions")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("device_id", vin)
+    .gte("start_time", since)
+    .gte("total_session_kwh", Math.max(0, totalKwh - 0.2))
+    .lte("total_session_kwh", totalKwh + 0.2)
+    .limit(1);
+
+  if (duplicate && duplicate.length > 0) {
+    console.log(`[ChargeMonitor] Skipped duplicate recovered session for ${vin}: ${totalKwh.toFixed(1)} kWh`);
+    return { action: "duplicate_recovered_session", total_kwh: totalKwh };
+  }
+
+  const endIso = now.toISOString();
+  const startIso = new Date(now.getTime() - Math.max(30, Math.min(720, (totalKwh / 7.2) * 60)) * 60 * 1000).toISOString();
+  const startHash = await buildSnapshotHash(vin, startIso, 0, batteryLevel, "genesis");
+  const endHash = await buildSnapshotHash(vin, endIso, totalKwh, batteryLevel, startHash);
+  const proofChain = [
+    { ts: startIso, kwh: 0, bat: batteryLevel, hash: startHash, inferred_start: true },
+    { ts: endIso, kwh: totalKwh, bat: batteryLevel, hash: endHash, recovered_after_disconnect: true },
+  ];
+  const deltaProof = await buildDeltaProof(`${vin}:${endIso}`, 0, totalKwh, totalKwh, startHash, endHash);
+
+  const { data: inserted, error } = await supabase
+    .from("home_charging_sessions")
+    .insert({
+      user_id: userId,
+      device_id: vin,
+      start_time: startIso,
+      end_time: endIso,
+      start_kwh_added: 0,
+      end_kwh_added: totalKwh,
+      total_session_kwh: totalKwh,
+      status: "completed",
+      location: homeAddress || "Home",
+      latitude: vehicleLat,
+      longitude: vehicleLng,
+      charger_power_kw: chargerPower,
+      proof_chain: proofChain,
+      delta_proof: deltaProof,
+      verified: true,
+      session_metadata: {
+        source: "charge_monitor_recovered",
+        battery_level_end: batteryLevel,
+        distance_from_home_mi: distFromHome,
+        end_reason: "recovered_after_disconnect",
+      },
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error(`[ChargeMonitor] Recovery insert error:`, error);
+    return { action: "recovery_insert_error", error: error.message };
+  }
+
+  await writeToEnergyProduction(supabase, userId, vin, startIso, totalKwh, userTimezone);
+  await writeToChargingSessions(supabase, userId, vin, inserted, totalKwh, homeAddress, userTimezone);
+  console.log(`[ChargeMonitor] ✓ RECOVERED completed home session for ${vin}: ${totalKwh.toFixed(1)} kWh | proof: ${deltaProof.slice(0, 12)}…`);
+  return { action: "recovered_completed", total_kwh: totalKwh, verified: true, delta_proof: deltaProof.slice(0, 16) };
+}
+
 /**
  * Write completed home charging to energy_production for Energy Log daily aggregation.
  */
