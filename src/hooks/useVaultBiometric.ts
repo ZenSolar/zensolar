@@ -314,5 +314,5 @@ export function useVaultBiometric(userId: string | undefined) {
     setGate({ status: "needs_unlock" });
   }, []);
 
-  return { gate, enroll, unlock, lock, refresh };
+  return { gate, enroll, unlock, lock, refresh, reset };
 }
