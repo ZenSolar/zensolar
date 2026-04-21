@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useVaultBiometric } from "@/hooks/useVaultBiometric";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
   userId: string;
@@ -16,6 +16,45 @@ export function VaultBiometricGate({ userId, children }: Props) {
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const goHome = () => {
+    navigate("/", { replace: true });
+    window.setTimeout(() => {
+      if (window.location.pathname !== "/") {
+        window.location.assign("/");
+      }
+    }, 120);
+  };
+
+  const goBack = () => {
+    const fallback = location.pathname === "/founder-pack" ? "/founders" : "/";
+
+    if (window.history.length > 1) {
+      const currentPath = window.location.pathname + window.location.search + window.location.hash;
+      navigate(-1);
+      window.setTimeout(() => {
+        const stillHere =
+          window.location.pathname + window.location.search + window.location.hash === currentPath;
+        if (stillHere) {
+          navigate(fallback, { replace: true });
+          window.setTimeout(() => {
+            if (window.location.pathname === location.pathname) {
+              window.location.assign(fallback);
+            }
+          }, 120);
+        }
+      }, 160);
+      return;
+    }
+
+    navigate(fallback, { replace: true });
+    window.setTimeout(() => {
+      if (window.location.pathname === location.pathname) {
+        window.location.assign(fallback);
+      }
+    }, 120);
+  };
 
   const handleReset = async () => {
     setBusy(true);
@@ -50,7 +89,7 @@ export function VaultBiometricGate({ userId, children }: Props) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={goBack}
           className="text-muted-foreground"
         >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
@@ -58,7 +97,7 @@ export function VaultBiometricGate({ userId, children }: Props) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/")}
+          onClick={goHome}
           className="text-muted-foreground"
         >
           <Home className="h-4 w-4 mr-1" /> Home
