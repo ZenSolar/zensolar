@@ -564,6 +564,42 @@ export type Database = {
         }
         Relationships: []
       }
+      lp_rounds: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          executed_at: string
+          id: string
+          notes: string | null
+          round_number: number
+          spot_price_usd: number
+          tokens_released: number
+          usdc_injected: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          id?: string
+          notes?: string | null
+          round_number: number
+          spot_price_usd: number
+          tokens_released: number
+          usdc_injected: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          id?: string
+          notes?: string | null
+          round_number?: number
+          spot_price_usd?: number
+          tokens_released?: number
+          usdc_injected?: number
+        }
+        Relationships: []
+      }
       mint_access_requests: {
         Row: {
           access_code: string | null
