@@ -114,6 +114,7 @@ const adminMenuGroups = {
     { title: "Token Estimator", url: "/admin/token-estimator", icon: Coins },
     { title: "10B Tokenomics", url: "/admin/tokenomics-10b", icon: Coins },
     { title: "Tokenomics Framework", url: "/admin/tokenomics-framework", icon: Coins },
+    { title: "📦 Tokenomics Archive", url: "/admin/archive", icon: Coins },
   ],
   investor: [
     { title: "YC Application", url: "/admin/yc-application", icon: Rocket, highlight: true },
