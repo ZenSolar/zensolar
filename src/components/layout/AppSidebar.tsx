@@ -272,6 +272,33 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Founders Vault - only for founders/admins */}
+        {isFounder && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Founders</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Founders Vault">
+                    <NavLink
+                      to="/founders"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <Lock className="h-4 w-4 text-amber-400" />
+                      <span>Founders Vault</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {/* Secondary Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
