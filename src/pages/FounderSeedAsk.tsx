@@ -2,22 +2,24 @@ import { Navigate, Link } from "react-router-dom";
 import { ArrowLeft, Download, ExternalLink, Loader2, Lock, Banknote } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
+import { isPreviewMode } from "@/lib/previewMode";
 
 const PDF_PATH = "/founder-docs/seed-ask-lyndon-v2.pdf";
 
 export default function FounderSeedAsk() {
   const { user, isLoading } = useAuth();
   const { isFounder, ready } = useIsFounder();
+  const preview = isPreviewMode();
 
-  if (isLoading || !ready) {
+  if (!preview && (isLoading || !ready)) {
     return (
       <div className="flex min-h-[100svh] items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
-  if (!user) return <Navigate to="/auth" replace />;
-  if (!isFounder) return <Navigate to="/" replace />;
+  if (!preview && !user) return <Navigate to="/auth" replace />;
+  if (!preview && !isFounder) return <Navigate to="/" replace />;
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
