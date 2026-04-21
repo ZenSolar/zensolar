@@ -147,9 +147,9 @@ export function useVaultBiometric(userId: string | undefined) {
         const cred = (await navigator.credentials.create({
           publicKey: {
             challenge,
-            rp: { name: "ZenSolar Founders Vault", id: window.location.hostname },
+          rp: { name: "ZenSolar Founders Vault", id: window.location.hostname },
             user: {
-              id: new TextEncoder().encode(userId),
+              id: new TextEncoder().encode(userId) as BufferSource,
               name: deviceLabel || "Founder",
               displayName: deviceLabel || "Founder",
             },
@@ -231,7 +231,7 @@ export function useVaultBiometric(userId: string | undefined) {
           (ch) => ch.charCodeAt(0),
         );
         return {
-          id: raw,
+          id: raw as BufferSource,
           type: "public-key" as const,
           transports: [
             "internal",
