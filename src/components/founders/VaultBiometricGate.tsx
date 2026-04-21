@@ -105,19 +105,31 @@ export function VaultBiometricGate({ userId, children }: Props) {
         )}
 
         {gate.status === "needs_unlock" && (
-          <Button
-            onClick={handleUnlock}
-            disabled={busy}
-            className="w-full"
-            size="lg"
-          >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Fingerprint className="h-4 w-4 mr-2" />
-            )}
-            Unlock with Biometric
-          </Button>
+          <div className="space-y-3">
+            <Button
+              onClick={handleUnlock}
+              disabled={busy}
+              className="w-full"
+              size="lg"
+            >
+              {busy ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Fingerprint className="h-4 w-4 mr-2" />
+              )}
+              Unlock with Biometric
+            </Button>
+            <Button
+              onClick={handleReset}
+              disabled={busy}
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground"
+            >
+              <RefreshCw className="h-3.5 w-3.5 mr-2" />
+              Reset & re-enroll biometric
+            </Button>
+          </div>
         )}
 
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
