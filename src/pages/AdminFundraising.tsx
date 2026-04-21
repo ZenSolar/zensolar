@@ -599,10 +599,10 @@ export default function AdminFundraising() {
               <CardHeader className="bg-gradient-to-r from-yellow-500/10 to-transparent">
                 <CardTitle className="flex items-center gap-2">
                   <Coins className="h-5 w-5 text-yellow-500" />
-                  10B Supply Release Schedule
+                  {SUPPLY_LABEL_SHORT} Supply Release Schedule
                 </CardTitle>
                 <CardDescription>
-                  Managed supply curve: token supply matches real demand, not flooding the market.
+                  Managed supply curve: tranche-by-tranche LP seeding (Round 1: $200K USDC + 2M $ZSOLAR at $0.10). Token supply tracks real demand — never floods the market. Founder grants (Joseph 150B / Michael 50B) vest over 4 years with a 12-month cliff.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -613,7 +613,7 @@ export default function AdminFundraising() {
                         <TableHead>Phase</TableHead>
                         <TableHead className="text-right">Released</TableHead>
                         <TableHead className="text-right">Cumulative</TableHead>
-                        <TableHead className="text-right">% of 10B</TableHead>
+                        <TableHead className="text-right">% of {SUPPLY_LABEL_SHORT}</TableHead>
                         <TableHead className="text-right">Price Target</TableHead>
                       </TableRow>
                     </TableHeader>
