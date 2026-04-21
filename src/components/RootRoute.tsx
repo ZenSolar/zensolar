@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import { isPreviewMode } from '@/lib/previewMode';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
 const Index = lazy(() => import('@/pages/Index'));
@@ -23,12 +24,15 @@ function RouteLoader() {
 export function RootRoute() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) {
-    return <RouteLoader />;
-  }
+  // Preview-mode bypass: skip auth & demo gate so any path resolves directly.
+  if (!isPreviewMode()) {
+    if (isLoading) {
+      return <RouteLoader />;
+    }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/demo" replace />;
+    if (!isAuthenticated) {
+      return <Navigate to="/demo" replace />;
+    }
   }
 
   return (

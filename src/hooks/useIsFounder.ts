@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { isPreviewMode } from "@/lib/previewMode";
 
 /**
  * Returns whether the current user is a founder or admin.
  * Used to gate Deason + Founders Vault UI.
+ *
+ * In preview mode (dev / Lovable editor / localhost) this always returns true
+ * so Joseph can deep-link to founder-only pages without signing in.
  */
 export function useIsFounder() {
   const { user, isLoading: authLoading } = useAuth();
@@ -12,6 +16,10 @@ export function useIsFounder() {
 
   useEffect(() => {
     let cancelled = false;
+    if (isPreviewMode()) {
+      setIsFounder(true);
+      return;
+    }
     if (!user) {
       setIsFounder(false);
       return;
