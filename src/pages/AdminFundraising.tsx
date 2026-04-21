@@ -632,7 +632,7 @@ export default function AdminFundraising() {
                       <TableRow className="border-t-2 bg-muted/20">
                         <TableCell className="font-bold">Remaining (Year 10+)</TableCell>
                         <TableCell className="text-right">—</TableCell>
-                        <TableCell className="text-right font-bold">6.0B</TableCell>
+                        <TableCell className="text-right font-bold">600B</TableCell>
                         <TableCell className="text-right"><Badge variant="outline" className="font-mono">60%</Badge></TableCell>
                         <TableCell className="text-right text-muted-foreground">Long-term ecosystem</TableCell>
                       </TableRow>
@@ -704,7 +704,7 @@ export default function AdminFundraising() {
               <CardContent className="p-5">
                 <h4 className="font-semibold mb-2 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                  Remaining 6B Tokens (60% of supply)
+                  Remaining 600B Tokens (60% of {SUPPLY_LABEL_SHORT} supply)
                 </h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2"><ArrowRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />Long-term user reward runway (decades of growth)</li>
