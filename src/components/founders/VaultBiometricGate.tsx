@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Fingerprint, ShieldAlert, Loader2, KeyRound } from "lucide-react";
+import { Fingerprint, ShieldAlert, Loader2, KeyRound, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useVaultBiometric } from "@/hooks/useVaultBiometric";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   userId: string;
