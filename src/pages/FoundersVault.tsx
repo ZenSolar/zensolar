@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
+  ArrowLeft,
   Shield,
   Sparkles,
   Lock,
@@ -10,6 +11,7 @@ import {
   LogOut,
   BookOpen,
   ArrowRight,
+  Home,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -129,8 +131,8 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
 
   if (error || !snapshot || !view) {
     return (
-      <div className="min-h-[100svh] flex items-center justify-center bg-background p-6 relative">
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+      <div className="min-h-[100svh] flex items-center justify-center bg-background p-6 pt-safe relative">
+        <div className="absolute top-4 left-4 right-4 pt-safe flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={goBack} className="text-muted-foreground">
             Back
           </Button>
@@ -166,29 +168,45 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
   const totalNetWorth = view.joseph.net_worth + view.michael.net_worth;
 
   return (
-    <div className="min-h-[100svh] bg-background text-foreground pb-12">
+    <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       {/* Header */}
-      <header className="sticky top-0 z-10 backdrop-blur-md bg-background/80 border-b border-border/40">
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto" />
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground border-l border-border/40 pl-2">
-              Founders Vault
-            </span>
+      <header className="sticky top-0 z-10 border-b border-border/40 bg-background/88 pt-safe backdrop-blur-md">
+        <div className="px-safe">
+          <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Button asChild size="icon" variant="ghost" className="h-8 w-8 shrink-0 md:hidden">
+                <Link to="/">
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+              <div className="flex items-center gap-2 min-w-0">
+                <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto shrink-0" />
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground border-l border-border/40 pl-2 truncate">
+                  Founders Vault
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="Home">
+                <Link to="/">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={lock}
+                title="Lock vault"
+                className="h-8 w-8"
+              >
+                <Lock className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={lock}
-            title="Lock vault"
-            className="h-8 w-8"
-          >
-            <Lock className="h-4 w-4" />
-          </Button>
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-5 space-y-5">
+      <main className="max-w-md mx-auto px-4 py-4 md:py-5 space-y-4 md:space-y-5">
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 6 }}
@@ -211,22 +229,22 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           to="/founder-pack"
           className="block rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-400/10 via-amber-400/5 to-transparent p-4 hover:border-amber-400/70 transition-colors group"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="h-10 w-10 rounded-xl bg-amber-400/15 flex items-center justify-center">
                 <BookOpen className="h-5 w-5 text-amber-400" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-widest text-amber-400">
                   Eyes-Only
                 </p>
                 <p className="text-sm font-semibold">The Founder Pack</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
                   The full story — patent, pivot, and the math
                 </p>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
           </div>
         </Link>
 
