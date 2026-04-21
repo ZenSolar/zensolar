@@ -12,7 +12,7 @@ project_id = "fcptrpgqkjffgeddajwl"
   [functions.claim-devices]
     verify_jwt = false
   [functions.deason-chat]
-    verify_jwt = true
+    verify_jwt = false
   [functions.delete-account]
     verify_jwt = false
   [functions.enphase-auth]
