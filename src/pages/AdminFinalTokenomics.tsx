@@ -579,18 +579,20 @@ export default function AdminFinalTokenomics() {
   const hasAnswers = Object.keys(answers).length > 0;
   const completionCount = Object.keys(answers).filter(k => !k.endsWith('_notes') && answers[k]).length;
 
-  // Contract parameters for quick reference
+  // Contract parameters for quick reference (1T Trillionaire Strategy)
   const contractParams = [
-    { label: "MAX_SUPPLY", value: "10,000,000,000", raw: "10000000000" },
+    { label: "MAX_SUPPLY", value: "1,000,000,000,000", raw: "1000000000000" },
     { label: "MINT_BURN_RATE", value: `${metrics.burnRate}%`, raw: metrics.burnRate },
     { label: "TRANSFER_TAX", value: `${metrics.transferTax}%`, raw: metrics.transferTax },
     { label: "INITIAL_LP_USDC", value: metrics.lpDepth, raw: metrics.lpDepth.replace(/[$,K+]/g, '') },
   ];
 
   const allocationParams = [
-    { label: "FOUNDER_ALLOCATION", value: "2.5%", tokens: "250M", note: getDisplayValue(answers.founder_vesting) || "3-Year Vest" },
-    { label: "TREASURY_ALLOCATION", value: "7.5%", tokens: "750M", note: "2-Year Vest, Multisig" },
-    { label: "COMMUNITY_REWARDS", value: "90%", tokens: "9B", note: "Earned Through Activity" },
+    { label: "FOUNDER (JOSEPH)", value: "15%", tokens: "150B", note: "4yr vest, 12mo cliff" },
+    { label: "CO-FOUNDER (MICHAEL)", value: "5%", tokens: "50B", note: "4yr vest, 12mo cliff · CFO/CRO" },
+    { label: "TREASURY", value: "7.5%", tokens: "75B", note: "2-Year Vest, Multisig" },
+    { label: "TEAM POOL", value: "2.5%", tokens: "25B", note: "Future hires & advisors" },
+    { label: "COMMUNITY REWARDS", value: "70%", tokens: "700B", note: "Mint-on-Proof, dual-gated" },
   ];
 
   return (
@@ -625,7 +627,7 @@ export default function AdminFinalTokenomics() {
           <ExportButtons 
             pageTitle="Final ZSOLAR Tokenomics" 
             getData={() => [
-              { section: "Core Economics", metric: "Max Supply", value: "10,000,000,000 $ZSOLAR" },
+              { section: "Core Economics", metric: "Max Supply", value: "1,000,000,000,000 $ZSOLAR (1T Trillionaire Strategy)" },
               { section: "Core Economics", metric: "Supply Model", value: metrics.supplyModel },
               { section: "Core Economics", metric: "Launch Floor", value: metrics.launchPrice },
               { section: "Core Economics", metric: "Mint Burn Rate", value: `${metrics.burnRate}%` },
@@ -663,7 +665,7 @@ export default function AdminFinalTokenomics() {
             {/* Hero Metrics */}
             <motion.div variants={fadeIn} className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
               {[
-                { label: "Max Supply", value: "10B", bg: "from-primary/10", text: "text-primary" },
+                { label: "Max Supply", value: "1T", bg: "from-primary/10", text: "text-primary" },
                 { label: "Launch Floor", value: metrics.launchPrice, bg: "from-green-500/10", text: "text-green-600 dark:text-green-400" },
                 { label: "Target Price", value: "$1.00", bg: "from-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
                 { label: "Mint Burn", value: `${metrics.burnRate}%`, bg: "from-red-500/10", text: "text-red-600 dark:text-red-400" },

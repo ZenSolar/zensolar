@@ -113,6 +113,14 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
 const BlogHowToEarn = lazy(() => import("./pages/blog/HowToEarnCryptoFromSolar"));
 const BlogProofOfDelta = lazy(() => import("./pages/blog/ProofOfDeltaExplained"));
+
+// Archive (frozen 10B-era pages — read-only time capsule)
+import { ArchivedPageWrapper } from "./components/admin/ArchivedPageWrapper";
+const AdminArchive = lazy(() => import("./pages/AdminArchive"));
+const ArchivedFinalTokenomics10B = lazy(() => import("./pages/archive/AdminFinalTokenomics_v1_10B"));
+const ArchivedContracts10B = lazy(() => import("./pages/archive/AdminContracts_v1_10B"));
+const ArchivedFundraising10B = lazy(() => import("./pages/archive/AdminFundraising_v1_10B"));
+const ArchivedPatentMintOnProofV1 = lazy(() => import("./pages/archive/AdminPatentMintOnProof_v1"));
 const BlogTeslaSolar = lazy(() => import("./pages/blog/TeslaSolarCryptoRewards"));
 const BlogEnphase = lazy(() => import("./pages/blog/EnphaseSolarBlockchain"));
 const BlogEVCharging = lazy(() => import("./pages/blog/EVChargingCryptoEarnings"));
@@ -859,6 +867,56 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
+                    {/* Tokenomics Archive — frozen 10B-era pages */}
+                    <Route path="/admin/archive" element={
+                      <ProtectedRoute><AppLayout><AdminArchive /></AppLayout></ProtectedRoute>
+                    } />
+                    <Route path="/admin/archive/final-tokenomics-10b" element={
+                      <ProtectedRoute><AppLayout>
+                        <ArchivedPageWrapper
+                          modelName="10B Strategy ($0.10 Floor)"
+                          archivedDate="April 2026"
+                          supersededBy="1T Trillionaire Strategy"
+                          reason="Cap expanded 100x for trillionaire founder outcomes"
+                        >
+                          <ArchivedFinalTokenomics10B />
+                        </ArchivedPageWrapper>
+                      </AppLayout></ProtectedRoute>
+                    } />
+                    <Route path="/admin/archive/contracts-10b" element={
+                      <ProtectedRoute><AppLayout>
+                        <ArchivedPageWrapper
+                          modelName="10B Strategy ($0.10 Floor)"
+                          archivedDate="April 2026"
+                          supersededBy="1T Trillionaire Strategy"
+                        >
+                          <ArchivedContracts10B />
+                        </ArchivedPageWrapper>
+                      </AppLayout></ProtectedRoute>
+                    } />
+                    <Route path="/admin/archive/fundraising-10b" element={
+                      <ProtectedRoute><AppLayout>
+                        <ArchivedPageWrapper
+                          modelName="10B Strategy ($0.10 Floor)"
+                          archivedDate="April 2026"
+                          supersededBy="1T Trillionaire Strategy"
+                        >
+                          <ArchivedFundraising10B />
+                        </ArchivedPageWrapper>
+                      </AppLayout></ProtectedRoute>
+                    } />
+                    <Route path="/admin/archive/patent-mint-on-proof-v1" element={
+                      <ProtectedRoute><AppLayout>
+                        <ArchivedPageWrapper
+                          modelName="Mint-on-Proof Patent (v1)"
+                          archivedDate="April 2026"
+                          supersededBy="Mint-on-Proof v2 (Tesla/SpaceX scope + 1T)"
+                          reason="Pre-SolarCity origin story, pre-Tesla/SpaceX tokenization scope"
+                        >
+                          <ArchivedPatentMintOnProofV1 />
+                        </ArchivedPageWrapper>
+                      </AppLayout></ProtectedRoute>
+                    } />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>

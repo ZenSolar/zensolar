@@ -124,17 +124,20 @@ const CONTRACT_BATTERY_MILESTONES = [500, 1000, 2500, 5000, 10000, 25000, 50000]
 const CONTRACT_CHARGING_MILESTONES = [100, 500, 1000, 1500, 2500, 5000, 10000, 25000]; // 8 tiers
 const CONTRACT_EV_MILES_MILESTONES = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000, 150000, 200000]; // 10 tiers
 
-// Tokenomics from contracts (10B Strategy - OPTIMIZED $0.10 FLOOR)
+// Tokenomics from contracts (1T Trillionaire Strategy - $0.10 FLOOR)
+// Sourced from src/lib/tokenomics.ts (single source of truth)
 const TOKENOMICS = {
-  maxSupply: '10,000,000,000',
-  founderAllocation: '250,000,000', // 2.5% with 3-year vest, 6-month cliff
-  treasuryAllocation: '750,000,000', // 7.5% with 2-year vest
-  communityRewards: '9,000,000,000', // 90% dual-gated for subscribers
-  tokensPerUnit: '1 ZSOLAR per kWh/mile',
-  launchPrice: 0.10, // $0.10 launch floor (10x narrative to $1.00)
-  targetPrice: 1.00, // $1.00 long-term target
+  maxSupply: '1,000,000,000,000', // 1 TRILLION hard cap
+  founderJosephAllocation: '150,000,000,000', // 15% Joseph Maushart, 4yr vest, 12mo cliff
+  cofounderMichaelAllocation: '50,000,000,000', // 5% Michael Tschida, 4yr vest, 12mo cliff
+  treasuryAllocation: '75,000,000,000', // 7.5% with 2-year vest
+  teamPoolAllocation: '25,000,000,000', // 2.5% future hires & advisors
+  communityRewards: '700,000,000,000', // 70% dual-gated for subscribers
+  tokensPerUnit: '1 ZSOLAR per kWh/mile (1:1 — scarcity by design)',
+  launchPrice: 0.10, // $0.10 launch floor
+  targetPrice: 1.00, // $1.00 long-term target ($150B Joseph / $50B Michael at $1)
   lpSeed: 300_000, // $300K USDC paired with 3M tokens
-  // OPTIMIZED: 20% Mint Burn Rate
+  // 20% Mint Burn Rate (deflationary)
   mintDistribution: {
     user: 75,
     burn: 20,
@@ -149,6 +152,9 @@ const TOKENOMICS = {
     total: 7,
   },
   redemptionBurnFee: 5, // 5% store redemption burn
+  subscriptionTier1: 19.99,
+  subscriptionTier2: 29.99,
+  subscriptionTier3: 49.99,
 };
 
 export default function AdminContracts() {
@@ -228,8 +234,10 @@ export default function AdminContracts() {
     ...Object.entries(CONTRACTS).map(([key, c]) => ({ section: "Contract", name: c.name, type: c.type, address: c.address, network: c.network })),
     ...Object.entries(WALLETS).map(([key, w]) => ({ section: "Wallet", name: w.name, role: w.role, address: w.address })),
     { section: "Tokenomics", metric: "Max Supply", value: TOKENOMICS.maxSupply },
-    { section: "Tokenomics", metric: "Founder Allocation", value: TOKENOMICS.founderAllocation },
+    { section: "Tokenomics", metric: "Founder (Joseph) Allocation", value: TOKENOMICS.founderJosephAllocation },
+    { section: "Tokenomics", metric: "Co-Founder (Michael) Allocation", value: TOKENOMICS.cofounderMichaelAllocation },
     { section: "Tokenomics", metric: "Treasury Allocation", value: TOKENOMICS.treasuryAllocation },
+    { section: "Tokenomics", metric: "Team Pool Allocation", value: TOKENOMICS.teamPoolAllocation },
     { section: "Tokenomics", metric: "Transfer Tax", value: `${TOKENOMICS.transferTax.total}%` },
   ];
 
@@ -385,16 +393,25 @@ export default function AdminContracts() {
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">{TOKENOMICS.maxSupply}</p>
-                <p className="text-xs text-muted-foreground">ZSOLAR tokens (10B)</p>
+                <p className="text-xs text-muted-foreground">ZSOLAR tokens (1T)</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Founder</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Founder (Joseph)</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">2.5%</p>
-                <p className="text-xs text-muted-foreground">{TOKENOMICS.founderAllocation} (3yr vest)</p>
+                <p className="text-2xl font-bold">15%</p>
+                <p className="text-xs text-muted-foreground">{TOKENOMICS.founderJosephAllocation} (4yr vest, 12mo cliff)</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Co-Founder (Michael)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">5%</p>
+                <p className="text-xs text-muted-foreground">{TOKENOMICS.cofounderMichaelAllocation} (4yr vest, 12mo cliff)</p>
               </CardContent>
             </Card>
             <Card>
@@ -485,19 +502,29 @@ export default function AdminContracts() {
                 </TableHeader>
                 <TableBody>
                   <TableRow>
-                    <TableCell>Founder Wallet</TableCell>
-                    <TableCell className="text-right font-mono">{TOKENOMICS.founderAllocation}</TableCell>
-                    <TableCell className="text-right">2.5% (3yr vest, 6mo cliff)</TableCell>
+                    <TableCell>Founder Wallet (Joseph)</TableCell>
+                    <TableCell className="text-right font-mono">{TOKENOMICS.founderJosephAllocation}</TableCell>
+                    <TableCell className="text-right">15% (4yr vest, 12mo cliff)</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Co-Founder Wallet (Michael)</TableCell>
+                    <TableCell className="text-right font-mono">{TOKENOMICS.cofounderMichaelAllocation}</TableCell>
+                    <TableCell className="text-right">5% (4yr vest, 12mo cliff)</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Treasury</TableCell>
                     <TableCell className="text-right font-mono">{TOKENOMICS.treasuryAllocation}</TableCell>
                     <TableCell className="text-right">7.5% (2yr vest)</TableCell>
                   </TableRow>
+                  <TableRow>
+                    <TableCell>Team & Advisors Pool</TableCell>
+                    <TableCell className="text-right font-mono">{TOKENOMICS.teamPoolAllocation}</TableCell>
+                    <TableCell className="text-right">2.5% (future hires)</TableCell>
+                  </TableRow>
                   <TableRow className="bg-muted/50">
                     <TableCell className="font-medium">Community Rewards</TableCell>
                     <TableCell className="text-right font-mono">{TOKENOMICS.communityRewards}</TableCell>
-                    <TableCell className="text-right font-medium">90% (milestone-gated)</TableCell>
+                    <TableCell className="text-right font-medium">70% (Mint-on-Proof)</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
