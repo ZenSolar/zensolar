@@ -345,6 +345,22 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="SpaceX & Inter-System">
+                    <NavLink
+                      to="/founders/spacex"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <Rocket className="h-4 w-4 text-amber-400" />
+                      <span>SpaceX & Inter-System</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Deason (AI)">
                     <NavLink
                       to="/deason"
