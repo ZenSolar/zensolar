@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Fingerprint, ShieldAlert, Loader2, KeyRound, ArrowLeft } from "lucide-react";
+import { Fingerprint, ShieldAlert, Loader2, KeyRound, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useVaultBiometric } from "@/hooks/useVaultBiometric";
@@ -12,10 +12,18 @@ interface Props {
 }
 
 export function VaultBiometricGate({ userId, children }: Props) {
-  const { gate, enroll, unlock } = useVaultBiometric(userId);
+  const { gate, enroll, unlock, reset } = useVaultBiometric(userId);
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const navigate = useNavigate();
+
+  const handleReset = async () => {
+    setBusy(true);
+    const { error } = await reset();
+    setBusy(false);
+    if (error) toast.error(error);
+    else toast.success("Biometric reset. Please re-enroll.");
+  };
 
   if (gate.status === "unlocked") {
     return <>{children}</>;
@@ -97,19 +105,31 @@ export function VaultBiometricGate({ userId, children }: Props) {
         )}
 
         {gate.status === "needs_unlock" && (
-          <Button
-            onClick={handleUnlock}
-            disabled={busy}
-            className="w-full"
-            size="lg"
-          >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Fingerprint className="h-4 w-4 mr-2" />
-            )}
-            Unlock with Biometric
-          </Button>
+          <div className="space-y-3">
+            <Button
+              onClick={handleUnlock}
+              disabled={busy}
+              className="w-full"
+              size="lg"
+            >
+              {busy ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Fingerprint className="h-4 w-4 mr-2" />
+              )}
+              Unlock with Biometric
+            </Button>
+            <Button
+              onClick={handleReset}
+              disabled={busy}
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground"
+            >
+              <RefreshCw className="h-3.5 w-3.5 mr-2" />
+              Reset & re-enroll biometric
+            </Button>
+          </div>
         )}
 
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">

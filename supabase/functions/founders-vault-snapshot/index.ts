@@ -56,12 +56,38 @@ Deno.serve(async (req) => {
     // Service-role client for trusted reads
     const admin = createClient(supabaseUrl, serviceKey);
 
-    // 1. Confirm caller is whitelisted founder
-    const { data: accessRow } = await admin
+    // 1. Confirm caller is whitelisted founder — match by user_id OR by email (auto-link)
+    let { data: accessRow } = await admin
       .from("founder_vault_access")
       .select("email, display_name, user_id, is_active")
       .eq("user_id", user.id)
       .maybeSingle();
+
+    // Self-heal: if no row by user_id, try matching by email and link it
+    if (!accessRow && user.email) {
+      const { data: emailRow } = await admin
+        .from("founder_vault_access")
+        .select("email, display_name, user_id, is_active")
+        .ilike("email", user.email)
+        .maybeSingle();
+
+      if (emailRow && emailRow.is_active) {
+        await admin
+          .from("founder_vault_access")
+          .update({ user_id: user.id })
+          .ilike("email", user.email);
+
+        // Also grant founder role
+        await admin
+          .from("user_roles")
+          .upsert(
+            { user_id: user.id, role: "founder" },
+            { onConflict: "user_id,role", ignoreDuplicates: true },
+          );
+
+        accessRow = { ...emailRow, user_id: user.id };
+      }
+    }
 
     if (!accessRow || !accessRow.is_active) {
       // Log denial
