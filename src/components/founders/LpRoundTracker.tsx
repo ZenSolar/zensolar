@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Droplets, TrendingUp, Lock as LockIcon } from "lucide-react";
+import { Droplets, TrendingUp, Lock as LockIcon, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface LpRound {
   id: string;
@@ -63,6 +72,19 @@ export function LpRoundTracker({
   );
   const latest = rounds[rounds.length - 1];
   const totalLocked = josephAllocation + michaelAllocation;
+
+  // Build cumulative chart data
+  let cumUsdc = 0;
+  let cumTokens = 0;
+  const chartData = rounds.map((r) => {
+    cumUsdc += Number(r.usdc_injected);
+    cumTokens += Number(r.tokens_released);
+    return {
+      round: `R${r.round_number}`,
+      depth: cumUsdc,
+      tokens: cumTokens,
+    };
+  });
 
   // Liquid value = max you could realistically pull from LP without breaking it (~the USDC side)
   const josephLiquid = Math.min(
@@ -131,6 +153,43 @@ export function LpRoundTracker({
               Book = mark-to-market. Liquid = realistic exit at current LP depth.
             </p>
           </div>
+
+          {/* LP Depth Growth Chart */}
+          {chartData.length > 0 && (
+            <div className="rounded-xl border border-border/40 bg-background/40 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                  LP Depth Growth
+                </p>
+              </div>
+              <div className="h-40 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="lpDepthFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <XAxis dataKey="round" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => fmtUsd(Number(v))} width={50} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "hsl(var(--background))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                      formatter={(value: number) => [fmtUsd(value), "LP Depth"]}
+                    />
+                    <Area type="monotone" dataKey="depth" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#lpDepthFill)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
 
           {/* Rounds table */}
           <div className="space-y-1.5">
