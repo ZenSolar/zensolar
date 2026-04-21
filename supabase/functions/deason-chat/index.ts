@@ -93,33 +93,88 @@ We are tokenizing **everything** Tesla/SpaceX/Musk-empire touches, not just sola
 - Keep responses tight unless asked to go deep.`;
 
 Deno.serve(async (req) => {
+  const reqId = crypto.randomUUID().slice(0, 8);
+  const log = (...args: unknown[]) => console.log(`[deason-chat ${reqId}]`, ...args);
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
+    const url = new URL(req.url);
+    const isDiag = url.searchParams.get("diag") === "1" || req.method === "GET";
+
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return json({ error: "unauthorized" }, 401);
+    log("incoming", {
+      method: req.method,
+      path: url.pathname,
+      hasAuth: !!authHeader,
+      authPrefix: authHeader?.slice(0, 16) ?? null,
+      origin: req.headers.get("origin"),
+      diag: isDiag,
+    });
+
+    if (!authHeader) {
+      log("reject: no Authorization header");
+      return json({ error: "unauthorized", stage: "no_auth_header", reqId }, 401);
+    }
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return json({ error: "ai_not_configured" }, 500);
+    if (!LOVABLE_API_KEY) {
+      log("reject: LOVABLE_API_KEY missing");
+      return json({ error: "ai_not_configured", stage: "missing_key", reqId }, 500);
+    }
 
     const userClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: { user } } = await userClient.auth.getUser();
-    if (!user) return json({ error: "unauthorized" }, 401);
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    const user = userData?.user;
+    if (userErr || !user) {
+      log("reject: getUser failed", { error: userErr?.message, hasUser: !!user });
+      return json({
+        error: "unauthorized",
+        stage: "get_user_failed",
+        detail: userErr?.message ?? "no user",
+        reqId,
+      }, 401);
+    }
+    log("authenticated", { userId: user.id, email: user.email });
 
     // Founders-only gate
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
-    const { data: isFounder } = await admin.rpc("is_founder", { _user_id: user.id });
-    const { data: isAdmin } = await admin.rpc("is_admin", { _user_id: user.id });
-    if (!isFounder && !isAdmin) return json({ error: "forbidden" }, 403);
+    const [{ data: isFounder }, { data: isAdmin }] = await Promise.all([
+      admin.rpc("is_founder", { _user_id: user.id }),
+      admin.rpc("is_admin", { _user_id: user.id }),
+    ]);
+    log("role check", { isFounder, isAdmin });
+
+    if (isDiag) {
+      return json({
+        ok: true,
+        stage: "diagnostic",
+        reqId,
+        user: { id: user.id, email: user.email },
+        isFounder: !!isFounder,
+        isAdmin: !!isAdmin,
+        canChat: !!(isFounder || isAdmin),
+        hasLovableKey: true,
+      });
+    }
+
+    if (!isFounder && !isAdmin) {
+      log("reject: not founder/admin");
+      return json({ error: "forbidden", stage: "not_founder", reqId }, 403);
+    }
 
     const { messages } = await req.json();
-    if (!Array.isArray(messages)) return json({ error: "bad_request" }, 400);
+    if (!Array.isArray(messages)) {
+      log("reject: bad messages payload");
+      return json({ error: "bad_request", stage: "bad_payload", reqId }, 400);
+    }
+    log("calling AI gateway", { msgCount: messages.length });
 
     const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -134,11 +189,13 @@ Deno.serve(async (req) => {
       }),
     });
 
-    if (upstream.status === 429) return json({ error: "rate_limited" }, 429);
-    if (upstream.status === 402) return json({ error: "credits_exhausted" }, 402);
+    log("upstream status", upstream.status);
+    if (upstream.status === 429) return json({ error: "rate_limited", stage: "ai_429", reqId }, 429);
+    if (upstream.status === 402) return json({ error: "credits_exhausted", stage: "ai_402", reqId }, 402);
     if (!upstream.ok || !upstream.body) {
       const t = await upstream.text();
-      return json({ error: "ai_error", detail: t }, 500);
+      log("upstream error", t.slice(0, 300));
+      return json({ error: "ai_error", stage: "ai_upstream", detail: t.slice(0, 500), reqId }, 500);
     }
 
     return new Response(upstream.body, {
@@ -150,7 +207,8 @@ Deno.serve(async (req) => {
       },
     });
   } catch (e) {
-    return json({ error: "server_error", detail: String(e) }, 500);
+    console.error(`[deason-chat ${reqId}] server_error`, e);
+    return json({ error: "server_error", stage: "exception", detail: String(e), reqId }, 500);
   }
 });
 
