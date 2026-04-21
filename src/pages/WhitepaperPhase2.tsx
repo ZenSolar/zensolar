@@ -157,6 +157,93 @@ function Phase2Content() {
             </ol>
           </section>
 
+          <section>
+            <h2 className="text-2xl font-semibold mb-3">8. Optimus Work-Hour Attestation Spec</h2>
+            <p className="text-muted-foreground mb-3">
+              Each Optimus unit holds a hardware-bound key. Work-hours are minted only when the unit signs a
+              completed task envelope and a Tesla Fleet API attestation co-signs it.
+            </p>
+            <div className="rounded-lg border border-border bg-muted/10 p-5 font-mono text-[13px] leading-relaxed space-y-2">
+              <div><span className="text-amber-400">unit_id</span> : Optimus serial → bound to one wallet (lifetime)</div>
+              <div><span className="text-amber-400">task_envelope</span> : <code>{`{ task_id, started_at, ended_at, kWh_consumed, output_class }`}</code></div>
+              <div><span className="text-amber-400">unit_sig</span> : secure-enclave signature over envelope hash</div>
+              <div><span className="text-amber-400">tesla_attest</span> : Fleet API co-signature confirming unit + task</div>
+              <div><span className="text-amber-400">mintable_hours</span> : <code>(ended_at − started_at) × output_multiplier</code></div>
+              <div><span className="text-amber-400">rate</span> : 1 $ZSOLAR per work-hour (base) · split 75/20/3/2</div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Replay key: <code>(unit_id, task_id)</code>. Idle / charging hours are excluded — only attested productive work.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold mb-3">9. Robotaxi Revenue-Mile Proof Chain</h2>
+            <p className="text-muted-foreground mb-3">
+              Each autonomous ride produces a four-party signed envelope. The vehicle wallet receives base mint;
+              the rider wallet receives a small loyalty mint; the fleet operator receives platform share.
+            </p>
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/30">
+                  <tr>
+                    <th className="text-left p-3 font-semibold">Step</th>
+                    <th className="text-left p-3 font-semibold">Signer</th>
+                    <th className="text-left p-3 font-semibold">Artifact</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">1. Ride start</td><td className="p-3">Vehicle wallet</td><td className="p-3">start_geo · ts · rider_id</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">2. Ride end</td><td className="p-3">Vehicle wallet</td><td className="p-3">end_geo · ts · miles · revenue_usdc</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">3. Rider confirm</td><td className="p-3">Rider wallet</td><td className="p-3">satisfaction sig (optional loyalty mint)</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">4. Fleet attest</td><td className="p-3">Tesla Fleet API</td><td className="p-3">co-sign envelope hash</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">5. Mint</td><td className="p-3">Oracle</td><td className="p-3">miles × rate · 75/20/3/2 split</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Revenue-miles count double the base FSD-mile rate to reflect productive use. Replay key: <code>(vehicle_id, ride_id)</code>.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold mb-3">Appendix B — SpaceX Starlink / Starship Attestation</h2>
+            <p className="text-muted-foreground mb-3">
+              Orbital categories require provider-co-signed attestations because end-users cannot independently
+              verify orbital telemetry. SpaceX (or a designated relay oracle) co-signs alongside the satellite
+              or vehicle key.
+            </p>
+            <div className="space-y-4">
+              <div className="rounded-lg border border-border bg-muted/10 p-5">
+                <div className="text-amber-400 font-semibold mb-2 text-sm uppercase tracking-wide">Starlink Uplink-kWh</div>
+                <div className="font-mono text-[13px] space-y-1 text-muted-foreground">
+                  <div><span className="text-foreground">satellite_id</span> + <span className="text-foreground">cluster_id</span> bound to operator wallet</div>
+                  <div><span className="text-foreground">window</span> : 1-hour rolling, dedupe by <code>(sat_id, window_end)</code></div>
+                  <div><span className="text-foreground">uplink_kwh</span> : measured at gateway · co-signed by SpaceX relay</div>
+                  <div><span className="text-foreground">rate</span> : 1 $ZSOLAR / kWh · split 75/20/3/2</div>
+                </div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/10 p-5">
+                <div className="text-amber-400 font-semibold mb-2 text-sm uppercase tracking-wide">Starship Payload-kWh</div>
+                <div className="font-mono text-[13px] space-y-1 text-muted-foreground">
+                  <div><span className="text-foreground">vehicle_id</span> + <span className="text-foreground">flight_id</span> · bound at manifest</div>
+                  <div><span className="text-foreground">payload_mass_kg</span> × <span className="text-foreground">delta_v</span> → energy-equivalent kWh</div>
+                  <div><span className="text-foreground">trigger</span> : on-orbit confirmation telemetry</div>
+                  <div><span className="text-foreground">co-signers</span> : vehicle key + SpaceX mission control + range safety</div>
+                  <div><span className="text-foreground">rate</span> : 1 $ZSOLAR / payload-kWh · split 75/20/3/2</div>
+                </div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/10 p-5">
+                <div className="text-amber-400 font-semibold mb-2 text-sm uppercase tracking-wide">Mars Inter-System Relay (Phase 2b)</div>
+                <div className="font-mono text-[13px] space-y-1 text-muted-foreground">
+                  <div><span className="text-foreground">colony_array_id</span> bound to colony multisig</div>
+                  <div><span className="text-foreground">latency_window</span> : Earth ↔ Mars ≥ 3 min · batched relay</div>
+                  <div><span className="text-foreground">attestation</span> : colony key + Starlink-Mars relay co-sign</div>
+                  <div><span className="text-foreground">settlement</span> : queued mint, finalized on Earth contract</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section className="border-t border-border pt-6 text-xs text-muted-foreground">
             Confidential. Do not share outside Joseph & Michael. Phase 2 is forward-looking and contingent on
             Tesla/SpaceX product availability. Numbers and structure reflect current 1T-cap model. Subject to revision.
