@@ -404,6 +404,16 @@ export function useDashboardData() {
       if (!authSession) return null;
       const session = authSession;
 
+      // First sample the live vehicle charge state so home AC sessions can be
+      // started/finalized when the PWA is opened during or soon after charging.
+      const monitorResponse = await supabase.functions.invoke('tesla-charge-monitor', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (monitorResponse.error) {
+        console.warn('Tesla charge monitor warning:', monitorResponse.error);
+      }
+
       const response = await supabase.functions.invoke('tesla-data', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
