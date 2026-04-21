@@ -15,6 +15,7 @@ export function VaultBiometricGate({ userId, children }: Props) {
   const { gate, enroll, unlock } = useVaultBiometric(userId);
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
+  const navigate = useNavigate();
 
   if (gate.status === "unlocked") {
     return <>{children}</>;
