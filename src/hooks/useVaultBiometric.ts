@@ -248,6 +248,21 @@ export function useVaultBiometric(userId: string | undefined) {
           timeout: 60_000,
           rpId: window.location.hostname,
         },
+      }).catch(async (e) => {
+        // Fallback: retry as discoverable credential (no allowCredentials).
+        // Helps when the stored credential_id was registered on a different
+        // origin (e.g. enrolled on zensolar.lovable.app, unlocking from preview).
+        if (e instanceof Error && /not allowed|NotAllowed/i.test(e.message)) {
+          return await navigator.credentials.get({
+            publicKey: {
+              challenge: randomChallenge(),
+              userVerification: "required",
+              timeout: 60_000,
+              rpId: window.location.hostname,
+            },
+          });
+        }
+        throw e;
       })) as PublicKeyCredential | null;
 
       if (!assertion) return { error: "Cancelled" };
@@ -279,6 +294,19 @@ export function useVaultBiometric(userId: string | undefined) {
       });
       return { error: msg };
     }
+  }, [userId]);
+
+  // Reset: delete all enrolled credentials so user can re-enroll fresh
+  const reset = useCallback(async () => {
+    if (!userId) return { error: "Not signed in" };
+    const { error } = await supabase
+      .from("vault_webauthn_credentials")
+      .delete()
+      .eq("user_id", userId);
+    if (error) return { error: error.message };
+    clearUnlock();
+    setGate({ status: "needs_enrollment" });
+    return { error: null };
   }, [userId]);
 
   const lock = useCallback(() => {
