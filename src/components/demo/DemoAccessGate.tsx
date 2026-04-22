@@ -1680,27 +1680,49 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             <Input
               ref={inputRef}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                // Codes are uppercase, no spaces — sanitize as the user types so the
+                // field never shows letter-spaced gaps, lowercase chars, or accidental spaces.
+                const next = e.target.value.toUpperCase().replace(/\s+/g, '');
+                setCode(next);
+              }}
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 setInputFocused(true);
-                // Keyboard overlap fix: on mobile (especially iOS), the virtual
-                // keyboard covers the input because the container is fixed.
-                // Scroll the input into view once the keyboard has animated in.
-                setTimeout(() => {
-                  inputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                }, 350);
+                // Wait for the compress animation (gap+padding ~300ms) and for iOS
+                // visualViewport to settle, then nudge the input into view ONLY if it's
+                // actually offscreen. Avoids the jumpy mid-animation scroll.
+                window.setTimeout(() => {
+                  requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                      const el = inputRef.current;
+                      if (!el) return;
+                      const rect = el.getBoundingClientRect();
+                      const vh = window.visualViewport?.height ?? window.innerHeight;
+                      if (rect.bottom > vh - 8 || rect.top < 8) {
+                        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                      }
+                    });
+                  });
+                }, 320);
               }}
               onBlur={() => setInputFocused(false)}
-              placeholder="Access code"
+              placeholder="ACCESS CODE"
               disabled={isVerifying || isBursting}
               className={cn(
-                'text-center font-mono tracking-wider h-12 transition-all text-[16px]',
+                'text-center font-mono uppercase tracking-[0.18em] placeholder:tracking-[0.18em] placeholder:text-foreground/40 h-12 text-[17px] transition-colors duration-200',
                 isBursting && 'border-primary bg-primary/5',
                 isDenied && 'border-destructive bg-destructive/5 animate-shake'
               )}
               autoComplete="off"
-              autoCapitalize="off"
+              autoCorrect="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              inputMode="text"
+              enterKeyHint="go"
+              maxLength={32}
+              name="zen-access-code"
+              aria-label="Access code"
             />
 
             {/* Unlock / tap hint */}
