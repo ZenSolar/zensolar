@@ -416,7 +416,7 @@ export function ActivityMetrics({
                   </div>
                 </div>
                 <span 
-                  className="text-[9px] font-medium tracking-wide"
+                  className="text-[9px] font-medium tracking-wide inline-flex flex-wrap justify-center items-baseline gap-x-1 gap-y-0.5 px-1 leading-snug"
                   style={{ 
                     color: 'hsl(var(--primary) / 0.6)',
                     textShadow: '0 0 6px hsl(var(--primary) / 0.3)',
@@ -424,13 +424,13 @@ export function ActivityMetrics({
                 >
                   {headerSubtitleParts.length > 1 ? (
                     headerSubtitleParts.map((part, i) => (
-                      <span key={i}>
-                        <span
-                          className="underline decoration-primary/40 decoration-[0.5px] underline-offset-[3px]"
-                        >
+                      <span key={i} className="inline-flex items-baseline whitespace-nowrap">
+                        <span className="underline decoration-primary/40 decoration-[0.5px] underline-offset-[3px]">
                           {part}
                         </span>
-                        {i < headerSubtitleParts.length - 1 && <span className="mx-1 no-underline opacity-70"> · </span>}
+                        {i < headerSubtitleParts.length - 1 && (
+                          <span className="ml-1 no-underline opacity-70" aria-hidden="true">·</span>
+                        )}
                       </span>
                     ))
                   ) : (
