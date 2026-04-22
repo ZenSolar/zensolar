@@ -261,7 +261,7 @@ export function ActivityMetrics({
     vehicleName ? { label: `Your ${vehicleName}` } : null,
     solarName ? { label: solarName, icon: 'sun' as const } : null,
     batteryName ? { label: batteryName, icon: 'battery' as const } : null,
-    { label: 'EV Charging kWh' },
+    { label: evChargingLabel },
   ].filter(Boolean) as { label: string; icon?: 'sun' | 'battery' }[];
   const headerSubtitle = headerSubtitleParts.length > 1
     ? headerSubtitleParts.map(p => p.label).join(' · ')
