@@ -4,7 +4,7 @@ import { VipWelcomeScreen } from '@/components/demo/VipWelcomeScreen';
 import { activateVipCode } from '@/lib/vipDemo';
 import { SEO } from '@/components/SEO';
 
-const TAYLOR_CODE = 'TAYTAY-2026';
+const TAYLOR_CODE = 'FUCKYEAH-TAYTAY-2026';
 
 /**
  * NDA-bypass preview of Taylor's exact VIP onboarding experience.
