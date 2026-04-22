@@ -420,7 +420,7 @@ export function ActivityMetrics({
                     color: 'hsl(var(--primary) / 0.6)',
                     textShadow: '0 0 6px hsl(var(--primary) / 0.3)',
                   }}
-                >Your Model Y · Solar Roof · Powerwall 3 · EV Charging kWh</span>
+                >{headerSubtitle}</span>
               </div>
             )}
           </div>
