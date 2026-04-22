@@ -549,6 +549,35 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
   }, []);
 
+  // Lock document scroll while the iOS keyboard is up so Chrome iOS / Safari
+  // can't scroll the underlying page out from under our pinned access gate.
+  // Without this, Chrome iOS scrolls the document on focus and the gate
+  // appears to "drift offscreen" even though our container is pinned.
+  useEffect(() => {
+    if (!isIOS || !inputFocused) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyPosition = body.style.position;
+    const prevBodyWidth = body.style.width;
+    const prevBodyTop = body.style.top;
+    const scrollY = window.scrollY;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.width = '100%';
+    body.style.top = `-${scrollY}px`;
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      body.style.position = prevBodyPosition;
+      body.style.width = prevBodyWidth;
+      body.style.top = prevBodyTop;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isIOS, inputFocused]);
+
   // ── Core submit logic ──
   const submitCode = useCallback(async () => {
     const trimmed = code.trim();
@@ -1225,13 +1254,23 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       </div>
 
       {/* Central content */}
+      {/*
+        When the iOS keyboard is up we switch to position:fixed so the gate
+        stays locked to the visual viewport even if Chrome iOS scrolls the
+        underlying document. Otherwise we use the normal absolute layout that
+        tracks visualViewport offsets.
+      */}
       <div
-        className="absolute inset-x-0 pointer-events-none"
+        className={cn(
+          'inset-x-0 pointer-events-none',
+          shouldPinGateForKeyboard ? 'fixed left-0 right-0' : 'absolute'
+        )}
         style={{
           top: shouldPinGateForKeyboard ? '0px' : 'var(--gate-visible-offset-top, 0px)',
           height: shouldPinGateForKeyboard
-            ? `max(calc(100dvh - ${Math.round(keyboardInset)}px), 260px)`
+            ? `max(calc(100svh - ${Math.round(keyboardInset)}px), 260px)`
             : 'var(--gate-visible-height, 100dvh)',
+          zIndex: shouldPinGateForKeyboard ? 50 : undefined,
         }}
       >
         <div
@@ -1821,7 +1860,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                           willScroll: offscreen,
                         });
                       }
-                      if (!isIOS && offscreen) {
+                      // Re-enable scrollIntoView for iOS as a fallback. With the
+                      // pinned fixed-position container + locked body scroll
+                      // (see effect below) this is usually a no-op, but on
+                      // Chrome iOS it gently nudges the input back into the
+                      // visible area if Chrome's auto-scroll left it offscreen.
+                      if (offscreen) {
                         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
                       }
                       if (iosQaEnabled) {
