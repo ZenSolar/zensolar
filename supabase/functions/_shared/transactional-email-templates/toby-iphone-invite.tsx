@@ -284,6 +284,16 @@ const stepNum = {
 }
 const stepText = { fontSize: '15px', color: '#1f2937', lineHeight: '1.6', margin: '0' }
 const subStep = { fontSize: '13px', color: '#6b7280' }
+const homescreenCard = {
+  margin: '20px 0 8px', padding: '18px 18px',
+  background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+  border: '1px solid #a7f3d0', borderRadius: '12px',
+}
+const homescreenLabel = {
+  fontSize: '11px', fontWeight: 700 as const, letterSpacing: '1.5px',
+  color: '#059669', margin: '0 0 8px',
+}
+const homescreenText = { fontSize: '14px', color: '#1f2937', lineHeight: '1.6', margin: '0' }
 const inlineLink = { color: '#10b981', textDecoration: 'underline', fontWeight: 600 as const }
 const pullQuote = { borderLeft: '4px solid #10b981', padding: '4px 0 4px 18px', margin: '24px 0' }
 const pullQuoteText = {
