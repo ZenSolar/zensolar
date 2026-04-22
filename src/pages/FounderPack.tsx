@@ -573,6 +573,67 @@ function PackContent() {
         </Pull>
       </Section>
 
+      {/* ─── ECLIPSING BITCOIN (NEW) ─── */}
+      <Section id="eclipse" eyebrow="Chapter Eleven" title="Why $ZSOLAR Eclipses Bitcoin">
+        <Lead>
+          Bitcoin proved digital scarcity. We borrowed every lesson it
+          taught — and then we did what Bitcoin structurally cannot. We
+          attached the scarcity to <em>real, verifiable, physical work</em>{" "}
+          that humanity will be doing for the next thousand years.
+        </Lead>
+        <DataTable
+          headers={["Property", "Bitcoin", "$ZSOLAR"]}
+          rows={[
+            ["Scarcity vectors", "1 (hard cap)", "5 (cap + halving + 3 burns)"],
+            ["Backing", "Math + electricity spent", "Verified clean energy delivered"],
+            ["Utility per token", "Store of value", "Store of value + protocol fuel + redemption"],
+            ["Energy footprint", "Consumes ~150 TWh/yr", "Mints from energy produced"],
+            ["Patent moat", "None", "8 categories, $10T+ TAM"],
+            ["Founder accountability", "Anonymous, gone", "Two named founders, pact-locked for life"],
+            ["Revenue to protocol", "$0", "Subscriptions + 7% transfer tax + redemption fees"],
+            ["Real-world settlement", "Speculative", "On-chain receipts for Tesla, SpaceX, Starlink"],
+          ]}
+        />
+        <Pull>
+          Bitcoin is digital gold.
+          <br />
+          $ZSOLAR is{" "}
+          <span className="text-primary">digital photosynthesis</span> —
+          the unit account of every joule humanity verifies, forever.
+        </Pull>
+        <P>
+          Bitcoin's market cap topped $2T on a network that{" "}
+          <em>consumes</em> energy. $ZSOLAR sits at the front door of the
+          $10T+ clean-energy economy and{" "}
+          <strong>mints from energy that gets produced</strong>. The pool we
+          tokenize is an order of magnitude larger than Bitcoin's narrative,
+          and it grows every time a Powerwall, a Megapack, a Supercharger,
+          a Tesla, an Optimus, or a Starlink node delivers another verified
+          unit of work.
+        </P>
+        <Stat>
+          <StatRow label="BTC at $100K" value="~$2T market cap" sub="One scarcity vector. Zero protocol revenue. Anonymous." />
+          <StatRow label="$ZSOLAR at $10" value="~$10T fully diluted" sub="Five scarcity vectors. Six revenue lines. Patent-gated. Founders accountable for life." />
+          <StatRow label="$ZSOLAR at $100" value="~$100T fully diluted" sub="Trillionaire crossover; Tesla/SpaceX/Starlink mint surface fully active." />
+        </Stat>
+        <Pull>
+          They built a religion around scarcity.
+          <br />
+          We built{" "}
+          <span className="text-primary">a protocol around proof</span>.
+          <br />
+          One of those scales to the solar system.
+        </Pull>
+        <P>
+          The PR cascade in Chapter Three is engineered to plant exactly this
+          seed — that there is, for the first time since 2009, a credible
+          challenger to Bitcoin's narrative. Not a memecoin. Not a fork. A
+          patent-gated, founder-locked, energy-backed protocol with a 100+
+          year operating horizon. By the time the public catches on, the
+          float is already tightening.
+        </P>
+      </Section>
+
       {/* ─── PACT ─── */}
       <Section id="pact" eyebrow="Final Chapter" title="The Family Legacy Pact">
         <Lead>
