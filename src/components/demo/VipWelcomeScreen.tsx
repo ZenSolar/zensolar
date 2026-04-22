@@ -47,7 +47,7 @@ const VIP_WELCOMES: Record<
     firstName: 'Dwight',
     title: 'Welcome, Dwight.',
     body:
-      "Brother — you've been one of the realest voices in my corner through all of this. This is the live thing. Patent-pending, on-chain, mintable. Tap anything, break anything, then tell me what a Toyota guy who actually gets energy thinks. Means a lot that you're seeing it before almost anyone else.",
+      "Dwight — even though version one of ZenSolar didn't work out the way we hoped, I will never forget your contributions, your energy, and the support you gave me back then. You were truly my first right-hand man when ZS was a completely different business than what it is now.\n\nThis is the evolution. The next chapter. What ZenSolar was always meant to be — patent-pending, on-chain, and live.\n\nYou're one of the first people outside the inner circle to actually feel it. Tap anything. Break anything. Then tell me what you think — if you have the time.\n\nBitcoin is scarce because of PoW (Proof-of-Work) and math. ZenSolar is infinitely productive — and good for civilization — because of PoG (Proof-of-Genesis™), physics, and math. That's exactly why we're going to eclipse Bitcoin's market cap by 5x to 10x.",
     signoff: '— Joe',
     cta: 'Enter the Clean Energy Center',
   },
