@@ -35,6 +35,14 @@ const VIP_WELCOMES: Record<
     signoff: '— Joe',
     cta: 'Enter the Clean Energy Center',
   },
+  'LOBV-2026': {
+    firstName: 'Toby',
+    title: 'Welcome, Toby.',
+    body:
+      "On November 3, 2023, I started researching the patented technology that became ZenSolar. On November 23, 2023, I finally grew the balls to paste my first block of Grok-generated code into a terminal — no idea what I was doing. 28 months later, you're holding what it became. You're one of the first people outside the inner circle to actually feel it. Tap everything. Break anything. Then tell me what you think.",
+    signoff: '— Joe',
+    cta: 'Enter the Clean Energy Center',
+  },
 };
 
 export function getVipWelcomeForCode(code: string | null | undefined) {
