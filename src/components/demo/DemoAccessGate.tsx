@@ -676,7 +676,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           updateState({ phase: 'idle' });
           setCode('');
           lastTapTimeRef.current = 0;
-          inputRef.current?.focus();
+          // Do NOT force-refocus the input — refocusing causes the keyboard to
+          // re-open and the gate to re-layout, which produced the visible jump
+          // after an invalid code. Let the user tap the field again.
         }, 600);
       }
     } catch {
