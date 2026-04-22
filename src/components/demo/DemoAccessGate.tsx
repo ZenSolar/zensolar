@@ -1907,20 +1907,22 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
 
         {/* Subtle branding footer */}
-        <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
-          <div
-            className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
-            style={{
-backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 11%, hsl(280,80%,65%) 22%, hsl(280,80%,65%) 44%, hsl(var(--secondary)) 55%, hsl(var(--secondary)) 77%, hsl(var(--primary)) 88%, hsl(var(--primary)) 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'gateTaglineSpotlight 7s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-            }}
-          >
-            <span>The World's First One-Tap,</span>
-            <br />
-            <span>Mint-on-Proof™️ Clean Energy Platform</span>
+        {!isIOSKeyboardMode && (
+          <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
+            <div
+              className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
+              style={{
+                backgroundImage: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 11%, hsl(280,80%,65%) 22%, hsl(280,80%,65%) 44%, hsl(var(--secondary)) 55%, hsl(var(--secondary)) 77%, hsl(var(--primary)) 88%, hsl(var(--primary)) 100%)',
+                backgroundSize: '200% 100%',
+                animation: 'gateTaglineSpotlight 7s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+              }}
+            >
+              <span>The World's First One-Tap,</span>
+              <br />
+              <span>Mint-on-Proof™️ Clean Energy Platform</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* NDA Signature Overlay */}
