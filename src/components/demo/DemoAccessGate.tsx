@@ -290,6 +290,34 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (typeof navigator === 'undefined') return false;
     return /Android/i.test(navigator.userAgent);
   }, []);
+  // iOS detection (covers iPad-as-Mac via maxTouchPoints).
+  const isIOS = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent;
+    return /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  }, []);
+  // iOS QA mode — opt-in via ?iosqa=1. Logs every scroll/resize/visualViewport
+  // event around input focus so we can pinpoint when the field goes offscreen
+  // behind the keyboard or the autofill toolbar.
+  const iosQaEnabled = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    if (!isIOS) return false;
+    const p = new URLSearchParams(window.location.search);
+    return p.has('iosqa') || p.get('debug') === 'ios';
+  }, [isIOS]);
+  const [iosQaEvents, setIosQaEvents] = useState<Array<{ t: number; tag: string; data: string }>>([]);
+  const iosQaStartRef = useRef<number>(0);
+  const logIosQa = useCallback((tag: string, data: Record<string, unknown> = {}) => {
+    if (!iosQaEnabled) return;
+    const now = performance.now();
+    const elapsed = iosQaStartRef.current ? Math.round(now - iosQaStartRef.current) : 0;
+    const dataStr = Object.entries(data)
+      .map(([k, v]) => `${k}=${typeof v === 'number' ? Math.round(v as number) : v}`)
+      .join(' ');
+    // eslint-disable-next-line no-console
+    console.log(`[iosQA +${elapsed}ms] ${tag}`, data);
+    setIosQaEvents((prev) => [...prev.slice(-19), { t: elapsed, tag, data: dataStr }]);
+  }, [iosQaEnabled]);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
