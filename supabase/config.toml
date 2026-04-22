@@ -69,6 +69,8 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.tesla-register]
     verify_jwt = false
+  [functions.track-email-open]
+    verify_jwt = false
   [functions.verify-turnstile]
     verify_jwt = false
   [functions.wallbox-auth]
