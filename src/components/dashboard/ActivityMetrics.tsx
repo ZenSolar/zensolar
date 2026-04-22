@@ -425,8 +425,8 @@ export function ActivityMetrics({
                 <span 
                   className="text-[9px] font-medium tracking-wide inline-flex flex-wrap justify-center items-baseline gap-x-1 gap-y-0.5 px-1 leading-snug"
                   style={{ 
-                    color: 'hsl(var(--primary) / 0.6)',
-                    textShadow: '0 0 6px hsl(var(--primary) / 0.3)',
+                    color: 'hsl(38 92% 65% / 0.9)',
+                    textShadow: '0 0 8px hsl(38 92% 55% / 0.4)',
                   }}
                 >
                   {headerSubtitleParts.length > 1 ? (
@@ -438,7 +438,10 @@ export function ActivityMetrics({
                         {part.icon === 'battery' && (
                           <span className="mr-0.5 no-underline" aria-hidden="true">🔋</span>
                         )}
-                        <span className="underline decoration-primary/40 decoration-[0.5px] underline-offset-[3px]">
+                        <span
+                          className="underline decoration-[0.5px] underline-offset-[3px]"
+                          style={{ textDecorationColor: 'hsl(38 92% 60% / 0.5)' }}
+                        >
                           {part.label}
                         </span>
                         {i < headerSubtitleParts.length - 1 && (
