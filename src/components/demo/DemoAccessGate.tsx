@@ -251,15 +251,28 @@ interface GateDiagnosticEvent {
 // that live under /demo/* but should not require an access code).
 const GATE_BYPASS_PATHS = ['/engineering', '/demo/engineering'];
 
+function isPreviewDemoQaRoute() {
+  if (typeof window === 'undefined') return false;
+
+  const host = window.location.hostname;
+  const isPreviewHost = host.includes('id-preview--') || host.includes('lovableproject.com');
+
+  return isPreviewHost && window.location.pathname.startsWith('/demo') && !GATE_BYPASS_PATHS.includes(window.location.pathname);
+}
+
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
       removeStoredValue(LS_KEY);
-      window.history.replaceState({}, '', window.location.pathname);
+      params.delete('reset');
+      const nextSearch = params.toString();
+      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
+      window.history.replaceState({}, '', nextUrl);
       return false;
     }
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
+    if (isPreviewDemoQaRoute()) return false;
     return isAccessGranted();
   });
   // Capture deep-link params for prefill / install-path routing
@@ -303,15 +316,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const ua = navigator.userAgent;
     return /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
   }, []);
-  // iOS QA mode — opt-in via ?iosqa=1. Logs every scroll/resize/visualViewport
-  // event around input focus so we can pinpoint when the field goes offscreen
-  // behind the keyboard or the autofill toolbar.
+  // Gate QA mode — always on in preview /demo, or opt-in via query params elsewhere.
   const iosQaEnabled = useMemo(() => {
     if (typeof window === 'undefined') return false;
-    if (!isIOS) return false;
     const p = new URLSearchParams(window.location.search);
-    return p.has('iosqa') || p.get('debug') === 'ios';
-  }, [isIOS]);
+    return isPreviewDemoQaRoute() || p.has('iosqa') || p.has('gateqa') || p.get('debug') === 'ios' || p.get('debug') === 'gate';
+  }, []);
   const [iosQaEvents, setIosQaEvents] = useState<Array<{ t: number; tag: string; data: string }>>([]);
   const iosQaStartRef = useRef<number>(0);
   const [keyboardInset, setKeyboardInset] = useState(0);
