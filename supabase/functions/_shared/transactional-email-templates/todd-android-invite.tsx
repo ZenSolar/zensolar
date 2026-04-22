@@ -16,9 +16,11 @@ import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'ZenSolar'
 const LOGO_URL = 'https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png'
+const ACCESS_CODE = 'TODD-2026'
 const SIGNUP_URL = 'https://beta.zen.solar/auth?mode=signup'
 const LOGIN_URL = 'https://beta.zen.solar/auth'
 const APP_URL = 'https://beta.zen.solar'
+const DEMO_MAGIC_URL = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=install`
 
 interface ToddAndroidInviteProps {
   firstName?: string
@@ -56,6 +58,21 @@ const ToddAndroidInviteEmail = ({ firstName, trackUrl }: ToddAndroidInviteProps)
               <strong>Quick heads-up:</strong> read this email all the way through before tapping
               anything. The order matters. There are 3 simple steps: <strong>1) Create your account,
               2) Install the app on Android, 3) Log in and explore the Founders Area</strong>.
+            </Text>
+          </Section>
+
+          <Section style={codeCard}>
+            <Text style={codeBadge}>Your private access code</Text>
+            <Text style={codeValue}>{ACCESS_CODE}</Text>
+            <Text style={codeHelp}>
+              You&apos;ll be asked for this on the <strong>Tap-to-Mint™ access screen</strong>.
+              Tap the button below and it auto-fills for you — or type it in by hand.
+            </Text>
+            <Link href={t('cta_demo_magic', DEMO_MAGIC_URL)} style={buttonPrimary}>
+              Open the access screen
+            </Link>
+            <Text style={secondaryNote}>
+              You can also do this <strong>after</strong> creating your account in Step 1 — both paths work.
             </Text>
           </Section>
 
@@ -235,6 +252,10 @@ const mintText = { margin: '0', fontSize: '15px', lineHeight: '24px', color: '#f
 const feedbackCard = { margin: '0 0 8px', padding: '18px 20px', backgroundColor: COLORS.surface, border: `1px solid ${COLORS.border}` }
 const feedbackTitle = { margin: '0 0 8px', fontSize: '18px', lineHeight: '26px', fontWeight: 700, color: COLORS.text }
 const feedbackText = { margin: '0', fontSize: '15px', lineHeight: '24px', color: COLORS.text }
+const codeCard = { margin: '20px 0', padding: '22px 20px', backgroundColor: '#fff8e6', border: `2px dashed #d4a017`, textAlign: 'center' as const }
+const codeBadge = { margin: '0 0 8px', fontSize: '12px', lineHeight: '18px', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase' as const, color: '#8a6500' }
+const codeValue = { margin: '0 0 12px', fontSize: '32px', lineHeight: '40px', fontWeight: 800, letterSpacing: '4px', color: '#5a4400', fontFamily: "'SF Mono', Menlo, Consolas, monospace" }
+const codeHelp = { margin: '0 0 14px', fontSize: '14px', lineHeight: '22px', color: COLORS.text }
 const signatureWrap = { margin: '20px 0 8px' }
 const signoff = { margin: '0 0 8px', fontSize: '16px', lineHeight: '24px', color: COLORS.text }
 const signatureName = { margin: '0 0 4px', fontSize: '18px', lineHeight: '24px', fontWeight: 700, color: COLORS.text }
