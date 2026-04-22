@@ -1143,12 +1143,27 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           height: 'var(--gate-visible-height, 100dvh)',
         }}
       >
-        <div className={cn("relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none", hexAwake ? 'gap-8' : 'gap-4')} style={{ justifyContent: 'start', paddingTop: 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)' }}>
-          {/* Logo */}
+        <div
+          className={cn(
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] duration-300",
+            hexAwake ? (inputFocused ? 'gap-3' : 'gap-8') : 'gap-4'
+          )}
+          style={{
+            justifyContent: 'start',
+            paddingTop: inputFocused
+              ? 'max(env(safe-area-inset-top, 0px) + 0.5rem, 1rem)'
+              : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
+          }}
+        >
+          {/* Logo — hidden while typing so the input stays above the keyboard */}
           <img
             src={zenLogo}
             alt="ZenSolar"
-            className={cn("h-8 w-auto object-contain transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}
+            className={cn(
+              "h-8 w-auto object-contain transition-all duration-300",
+              hexAwake ? 'opacity-100' : 'opacity-0',
+              inputFocused && 'h-0 opacity-0 -mt-2'
+            )}
             style={{ filter: 'drop-shadow(0 0 12px hsl(142 76% 36% / 0.45)) brightness(1.8)' }}
           />
 
