@@ -273,6 +273,39 @@ export type Database = {
           },
         ]
       }
+      email_opens: {
+        Row: {
+          id: string
+          ip_address: string | null
+          message_id: string
+          metadata: Json | null
+          opened_at: string
+          recipient_email: string | null
+          template_name: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          message_id: string
+          metadata?: Json | null
+          opened_at?: string
+          recipient_email?: string | null
+          template_name?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          message_id?: string
+          metadata?: Json | null
+          opened_at?: string
+          recipient_email?: string | null
+          template_name?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
