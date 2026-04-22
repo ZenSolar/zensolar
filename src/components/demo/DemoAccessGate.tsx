@@ -401,6 +401,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
   }, []);
 
+  // Auto-submit if a code came in via the URL (?code=XXXX from email deep links)
+  const autoSubmittedRef = useRef(false);
+  useEffect(() => {
+    if (granted) return;
+    if (autoSubmittedRef.current) return;
+    if (!prefillCodeFromUrl) return;
+    autoSubmittedRef.current = true;
+    // Strip ?code= from the URL so it isn't shareable / loggable after use
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('code');
+      url.searchParams.delete('access_code');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + url.hash);
+    } catch { /* noop */ }
+    // Defer one tick so submitCode (declared below) is in scope on next render
+    const t = setTimeout(() => {
+      void submitCodeRef.current?.();
+    }, 250);
+    return () => clearTimeout(t);
+  }, [granted, prefillCodeFromUrl]);
+  const submitCodeRef = useRef<(() => Promise<void>) | null>(null);
+
   const logGestureDebug = useCallback((eventName: string, details?: Record<string, unknown>) => {
     const ctx = getSharedAudioContext();
     logAudioDebug(eventName, {
