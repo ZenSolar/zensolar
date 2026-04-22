@@ -1726,8 +1726,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             />
 
             {/* Unlock / tap hint */}
-            <div className="flex justify-center h-8">
-              {showUnlockHint ? (
+            <div className={cn("flex justify-center transition-all duration-200", inputFocused ? 'h-5' : 'h-8')}>
+              {inputFocused ? (
+                <span className="text-[11px] font-medium text-foreground/55 flex items-center gap-1">
+                  <Lock className="h-3 w-3" />
+                  tap return to verify
+                </span>
+              ) : showUnlockHint ? (
                 <span
                   className="text-xs font-semibold text-primary flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/30"
                   style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
