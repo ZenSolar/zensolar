@@ -287,6 +287,13 @@ const FAST_ACCENT = '#60a5fa'
 const FAST_BG = '#0a1628'
 
 const html = { backgroundColor: BG, margin: '0', padding: '0' }
+const hardWrap = {
+  backgroundColor: BG,
+  color: TEXT,
+  margin: '0',
+  padding: '0',
+  width: '100%',
+}
 const main = {
   backgroundColor: BG,
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
