@@ -252,6 +252,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           </Text>
           </Container>
         </Section>
+        </div>
       </Body>
     </Html>
   )
