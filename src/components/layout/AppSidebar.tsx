@@ -623,9 +623,19 @@ export function AppSidebar() {
           </Avatar>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              {displayName && (
-                <p className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</p>
-              )}
+              <div className="flex items-center gap-1.5">
+                {displayName && (
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</p>
+                )}
+                {isFounder && !isAdmin && (
+                  <span
+                    title="Founder VIP access"
+                    className="inline-flex items-center gap-0.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-400 leading-none flex-shrink-0"
+                  >
+                    ★ VIP
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-sidebar-foreground/60 truncate">{userEmail}</p>
             </div>
           )}
