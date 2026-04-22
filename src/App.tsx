@@ -199,6 +199,7 @@ const App = () => {
                     <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
                     <Route path="/install" element={<Install />} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
+                    <Route path="/dwight-preview" element={<DwightPreview />} />
                     
                     {/* Demo routes with full sidebar — gated by access code + NDA */}
                     <Route path="/demo" element={<DemoAccessGate><DemoLayout /></DemoAccessGate>}>
