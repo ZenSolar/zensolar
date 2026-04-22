@@ -40,9 +40,9 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Section style={logoHeader}>
             <Img
               src={LOGO_URL}
-              alt="ZenSolar"
+              alt="ZenSolar — Creating Currency From Energy"
               width="180"
-              height="auto"
+              height="44"
               style={logoHeaderImg}
             />
           </Section>
