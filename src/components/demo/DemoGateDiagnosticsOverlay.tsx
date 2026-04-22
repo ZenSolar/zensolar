@@ -115,6 +115,7 @@ export function DemoGateDiagnosticsOverlay({
   gestureEvents,
 }: DemoGateDiagnosticsOverlayProps) {
   const [audioEntries, setAudioEntries] = useState<AudioDebugEntry[]>(() => getAudioDebugEntries());
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const onAudioDebugEvent = (event: Event) => {
