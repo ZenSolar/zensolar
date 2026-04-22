@@ -290,6 +290,34 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (typeof navigator === 'undefined') return false;
     return /Android/i.test(navigator.userAgent);
   }, []);
+  // iOS detection (covers iPad-as-Mac via maxTouchPoints).
+  const isIOS = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent;
+    return /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  }, []);
+  // iOS QA mode — opt-in via ?iosqa=1. Logs every scroll/resize/visualViewport
+  // event around input focus so we can pinpoint when the field goes offscreen
+  // behind the keyboard or the autofill toolbar.
+  const iosQaEnabled = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    if (!isIOS) return false;
+    const p = new URLSearchParams(window.location.search);
+    return p.has('iosqa') || p.get('debug') === 'ios';
+  }, [isIOS]);
+  const [iosQaEvents, setIosQaEvents] = useState<Array<{ t: number; tag: string; data: string }>>([]);
+  const iosQaStartRef = useRef<number>(0);
+  const logIosQa = useCallback((tag: string, data: Record<string, unknown> = {}) => {
+    if (!iosQaEnabled) return;
+    const now = performance.now();
+    const elapsed = iosQaStartRef.current ? Math.round(now - iosQaStartRef.current) : 0;
+    const dataStr = Object.entries(data)
+      .map(([k, v]) => `${k}=${typeof v === 'number' ? Math.round(v as number) : v}`)
+      .join(' ');
+    // eslint-disable-next-line no-console
+    console.log(`[iosQA +${elapsed}ms] ${tag}`, data);
+    setIosQaEvents((prev) => [...prev.slice(-19), { t: elapsed, tag, data: dataStr }]);
+  }, [iosQaEnabled]);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
@@ -463,7 +491,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const viewport = window.visualViewport;
-    const syncViewport = () => {
+    const syncViewport = (source: string = 'init') => {
       if (!containerRef.current) return;
       const visibleHeight = Math.ceil(viewport?.height ?? window.innerHeight);
       const visibleOffsetTop = Math.max(Math.ceil(viewport?.offsetTop ?? 0), 0);
@@ -478,15 +506,31 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       containerRef.current.style.setProperty('--gate-visible-offset-top', `${visibleOffsetTop}px`);
       containerRef.current.style.height = `${coverageHeight}px`;
       containerRef.current.style.minHeight = `${coverageHeight}px`;
+
+      // iOS QA: report viewport changes + whether the input is currently visible
+      if (iosQaEnabled && inputRef.current) {
+        const rect = inputRef.current.getBoundingClientRect();
+        const offscreen = rect.bottom > visibleHeight - 4 || rect.top < 4;
+        logIosQa(`viewport:${source}`, {
+          vh: visibleHeight,
+          vOff: visibleOffsetTop,
+          inputTop: rect.top,
+          inputBot: rect.bottom,
+          offscreen,
+        });
+      }
     };
-    syncViewport();
-    window.addEventListener('resize', syncViewport);
-    viewport?.addEventListener('resize', syncViewport);
-    viewport?.addEventListener('scroll', syncViewport);
+    syncViewport('init');
+    const onWinResize = () => syncViewport('window-resize');
+    const onVvResize = () => syncViewport('vv-resize');
+    const onVvScroll = () => syncViewport('vv-scroll');
+    window.addEventListener('resize', onWinResize);
+    viewport?.addEventListener('resize', onVvResize);
+    viewport?.addEventListener('scroll', onVvScroll);
     return () => {
-      window.removeEventListener('resize', syncViewport);
-      viewport?.removeEventListener('resize', syncViewport);
-      viewport?.removeEventListener('scroll', syncViewport);
+      window.removeEventListener('resize', onWinResize);
+      viewport?.removeEventListener('resize', onVvResize);
+      viewport?.removeEventListener('scroll', onVvScroll);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
@@ -1083,6 +1127,39 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     >
       {showAudioDebug && <AudioDebugOverlay />}
       {showAudioDebug && <HumLoopDiagnosticsOverlay />}
+      {iosQaEnabled && (
+        <div
+          className="fixed top-2 left-2 right-2 z-[9999] pointer-events-none rounded-lg border border-primary/40 bg-black/80 backdrop-blur-sm p-2 text-[10px] font-mono text-primary/90 max-h-[40vh] overflow-hidden"
+          aria-hidden
+        >
+          <div className="flex items-center justify-between mb-1 text-primary">
+            <span className="font-bold">iOS QA · access-gate</span>
+            <span className="opacity-70">vh:{Math.round(window.visualViewport?.height ?? window.innerHeight)}</span>
+          </div>
+          <div className="space-y-0.5 leading-tight">
+            {iosQaEvents.length === 0 ? (
+              <div className="opacity-60">Tap the input to start logging…</div>
+            ) : (
+              iosQaEvents.slice(-12).map((e, i) => {
+                const isJank = e.tag.includes('post-scroll') && e.data.includes('offscreen=true');
+                const isOff = e.data.includes('offscreen=true');
+                return (
+                  <div
+                    key={`${e.t}-${i}`}
+                    className={cn(
+                      'truncate',
+                      isJank && 'text-destructive font-bold',
+                      !isJank && isOff && 'text-yellow-400',
+                    )}
+                  >
+                    +{e.t}ms {e.tag} {e.data}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
       {showReleaseAudioDiagnostics && (
         <ReleaseAudioDiagnostics
           fallbackArmed={releaseAudioDiagnostics.fallbackArmed}
@@ -1695,6 +1772,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 setInputFocused(true);
+                // Start iOS QA timeline at focus moment
+                if (iosQaEnabled) {
+                  iosQaStartRef.current = performance.now();
+                  setIosQaEvents([]);
+                  const r0 = inputRef.current?.getBoundingClientRect();
+                  logIosQa('focus', {
+                    inputTop: r0?.top ?? -1,
+                    inputBot: r0?.bottom ?? -1,
+                    vh: window.visualViewport?.height ?? window.innerHeight,
+                  });
+                }
                 // Android: Gboard animates in faster than iOS but visualViewport
                 // resize fires later/inconsistently. Use a longer settle window
                 // and a more aggressive scroll. iOS path is unchanged.
@@ -1706,19 +1794,47 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       if (!el) return;
                       const rect = el.getBoundingClientRect();
                       const vh = window.visualViewport?.height ?? window.innerHeight;
+                      const offscreen = rect.bottom > vh - 8 || rect.top < 8;
+                      if (iosQaEnabled) {
+                        logIosQa('settle-check', {
+                          inputTop: rect.top,
+                          inputBot: rect.bottom,
+                          vh,
+                          offscreen,
+                          willScroll: isAndroid || offscreen,
+                        });
+                      }
                       if (isAndroid) {
                         // Always center on Android — the keyboard often resizes
                         // the layout viewport, leaving the input flush against
                         // the keyboard edge with no breathing room.
                         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                      } else if (rect.bottom > vh - 8 || rect.top < 8) {
+                      } else if (offscreen) {
                         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                      }
+                      // iOS QA: re-check after the smooth scroll settles
+                      if (iosQaEnabled) {
+                        window.setTimeout(() => {
+                          const r2 = inputRef.current?.getBoundingClientRect();
+                          const vh2 = window.visualViewport?.height ?? window.innerHeight;
+                          if (r2) {
+                            logIosQa('post-scroll', {
+                              inputTop: r2.top,
+                              inputBot: r2.bottom,
+                              vh: vh2,
+                              offscreen: r2.bottom > vh2 - 8 || r2.top < 8,
+                            });
+                          }
+                        }, 500);
                       }
                     });
                   });
                 }, settleMs);
               }}
-              onBlur={() => setInputFocused(false)}
+              onBlur={() => {
+                setInputFocused(false);
+                if (iosQaEnabled) logIosQa('blur', {});
+              }}
               placeholder="ACCESS CODE"
               disabled={isVerifying || isBursting}
               className={cn(
