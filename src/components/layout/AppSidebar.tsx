@@ -81,6 +81,7 @@ const mainNavItems = [
   { title: "My Energy Logs", url: "/energy-log", icon: BarChart3 },
   { title: "NFT Collection", url: "/nft-collection", icon: Award },
   { title: "Learn", url: "/learn", icon: BookOpen },
+  { title: "Proof-of-Genesis™", url: "/proof-of-genesis", icon: Sparkles },
   { title: "White Paper", url: "/white-paper", icon: FileText },
   { title: "Patent Technology", url: "/technology", icon: Cpu },
   { title: "Referrals", url: "/referrals", icon: Users },
