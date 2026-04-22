@@ -7,6 +7,9 @@ import type { TemplateEntry } from './registry.ts'
 const SITE_NAME = "ZenSolar"
 const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png"
 const DEMO_URL = "https://beta.zen.solar/demo"
+// iOS Safari deep link — forces the link to open in Safari instead of the in-app browser
+const SAFARI_DEEP_LINK = "x-safari-https://beta.zen.solar/demo"
+const ACCESS_CODE = "LOBV-2026"
 
 interface TobyIphoneInviteProps {
   firstName?: string
@@ -15,7 +18,7 @@ interface TobyIphoneInviteProps {
 const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Built for your iPhone — four months of work, one tap away.</Preview>
+    <Preview>29 months in the making — built for your iPhone, one tap away.</Preview>
     <Body style={main}>
       <Container style={container}>
 
@@ -24,21 +27,34 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
         </Section>
 
         <Heading style={hero}>
-          Four months of work,<br />
-          <span style={heroAccent}>built for your iPhone.</span>
+          29 months in the making.<br />
+          <span style={heroAccent}>One tap on your iPhone.</span>
         </Heading>
 
         <Text style={greeting}>Hi {firstName || 'Toby'},</Text>
 
         <Text style={paragraph}>
-          This is what I've been working on, head down, just about every single day for the last four months. I wanted you to be one of the first people outside the inner circle to actually feel it — and I tuned this invite specifically for your iPhone, so the demo opens clean, fast, and full-screen the moment you tap the button below.
+          On <strong>November 3, 2023</strong>, I started researching what would become ZenSolar's patented technology. Twenty days later — <strong>November 23, 2023</strong> — I worked up the balls to start copying and pasting code Grok was feeding me into a separate terminal, line by line, not really understanding half of it.
+        </Text>
+
+        <Text style={paragraph}>
+          That was <strong>29 months ago</strong>. Heads down. Almost every single day. Today it's a patent-pending product, and I want you to be one of the first people outside the inner circle to actually feel it — tuned specifically for your iPhone.
         </Text>
 
         <Section style={ctaSection}>
           <Link href={DEMO_URL} style={ctaButton}>
             Open the demo on your iPhone  →
           </Link>
-          <Text style={ctaCaption}>Tap from your iPhone for the best experience · ~90 seconds to feel it.</Text>
+          <Text style={ctaCaption}>Tap from your iPhone · ~90 seconds to feel it</Text>
+          <Text style={safariFallback}>
+            If it opens inside Mail or another app, <Link href={SAFARI_DEEP_LINK} style={inlineLink}>tap here to force-open in Safari</Link>.
+          </Text>
+        </Section>
+
+        <Section style={codeBlock}>
+          <Text style={codeLabel}>YOUR PERSONAL ACCESS CODE</Text>
+          <Text style={codeValue}>{ACCESS_CODE}</Text>
+          <Text style={codeHint}>Tied to you. Unlocks a VIP welcome + ★ VIP badge inside the app.</Text>
         </Section>
 
         <Hr style={sectionDivider} />
@@ -55,14 +71,16 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
         <Section style={stepRow}>
           <Text style={stepNum}>2.</Text>
           <Text style={stepText}>
-            Tap this link: <Link href={DEMO_URL} style={inlineLink}>beta.zen.solar/demo</Link>
+            Tap this link to open in Safari: <Link href={DEMO_URL} style={inlineLink}>beta.zen.solar/demo</Link>
+            <br />
+            <span style={subStep}>Trouble? <Link href={SAFARI_DEEP_LINK} style={inlineLink}>Force-open in Safari →</Link></span>
           </Text>
         </Section>
 
         <Section style={stepRow}>
           <Text style={stepNum}>3.</Text>
           <Text style={stepText}>
-            It opens in <strong>Safari</strong>. That's it — you're in.
+            Enter your access code: <strong style={codeInline}>{ACCESS_CODE}</strong>
           </Text>
         </Section>
 
@@ -101,7 +119,7 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
 
         <Section style={pullQuote}>
           <Text style={pullQuoteText}>
-            Four months of building, one iPhone, one tap. Tell me what you feel — the good, the weird, the "wait, how does this actually work?" That's exactly what I want to hear.
+            29 months. One iPhone. One tap. Tell me what you feel — the good, the weird, the "wait, how does this actually work?" That's exactly what I want to hear.
           </Text>
         </Section>
 
@@ -143,14 +161,14 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
 
 export const template = {
   component: TobyIphoneInviteEmail,
-  subject: "Built for your iPhone — four months of work, one tap away",
+  subject: "29 months of work — built for your iPhone, one tap away",
   displayName: 'Toby iPhone invite',
   previewData: {
     firstName: 'Toby',
   },
 } satisfies TemplateEntry
 
-// ── Styles (mirrored from julian-pixel-invite for brand consistency) ──
+// ── Styles ──
 const main = {
   backgroundColor: '#ffffff',
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
@@ -177,7 +195,7 @@ const heroAccent = {
 }
 const greeting = { fontSize: '16px', color: '#0a0a0a', margin: '0 0 16px', fontWeight: 600 as const }
 const paragraph = { fontSize: '16px', color: '#374151', lineHeight: '1.65', margin: '0 0 18px' }
-const ctaSection = { textAlign: 'center' as const, margin: '32px 0 28px' }
+const ctaSection = { textAlign: 'center' as const, margin: '32px 0 24px' }
 const ctaButton = {
   display: 'inline-block',
   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -186,7 +204,31 @@ const ctaButton = {
   fontSize: '16px', letterSpacing: '0.01em',
   boxShadow: '0 8px 24px -8px rgba(16, 185, 129, 0.5)',
 }
-const ctaCaption = { fontSize: '13px', color: '#9ca3af', margin: '12px 0 0', fontStyle: 'italic' as const }
+const ctaCaption = { fontSize: '13px', color: '#9ca3af', margin: '12px 0 6px', fontStyle: 'italic' as const }
+const safariFallback = { fontSize: '12px', color: '#9ca3af', margin: '0' }
+const codeBlock = {
+  margin: '8px 0 28px',
+  padding: '20px 18px',
+  background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)',
+  border: '1px dashed #10b981',
+  borderRadius: '14px',
+  textAlign: 'center' as const,
+}
+const codeLabel = {
+  fontSize: '10px', fontWeight: 700 as const, letterSpacing: '2px',
+  color: '#059669', margin: '0 0 8px',
+}
+const codeValue = {
+  fontSize: '28px', fontWeight: 800 as const, color: '#065f46',
+  letterSpacing: '0.08em', margin: '0 0 8px',
+  fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace",
+}
+const codeHint = { fontSize: '12px', color: '#6b7280', margin: '0', fontStyle: 'italic' as const }
+const codeInline = {
+  fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace",
+  background: '#ecfdf5', color: '#065f46', padding: '2px 8px',
+  borderRadius: '6px', letterSpacing: '0.05em',
+}
 const sectionDivider = { borderColor: '#f3f4f6', borderWidth: '1px 0 0', margin: '32px 0 24px' }
 const sectionLabel = {
   fontSize: '11px', fontWeight: 700 as const, letterSpacing: '2px',
@@ -202,6 +244,7 @@ const stepNum = {
   margin: '0 0 4px', letterSpacing: '0.02em',
 }
 const stepText = { fontSize: '15px', color: '#1f2937', lineHeight: '1.6', margin: '0' }
+const subStep = { fontSize: '13px', color: '#6b7280' }
 const inlineLink = { color: '#10b981', textDecoration: 'underline', fontWeight: 600 as const }
 const pullQuote = { borderLeft: '4px solid #10b981', padding: '4px 0 4px 18px', margin: '24px 0' }
 const pullQuoteText = {
