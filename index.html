@@ -6,6 +6,44 @@
     <style>
       html,body{background:#0a1628;background:hsl(var(--background))}
     </style>
+    <!-- BLOCKING pre-paint theme initializer.
+         Must run before CSS/React so the correct .dark class is on <html> before first paint.
+         - Runs one-time migration from legacy "light"/"system" -> "dark".
+         - Forces dark on /demo (without persisting, so user prefs elsewhere are preserved).
+         - Reads next-themes' default "theme" key from localStorage. -->
+    <script>
+      (function () {
+        try {
+          var MIGRATION_KEY = 'zs-theme-default-v2';
+          var STORAGE_KEY = 'theme'; // next-themes default
+          var ls = window.localStorage;
+
+          // One-time migration: anyone on light/system/unset becomes dark by default.
+          if (!ls.getItem(MIGRATION_KEY)) {
+            var prior = ls.getItem(STORAGE_KEY);
+            if (!prior || prior === 'light' || prior === 'system') {
+              ls.setItem(STORAGE_KEY, 'dark');
+            }
+            ls.setItem(MIGRATION_KEY, '1');
+          }
+
+          var path = window.location.pathname || '';
+          var isDemo = path === '/demo' || path.indexOf('/demo/') === 0;
+
+          var stored = ls.getItem(STORAGE_KEY);
+          // Default is dark unless the user explicitly chose light.
+          var theme = isDemo ? 'dark' : (stored === 'light' ? 'light' : 'dark');
+
+          var root = document.documentElement;
+          root.classList.remove('light', 'dark');
+          root.classList.add(theme);
+          root.style.colorScheme = theme;
+        } catch (e) {
+          // Fail safe -> dark
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <!-- Google tag (gtag.js) - deferred to avoid blocking FCP/LCP -->
     <script>
       window.dataLayer = window.dataLayer || [];

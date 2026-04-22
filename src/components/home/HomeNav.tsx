@@ -2,21 +2,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { useEffect } from 'react';
-import { useTheme } from 'next-themes';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 export function HomeNav() {
-  const { setTheme, theme } = useTheme();
-  const previousTheme = theme;
-
-  useEffect(() => {
-    setTheme('dark');
-    return () => {
-      if (previousTheme && previousTheme !== 'dark') {
-        setTheme(previousTheme);
-      }
-    };
-  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
@@ -36,6 +24,7 @@ export function HomeNav() {
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
+          <ThemeToggle />
           <Link to="/auth">
             <Button variant="ghost" size="sm" className="px-3">Log In</Button>
           </Link>
