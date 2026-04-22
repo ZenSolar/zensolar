@@ -172,17 +172,17 @@ export function ProofOfGenesisThesis() {
                 </span>
               </div>
               {COMPARISON_ROWS.map((row) => (
-                <>
-                  <div key={`${row.axis}-axis`} className="bg-card px-4 py-3 text-sm font-medium text-foreground/90">
+                <div key={row.axis} className="contents">
+                  <div className="bg-card px-4 py-3 text-sm font-medium text-foreground/90">
                     {row.axis}
                   </div>
-                  <div key={`${row.axis}-btc`} className="bg-card px-4 py-3 text-sm text-foreground/75">
+                  <div className="bg-card px-4 py-3 text-sm text-foreground/75">
                     {row.btc}
                   </div>
-                  <div key={`${row.axis}-zen`} className="bg-card px-4 py-3 text-sm text-foreground">
+                  <div className="bg-card px-4 py-3 text-sm text-foreground">
                     {row.zen}
                   </div>
-                </>
+                </div>
               ))}
             </div>
           </div>
