@@ -879,6 +879,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
 
     if (!heldLongEnough) {
+      if (!s.hexAwake && (wasHoldReady || held >= HOLD_THRESHOLD_MS * 0.55)) {
+        logGestureQa('false-start-suspect', {
+          held,
+          wasHoldReady,
+          audioReady,
+          fallbackArmed: releaseAudioDiagnostics.fallbackArmed,
+          lastAudioEvent: releaseAudioDiagnostics.lastEvent,
+        });
+      }
       if (!s.hexAwake) {
         stopDemoEntryFallbackHum();
       }
