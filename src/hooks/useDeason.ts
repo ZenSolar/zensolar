@@ -1,15 +1,23 @@
 import { useCallback, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface DeasonContentPart {
+  type: "text" | "image_url";
+  text?: string;
+  image_url?: { url: string };
+}
+
 export interface DeasonMessage {
   role: "user" | "assistant";
-  content: string;
+  content: string | DeasonContentPart[];
 }
 
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`;
 
 /**
  * Streaming chat hook for Deason. Ephemeral — nothing persisted.
+ * Supports text + image attachments (e.g. utility bill uploads) via
+ * OpenAI-style multimodal `content` arrays.
  */
 export function useDeason() {
   const [messages, setMessages] = useState<DeasonMessage[]>([]);
@@ -25,12 +33,20 @@ export function useDeason() {
   }, []);
 
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, imageDataUrl?: string) => {
       const trimmed = text.trim();
-      if (!trimmed || streaming) return;
+      if ((!trimmed && !imageDataUrl) || streaming) return;
       setError(null);
 
-      const next: DeasonMessage[] = [...messages, { role: "user", content: trimmed }];
+      // Build user content: plain string if text-only, multimodal array if image attached.
+      const userContent: string | DeasonContentPart[] = imageDataUrl
+        ? [
+            ...(trimmed ? [{ type: "text" as const, text: trimmed }] : [{ type: "text" as const, text: "Here's my utility bill — can you analyze it and suggest savings?" }]),
+            { type: "image_url" as const, image_url: { url: imageDataUrl } },
+          ]
+        : trimmed;
+
+      const next: DeasonMessage[] = [...messages, { role: "user", content: userContent }];
       setMessages([...next, { role: "assistant", content: "" }]);
       setStreaming(true);
 
@@ -38,21 +54,13 @@ export function useDeason() {
       abortRef.current = ac;
 
       try {
-        // Try cached session first, then force-refresh from server if missing.
         let { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-          console.warn("[Deason] No cached session, attempting refresh…");
-          const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession();
-          if (refreshErr) console.warn("[Deason] refreshSession error:", refreshErr.message);
+          const { data: refreshed } = await supabase.auth.refreshSession();
           session = refreshed?.session ?? null;
         }
         if (!session) {
-          const { data: userData } = await supabase.auth.getUser();
-          throw new Error(
-            userData?.user
-              ? "Session expired — please reload the page."
-              : "Not signed in. Open Deason from a logged-in tab."
-          );
+          throw new Error("Please sign in to chat with Deason.");
         }
 
         const res = await fetch(FUNCTIONS_URL, {
@@ -67,14 +75,16 @@ export function useDeason() {
 
         if (!res.ok) {
           let detail = `HTTP ${res.status}`;
+          let errorCode = "";
           try {
             const j = await res.clone().json();
-            detail = `${j.error ?? "error"}${j.stage ? ` @ ${j.stage}` : ""}${j.detail ? `: ${j.detail}` : ""} (req ${j.reqId ?? "?"})`;
+            errorCode = j.error ?? "";
+            detail = j.detail ?? `${j.error ?? "error"}${j.stage ? ` @ ${j.stage}` : ""} (req ${j.reqId ?? "?"})`;
           } catch { /* non-JSON */ }
-          if (res.status === 429) throw new Error(`Rate limited — ${detail}`);
+          if (errorCode === "daily_limit_reached") throw new Error(detail);
+          if (res.status === 429) throw new Error(`Slow down a moment — ${detail}`);
           if (res.status === 402) throw new Error(`AI credits exhausted — ${detail}`);
-          if (res.status === 403) throw new Error(`Founders only — ${detail}`);
-          if (res.status === 401) throw new Error(`Auth rejected by server — ${detail}`);
+          if (res.status === 401) throw new Error(`Please sign back in — ${detail}`);
           throw new Error(detail);
         }
         if (!res.body) throw new Error("Empty response body");
@@ -116,7 +126,7 @@ export function useDeason() {
       } catch (e: any) {
         if (e?.name === "AbortError") return;
         setError(e?.message ?? "Something went wrong.");
-        setMessages((prev) => prev.slice(0, -1)); // drop empty assistant bubble
+        setMessages((prev) => prev.slice(0, -1));
       } finally {
         setStreaming(false);
         abortRef.current = null;

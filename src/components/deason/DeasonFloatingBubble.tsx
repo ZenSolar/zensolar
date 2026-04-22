@@ -1,26 +1,29 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Sparkles } from "lucide-react";
-import { useIsFounder } from "@/hooks/useIsFounder";
+import { useAuth } from "@/hooks/useAuth";
 import { DeasonChat } from "./DeasonChat";
 import { cn } from "@/lib/utils";
 
 /**
- * Floating Deason bubble — visible on every page for founders/admins.
- * Hidden on /deason (full page) and /auth.
+ * Floating Deason bubble — visible on every authenticated page.
+ *   • Inner-circle users get the strategic co-pilot persona
+ *   • Demo + beta users get the warm ZenSolar concierge persona
+ * Persona is decided server-side by the deason-chat edge function.
+ *
+ * Hidden on /deason (full page), /auth, and on unauthenticated marketing routes.
  */
 export function DeasonFloatingBubble() {
-  const { isFounder } = useIsFounder();
+  const { user, isLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
-  if (!isFounder) return null;
+  if (isLoading || !user) return null;
   if (location.pathname.startsWith("/deason")) return null;
   if (location.pathname.startsWith("/auth")) return null;
 
   return (
     <>
-      {/* Launcher */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -36,7 +39,6 @@ export function DeasonFloatingBubble() {
         </button>
       )}
 
-      {/* Panel */}
       {open && (
         <div
           className={cn(
