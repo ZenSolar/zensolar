@@ -273,6 +273,42 @@ export type Database = {
           },
         ]
       }
+      email_link_clicks: {
+        Row: {
+          clicked_at: string
+          destination_url: string | null
+          id: string
+          ip_address: string | null
+          link_key: string
+          message_id: string
+          recipient_email: string | null
+          template_name: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          destination_url?: string | null
+          id?: string
+          ip_address?: string | null
+          link_key: string
+          message_id: string
+          recipient_email?: string | null
+          template_name?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          destination_url?: string | null
+          id?: string
+          ip_address?: string | null
+          link_key?: string
+          message_id?: string
+          recipient_email?: string | null
+          template_name?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       email_opens: {
         Row: {
           id: string
