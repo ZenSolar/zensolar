@@ -76,11 +76,14 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef({ x: 0, y: 0 });
 
+  const hasValidEmail = email.trim().length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const typedSignature = signatureText.trim() || fullName.trim();
+
   const isValid = fullName.trim().length >= 2
-    && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+    && hasValidEmail
     && agreed
     && scrolledToBottom
-    && (signatureMethod === 'type' ? signatureText.trim().length >= 2 : hasDrawn);
+    && (signatureMethod === 'type' ? typedSignature.length >= 2 : hasDrawn);
 
   // Initialize canvas
   useEffect(() => {
@@ -156,7 +159,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
     setSubmitting(true);
 
     try {
-      let sigText = signatureText.trim();
+      let sigText = typedSignature;
       if (signatureMethod === 'draw' && canvasRef.current) {
         sigText = canvasRef.current.toDataURL('image/png');
       }
@@ -166,7 +169,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
       const { error } = await supabase.from('nda_signatures').insert({
         id: ndaId,
         full_name: fullName.trim(),
-        email: email.trim(),
+        email: email.trim() || `demo+${ndaId}@zensolar.local`,
         signature_text: sigText,
         signature_method: signatureMethod,
         nda_version: NDA_VERSION,
@@ -192,16 +195,18 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
       });
 
       // Try to send email copy (non-blocking)
-      supabase.functions.invoke('send-nda-copy', {
-        body: {
-          recipientEmail: email.trim(),
-          recipientName: fullName.trim(),
-          signedAt: new Date().toISOString(),
-          ndaVersion: NDA_VERSION,
-        },
-      }).catch(() => {
-        console.warn('NDA email send failed — non-blocking');
-      });
+      if (email.trim()) {
+        supabase.functions.invoke('send-nda-copy', {
+          body: {
+            recipientEmail: email.trim(),
+            recipientName: fullName.trim(),
+            signedAt: new Date().toISOString(),
+            ndaVersion: NDA_VERSION,
+          },
+        }).catch(() => {
+          console.warn('NDA email send failed — non-blocking');
+        });
+      }
 
       // VIP first-access alert (no-op for non-VIP codes — handled server-side)
       supabase.functions.invoke('notify-vip-demo-access', {
@@ -219,7 +224,11 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
       });
 
 
-      toast.success('Agreement signed', { description: 'A copy has been sent to your email.' });
+      toast.success('Agreement signed', {
+        description: email.trim()
+          ? 'A copy has been sent to your email.'
+          : 'Your demo access is unlocked.'
+      });
       onSigned(email.trim(), fullName.trim());
     } catch (err) {
       console.error('NDA sign error:', err);
@@ -279,7 +288,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
           <Input
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="Email address"
+            placeholder="Email address (optional)"
             type="email"
             className="text-sm h-10"
             autoComplete="email"
