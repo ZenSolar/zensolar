@@ -1145,7 +1145,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] duration-300",
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] duration-[280ms] ease-out",
             hexAwake ? (inputFocused ? 'gap-3' : 'gap-8') : 'gap-4'
           )}
           style={{
