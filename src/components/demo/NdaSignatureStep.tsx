@@ -76,8 +76,10 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef({ x: 0, y: 0 });
 
+  const hasValidEmail = email.trim().length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
   const isValid = fullName.trim().length >= 2
-    && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+    && hasValidEmail
     && agreed
     && scrolledToBottom
     && (signatureMethod === 'type' ? signatureText.trim().length >= 2 : hasDrawn);
@@ -166,7 +168,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
       const { error } = await supabase.from('nda_signatures').insert({
         id: ndaId,
         full_name: fullName.trim(),
-        email: email.trim(),
+        email: email.trim() || 'no-email@zensolar.local',
         signature_text: sigText,
         signature_method: signatureMethod,
         nda_version: NDA_VERSION,
@@ -279,7 +281,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
           <Input
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="Email address"
+            placeholder="Email address (optional)"
             type="email"
             className="text-sm h-10"
             autoComplete="email"
