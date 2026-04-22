@@ -1299,44 +1299,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
       </div>
 
-      {/* Central content */}
-      {/*
-        When the iOS keyboard is up we switch to position:fixed so the gate
-        stays locked to the visual viewport even if Chrome iOS scrolls the
-        underlying document. Otherwise we use the normal absolute layout that
-        tracks visualViewport offsets.
-      */}
+      {/* Central content — single, unified layout. We always use absolute +
+          visualViewport CSS vars, so the gate never rebuilds when the iOS
+          keyboard opens. Padding shifts smoothly via transition only. */}
       <div
-        className={cn(
-          'inset-x-0 pointer-events-none',
-          shouldPinGateForKeyboard ? 'fixed left-0 right-0' : 'absolute'
-        )}
+        className="absolute inset-x-0 pointer-events-none"
         style={{
-          top: shouldPinGateForKeyboard ? '0px' : 'var(--gate-visible-offset-top, 0px)',
-          height: shouldPinGateForKeyboard
-            ? `max(calc(100svh - ${Math.round(keyboardInset)}px), 260px)`
-            : 'var(--gate-visible-height, 100dvh)',
-          zIndex: shouldPinGateForKeyboard ? 50 : undefined,
+          top: 'var(--gate-visible-offset-top, 0px)',
+          height: 'var(--gate-visible-height, 100dvh)',
         }}
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding,transform] ease-out",
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-[180ms]",
             hexAwake
-              ? (isIOSKeyboardMode ? 'gap-2' : inputFocused ? 'gap-3' : 'gap-8')
+              ? (inputFocused ? 'gap-4' : 'gap-8')
               : 'gap-4',
-            shouldPinGateForKeyboard ? 'duration-75' : 'duration-[180ms]'
           )}
           style={{
-            justifyContent: shouldPinGateForKeyboard ? 'flex-start' : 'start',
-            paddingTop: shouldPinGateForKeyboard
-              ? 'max(env(safe-area-inset-top, 0px) + 1rem, 3.5rem)'
-              : isIOSKeyboardMode
-                ? 'max(env(safe-area-inset-top, 0px) + 0.25rem, 0.5rem)'
-                : inputFocused
-                  ? 'max(env(safe-area-inset-top, 0px) + 0.5rem, 1rem)'
-                  : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
-            transform: shouldPinGateForKeyboard ? 'translateY(0)' : undefined,
+            justifyContent: 'flex-start',
+            paddingTop: inputFocused
+              ? 'max(env(safe-area-inset-top, 0px) + 0.75rem, 1.25rem)'
+              : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
           }}
         >
           {/* Logo — stays mounted; just dims while typing so layout doesn't jump */}
