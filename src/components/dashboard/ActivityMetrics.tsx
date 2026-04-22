@@ -421,7 +421,22 @@ export function ActivityMetrics({
                     color: 'hsl(var(--primary) / 0.6)',
                     textShadow: '0 0 6px hsl(var(--primary) / 0.3)',
                   }}
-                >{headerSubtitle}</span>
+                >
+                  {headerSubtitleParts.length > 1 ? (
+                    headerSubtitleParts.map((part, i) => (
+                      <span key={i}>
+                        <span
+                          className="underline decoration-primary/40 decoration-[0.5px] underline-offset-[3px]"
+                        >
+                          {part}
+                        </span>
+                        {i < headerSubtitleParts.length - 1 && <span className="mx-1 no-underline opacity-70"> · </span>}
+                      </span>
+                    ))
+                  ) : (
+                    headerSubtitle
+                  )}
+                </span>
               </div>
             )}
           </div>
