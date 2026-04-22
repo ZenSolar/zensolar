@@ -119,6 +119,8 @@ const AdminBlogManager = lazy(() => import("./pages/admin/BlogManager"));
 const EnergyLog = lazy(() => import("./pages/EnergyLog"));
 const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataArchitecture"));
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
+const AdminEmailAnalytics = lazy(() => import("./pages/admin/EmailAnalytics"));
+const AdminEmailPreview = lazy(() => import("./pages/admin/EmailPreview"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
@@ -258,6 +260,26 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminAnalytics />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/emails" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminEmailAnalytics />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/email-preview" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminEmailPreview />
                           </AppLayout>
                         </ProtectedRoute>
                       } 

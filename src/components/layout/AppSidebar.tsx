@@ -46,6 +46,7 @@ import {
   Sparkles,
   ScrollText,
   Banknote,
+  Mail,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -106,6 +107,8 @@ const adminMenuGroups = {
     
     { title: "To-Do List", url: "/admin/todo", icon: ClipboardList, highlight: true },
     { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+    { title: "Email Analytics", url: "/admin/emails", icon: Mail },
+    { title: "Email Preview", url: "/admin/email-preview", icon: Mail },
     { title: "Users", url: "/admin/users", icon: Users },
   ],
   economics: [

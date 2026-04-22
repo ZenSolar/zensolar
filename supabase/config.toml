@@ -1,6 +1,8 @@
 project_id = "fcptrpgqkjffgeddajwl"
 
 [functions]
+  [functions.admin-preview-emails]
+    verify_jwt = false
   [functions.admin-users]
     verify_jwt = false
   [functions.auth-email-hook]
