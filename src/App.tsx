@@ -56,6 +56,7 @@ const WhitepaperPhase1 = lazy(() => import("./pages/WhitepaperPhase1"));
 const WhitepaperPhase2 = lazy(() => import("./pages/WhitepaperPhase2"));
 const FoundersSpaceX = lazy(() => import("./pages/FoundersSpaceX"));
 const FoundersAppOverhaul = lazy(() => import("./pages/FoundersAppOverhaul"));
+const V2App = lazy(() => import("./pages/V2App"));
 const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
 const Deason = lazy(() => import("./pages/Deason"));
 import { DeasonFloatingBubble } from "./components/deason/DeasonFloatingBubble";
@@ -962,6 +963,7 @@ const App = () => {
                     <Route path="/whitepaper-phase-2" element={<WhitepaperPhase2 />} />
                     <Route path="/founders/spacex" element={<FoundersSpaceX />} />
                     <Route path="/founders/app-overhaul-plan" element={<FoundersAppOverhaul />} />
+                    <Route path="/founders/v2app" element={<V2App />} />
                     <Route path="/founders/seed-ask" element={<FounderSeedAsk />} />
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<Deason />} />
