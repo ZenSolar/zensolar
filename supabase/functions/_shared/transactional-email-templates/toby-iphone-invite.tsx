@@ -20,6 +20,32 @@ interface TobyIphoneInviteProps {
 
 const identityTrack = (_key: string, dest: string) => dest
 
+interface BgBlockProps {
+  bgColor: string
+  style?: React.CSSProperties
+  children: React.ReactNode
+}
+
+const BgBlock = ({ bgColor, style, children }: BgBlockProps) => (
+  <table
+    role="presentation"
+    width="100%"
+    cellPadding="0"
+    cellSpacing="0"
+    border={0}
+    bgcolor={bgColor}
+    style={{ borderCollapse: 'separate', borderSpacing: '0', width: '100%' }}
+  >
+    <tbody>
+      <tr>
+        <td bgcolor={bgColor} style={style}>
+          {children}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+)
+
 const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) => {
   const t = trackUrl || identityTrack
   const name = firstName || 'Toby'
@@ -31,13 +57,16 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
       </Head>
       <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
       <Body style={main} bgcolor={BG}>
-        {/* Hard-inline wrapper — survives Gmail iOS Dark Mode CSS stripping */}
-        <div style={hardWrap}>
-        <Section style={viewportBg}>
-          <Container style={container}>
+        <table role="presentation" width="100%" cellPadding="0" cellSpacing="0" border={0} bgcolor={BG} style={outerTable}>
+          <tbody>
+            <tr>
+              <td align="center" valign="top" bgcolor={BG} style={outerCell}>
+                <div style={hardWrap}>
+                  <Section style={viewportBg} bgcolor={BG}>
+                    <Container style={container} bgcolor={BG}>
 
           {/* Header logo */}
-          <Section style={logoHeader}>
+          <Section style={logoHeader} bgcolor={BG}>
             <Img
               src={LOGO_URL}
               alt="ZenSolar — Creating Currency From Energy"
@@ -78,20 +107,20 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           </Text>
 
           {/* "One small ask" warning box */}
-          <Section style={readFirstBox}>
+          <BgBlock bgColor={WARN_BG} style={readFirstBox}>
             <Text style={readFirstText}>
               <strong style={readFirstStrong}>One small ask before you tap anything:</strong>{' '}
               read this whole email down to my signature first. The order matters. Your two
               ways in are waiting at the bottom.
             </Text>
-          </Section>
+          </BgBlock>
 
           {/* Access code */}
-          <Section style={codeBlock}>
+          <BgBlock bgColor={SURFACE_2} style={codeBlock}>
             <Text style={codeLabel}>YOUR PERSONAL ACCESS CODE</Text>
             <Text style={codeValue}>{ACCESS_CODE}</Text>
             <Text style={codeHint}>Unlocks a VIP welcome + ★ badge inside the app.</Text>
-          </Section>
+          </BgBlock>
 
           <Hr style={sectionDivider} />
 
@@ -140,7 +169,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           </Text>
 
           {/* PATH A — RECOMMENDED: PWA install (the real iOS feel) */}
-          <Section style={pathFullCard}>
+          <BgBlock bgColor={SURFACE_2} style={pathFullCard}>
             <Text style={pathBadgeFull}>★ RECOMMENDED · 30 SECONDS</Text>
             <Text style={pathTitle}>Install it like a real app</Text>
             <Text style={pathDesc}>
@@ -149,7 +178,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               experience it.
             </Text>
 
-            <Section style={miniSteps}>
+            <BgBlock bgColor={SURFACE} style={miniSteps}>
               <Text style={miniStep}>
                 <span style={miniStepNum}>1.</span> Tap the green button
                 below. It opens ZenSolar in <strong>Safari</strong> (required — Chrome can't
@@ -171,7 +200,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
                 <strong style={codeInline}>{ACCESS_CODE}</strong> is already loaded — just tap
                 the glowing tile.
               </Text>
-            </Section>
+            </BgBlock>
 
             <Link href={t('cta_install', DEMO_URL_INSTALL)} style={ctaButtonFull}>
               Install to Home Screen  →
@@ -179,7 +208,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             <Text style={pathFootnote}>
               Same URL. Same code. This is the best version of the experience.
             </Text>
-          </Section>
+          </BgBlock>
 
           {/* OR divider */}
           <Section style={orWrap}>
@@ -187,7 +216,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           </Section>
 
           {/* PATH B — FAST: Browser (zero friction fallback) */}
-          <Section style={pathFastCard}>
+          <BgBlock bgColor={FAST_BG} style={pathFastCard}>
             <Text style={pathBadgeFast}>⚡ FASTEST · 5 SECONDS</Text>
             <Text style={pathTitle}>Just open it in your browser</Text>
             <Text style={pathDesc}>
@@ -203,17 +232,17 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
                 Force-open in Safari
               </Link>
             </Text>
-          </Section>
+          </BgBlock>
 
           {/* Either way, do this */}
-          <Section style={feedbackCard}>
+          <BgBlock bgColor={SURFACE_2} style={feedbackCard}>
             <Text style={feedbackLabel}>📣 EITHER WAY</Text>
             <Text style={feedbackText}>
               Tap the floating <strong style={emphasis}>feedback bubble</strong> and tell me
               what you think — the good, the bad, the confusing. Your honest take is the whole
               reason you're getting this email today.
             </Text>
-          </Section>
+          </BgBlock>
 
           <Hr style={sectionDivider} />
 
@@ -250,9 +279,13 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
             U.S. Patent Pending — Application No. 19/634,402
           </Text>
-          </Container>
-        </Section>
-        </div>
+                    </Container>
+                  </Section>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </Body>
     </Html>
   )
@@ -288,6 +321,17 @@ const FAST_ACCENT = '#60a5fa'  // sky blue — same family as navy
 const FAST_BG = '#0d2647'      // deeper navy variant
 
 const html = { backgroundColor: BG, margin: '0', padding: '0' }
+const outerTable = {
+  width: '100%',
+  backgroundColor: BG,
+  margin: '0',
+  padding: '0',
+}
+const outerCell = {
+  backgroundColor: BG,
+  margin: '0',
+  padding: '0',
+}
 const hardWrap = {
   backgroundColor: BG,
   color: TEXT,
