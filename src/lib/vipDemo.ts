@@ -12,7 +12,7 @@ const VIP_CODE_KEY = 'zen_vip_code_active';
 export const VIP_MIRROR_CODES = new Set<string>(['TODD-2026']);
 
 /** All VIP codes — get the personalized welcome + ★ VIP badge on the dashboard. */
-export const VIP_CODES = new Set<string>(['TODD-2026', 'JO-2026', 'LOBV-2026']);
+export const VIP_CODES = new Set<string>(['TODD-2026', 'JO-2026', 'LOBV-2026', 'MTNYOTAS-4L']);
 
 export function isVipMirrorCode(code: string | null | undefined): boolean {
   if (!code) return false;
