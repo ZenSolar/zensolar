@@ -443,6 +443,38 @@ const secondaryNote = {
   color: COLORS.muted,
 }
 
+const mintCard = {
+  margin: '0 0 16px',
+  padding: '22px 20px',
+  backgroundColor: COLORS.accent,
+  border: `2px solid ${COLORS.accentDark}`,
+  textAlign: 'center' as const,
+}
+
+const mintBadge = {
+  margin: '0 0 10px',
+  fontSize: '12px',
+  lineHeight: '18px',
+  fontWeight: 800,
+  letterSpacing: '2px',
+  color: '#ffffff',
+}
+
+const mintTitle = {
+  margin: '0 0 10px',
+  fontSize: '22px',
+  lineHeight: '28px',
+  fontWeight: 800,
+  color: '#ffffff',
+}
+
+const mintText = {
+  margin: '0',
+  fontSize: '15px',
+  lineHeight: '24px',
+  color: '#ffffff',
+}
+
 const feedbackCard = {
   margin: '0 0 8px',
   padding: '18px 20px',
