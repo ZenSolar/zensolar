@@ -40,9 +40,9 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Section style={logoHeader}>
             <Img
               src={LOGO_URL}
-              alt="ZenSolar"
+              alt="ZenSolar — Creating Currency From Energy"
               width="180"
-              height="auto"
+              height="44"
               style={logoHeaderImg}
             />
           </Section>
@@ -237,9 +237,9 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
             <Img
               src={LOGO_URL}
-              alt="ZenSolar"
+              alt="ZenSolar — Creating Currency From Energy"
               width="160"
-              height="auto"
+              height="39"
               style={sigLogoBottom}
             />
           </Section>
@@ -533,11 +533,37 @@ const sigContactLine = { fontSize: '14px', color: TEXT_MUTED, margin: '0 0 4px',
 const sigContactLineLast = { fontSize: '14px', color: TEXT_MUTED, margin: '0', lineHeight: '1.5' }
 const sigLink = { color: ACCENT_SOFT, textDecoration: 'underline', fontWeight: 500 as const }
 const sigDot = { color: TEXT_DIM }
-const sigLogoBottom = { marginTop: '10px', display: 'block' as const, width: '160px', height: 'auto' }
+const sigLogoBottom = {
+  marginTop: '10px',
+  display: 'block' as const,
+  width: '160px',
+  height: '39px',
+  maxWidth: '160px',
+  border: '0',
+  outline: 'none',
+  textDecoration: 'none',
+  backgroundColor: BG,
+  color: TEXT,
+  lineHeight: '39px',
+  fontSize: '12px',
+}
 
 const footerDivider = { borderColor: BORDER, margin: '8px 0 16px' }
 const footer = { fontSize: '11px', color: TEXT_DIM, margin: '0', textAlign: 'center' as const, lineHeight: '1.6' }
 
 // Header logo (top of email)
-const logoHeader = { textAlign: 'center' as const, margin: '0 0 18px' }
-const logoHeaderImg = { display: 'block' as const, margin: '0 auto', width: '180px', height: 'auto', maxWidth: '60%' }
+const logoHeader = { textAlign: 'center' as const, margin: '0 0 18px', backgroundColor: BG }
+const logoHeaderImg = {
+  display: 'block' as const,
+  margin: '0 auto',
+  width: '180px',
+  height: '44px',
+  maxWidth: '180px',
+  border: '0',
+  outline: 'none',
+  textDecoration: 'none',
+  backgroundColor: BG,
+  color: TEXT,
+  lineHeight: '44px',
+  fontSize: '12px',
+}
