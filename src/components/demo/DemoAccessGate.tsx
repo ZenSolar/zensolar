@@ -255,6 +255,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     return isAccessGranted();
   });
+  // Capture deep-link params for prefill / install-path routing
+  const prefillCodeFromUrl = (() => {
+    if (typeof window === 'undefined') return '';
+    const p = new URLSearchParams(window.location.search);
+    return (p.get('code') || p.get('access_code') || '').toUpperCase().trim();
+  })();
+  const fromInstallFlow = (() => {
+    if (typeof window === 'undefined') return false;
+    const p = new URLSearchParams(window.location.search);
+    return (p.get('from') || '').toLowerCase() === 'install';
+  })();
 
   // Bypass gate for authenticated admin/editor users
   useEffect(() => {
@@ -269,7 +280,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     });
     return () => { cancelled = true; };
   }, [granted]);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(prefillCodeFromUrl);
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
@@ -389,6 +400,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       stopDemoEntryFallbackHum();
     };
   }, []);
+
+  // Auto-submit if a code came in via the URL (?code=XXXX from email deep links)
+  const autoSubmittedRef = useRef(false);
+  useEffect(() => {
+    if (granted) return;
+    if (autoSubmittedRef.current) return;
+    if (!prefillCodeFromUrl) return;
+    autoSubmittedRef.current = true;
+    // Strip ?code= from the URL so it isn't shareable / loggable after use
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('code');
+      url.searchParams.delete('access_code');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + url.hash);
+    } catch { /* noop */ }
+    // Defer one tick so submitCode (declared below) is in scope on next render
+    const t = setTimeout(() => {
+      void submitCodeRef.current?.();
+    }, 250);
+    return () => clearTimeout(t);
+  }, [granted, prefillCodeFromUrl]);
+  const submitCodeRef = useRef<(() => Promise<void>) | null>(null);
 
   const logGestureDebug = useCallback((eventName: string, details?: Record<string, unknown>) => {
     const ctx = getSharedAudioContext();
@@ -530,6 +563,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       toast.error('Connection error', { description: 'Please try again.' });
     }
   }, [code, playMintSound, playDeniedSound, updateState]);
+
+  // Keep ref in sync so the auto-submit effect can call the latest submitCode
+  useEffect(() => {
+    submitCodeRef.current = submitCode;
+  }, [submitCode]);
 
   // ── Trigger first-tap burst (shared between single & double) ──
   const triggerBurst = useCallback(() => {

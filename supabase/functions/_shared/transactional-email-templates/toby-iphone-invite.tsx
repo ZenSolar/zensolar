@@ -5,10 +5,13 @@ import {
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = "ZenSolar"
-const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png"
-const DEMO_URL = "https://beta.zen.solar/demo"
-const SAFARI_DEEP_LINK = "x-safari-https://beta.zen.solar/demo"
+const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v2.png"
 const ACCESS_CODE = "LOBV-2026"
+// Deep links — both pre-load the access code so Toby never has to type it.
+// `from=browser` and `from=install` let the app tailor onboarding to the chosen path.
+const DEMO_URL_BROWSER = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=browser`
+const DEMO_URL_INSTALL = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=install`
+const SAFARI_DEEP_LINK = `x-safari-https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=browser`
 
 interface TobyIphoneInviteProps {
   firstName?: string
@@ -43,6 +46,17 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
       <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
       <Body style={main} className="body dark-bg">
         <Container style={container} className="dark-bg">
+
+          {/* Header logo */}
+          <Section style={logoHeader}>
+            <Img
+              src={LOGO_URL}
+              alt="ZenSolar"
+              width="180"
+              height="auto"
+              style={logoHeaderImg}
+            />
+          </Section>
 
           {/* Badge */}
           <Section style={badgeWrap}>
@@ -144,7 +158,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               Tap the green button. ZenSolar opens in Safari (or Chrome). Done. Zero install,
               zero setup — you're inside the app immediately.
             </Text>
-            <Link href={t('cta_browser', DEMO_URL)} style={ctaButtonFast}>
+            <Link href={t('cta_browser', DEMO_URL_BROWSER)} style={ctaButtonFast}>
               Open in browser  →
             </Link>
             <Text style={pathFootnote} className="dark-muted">
@@ -170,25 +184,32 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               experience it.
             </Text>
 
-            {/* Compact 3-step install */}
+            {/* Compact 3-step install — clearer iOS guidance */}
             <Section style={miniSteps}>
               <Text style={miniStep} className="dark-text">
-                <span style={miniStepNum} className="dark-accent">1.</span> Tap the button below
-                (opens in Safari).
+                <span style={miniStepNum} className="dark-accent">1.</span> Tap the green button
+                below. It opens ZenSolar in <strong>Safari</strong> (required — Chrome can't
+                install to Home Screen on iOS).
               </Text>
               <Text style={miniStep} className="dark-text">
-                <span style={miniStepNum} className="dark-accent">2.</span> Tap the{' '}
-                <strong>Share</strong> icon → <strong>Add to Home Screen</strong> →{' '}
-                <strong>Add</strong>.
+                <span style={miniStepNum} className="dark-accent">2.</span> In Safari, tap the{' '}
+                <strong>Share</strong> icon (the square with the up-arrow at the{' '}
+                <strong>bottom-center</strong> of the screen).
+              </Text>
+              <Text style={miniStep} className="dark-text">
+                <span style={miniStepNum} className="dark-accent">3.</span> Scroll down in the
+                share sheet and tap <strong>"Add to Home Screen"</strong>, then tap{' '}
+                <strong>"Add"</strong> in the top-right corner.
               </Text>
               <Text style={miniStepLast} className="dark-text">
-                <span style={miniStepNum} className="dark-accent">3.</span> Open ZenSolar from
-                your Home Screen, enter <strong style={codeInline}>{ACCESS_CODE}</strong>, and
-                tap the glowing tiles.
+                <span style={miniStepNum} className="dark-accent">4.</span> Close Safari and open{' '}
+                <strong>ZenSolar from your Home Screen</strong> (the new green icon). Your code{' '}
+                <strong style={codeInline}>{ACCESS_CODE}</strong> is already loaded — just tap
+                the glowing tile.
               </Text>
             </Section>
 
-            <Link href={t('cta_install', DEMO_URL)} style={ctaButtonFull}>
+            <Link href={t('cta_install', DEMO_URL_INSTALL)} style={ctaButtonFull}>
               Install to Home Screen  →
             </Link>
             <Text style={pathFootnote} className="dark-muted">
@@ -511,3 +532,7 @@ const sigLogoBottom = { marginTop: '10px', display: 'block' as const, width: '16
 
 const footerDivider = { borderColor: BORDER, margin: '8px 0 16px' }
 const footer = { fontSize: '11px', color: TEXT_DIM, margin: '0', textAlign: 'center' as const, lineHeight: '1.6' }
+
+// Header logo (top of email)
+const logoHeader = { textAlign: 'center' as const, margin: '0 0 18px' }
+const logoHeaderImg = { display: 'block' as const, margin: '0 auto', width: '180px', height: 'auto', maxWidth: '60%' }
