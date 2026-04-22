@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/SEO";
+import { ProofOfGenesisThesis } from "@/components/tokenomics/ProofOfGenesisThesis";
 import { 
   MAX_SUPPLY, 
   PRICES, 
@@ -183,6 +184,9 @@ export default function Tokenomics() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Proof-of-Genesis™ Thesis — NDA-only headline narrative */}
+      <ProofOfGenesisThesis />
 
       {/* Beta Notice */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
