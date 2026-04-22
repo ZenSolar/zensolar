@@ -12,6 +12,7 @@ import {
   BookOpen,
   ArrowRight,
   Home,
+  Sparkles as SparklesIcon,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -245,6 +246,30 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+          </div>
+        </Link>
+
+        {/* Proof of Genesis CTA */}
+        <Link
+          to="/founders/proof-of-genesis"
+          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <SparklesIcon className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest text-primary">
+                  NDA-Shareable · Investor Brief
+                </p>
+                <p className="text-sm font-semibold">Proof of Genesis</p>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  Δ + Origin → the primitive that eclipses Bitcoin. One-screen narrative + diagrams.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
           </div>
         </Link>
 
