@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 /**
  * V2 FRE — Variant B — Tesla-grade restraint.
- * 3-act flow: Promise → Proof → Permission.
+ * 3-act flow: Promise → Proof → Permission. Final tap calls onComplete.
  */
-export function V2VariantB() {
-  const [act, setAct] = useState<1 | 2 | 3 | 4>(1);
+export function V2VariantB({ onComplete }: { onComplete?: () => void }) {
+  const [act, setAct] = useState<1 | 2 | 3>(1);
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground flex flex-col px-6 pt-24 pb-10 relative">

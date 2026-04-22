@@ -205,28 +205,3 @@ function ActA3({ onNext }: { onNext: () => void }) {
     </>
   );
 }
-
-function ActADone({ onRestart }: { onRestart: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="relative z-10 flex flex-col items-center text-center max-w-md my-auto"
-    >
-      <div className="h-20 w-20 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mb-6">
-        <Check className="h-9 w-9 text-primary" />
-      </div>
-      <h1 className="text-3xl font-semibold tracking-tight mb-3">End of Variant A preview</h1>
-      <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-8">
-        This is where the real dashboard would take over. Tap below to replay the flow.
-      </p>
-      <button
-        onClick={onRestart}
-        className="rounded-full border border-primary/40 text-primary py-3 px-6 text-sm font-medium hover:bg-primary/10 transition-colors"
-      >
-        Replay from start
-      </button>
-    </motion.div>
-  );
-}
