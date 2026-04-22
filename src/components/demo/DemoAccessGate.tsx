@@ -1758,26 +1758,27 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           )}
 
           {/* Title */}
-          <div className={cn("text-center space-y-1 transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
-            <h1 className="text-lg font-semibold text-foreground drop-shadow-[0_0_6px_hsl(var(--primary)/0.2)]">Private Demo</h1>
-            <p className="text-sm text-foreground/70">Enter your access code to continue</p>
+          <div className={cn(
+            "text-center space-y-1 transition-opacity duration-300",
+            hexAwake ? 'opacity-100' : 'opacity-0',
+            isIOSKeyboardMode && 'space-y-0.5'
+          )}>
+            <h1 className={cn("font-semibold text-foreground drop-shadow-[0_0_6px_hsl(var(--primary)/0.2)]", isIOSKeyboardMode ? 'text-base' : 'text-lg')}>Private Demo</h1>
+            <p className={cn("text-foreground/70", isIOSKeyboardMode ? 'text-xs' : 'text-sm')}>Enter your access code to continue</p>
           </div>
 
           {/* Code input — hidden until first tap */}
-          <div className={cn("w-full px-4 space-y-3 pointer-events-auto transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
+          <div className={cn("w-full px-4 pointer-events-auto transition-opacity duration-300", hexAwake ? 'opacity-100' : 'opacity-0 pointer-events-none', isIOSKeyboardMode ? 'space-y-2' : 'space-y-3')}>
             <Input
               ref={inputRef}
               value={code}
               onChange={(e) => {
-                // Codes are uppercase, no spaces — sanitize as the user types so the
-                // field never shows letter-spaced gaps, lowercase chars, or accidental spaces.
                 const next = e.target.value.toUpperCase().replace(/\s+/g, '');
                 setCode(next);
               }}
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 setInputFocused(true);
-                // Start iOS QA timeline at focus moment
                 if (iosQaEnabled) {
                   iosQaStartRef.current = performance.now();
                   setIosQaEvents([]);
@@ -1788,10 +1789,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     vh: window.visualViewport?.height ?? window.innerHeight,
                   });
                 }
-                // Android: Gboard animates in faster than iOS but visualViewport
-                // resize fires later/inconsistently. Use a longer settle window
-                // and a more aggressive scroll. iOS path is unchanged.
-                const settleMs = isAndroid ? 450 : 320;
+                const settleMs = isAndroid ? 450 : 180;
                 window.setTimeout(() => {
                   requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
@@ -1799,35 +1797,34 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       if (!el) return;
                       const rect = el.getBoundingClientRect();
                       const vh = window.visualViewport?.height ?? window.innerHeight;
-                      const offscreen = rect.bottom > vh - 8 || rect.top < 8;
+                      const iosToolbarAllowance = isIOS ? 56 : 0;
+                      const safeBottom = vh - iosToolbarAllowance;
+                      const offscreen = rect.bottom > safeBottom - 8 || rect.top < 8;
                       if (iosQaEnabled) {
                         logIosQa('settle-check', {
                           inputTop: rect.top,
                           inputBot: rect.bottom,
                           vh,
+                          safeBottom,
                           offscreen,
-                          willScroll: isAndroid || offscreen,
+                          willScroll: offscreen,
                         });
                       }
-                      if (isAndroid) {
-                        // Always center on Android — the keyboard often resizes
-                        // the layout viewport, leaving the input flush against
-                        // the keyboard edge with no breathing room.
-                        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                      } else if (offscreen) {
-                        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                      if (offscreen) {
+                        el.scrollIntoView({ block: isIOS ? 'start' : 'center', behavior: 'smooth' });
                       }
-                      // iOS QA: re-check after the smooth scroll settles
                       if (iosQaEnabled) {
                         window.setTimeout(() => {
                           const r2 = inputRef.current?.getBoundingClientRect();
                           const vh2 = window.visualViewport?.height ?? window.innerHeight;
+                          const safeBottom2 = vh2 - (isIOS ? 56 : 0);
                           if (r2) {
                             logIosQa('post-scroll', {
                               inputTop: r2.top,
                               inputBot: r2.bottom,
                               vh: vh2,
-                              offscreen: r2.bottom > vh2 - 8 || r2.top < 8,
+                              safeBottom: safeBottom2,
+                              offscreen: r2.bottom > safeBottom2 - 8 || r2.top < 8,
                             });
                           }
                         }, 500);
@@ -1843,15 +1840,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               placeholder="ACCESS CODE"
               disabled={isVerifying || isBursting}
               className={cn(
-                'text-center font-mono uppercase tracking-[0.18em] placeholder:tracking-[0.18em] placeholder:text-foreground/40 h-12 text-[17px] transition-colors duration-200',
+                'text-center font-mono uppercase placeholder:text-foreground/40 transition-colors duration-200',
+                isIOSKeyboardMode
+                  ? 'h-14 text-[15px] tracking-[0.12em] placeholder:tracking-[0.12em]'
+                  : 'h-12 text-[17px] tracking-[0.18em] placeholder:tracking-[0.18em]',
                 isBursting && 'border-primary bg-primary/5',
                 isDenied && 'border-destructive bg-destructive/5 animate-shake'
               )}
-              // Android-only: `one-time-code` tells Gboard to treat this as a
-              // verification code — it suppresses the suggestion strip, skips
-              // personalized learning, and surfaces an inline numeric/alpha
-              // chip that matches a code being SMS'd. iOS path keeps "off"
-              // so it doesn't trigger Apple's Messages OTP autofill banner.
               autoComplete={isAndroid ? 'one-time-code' : 'off'}
               autoCorrect="off"
               autoCapitalize="characters"
@@ -1859,38 +1854,39 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               inputMode="text"
               enterKeyHint="go"
               maxLength={32}
-              // Android-only: hint Gboard/password managers to skip this field.
               {...(isAndroid ? { 'data-form-type': 'other' as const, 'data-lpignore': 'true' as const } : {})}
               name="zen-access-code"
               aria-label="Access code"
             />
 
             {/* Unlock / tap hint */}
-            <div className={cn("flex justify-center transition-all duration-200", inputFocused ? 'h-5' : 'h-8')}>
-              {inputFocused ? (
-                <span className="text-[11px] font-medium text-foreground/55 flex items-center gap-1">
-                  <Lock className="h-3 w-3" />
-                  tap return to verify
-                </span>
-              ) : showUnlockHint ? (
-                <span
-                  className="text-xs font-semibold text-primary flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/30"
-                  style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
-                >
-                  <Lock className="h-3 w-3" />
-                  {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
-                </span>
-              ) : (
-                <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
-                  <Sparkles className="h-3 w-3" />
-                  {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
-                </span>
-              )}
-            </div>
+            {!isIOSKeyboardMode && (
+              <div className={cn("flex justify-center transition-all duration-200", inputFocused ? 'h-5' : 'h-8')}>
+                {inputFocused ? (
+                  <span className="text-[11px] font-medium text-foreground/55 flex items-center gap-1">
+                    <Lock className="h-3 w-3" />
+                    tap return to verify
+                  </span>
+                ) : showUnlockHint ? (
+                  <span
+                    className="text-xs font-semibold text-primary flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/30"
+                    style={{ animation: 'zenSymbolFadeIn 300ms ease-out both' }}
+                  >
+                    <Lock className="h-3 w-3" />
+                    {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
+                  </span>
+                ) : (
+                  <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
+                    <Sparkles className="h-3 w-3" />
+                    {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Pre-tap hint — visible only before first tap, hidden after */}
-          {!hexAwake && !holdHint && (
+          {!hexAwake && !holdHint && !isIOSKeyboardMode && (
             <div className="flex justify-center">
               <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3" />
@@ -1900,12 +1896,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           )}
 
           {/* Fine print */}
-          <p className={cn("text-[10px] text-muted-foreground/70 text-center pointer-events-auto transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
-            Request access at{' '}
-            <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
-              joe@zen.solar
-            </a>
-          </p>
+          {!isIOSKeyboardMode && (
+            <p className={cn("text-[10px] text-muted-foreground/70 text-center pointer-events-auto transition-opacity duration-1000", hexAwake ? 'opacity-100' : 'opacity-0')}>
+              Request access at{' '}
+              <a href="mailto:joe@zen.solar" className="underline hover:text-muted-foreground">
+                joe@zen.solar
+              </a>
+            </p>
+          )}
         </div>
 
         {/* Subtle branding footer */}
