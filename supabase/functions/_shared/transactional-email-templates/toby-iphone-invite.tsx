@@ -139,6 +139,16 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             </Text>
           </Section>
 
+          <Section style={mintCard}>
+            <Text style={mintBadge}>★ DO THIS FIRST ★</Text>
+            <Text style={mintTitle}>Tap-to-Mint, then check your Wallet</Text>
+            <Text style={mintText}>
+              Once you&apos;re in, <strong>tap the glowing tile to mint your $ZSOLAR tokens</strong>.
+              Then <strong>open the Wallet</strong> to see your freshly minted balance land in
+              real time. That single tap is the whole magic of ZenSolar — don&apos;t skip it.
+            </Text>
+          </Section>
+
           <Section style={feedbackCard}>
             <Text style={feedbackTitle}>After you try it</Text>
             <Text style={feedbackText}>
@@ -431,6 +441,38 @@ const secondaryNote = {
   fontSize: '14px',
   lineHeight: '22px',
   color: COLORS.muted,
+}
+
+const mintCard = {
+  margin: '0 0 16px',
+  padding: '22px 20px',
+  backgroundColor: COLORS.accent,
+  border: `2px solid ${COLORS.accentDark}`,
+  textAlign: 'center' as const,
+}
+
+const mintBadge = {
+  margin: '0 0 10px',
+  fontSize: '12px',
+  lineHeight: '18px',
+  fontWeight: 800,
+  letterSpacing: '2px',
+  color: '#ffffff',
+}
+
+const mintTitle = {
+  margin: '0 0 10px',
+  fontSize: '22px',
+  lineHeight: '28px',
+  fontWeight: 800,
+  color: '#ffffff',
+}
+
+const mintText = {
+  margin: '0',
+  fontSize: '15px',
+  lineHeight: '24px',
+  color: '#ffffff',
 }
 
 const feedbackCard = {
