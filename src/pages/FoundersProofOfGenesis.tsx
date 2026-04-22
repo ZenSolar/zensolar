@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
 import { NdaSignatureStep } from "@/components/demo/NdaSignatureStep";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 import { toast } from "sonner";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 
@@ -198,6 +199,13 @@ function Content() {
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
+      <SEO
+        title="Proof of Genesis™ — The Cryptographic Primitive That Eclipses Bitcoin"
+        description="Proof of Genesis™ — Δ + Origin. The patent-pending ZenSolar primitive that mints $ZSOLAR from verified clean-energy receipts. NDA-shareable founders brief."
+        url="https://zensolar.com/founders/proof-of-genesis"
+        type="article"
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/92 pt-safe backdrop-blur-xl">
         <div className="px-safe">
@@ -221,8 +229,22 @@ function Content() {
               <Home className="h-3 w-3" /> Home
             </Link>
           </div>
+          {/* Breadcrumb */}
+          <nav
+            aria-label="Breadcrumb"
+            className="max-w-3xl mx-auto px-4 pb-2 text-[10px] uppercase tracking-widest text-muted-foreground"
+          >
+            <ol className="flex items-center gap-1.5">
+              <li><Link to="/" className="hover:text-foreground">Home</Link></li>
+              <li aria-hidden="true">›</li>
+              <li><Link to="/founders" className="hover:text-foreground">Founders</Link></li>
+              <li aria-hidden="true">›</li>
+              <li className="text-amber-400">Proof of Genesis™</li>
+            </ol>
+          </nav>
         </div>
       </header>
+
 
       {/* Sticky Download bar */}
       <div className="border-b border-border/40 bg-card/30 backdrop-blur-sm">
