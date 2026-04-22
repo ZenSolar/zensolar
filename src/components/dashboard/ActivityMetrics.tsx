@@ -251,7 +251,7 @@ export function ActivityMetrics({
   const homeChargerLabel = homeChargerName
     ? `${homeChargerName} Home Charging`
     : vehicleName
-      ? `${vehicleName} Home Charging`
+      ? `${vehicleName} Home Charged`
       : 'Home Charging';
 
   // Header subtitle — "Your <Vehicle> · ☀️ <Solar> · 🔋 <Battery> · EV Charging kWh"
