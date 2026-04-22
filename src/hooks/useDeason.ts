@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { BillReport } from "@/components/deason/BillSavingsReport";
 
 export interface DeasonContentPart {
   type: "text" | "image_url";
@@ -10,9 +11,12 @@ export interface DeasonContentPart {
 export interface DeasonMessage {
   role: "user" | "assistant";
   content: string | DeasonContentPart[];
+  /** When the assistant attaches a structured bill savings report. */
+  billReport?: BillReport;
 }
 
-const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`;
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`;
+const ANALYZE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-bill`;
 
 /**
  * Streaming chat hook for Deason. Ephemeral — nothing persisted.
@@ -41,7 +45,9 @@ export function useDeason() {
       // Build user content: plain string if text-only, multimodal array if image attached.
       const userContent: string | DeasonContentPart[] = imageDataUrl
         ? [
-            ...(trimmed ? [{ type: "text" as const, text: trimmed }] : [{ type: "text" as const, text: "Here's my utility bill — can you analyze it and suggest savings?" }]),
+            ...(trimmed
+              ? [{ type: "text" as const, text: trimmed }]
+              : [{ type: "text" as const, text: "Here's my utility bill — can you analyze it and suggest savings?" }]),
             { type: "image_url" as const, image_url: { url: imageDataUrl } },
           ]
         : trimmed;
@@ -63,7 +69,50 @@ export function useDeason() {
           throw new Error("Please sign in to chat with Deason.");
         }
 
-        const res = await fetch(FUNCTIONS_URL, {
+        // ── Branch A: bill image uploaded → run structured analysis, render card.
+        if (imageDataUrl) {
+          setMessages((prev) => {
+            const copy = [...prev];
+            copy[copy.length - 1] = { role: "assistant", content: "Reading your bill…" };
+            return copy;
+          });
+
+          const analyzeRes = await fetch(ANALYZE_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ image: imageDataUrl, note: trimmed || undefined }),
+            signal: ac.signal,
+          });
+
+          if (!analyzeRes.ok) {
+            let detail = `HTTP ${analyzeRes.status}`;
+            try {
+              const j = await analyzeRes.clone().json();
+              detail = j.detail ?? j.error ?? detail;
+              if (j.error === "rate_limited") detail = "Slow down a moment and try again.";
+              if (j.error === "credits_exhausted") detail = "AI credits exhausted — try again later.";
+            } catch { /* */ }
+            throw new Error(detail);
+          }
+
+          const { report } = (await analyzeRes.json()) as { report: BillReport };
+          setMessages((prev) => {
+            const copy = [...prev];
+            copy[copy.length - 1] = {
+              role: "assistant",
+              content: report.summary,
+              billReport: report,
+            };
+            return copy;
+          });
+          return;
+        }
+
+        // ── Branch B: regular streaming chat.
+        const res = await fetch(CHAT_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
