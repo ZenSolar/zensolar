@@ -485,11 +485,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   const logGestureDebug = useCallback((eventName: string, details?: Record<string, unknown>) => {
     const ctx = getSharedAudioContext();
+    logGestureQa(eventName, {
+      phase: stateRef.current.phase,
+      hexAwake: stateRef.current.hexAwake,
+      holding: stateRef.current.holding,
+      holdReady: stateRef.current.holdReady,
+      inputFocused,
+      ctx: ctx?.state ?? 'null',
+      ...details,
+    });
     logAudioDebug(eventName, {
       ctx: ctx?.state ?? 'null',
       ...details,
     });
-  }, []);
+  }, [inputFocused, logGestureQa]);
 
   const markHoldReady = useCallback((source: string, reason: 'threshold' | 'audio-ready') => {
     if (!stateRef.current.holding || stateRef.current.holdReady) return;
