@@ -1229,14 +1229,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] duration-[280ms] ease-out",
-            hexAwake ? (inputFocused ? 'gap-3' : 'gap-8') : 'gap-4'
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] duration-[180ms] ease-out",
+            hexAwake
+              ? (isIOSKeyboardMode ? 'gap-2' : inputFocused ? 'gap-3' : 'gap-8')
+              : 'gap-4'
           )}
           style={{
             justifyContent: 'start',
-            paddingTop: inputFocused
-              ? 'max(env(safe-area-inset-top, 0px) + 0.5rem, 1rem)'
-              : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
+            paddingTop: isIOSKeyboardMode
+              ? 'max(env(safe-area-inset-top, 0px) + 0.25rem, 0.5rem)'
+              : inputFocused
+                ? 'max(env(safe-area-inset-top, 0px) + 0.5rem, 1rem)'
+                : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
           }}
         >
           {/* Logo — hidden while typing so the input stays above the keyboard */}
@@ -1244,7 +1248,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             src={zenLogo}
             alt="ZenSolar"
             className={cn(
-              "h-8 w-auto object-contain transition-all duration-300",
+              "h-8 w-auto object-contain transition-all duration-200",
               hexAwake ? 'opacity-100' : 'opacity-0',
               inputFocused && 'h-0 opacity-0 -mt-2'
             )}
