@@ -246,12 +246,12 @@ export function ActivityMetrics({
   const solarLabel = solarName ? `${solarName} Solar Production` : 'Solar Production';
   const batteryLabel = batteryName ? `${batteryName} Exported kWh` : 'Battery Exported kWh';
   const evLabel = vehicleName ? `${vehicleName} EV Miles` : 'EV Miles';
-  const superchargerLabel = vehicleName ? `${vehicleName} Supercharging` : 'Tesla Supercharging';
+  const superchargerLabel = vehicleName ? `${vehicleName} Supercharged` : 'Tesla Supercharging';
   // Home Charging label: prefer dedicated home charger name, otherwise tag the vehicle's home charging
   const homeChargerLabel = homeChargerName
     ? `${homeChargerName} Home Charging`
     : vehicleName
-      ? `${vehicleName} Home Charging`
+      ? `${vehicleName} Home Charged`
       : 'Home Charging';
 
   // Header subtitle — "Your <Vehicle> · ☀️ <Solar> · 🔋 <Battery> · EV Charging kWh"
