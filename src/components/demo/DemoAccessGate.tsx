@@ -564,6 +564,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [code, playMintSound, playDeniedSound, updateState]);
 
+  // Keep ref in sync so the auto-submit effect can call the latest submitCode
+  useEffect(() => {
+    submitCodeRef.current = submitCode;
+  }, [submitCode]);
+
   // ── Trigger first-tap burst (shared between single & double) ──
   const triggerBurst = useCallback(() => {
     const s = stateRef.current;
