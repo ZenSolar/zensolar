@@ -270,21 +270,22 @@ export const template = {
   },
 } satisfies TemplateEntry
 
-// ── Locked dark palette ──
-const BG = '#0a0f0d'
-const SURFACE = '#0f1714'
-const SURFACE_2 = '#142019'
-const BORDER = '#1f2e26'
-const TEXT = '#e8f0ec'
-const TEXT_MUTED = '#9bb0a6'
-const TEXT_DIM = '#6b8278'
-const ACCENT = '#10b981'
+// ── Locked navy palette (matches gate-splash-background hsl(216 61% 10%)) ──
+// Navy survives Gmail dark-mode inversion much better than near-black.
+const BG = '#0a1a2e'           // hsl(216 61% 10%) — brand navy (gate splash)
+const SURFACE = '#0f223b'      // slightly lifted navy
+const SURFACE_2 = '#13294a'    // card surface
+const BORDER = '#1f3a5f'       // muted navy border
+const TEXT = '#eaf2ff'         // near-white w/ cool tint
+const TEXT_MUTED = '#a8bcd6'
+const TEXT_DIM = '#7a8fae'
+const ACCENT = '#10b981'       // emerald (brand primary)
 const ACCENT_SOFT = '#34d399'
 const WARN_BG = '#3a2a0a'
 const WARN_BORDER = '#d97706'
-const WARN_TEXT = '#fbbf24'
-const FAST_ACCENT = '#60a5fa'
-const FAST_BG = '#0a1628'
+const WARN_TEXT = '#fbbf24'    // warm gold — complements navy
+const FAST_ACCENT = '#60a5fa'  // sky blue — same family as navy
+const FAST_BG = '#0d2647'      // deeper navy variant
 
 const html = { backgroundColor: BG, margin: '0', padding: '0' }
 const hardWrap = {
