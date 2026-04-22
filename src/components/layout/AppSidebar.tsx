@@ -46,6 +46,7 @@ import {
   Sparkles,
   ScrollText,
   Banknote,
+  Mail,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
