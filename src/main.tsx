@@ -4,6 +4,23 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 
+// One-time migration: anyone whose stored theme is "light" (or unset) gets
+// flipped to "dark" so the new dark-by-default rule applies retroactively.
+// We bump a version key so this only runs once per device, but every prior
+// "light" preference is reset to dark moving forward.
+try {
+  const THEME_MIGRATION_KEY = "zs-theme-default-v2";
+  if (typeof window !== "undefined" && !localStorage.getItem(THEME_MIGRATION_KEY)) {
+    const stored = localStorage.getItem("theme");
+    if (!stored || stored === "light" || stored === "system") {
+      localStorage.setItem("theme", "dark");
+    }
+    localStorage.setItem(THEME_MIGRATION_KEY, "1");
+  }
+} catch {
+  // ignore (private mode, etc.)
+}
+
 const isPreviewHost = () => {
   const hostname = window.location.hostname;
   return hostname.includes("id-preview--") || hostname.endsWith(".lovableproject.com");
