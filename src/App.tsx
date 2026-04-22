@@ -30,6 +30,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
 const Demo = lazy(() => import("./pages/Demo"));
+const DwightPreview = lazy(() => import("./pages/DwightPreview"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboardSwitcher").then(m => ({ default: m.DemoDashboardSwitcher })));
 const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
