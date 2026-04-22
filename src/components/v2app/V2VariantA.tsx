@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 /**
  * V2 FRE — Variant A — Same brand, quieter.
- * 3-act flow: Promise → Proof → Permission.
+ * 3-act flow: Promise → Proof → Permission. Final tap calls onComplete.
  */
-export function V2VariantA() {
-  const [act, setAct] = useState<1 | 2 | 3 | 4>(1);
+export function V2VariantA({ onComplete }: { onComplete?: () => void }) {
+  const [act, setAct] = useState<1 | 2 | 3>(1);
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground flex flex-col items-center justify-between px-6 pt-24 pb-10 overflow-hidden relative">
@@ -34,8 +34,7 @@ export function V2VariantA() {
       <AnimatePresence mode="wait">
         {act === 1 && <ActA1 key="a1" onNext={() => setAct(2)} />}
         {act === 2 && <ActA2 key="a2" onNext={() => setAct(3)} />}
-        {act === 3 && <ActA3 key="a3" onNext={() => setAct(4)} />}
-        {act === 4 && <ActADone key="a4" onRestart={() => setAct(1)} />}
+        {act === 3 && <ActA3 key="a3" onNext={() => onComplete?.()} />}
       </AnimatePresence>
     </div>
   );
