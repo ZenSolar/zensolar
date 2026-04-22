@@ -51,6 +51,14 @@ const VIP_WELCOMES: Record<
     signoff: '— Joe',
     cta: 'Enter the Clean Energy Center',
   },
+  'TAYTAY-2026': {
+    firstName: 'Taylor',
+    title: 'Tay-tay,',
+    body:
+      "Thank you for all of the positivity and support you showed Dwight and I in the very beginning of the ZenSolar journey.\n\nLife as well as entrepreneurship is a universe wide and a universe deep — in other words very rarely do we have any idea on what the fuck is actually around the corner and what's going to happen 😂.\n\nI'm very grateful for your friendship and hope and pray that ZenSolar v2 turns into something that creates value for the Hou$er's.\n\nIf you have any questions or care to provide any feedback on demo experience feel free to hit me up directly or use the feedback button within the app.\n\nEnjoy the rest of your trip in Austin and the wedding and Waco!",
+    signoff: '— Joey Bear',
+    cta: 'Enter the Clean Energy Center',
+  },
 };
 
 export function getVipWelcomeForCode(code: string | null | undefined) {
