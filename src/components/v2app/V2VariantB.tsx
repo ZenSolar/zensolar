@@ -194,33 +194,6 @@ function ActB3({ onNext }: { onNext: () => void }) {
   );
 }
 
-function ActBDone({ onRestart }: { onRestart: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="flex-1 flex flex-col items-start justify-center max-w-lg"
-    >
-      <div className="h-12 w-12 border border-foreground/20 flex items-center justify-center mb-8">
-        <Check className="h-5 w-5 text-primary" />
-      </div>
-      <p className="text-[10px] uppercase tracking-[0.3em] text-foreground/50 mb-5 font-mono">
-        End of Variant B preview
-      </p>
-      <h1 className="text-3xl sm:text-4xl font-light tracking-tight leading-[1.05] mb-8">
-        This is where the<br />real dashboard begins.
-      </h1>
-      <button
-        onClick={onRestart}
-        className="text-sm font-mono uppercase tracking-[0.25em] text-foreground/60 hover:text-primary transition-colors border-b border-foreground/20 pb-1"
-      >
-        Replay
-      </button>
-    </motion.div>
-  );
-}
-
 function DataPill({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
     <div className="flex flex-col">
