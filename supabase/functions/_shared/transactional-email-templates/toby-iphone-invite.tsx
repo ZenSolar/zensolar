@@ -5,10 +5,13 @@ import {
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = "ZenSolar"
-const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png"
-const DEMO_URL = "https://beta.zen.solar/demo"
-const SAFARI_DEEP_LINK = "x-safari-https://beta.zen.solar/demo"
+const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v2.png"
 const ACCESS_CODE = "LOBV-2026"
+// Deep links — both pre-load the access code so Toby never has to type it.
+// `from=browser` and `from=install` let the app tailor onboarding to the chosen path.
+const DEMO_URL_BROWSER = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=browser`
+const DEMO_URL_INSTALL = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=install`
+const SAFARI_DEEP_LINK = `x-safari-https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=browser`
 
 interface TobyIphoneInviteProps {
   firstName?: string
