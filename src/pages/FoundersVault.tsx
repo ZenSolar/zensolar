@@ -249,7 +249,7 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           </div>
         </Link>
 
-        {/* Proof of Genesis CTA */}
+        {/* Proof of Genesis™ CTA */}
         <Link
           to="/founders/proof-of-genesis"
           className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
@@ -263,7 +263,7 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
                 <p className="text-[10px] uppercase tracking-widest text-primary">
                   NDA-Shareable · Investor Brief
                 </p>
-                <p className="text-sm font-semibold">Proof of Genesis</p>
+                <p className="text-sm font-semibold">Proof of Genesis™</p>
                 <p className="text-[11px] text-muted-foreground line-clamp-2">
                   Δ + Origin → the primitive that eclipses Bitcoin. One-screen narrative + diagrams.
                 </p>

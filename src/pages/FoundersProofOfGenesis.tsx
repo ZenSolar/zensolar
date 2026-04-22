@@ -137,7 +137,7 @@ function NdaGate({
               Confidentiality Required
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              The Proof of Genesis brief contains patent-pending material.
+              The Proof of Genesis™ brief contains patent-pending material.
               Please sign the NDA below to view and download the one-pager.
             </p>
           </div>
@@ -187,7 +187,7 @@ function Content() {
         pagebreak: { mode: ["avoid-all", "css", "legacy"] },
       };
       await html2pdf().set(opt).from(printRef.current).save();
-      toast.success("Proof of Genesis brief downloaded");
+      toast.success("Proof of Genesis™ brief downloaded");
     } catch (err) {
       console.error("PDF export error:", err);
       toast.error("Failed to export PDF");
@@ -211,7 +211,7 @@ function Content() {
             <div className="flex items-center gap-2 min-w-0">
               <img src={zenLogo} alt="ZenSolar" className="h-5 w-auto opacity-80 shrink-0" />
               <span className="text-[10px] uppercase tracking-widest text-amber-400 border-l border-border/40 pl-2 truncate">
-                Proof of Genesis
+                Proof of Genesis™
               </span>
             </div>
             <Link
@@ -276,7 +276,7 @@ function Content() {
             Bitcoin proved digital scarcity by burning energy to prove waste.
             $ZSOLAR proves digital scarcity by minting value <em>because</em>{" "}
             clean energy was produced or consumed productively. We call that
-            primitive <strong className="text-foreground">Proof of Genesis</strong> —
+            primitive <strong className="text-foreground">Proof of Genesis™</strong> —
             the cryptographic union of <em>Proof of Delta</em> (a verified
             change in energy state) and <em>Proof of Origin</em> (a verified
             physical device and clean source).
@@ -321,7 +321,7 @@ function Content() {
         <section className="space-y-4">
           <SectionHead
             eyebrow="Diagram 02"
-            title="PoW vs Proof of Genesis"
+            title="PoW vs Proof of Genesis™"
             sub="Why the same scarcity narrative compounds, but with a real-world floor."
           />
           <div className="rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6 overflow-x-auto">
@@ -343,7 +343,7 @@ function Content() {
               addressable market produces when run forward honestly.
               <strong className="text-foreground">
                 {" "}
-                Take Bitcoin&apos;s ~$2T cap. Apply Proof of Genesis to the
+                Take Bitcoin&apos;s ~$2T cap. Apply Proof of Genesis™ to the
                 $10T+ clean-energy economy. Stack five scarcity vectors on top
                 of one. Add patent gating, founder accountability, ESG access,
                 and protocol revenue. The math for{" "}
@@ -383,7 +383,7 @@ function Content() {
           <SectionHead
             eyebrow="For Partners"
             title="Why this matters to OEMs"
-            sub="Proof of Genesis is Switzerland for energy proof — a neutral receipt every device can plug into."
+            sub="Proof of Genesis™ is Switzerland for energy proof — a neutral receipt every device can plug into."
           />
           <ul className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
             <Bullet
@@ -415,7 +415,7 @@ function Content() {
           <p className="font-serif text-2xl md:text-3xl italic leading-snug">
             "Bitcoin is digital gold.
             <br />
-            Proof of Genesis is{" "}
+            Proof of Genesis™ is{" "}
             <span className="text-primary not-italic">digital photosynthesis</span>."
           </p>
           <p className="mt-4 text-[11px] uppercase tracking-widest text-muted-foreground">
@@ -431,7 +431,7 @@ function Content() {
 
         <div className="text-center inline-flex w-full justify-center items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
           <Lock className="h-3 w-3 text-amber-400" />
-          NDA-shareable · Founders Brief · Proof of Genesis
+          NDA-shareable · Founders Brief · Proof of Genesis™
         </div>
       </main>
     </div>
@@ -511,7 +511,7 @@ function Bullet({
 // ─── Side-by-side comparison table ──────────────────────────────
 function BTCvsZSOLARTable() {
   const rows: Array<[string, string, string]> = [
-    ["Primitive", "Proof of Work — burn electricity to prove waste", "Proof of Genesis — mint receipts from verified clean energy"],
+    ["Primitive", "Proof of Work — burn electricity to prove waste", "Proof of Genesis™ — mint receipts from verified clean energy"],
     ["Hard cap", "21,000,000 BTC", "1,000,000,000,000 $ZSOLAR (1T)"],
     ["Halving cadence", "Every ~4 years (block-based)", "Programmable — protocol-governed"],
     ["Scarcity vectors", "1 (hard cap)", "5 (cap + halving + 3 burns)"],
@@ -535,7 +535,7 @@ function BTCvsZSOLARTable() {
           Bitcoin · Proof of Work
         </div>
         <div className="p-3 text-amber-400 border-l border-border/40 bg-primary/[0.04]">
-          $ZSOLAR · Proof of Genesis
+          $ZSOLAR · Proof of Genesis™
         </div>
       </div>
       <div className="divide-y divide-border/40">
@@ -573,7 +573,7 @@ function GenesisEquationSVG() {
       viewBox="0 0 720 240"
       className="w-full h-auto"
       role="img"
-      aria-label="Proof of Delta plus Proof of Origin equals Proof of Genesis"
+      aria-label="Proof of Delta plus Proof of Origin equals Proof of Genesis™"
     >
       {/* Left node — Delta */}
       <g>
@@ -656,7 +656,7 @@ function EclipseSVG() {
       viewBox="0 0 720 280"
       className="w-full h-auto"
       role="img"
-      aria-label="Proof of Work versus Proof of Genesis comparison"
+      aria-label="Proof of Work versus Proof of Genesis™ comparison"
     >
       {/* PoW column */}
       <g>
@@ -690,7 +690,7 @@ function EclipseSVG() {
           fill="hsl(var(--primary) / 0.06)" stroke="hsl(var(--primary))" />
         <text x="540" y="50" textAnchor="middle"
           fill="hsl(var(--primary))" fontSize="10" letterSpacing="2">
-          $ZSOLAR — PROOF OF GENESIS
+          $ZSOLAR — PROOF OF GENESIS™
         </text>
         <text x="540" y="92" textAnchor="middle"
           fill="hsl(var(--foreground))" fontSize="34" fontFamily="serif">
