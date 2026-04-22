@@ -329,11 +329,24 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     console.log(`[iosQA +${elapsed}ms] ${tag}`, data);
     setIosQaEvents((prev) => [...prev.slice(-19), { t: elapsed, tag, data: dataStr }]);
   }, [iosQaEnabled]);
+  const logGestureQa = useCallback((tag: string, data: Record<string, unknown> = {}) => {
+    if (!showGateDiagnostics) return;
+    const now = performance.now();
+    if (!gestureQaStartRef.current) {
+      gestureQaStartRef.current = now;
+    }
+    const elapsed = Math.round(now - gestureQaStartRef.current);
+    const dataStr = Object.entries(data)
+      .filter(([, value]) => value !== undefined && value !== null && value !== '')
+      .map(([k, v]) => `${k}=${typeof v === 'number' ? Math.round(v as number) : v}`)
+      .join(' ');
+    setGestureQaEvents((prev) => [...prev.slice(-23), { t: elapsed, tag, data: dataStr }]);
+  }, [showGateDiagnostics]);
   const isIOSKeyboardMode = isIOS && inputFocused;
   const shouldPinGateForKeyboard = isIOS && inputFocused;
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
-  const showAudioDebug = showGateDiagnostics;
-  const showReleaseAudioDiagnostics = showGateDiagnostics;
+  const showAudioDebug = false;
+  const showReleaseAudioDiagnostics = false;
 
   // Backfill NDA signer name if access was already granted but name isn't cached
   useEffect(() => {
