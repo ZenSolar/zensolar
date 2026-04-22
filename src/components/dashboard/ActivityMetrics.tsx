@@ -29,6 +29,7 @@ import { SwipeHintTooltip } from './SwipeHintTooltip';
 import { useSwipeHintShown } from '@/hooks/useSwipeHintShown';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useDeviceLabels } from '@/hooks/useDeviceLabels';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
 
 // Import brand logos for connected providers display
