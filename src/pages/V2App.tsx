@@ -36,7 +36,7 @@ export default function V2App() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id}>
+    <VaultBiometricGate userId={user.id} allowPreviewBypass>
       <V2AppHub />
     </VaultBiometricGate>
   );
