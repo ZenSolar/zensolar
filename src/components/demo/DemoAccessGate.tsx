@@ -255,6 +255,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     return isAccessGranted();
   });
+  // Capture deep-link params for prefill / install-path routing
+  const prefillCodeFromUrl = (() => {
+    if (typeof window === 'undefined') return '';
+    const p = new URLSearchParams(window.location.search);
+    return (p.get('code') || p.get('access_code') || '').toUpperCase().trim();
+  })();
+  const fromInstallFlow = (() => {
+    if (typeof window === 'undefined') return false;
+    const p = new URLSearchParams(window.location.search);
+    return (p.get('from') || '').toLowerCase() === 'install';
+  })();
 
   // Bypass gate for authenticated admin/editor users
   useEffect(() => {
