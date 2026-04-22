@@ -71,21 +71,26 @@ function SpaceXContent() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-3">2. Eight-Category Moat — Categories 7 & 8</h2>
+            <h2 className="text-2xl font-semibold mb-3">2. Eight-Category Moat — Category 8 (Inter-System)</h2>
+            <p className="text-xs text-muted-foreground mb-3">
+              Aligned with Founder Pack v5.6 §5 numbering. Categories 6 (Robotaxi) and 7 (Optimus) are covered in the main pack;
+              this briefing details Category 8 — the orbital and inter-system patent claims (§A.3 claims 6.1, 6.2, 7.5, 7.6).
+            </p>
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted/30">
                   <tr>
                     <th className="text-left p-3 font-semibold">#</th>
-                    <th className="text-left p-3 font-semibold">Category</th>
+                    <th className="text-left p-3 font-semibold">Category / Claim</th>
                     <th className="text-left p-3 font-semibold">Phase</th>
                     <th className="text-left p-3 font-semibold">Settlement</th>
                   </tr>
                 </thead>
                 <tbody className="text-muted-foreground">
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">7</td><td className="p-3">Starlink uplink-kWh</td><td className="p-3">2a</td><td className="p-3">Orbital (Earth-anchored L2)</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">8a</td><td className="p-3">Starship payload-kWh</td><td className="p-3">2a</td><td className="p-3">Orbital (Earth-anchored L2)</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">8b</td><td className="p-3">Mars solar / nuclear kWh</td><td className="p-3">2b</td><td className="p-3">Inter-system relay</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">8 · 6.1</td><td className="p-3">Starlink uplink-kWh (orbital relay proofs)</td><td className="p-3">2</td><td className="p-3">Orbital (Earth-anchored L2)</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">8 · 6.2</td><td className="p-3">Starship clean-launch credit (payload-kWh)</td><td className="p-3">2</td><td className="p-3">Orbital (Earth-anchored L2)</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">8 · 7.6</td><td className="p-3">Mars-surface clean-energy mint (first off-world)</td><td className="p-3">2</td><td className="p-3">Inter-system relay</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">8 · 7.5</td><td className="p-3">$ZSOLAR inter-system settlement bridge</td><td className="p-3">2</td><td className="p-3">Earth ↔ orbital ↔ Mars</td></tr>
                 </tbody>
               </table>
             </div>

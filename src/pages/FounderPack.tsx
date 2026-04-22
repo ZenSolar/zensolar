@@ -19,10 +19,16 @@ import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 
 // ─── Section meta ────────────────────────────────────────────────
+// Mirrors ZenSolar Founder Pack v5.6 (April 2026) — the Northstar document.
 const SECTIONS = [
   { id: "evolution", label: "Evolution", icon: Compass },
   { id: "strategy", label: "Strategy", icon: Rocket },
   { id: "tokenomics", label: "Tokenomics", icon: Coins },
+  { id: "halving", label: "Halving", icon: Coins },
+  { id: "moat", label: "Patent Moat", icon: Shield },
+  { id: "growth", label: "Growth", icon: Rocket },
+  { id: "salary", label: "Salary", icon: Coins },
+  { id: "flywheel", label: "Flywheel", icon: Coins },
   { id: "networth", label: "Net Worth", icon: Gem },
   { id: "pact", label: "The Pact", icon: Shield },
 ] as const;
@@ -280,10 +286,12 @@ function PackContent() {
           ceiling on our ambition. So we expanded by 100×.
         </P>
         <Stat>
-          <StatRow label="New total supply" value="1,000,000,000,000" sub="1 trillion $ZSOLAR" />
-          <StatRow label="Launch price" value="$0.10" sub="LP-paired, tranched" />
-          <StatRow label="Founder allocation (each)" value="100B" sub="Joseph + Michael" />
-          <StatRow label="Pact-locked" value="200B" sub="Family Legacy Pact" />
+          <StatRow label="Hard cap" value="1,000,000,000,000" sub="1 trillion $ZSOLAR — asymptotic, never reached" />
+          <StatRow label="Launch price" value="$0.10" sub="LP-paired, ~$300K USDC + 3M $ZSOLAR / round" />
+          <StatRow label="Joseph allocation" value="150B" sub="15% · 4-yr vest · 12-mo cliff · pact-locked" />
+          <StatRow label="Michael allocation" value="50B" sub="5% · 4-yr vest · 12-mo cliff · pact-locked" />
+          <StatRow label="Community (Mint-on-Proof)" value="700B" sub="70% · earned by verified clean-energy work" />
+          <StatRow label="Treasury + Team Pool" value="100B" sub="7.5% multisig + 2.5% future hires" />
         </Stat>
         <P>
           Critically, we are <strong>not</strong> dumping 1T tokens on the
@@ -306,27 +314,178 @@ function PackContent() {
         </P>
       </Section>
 
-      {/* ─── NET WORTH ─── */}
-      <Section id="networth" eyebrow="Chapter Four" title="The Math">
+      {/* ─── HALVING (v5.6 §3.4) ─── */}
+      <Section id="halving" eyebrow="Chapter Four" title="The Halving">
         <Lead>
-          Two ordinary builders. 100B tokens each. The price ladder writes
-          the rest of the story.
+          Bitcoin's 21M cap is structurally smaller than its headline — roughly
+          3–4M coins are permanently lost. We import that mechanic, on
+          purpose, and stack four more scarcity vectors on top.
         </Lead>
-        <Ladder
+        <P>
+          $ZSOLAR adopts a Bitcoin-identical 4-year halving schedule on the
+          per-kWh producer reward. Combined with the 1T cap, the 20% mint
+          burn, the 7% transfer tax, and the 5% redemption burn, that gives
+          us <strong>five compounding scarcity vectors</strong> instead of
+          Bitcoin's one.
+        </P>
+        <DataTable
+          headers={["Era", "Years", "Reward / kWh", "Throttle"]}
           rows={[
-            { price: 0.1, label: "Launch", networth: 10e9 },
-            { price: 1, label: "First re-rating", networth: 100e9 },
-            { price: 10, label: "Tesla integration", networth: 1e12 },
-            { price: 100, label: "Trillionaire price", networth: 10e12 },
-            { price: 1000, label: "Interplanetary mint", networth: 100e12 },
+            ["Era 1 (Genesis)", "0–4", "1.0000", "Launch rate"],
+            ["Era 2", "4–8", "0.5000", "First halving · 50%"],
+            ["Era 3", "8–12", "0.2500", "Second · 75%"],
+            ["Era 4", "12–16", "0.1250", "Third · 87.5%"],
+            ["Era 5", "16–20", "0.0625", "Fourth · 93.75%"],
+            ["Era 6+", "20+", "0.0313 ↓", "Asymptotic — 1T never fully reached"],
+          ]}
+        />
+        <Pull>
+          The 1T cap is the ceiling.
+          <br />
+          The <span className="text-primary">unreachable float</span> is the
+          real scarcity.
+        </Pull>
+      </Section>
+
+      {/* ─── PATENT MOAT (v5.6 §5) ─── */}
+      <Section id="moat" eyebrow="Chapter Five" title="The Eight-Category Patent Moat">
+        <Lead>
+          Our patent application covers tokenizing verified clean-energy work
+          across every category Tesla will ever monetize. That is the
+          gatekeeper play.
+        </Lead>
+        <DataTable
+          headers={["#", "Category", "Phase", "Status"]}
+          rows={[
+            ["1", "Solar production", "1", "Live"],
+            ["2", "Battery discharge (Powerwall, Megapack)", "1", "Live"],
+            ["3", "EV charging (Tesla, Wallbox, ChargePoint)", "1", "Live"],
+            ["4", "EV miles on clean power", "1", "Live"],
+            ["5", "FSD / Autonomous miles", "1", "Code-live · KPI dormant"],
+            ["6", "Robotaxi participation", "2", "Patent-filed · dormant"],
+            ["7", "Optimus humanoid work-hours", "2", "Patent-filed · dormant"],
+            ["8", "Starlink-relayed inter-system proofs", "2", "Patent-filed · dormant"],
           ]}
         />
         <P>
-          At $100/token — the "trillionaire price" — each of us books $10T.
-          For context, that is roughly 4× the current market cap of Tesla.
-          It sounds absurd. It is absurd. It is also what the patent's
-          unbounded scope mathematically permits if Tesla and SpaceX hardware
-          mint against it.
+          Categories 5–8 are Tesla's $10T+ bets. Building the rewards
+          mechanism for them <strong>before anyone else</strong> means $ZSOLAR
+          becomes the default token of the autonomous Tesla economy by virtue
+          of being first in the patent record.
+        </P>
+      </Section>
+
+      {/* ─── GROWTH / ARR (v5.6 §6) ─── */}
+      <Section id="growth" eyebrow="Chapter Six" title="Growth — ARR Milestones">
+        <Lead>
+          ~$250 ARPU at the Tier-1 $19.99/mo subscription. The ladder maps
+          users → ARR → salary triggers in one continuous line.
+        </Lead>
+        <DataTable
+          headers={["ARR Tier", "Subscribers", "Phase Marker"]}
+          rows={[
+            ["Pre-Launch", "~500 beta devices", "Phase 1 — Live Beta"],
+            ["$1M ARR", "4,000", "Tipping-point bootstrap"],
+            ["$10M ARR", "40,000", "Mainnet · Tier-2 unlocks"],
+            ["$100M ARR", "400,000", "Public liquidity · FSD KPI surfaced"],
+            ["$500M ARR", "2,000,000", "Phase 2 (Robotaxi, Optimus) activated"],
+            ["$1B ARR", "4,000,000", "SpaceX integration begins"],
+            ["$5B ARR", "20,000,000", "Planetary protocol · Starlink relays live"],
+          ]}
+        />
+        <P>
+          Tipping point: <strong>25,000 users</strong>. Scale target:{" "}
+          <strong>100,000 users</strong>. Channels: SolarCity alumni network
+          (~30K warm intros), Tesla owner referrals, OEM partnerships
+          (Enphase / SolarEdge / Wallbox), Base L2 + Coinbase Wallet
+          distribution, and the press cascade post-Lyndon check (~5K signups
+          in week one).
+        </P>
+      </Section>
+
+      {/* ─── SALARY (v5.6 §7) ─── */}
+      <Section id="salary" eyebrow="Chapter Seven" title="Salary Discipline">
+        <Lead>
+          $500K Day-One CEO base. Michael at 75% of CEO total comp at every
+          tier. Bonuses are <em>cash, not token</em> — Pact untouched
+          regardless of performance.
+        </Lead>
+        <DataTable
+          headers={["ARR Trigger", "Joseph Base", "Bonus", "Michael Base", "Bonus"]}
+          rows={[
+            ["Seed Day 1", "$500K", "—", "$375K", "—"],
+            ["$1M ARR", "$600K", "$100K", "$450K", "$75K"],
+            ["$10M ARR", "$800K", "$300K", "$600K", "$225K"],
+            ["$30M ARR", "$1.0M", "$500K", "$750K", "$375K"],
+            ["$100M ARR", "$1.25M", "$750K", "$940K", "$565K"],
+            ["$500M ARR", "$1.5M", "$1.0M", "$1.13M", "$750K"],
+            ["$1B+ ARR", "$2.0M", "$1.5M", "$1.5M", "$1.13M"],
+          ]}
+        />
+        <P>
+          Bonuses scale with ARR, not token price — protects against
+          speculative comp. No founder token sales regardless of bonus
+          structure (see Pact, below).
+        </P>
+      </Section>
+
+      {/* ─── FLYWHEEL (v5.6 §9) ─── */}
+      <Section id="flywheel" eyebrow="Chapter Eight" title="The Compounding Flywheel">
+        <Lead>
+          Six revenue lines, all auto-routed on-chain, all reinforcing the
+          same token. We earn on every subscriber, every kWh, every trade,
+          every redemption, every partner integration.
+        </Lead>
+        <DataTable
+          headers={["Stream", "Trigger", "Flow", "Effect"]}
+          rows={[
+            ["Subscriptions", "Monthly billing", "50% LP / 50% company", "SaaS + auto-LP depth"],
+            ["Transfer Tax (7%)", "Every trade", "3% burn / 2% LP / 2% treasury", "Trade volume = passive revenue"],
+            ["Mint Distribution", "Every kWh proven", "20% burn / 3% LP / 2% treasury", "Energy = protocol revenue"],
+            ["Redemption (5%)", "Off-chain redeem", "100% burn", "Deflation per redeem"],
+            ["NFT Mint Fees", "Milestone unlock", "100% company", "Pure SaaS margin"],
+            ["OEM Partnerships", "Hardware sales", "Ads + LP co-inject + affiliate", "Partner-funded growth"],
+          ]}
+        />
+        <P>
+          <strong>Worked transfer-tax math:</strong> at $1B daily volume and
+          $10/token, the protocol clears <strong>~$1.46B/yr</strong> to LP +
+          treasury and burns <strong>~$1.10B/yr</strong> in supply.
+          Nine-figure annual revenue, no CAC, no churn, no cost-of-sales.
+        </P>
+        <Pull>
+          Subscribers fund LP. LP attracts traders.
+          <br />
+          Traders pay tax. Tax burns supply.
+          <br />
+          <span className="text-primary">Smaller supply lifts price.
+          Repeat.</span>
+        </Pull>
+      </Section>
+
+      {/* ─── NET WORTH (v5.6 §11) ─── */}
+      <Section id="networth" eyebrow="Chapter Nine" title="The 20-Year Trajectory">
+        <Lead>
+          Joseph 150B · Michael 50B. Neither founder ever sells. Wealth grows
+          on book value, liquidity comes from the salary ladder.
+        </Lead>
+        <Ladder
+          rows={[
+            { price: 0.1, label: "Launch floor", networth: 15e9 },
+            { price: 1, label: "First re-rating", networth: 150e9 },
+            { price: 6.67, label: "Joseph crosses $1T", networth: 1e12 },
+            { price: 10, label: "Tesla-scale re-rating", networth: 1.5e12 },
+            { price: 20, label: "Michael crosses $1T", networth: 3e12 },
+            { price: 100, label: "Trillionaire price", networth: 15e12 },
+          ]}
+        />
+        <P>
+          Trillionaire crossover: at <strong>$6.67 / $ZSOLAR</strong>{" "}
+          Joseph's book net-worth crosses $1T; Michael crosses at{" "}
+          <strong>$20</strong>. Both holdings remain non-circulating under the
+          Pact, in perpetuity. Cumulative cash comp by year 20 is conservative
+          — $20M+ for Joseph, $15M+ for Michael — entirely from the salary
+          ladder, never from selling tokens.
         </P>
         <Pull>
           We are not predicting this outcome.
@@ -342,10 +501,11 @@ function PackContent() {
           exists so we never do.
         </Lead>
         <P>
-          Of our combined 200B founder tokens, <strong>zero</strong> are for
-          sale. Liquidity comes from salary. Wealth comes from holding.
-          Legacy comes from never selling. The Pact is the thing that
-          separates a generational fortune from a one-time payday.
+          Of our combined <strong>200B</strong> founder tokens (150B Joseph +
+          50B Michael), <strong>zero</strong> are for sale across our
+          lifetimes. Tokens may be passed to lineal descendants only, who
+          inherit under the same no-sell pact. Liquidity comes from salary.
+          Wealth comes from holding. Legacy comes from never selling.
         </P>
         <Pull>
           Liquidity from salary.
@@ -485,6 +645,49 @@ function StatRow({
     </div>
   );
 }
+function DataTable({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: (string | number)[][];
+}) {
+  return (
+    <div className="my-8 overflow-x-auto rounded-2xl border border-border/60 bg-card/30">
+      <table className="w-full text-[12px] md:text-sm">
+        <thead className="bg-secondary/30">
+          <tr>
+            {headers.map((h) => (
+              <th
+                key={h}
+                className="text-left px-3 md:px-4 py-2.5 text-[10px] uppercase tracking-widest text-muted-foreground font-medium whitespace-nowrap"
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} className="border-t border-border/40">
+              {r.map((c, j) => (
+                <td
+                  key={j}
+                  className={`px-3 md:px-4 py-2.5 align-top ${
+                    j === 0 ? "font-medium text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {c}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function Ladder({
   rows,
 }: {
