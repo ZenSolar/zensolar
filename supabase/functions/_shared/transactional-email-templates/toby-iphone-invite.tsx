@@ -28,25 +28,13 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
       <Head>
         <meta name="color-scheme" content="dark only" />
         <meta name="supported-color-schemes" content="dark only" />
-        <style>{`
-          :root { color-scheme: dark only; supported-color-schemes: dark only; }
-          html, body, table, tbody, tr, td, div { background-color: #0a0f0d !important; }
-          u + .body, u + .body .dark-bg { background-color: #0a0f0d !important; }
-          [data-ogsc], [data-ogsc] .dark-bg { background-color: #0a0f0d !important; }
-          [data-ogsc] .dark-text { color: #e8f0ec !important; }
-          [data-ogsc] .dark-muted { color: #9bb0a6 !important; }
-          [data-ogsc] .dark-accent { color: #34d399 !important; }
-          @media (prefers-color-scheme: light) {
-            html, body, table, tbody, tr, td, div, .dark-bg { background-color: #0a0f0d !important; }
-            .dark-text { color: #e8f0ec !important; }
-            .dark-muted { color: #9bb0a6 !important; }
-          }
-        `}</style>
       </Head>
       <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
-      <Body style={main} className="body dark-bg" bgcolor={BG}>
-        <Section style={viewportBg} className="dark-bg">
-          <Container style={container} className="dark-bg">
+      <Body style={main} bgcolor={BG}>
+        {/* Hard-inline wrapper — survives Gmail iOS Dark Mode CSS stripping */}
+        <div style={hardWrap}>
+        <Section style={viewportBg}>
+          <Container style={container}>
 
           {/* Header logo */}
           <Section style={logoHeader}>
