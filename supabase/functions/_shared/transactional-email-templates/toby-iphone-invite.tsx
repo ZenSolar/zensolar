@@ -72,7 +72,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
                     <Container style={container} bgcolor={BG}>
 
           {/* Header logo */}
-          <Section style={logoHeader} bgcolor={BG}>
+          <BgBlock bgColor={BG} style={logoHeader}>
             <Img
               src={LOGO_URL}
               alt="ZenSolar — Creating Currency From Energy"
@@ -80,7 +80,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               height="44"
               style={logoHeaderImg}
             />
-          </Section>
+          </BgBlock>
 
           {/* Badge */}
           <Section style={badgeWrap}>
@@ -556,74 +556,77 @@ const ctaButtonFull = {
 }
 
 // OR divider between paths
-const orWrap = { textAlign: 'center' as const, margin: '4px 0 14px' }
+const orWrap = { textAlign: 'center' as const, margin: '4px 0 14px', ...bgLock(BG) }
 const orText = {
-  fontSize: '12px', color: TEXT_DIM, margin: '0',
+  fontSize: '12px', margin: '0',
   letterSpacing: '0.5px', fontStyle: 'italic' as const,
+  ...textLock(TEXT_DIM),
 }
 
 // Mini 3-step install inside Path B
 const miniSteps = {
   margin: '0 0 18px',
   padding: '14px 16px',
-  backgroundColor: SURFACE,
+  ...bgLock(SURFACE),
   border: '1px solid ' + BORDER,
   borderRadius: '10px',
   textAlign: 'left' as const,
 }
-const miniStep = { fontSize: '13px', color: TEXT, lineHeight: '1.55', margin: '0 0 8px' }
-const miniStepLast = { fontSize: '13px', color: TEXT, lineHeight: '1.55', margin: '0' }
+const miniStep = { fontSize: '13px', lineHeight: '1.55', margin: '0 0 8px', ...textLock(TEXT) }
+const miniStepLast = { fontSize: '13px', lineHeight: '1.55', margin: '0', ...textLock(TEXT) }
 const miniStepNum = {
   display: 'inline-block', minWidth: '18px',
   fontSize: '13px', fontWeight: 800 as const,
-  color: ACCENT_SOFT, marginRight: '4px',
+  marginRight: '4px', ...textLock(ACCENT_SOFT),
 }
 
 // Feedback card (either way)
 const feedbackCard = {
   margin: '4px 0 4px',
   padding: '16px 18px',
-  backgroundColor: SURFACE_2,
+  ...bgLock(SURFACE_2),
   border: '1px solid rgba(16, 185, 129, 0.35)',
   borderRadius: '12px',
 }
 const feedbackLabel = {
   fontSize: '11px', fontWeight: 700 as const, letterSpacing: '1.5px',
-  color: ACCENT_SOFT, margin: '0 0 8px',
+  margin: '0 0 8px', ...textLock(ACCENT_SOFT),
 }
-const feedbackText = { fontSize: '14px', color: TEXT, lineHeight: '1.6', margin: '0' }
+const feedbackText = { fontSize: '14px', lineHeight: '1.6', margin: '0', ...textLock(TEXT) }
 
-const inlineLink = { color: ACCENT_SOFT, textDecoration: 'underline', fontWeight: 600 as const }
+const inlineLink = { textDecoration: 'underline', fontWeight: 600 as const, ...textLock(ACCENT_SOFT) }
 
 // Signature
-const signoff = { fontSize: '15px', color: TEXT_MUTED, margin: '24px 0 16px' }
-const sigSection = { margin: '0 0 20px' }
-const sigName = { fontSize: '16px', color: TEXT, fontWeight: 700 as const, margin: '0 0 2px', letterSpacing: '-0.01em' }
-const sigTitle = { fontSize: '14px', color: TEXT_DIM, margin: '0 0 10px', fontWeight: 500 as const }
-const sigContactLine = { fontSize: '14px', color: TEXT_MUTED, margin: '0 0 4px', lineHeight: '1.5' }
-const sigContactLineLast = { fontSize: '14px', color: TEXT_MUTED, margin: '0', lineHeight: '1.5' }
-const sigLink = { color: ACCENT_SOFT, textDecoration: 'underline', fontWeight: 500 as const }
-const sigDot = { color: TEXT_DIM }
+const signoff = { fontSize: '15px', margin: '24px 0 16px', ...textLock(TEXT_MUTED) }
+const sigSection = { margin: '0 0 20px', ...bgLock(BG) }
+const sigName = { fontSize: '16px', fontWeight: 700 as const, margin: '0 0 2px', letterSpacing: '-0.01em', ...textLock(TEXT) }
+const sigTitle = { fontSize: '14px', margin: '0 0 10px', fontWeight: 500 as const, ...textLock(TEXT_DIM) }
+const sigContactLine = { fontSize: '14px', margin: '0 0 4px', lineHeight: '1.5', ...textLock(TEXT_MUTED) }
+const sigContactLineLast = { fontSize: '14px', margin: '0', lineHeight: '1.5', ...textLock(TEXT_MUTED) }
+const sigLink = { textDecoration: 'underline', fontWeight: 500 as const, ...textLock(ACCENT_SOFT) }
+const sigDot = { ...textLock(TEXT_DIM) }
 const sigLogoBottom = {
   marginTop: '10px',
   display: 'block' as const,
+  marginLeft: '0',
   width: '160px',
   height: '39px',
   maxWidth: '160px',
   border: '0',
   outline: 'none',
   textDecoration: 'none',
-  backgroundColor: BG,
+  backgroundColor: 'transparent',
   color: TEXT,
   lineHeight: '39px',
   fontSize: '12px',
+  verticalAlign: 'middle' as const,
 }
 
 const footerDivider = { borderColor: BORDER, margin: '8px 0 16px' }
-const footer = { fontSize: '11px', color: TEXT_DIM, margin: '0', textAlign: 'center' as const, lineHeight: '1.6' }
+const footer = { fontSize: '11px', margin: '0', textAlign: 'center' as const, lineHeight: '1.6', ...textLock(TEXT_DIM) }
 
 // Header logo (top of email)
-const logoHeader = { textAlign: 'center' as const, margin: '0 0 18px', backgroundColor: BG }
+const logoHeader = { textAlign: 'center' as const, margin: '0 0 18px', padding: '0', fontSize: '0', lineHeight: '0', ...bgLock(BG) }
 const logoHeaderImg = {
   display: 'block' as const,
   margin: '0 auto',
@@ -633,8 +636,9 @@ const logoHeaderImg = {
   border: '0',
   outline: 'none',
   textDecoration: 'none',
-  backgroundColor: BG,
+  backgroundColor: 'transparent',
   color: TEXT,
   lineHeight: '44px',
   fontSize: '12px',
+  verticalAlign: 'middle' as const,
 }
