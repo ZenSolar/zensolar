@@ -381,6 +381,22 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="App Overhaul Plan">
+                    <NavLink
+                      to="/founders/app-overhaul-plan"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
+                      }
+                    >
+                      <Sparkles className="h-4 w-4 text-amber-400" />
+                      <span>App Overhaul Plan</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Deason (AI)">
                     <NavLink
                       to="/deason"
