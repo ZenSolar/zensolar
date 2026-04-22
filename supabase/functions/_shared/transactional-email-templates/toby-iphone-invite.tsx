@@ -159,7 +159,26 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             </Text>
           </Section>
 
-          {/* Signature BEFORE the button — "down to my signature first" */}
+          {/* THE BIG GREEN BUTTON — at the bottom, ABOVE the signature */}
+          <Section style={ctaSection}>
+            <Text style={ctaPreface} className="dark-muted">
+              You read it all? Good. Now —
+            </Text>
+            <Link href={t('cta_primary', DEMO_URL)} style={ctaButton}>
+              Open on your iPhone  →
+            </Link>
+            <Text style={ctaCaption} className="dark-muted">~90 seconds · Safari recommended · Code: {ACCESS_CODE}</Text>
+            <Text style={safariFallback} className="dark-muted">
+              Opens inside Mail?{' '}
+              <Link href={t('safari_force', SAFARI_DEEP_LINK)} style={inlineLink}>
+                Force-open in Safari
+              </Link>
+            </Text>
+          </Section>
+
+          <Hr style={sectionDivider} />
+
+          {/* Signature — at the very bottom, below the CTA */}
           <Text style={signoff} className="dark-muted">Muchas gracias,</Text>
 
           <Section style={sigSection}>
@@ -184,25 +203,6 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               height="auto"
               style={sigLogoBottom}
             />
-          </Section>
-
-          <Hr style={sectionDivider} />
-
-          {/* THE BIG GREEN BUTTON — at the bottom, as promised */}
-          <Section style={ctaSection}>
-            <Text style={ctaPreface} className="dark-muted">
-              You read it all? Good. Now —
-            </Text>
-            <Link href={t('cta_primary', DEMO_URL)} style={ctaButton}>
-              Open on your iPhone  →
-            </Link>
-            <Text style={ctaCaption} className="dark-muted">~90 seconds · Safari recommended · Code: {ACCESS_CODE}</Text>
-            <Text style={safariFallback} className="dark-muted">
-              Opens inside Mail?{' '}
-              <Link href={t('safari_force', SAFARI_DEEP_LINK)} style={inlineLink}>
-                Force-open in Safari
-              </Link>
-            </Text>
           </Section>
 
           <Hr style={footerDivider} />
