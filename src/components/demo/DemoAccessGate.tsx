@@ -559,22 +559,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const body = document.body;
     const prevHtmlOverflow = html.style.overflow;
     const prevBodyOverflow = body.style.overflow;
-    const prevBodyPosition = body.style.position;
-    const prevBodyWidth = body.style.width;
-    const prevBodyTop = body.style.top;
-    const scrollY = window.scrollY;
     html.style.overflow = 'hidden';
     body.style.overflow = 'hidden';
-    body.style.position = 'fixed';
-    body.style.width = '100%';
-    body.style.top = `-${scrollY}px`;
     return () => {
       html.style.overflow = prevHtmlOverflow;
       body.style.overflow = prevBodyOverflow;
-      body.style.position = prevBodyPosition;
-      body.style.width = prevBodyWidth;
-      body.style.top = prevBodyTop;
-      window.scrollTo(0, scrollY);
     };
   }, [isIOS, inputFocused]);
 
@@ -1284,7 +1273,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           style={{
             justifyContent: shouldPinGateForKeyboard ? 'flex-start' : 'start',
             paddingTop: shouldPinGateForKeyboard
-              ? 'max(env(safe-area-inset-top, 0px) + 0.4rem, 0.75rem)'
+              ? 'max(env(safe-area-inset-top, 0px) + 1rem, 3.5rem)'
               : isIOSKeyboardMode
                 ? 'max(env(safe-area-inset-top, 0px) + 0.25rem, 0.5rem)'
                 : inputFocused
@@ -1818,7 +1807,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </div>
 
           {/* Code input — hidden until first tap */}
-          <div className={cn("w-full px-4 pointer-events-auto transition-opacity duration-300", hexAwake ? 'opacity-100' : 'opacity-0 pointer-events-none', isIOSKeyboardMode ? 'space-y-2' : 'space-y-3')}>
+          <div className={cn(
+            "w-full px-4 pointer-events-auto transition-opacity duration-300",
+            hexAwake ? 'opacity-100' : 'opacity-0 pointer-events-none',
+            isIOSKeyboardMode ? 'space-y-2 mt-2' : 'space-y-3'
+          )}>
             <Input
               ref={inputRef}
               value={code}
@@ -1860,14 +1853,6 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                           willScroll: offscreen,
                         });
                       }
-                      // Re-enable scrollIntoView for iOS as a fallback. With the
-                      // pinned fixed-position container + locked body scroll
-                      // (see effect below) this is usually a no-op, but on
-                      // Chrome iOS it gently nudges the input back into the
-                      // visible area if Chrome's auto-scroll left it offscreen.
-                      if (offscreen) {
-                        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                      }
                       if (iosQaEnabled) {
                         window.setTimeout(() => {
                           const r2 = inputRef.current?.getBoundingClientRect();
@@ -1897,7 +1882,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               className={cn(
                 'text-center font-mono uppercase placeholder:text-foreground/40 transition-colors duration-200',
                 isIOSKeyboardMode
-                  ? 'h-14 text-[15px] tracking-[0.12em] placeholder:tracking-[0.12em]'
+                  ? 'h-14 text-[16px] tracking-[0.12em] placeholder:tracking-[0.12em]'
                   : 'h-12 text-[17px] tracking-[0.18em] placeholder:tracking-[0.18em]',
                 isBursting && 'border-primary bg-primary/5',
                 isDenied && 'border-destructive bg-destructive/5 animate-shake'
