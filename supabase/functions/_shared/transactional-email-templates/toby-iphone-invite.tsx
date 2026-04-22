@@ -38,7 +38,7 @@ const BgBlock = ({ bgColor, style, children }: BgBlockProps) => (
   >
     <tbody>
       <tr>
-        <td bgcolor={bgColor} style={style}>
+        <td bgcolor={bgColor} style={{ ...bgLock(bgColor), ...style }}>
           {children}
         </td>
       </tr>
@@ -54,9 +54,15 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
       <Head>
         <meta name="color-scheme" content="dark only" />
         <meta name="supported-color-schemes" content="dark only" />
+        <style>{`
+          u + .body .gmail-blend-screen { background: ${BG}; mix-blend-mode: screen; }
+          u + .body .gmail-blend-difference { background: ${BG}; mix-blend-mode: difference; }
+        `}</style>
       </Head>
       <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
-      <Body style={main} bgcolor={BG}>
+      <Body style={main} bgcolor={BG} className="body">
+        <div className="gmail-blend-screen" style={gmailBlendScreen}>
+          <div className="gmail-blend-difference" style={gmailBlendDifference}>
         <table role="presentation" width="100%" cellPadding="0" cellSpacing="0" border={0} bgcolor={BG} style={outerTable}>
           <tbody>
             <tr>
@@ -286,6 +292,8 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             </tr>
           </tbody>
         </table>
+          </div>
+        </div>
       </Body>
     </Html>
   )
