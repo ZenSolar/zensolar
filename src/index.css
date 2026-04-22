@@ -796,3 +796,64 @@
 /* Hide scrollbars on horizontal chip nav (Founder Pack) */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =========================================================
+   V2 App Sandbox — Variant skins applied to shared dashboard
+   Both variants reuse the same mint pipeline (RewardActions →
+   on-chain edge functions → ZSOLAR in wallet) but render with
+   distinct visual identities.
+   ========================================================= */
+
+/* Variant A — Quiet Emerald: warmer cards, softer radii, lush glow */
+.v2-skin-a {
+  --primary: 160 84% 39%;
+  --ring: 160 84% 39%;
+  --secondary: 142 60% 30%;
+  --accent: 152 70% 45%;
+  --radius: 1rem;
+}
+.v2-skin-a .emerald-glow-card {
+  border-color: hsla(160, 84%, 39%, 0.45);
+  box-shadow: 0 0 14px 2px hsla(160, 84%, 39%, 0.20),
+              0 0 32px 6px hsla(160, 84%, 39%, 0.10);
+}
+
+/* Variant B — Tesla-grade restraint: monochrome, mono type, hairlines */
+.v2-skin-b {
+  --primary: 0 0% 96%;
+  --primary-foreground: 0 0% 6%;
+  --ring: 0 0% 96%;
+  --accent: 0 0% 96%;
+  --secondary: 0 0% 20%;
+  --border: 0 0% 22%;
+  --input: 0 0% 22%;
+  --radius: 0.125rem;
+}
+.v2-skin-b,
+.v2-skin-b h1,
+.v2-skin-b h2,
+.v2-skin-b h3,
+.v2-skin-b .font-bold,
+.v2-skin-b .font-semibold {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: -0.01em;
+}
+.v2-skin-b .emerald-glow-card {
+  border: 1px solid hsla(0, 0%, 100%, 0.14);
+  box-shadow: none;
+  border-radius: 2px;
+}
+.v2-skin-b [class*="rounded-xl"],
+.v2-skin-b [class*="rounded-2xl"],
+.v2-skin-b [class*="rounded-lg"] {
+  border-radius: 2px;
+}
+.v2-skin-b [class*="rounded-full"] {
+  border-radius: 9999px; /* keep pills/avatars circular */
+}
+.v2-skin-b button,
+.v2-skin-b .zen-btn-glow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.78em;
+}

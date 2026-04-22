@@ -8,7 +8,7 @@ import { ZenSolarDashboard } from "@/components/ZenSolarDashboard";
  */
 export function V2DashboardB({ onExit }: { onExit: () => void }) {
   return (
-    <div className="relative min-h-[100svh] bg-background v2-variant-b">
+    <div className="v2-skin-b relative min-h-[100svh] bg-background v2-variant-b">
       {/* Variant B chrome — hairline, mono, single accent */}
       <div className="fixed top-16 left-3 right-3 z-40 flex items-center justify-between">
         <button
