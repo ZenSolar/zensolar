@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
 import { useUserPersona } from "@/hooks/useUserPersona";
+import { BillSavingsReport } from "@/components/deason/BillSavingsReport";
 import { cn } from "@/lib/utils";
 
 interface DeasonChatProps {
@@ -123,14 +124,21 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
               key={i}
               className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
             >
-              <div
-                className={cn(
-                  "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 leading-relaxed",
-                  m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
-                  compact ? "text-sm" : "text-[15px]",
+              <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full max-w-[92%]")}>
+                {(m.content || m.role === "user" || !m.billReport) && (
+                  <div
+                    className={cn(
+                      "whitespace-pre-wrap rounded-2xl px-4 py-2.5 leading-relaxed",
+                      m.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground",
+                      compact ? "text-sm" : "text-[15px]",
+                    )}
+                  >
+                    <MessageContent content={m.content} streaming={streaming && i === messages.length - 1} />
+                  </div>
                 )}
-              >
-                <MessageContent content={m.content} streaming={streaming && i === messages.length - 1} />
+                {m.billReport && <BillSavingsReport report={m.billReport} />}
               </div>
             </div>
           ))}
