@@ -31,6 +31,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Install = lazy(() => import("./pages/Install"));
 const Demo = lazy(() => import("./pages/Demo"));
 const DwightPreview = lazy(() => import("./pages/DwightPreview"));
+const TaylorPreview = lazy(() => import("./pages/TaylorPreview"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboardSwitcher").then(m => ({ default: m.DemoDashboardSwitcher })));
 const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
@@ -201,6 +202,7 @@ const App = () => {
                     <Route path="/install" element={<Install />} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     <Route path="/dwight-preview" element={<DwightPreview />} />
+                    <Route path="/taylor-preview" element={<TaylorPreview />} />
                     
                     {/* Demo routes with full sidebar — gated by access code + NDA */}
                     <Route path="/demo" element={<DemoAccessGate><DemoLayout /></DemoAccessGate>}>
