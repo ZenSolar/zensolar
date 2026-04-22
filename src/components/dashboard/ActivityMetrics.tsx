@@ -29,6 +29,7 @@ import { SwipeHintTooltip } from './SwipeHintTooltip';
 import { useSwipeHintShown } from '@/hooks/useSwipeHintShown';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useDeviceLabels } from '@/hooks/useDeviceLabels';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
 
 // Import brand logos for connected providers display
@@ -233,13 +234,31 @@ export function ActivityMetrics({
   // Filter to only Tesla/Enphase
   const filteredProviders = effectiveConnectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
-  // Device-specific labels (used when single device)
-  // Format: (Name of system/device) + Activity Type
-  const solarLabel = 'My Solar Roof Production';
-  const batteryLabel = 'Powerwall 3 Exported kWh';
-  const evLabel = 'Model Y EV Miles';
-  const superchargerLabel = 'Tesla Supercharging';
-  const homeChargerLabel = 'Home Charging';
+  // Device-specific labels — pull live names from connected_devices when available.
+  // Priority: explicit data.deviceLabels (demo / mirror) > live hook > generic fallback.
+  const liveLabels = useDeviceLabels();
+  const passedLabels = effectiveData.deviceLabels;
+  const solarName = (passedLabels?.solar ?? liveLabels.solar)?.trim();
+  const batteryName = (passedLabels?.powerwall ?? liveLabels.powerwall)?.trim();
+  const vehicleName = (passedLabels?.vehicle ?? liveLabels.vehicle)?.trim();
+  const homeChargerName = (passedLabels?.homeCharger ?? liveLabels.homeCharger)?.trim();
+
+  const solarLabel = solarName ? `${solarName} Solar Production` : 'Solar Production';
+  const batteryLabel = batteryName ? `${batteryName} Exported kWh` : 'Battery Exported kWh';
+  const evLabel = vehicleName ? `${vehicleName} EV Miles` : 'EV Miles';
+  const superchargerLabel = vehicleName ? `${vehicleName} Supercharging` : 'Tesla Supercharging';
+  const homeChargerLabel = homeChargerName ? `${homeChargerName} Home Charging` : 'Home Charging';
+
+  // Header subtitle — "Your <Vehicle> · <Solar> · <Battery> · EV Charging kWh"
+  const headerSubtitleParts = [
+    vehicleName ? `Your ${vehicleName}` : null,
+    solarName,
+    batteryName,
+    'EV Charging kWh',
+  ].filter(Boolean) as string[];
+  const headerSubtitle = headerSubtitleParts.length > 1
+    ? headerSubtitleParts.join(' · ')
+    : 'Your Connected Energy';
 
   // Separate charging values
   const superchargerKwh = current.superchargerKwh ?? 0;
@@ -402,7 +421,7 @@ export function ActivityMetrics({
                     color: 'hsl(var(--primary) / 0.6)',
                     textShadow: '0 0 6px hsl(var(--primary) / 0.3)',
                   }}
-                >Your Model Y · Solar Roof · Powerwall 3 · EV Charging kWh</span>
+                >{headerSubtitle}</span>
               </div>
             )}
           </div>

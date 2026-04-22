@@ -211,7 +211,16 @@ export function DemoDashboard() {
         <AnimatedItem>
           <div className="emerald-glow-card overflow-hidden">
             <ActivityMetrics
-              data={activityData}
+              data={{
+                ...activityData,
+                // Demo defaults — keep branded names so the demo experience
+                // stays consistent regardless of any signed-in user's devices.
+                deviceLabels: activityData.deviceLabels ?? {
+                  vehicle: 'Model Y',
+                  powerwall: 'Powerwall 3',
+                  solar: 'My Solar Roof',
+                },
+              }}
               currentActivity={currentActivity}
               refreshInfo={{ lastUpdatedAt }}
               connectedProviders={connectedProviders}
