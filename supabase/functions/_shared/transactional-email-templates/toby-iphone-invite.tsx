@@ -532,3 +532,7 @@ const sigLogoBottom = { marginTop: '10px', display: 'block' as const, width: '16
 
 const footerDivider = { borderColor: BORDER, margin: '8px 0 16px' }
 const footer = { fontSize: '11px', color: TEXT_DIM, margin: '0', textAlign: 'center' as const, lineHeight: '1.6' }
+
+// Header logo (top of email)
+const logoHeader = { textAlign: 'center' as const, margin: '0 0 18px' }
+const logoHeaderImg = { display: 'block' as const, margin: '0 auto', width: '180px', height: 'auto', maxWidth: '60%' }
