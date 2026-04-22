@@ -100,6 +100,18 @@ const JoFounderVipEmail = ({ firstName, trackUrl }: JoFounderVipProps) => {
             </Text>
           </Section>
 
+          <Section style={codeCard}>
+            <Text style={codeBadge}>Your private access code</Text>
+            <Text style={codeValue}>{ACCESS_CODE}</Text>
+            <Text style={codeHelp}>
+              If you ever land on the <strong>Tap-to-Mint™ access screen</strong> (the branded
+              gate before the demo), use this code. Tap below and it auto-fills for you.
+            </Text>
+            <Link href={t('cta_demo_magic', DEMO_MAGIC_URL)} style={buttonPrimary}>
+              Open the access screen
+            </Link>
+          </Section>
+
           <Section style={mintCard}>
             <Text style={mintBadge}>
               <font color="#ffffff"><span style={{ color: '#ffffff' }}>While you&apos;re in there</span></font>
