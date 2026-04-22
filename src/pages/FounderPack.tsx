@@ -573,24 +573,48 @@ function PackContent() {
         </Pull>
       </Section>
 
-      {/* ─── ECLIPSING BITCOIN (NEW) ─── */}
+      {/* ─── ECLIPSING BITCOIN — POWERED BY PROOF OF GENESIS ─── */}
       <Section id="eclipse" eyebrow="Chapter Eleven" title="Why $ZSOLAR Eclipses Bitcoin">
         <Lead>
-          Bitcoin proved digital scarcity. We borrowed every lesson it
-          taught — and then we did what Bitcoin structurally cannot. We
-          attached the scarcity to <em>real, verifiable, physical work</em>{" "}
-          that humanity will be doing for the next thousand years.
+          Bitcoin proved digital scarcity by burning energy to prove waste.
+          We built the inverse and the upgrade: a primitive that mints
+          scarcity <em>because</em> clean energy was produced or consumed
+          productively. We call it{" "}
+          <strong className="text-foreground">Proof of Genesis</strong> — the
+          cryptographic union of <em>Proof of Delta</em> (a verified change
+          in energy state) and <em>Proof of Origin</em> (a verified physical
+          device and clean source). It is to ZenSolar what Proof of Work was
+          to Bitcoin — except hardware-backed, ESG-aligned, regulator-friendly,
+          and patent-gated.
         </Lead>
+        <Pull>
+          Bitcoin&apos;s primitive is <span className="text-muted-foreground">work</span>.
+          <br />
+          Ours is <span className="text-primary">Genesis</span>.
+          <br />
+          One destroys energy. The other notarizes it.
+        </Pull>
+        <P>
+          Every property that made Bitcoin a $2T network is preserved.
+          Every property that capped Bitcoin&apos;s addressable market — energy
+          parasitism, ESG exclusion, no real-world floor, anonymous founders —
+          is structurally inverted. The result is a protocol with the same
+          scarcity religion <em>and</em> a verifiable physical floor underneath
+          it. The pool we tokenize is an order of magnitude larger than
+          Bitcoin&apos;s narrative because it includes every joule of clean
+          energy humanity will ever verify.
+        </P>
         <DataTable
-          headers={["Property", "Bitcoin", "$ZSOLAR"]}
+          headers={["Property", "Bitcoin (PoW)", "$ZSOLAR (Proof of Genesis)"]}
           rows={[
+            ["Primitive", "Burn electricity to prove waste", "Mint receipts from verified clean energy"],
             ["Scarcity vectors", "1 (hard cap)", "5 (cap + halving + 3 burns)"],
-            ["Backing", "Math + electricity spent", "Verified clean energy delivered"],
-            ["Utility per token", "Store of value", "Store of value + protocol fuel + redemption"],
+            ["Backing", "Math + electricity spent", "Verified hardware + clean energy delivered"],
+            ["ESG capital access", "Forbidden by most mandates", "Native fit — trillions unlocked"],
             ["Energy footprint", "Consumes ~150 TWh/yr", "Mints from energy produced"],
             ["Patent moat", "None", "8 categories, $10T+ TAM"],
             ["Founder accountability", "Anonymous, gone", "Two named founders, pact-locked for life"],
-            ["Revenue to protocol", "$0", "Subscriptions + 7% transfer tax + redemption fees"],
+            ["Revenue to protocol", "$0", "Subscriptions + 7% tax + redemption fees"],
             ["Real-world settlement", "Speculative", "On-chain receipts for Tesla, SpaceX, Starlink"],
           ]}
         />
@@ -598,41 +622,66 @@ function PackContent() {
           Bitcoin is digital gold.
           <br />
           $ZSOLAR is{" "}
-          <span className="text-primary">digital photosynthesis</span> —
-          the unit account of every joule humanity verifies, forever.
+          <span className="text-primary">digital photosynthesis</span> — the
+          unit account of every joule humanity verifies, forever.
         </Pull>
+
+        {/* The 5–10x in 5–10 years thesis */}
         <P>
-          Bitcoin's market cap topped $2T on a network that{" "}
-          <em>consumes</em> energy. $ZSOLAR sits at the front door of the
-          $10T+ clean-energy economy and{" "}
-          <strong>mints from energy that gets produced</strong>. The pool we
-          tokenize is an order of magnitude larger than Bitcoin's narrative,
-          and it grows every time a Powerwall, a Megapack, a Supercharger,
-          a Tesla, an Optimus, or a Starlink node delivers another verified
-          unit of work.
+          Take Bitcoin&apos;s ~$2T market cap. Apply Proof of Genesis to the
+          $10T+ clean-energy economy. Stack five scarcity vectors on top
+          of one. Add patent gating, founder accountability, ESG access,
+          and protocol revenue. The math for{" "}
+          <strong className="text-foreground">5–10× Bitcoin in 5–10 years</strong>{" "}
+          is not aggressive — it is what the primitive plus the addressable
+          market produces when run forward honestly. The only variable that
+          can hold us back is execution.
         </P>
         <Stat>
           <StatRow label="BTC at $100K" value="~$2T market cap" sub="One scarcity vector. Zero protocol revenue. Anonymous." />
-          <StatRow label="$ZSOLAR at $10" value="~$10T fully diluted" sub="Five scarcity vectors. Six revenue lines. Patent-gated. Founders accountable for life." />
-          <StatRow label="$ZSOLAR at $100" value="~$100T fully diluted" sub="Trillionaire crossover; Tesla/SpaceX/Starlink mint surface fully active." />
+          <StatRow label="$ZSOLAR at $10" value="~$10T fully diluted" sub="5× Bitcoin · five scarcity vectors · six revenue lines · patent-gated" />
+          <StatRow label="$ZSOLAR at $20" value="~$20T fully diluted" sub="10× Bitcoin · trillionaire crossover (Michael) · OEM mint surface live" />
+          <StatRow label="$ZSOLAR at $100" value="~$100T fully diluted" sub="The addressable cap of the verified-energy economy itself" />
         </Stat>
+
+        {/* Execution-only-variable + rock-solid framing */}
         <Pull>
-          They built a religion around scarcity.
+          Five vectors. One primitive.
           <br />
-          We built{" "}
-          <span className="text-primary">a protocol around proof</span>.
-          <br />
-          One of those scales to the solar system.
+          <span className="text-primary">Execution is the only variable</span>.
         </Pull>
         <P>
-          The PR cascade in Chapter Three is engineered to plant exactly this
-          seed — that there is, for the first time since 2009, a credible
-          challenger to Bitcoin's narrative. Not a memecoin. Not a fork. A
-          patent-gated, founder-locked, energy-backed protocol with a 100+
-          year operating horizon. By the time the public catches on, the
-          float is already tightening.
+          What makes the thesis rock-solid is what is already locked down{" "}
+          <em>before</em> a single dollar of marketing spend. The patent
+          application covers the primitive itself across eight categories,
+          not just one product. The founder allocations are pact-locked for
+          life — there is no insider exit to fear. The launch is LP-tranched
+          at $0.10 with engineered floors per round, not a 1T token dump. The
+          protocol generates revenue from day one (subscriptions, transfer
+          tax, redemption fees) — Bitcoin generates none. And the operating
+          horizon is designed for 100+ years, not the next bull run.
+        </P>
+        <Pull>
+          Patent-protected.
+          <br />
+          Founder-locked.
+          <br />
+          Revenue-backed.
+          <br />
+          <span className="text-amber-400">Civilization-scale upside.</span>
+        </Pull>
+        <P>
+          The PR cascade in Chapter Three is engineered to plant exactly
+          this seed in the public consciousness — that there is, for the
+          first time since 2009, a credible challenger to Bitcoin&apos;s
+          narrative. Not a memecoin. Not a fork. A patent-gated,
+          founder-locked, energy-backed protocol with Proof of Genesis as
+          its primitive and a 100+ year operating horizon. By the time the
+          public catches on, the float is already tightening and the
+          OEM handshake is already underway.
         </P>
       </Section>
+
 
       {/* ─── PACT ─── */}
       <Section id="pact" eyebrow="Final Chapter" title="The Family Legacy Pact">
