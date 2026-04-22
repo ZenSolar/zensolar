@@ -352,8 +352,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       .join(' ');
     setGestureQaEvents((prev) => [...prev.slice(-23), { t: elapsed, tag, data: dataStr }]);
   }, [showGateDiagnostics]);
+  // Unified layout: we no longer swap between absolute and fixed pinned mode
+  // when the iOS keyboard opens. The container already tracks visualViewport
+  // height/offset via CSS vars, which is enough to keep the input visible
+  // without rebuilding the entire gate (which caused visible jumps + the
+  // "false start" flicker on first hold).
   const isIOSKeyboardMode = isIOS && inputFocused;
-  const shouldPinGateForKeyboard = isIOS && inputFocused;
+  const shouldPinGateForKeyboard = false;
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
@@ -671,7 +676,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           updateState({ phase: 'idle' });
           setCode('');
           lastTapTimeRef.current = 0;
-          inputRef.current?.focus();
+          // Do NOT force-refocus the input — refocusing causes the keyboard to
+          // re-open and the gate to re-layout, which produced the visible jump
+          // after an invalid code. Let the user tap the field again.
         }, 600);
       }
     } catch {
@@ -1292,54 +1299,38 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         </div>
       </div>
 
-      {/* Central content */}
-      {/*
-        When the iOS keyboard is up we switch to position:fixed so the gate
-        stays locked to the visual viewport even if Chrome iOS scrolls the
-        underlying document. Otherwise we use the normal absolute layout that
-        tracks visualViewport offsets.
-      */}
+      {/* Central content — single, unified layout. We always use absolute +
+          visualViewport CSS vars, so the gate never rebuilds when the iOS
+          keyboard opens. Padding shifts smoothly via transition only. */}
       <div
-        className={cn(
-          'inset-x-0 pointer-events-none',
-          shouldPinGateForKeyboard ? 'fixed left-0 right-0' : 'absolute'
-        )}
+        className="absolute inset-x-0 pointer-events-none"
         style={{
-          top: shouldPinGateForKeyboard ? '0px' : 'var(--gate-visible-offset-top, 0px)',
-          height: shouldPinGateForKeyboard
-            ? `max(calc(100svh - ${Math.round(keyboardInset)}px), 260px)`
-            : 'var(--gate-visible-height, 100dvh)',
-          zIndex: shouldPinGateForKeyboard ? 50 : undefined,
+          top: 'var(--gate-visible-offset-top, 0px)',
+          height: 'var(--gate-visible-height, 100dvh)',
         }}
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding,transform] ease-out",
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-[180ms]",
             hexAwake
-              ? (isIOSKeyboardMode ? 'gap-2' : inputFocused ? 'gap-3' : 'gap-8')
+              ? (inputFocused ? 'gap-4' : 'gap-8')
               : 'gap-4',
-            shouldPinGateForKeyboard ? 'duration-75' : 'duration-[180ms]'
           )}
           style={{
-            justifyContent: shouldPinGateForKeyboard ? 'flex-start' : 'start',
-            paddingTop: shouldPinGateForKeyboard
-              ? 'max(env(safe-area-inset-top, 0px) + 1rem, 3.5rem)'
-              : isIOSKeyboardMode
-                ? 'max(env(safe-area-inset-top, 0px) + 0.25rem, 0.5rem)'
-                : inputFocused
-                  ? 'max(env(safe-area-inset-top, 0px) + 0.5rem, 1rem)'
-                  : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
-            transform: shouldPinGateForKeyboard ? 'translateY(0)' : undefined,
+            justifyContent: 'flex-start',
+            paddingTop: inputFocused
+              ? 'max(env(safe-area-inset-top, 0px) + 0.75rem, 1.25rem)'
+              : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
           }}
         >
-          {/* Logo — hidden while typing so the input stays above the keyboard */}
+          {/* Logo — stays mounted; just dims while typing so layout doesn't jump */}
           <img
             src={zenLogo}
             alt="ZenSolar"
             className={cn(
-              "h-8 w-auto object-contain transition-all duration-200",
+              "h-8 w-auto object-contain transition-opacity duration-200",
               hexAwake ? 'opacity-100' : 'opacity-0',
-              inputFocused && 'h-0 opacity-0 -mt-2'
+              inputFocused && 'opacity-60'
             )}
             style={{ filter: 'drop-shadow(0 0 12px hsl(142 76% 36% / 0.45)) brightness(1.8)' }}
           />
@@ -1384,7 +1375,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer transition-all duration-200',
-                isIOSKeyboardMode ? 'w-0 h-0 opacity-0 pointer-events-none' : inputFocused ? 'w-10 h-10' : 'w-20 h-20',
+                isIOSKeyboardMode ? 'w-12 h-12' : inputFocused ? 'w-14 h-14' : 'w-20 h-20',
                 isBursting
                   ? 'bg-primary/30'
                   : lockedFlash
