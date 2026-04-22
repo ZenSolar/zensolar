@@ -5,7 +5,7 @@ import {
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = "ZenSolar"
-const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v2.png"
+const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png"
 const ACCESS_CODE = "LOBV-2026"
 // Deep links — both pre-load the access code so Toby never has to type it.
 // `from=browser` and `from=install` let the app tailor onboarding to the chosen path.
