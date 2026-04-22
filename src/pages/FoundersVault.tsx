@@ -236,11 +236,11 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-widest text-amber-400">
-                  Eyes-Only
+                  Eyes-Only · v5.6 Northstar
                 </p>
                 <p className="text-sm font-semibold">The Founder Pack</p>
                 <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  The full story — patent, pivot, and the math
+                  Allocations, halving, patent moat, ARR ladder, flywheel, 20-yr trajectory
                 </p>
               </div>
             </div>
