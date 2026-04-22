@@ -246,16 +246,17 @@ export function ActivityMetrics({
   const solarLabel = solarName ? `${solarName} Solar Production` : 'Solar Production';
   const batteryLabel = batteryName ? `${batteryName} Exported kWh` : 'Battery Exported kWh';
   const evLabel = vehicleName ? `${vehicleName} EV Miles` : 'EV Miles';
-  const superchargerLabel = vehicleName ? `${vehicleName} Supercharged` : 'Tesla Supercharging';
+  const superchargerLabel = vehicleName ? `${vehicleName} Supercharging` : 'Tesla Supercharging';
   // Home Charging label: prefer dedicated home charger name, otherwise tag the vehicle's home charging
   const homeChargerLabel = homeChargerName
     ? `${homeChargerName} Home Charging`
     : vehicleName
-      ? `${vehicleName} Home Charged`
+      ? `${vehicleName} Home Charging`
       : 'Home Charging';
 
-  // Header subtitle — "Your <Vehicle> · ☀️ <Solar> · 🔋 <Battery> · EV Charging kWh"
+  // Header subtitle — "Your <Vehicle> · ☀️ <Solar> · 🔋 <Battery> · <Vehicle> EV Charging kWh"
   // Icons disambiguate when the same device name powers both solar and battery (e.g. ZenCasa).
+  const evChargingLabel = vehicleName ? `${vehicleName} EV Charging kWh` : 'EV Charging kWh';
   const headerSubtitleParts: { label: string; icon?: 'sun' | 'battery' }[] = [
     vehicleName ? { label: `Your ${vehicleName}` } : null,
     solarName ? { label: solarName, icon: 'sun' as const } : null,
