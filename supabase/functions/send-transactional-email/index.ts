@@ -283,13 +283,21 @@ Deno.serve(async (req) => {
   }
 
   // 4. Render React Email template to HTML and plain text
-  const html = await renderAsync(
+  const renderedHtml = await renderAsync(
     React.createElement(template.component, templateData)
   )
   const plainText = await renderAsync(
     React.createElement(template.component, templateData),
     { plainText: true }
   )
+
+  // Inject invisible 1x1 open-tracking pixel right before </body>.
+  // Standard technique used by Mailchimp, Gmail, HubSpot — recipients see nothing.
+  const trackingPixelUrl = `${supabaseUrl}/functions/v1/track-email-open?mid=${encodeURIComponent(messageId)}`
+  const pixelTag = `<img src="${trackingPixelUrl}" alt="" width="1" height="1" border="0" style="display:block;height:1px;width:1px;border:0;outline:none;text-decoration:none;opacity:0" />`
+  const html = renderedHtml.includes('</body>')
+    ? renderedHtml.replace('</body>', `${pixelTag}</body>`)
+    : `${renderedHtml}${pixelTag}`
 
   // Resolve subject — supports static string or dynamic function
   const resolvedSubject =

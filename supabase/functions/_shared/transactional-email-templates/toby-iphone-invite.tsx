@@ -18,27 +18,27 @@ interface TobyIphoneInviteProps {
 const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>29 months in the making — built for your iPhone, one tap away.</Preview>
+    <Preview>Built for your iPhone — one tap, then it lives on your Home Screen.</Preview>
     <Body style={main}>
       <Container style={container}>
 
         <Section style={badgeWrap}>
-          <Text style={badge}>● iPHONE · iOS · INVITE ONLY</Text>
+          <Text style={badge}>● iPHONE · iOS · INNER CIRCLE</Text>
         </Section>
 
         <Heading style={hero}>
-          29 months in the making.<br />
+          17 months in.<br />
           <span style={heroAccent}>One tap on your iPhone.</span>
         </Heading>
 
         <Text style={greeting}>Hi {firstName || 'Toby'},</Text>
 
         <Text style={paragraph}>
-          On <strong>November 3, 2023</strong>, I started researching what would become ZenSolar's patented technology. Twenty days later — <strong>November 23, 2023</strong> — I worked up the balls to start copying and pasting code Grok was feeding me into a separate terminal, line by line, not really understanding half of it.
+          On <strong>November 3, 2024</strong>, I started researching what would become ZenSolar's patented technology. Twenty days later — <strong>November 23, 2024</strong> — I worked up the balls to start copying and pasting code Grok was feeding me into a separate terminal, line by line, not really understanding half of it.
         </Text>
 
         <Text style={paragraph}>
-          That was <strong>29 months ago</strong>. Heads down. Almost every single day. Today it's a patent-pending product, and I want you to be one of the first people outside the inner circle to actually feel it — tuned specifically for your iPhone.
+          That was <strong>17 months ago</strong>. Heads down. Almost every single day. Today it's a real product with patent-pending technology, and I want you to be one of the first people in my <strong>inner circle</strong> to actually feel it — tuned specifically for your iPhone.
         </Text>
 
         <Section style={ctaSection}>
@@ -64,14 +64,14 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
         <Section style={stepRow}>
           <Text style={stepNum}>1.</Text>
           <Text style={stepText}>
-            Open this email <strong>on your iPhone</strong> (not your laptop).
+            Open this email <strong>on your iPhone</strong> (not your laptop) — the whole thing is built for iOS.
           </Text>
         </Section>
 
         <Section style={stepRow}>
           <Text style={stepNum}>2.</Text>
           <Text style={stepText}>
-            Tap this link to open in Safari: <Link href={DEMO_URL} style={inlineLink}>beta.zen.solar/demo</Link>
+            Tap to open in Safari: <Link href={DEMO_URL} style={inlineLink}>beta.zen.solar/demo</Link>
             <br />
             <span style={subStep}>Trouble? <Link href={SAFARI_DEEP_LINK} style={inlineLink}>Force-open in Safari →</Link></span>
           </Text>
@@ -87,14 +87,16 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
         <Section style={stepRow}>
           <Text style={stepNum}>4.</Text>
           <Text style={stepText}>
-            <strong>Tap the glowing energy tiles.</strong> Solar, battery, EV miles, Supercharging, home charging — each tap mints real $ZSOLAR into your demo wallet. That's <strong>Tap-to-Mint™</strong>.
+            <strong>Add ZenSolar to your Home Screen</strong> — this is the move. In Safari tap the <strong>Share</strong> icon at the bottom → scroll down → tap <strong>"Add to Home Screen"</strong> → tap <strong>Add</strong>.
+            <br />
+            <span style={subStep}>Now it lives as a real app icon on your iPhone — full-screen, no Safari bar, no App Store, no download. This is how I want you experiencing ZenSolar from here on out. Open it from the Home Screen for everything below.</span>
           </Text>
         </Section>
 
         <Section style={stepRow}>
           <Text style={stepNum}>5.</Text>
           <Text style={stepText}>
-            <strong>Optional — Add to Home Screen:</strong> tap the <strong>Share</strong> icon at the bottom of Safari → scroll down → tap <strong>"Add to Home Screen"</strong>. Now it lives as an app icon on your phone. No App Store. No download.
+            Open ZenSolar from your <strong>Home Screen</strong> and <strong>tap the glowing energy tiles</strong>. Solar, battery, EV miles, Supercharging, home charging — each tap mints real $ZSOLAR into your demo wallet. That's <strong>Tap-to-Mint™</strong>.
           </Text>
         </Section>
 
@@ -107,10 +109,22 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
 
         <Hr style={sectionDivider} />
 
+        <Text style={sectionLabel}>WHAT YOU'RE LOOKING AT — THE IP</Text>
+
+        <Text style={paragraph}>
+          ZenSolar isn't a wrapper on someone else's tech. The core is <strong>U.S. Patent Pending — Application No. 19/634,402</strong> covering our <strong>Tap-to-Mint™</strong> verification engine: a cryptographic chain that turns real, metered solar production, battery discharge, EV miles, and home/Supercharging into provable on-chain value — without giving up custody of your data.
+        </Text>
+
+        <Text style={paragraph}>
+          The brand layer is locked down too — <strong>ZenSolar™</strong>, <strong>Tap-to-Mint™</strong>, and <strong>Creating Currency From Energy™</strong> are our marks. Together they form a defensible moat: patented mechanics, trademarked language, and a user experience that feels less like crypto and more like Apple.
+        </Text>
+
+        <Hr style={sectionDivider} />
+
         <Text style={sectionLabel}>WHAT'S HAPPENING BEHIND THE SCENES</Text>
 
         <Text style={paragraph}>
-          Right now I'm heads-down with <strong>Michael Cheetah</strong> finishing the investor presentation and the Founders Pack. We're opening a <strong>$5M seed round for Founding Investors</strong> — a small, hand-picked group getting in at the earliest, friendliest terms before we go wider.
+          Right now I'm heads-down with <strong>Michael Tschida</strong> — my best friend, co-founder, and CFO/CRO — finishing the investor presentation and the Founders Pack. We're opening a <strong>$5M seed round for Founding Investors</strong>: a small, hand-picked group getting in at the earliest, friendliest terms before we go wider.
         </Text>
 
         <Text style={paragraph}>
@@ -119,7 +133,7 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
 
         <Section style={pullQuote}>
           <Text style={pullQuoteText}>
-            29 months. One iPhone. One tap. Tell me what you feel — the good, the weird, the "wait, how does this actually work?" That's exactly what I want to hear.
+            17 months. One iPhone. One tap. Then it lives on your Home Screen. Tell me what you feel — the good, the weird, the "wait, how does this actually work?" That's exactly what I want to hear.
           </Text>
         </Section>
 
@@ -152,7 +166,8 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
         <Hr style={footerDivider} />
         <Text style={footer}>
           © {new Date().getFullYear()} ZenSolar, LLC<br />
-          Patent Pending — U.S. Application No. 19/634,402
+          ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
+          U.S. Patent Pending — Application No. 19/634,402
         </Text>
       </Container>
     </Body>
@@ -161,7 +176,7 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
 
 export const template = {
   component: TobyIphoneInviteEmail,
-  subject: "29 months of work — built for your iPhone, one tap away",
+  subject: "Built for your iPhone — one tap, then it lives on your Home Screen",
   displayName: 'Toby iPhone invite',
   previewData: {
     firstName: 'Toby',
