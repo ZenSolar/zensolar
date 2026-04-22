@@ -22,6 +22,7 @@ import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
+import { TapToMintCard } from '@/components/demo/TapToMintCard';
 import { isVipActive } from '@/lib/vipDemo';
 
 import {
@@ -219,6 +220,22 @@ export function DemoDashboard() {
               lifetimeMinted={activityData.lifetimeMinted}
             />
           </div>
+        </AnimatedItem>
+
+        {/* DEMO ONLY: Tap-to-Mint preview card — opens existing Mint Rewards flow */}
+        <AnimatedItem>
+          <TapToMintCard
+            pending={{
+              solarKwh: currentActivity.solarKwh,
+              evMiles: currentActivity.evMiles,
+              batteryKwh: currentActivity.batteryKwh,
+              chargingKwh: currentActivity.chargingKwh,
+            }}
+            tokenPrice={tokenPrice}
+            hasWallet={hasWalletConnected}
+            disabled={isLoading}
+            onTapToMint={() => rewardActionsRef.current?.openTokenMintDialog()}
+          />
         </AnimatedItem>
 
         {/* Reward Actions - same component as real dashboard */}
