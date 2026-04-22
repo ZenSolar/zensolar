@@ -24,6 +24,7 @@ export function HomeNav() {
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
+          <ThemeToggle />
           <Link to="/auth">
             <Button variant="ghost" size="sm" className="px-3">Log In</Button>
           </Link>
