@@ -1695,9 +1695,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 setInputFocused(true);
-                // Wait for the compress animation (gap+padding ~300ms) and for iOS
-                // visualViewport to settle, then nudge the input into view ONLY if it's
-                // actually offscreen. Avoids the jumpy mid-animation scroll.
+                // Android: Gboard animates in faster than iOS but visualViewport
+                // resize fires later/inconsistently. Use a longer settle window
+                // and a more aggressive scroll. iOS path is unchanged.
+                const settleMs = isAndroid ? 450 : 320;
                 window.setTimeout(() => {
                   requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
@@ -1705,12 +1706,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       if (!el) return;
                       const rect = el.getBoundingClientRect();
                       const vh = window.visualViewport?.height ?? window.innerHeight;
-                      if (rect.bottom > vh - 8 || rect.top < 8) {
+                      if (isAndroid) {
+                        // Always center on Android — the keyboard often resizes
+                        // the layout viewport, leaving the input flush against
+                        // the keyboard edge with no breathing room.
+                        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                      } else if (rect.bottom > vh - 8 || rect.top < 8) {
                         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
                       }
                     });
                   });
-                }, 320);
+                }, settleMs);
               }}
               onBlur={() => setInputFocused(false)}
               placeholder="ACCESS CODE"
@@ -1724,9 +1730,16 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               autoCorrect="off"
               autoCapitalize="characters"
               spellCheck={false}
-              inputMode="text"
+              // Android Gboard shows a suggestion strip for inputMode="text"
+              // that visually "jumps" as the user types codes like TODD-2026.
+              // `none` suppresses suggestions on Android while iOS already
+              // ignores it for short uppercased tokens.
+              inputMode={isAndroid ? 'none' : 'text'}
               enterKeyHint="go"
               maxLength={32}
+              // Android-only: hint Gboard to skip personalized learning + suggestions
+              // for this field (it's a one-shot code, not a name or message).
+              {...(isAndroid ? { 'data-form-type': 'other' as const } : {})}
               name="zen-access-code"
               aria-label="Access code"
             />
