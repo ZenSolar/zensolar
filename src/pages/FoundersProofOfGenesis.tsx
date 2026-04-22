@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -11,10 +11,15 @@ import {
   Bitcoin,
   Lock,
   Loader2,
+  Download,
+  FileSignature,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { NdaSignatureStep } from "@/components/demo/NdaSignatureStep";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 
 export default function FoundersProofOfGenesis() {
@@ -53,12 +58,144 @@ export default function FoundersProofOfGenesis() {
 
   return (
     <VaultBiometricGate userId={user.id}>
-      <Content />
+      <NdaGate userEmail={user.email ?? ""}>
+        <Content />
+      </NdaGate>
     </VaultBiometricGate>
   );
 }
 
+// ─── NDA gate ────────────────────────────────────────────────────
+function NdaGate({
+  userEmail,
+  children,
+}: {
+  userEmail: string;
+  children: React.ReactNode;
+}) {
+  const [status, setStatus] = useState<"loading" | "needs-sign" | "signed">(
+    "loading"
+  );
+
+  const check = async () => {
+    if (!userEmail) {
+      setStatus("needs-sign");
+      return;
+    }
+    const { data, error } = await supabase.rpc("check_nda_signed", {
+      _email: userEmail,
+    });
+    if (error) {
+      setStatus("needs-sign");
+      return;
+    }
+    setStatus(data === true ? "signed" : "needs-sign");
+  };
+
+  useEffect(() => {
+    check();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userEmail]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-[100svh] flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (status === "needs-sign") {
+    return (
+      <div className="min-h-[100svh] bg-background text-foreground pb-safe">
+        <header className="sticky top-0 z-30 border-b border-border/40 bg-background/92 pt-safe backdrop-blur-xl">
+          <div className="px-safe">
+            <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+              <Link
+                to="/founders"
+                className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary"
+              >
+                <ArrowLeft className="h-3 w-3" /> Vault
+              </Link>
+              <span className="text-[10px] uppercase tracking-widest text-amber-400">
+                NDA Required
+              </span>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/40 px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:border-border"
+              >
+                <Home className="h-3 w-3" /> Home
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-5 py-10 space-y-6">
+          <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-400/10 to-transparent p-5 text-center">
+            <FileSignature className="h-6 w-6 text-amber-400 mx-auto mb-2" />
+            <h1 className="font-serif text-2xl tracking-tight">
+              Confidentiality Required
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              The Proof of Genesis brief contains patent-pending material.
+              Please sign the NDA below to view and download the one-pager.
+            </p>
+          </div>
+
+          <NdaSignatureStep
+            accessCodeUsed="founder-vault"
+            onSigned={() => {
+              toast.success("NDA accepted. Unlocking brief…");
+              setStatus("signed");
+            }}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+// ─── Brief content ───────────────────────────────────────────────
 function Content() {
+  const printRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const handleDownload = async () => {
+    if (!printRef.current) return;
+    setExporting(true);
+    try {
+      const html2pdf = (await import("html2pdf.js")).default;
+      const opt = {
+        margin: [10, 10, 10, 10] as [number, number, number, number],
+        filename: `zensolar-proof-of-genesis-${new Date()
+          .toISOString()
+          .split("T")[0]}.pdf`,
+        image: { type: "jpeg" as const, quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#0a0a0a",
+        },
+        jsPDF: {
+          unit: "mm" as const,
+          format: "a4" as const,
+          orientation: "portrait" as const,
+        },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      };
+      await html2pdf().set(opt).from(printRef.current).save();
+      toast.success("Proof of Genesis brief downloaded");
+    } catch (err) {
+      console.error("PDF export error:", err);
+      toast.error("Failed to export PDF");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       {/* Header */}
@@ -87,7 +224,32 @@ function Content() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-5 md:px-6 py-10 md:py-16 space-y-12 md:space-y-16">
+      {/* Sticky Download bar */}
+      <div className="border-b border-border/40 bg-card/30 backdrop-blur-sm">
+        <div className="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+            NDA on file · brief unlocked
+          </p>
+          <Button
+            size="sm"
+            onClick={handleDownload}
+            disabled={exporting}
+            className="gap-2"
+          >
+            {exporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            Download PDF
+          </Button>
+        </div>
+      </div>
+
+      <main
+        ref={printRef}
+        className="max-w-3xl mx-auto px-5 md:px-6 py-10 md:py-16 space-y-12 md:space-y-16 bg-background"
+      >
         {/* Hero — one-screen narrative */}
         <section>
           <motion.p
@@ -164,6 +326,55 @@ function Content() {
           />
           <div className="rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6 overflow-x-auto">
             <EclipseSVG />
+          </div>
+        </section>
+
+        {/* Side-by-side comparison table */}
+        <section className="space-y-4">
+          <SectionHead
+            eyebrow="Diagram 03"
+            title="Bitcoin vs ZenSolar — Side by Side"
+            sub="Every property that made Bitcoin a $2T network is preserved. Every property that capped its addressable market is structurally inverted."
+          />
+          <BTCvsZSOLARTable />
+          <div className="space-y-4 pt-2">
+            <p className="text-[15px] leading-[1.7] text-muted-foreground">
+              The math is not aspirational — it is what the primitive plus the
+              addressable market produces when run forward honestly.
+              <strong className="text-foreground">
+                {" "}
+                Take Bitcoin&apos;s ~$2T cap. Apply Proof of Genesis to the
+                $10T+ clean-energy economy. Stack five scarcity vectors on top
+                of one. Add patent gating, founder accountability, ESG access,
+                and protocol revenue. The math for{" "}
+                <span className="text-primary">
+                  5–10× Bitcoin in 5–10 years
+                </span>{" "}
+                is mathematically defensible.
+              </strong>{" "}
+              The only variable that can hold us back is execution — and
+              execution is the variable we control.
+            </p>
+            <p className="text-[15px] leading-[1.7] text-muted-foreground">
+              Disciplined fundraising accelerates this curve. A properly
+              sequenced raise — patent-gated seed, OEM-anchored Series A,
+              utility-scale Series B — front-loads the moat before the public
+              cascade lands. Capital deployed against an already-locked
+              primitive does not buy speculation; it buys the operating
+              runway to outpace Bitcoin&apos;s narrative window.
+            </p>
+            <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.04] p-4">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-amber-400 mb-1.5">
+                Rock-solid by construction
+              </p>
+              <p className="text-sm text-foreground/90 leading-relaxed">
+                Patent-protected across 8 categories.
+                Founder-locked for life via the Family Legacy Pact.
+                Revenue-backed from day one (subscriptions + 7% transfer tax + redemption fees).
+                Launch-priced at $0.10 via LP-tranched rounds — never a 1T dump.
+                Execution is the only variable.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -294,6 +505,64 @@ function Bullet({
         </p>
       </div>
     </li>
+  );
+}
+
+// ─── Side-by-side comparison table ──────────────────────────────
+function BTCvsZSOLARTable() {
+  const rows: Array<[string, string, string]> = [
+    ["Primitive", "Proof of Work — burn electricity to prove waste", "Proof of Genesis — mint receipts from verified clean energy"],
+    ["Hard cap", "21,000,000 BTC", "1,000,000,000,000 $ZSOLAR (1T)"],
+    ["Halving cadence", "Every ~4 years (block-based)", "Programmable — protocol-governed"],
+    ["Scarcity vectors", "1 (hard cap)", "5 (cap + halving + 3 burns)"],
+    ["Backing", "Math + electricity destroyed", "Verified hardware + clean kWh delivered"],
+    ["Energy footprint", "Consumes ~150 TWh/yr", "Mints from energy produced or used productively"],
+    ["ESG capital access", "Forbidden by most mandates", "Native fit — trillions structurally unlocked"],
+    ["Patent moat", "None", "8 categories, patent-pending"],
+    ["Founder accountability", "Anonymous, gone", "Two named founders, pact-locked for life"],
+    ["Protocol revenue", "$0", "Subscriptions + 7% transfer tax + redemption fees"],
+    ["Launch mechanics", "Mined into existence over 100+ yrs", "LP-tranched at $0.10 — engineered floor per round"],
+    ["Real-world settlement", "Speculative", "Carbon credits, OEM resale, utility hedging"],
+    ["Market cap (today)", "~$2T", "Path to $10T+ (5–10× BTC in 5–10 yrs)"],
+  ];
+
+  return (
+    <div className="rounded-2xl border border-border/60 overflow-hidden">
+      {/* Desktop table */}
+      <div className="hidden md:grid grid-cols-[160px_1fr_1fr] text-[10px] uppercase tracking-widest bg-card/60 border-b border-border/60">
+        <div className="p-3 text-muted-foreground">Property</div>
+        <div className="p-3 text-muted-foreground border-l border-border/40">
+          Bitcoin · Proof of Work
+        </div>
+        <div className="p-3 text-amber-400 border-l border-border/40 bg-primary/[0.04]">
+          $ZSOLAR · Proof of Genesis
+        </div>
+      </div>
+      <div className="divide-y divide-border/40">
+        {rows.map(([label, btc, zsolar]) => (
+          <div
+            key={label}
+            className="grid grid-cols-1 md:grid-cols-[160px_1fr_1fr]"
+          >
+            <div className="p-3 text-[11px] uppercase tracking-widest text-muted-foreground bg-card/30 md:bg-transparent">
+              {label}
+            </div>
+            <div className="p-3 text-sm text-foreground/85 md:border-l border-border/40">
+              <span className="md:hidden text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">
+                BTC · PoW
+              </span>
+              {btc}
+            </div>
+            <div className="p-3 text-sm text-foreground md:border-l border-border/40 bg-primary/[0.03]">
+              <span className="md:hidden text-[10px] uppercase tracking-widest text-amber-400 block mb-1">
+                $ZSOLAR · PoG
+              </span>
+              {zsolar}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -457,14 +726,13 @@ function ComparisonRow({
 }) {
   const xLabel = right ? 410 : 50;
   const xValue = right ? 670 : 310;
-  const valueAnchor = right ? "end" : "end";
   return (
     <g>
       <text x={xLabel} y={y}
         fill="hsl(var(--muted-foreground))" fontSize="10" letterSpacing="1">
         {label.toUpperCase()}
       </text>
-      <text x={xValue} y={y} textAnchor={valueAnchor}
+      <text x={xValue} y={y} textAnchor="end"
         fill="hsl(var(--foreground))" fontSize="11">
         {value}
       </text>

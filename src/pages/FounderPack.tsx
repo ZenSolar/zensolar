@@ -608,6 +608,8 @@ function PackContent() {
           headers={["Property", "Bitcoin (PoW)", "$ZSOLAR (Proof of Genesis)"]}
           rows={[
             ["Primitive", "Burn electricity to prove waste", "Mint receipts from verified clean energy"],
+            ["Hard cap", "21,000,000 BTC", "1,000,000,000,000 $ZSOLAR (1T)"],
+            ["Halving cadence", "Every ~4 years (block-based)", "Programmable — protocol-governed"],
             ["Scarcity vectors", "1 (hard cap)", "5 (cap + halving + 3 burns)"],
             ["Backing", "Math + electricity spent", "Verified hardware + clean energy delivered"],
             ["ESG capital access", "Forbidden by most mandates", "Native fit — trillions unlocked"],
@@ -615,9 +617,35 @@ function PackContent() {
             ["Patent moat", "None", "8 categories, $10T+ TAM"],
             ["Founder accountability", "Anonymous, gone", "Two named founders, pact-locked for life"],
             ["Revenue to protocol", "$0", "Subscriptions + 7% tax + redemption fees"],
+            ["Launch mechanics", "Mined over 100+ years", "LP-tranched at $0.10 — engineered floor per round"],
             ["Real-world settlement", "Speculative", "On-chain receipts for Tesla, SpaceX, Starlink"],
+            ["Market cap (today)", "~$2T", "Path to $10T+ (5–10× BTC in 5–10 yrs)"],
           ]}
         />
+        <P>
+          Read the table top-to-bottom. Every property that made Bitcoin a
+          $2T network is preserved. Every property that capped its addressable
+          market is structurally inverted. The 1T cap is not arbitrary — it
+          is the smallest cap that lets every joule of clean energy humanity
+          will ever verify settle against a single notarized receipt without
+          rounding to zero.
+        </P>
+        <P>
+          <strong className="text-foreground">
+            All of this is mathematically possible.
+          </strong>{" "}
+          The unknown is not the primitive, the cap, the moat, or the
+          addressable market — those are locked. The unknown is execution
+          velocity. A properly sequenced fundraising strategy from the
+          beginning — patent-gated seed, OEM-anchored Series A, utility-scale
+          Series B — front-loads the moat before the public cascade lands.
+          Capital deployed against an already-locked primitive does not buy
+          speculation; it buys the operating runway to outpace Bitcoin&apos;s
+          narrative window. Done correctly, the path to{" "}
+          <span className="text-primary">5–10× Bitcoin in 5–10 years</span>{" "}
+          is not aggressive — it is the natural consequence of running the
+          model forward with discipline.
+        </P>
         <Pull>
           Bitcoin is digital gold.
           <br />
