@@ -21,11 +21,13 @@ export default function DwightPreview() {
 
   useEffect(() => {
     try {
-      // Bypass the NDA gate — same keys DemoAccessGate checks.
-      localStorage.setItem('zen_demo_access_code', DWIGHT_CODE);
-      localStorage.setItem('zen_demo_nda_signed', '1');
-      localStorage.setItem('zen_demo_nda_signer', 'Dwight (Preview)');
-      // Force the welcome screen to fire even if it was previously dismissed.
+      // Bypass the NDA gate — DemoAccessGate checks `zen_demo_access`
+      // for `{ ts, ndaSigned: true }` within a 24h TTL.
+      localStorage.setItem(
+        'zen_demo_access',
+        JSON.stringify({ ts: Date.now(), ndaSigned: true })
+      );
+      // Force the welcome screen to fire even if previously dismissed.
       localStorage.removeItem(`zen_vip_welcome_shown:${DWIGHT_CODE}`);
       activateVipCode(DWIGHT_CODE);
     } catch {}
