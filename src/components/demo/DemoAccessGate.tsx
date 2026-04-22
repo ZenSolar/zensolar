@@ -1311,16 +1311,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-[180ms]",
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-[180ms]",
             hexAwake
-              ? (inputFocused ? 'gap-4' : 'gap-8')
+              ? (inputFocused ? 'gap-4' : 'gap-6')
               : 'gap-4',
           )}
           style={{
-            justifyContent: 'flex-start',
-            paddingTop: inputFocused
-              ? 'max(env(safe-area-inset-top, 0px) + 0.75rem, 1.25rem)'
-              : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
+            // Center within the visible viewport region (above the keyboard).
+            // Because --gate-visible-height already excludes the keyboard,
+            // justify-center keeps the gate vertically centered in whatever
+            // space is left, so the keyboard never overlaps it.
+            paddingTop: 'max(env(safe-area-inset-top, 0px), 0.5rem)',
+            paddingBottom: '0.5rem',
           }}
         >
           {/* Logo — stays mounted; just dims while typing so layout doesn't jump */}
