@@ -528,9 +528,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     viewport?.addEventListener('resize', onVvResize);
     viewport?.addEventListener('scroll', onVvScroll);
     return () => {
-      window.removeEventListener('resize', syncViewport);
-      viewport?.removeEventListener('resize', syncViewport);
-      viewport?.removeEventListener('scroll', syncViewport);
+      window.removeEventListener('resize', onWinResize);
+      viewport?.removeEventListener('resize', onVvResize);
+      viewport?.removeEventListener('scroll', onVvScroll);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (lockFlashTimerRef.current) clearTimeout(lockFlashTimerRef.current);
