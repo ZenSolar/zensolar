@@ -277,8 +277,52 @@ function PackContent() {
         </P>
       </Section>
 
+      {/* ─── PRESS CASCADE (NEW) ─── */}
+      <Section id="press" eyebrow="Chapter Three" title="The Lyndon Press Cascade">
+        <Lead>
+          The day Lyndon Rive's check clears, the press release goes out. Not
+          a teaser — the full thesis, on the record, with numbers the public
+          has never seen attached to a clean-energy protocol.
+        </Lead>
+        <P>
+          Below is what the world learns the morning the article drops. Every
+          line is already true today. The PR moment makes it public,
+          permanent, and quotable — the inflection that converts ZenSolar
+          from a quiet patent filing into a household name.
+        </P>
+        <Stat>
+          <StatRow label="Headline" value="Lyndon Rive backs ZenSolar" sub="SolarCity co-founder returns — Chapter Two of the clean-energy revolution" />
+          <StatRow label="Hard cap" value="1,000,000,000,000" sub="1 trillion $ZSOLAR — first energy protocol with century-scale runway" />
+          <StatRow label="Operating horizon" value="100+ years" sub="Designed to outlive every founder, on-chain forever" />
+          <StatRow label="Patent surface" value="8 categories" sub="Solar · Battery · EV charging · Miles · FSD · Robotaxi · Optimus · Starlink" />
+          <StatRow label="Scarcity vectors" value="5 stacked" sub="Bitcoin has 1. We stack hard cap + halving + 20% mint burn + 7% transfer tax + 5% redemption burn" />
+          <StatRow label="Trillionaire crossover" value="$6.67 / $20" sub="Joseph at $6.67 · Michael at $20 · neither ever sells" />
+        </Stat>
+        <Pull>
+          One article.
+          <br />
+          <span className="text-primary">A century of inbound</span>.
+        </Pull>
+        <P>
+          Channel cascade in the 72 hours after publication: SolarCity alumni
+          network (~30K warm intros), Tesla owner forums, crypto-native press
+          (Bankless, The Block, Decrypt), mainstream business desks
+          (Bloomberg, WSJ energy desk), and the long tail of clean-energy
+          newsletters. Internal projection: <strong>~5,000 wallet signups
+          inside week one</strong>, with the LP seeded to absorb the first
+          wave without slippage.
+        </P>
+        <Pull>
+          Bitcoin's white paper had no founder.
+          <br />
+          Ours has{" "}
+          <span className="text-primary">two — and the man who already
+          built one $26B clean-energy company</span> writing the first check.
+        </Pull>
+      </Section>
+
       {/* ─── TOKENOMICS ─── */}
-      <Section id="tokenomics" eyebrow="Chapter Three" title="Why 1 Trillion">
+      <Section id="tokenomics" eyebrow="Chapter Four" title="Why 1 Trillion">
         <Lead>
           The old model capped supply at 10 billion. Beautiful for a rooftop
           loyalty token. Catastrophically too small for an interplanetary
