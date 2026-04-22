@@ -284,6 +284,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  // Detect Android once — we apply Android-only keyboard tweaks below without
+  // changing the iOS code path (iOS flow was already polished and approved).
+  const isAndroid = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
+    return /Android/i.test(navigator.userAgent);
+  }, []);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
