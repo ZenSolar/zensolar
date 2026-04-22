@@ -12,6 +12,8 @@ import {
   ScrollText,
   Loader2,
   Lock,
+  Megaphone,
+  Bitcoin,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +25,7 @@ import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 const SECTIONS = [
   { id: "evolution", label: "Evolution", icon: Compass },
   { id: "strategy", label: "Strategy", icon: Rocket },
+  { id: "press", label: "Press Cascade", icon: Megaphone },
   { id: "tokenomics", label: "Tokenomics", icon: Coins },
   { id: "halving", label: "Halving", icon: Coins },
   { id: "moat", label: "Patent Moat", icon: Shield },
@@ -30,6 +33,7 @@ const SECTIONS = [
   { id: "salary", label: "Salary", icon: Coins },
   { id: "flywheel", label: "Flywheel", icon: Coins },
   { id: "networth", label: "Net Worth", icon: Gem },
+  { id: "eclipse", label: "Eclipsing BTC", icon: Bitcoin },
   { id: "pact", label: "The Pact", icon: Shield },
 ] as const;
 
