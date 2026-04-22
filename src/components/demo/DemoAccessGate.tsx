@@ -280,7 +280,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     });
     return () => { cancelled = true; };
   }, [granted]);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(prefillCodeFromUrl);
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
