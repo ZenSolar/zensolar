@@ -168,7 +168,12 @@ export function VipWelcomeScreen({ accessCode, onContinue }: VipWelcomeScreenPro
             <ArrowRight className="h-4 w-4" />
           </Button>
 
-          <p className="mt-4 text-[10px] uppercase tracking-widest text-muted-foreground/70">
+          {/* VIP teaser — subtle hint that more is coming for VIP holders */}
+          <p className="mt-3 text-[11px] text-muted-foreground/80 italic">
+            <span className="text-primary">✦</span> More VIP access features coming soon.
+          </p>
+
+          <p className="mt-3 text-[10px] uppercase tracking-widest text-muted-foreground/70">
             Patent-Pending · On-Chain · Live
           </p>
         </div>
