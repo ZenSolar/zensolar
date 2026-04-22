@@ -51,7 +51,7 @@ const VIP_WELCOMES: Record<
     signoff: '— Joe',
     cta: 'Enter the Clean Energy Center',
   },
-  'TAYTAY-2026': {
+  'FUCKYEAH-TAYTAY-2026': {
     firstName: 'Taylor',
     title: 'Tay-tay,',
     body:
