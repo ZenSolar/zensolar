@@ -232,7 +232,7 @@ const fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Ne
 
 const main = {
   margin: '0',
-  padding: '24px 12px',
+  padding: '16px 8px',
   backgroundColor: COLORS.background,
   color: COLORS.text,
   fontFamily,
@@ -242,9 +242,10 @@ const container = {
   width: '100%',
   maxWidth: '600px',
   margin: '0 auto',
-  padding: '32px 24px',
+  padding: '24px 16px',
   backgroundColor: COLORS.background,
   border: `1px solid ${COLORS.border}`,
+  boxSizing: 'border-box' as const,
 }
 
 const logoWrap = {
@@ -523,13 +524,15 @@ const signatureName = {
 const signatureMeta = {
   margin: '0 0 6px',
   textAlign: 'center' as const,
-  fontSize: '14px',
-  lineHeight: '22px',
+  fontSize: '13px',
+  lineHeight: '20px',
   color: COLORS.muted,
+  wordBreak: 'break-word' as const,
 }
 
 const signatureWrap = {
-  margin: '0 0 16px',
+  margin: '0 auto 16px',
+  padding: '0 8px',
   textAlign: 'center' as const,
 }
 
@@ -540,9 +543,13 @@ const signatureLogo = {
   outline: 'none',
   textDecoration: 'none',
   backgroundColor: 'transparent',
+  maxWidth: '100%',
+  height: 'auto' as const,
 }
 
 const footerWrap = {
+  margin: '0 auto',
+  padding: '0 8px',
   textAlign: 'center' as const,
 }
 
