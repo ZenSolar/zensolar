@@ -284,6 +284,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  // Detect Android once — we apply Android-only keyboard tweaks below without
+  // changing the iOS code path (iOS flow was already polished and approved).
+  const isAndroid = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
+    return /Android/i.test(navigator.userAgent);
+  }, []);
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
@@ -1689,9 +1695,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 setInputFocused(true);
-                // Wait for the compress animation (gap+padding ~300ms) and for iOS
-                // visualViewport to settle, then nudge the input into view ONLY if it's
-                // actually offscreen. Avoids the jumpy mid-animation scroll.
+                // Android: Gboard animates in faster than iOS but visualViewport
+                // resize fires later/inconsistently. Use a longer settle window
+                // and a more aggressive scroll. iOS path is unchanged.
+                const settleMs = isAndroid ? 450 : 320;
                 window.setTimeout(() => {
                   requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
@@ -1699,12 +1706,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       if (!el) return;
                       const rect = el.getBoundingClientRect();
                       const vh = window.visualViewport?.height ?? window.innerHeight;
-                      if (rect.bottom > vh - 8 || rect.top < 8) {
+                      if (isAndroid) {
+                        // Always center on Android — the keyboard often resizes
+                        // the layout viewport, leaving the input flush against
+                        // the keyboard edge with no breathing room.
+                        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                      } else if (rect.bottom > vh - 8 || rect.top < 8) {
                         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
                       }
                     });
                   });
-                }, 320);
+                }, settleMs);
               }}
               onBlur={() => setInputFocused(false)}
               placeholder="ACCESS CODE"
@@ -1714,13 +1726,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 isBursting && 'border-primary bg-primary/5',
                 isDenied && 'border-destructive bg-destructive/5 animate-shake'
               )}
-              autoComplete="off"
+              // Android-only: `one-time-code` tells Gboard to treat this as a
+              // verification code — it suppresses the suggestion strip, skips
+              // personalized learning, and surfaces an inline numeric/alpha
+              // chip that matches a code being SMS'd. iOS path keeps "off"
+              // so it doesn't trigger Apple's Messages OTP autofill banner.
+              autoComplete={isAndroid ? 'one-time-code' : 'off'}
               autoCorrect="off"
               autoCapitalize="characters"
               spellCheck={false}
               inputMode="text"
               enterKeyHint="go"
               maxLength={32}
+              // Android-only: hint Gboard/password managers to skip this field.
+              {...(isAndroid ? { 'data-form-type': 'other' as const, 'data-lpignore': 'true' as const } : {})}
               name="zen-access-code"
               aria-label="Access code"
             />
