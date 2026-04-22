@@ -58,6 +58,7 @@ const WhitepaperPhase1 = lazy(() => import("./pages/WhitepaperPhase1"));
 const WhitepaperPhase2 = lazy(() => import("./pages/WhitepaperPhase2"));
 const FoundersSpaceX = lazy(() => import("./pages/FoundersSpaceX"));
 const FoundersAppOverhaul = lazy(() => import("./pages/FoundersAppOverhaul"));
+const FoundersDeasonV3 = lazy(() => import("./pages/FoundersDeasonV3"));
 const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
 const V2App = lazy(() => import("./pages/V2App"));
 const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
@@ -982,6 +983,7 @@ const App = () => {
                     <Route path="/founders/app-overhaul-plan" element={<FoundersAppOverhaul />} />
                     <Route path="/founders/proof-of-genesis" element={<FoundersProofOfGenesis />} />
                     <Route path="/founders/v2app" element={<V2App />} />
+                    <Route path="/founders/deason-v3" element={<FoundersDeasonV3 />} />
                     <Route path="/founders/seed-ask" element={<FounderSeedAsk />} />
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<Deason />} />
