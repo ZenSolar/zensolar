@@ -453,8 +453,8 @@ const secondaryNote = {
 const mintCard = {
   margin: '0 0 16px',
   padding: '22px 20px',
-  backgroundColor: COLORS.accent,
-  border: `2px solid ${COLORS.accentDark}`,
+  backgroundColor: '#064e36',
+  border: `2px solid #064e36`,
   textAlign: 'center' as const,
 }
 
