@@ -18,6 +18,8 @@ import { template as demoAttendeesReport } from './demo-attendees-report.tsx'
 import { template as mintAccessRequest } from './mint-access-request.tsx'
 import { template as julianPixelInvite } from './julian-pixel-invite.tsx'
 import { template as tobyIphoneInvite } from './toby-iphone-invite.tsx'
+import { template as toddAndroidInvite } from './todd-android-invite.tsx'
+import { template as joFounderVipWelcome } from './jo-founder-vip-welcome.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'nda-signed-copy': ndaSignedCopy,
@@ -29,4 +31,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'mint-access-request': mintAccessRequest,
   'julian-pixel-invite': julianPixelInvite,
   'toby-iphone-invite': tobyIphoneInvite,
+  'todd-android-invite': toddAndroidInvite,
+  'jo-founder-vip-welcome': joFounderVipWelcome,
 }
