@@ -352,8 +352,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       .join(' ');
     setGestureQaEvents((prev) => [...prev.slice(-23), { t: elapsed, tag, data: dataStr }]);
   }, [showGateDiagnostics]);
+  // Unified layout: we no longer swap between absolute and fixed pinned mode
+  // when the iOS keyboard opens. The container already tracks visualViewport
+  // height/offset via CSS vars, which is enough to keep the input visible
+  // without rebuilding the entire gate (which caused visible jumps + the
+  // "false start" flicker on first hold).
   const isIOSKeyboardMode = isIOS && inputFocused;
-  const shouldPinGateForKeyboard = isIOS && inputFocused;
+  const shouldPinGateForKeyboard = false;
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
