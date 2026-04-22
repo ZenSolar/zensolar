@@ -549,6 +549,35 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
   }, []);
 
+  // Lock document scroll while the iOS keyboard is up so Chrome iOS / Safari
+  // can't scroll the underlying page out from under our pinned access gate.
+  // Without this, Chrome iOS scrolls the document on focus and the gate
+  // appears to "drift offscreen" even though our container is pinned.
+  useEffect(() => {
+    if (!isIOS || !inputFocused) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyPosition = body.style.position;
+    const prevBodyWidth = body.style.width;
+    const prevBodyTop = body.style.top;
+    const scrollY = window.scrollY;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.width = '100%';
+    body.style.top = `-${scrollY}px`;
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      body.style.position = prevBodyPosition;
+      body.style.width = prevBodyWidth;
+      body.style.top = prevBodyTop;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isIOS, inputFocused]);
+
   // ── Core submit logic ──
   const submitCode = useCallback(async () => {
     const trimmed = code.trim();
