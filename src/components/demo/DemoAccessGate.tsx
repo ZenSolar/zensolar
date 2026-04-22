@@ -1192,38 +1192,37 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     >
       {showAudioDebug && <AudioDebugOverlay />}
       {showAudioDebug && <HumLoopDiagnosticsOverlay />}
-      {iosQaEnabled && (
-        <div
-          className="fixed top-2 left-2 right-2 z-[9999] pointer-events-none rounded-lg border border-primary/40 bg-black/80 backdrop-blur-sm p-2 text-[10px] font-mono text-primary/90 max-h-[40vh] overflow-hidden"
-          aria-hidden
-        >
-          <div className="flex items-center justify-between mb-1 text-primary">
-            <span className="font-bold">iOS QA · access-gate</span>
-            <span className="opacity-70">vh:{Math.round(window.visualViewport?.height ?? window.innerHeight)}</span>
-          </div>
-          <div className="space-y-0.5 leading-tight">
-            {iosQaEvents.length === 0 ? (
-              <div className="opacity-60">Tap the input to start logging…</div>
-            ) : (
-              iosQaEvents.slice(-12).map((e, i) => {
-                const isJank = e.tag.includes('post-scroll') && e.data.includes('offscreen=true');
-                const isOff = e.data.includes('offscreen=true');
-                return (
-                  <div
-                    key={`${e.t}-${i}`}
-                    className={cn(
-                      'truncate',
-                      isJank && 'text-destructive font-bold',
-                      !isJank && isOff && 'text-yellow-400',
-                    )}
-                  >
-                    +{e.t}ms {e.tag} {e.data}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
+      {showGateDiagnostics && (
+        <DemoGateDiagnosticsOverlay
+          platformLabel={isIOS ? 'iPhone / iOS Chrome QA' : isAndroid ? 'Android QA' : 'Gate QA'}
+          route={window.location.pathname}
+          phase={phase}
+          hexAwake={hexAwake}
+          revealed={revealed}
+          holding={holding}
+          holdReady={holdReady}
+          holdHint={holdHint}
+          firstTapBurst={firstTapBurst}
+          lockedFlash={lockedFlash}
+          inputFocused={inputFocused}
+          codeLength={code.trim().length}
+          keyboardInset={keyboardInset}
+          keyboardMode={isIOSKeyboardMode}
+          pinned={shouldPinGateForKeyboard}
+          viewportHeight={Math.round(window.visualViewport?.height ?? window.innerHeight)}
+          viewportOffsetTop={Math.round(window.visualViewport?.offsetTop ?? 0)}
+          innerHeight={window.innerHeight}
+          inputTop={inputRef.current?.getBoundingClientRect().top ?? null}
+          inputBottom={inputRef.current?.getBoundingClientRect().bottom ?? null}
+          inputHeight={inputRef.current?.getBoundingClientRect().height ?? null}
+          audioContextState={releaseAudioDiagnostics.audioContextState}
+          fallbackArmed={releaseAudioDiagnostics.fallbackArmed}
+          fallbackFired={releaseAudioDiagnostics.fallbackFired}
+          synthHandoff={releaseAudioDiagnostics.synthHandoff}
+          lastAudioEvent={releaseAudioDiagnostics.lastEvent}
+          iosQaEvents={iosQaEvents}
+          gestureEvents={gestureQaEvents}
+        />
       )}
       {showReleaseAudioDiagnostics && (
         <ReleaseAudioDiagnostics
