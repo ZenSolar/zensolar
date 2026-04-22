@@ -1,14 +1,22 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Img, Link, Preview, Section, Text, Hr,
+  Body,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Img,
+  Link,
+  Preview,
+  Section,
+  Text,
+  Hr,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
-const SITE_NAME = "ZenSolar"
-const LOGO_URL = "https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png"
-const ACCESS_CODE = "LOBV-2026"
-// Deep links — both pre-load the access code so Toby never has to type it.
-// `from=browser` and `from=install` let the app tailor onboarding to the chosen path.
+const SITE_NAME = 'ZenSolar'
+const LOGO_URL = 'https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png'
+const ACCESS_CODE = 'LOBV-2026'
 const DEMO_URL_BROWSER = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=browser`
 const DEMO_URL_INSTALL = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=install`
 const SAFARI_DEEP_LINK = `x-safari-https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=browser`
@@ -20,264 +28,142 @@ interface TobyIphoneInviteProps {
 
 const identityTrack = (_key: string, dest: string) => dest
 
-interface BgBlockProps {
-  bgColor: string
-  style?: React.CSSProperties
-  children: React.ReactNode
-}
-
-const BgBlock = ({ bgColor, style, children }: BgBlockProps) => (
-  <table
-    role="presentation"
-    width="100%"
-    cellPadding="0"
-    cellSpacing="0"
-    border={0}
-    bgcolor={bgColor}
-    style={{ borderCollapse: 'separate', borderSpacing: '0', width: '100%' }}
-  >
-    <tbody>
-      <tr>
-        <td bgcolor={bgColor} style={{ ...bgLock(bgColor), ...style }}>
-          {children}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-)
-
 const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) => {
   const t = trackUrl || identityTrack
   const name = firstName || 'Toby'
-  return (
-    <Html lang="en" dir="ltr" style={html}>
-      <Head>
-        <meta name="color-scheme" content="dark only" />
-        <meta name="supported-color-schemes" content="dark only" />
-        <style>{`
-          u + .body .gmail-blend-screen { background: ${BLEND_BG}; mix-blend-mode: screen; }
-          u + .body .gmail-blend-difference { background: ${BLEND_BG}; mix-blend-mode: difference; }
-        `}</style>
-      </Head>
-      <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
-      <Body style={main} bgcolor={BG} className="body">
-        <div className="gmail-blend-screen" style={gmailBlendScreen}>
-          <div className="gmail-blend-difference" style={gmailBlendDifference}>
-        <table role="presentation" width="100%" cellPadding="0" cellSpacing="0" border={0} bgcolor={BG} style={outerTable}>
-          <tbody>
-            <tr>
-              <td align="center" valign="top" bgcolor={BG} style={outerCell}>
-                <div style={hardWrap}>
-                  <Section style={viewportBg} bgcolor={BG}>
-                    <Container style={container} bgcolor={BG}>
 
-          {/* Header logo */}
-          <BgBlock bgColor={BG} style={logoHeader}>
+  return (
+    <Html lang="en" dir="ltr">
+      <Head />
+      <Preview>{`Your ZenSolar access code is ${ACCESS_CODE}. Open in browser or install to Home Screen.`}</Preview>
+      <Body style={main} bgcolor={COLORS.background}>
+        <Container style={container}>
+          <Section style={logoWrap}>
             <Img
               src={LOGO_URL}
-              alt="ZenSolar — Creating Currency From Energy"
+              alt="ZenSolar"
               width="180"
               height="44"
-              style={logoHeaderImg}
+              style={logo}
             />
-          </BgBlock>
-
-          {/* Badge */}
-          <Section style={badgeWrap}>
-            <Text style={badge}>● iPHONE · iOS · INNER CIRCLE</Text>
           </Section>
 
-          {/* Hero */}
-          <Heading style={hero}>
-            17 months in.<br />
-            <span style={heroAccent}>One tap on your iPhone.</span>
-          </Heading>
+          <Text style={eyebrow}>iPhone · iOS · Inner Circle</Text>
 
-          {/* Greeting */}
+          <Heading style={heroTitle}>One tap on your iPhone.</Heading>
+
           <Text style={greeting}>Hi {name},</Text>
 
-          {/* Origin story — verbatim from approved version */}
           <Text style={paragraph}>
-            On <strong style={emphasis}>November 3, 2024</strong>, I started researching what would
-            become ZenSolar's patented technology. Twenty days later —{' '}
-            <strong style={emphasis}>November 23, 2024</strong> — I worked up the balls to start
-            copying and pasting code Grok was feeding me into a separate terminal, line by line,
-            not really understanding half of it.
+            On <strong>November 3, 2024</strong>, I started researching what would become
+            ZenSolar&apos;s patented technology. Twenty days later — <strong>November 23, 2024</strong>
+            {' '}— I worked up the courage to start copying and pasting code into a separate
+            terminal, line by line, not really understanding half of it.
           </Text>
 
           <Text style={paragraph}>
-            That was <strong style={emphasis}>17 months ago</strong>. Heads down. Almost every
-            single day. Today it's a real product with patent-pending technology, and I want you
-            to be one of the first people in my <strong style={emphasis}>inner circle</strong> to
-            actually feel it — tuned specifically for your iPhone.
+            That was <strong>17 months ago</strong>. Heads down. Almost every single day.
+            Today it&apos;s a real product with patent-pending technology, and I want you to be
+            one of the first people in my <strong>inner circle</strong> to actually feel it — tuned
+            specifically for your iPhone.
           </Text>
 
-          {/* "One small ask" warning box */}
-          <BgBlock bgColor={WARN_BG} style={readFirstBox}>
-            <Text style={readFirstText}>
-              <strong style={readFirstStrong}>One small ask before you tap anything:</strong>{' '}
-              read this whole email down to my signature first. The order matters. Your two
-              ways in are waiting at the bottom.
+          <Section style={noteCard}>
+            <Text style={noteText}>
+              <strong>One small ask before you tap anything:</strong> read this whole email down to
+              my signature first. The order matters. Your two ways in are waiting at the bottom.
             </Text>
-          </BgBlock>
+          </Section>
 
-          {/* Access code */}
-          <BgBlock bgColor={SURFACE_2} style={codeBlock}>
+          <Section style={codeCard}>
             <Text style={codeLabel}>YOUR PERSONAL ACCESS CODE</Text>
             <Text style={codeValue}>{ACCESS_CODE}</Text>
-            <Text style={codeHint}>Unlocks a VIP welcome + ★ badge inside the app.</Text>
-          </BgBlock>
+            <Text style={codeHint}>This unlocks a VIP welcome and badge inside the app.</Text>
+          </Section>
 
-          <Hr style={sectionDivider} />
+          <Hr style={divider} />
 
-          {/* Behind the scenes */}
-          <Text style={sectionLabel}>WHAT'S HAPPENING BEHIND THE SCENES</Text>
+          <Text style={sectionTitle}>What&apos;s happening behind the scenes</Text>
 
           <Text style={paragraph}>
-            Right now I'm heads-down with <strong style={emphasis}>Michael Tschida</strong> — my
-            best friend, co-founder, and CFO/CRO — finishing the investor presentation and the
-            Founders Pack. We're opening a{' '}
-            <strong style={emphasis}>$5M seed round for Founding Investors</strong>: a small,
+            Right now I&apos;m heads-down with <strong>Michael Tschida</strong> — my best friend,
+            co-founder, and CFO/CRO — finishing the investor presentation and the Founders Pack.
+            We&apos;re opening a <strong>$5M seed round for Founding Investors</strong>: a small,
             hand-picked group getting in at the earliest, friendliest terms before we go wider.
           </Text>
 
           <Text style={paragraph}>
-            That's why getting your eyes on this <em>now</em> matters. You're seeing it before
+            That&apos;s why getting your eyes on this <em>now</em> matters. You&apos;re seeing it before
             the rooms that decide what comes next — trademarked language, patent-pending tech,
             and a user experience that feels less like crypto and more like Apple.
           </Text>
 
-          <Section style={pullQuote}>
-            <Text style={pullQuoteText}>
-              One iPhone. One tap. Then it lives on your Home Screen. Tell me what you feel.
-            </Text>
-          </Section>
+          <Hr style={divider} />
 
-          <Hr style={sectionDivider} />
-
-          {/* IP + protection */}
-          <Text style={sectionLabel}>PROTECTED & PATENT-PENDING</Text>
-
+          <Text style={sectionTitle}>Pick your path</Text>
           <Text style={paragraph}>
-            Core tech is <strong style={emphasis}>U.S. Patent Pending — App. No. 19/634,402</strong>{' '}
-            (Tap-to-Mint™ verification engine). Trademarked: ZenSolar™, Tap-to-Mint™,
-            Creating Currency From Energy™.
+            Both options open the same app with your code already loaded.
           </Text>
 
-          <Hr style={sectionDivider} />
-
-          {/* ── TWO WAYS IN — path of least resistance UX ── */}
-          <Text style={sectionLabel}>PICK YOUR PATH · TWO WAYS IN</Text>
-
-          <Text style={pickIntro}>
-            Both open the exact same app with your code pre-loaded. Start with the recommended
-            iPhone experience first, or skip straight to the quickest browser path.
-          </Text>
-
-          {/* PATH A — RECOMMENDED: PWA install (the real iOS feel) */}
-          <BgBlock bgColor={SURFACE_2} style={pathFullCard}>
-            <Text style={pathBadgeFull}>★ RECOMMENDED · 30 SECONDS</Text>
-            <Text style={pathTitle}>Install it like a real app</Text>
-            <Text style={pathDesc}>
-              Adds a <strong style={emphasis}>$ZSOLAR icon</strong> to your Home Screen. Launches
-              full-screen — no browser bar, no tabs, real native feel. This is how I want you to
-              experience it.
+          <Section style={pathCardRecommended}>
+            <Text style={pathBadgeRecommended}>Recommended · Install to Home Screen</Text>
+            <Text style={pathTitle}>Best iPhone experience</Text>
+            <Text style={pathText}>
+              Opens in Safari so you can add ZenSolar to your Home Screen and launch it like a
+              real app.
             </Text>
-
-            <BgBlock bgColor={SURFACE} style={miniSteps}>
-              <Text style={miniStep}>
-                <span style={miniStepNum}>1.</span> Tap the green button
-                below. It opens ZenSolar in <strong>Safari</strong> (required — Chrome can't
-                install to Home Screen on iOS).
-              </Text>
-              <Text style={miniStep}>
-                <span style={miniStepNum}>2.</span> In Safari, tap the{' '}
-                <strong>Share</strong> icon (the square with the up-arrow at the{' '}
-                <strong>bottom-center</strong> of the screen).
-              </Text>
-              <Text style={miniStep}>
-                <span style={miniStepNum}>3.</span> Scroll down in the
-                share sheet and tap <strong>"Add to Home Screen"</strong>, then tap{' '}
-                <strong>"Add"</strong> in the top-right corner.
-              </Text>
-              <Text style={miniStepLast}>
-                <span style={miniStepNum}>4.</span> Close Safari and open{' '}
-                <strong>ZenSolar from your Home Screen</strong> (the new green icon). Your code{' '}
-                <strong style={codeInline}>{ACCESS_CODE}</strong> is already loaded — just tap
-                the glowing tile.
-              </Text>
-            </BgBlock>
-
-            <Link href={t('cta_install', DEMO_URL_INSTALL)} style={ctaButtonFull}>
-              Install to Home Screen  →
+            <Text style={step}><strong>1.</strong> Tap the button below to open ZenSolar in Safari.</Text>
+            <Text style={step}><strong>2.</strong> Tap the Share icon.</Text>
+            <Text style={step}><strong>3.</strong> Tap <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</Text>
+            <Text style={stepLast}><strong>4.</strong> Open ZenSolar from your Home Screen and tap the glowing tile.</Text>
+            <Link href={t('cta_install', DEMO_URL_INSTALL)} style={buttonPrimary}>
+              Install to Home Screen
             </Link>
-            <Text style={pathFootnote}>
-              Same URL. Same code. This is the best version of the experience.
-            </Text>
-          </BgBlock>
-
-          {/* OR divider */}
-          <Section style={orWrap}>
-            <Text style={orText}>— or, if you want the quickest way in —</Text>
           </Section>
 
-          {/* PATH B — FAST: Browser (zero friction fallback) */}
-          <BgBlock bgColor={FAST_BG} style={pathFastCard}>
-            <Text style={pathBadgeFast}>⚡ FASTEST · 5 SECONDS</Text>
-            <Text style={pathTitle}>Just open it in your browser</Text>
-            <Text style={pathDesc}>
-              Tap the button and ZenSolar opens immediately in Safari or Chrome. No install,
-              no setup — just the fastest possible path into the app.
+          <Section style={pathCardSecondary}>
+            <Text style={pathBadgeSecondary}>Fastest · Open in browser</Text>
+            <Text style={pathTitle}>Quickest way in</Text>
+            <Text style={pathText}>
+              No install. No setup. Just open the app and go straight in.
             </Text>
-            <Link href={t('cta_browser', DEMO_URL_BROWSER)} style={ctaButtonFast}>
-              Open in browser  →
+            <Link href={t('cta_browser', DEMO_URL_BROWSER)} style={buttonSecondary}>
+              Open in browser
             </Link>
-            <Text style={pathFootnote}>
-              Opens inside Mail?{' '}
+            <Text style={secondaryNote}>
+              If Mail opens it inside its own browser,{' '}
               <Link href={t('safari_force', SAFARI_DEEP_LINK)} style={inlineLink}>
-                Force-open in Safari
+                force-open it in Safari
               </Link>
+              .
             </Text>
-          </BgBlock>
-
-          {/* Either way, do this */}
-          <BgBlock bgColor={SURFACE_2} style={feedbackCard}>
-            <Text style={feedbackLabel}>📣 EITHER WAY</Text>
-            <Text style={feedbackText}>
-              Tap the floating <strong style={emphasis}>feedback bubble</strong> and tell me
-              what you think — the good, the bad, the confusing. Your honest take is the whole
-              reason you're getting this email today.
-            </Text>
-          </BgBlock>
-
-          <Hr style={sectionDivider} />
-
-          {/* Signature */}
-          <Text style={signoff}>Muchas gracias,</Text>
-
-          <Section style={sigSection}>
-            <Text style={sigName}>Joe Maushart</Text>
-            <Text style={sigTitle}>Founder, {SITE_NAME}</Text>
-            <Text style={sigContactLine}>
-              <Link href="mailto:joe@zen.solar" style={sigLink}>joe@zen.solar</Link>
-            </Text>
-            <Text style={sigContactLine}>
-              <Link href="tel:+17202246233" style={sigLink}>720.224.6233</Link>
-              <span style={sigDot}>  ·  </span>
-              <Link href="sms:+17202246233" style={sigLink}>text</Link>
-            </Text>
-            <Text style={sigContactLineLast}>
-              <Link href={t('joemaushart', 'https://joemaushart.com')} style={sigLink}>joemaushart.com</Link>
-            </Text>
-
-            <Img
-              src={LOGO_URL}
-              alt="ZenSolar — Creating Currency From Energy"
-              width="160"
-              height="39"
-              style={sigLogoBottom}
-            />
           </Section>
+
+          <Section style={feedbackCard}>
+            <Text style={feedbackTitle}>After you try it</Text>
+            <Text style={feedbackText}>
+              Tap the feedback bubble and tell me what you think — the good, the bad, and the
+              confusing. Your honest take is the whole reason you&apos;re getting this email.
+            </Text>
+          </Section>
+
+          <Hr style={divider} />
+
+          <Text style={signoff}>Muchas gracias,</Text>
+          <Text style={signatureName}>Joe Maushart</Text>
+          <Text style={signatureMeta}>Founder, {SITE_NAME}</Text>
+          <Text style={signatureMeta}>
+            <Link href="mailto:joe@zen.solar" style={inlineLink}>joe@zen.solar</Link>
+            {' '}·{' '}
+            <Link href="tel:+17202246233" style={inlineLink}>720.224.6233</Link>
+            {' '}·{' '}
+            <Link href="sms:+17202246233" style={inlineLink}>text</Link>
+          </Text>
+          <Text style={signatureMeta}>
+            <Link href={t('joemaushart', 'https://joemaushart.com')} style={inlineLink}>
+              joemaushart.com
+            </Link>
+          </Text>
 
           <Hr style={footerDivider} />
           <Text style={footer}>
@@ -285,15 +171,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
             U.S. Patent Pending — Application No. 19/634,402
           </Text>
-                    </Container>
-                  </Section>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-          </div>
-        </div>
+        </Container>
       </Body>
     </Html>
   )
@@ -311,337 +189,297 @@ export const template = {
   },
 } satisfies TemplateEntry
 
-// ── Locked navy palette (matches gate-splash-background hsl(216 61% 10%)) ──
-// Navy survives Gmail dark-mode inversion much better than near-black.
-const BG = '#0a1a2e'           // hsl(216 61% 10%) — brand navy (gate splash)
-const SURFACE = '#0f223b'      // slightly lifted navy
-const SURFACE_2 = '#13294a'    // card surface
-const BORDER = '#1f3a5f'       // muted navy border
-const TEXT = '#ffffff'
-const TEXT_MUTED = '#ffffff'
-const TEXT_DIM = '#ffffff'
-const ACCENT = '#10b981'       // emerald (brand primary)
-const ACCENT_SOFT = '#34d399'
-const WARN_BG = '#3a2a0a'
-const WARN_BORDER = '#d97706'
-const WARN_TEXT = '#ffffff'
-const FAST_ACCENT = '#60a5fa'  // sky blue — same family as navy
-const FAST_BG = '#0d2647'      // deeper navy variant
-const BLEND_BG = '#000000'
-
-const bgLock = (color: string) => ({
-  backgroundColor: color,
-  background: color,
-  backgroundImage: `linear-gradient(${color}, ${color})`,
-  colorScheme: 'dark' as const,
-})
-
-const textLock = (color: string) => ({
-  color,
-  WebkitTextFillColor: color,
-  textShadow: `0 0 0 ${color}`,
-  opacity: 1,
-})
-
-const html = { ...bgLock(BG), margin: '0', padding: '0' }
-const outerTable = {
-  width: '100%',
-  ...bgLock(BG),
-  margin: '0',
-  padding: '0',
+const COLORS = {
+  background: '#ffffff',
+  surface: '#f3f4f6',
+  surfaceAlt: '#eef6f2',
+  border: '#d1d5db',
+  borderStrong: '#b7e4cf',
+  text: '#111827',
+  muted: '#4b5563',
+  accent: '#0f9f6e',
+  accentDark: '#0b7a55',
 }
-const outerCell = {
-  ...bgLock(BG),
-  margin: '0',
-  padding: '0',
-}
-const hardWrap = {
-  ...bgLock(BG),
-  ...textLock(TEXT),
-  margin: '0',
-  padding: '0',
-  width: '100%',
-}
+
+const fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+
 const main = {
-  ...bgLock(BG),
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
-  WebkitFontSmoothing: 'antialiased' as const,
-  ...textLock(TEXT),
   margin: '0',
-  padding: '0',
-  width: '100%',
+  padding: '24px 12px',
+  backgroundColor: COLORS.background,
+  color: COLORS.text,
+  fontFamily,
 }
-const viewportBg = {
-  ...bgLock(BG),
-  width: '100%',
-  margin: '0',
-  padding: '0 0 24px',
-}
+
 const container = {
-  padding: '36px 24px 28px',
+  width: '100%',
   maxWidth: '600px',
   margin: '0 auto',
-  ...bgLock(BG),
+  padding: '32px 24px',
+  backgroundColor: COLORS.background,
+  border: `1px solid ${COLORS.border}`,
 }
-const gmailBlendScreen = { ...bgLock(BLEND_BG) }
-const gmailBlendDifference = { ...bgLock(BLEND_BG) }
-const badgeWrap = { textAlign: 'center' as const, margin: '0 0 22px' }
-const badge = {
-  display: 'inline-block',
-  fontSize: '11px',
-  fontWeight: 700 as const,
-  letterSpacing: '1.6px',
-   ...textLock(ACCENT_SOFT),
-  backgroundColor: 'rgba(16, 185, 129, 0.10)',
-  border: '1px solid rgba(16, 185, 129, 0.35)',
-  padding: '6px 14px',
-  borderRadius: '999px',
-  margin: '0',
+
+const logoWrap = {
+  textAlign: 'center' as const,
+  padding: '0 0 12px',
 }
-const hero = {
-  fontSize: '32px',
+
+const logo = {
+  display: 'block' as const,
+  margin: '0 auto',
+  border: '0',
+  outline: 'none',
+  textDecoration: 'none',
+  backgroundColor: 'transparent',
+}
+
+const eyebrow = {
+  margin: '0 0 20px',
+  textAlign: 'center' as const,
+  fontSize: '12px',
+  lineHeight: '18px',
+  fontWeight: 700,
+  letterSpacing: '1.8px',
+  textTransform: 'uppercase' as const,
+  color: COLORS.accentDark,
+}
+
+const heroTitle = {
+  margin: '0 0 24px',
+  textAlign: 'center' as const,
+  fontSize: '34px',
   lineHeight: '1.15',
-  fontWeight: 800 as const,
-   ...textLock(TEXT),
-  letterSpacing: '-0.02em',
-  textAlign: 'center' as const,
-  margin: '0 0 28px',
-}
-const heroAccent = { ...textLock(ACCENT_SOFT) }
-const greeting = { fontSize: '16px', margin: '0 0 18px', fontWeight: 600 as const, ...textLock(TEXT) }
-const paragraph = { fontSize: '15px', lineHeight: '1.65', margin: '0 0 16px', ...textLock(TEXT) }
-const emphasis = { fontWeight: 700 as const, ...textLock(TEXT) }
-
-// "One small ask" warning box
-const readFirstBox = {
-  margin: '20px 0 22px',
-  padding: '16px 18px',
-  ...bgLock(WARN_BG),
-  border: '2px solid ' + WARN_BORDER,
-  borderRadius: '12px',
-}
-const readFirstStrong = { fontWeight: 800 as const, ...textLock(WARN_TEXT) }
-const readFirstText = { fontSize: '14px', lineHeight: '1.55', margin: '0', ...textLock(WARN_TEXT) }
-
-// Access code block
-const codeBlock = {
-  margin: '8px 0 4px',
-  padding: '20px 18px',
-  ...bgLock(SURFACE_2),
-  border: '1px dashed ' + ACCENT,
-  borderRadius: '14px',
-  textAlign: 'center' as const,
-}
-const codeLabel = {
-  fontSize: '10px', fontWeight: 700 as const, letterSpacing: '2px',
-  margin: '0 0 8px', ...textLock(ACCENT_SOFT),
-}
-const codeValue = {
-  fontSize: '28px', fontWeight: 800 as const,
-  letterSpacing: '0.10em', margin: '0 0 8px',
-  fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace", ...textLock(TEXT),
-}
-const codeHint = { fontSize: '12px', margin: '0', fontStyle: 'italic' as const, ...textLock(TEXT_DIM) }
-const codeInline = {
-  fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace",
-  backgroundColor: 'rgba(16, 185, 129, 0.15)',
-  ...textLock(ACCENT_SOFT),
-  padding: '2px 8px',
-  borderRadius: '6px',
-  letterSpacing: '0.05em',
+  fontWeight: 800,
+  color: COLORS.text,
 }
 
-const sectionDivider = { borderColor: BORDER, borderWidth: '1px 0 0', margin: '30px 0 22px' }
-const sectionLabel = {
-  fontSize: '11px', fontWeight: 700 as const, letterSpacing: '2px',
-  margin: '0 0 14px', textAlign: 'center' as const, ...textLock(TEXT_DIM),
+const greeting = {
+  margin: '0 0 16px',
+  fontSize: '18px',
+  lineHeight: '28px',
+  fontWeight: 700,
+  color: COLORS.text,
 }
 
-// Pull quote
-const pullQuote = {
-  borderLeft: '4px solid ' + ACCENT,
-  padding: '4px 0 4px 16px',
+const paragraph = {
+  margin: '0 0 16px',
+  fontSize: '16px',
+  lineHeight: '28px',
+  color: COLORS.text,
+}
+
+const noteCard = {
   margin: '20px 0',
-}
-const pullQuoteText = {
-  fontSize: '16px', lineHeight: '1.55',
-  fontStyle: 'italic' as const, fontWeight: 500 as const, margin: '0', letterSpacing: '-0.005em',
-  ...textLock(TEXT),
+  padding: '18px 20px',
+  backgroundColor: COLORS.surface,
+  border: `1px solid ${COLORS.border}`,
 }
 
-// ── TWO PATHS — Browser (fast) vs Install (full) ──
-const pickIntro = {
-  fontSize: '14px', lineHeight: '1.6',
-  margin: '0 0 20px', textAlign: 'center' as const, fontStyle: 'italic' as const,
-  ...textLock(TEXT),
+const noteText = {
+  margin: '0',
+  fontSize: '15px',
+  lineHeight: '24px',
+  color: COLORS.text,
 }
 
-// Path A — FAST (Browser) — blue accent, hero feel
-const pathFastCard = {
-  margin: '0 0 14px',
-  padding: '22px 20px',
-  ...bgLock(FAST_BG),
-  border: '2px solid ' + FAST_ACCENT,
-  borderRadius: '16px',
+const codeCard = {
+  margin: '0 0 8px',
+  padding: '20px',
+  backgroundColor: COLORS.surfaceAlt,
+  border: `1px solid ${COLORS.borderStrong}`,
   textAlign: 'center' as const,
 }
-const pathBadgeFast = {
-  display: 'inline-block',
-  fontSize: '10px', fontWeight: 800 as const, letterSpacing: '1.8px',
-  ...textLock(FAST_ACCENT),
-  backgroundColor: 'rgba(96, 165, 250, 0.12)',
-  border: '1px solid ' + FAST_ACCENT,
-  padding: '5px 12px',
-  borderRadius: '999px',
-  margin: '0 0 12px',
+
+const codeLabel = {
+  margin: '0 0 8px',
+  fontSize: '11px',
+  lineHeight: '16px',
+  fontWeight: 700,
+  letterSpacing: '1.8px',
+  color: COLORS.accentDark,
 }
 
-// Path B — FULL (Install) — green accent, recommended
-const pathFullCard = {
-  margin: '0 0 18px',
-  padding: '22px 20px',
-  ...bgLock(SURFACE_2),
-  border: '2px solid ' + ACCENT,
-  borderRadius: '16px',
-  textAlign: 'center' as const,
-  boxShadow: '0 8px 24px -12px rgba(16, 185, 129, 0.4)',
+const codeValue = {
+  margin: '0 0 8px',
+  fontSize: '30px',
+  lineHeight: '36px',
+  fontWeight: 800,
+  letterSpacing: '2px',
+  color: COLORS.text,
+  fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace",
 }
-const pathBadgeFull = {
-  display: 'inline-block',
-  fontSize: '10px', fontWeight: 800 as const, letterSpacing: '1.8px',
-  ...textLock(ACCENT_SOFT),
-  backgroundColor: 'rgba(16, 185, 129, 0.15)',
-  border: '1px solid ' + ACCENT,
-  padding: '5px 12px',
-  borderRadius: '999px',
+
+const codeHint = {
+  margin: '0',
+  fontSize: '14px',
+  lineHeight: '22px',
+  color: COLORS.muted,
+}
+
+const divider = {
+  margin: '28px 0',
+  borderColor: COLORS.border,
+}
+
+const sectionTitle = {
   margin: '0 0 12px',
+  fontSize: '20px',
+  lineHeight: '28px',
+  fontWeight: 700,
+  color: COLORS.text,
+}
+
+const pathCardRecommended = {
+  margin: '0 0 16px',
+  padding: '20px',
+  backgroundColor: COLORS.surfaceAlt,
+  border: `1px solid ${COLORS.borderStrong}`,
+}
+
+const pathCardSecondary = {
+  margin: '0 0 16px',
+  padding: '20px',
+  backgroundColor: COLORS.surface,
+  border: `1px solid ${COLORS.border}`,
+}
+
+const pathBadgeRecommended = {
+  margin: '0 0 10px',
+  fontSize: '12px',
+  lineHeight: '18px',
+  fontWeight: 700,
+  letterSpacing: '1px',
+  textTransform: 'uppercase' as const,
+  color: COLORS.accentDark,
+}
+
+const pathBadgeSecondary = {
+  margin: '0 0 10px',
+  fontSize: '12px',
+  lineHeight: '18px',
+  fontWeight: 700,
+  letterSpacing: '1px',
+  textTransform: 'uppercase' as const,
+  color: COLORS.muted,
 }
 
 const pathTitle = {
-  fontSize: '20px', fontWeight: 800 as const,
-  letterSpacing: '-0.01em', margin: '0 0 10px',
-  ...textLock(TEXT),
-}
-const pathDesc = {
-  fontSize: '14px', lineHeight: '1.6',
-  margin: '0 0 18px', textAlign: 'left' as const,
-  ...textLock(TEXT),
-}
-const pathFootnote = {
-  fontSize: '12px', margin: '12px 0 0', fontStyle: 'italic' as const, ...textLock(TEXT_DIM),
+  margin: '0 0 10px',
+  fontSize: '20px',
+  lineHeight: '28px',
+  fontWeight: 700,
+  color: COLORS.text,
 }
 
-const ctaButtonFast = {
-  display: 'inline-block',
-  backgroundColor: FAST_ACCENT,
-  color: '#04122a',
-  padding: '15px 32px',
-  borderRadius: '12px',
-  textDecoration: 'none',
-  fontWeight: 800 as const,
-  fontSize: '16px',
-  letterSpacing: '0.01em',
-  border: '1px solid ' + FAST_ACCENT,
-  boxShadow: '0 8px 24px -8px rgba(96, 165, 250, 0.5)',
-}
-const ctaButtonFull = {
-  display: 'inline-block',
-  backgroundColor: ACCENT,
-  color: '#04140d',
-  padding: '15px 32px',
-  borderRadius: '12px',
-  textDecoration: 'none',
-  fontWeight: 800 as const,
-  fontSize: '16px',
-  letterSpacing: '0.01em',
-  border: '1px solid ' + ACCENT_SOFT,
-  boxShadow: '0 8px 24px -8px rgba(16, 185, 129, 0.55)',
+const pathText = {
+  margin: '0 0 12px',
+  fontSize: '15px',
+  lineHeight: '24px',
+  color: COLORS.text,
 }
 
-// OR divider between paths
-const orWrap = { textAlign: 'center' as const, margin: '4px 0 14px', ...bgLock(BG) }
-const orText = {
-  fontSize: '12px', margin: '0',
-  letterSpacing: '0.5px', fontStyle: 'italic' as const,
-  ...textLock(TEXT_DIM),
+const step = {
+  margin: '0 0 8px',
+  fontSize: '15px',
+  lineHeight: '24px',
+  color: COLORS.text,
 }
 
-// Mini 3-step install inside Path B
-const miniSteps = {
+const stepLast = {
   margin: '0 0 18px',
-  padding: '14px 16px',
-  ...bgLock(SURFACE),
-  border: '1px solid ' + BORDER,
-  borderRadius: '10px',
-  textAlign: 'left' as const,
-}
-const miniStep = { fontSize: '13px', lineHeight: '1.55', margin: '0 0 8px', ...textLock(TEXT) }
-const miniStepLast = { fontSize: '13px', lineHeight: '1.55', margin: '0', ...textLock(TEXT) }
-const miniStepNum = {
-  display: 'inline-block', minWidth: '18px',
-  fontSize: '13px', fontWeight: 800 as const,
-  marginRight: '4px', ...textLock(ACCENT_SOFT),
+  fontSize: '15px',
+  lineHeight: '24px',
+  color: COLORS.text,
 }
 
-// Feedback card (either way)
+const buttonPrimary = {
+  display: 'inline-block',
+  padding: '14px 22px',
+  backgroundColor: COLORS.accent,
+  color: '#ffffff',
+  textDecoration: 'none',
+  fontSize: '15px',
+  lineHeight: '20px',
+  fontWeight: 700,
+}
+
+const buttonSecondary = {
+  display: 'inline-block',
+  padding: '14px 22px',
+  backgroundColor: COLORS.text,
+  color: '#ffffff',
+  textDecoration: 'none',
+  fontSize: '15px',
+  lineHeight: '20px',
+  fontWeight: 700,
+}
+
+const secondaryNote = {
+  margin: '12px 0 0',
+  fontSize: '14px',
+  lineHeight: '22px',
+  color: COLORS.muted,
+}
+
 const feedbackCard = {
-  margin: '4px 0 4px',
-  padding: '16px 18px',
-  ...bgLock(SURFACE_2),
-  border: '1px solid rgba(16, 185, 129, 0.35)',
-  borderRadius: '12px',
+  margin: '0 0 8px',
+  padding: '18px 20px',
+  backgroundColor: COLORS.surface,
+  border: `1px solid ${COLORS.border}`,
 }
-const feedbackLabel = {
-  fontSize: '11px', fontWeight: 700 as const, letterSpacing: '1.5px',
-  margin: '0 0 8px', ...textLock(ACCENT_SOFT),
+
+const feedbackTitle = {
+  margin: '0 0 8px',
+  fontSize: '18px',
+  lineHeight: '26px',
+  fontWeight: 700,
+  color: COLORS.text,
 }
-const feedbackText = { fontSize: '14px', lineHeight: '1.6', margin: '0', ...textLock(TEXT) }
 
-const inlineLink = { textDecoration: 'underline', fontWeight: 600 as const, ...textLock(ACCENT_SOFT) }
+const feedbackText = {
+  margin: '0',
+  fontSize: '15px',
+  lineHeight: '24px',
+  color: COLORS.text,
+}
 
-// Signature
-const signoff = { fontSize: '15px', margin: '24px 0 16px', ...textLock(TEXT_MUTED) }
-const sigSection = { margin: '0 0 20px', ...bgLock(BG) }
-const sigName = { fontSize: '16px', fontWeight: 700 as const, margin: '0 0 2px', letterSpacing: '-0.01em', ...textLock(TEXT) }
-const sigTitle = { fontSize: '14px', margin: '0 0 10px', fontWeight: 500 as const, ...textLock(TEXT_DIM) }
-const sigContactLine = { fontSize: '14px', margin: '0 0 4px', lineHeight: '1.5', ...textLock(TEXT_MUTED) }
-const sigContactLineLast = { fontSize: '14px', margin: '0', lineHeight: '1.5', ...textLock(TEXT_MUTED) }
-const sigLink = { textDecoration: 'underline', fontWeight: 500 as const, ...textLock(ACCENT_SOFT) }
-const sigDot = { ...textLock(TEXT_DIM) }
-const sigLogoBottom = {
-  marginTop: '10px',
-  display: 'block' as const,
-  marginLeft: '0',
-  width: '160px',
-  height: '39px',
-  maxWidth: '160px',
-  border: '0',
-  outline: 'none',
-  textDecoration: 'none',
-  backgroundColor: 'transparent',
-  color: TEXT,
-  lineHeight: '39px',
+const signoff = {
+  margin: '0 0 10px',
+  fontSize: '16px',
+  lineHeight: '24px',
+  color: COLORS.text,
+}
+
+const signatureName = {
+  margin: '0 0 4px',
+  fontSize: '18px',
+  lineHeight: '26px',
+  fontWeight: 700,
+  color: COLORS.text,
+}
+
+const signatureMeta = {
+  margin: '0 0 6px',
+  fontSize: '14px',
+  lineHeight: '22px',
+  color: COLORS.muted,
+}
+
+const inlineLink = {
+  color: COLORS.accentDark,
+  textDecoration: 'underline',
+}
+
+const footerDivider = {
+  margin: '24px 0 16px',
+  borderColor: COLORS.border,
+}
+
+const footer = {
+  margin: '0',
+  textAlign: 'center' as const,
   fontSize: '12px',
-  verticalAlign: 'middle' as const,
-}
-
-const footerDivider = { borderColor: BORDER, margin: '8px 0 16px' }
-const footer = { fontSize: '11px', margin: '0', textAlign: 'center' as const, lineHeight: '1.6', ...textLock(TEXT_DIM) }
-
-// Header logo (top of email)
-const logoHeader = { textAlign: 'center' as const, margin: '0 0 18px', padding: '0', fontSize: '0', lineHeight: '0', ...bgLock(BG) }
-const logoHeaderImg = {
-  display: 'block' as const,
-  margin: '0 auto',
-  width: '180px',
-  height: '44px',
-  maxWidth: '180px',
-  border: '0',
-  outline: 'none',
-  textDecoration: 'none',
-  backgroundColor: 'transparent',
-  color: TEXT,
-  lineHeight: '44px',
-  fontSize: '12px',
-  verticalAlign: 'middle' as const,
+  lineHeight: '20px',
+  color: COLORS.muted,
 }
