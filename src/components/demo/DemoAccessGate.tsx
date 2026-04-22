@@ -1273,7 +1273,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           style={{
             justifyContent: shouldPinGateForKeyboard ? 'flex-start' : 'start',
             paddingTop: shouldPinGateForKeyboard
-              ? 'max(env(safe-area-inset-top, 0px) + 0.4rem, 0.75rem)'
+              ? 'max(env(safe-area-inset-top, 0px) + 1rem, 3.5rem)'
               : isIOSKeyboardMode
                 ? 'max(env(safe-area-inset-top, 0px) + 0.25rem, 0.5rem)'
                 : inputFocused
@@ -1807,7 +1807,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           </div>
 
           {/* Code input — hidden until first tap */}
-          <div className={cn("w-full px-4 pointer-events-auto transition-opacity duration-300", hexAwake ? 'opacity-100' : 'opacity-0 pointer-events-none', isIOSKeyboardMode ? 'space-y-2' : 'space-y-3')}>
+          <div className={cn(
+            "w-full px-4 pointer-events-auto transition-opacity duration-300",
+            hexAwake ? 'opacity-100' : 'opacity-0 pointer-events-none',
+            isIOSKeyboardMode ? 'space-y-2 mt-2' : 'space-y-3'
+          )}>
             <Input
               ref={inputRef}
               value={code}
