@@ -51,6 +51,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
+  const [hasDrawn, setHasDrawn] = useState(false);
   const geoRef = useRef<GeoInfo>({});
 
   // Fetch IP geolocation on mount
@@ -74,13 +75,12 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef({ x: 0, y: 0 });
-  const hasDrawnRef = useRef(false);
 
   const isValid = fullName.trim().length >= 2
     && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
     && agreed
     && scrolledToBottom
-    && (signatureMethod === 'type' ? signatureText.trim().length >= 2 : hasDrawnRef.current);
+    && (signatureMethod === 'type' ? signatureText.trim().length >= 2 : hasDrawn);
 
   // Initialize canvas
   useEffect(() => {
@@ -129,8 +129,8 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
     lastPosRef.current = pos;
-    hasDrawnRef.current = true;
-  }, [getCanvasPos]);
+    if (!hasDrawn) setHasDrawn(true);
+  }, [getCanvasPos, hasDrawn]);
 
   const handleDrawEnd = useCallback(() => {
     isDrawingRef.current = false;
@@ -142,7 +142,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    hasDrawnRef.current = false;
+    setHasDrawn(false);
   }, []);
 
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
