@@ -234,13 +234,30 @@ export function ActivityMetrics({
   // Filter to only Tesla/Enphase
   const filteredProviders = effectiveConnectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
-  // Device-specific labels (used when single device)
-  // Format: (Name of system/device) + Activity Type
-  const solarLabel = 'My Solar Roof Production';
-  const batteryLabel = 'Powerwall 3 Exported kWh';
-  const evLabel = 'Model Y EV Miles';
-  const superchargerLabel = 'Tesla Supercharging';
-  const homeChargerLabel = 'Home Charging';
+  // Device-specific labels — pull live names from connected_devices when available.
+  // Falls back to generic descriptions so demo / new users still get a meaningful label.
+  const liveLabels = useDeviceLabels();
+  const solarName = liveLabels.solar?.trim();
+  const batteryName = liveLabels.powerwall?.trim();
+  const vehicleName = liveLabels.vehicle?.trim();
+  const homeChargerName = liveLabels.homeCharger?.trim();
+
+  const solarLabel = solarName ? `${solarName} Solar Production` : 'Solar Production';
+  const batteryLabel = batteryName ? `${batteryName} Exported kWh` : 'Battery Exported kWh';
+  const evLabel = vehicleName ? `${vehicleName} EV Miles` : 'EV Miles';
+  const superchargerLabel = vehicleName ? `${vehicleName} Supercharging` : 'Tesla Supercharging';
+  const homeChargerLabel = homeChargerName ? `${homeChargerName} Home Charging` : 'Home Charging';
+
+  // Header subtitle — "Your <Vehicle> · <Solar> · <Battery> · EV Charging kWh"
+  const headerSubtitleParts = [
+    vehicleName ? `Your ${vehicleName}` : null,
+    solarName,
+    batteryName,
+    'EV Charging kWh',
+  ].filter(Boolean) as string[];
+  const headerSubtitle = headerSubtitleParts.length > 1
+    ? headerSubtitleParts.join(' · ')
+    : 'Your Connected Energy';
 
   // Separate charging values
   const superchargerKwh = current.superchargerKwh ?? 0;
