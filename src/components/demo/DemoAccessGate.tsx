@@ -1206,7 +1206,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               ref={lockButtonRef}
               disabled={isVerifying || isBursting}
               className={cn(
-                'relative w-20 h-20 rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer',
+                'relative rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer transition-all duration-300',
+                inputFocused ? 'w-10 h-10' : 'w-20 h-20',
                 isBursting
                   ? 'bg-primary/30'
                   : lockedFlash
