@@ -42,7 +42,7 @@ export default function FoundersSpaceX() {
 function SpaceXContent() {
   return (
     <div className="min-h-[100svh] bg-background text-foreground">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-8" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)' }}>
         <div className="flex items-center justify-between mb-8">
           <Link to="/founders" className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary">
             <ArrowLeft className="h-3.5 w-3.5" /> Founders Vault
