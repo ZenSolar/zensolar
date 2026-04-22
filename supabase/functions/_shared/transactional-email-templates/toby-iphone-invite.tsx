@@ -24,28 +24,29 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
   const t = trackUrl || identityTrack
   const name = firstName || 'Toby'
   return (
-    <Html lang="en" dir="ltr">
+    <Html lang="en" dir="ltr" style={html}>
       <Head>
         <meta name="color-scheme" content="dark only" />
         <meta name="supported-color-schemes" content="dark only" />
         <style>{`
           :root { color-scheme: dark only; supported-color-schemes: dark only; }
-          html, body { background-color: #0a0f0d !important; }
-          u + .body .dark-bg { background-color: #0a0f0d !important; }
-          [data-ogsc] .dark-bg { background-color: #0a0f0d !important; }
+          html, body, table, tbody, tr, td, div { background-color: #0a0f0d !important; }
+          u + .body, u + .body .dark-bg { background-color: #0a0f0d !important; }
+          [data-ogsc], [data-ogsc] .dark-bg { background-color: #0a0f0d !important; }
           [data-ogsc] .dark-text { color: #e8f0ec !important; }
           [data-ogsc] .dark-muted { color: #9bb0a6 !important; }
           [data-ogsc] .dark-accent { color: #34d399 !important; }
           @media (prefers-color-scheme: light) {
-            .dark-bg { background-color: #0a0f0d !important; }
+            html, body, table, tbody, tr, td, div, .dark-bg { background-color: #0a0f0d !important; }
             .dark-text { color: #e8f0ec !important; }
             .dark-muted { color: #9bb0a6 !important; }
           }
         `}</style>
       </Head>
       <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
-      <Body style={main} className="body dark-bg">
-        <Container style={container} className="dark-bg">
+      <Body style={main} className="body dark-bg" bgcolor={BG}>
+        <Section style={viewportBg} className="dark-bg">
+          <Container style={container} className="dark-bg">
 
           {/* Header logo */}
           <Section style={logoHeader}>
@@ -146,35 +147,11 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Text style={sectionLabel} className="dark-muted">PICK YOUR PATH · TWO WAYS IN</Text>
 
           <Text style={pickIntro} className="dark-text">
-            Both open the exact same app with your code pre-loaded. Pick whichever fits your
-            mood right now — you can always do the other one later.
+            Both open the exact same app with your code pre-loaded. Start with the recommended
+            iPhone experience first, or skip straight to the quickest browser path.
           </Text>
 
-          {/* PATH A — FAST: Browser (zero friction, hero card) */}
-          <Section style={pathFastCard}>
-            <Text style={pathBadgeFast}>⚡ FASTEST · 5 SECONDS</Text>
-            <Text style={pathTitle} className="dark-text">Just open it in your browser</Text>
-            <Text style={pathDesc} className="dark-text">
-              Tap the green button. ZenSolar opens in Safari (or Chrome). Done. Zero install,
-              zero setup — you're inside the app immediately.
-            </Text>
-            <Link href={t('cta_browser', DEMO_URL_BROWSER)} style={ctaButtonFast}>
-              Open in browser  →
-            </Link>
-            <Text style={pathFootnote} className="dark-muted">
-              Opens inside Mail?{' '}
-              <Link href={t('safari_force', SAFARI_DEEP_LINK)} style={inlineLink}>
-                Force-open in Safari
-              </Link>
-            </Text>
-          </Section>
-
-          {/* OR divider */}
-          <Section style={orWrap}>
-            <Text style={orText} className="dark-muted">— or, the full experience —</Text>
-          </Section>
-
-          {/* PATH B — RECOMMENDED: PWA install (the real iOS feel) */}
+          {/* PATH A — RECOMMENDED: PWA install (the real iOS feel) */}
           <Section style={pathFullCard}>
             <Text style={pathBadgeFull} className="dark-accent">★ RECOMMENDED · 30 SECONDS</Text>
             <Text style={pathTitle} className="dark-text">Install it like a real app</Text>
@@ -184,7 +161,6 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               experience it.
             </Text>
 
-            {/* Compact 3-step install — clearer iOS guidance */}
             <Section style={miniSteps}>
               <Text style={miniStep} className="dark-text">
                 <span style={miniStepNum} className="dark-accent">1.</span> Tap the green button
@@ -213,7 +189,31 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               Install to Home Screen  →
             </Link>
             <Text style={pathFootnote} className="dark-muted">
-              Same URL. Same code. Just the long way in — and worth it.
+              Same URL. Same code. This is the best version of the experience.
+            </Text>
+          </Section>
+
+          {/* OR divider */}
+          <Section style={orWrap}>
+            <Text style={orText} className="dark-muted">— or, if you want the quickest way in —</Text>
+          </Section>
+
+          {/* PATH B — FAST: Browser (zero friction fallback) */}
+          <Section style={pathFastCard}>
+            <Text style={pathBadgeFast}>⚡ FASTEST · 5 SECONDS</Text>
+            <Text style={pathTitle} className="dark-text">Just open it in your browser</Text>
+            <Text style={pathDesc} className="dark-text">
+              Tap the button and ZenSolar opens immediately in Safari or Chrome. No install,
+              no setup — just the fastest possible path into the app.
+            </Text>
+            <Link href={t('cta_browser', DEMO_URL_BROWSER)} style={ctaButtonFast}>
+              Open in browser  →
+            </Link>
+            <Text style={pathFootnote} className="dark-muted">
+              Opens inside Mail?{' '}
+              <Link href={t('safari_force', SAFARI_DEEP_LINK)} style={inlineLink}>
+                Force-open in Safari
+              </Link>
             </Text>
           </Section>
 
@@ -262,7 +262,8 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
             U.S. Patent Pending — Application No. 19/634,402
           </Text>
-        </Container>
+          </Container>
+        </Section>
       </Body>
     </Html>
   )
@@ -296,6 +297,7 @@ const WARN_TEXT = '#fbbf24'
 const FAST_ACCENT = '#60a5fa'
 const FAST_BG = '#0a1628'
 
+const html = { backgroundColor: BG, margin: '0', padding: '0' }
 const main = {
   backgroundColor: BG,
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
@@ -303,6 +305,13 @@ const main = {
   color: TEXT,
   margin: '0',
   padding: '0',
+  width: '100%',
+}
+const viewportBg = {
+  backgroundColor: BG,
+  width: '100%',
+  margin: '0',
+  padding: '0 0 24px',
 }
 const container = {
   padding: '36px 24px 28px',
