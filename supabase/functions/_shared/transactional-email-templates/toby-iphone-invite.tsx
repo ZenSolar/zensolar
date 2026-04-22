@@ -42,8 +42,8 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             <Img
               src={LOGO_URL}
               alt="ZenSolar"
-              width="180"
-              height="44"
+              width="200"
+              height="59"
               style={logo}
             />
           </Section>
@@ -149,28 +149,39 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           <Hr style={divider} />
 
-          <Text style={signoff}>Muchas gracias,</Text>
-          <Text style={signatureName}>Joe Maushart</Text>
-          <Text style={signatureMeta}>Founder, {SITE_NAME}</Text>
-          <Text style={signatureMeta}>
-            <Link href="mailto:joe@zen.solar" style={inlineLink}>joe@zen.solar</Link>
-            {' '}·{' '}
-            <Link href="tel:+17202246233" style={inlineLink}>720.224.6233</Link>
-            {' '}·{' '}
-            <Link href="sms:+17202246233" style={inlineLink}>text</Link>
-          </Text>
-          <Text style={signatureMeta}>
-            <Link href={t('joemaushart', 'https://joemaushart.com')} style={inlineLink}>
-              joemaushart.com
-            </Link>
-          </Text>
+          <Section style={signatureWrap}>
+            <Text style={signoff}>Muchas gracias,</Text>
+            <Text style={signatureName}>Joe Maushart</Text>
+            <Text style={signatureMeta}>Founder, {SITE_NAME}</Text>
+            <Text style={signatureMeta}>
+              <Link href="mailto:joe@zen.solar" style={inlineLink}>joe@zen.solar</Link>
+              {' '}·{' '}
+              <Link href="tel:+17202246233" style={inlineLink}>720.224.6233</Link>
+              {' '}·{' '}
+              <Link href="sms:+17202246233" style={inlineLink}>text</Link>
+            </Text>
+            <Text style={signatureMeta}>
+              <Link href={t('joemaushart', 'https://joemaushart.com')} style={inlineLink}>
+                joemaushart.com
+              </Link>
+            </Text>
+            <Img
+              src={LOGO_URL}
+              alt="ZenSolar"
+              width="160"
+              height="47"
+              style={signatureLogo}
+            />
+          </Section>
 
           <Hr style={footerDivider} />
-          <Text style={footer}>
-            © {new Date().getFullYear()} ZenSolar, LLC<br />
-            ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
-            U.S. Patent Pending — Application No. 19/634,402
-          </Text>
+          <Section style={footerWrap}>
+            <Text style={footer}>
+              © {new Date().getFullYear()} ZenSolar, LLC<br />
+              ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
+              U.S. Patent Pending — Application No. 19/634,402
+            </Text>
+          </Section>
         </Container>
       </Body>
     </Html>
