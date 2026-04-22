@@ -40,21 +40,25 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           }
         `}</style>
       </Head>
-      <Preview>{`Your code: ${ACCESS_CODE} — 17 months → one tap. Read before you tap.`}</Preview>
+      <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
       <Body style={main} className="body dark-bg">
         <Container style={container} className="dark-bg">
 
+          {/* Badge */}
           <Section style={badgeWrap}>
             <Text style={badge} className="dark-accent">● iPHONE · iOS · INNER CIRCLE</Text>
           </Section>
 
+          {/* Hero */}
           <Heading style={hero} className="dark-text">
             17 months in.<br />
             <span style={heroAccent} className="dark-accent">One tap on your iPhone.</span>
           </Heading>
 
+          {/* Greeting */}
           <Text style={greeting} className="dark-text">Hi {name},</Text>
 
+          {/* Origin story — verbatim from approved version */}
           <Text style={paragraph} className="dark-text">
             On <strong style={emphasis}>November 3, 2024</strong>, I started researching what would
             become ZenSolar's patented technology. Twenty days later —{' '}
@@ -70,12 +74,12 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             actually feel it — tuned specifically for your iPhone.
           </Text>
 
-          {/* "One small ask" warning box — verbatim from the joemaushart.com version */}
+          {/* "One small ask" warning box */}
           <Section style={readFirstBox}>
             <Text style={readFirstText} className="dark-text">
               <strong style={readFirstStrong}>One small ask before you tap anything:</strong>{' '}
-              read this whole email down to my signature first. The order matters. The big green
-              button is waiting for you at the bottom.
+              read this whole email down to my signature first. The order matters. Your two
+              ways in are waiting at the bottom.
             </Text>
           </Section>
 
@@ -124,51 +128,26 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           <Hr style={sectionDivider} />
 
-          {/* Install instructions */}
-          <Text style={sectionLabel} className="dark-muted">INSTALL TO HOME SCREEN · 30 SEC</Text>
+          {/* ── TWO WAYS IN — path of least resistance UX ── */}
+          <Text style={sectionLabel} className="dark-muted">PICK YOUR PATH · TWO WAYS IN</Text>
 
-          <Section style={stepRow}>
-            <Text style={stepText} className="dark-text">
-              <span style={stepNum} className="dark-accent">1</span>{' '}
-              Tap the green button below on your iPhone (opens in Safari).
-            </Text>
-          </Section>
+          <Text style={pickIntro} className="dark-text">
+            Both open the exact same app with your code pre-loaded. Pick whichever fits your
+            mood right now — you can always do the other one later.
+          </Text>
 
-          <Section style={stepRow}>
-            <Text style={stepText} className="dark-text">
-              <span style={stepNum} className="dark-accent">2</span>{' '}
-              In Safari: <strong>Share</strong> icon → <strong>Add to Home Screen</strong> → <strong>Add</strong>.
+          {/* PATH A — FAST: Browser (zero friction, hero card) */}
+          <Section style={pathFastCard}>
+            <Text style={pathBadgeFast}>⚡ FASTEST · 5 SECONDS</Text>
+            <Text style={pathTitle} className="dark-text">Just open it in your browser</Text>
+            <Text style={pathDesc} className="dark-text">
+              Tap the green button. ZenSolar opens in Safari (or Chrome). Done. Zero install,
+              zero setup — you're inside the app immediately.
             </Text>
-          </Section>
-
-          <Section style={stepRow}>
-            <Text style={stepText} className="dark-text">
-              <span style={stepNum} className="dark-accent">3</span>{' '}
-              Enter code <strong style={codeInline}>{ACCESS_CODE}</strong>, then tap the glowing
-              tiles to mint $ZSOLAR.
-            </Text>
-          </Section>
-
-          <Section style={homescreenCard}>
-            <Text style={homescreenLabel}>📱 AFTER YOU INSTALL</Text>
-            <Text style={homescreenText} className="dark-text">
-              Always launch from the green <strong style={emphasis}>$ZSOLAR icon</strong> on your
-              Home Screen — full-screen, no browser bar, real app feel. That's{' '}
-              <strong style={emphasis}>Tap-to-Mint™</strong>. Tap the floating feedback bubble
-              and tell me what you think — good, bad, confusing.
-            </Text>
-          </Section>
-
-          {/* THE BIG GREEN BUTTON — at the bottom, ABOVE the signature */}
-          <Section style={ctaSection}>
-            <Text style={ctaPreface} className="dark-muted">
-              You read it all? Good. Now —
-            </Text>
-            <Link href={t('cta_primary', DEMO_URL)} style={ctaButton}>
-              Open on your iPhone  →
+            <Link href={t('cta_browser', DEMO_URL)} style={ctaButtonFast}>
+              Open in browser  →
             </Link>
-            <Text style={ctaCaption} className="dark-muted">~90 seconds · Safari recommended · Code: {ACCESS_CODE}</Text>
-            <Text style={safariFallback} className="dark-muted">
+            <Text style={pathFootnote} className="dark-muted">
               Opens inside Mail?{' '}
               <Link href={t('safari_force', SAFARI_DEEP_LINK)} style={inlineLink}>
                 Force-open in Safari
@@ -176,9 +155,60 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             </Text>
           </Section>
 
+          {/* OR divider */}
+          <Section style={orWrap}>
+            <Text style={orText} className="dark-muted">— or, the full experience —</Text>
+          </Section>
+
+          {/* PATH B — RECOMMENDED: PWA install (the real iOS feel) */}
+          <Section style={pathFullCard}>
+            <Text style={pathBadgeFull} className="dark-accent">★ RECOMMENDED · 30 SECONDS</Text>
+            <Text style={pathTitle} className="dark-text">Install it like a real app</Text>
+            <Text style={pathDesc} className="dark-text">
+              Adds a <strong style={emphasis}>$ZSOLAR icon</strong> to your Home Screen. Launches
+              full-screen — no browser bar, no tabs, real native feel. This is how I want you to
+              experience it.
+            </Text>
+
+            {/* Compact 3-step install */}
+            <Section style={miniSteps}>
+              <Text style={miniStep} className="dark-text">
+                <span style={miniStepNum} className="dark-accent">1.</span> Tap the button below
+                (opens in Safari).
+              </Text>
+              <Text style={miniStep} className="dark-text">
+                <span style={miniStepNum} className="dark-accent">2.</span> Tap the{' '}
+                <strong>Share</strong> icon → <strong>Add to Home Screen</strong> →{' '}
+                <strong>Add</strong>.
+              </Text>
+              <Text style={miniStepLast} className="dark-text">
+                <span style={miniStepNum} className="dark-accent">3.</span> Open ZenSolar from
+                your Home Screen, enter <strong style={codeInline}>{ACCESS_CODE}</strong>, and
+                tap the glowing tiles.
+              </Text>
+            </Section>
+
+            <Link href={t('cta_install', DEMO_URL)} style={ctaButtonFull}>
+              Install to Home Screen  →
+            </Link>
+            <Text style={pathFootnote} className="dark-muted">
+              Same URL. Same code. Just the long way in — and worth it.
+            </Text>
+          </Section>
+
+          {/* Either way, do this */}
+          <Section style={feedbackCard}>
+            <Text style={feedbackLabel}>📣 EITHER WAY</Text>
+            <Text style={feedbackText} className="dark-text">
+              Tap the floating <strong style={emphasis}>feedback bubble</strong> and tell me
+              what you think — the good, the bad, the confusing. Your honest take is the whole
+              reason you're getting this email today.
+            </Text>
+          </Section>
+
           <Hr style={sectionDivider} />
 
-          {/* Signature — at the very bottom, below the CTA */}
+          {/* Signature */}
           <Text style={signoff} className="dark-muted">Muchas gracias,</Text>
 
           <Section style={sigSection}>
@@ -242,6 +272,8 @@ const ACCENT_SOFT = '#34d399'
 const WARN_BG = '#3a2a0a'
 const WARN_BORDER = '#d97706'
 const WARN_TEXT = '#fbbf24'
+const FAST_ACCENT = '#60a5fa'
+const FAST_BG = '#0a1628'
 
 const main = {
   backgroundColor: BG,
@@ -293,31 +325,9 @@ const readFirstBox = {
   borderRadius: '12px',
 }
 const readFirstStrong = { color: WARN_TEXT, fontWeight: 800 as const }
-const readFirstText = {
-  fontSize: '14px',
-  color: WARN_TEXT,
-  lineHeight: '1.55',
-  margin: '0',
-}
+const readFirstText = { fontSize: '14px', color: WARN_TEXT, lineHeight: '1.55', margin: '0' }
 
-const ctaSection = { textAlign: 'center' as const, margin: '24px 0 20px' }
-const ctaPreface = { fontSize: '14px', color: TEXT_MUTED, margin: '0 0 14px', fontStyle: 'italic' as const }
-const ctaButton = {
-  display: 'inline-block',
-  backgroundColor: ACCENT,
-  color: '#04140d',
-  padding: '16px 36px',
-  borderRadius: '12px',
-  textDecoration: 'none',
-  fontWeight: 800 as const,
-  fontSize: '16px',
-  letterSpacing: '0.01em',
-  border: '1px solid #34d399',
-  boxShadow: '0 8px 24px -8px rgba(16, 185, 129, 0.55)',
-}
-const ctaCaption = { fontSize: '13px', color: TEXT_DIM, margin: '12px 0 6px', fontStyle: 'italic' as const }
-const safariFallback = { fontSize: '12px', color: TEXT_DIM, margin: '0' }
-
+// Access code block
 const codeBlock = {
   margin: '8px 0 4px',
   padding: '20px 18px',
@@ -351,39 +361,7 @@ const sectionLabel = {
   color: TEXT_DIM, margin: '0 0 14px', textAlign: 'center' as const,
 }
 
-const stepRow = {
-  margin: '0 0 10px',
-  padding: '12px 14px',
-  backgroundColor: SURFACE,
-  border: '1px solid ' + BORDER,
-  borderLeft: '3px solid ' + ACCENT,
-  borderRadius: '10px',
-}
-const stepNum = {
-  display: 'inline-block',
-  minWidth: '20px',
-  fontSize: '14px',
-  fontWeight: 800 as const,
-  color: ACCENT_SOFT,
-  marginRight: '4px',
-}
-const stepText = { fontSize: '15px', color: TEXT, lineHeight: '1.55', margin: '0' }
-
-const homescreenCard = {
-  margin: '18px 0 4px',
-  padding: '16px 18px',
-  backgroundColor: SURFACE_2,
-  border: '1px solid rgba(16, 185, 129, 0.35)',
-  borderRadius: '12px',
-}
-const homescreenLabel = {
-  fontSize: '11px', fontWeight: 700 as const, letterSpacing: '1.5px',
-  color: ACCENT_SOFT, margin: '0 0 8px',
-}
-const homescreenText = { fontSize: '14px', color: TEXT, lineHeight: '1.6', margin: '0' }
-
-const inlineLink = { color: ACCENT_SOFT, textDecoration: 'underline', fontWeight: 600 as const }
-
+// Pull quote
 const pullQuote = {
   borderLeft: '4px solid ' + ACCENT,
   padding: '4px 0 4px 16px',
@@ -394,6 +372,133 @@ const pullQuoteText = {
   fontStyle: 'italic' as const, fontWeight: 500 as const, margin: '0', letterSpacing: '-0.005em',
 }
 
+// ── TWO PATHS — Browser (fast) vs Install (full) ──
+const pickIntro = {
+  fontSize: '14px', color: TEXT, lineHeight: '1.6',
+  margin: '0 0 20px', textAlign: 'center' as const, fontStyle: 'italic' as const,
+}
+
+// Path A — FAST (Browser) — blue accent, hero feel
+const pathFastCard = {
+  margin: '0 0 14px',
+  padding: '22px 20px',
+  backgroundColor: FAST_BG,
+  border: '2px solid ' + FAST_ACCENT,
+  borderRadius: '16px',
+  textAlign: 'center' as const,
+}
+const pathBadgeFast = {
+  display: 'inline-block',
+  fontSize: '10px', fontWeight: 800 as const, letterSpacing: '1.8px',
+  color: FAST_ACCENT,
+  backgroundColor: 'rgba(96, 165, 250, 0.12)',
+  border: '1px solid ' + FAST_ACCENT,
+  padding: '5px 12px',
+  borderRadius: '999px',
+  margin: '0 0 12px',
+}
+
+// Path B — FULL (Install) — green accent, recommended
+const pathFullCard = {
+  margin: '0 0 18px',
+  padding: '22px 20px',
+  backgroundColor: SURFACE_2,
+  border: '2px solid ' + ACCENT,
+  borderRadius: '16px',
+  textAlign: 'center' as const,
+  boxShadow: '0 8px 24px -12px rgba(16, 185, 129, 0.4)',
+}
+const pathBadgeFull = {
+  display: 'inline-block',
+  fontSize: '10px', fontWeight: 800 as const, letterSpacing: '1.8px',
+  color: ACCENT_SOFT,
+  backgroundColor: 'rgba(16, 185, 129, 0.15)',
+  border: '1px solid ' + ACCENT,
+  padding: '5px 12px',
+  borderRadius: '999px',
+  margin: '0 0 12px',
+}
+
+const pathTitle = {
+  fontSize: '20px', fontWeight: 800 as const, color: TEXT,
+  letterSpacing: '-0.01em', margin: '0 0 10px',
+}
+const pathDesc = {
+  fontSize: '14px', color: TEXT, lineHeight: '1.6',
+  margin: '0 0 18px', textAlign: 'left' as const,
+}
+const pathFootnote = {
+  fontSize: '12px', color: TEXT_DIM, margin: '12px 0 0', fontStyle: 'italic' as const,
+}
+
+const ctaButtonFast = {
+  display: 'inline-block',
+  backgroundColor: FAST_ACCENT,
+  color: '#04122a',
+  padding: '15px 32px',
+  borderRadius: '12px',
+  textDecoration: 'none',
+  fontWeight: 800 as const,
+  fontSize: '16px',
+  letterSpacing: '0.01em',
+  border: '1px solid ' + FAST_ACCENT,
+  boxShadow: '0 8px 24px -8px rgba(96, 165, 250, 0.5)',
+}
+const ctaButtonFull = {
+  display: 'inline-block',
+  backgroundColor: ACCENT,
+  color: '#04140d',
+  padding: '15px 32px',
+  borderRadius: '12px',
+  textDecoration: 'none',
+  fontWeight: 800 as const,
+  fontSize: '16px',
+  letterSpacing: '0.01em',
+  border: '1px solid ' + ACCENT_SOFT,
+  boxShadow: '0 8px 24px -8px rgba(16, 185, 129, 0.55)',
+}
+
+// OR divider between paths
+const orWrap = { textAlign: 'center' as const, margin: '4px 0 14px' }
+const orText = {
+  fontSize: '12px', color: TEXT_DIM, margin: '0',
+  letterSpacing: '0.5px', fontStyle: 'italic' as const,
+}
+
+// Mini 3-step install inside Path B
+const miniSteps = {
+  margin: '0 0 18px',
+  padding: '14px 16px',
+  backgroundColor: SURFACE,
+  border: '1px solid ' + BORDER,
+  borderRadius: '10px',
+  textAlign: 'left' as const,
+}
+const miniStep = { fontSize: '13px', color: TEXT, lineHeight: '1.55', margin: '0 0 8px' }
+const miniStepLast = { fontSize: '13px', color: TEXT, lineHeight: '1.55', margin: '0' }
+const miniStepNum = {
+  display: 'inline-block', minWidth: '18px',
+  fontSize: '13px', fontWeight: 800 as const,
+  color: ACCENT_SOFT, marginRight: '4px',
+}
+
+// Feedback card (either way)
+const feedbackCard = {
+  margin: '4px 0 4px',
+  padding: '16px 18px',
+  backgroundColor: SURFACE_2,
+  border: '1px solid rgba(16, 185, 129, 0.35)',
+  borderRadius: '12px',
+}
+const feedbackLabel = {
+  fontSize: '11px', fontWeight: 700 as const, letterSpacing: '1.5px',
+  color: ACCENT_SOFT, margin: '0 0 8px',
+}
+const feedbackText = { fontSize: '14px', color: TEXT, lineHeight: '1.6', margin: '0' }
+
+const inlineLink = { color: ACCENT_SOFT, textDecoration: 'underline', fontWeight: 600 as const }
+
+// Signature
 const signoff = { fontSize: '15px', color: TEXT_MUTED, margin: '24px 0 16px' }
 const sigSection = { margin: '0 0 20px' }
 const sigName = { fontSize: '16px', color: TEXT, fontWeight: 700 as const, margin: '0 0 2px', letterSpacing: '-0.01em' }
