@@ -1339,14 +1339,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             transform: shouldPinGateForKeyboard ? 'translateY(0)' : undefined,
           }}
         >
-          {/* Logo — hidden while typing so the input stays above the keyboard */}
+          {/* Logo — stays mounted; just dims while typing so layout doesn't jump */}
           <img
             src={zenLogo}
             alt="ZenSolar"
             className={cn(
-              "h-8 w-auto object-contain transition-all duration-200",
+              "h-8 w-auto object-contain transition-opacity duration-200",
               hexAwake ? 'opacity-100' : 'opacity-0',
-              inputFocused && 'h-0 opacity-0 -mt-2'
+              inputFocused && 'opacity-60'
             )}
             style={{ filter: 'drop-shadow(0 0 12px hsl(142 76% 36% / 0.45)) brightness(1.8)' }}
           />
