@@ -38,7 +38,7 @@ const BgBlock = ({ bgColor, style, children }: BgBlockProps) => (
   >
     <tbody>
       <tr>
-        <td bgcolor={bgColor} style={style}>
+        <td bgcolor={bgColor} style={{ ...bgLock(bgColor), ...style }}>
           {children}
         </td>
       </tr>
@@ -54,9 +54,15 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
       <Head>
         <meta name="color-scheme" content="dark only" />
         <meta name="supported-color-schemes" content="dark only" />
+        <style>{`
+          u + .body .gmail-blend-screen { background: ${BG}; mix-blend-mode: screen; }
+          u + .body .gmail-blend-difference { background: ${BG}; mix-blend-mode: difference; }
+        `}</style>
       </Head>
       <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
-      <Body style={main} bgcolor={BG}>
+      <Body style={main} bgcolor={BG} className="body">
+        <div className="gmail-blend-screen" style={gmailBlendScreen}>
+          <div className="gmail-blend-difference" style={gmailBlendDifference}>
         <table role="presentation" width="100%" cellPadding="0" cellSpacing="0" border={0} bgcolor={BG} style={outerTable}>
           <tbody>
             <tr>
@@ -286,6 +292,8 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             </tr>
           </tbody>
         </table>
+          </div>
+        </div>
       </Body>
     </Html>
   )
@@ -320,36 +328,48 @@ const WARN_TEXT = '#fbbf24'    // warm gold — complements navy
 const FAST_ACCENT = '#60a5fa'  // sky blue — same family as navy
 const FAST_BG = '#0d2647'      // deeper navy variant
 
-const html = { backgroundColor: BG, margin: '0', padding: '0' }
+const bgLock = (color: string) => ({
+  backgroundColor: color,
+  background: color,
+  backgroundImage: `linear-gradient(${color}, ${color})`,
+  colorScheme: 'dark' as const,
+})
+
+const textLock = (color: string) => ({
+  color,
+  WebkitTextFillColor: color,
+})
+
+const html = { ...bgLock(BG), margin: '0', padding: '0' }
 const outerTable = {
   width: '100%',
-  backgroundColor: BG,
+  ...bgLock(BG),
   margin: '0',
   padding: '0',
 }
 const outerCell = {
-  backgroundColor: BG,
+  ...bgLock(BG),
   margin: '0',
   padding: '0',
 }
 const hardWrap = {
-  backgroundColor: BG,
-  color: TEXT,
+  ...bgLock(BG),
+  ...textLock(TEXT),
   margin: '0',
   padding: '0',
   width: '100%',
 }
 const main = {
-  backgroundColor: BG,
+  ...bgLock(BG),
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
   WebkitFontSmoothing: 'antialiased' as const,
-  color: TEXT,
+  ...textLock(TEXT),
   margin: '0',
   padding: '0',
   width: '100%',
 }
 const viewportBg = {
-  backgroundColor: BG,
+  ...bgLock(BG),
   width: '100%',
   margin: '0',
   padding: '0 0 24px',
@@ -358,15 +378,17 @@ const container = {
   padding: '36px 24px 28px',
   maxWidth: '600px',
   margin: '0 auto',
-  backgroundColor: BG,
+  ...bgLock(BG),
 }
+const gmailBlendScreen = { ...bgLock(BG) }
+const gmailBlendDifference = { ...bgLock(BG) }
 const badgeWrap = { textAlign: 'center' as const, margin: '0 0 22px' }
 const badge = {
   display: 'inline-block',
   fontSize: '11px',
   fontWeight: 700 as const,
   letterSpacing: '1.6px',
-  color: ACCENT_SOFT,
+   ...textLock(ACCENT_SOFT),
   backgroundColor: 'rgba(16, 185, 129, 0.10)',
   border: '1px solid rgba(16, 185, 129, 0.35)',
   padding: '6px 14px',
@@ -377,50 +399,50 @@ const hero = {
   fontSize: '32px',
   lineHeight: '1.15',
   fontWeight: 800 as const,
-  color: TEXT,
+   ...textLock(TEXT),
   letterSpacing: '-0.02em',
   textAlign: 'center' as const,
   margin: '0 0 28px',
 }
-const heroAccent = { color: ACCENT_SOFT }
-const greeting = { fontSize: '16px', color: TEXT, margin: '0 0 18px', fontWeight: 600 as const }
-const paragraph = { fontSize: '15px', color: TEXT, lineHeight: '1.65', margin: '0 0 16px' }
-const emphasis = { color: TEXT, fontWeight: 700 as const }
+const heroAccent = { ...textLock(ACCENT_SOFT) }
+const greeting = { fontSize: '16px', margin: '0 0 18px', fontWeight: 600 as const, ...textLock(TEXT) }
+const paragraph = { fontSize: '15px', lineHeight: '1.65', margin: '0 0 16px', ...textLock(TEXT) }
+const emphasis = { fontWeight: 700 as const, ...textLock(TEXT) }
 
 // "One small ask" warning box
 const readFirstBox = {
   margin: '20px 0 22px',
   padding: '16px 18px',
-  backgroundColor: WARN_BG,
+  ...bgLock(WARN_BG),
   border: '2px solid ' + WARN_BORDER,
   borderRadius: '12px',
 }
-const readFirstStrong = { color: WARN_TEXT, fontWeight: 800 as const }
-const readFirstText = { fontSize: '14px', color: WARN_TEXT, lineHeight: '1.55', margin: '0' }
+const readFirstStrong = { fontWeight: 800 as const, ...textLock(WARN_TEXT) }
+const readFirstText = { fontSize: '14px', lineHeight: '1.55', margin: '0', ...textLock(WARN_TEXT) }
 
 // Access code block
 const codeBlock = {
   margin: '8px 0 4px',
   padding: '20px 18px',
-  backgroundColor: SURFACE_2,
+  ...bgLock(SURFACE_2),
   border: '1px dashed ' + ACCENT,
   borderRadius: '14px',
   textAlign: 'center' as const,
 }
 const codeLabel = {
   fontSize: '10px', fontWeight: 700 as const, letterSpacing: '2px',
-  color: ACCENT_SOFT, margin: '0 0 8px',
+  margin: '0 0 8px', ...textLock(ACCENT_SOFT),
 }
 const codeValue = {
-  fontSize: '28px', fontWeight: 800 as const, color: TEXT,
+  fontSize: '28px', fontWeight: 800 as const,
   letterSpacing: '0.10em', margin: '0 0 8px',
-  fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace",
+  fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace", ...textLock(TEXT),
 }
-const codeHint = { fontSize: '12px', color: TEXT_DIM, margin: '0', fontStyle: 'italic' as const }
+const codeHint = { fontSize: '12px', margin: '0', fontStyle: 'italic' as const, ...textLock(TEXT_DIM) }
 const codeInline = {
   fontFamily: "'SF Mono', Menlo, Monaco, Consolas, monospace",
   backgroundColor: 'rgba(16, 185, 129, 0.15)',
-  color: ACCENT_SOFT,
+  ...textLock(ACCENT_SOFT),
   padding: '2px 8px',
   borderRadius: '6px',
   letterSpacing: '0.05em',
@@ -429,7 +451,7 @@ const codeInline = {
 const sectionDivider = { borderColor: BORDER, borderWidth: '1px 0 0', margin: '30px 0 22px' }
 const sectionLabel = {
   fontSize: '11px', fontWeight: 700 as const, letterSpacing: '2px',
-  color: TEXT_DIM, margin: '0 0 14px', textAlign: 'center' as const,
+  margin: '0 0 14px', textAlign: 'center' as const, ...textLock(TEXT_DIM),
 }
 
 // Pull quote
@@ -439,21 +461,23 @@ const pullQuote = {
   margin: '20px 0',
 }
 const pullQuoteText = {
-  fontSize: '16px', lineHeight: '1.55', color: TEXT,
+  fontSize: '16px', lineHeight: '1.55',
   fontStyle: 'italic' as const, fontWeight: 500 as const, margin: '0', letterSpacing: '-0.005em',
+  ...textLock(TEXT),
 }
 
 // ── TWO PATHS — Browser (fast) vs Install (full) ──
 const pickIntro = {
-  fontSize: '14px', color: TEXT, lineHeight: '1.6',
+  fontSize: '14px', lineHeight: '1.6',
   margin: '0 0 20px', textAlign: 'center' as const, fontStyle: 'italic' as const,
+  ...textLock(TEXT),
 }
 
 // Path A — FAST (Browser) — blue accent, hero feel
 const pathFastCard = {
   margin: '0 0 14px',
   padding: '22px 20px',
-  backgroundColor: FAST_BG,
+  ...bgLock(FAST_BG),
   border: '2px solid ' + FAST_ACCENT,
   borderRadius: '16px',
   textAlign: 'center' as const,
@@ -461,7 +485,7 @@ const pathFastCard = {
 const pathBadgeFast = {
   display: 'inline-block',
   fontSize: '10px', fontWeight: 800 as const, letterSpacing: '1.8px',
-  color: FAST_ACCENT,
+  ...textLock(FAST_ACCENT),
   backgroundColor: 'rgba(96, 165, 250, 0.12)',
   border: '1px solid ' + FAST_ACCENT,
   padding: '5px 12px',
@@ -473,7 +497,7 @@ const pathBadgeFast = {
 const pathFullCard = {
   margin: '0 0 18px',
   padding: '22px 20px',
-  backgroundColor: SURFACE_2,
+  ...bgLock(SURFACE_2),
   border: '2px solid ' + ACCENT,
   borderRadius: '16px',
   textAlign: 'center' as const,
@@ -482,7 +506,7 @@ const pathFullCard = {
 const pathBadgeFull = {
   display: 'inline-block',
   fontSize: '10px', fontWeight: 800 as const, letterSpacing: '1.8px',
-  color: ACCENT_SOFT,
+  ...textLock(ACCENT_SOFT),
   backgroundColor: 'rgba(16, 185, 129, 0.15)',
   border: '1px solid ' + ACCENT,
   padding: '5px 12px',
@@ -491,15 +515,17 @@ const pathBadgeFull = {
 }
 
 const pathTitle = {
-  fontSize: '20px', fontWeight: 800 as const, color: TEXT,
+  fontSize: '20px', fontWeight: 800 as const,
   letterSpacing: '-0.01em', margin: '0 0 10px',
+  ...textLock(TEXT),
 }
 const pathDesc = {
-  fontSize: '14px', color: TEXT, lineHeight: '1.6',
+  fontSize: '14px', lineHeight: '1.6',
   margin: '0 0 18px', textAlign: 'left' as const,
+  ...textLock(TEXT),
 }
 const pathFootnote = {
-  fontSize: '12px', color: TEXT_DIM, margin: '12px 0 0', fontStyle: 'italic' as const,
+  fontSize: '12px', margin: '12px 0 0', fontStyle: 'italic' as const, ...textLock(TEXT_DIM),
 }
 
 const ctaButtonFast = {
