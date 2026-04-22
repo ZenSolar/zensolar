@@ -491,7 +491,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const viewport = window.visualViewport;
-    const syncViewport = () => {
+    const syncViewport = (source: string = 'init') => {
       if (!containerRef.current) return;
       const visibleHeight = Math.ceil(viewport?.height ?? window.innerHeight);
       const visibleOffsetTop = Math.max(Math.ceil(viewport?.offsetTop ?? 0), 0);
@@ -506,11 +506,27 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       containerRef.current.style.setProperty('--gate-visible-offset-top', `${visibleOffsetTop}px`);
       containerRef.current.style.height = `${coverageHeight}px`;
       containerRef.current.style.minHeight = `${coverageHeight}px`;
+
+      // iOS QA: report viewport changes + whether the input is currently visible
+      if (iosQaEnabled && inputRef.current) {
+        const rect = inputRef.current.getBoundingClientRect();
+        const offscreen = rect.bottom > visibleHeight - 4 || rect.top < 4;
+        logIosQa(`viewport:${source}`, {
+          vh: visibleHeight,
+          vOff: visibleOffsetTop,
+          inputTop: rect.top,
+          inputBot: rect.bottom,
+          offscreen,
+        });
+      }
     };
-    syncViewport();
-    window.addEventListener('resize', syncViewport);
-    viewport?.addEventListener('resize', syncViewport);
-    viewport?.addEventListener('scroll', syncViewport);
+    syncViewport('init');
+    const onWinResize = () => syncViewport('window-resize');
+    const onVvResize = () => syncViewport('vv-resize');
+    const onVvScroll = () => syncViewport('vv-scroll');
+    window.addEventListener('resize', onWinResize);
+    viewport?.addEventListener('resize', onVvResize);
+    viewport?.addEventListener('scroll', onVvScroll);
     return () => {
       window.removeEventListener('resize', syncViewport);
       viewport?.removeEventListener('resize', syncViewport);
