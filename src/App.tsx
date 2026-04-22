@@ -366,6 +366,16 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
+                    <Route
+                      path="/proof-of-genesis"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <ProofOfGenesis />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route 
                       path="/help-center" 
                       element={
