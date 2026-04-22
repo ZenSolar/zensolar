@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 /**
  * V2 FRE — Variant B — Tesla-grade restraint.
- * 3-act flow: Promise → Proof → Permission.
+ * 3-act flow: Promise → Proof → Permission. Final tap calls onComplete.
  */
-export function V2VariantB() {
-  const [act, setAct] = useState<1 | 2 | 3 | 4>(1);
+export function V2VariantB({ onComplete }: { onComplete?: () => void }) {
+  const [act, setAct] = useState<1 | 2 | 3>(1);
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground flex flex-col px-6 pt-24 pb-10 relative">
@@ -20,7 +20,7 @@ export function V2VariantB() {
         <span>ZENSOLAR</span>
         <span className="flex items-center gap-1.5">
           <span className="h-1 w-1 rounded-full bg-primary" />
-          {act <= 3 ? `0${act} / 03` : "COMPLETE"}
+          {`0${act} / 03`}
         </span>
       </motion.div>
 
@@ -29,8 +29,7 @@ export function V2VariantB() {
       <AnimatePresence mode="wait">
         {act === 1 && <ActB1 key="b1" onNext={() => setAct(2)} />}
         {act === 2 && <ActB2 key="b2" onNext={() => setAct(3)} />}
-        {act === 3 && <ActB3 key="b3" onNext={() => setAct(4)} />}
-        {act === 4 && <ActBDone key="b4" onRestart={() => setAct(1)} />}
+        {act === 3 && <ActB3 key="b3" onNext={() => onComplete?.()} />}
       </AnimatePresence>
     </div>
   );
@@ -192,33 +191,6 @@ function ActB3({ onNext }: { onNext: () => void }) {
         </span>
       </motion.div>
     </>
-  );
-}
-
-function ActBDone({ onRestart }: { onRestart: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="flex-1 flex flex-col items-start justify-center max-w-lg"
-    >
-      <div className="h-12 w-12 border border-foreground/20 flex items-center justify-center mb-8">
-        <Check className="h-5 w-5 text-primary" />
-      </div>
-      <p className="text-[10px] uppercase tracking-[0.3em] text-foreground/50 mb-5 font-mono">
-        End of Variant B preview
-      </p>
-      <h1 className="text-3xl sm:text-4xl font-light tracking-tight leading-[1.05] mb-8">
-        This is where the<br />real dashboard begins.
-      </h1>
-      <button
-        onClick={onRestart}
-        className="text-sm font-mono uppercase tracking-[0.25em] text-foreground/60 hover:text-primary transition-colors border-b border-foreground/20 pb-1"
-      >
-        Replay
-      </button>
-    </motion.div>
   );
 }
 

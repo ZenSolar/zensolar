@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
 import { V2VariantA } from "@/components/v2app/V2VariantA";
 import { V2VariantB } from "@/components/v2app/V2VariantB";
+import { V2DashboardA } from "@/components/v2app/V2DashboardA";
+import { V2DashboardB } from "@/components/v2app/V2DashboardB";
 
 export default function V2App() {
   const { user, isLoading: authLoading } = useAuth();
@@ -42,13 +44,15 @@ export default function V2App() {
   );
 }
 
-type Variant = "hub" | "a" | "b";
+type Variant = "hub" | "a" | "b" | "a-dash" | "b-dash";
 
 function V2AppHub() {
   const [view, setView] = useState<Variant>("hub");
 
-  if (view === "a") return <PreviewFrame onBack={() => setView("hub")} label="Variant A · Same brand, quieter"><V2VariantA /></PreviewFrame>;
-  if (view === "b") return <PreviewFrame onBack={() => setView("hub")} label="Variant B · Tesla-grade restraint"><V2VariantB /></PreviewFrame>;
+  if (view === "a") return <PreviewFrame onBack={() => setView("hub")} label="Variant A · Onboarding"><V2VariantA onComplete={() => setView("a-dash")} /></PreviewFrame>;
+  if (view === "b") return <PreviewFrame onBack={() => setView("hub")} label="Variant B · Onboarding"><V2VariantB onComplete={() => setView("b-dash")} /></PreviewFrame>;
+  if (view === "a-dash") return <PreviewFrame onBack={() => setView("a")} label="Variant A · Dashboard"><V2DashboardA onExit={() => setView("a")} /></PreviewFrame>;
+  if (view === "b-dash") return <PreviewFrame onBack={() => setView("b")} label="Variant B · Dashboard"><V2DashboardB onExit={() => setView("b")} /></PreviewFrame>;
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground">
