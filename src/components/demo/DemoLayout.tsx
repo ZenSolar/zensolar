@@ -1,4 +1,6 @@
 import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
@@ -8,6 +10,13 @@ import { FeedbackFab } from '@/components/FeedbackFab';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
+  const { setTheme } = useTheme();
+
+  // Force dark mode on /demo regardless of any prior user theme preference.
+  useEffect(() => {
+    setTheme('dark');
+  }, [setTheme]);
+
   return (
     <DemoProvider>
       <SidebarProvider>
