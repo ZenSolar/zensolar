@@ -42,8 +42,8 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             <Img
               src={LOGO_URL}
               alt="ZenSolar"
-              width="200"
-              height="59"
+              width="220"
+              height="65"
               style={logo}
             />
           </Section>
