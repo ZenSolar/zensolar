@@ -49,20 +49,20 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           {/* Badge */}
           <Section style={badgeWrap}>
-            <Text style={badge} className="dark-accent">● iPHONE · iOS · INNER CIRCLE</Text>
+            <Text style={badge}>● iPHONE · iOS · INNER CIRCLE</Text>
           </Section>
 
           {/* Hero */}
-          <Heading style={hero} className="dark-text">
+          <Heading style={hero}>
             17 months in.<br />
-            <span style={heroAccent} className="dark-accent">One tap on your iPhone.</span>
+            <span style={heroAccent}>One tap on your iPhone.</span>
           </Heading>
 
           {/* Greeting */}
-          <Text style={greeting} className="dark-text">Hi {name},</Text>
+          <Text style={greeting}>Hi {name},</Text>
 
           {/* Origin story — verbatim from approved version */}
-          <Text style={paragraph} className="dark-text">
+          <Text style={paragraph}>
             On <strong style={emphasis}>November 3, 2024</strong>, I started researching what would
             become ZenSolar's patented technology. Twenty days later —{' '}
             <strong style={emphasis}>November 23, 2024</strong> — I worked up the balls to start
@@ -70,7 +70,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             not really understanding half of it.
           </Text>
 
-          <Text style={paragraph} className="dark-text">
+          <Text style={paragraph}>
             That was <strong style={emphasis}>17 months ago</strong>. Heads down. Almost every
             single day. Today it's a real product with patent-pending technology, and I want you
             to be one of the first people in my <strong style={emphasis}>inner circle</strong> to
@@ -79,7 +79,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           {/* "One small ask" warning box */}
           <Section style={readFirstBox}>
-            <Text style={readFirstText} className="dark-text">
+            <Text style={readFirstText}>
               <strong style={readFirstStrong}>One small ask before you tap anything:</strong>{' '}
               read this whole email down to my signature first. The order matters. Your two
               ways in are waiting at the bottom.
@@ -88,17 +88,17 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           {/* Access code */}
           <Section style={codeBlock}>
-            <Text style={codeLabel} className="dark-accent">YOUR PERSONAL ACCESS CODE</Text>
-            <Text style={codeValue} className="dark-text">{ACCESS_CODE}</Text>
-            <Text style={codeHint} className="dark-muted">Unlocks a VIP welcome + ★ badge inside the app.</Text>
+            <Text style={codeLabel}>YOUR PERSONAL ACCESS CODE</Text>
+            <Text style={codeValue}>{ACCESS_CODE}</Text>
+            <Text style={codeHint}>Unlocks a VIP welcome + ★ badge inside the app.</Text>
           </Section>
 
           <Hr style={sectionDivider} />
 
           {/* Behind the scenes */}
-          <Text style={sectionLabel} className="dark-muted">WHAT'S HAPPENING BEHIND THE SCENES</Text>
+          <Text style={sectionLabel}>WHAT'S HAPPENING BEHIND THE SCENES</Text>
 
-          <Text style={paragraph} className="dark-text">
+          <Text style={paragraph}>
             Right now I'm heads-down with <strong style={emphasis}>Michael Tschida</strong> — my
             best friend, co-founder, and CFO/CRO — finishing the investor presentation and the
             Founders Pack. We're opening a{' '}
@@ -106,14 +106,14 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             hand-picked group getting in at the earliest, friendliest terms before we go wider.
           </Text>
 
-          <Text style={paragraph} className="dark-text">
+          <Text style={paragraph}>
             That's why getting your eyes on this <em>now</em> matters. You're seeing it before
             the rooms that decide what comes next — trademarked language, patent-pending tech,
             and a user experience that feels less like crypto and more like Apple.
           </Text>
 
           <Section style={pullQuote}>
-            <Text style={pullQuoteText} className="dark-text">
+            <Text style={pullQuoteText}>
               One iPhone. One tap. Then it lives on your Home Screen. Tell me what you feel.
             </Text>
           </Section>
@@ -121,9 +121,9 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Hr style={sectionDivider} />
 
           {/* IP + protection */}
-          <Text style={sectionLabel} className="dark-muted">PROTECTED & PATENT-PENDING</Text>
+          <Text style={sectionLabel}>PROTECTED & PATENT-PENDING</Text>
 
-          <Text style={paragraph} className="dark-text">
+          <Text style={paragraph}>
             Core tech is <strong style={emphasis}>U.S. Patent Pending — App. No. 19/634,402</strong>{' '}
             (Tap-to-Mint™ verification engine). Trademarked: ZenSolar™, Tap-to-Mint™,
             Creating Currency From Energy™.
@@ -132,41 +132,41 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Hr style={sectionDivider} />
 
           {/* ── TWO WAYS IN — path of least resistance UX ── */}
-          <Text style={sectionLabel} className="dark-muted">PICK YOUR PATH · TWO WAYS IN</Text>
+          <Text style={sectionLabel}>PICK YOUR PATH · TWO WAYS IN</Text>
 
-          <Text style={pickIntro} className="dark-text">
+          <Text style={pickIntro}>
             Both open the exact same app with your code pre-loaded. Start with the recommended
             iPhone experience first, or skip straight to the quickest browser path.
           </Text>
 
           {/* PATH A — RECOMMENDED: PWA install (the real iOS feel) */}
           <Section style={pathFullCard}>
-            <Text style={pathBadgeFull} className="dark-accent">★ RECOMMENDED · 30 SECONDS</Text>
-            <Text style={pathTitle} className="dark-text">Install it like a real app</Text>
-            <Text style={pathDesc} className="dark-text">
+            <Text style={pathBadgeFull}>★ RECOMMENDED · 30 SECONDS</Text>
+            <Text style={pathTitle}>Install it like a real app</Text>
+            <Text style={pathDesc}>
               Adds a <strong style={emphasis}>$ZSOLAR icon</strong> to your Home Screen. Launches
               full-screen — no browser bar, no tabs, real native feel. This is how I want you to
               experience it.
             </Text>
 
             <Section style={miniSteps}>
-              <Text style={miniStep} className="dark-text">
-                <span style={miniStepNum} className="dark-accent">1.</span> Tap the green button
+              <Text style={miniStep}>
+                <span style={miniStepNum}>1.</span> Tap the green button
                 below. It opens ZenSolar in <strong>Safari</strong> (required — Chrome can't
                 install to Home Screen on iOS).
               </Text>
-              <Text style={miniStep} className="dark-text">
-                <span style={miniStepNum} className="dark-accent">2.</span> In Safari, tap the{' '}
+              <Text style={miniStep}>
+                <span style={miniStepNum}>2.</span> In Safari, tap the{' '}
                 <strong>Share</strong> icon (the square with the up-arrow at the{' '}
                 <strong>bottom-center</strong> of the screen).
               </Text>
-              <Text style={miniStep} className="dark-text">
-                <span style={miniStepNum} className="dark-accent">3.</span> Scroll down in the
+              <Text style={miniStep}>
+                <span style={miniStepNum}>3.</span> Scroll down in the
                 share sheet and tap <strong>"Add to Home Screen"</strong>, then tap{' '}
                 <strong>"Add"</strong> in the top-right corner.
               </Text>
-              <Text style={miniStepLast} className="dark-text">
-                <span style={miniStepNum} className="dark-accent">4.</span> Close Safari and open{' '}
+              <Text style={miniStepLast}>
+                <span style={miniStepNum}>4.</span> Close Safari and open{' '}
                 <strong>ZenSolar from your Home Screen</strong> (the new green icon). Your code{' '}
                 <strong style={codeInline}>{ACCESS_CODE}</strong> is already loaded — just tap
                 the glowing tile.
@@ -176,28 +176,28 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
             <Link href={t('cta_install', DEMO_URL_INSTALL)} style={ctaButtonFull}>
               Install to Home Screen  →
             </Link>
-            <Text style={pathFootnote} className="dark-muted">
+            <Text style={pathFootnote}>
               Same URL. Same code. This is the best version of the experience.
             </Text>
           </Section>
 
           {/* OR divider */}
           <Section style={orWrap}>
-            <Text style={orText} className="dark-muted">— or, if you want the quickest way in —</Text>
+            <Text style={orText}>— or, if you want the quickest way in —</Text>
           </Section>
 
           {/* PATH B — FAST: Browser (zero friction fallback) */}
           <Section style={pathFastCard}>
             <Text style={pathBadgeFast}>⚡ FASTEST · 5 SECONDS</Text>
-            <Text style={pathTitle} className="dark-text">Just open it in your browser</Text>
-            <Text style={pathDesc} className="dark-text">
+            <Text style={pathTitle}>Just open it in your browser</Text>
+            <Text style={pathDesc}>
               Tap the button and ZenSolar opens immediately in Safari or Chrome. No install,
               no setup — just the fastest possible path into the app.
             </Text>
             <Link href={t('cta_browser', DEMO_URL_BROWSER)} style={ctaButtonFast}>
               Open in browser  →
             </Link>
-            <Text style={pathFootnote} className="dark-muted">
+            <Text style={pathFootnote}>
               Opens inside Mail?{' '}
               <Link href={t('safari_force', SAFARI_DEEP_LINK)} style={inlineLink}>
                 Force-open in Safari
@@ -208,7 +208,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           {/* Either way, do this */}
           <Section style={feedbackCard}>
             <Text style={feedbackLabel}>📣 EITHER WAY</Text>
-            <Text style={feedbackText} className="dark-text">
+            <Text style={feedbackText}>
               Tap the floating <strong style={emphasis}>feedback bubble</strong> and tell me
               what you think — the good, the bad, the confusing. Your honest take is the whole
               reason you're getting this email today.
@@ -218,20 +218,20 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Hr style={sectionDivider} />
 
           {/* Signature */}
-          <Text style={signoff} className="dark-muted">Muchas gracias,</Text>
+          <Text style={signoff}>Muchas gracias,</Text>
 
           <Section style={sigSection}>
-            <Text style={sigName} className="dark-text">Joe Maushart</Text>
-            <Text style={sigTitle} className="dark-muted">Founder, {SITE_NAME}</Text>
-            <Text style={sigContactLine} className="dark-muted">
+            <Text style={sigName}>Joe Maushart</Text>
+            <Text style={sigTitle}>Founder, {SITE_NAME}</Text>
+            <Text style={sigContactLine}>
               <Link href="mailto:joe@zen.solar" style={sigLink}>joe@zen.solar</Link>
             </Text>
-            <Text style={sigContactLine} className="dark-muted">
+            <Text style={sigContactLine}>
               <Link href="tel:+17202246233" style={sigLink}>720.224.6233</Link>
               <span style={sigDot}>  ·  </span>
               <Link href="sms:+17202246233" style={sigLink}>text</Link>
             </Text>
-            <Text style={sigContactLineLast} className="dark-muted">
+            <Text style={sigContactLineLast}>
               <Link href={t('joemaushart', 'https://joemaushart.com')} style={sigLink}>joemaushart.com</Link>
             </Text>
 
@@ -245,7 +245,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           </Section>
 
           <Hr style={footerDivider} />
-          <Text style={footer} className="dark-muted">
+          <Text style={footer}>
             © {new Date().getFullYear()} ZenSolar, LLC<br />
             ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
             U.S. Patent Pending — Application No. 19/634,402
