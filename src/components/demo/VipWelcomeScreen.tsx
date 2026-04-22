@@ -102,60 +102,76 @@ export function VipWelcomeScreen({ accessCode, onContinue }: VipWelcomeScreenPro
   if (!config) return null;
 
   return (
-    <div className="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-background overflow-hidden">
-      {/* Subtle radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.15),transparent_70%)] pointer-events-none" />
+    <div className="fixed inset-0 z-[120] bg-background overflow-y-auto overscroll-contain">
+      {/* Subtle radial glow — fixed so it stays put while content scrolls */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.15),transparent_70%)] pointer-events-none" />
 
-      <div
-        className={cn(
-          'relative z-10 w-full max-w-md px-6 flex flex-col items-center text-center transition-all duration-700',
-          revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        )}
-      >
-        {/* Logo with glow */}
-        <img
-          src={zenLogo}
-          alt="ZenSolar"
-          className="h-10 w-auto mb-6 dark:animate-logo-glow"
-          style={{
-            filter: 'drop-shadow(0 0 16px hsla(142, 76%, 42%, 0.5))',
-          }}
-        />
-
-        {/* Sparkle pill */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/30 mb-5">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span className="text-[11px] font-semibold tracking-widest uppercase text-primary">
-            VIP Access
-          </span>
-        </div>
-
-        {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-5 leading-tight">
-          {config.title}
-        </h1>
-
-        {/* Personal note card */}
-        <div className="rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-sm p-5 mb-6 text-left">
-          <p className="text-sm sm:text-base leading-relaxed text-foreground/90 whitespace-pre-line">
-            {config.body}
-          </p>
-          <p className="mt-4 text-sm font-semibold text-primary">{config.signoff}</p>
-        </div>
-
-        {/* CTA */}
-        <Button
-          size="lg"
-          className="w-full h-12 text-base font-semibold gap-2"
-          onClick={onContinue}
+      <div className="relative z-10 min-h-full flex items-center justify-center px-5 py-8 sm:py-12"
+           style={{
+             paddingTop: 'max(2rem, env(safe-area-inset-top))',
+             paddingBottom: 'max(2rem, env(safe-area-inset-bottom))',
+           }}>
+        <div
+          className={cn(
+            'w-full max-w-md flex flex-col items-center text-center transition-all duration-700',
+            revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          )}
         >
-          {config.cta}
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+          {/* Logo with glow */}
+          <img
+            src={zenLogo}
+            alt="ZenSolar"
+            className="h-9 sm:h-10 w-auto mb-5 dark:animate-logo-glow"
+            style={{
+              filter: 'drop-shadow(0 0 16px hsla(142, 76%, 42%, 0.5))',
+            }}
+          />
 
-        <p className="mt-4 text-[10px] uppercase tracking-widest text-muted-foreground/70">
-          Patent-Pending · On-Chain · Live
-        </p>
+          {/* Sparkle pill */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/30 mb-4">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <span className="text-[11px] font-semibold tracking-widest uppercase text-primary">
+              VIP Access
+            </span>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 leading-tight">
+            {config.title}
+          </h1>
+
+          {/* Personal note card */}
+          <div className="w-full rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-sm p-4 sm:p-5 mb-5 text-left">
+            <p className="text-[14px] sm:text-base leading-relaxed text-foreground/90 whitespace-pre-line">
+              {config.body}
+            </p>
+            <p className="mt-4 text-sm font-semibold text-primary">{config.signoff}</p>
+          </div>
+
+          {/* "Try this first" tip */}
+          <div className="w-full rounded-xl border border-primary/15 bg-primary/5 p-3.5 mb-5 text-left">
+            <p className="text-[11px] font-bold tracking-widest uppercase text-primary/80 mb-1.5">
+              Try this first
+            </p>
+            <p className="text-[13px] leading-relaxed text-foreground/85">
+              Tap any tile in the Clean Energy Center to mint $ZSOLAR. Then check your wallet to watch it land.
+            </p>
+          </div>
+
+          {/* CTA */}
+          <Button
+            size="lg"
+            className="w-full h-12 text-base font-semibold gap-2"
+            onClick={onContinue}
+          >
+            {config.cta}
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+
+          <p className="mt-4 text-[10px] uppercase tracking-widest text-muted-foreground/70">
+            Patent-Pending · On-Chain · Live
+          </p>
+        </div>
       </div>
     </div>
   );
