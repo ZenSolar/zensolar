@@ -100,6 +100,13 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
           </Text>
         </Section>
 
+        <Section style={homescreenCard}>
+          <Text style={homescreenLabel}>📱 ONCE IT'S ON YOUR HOME SCREEN</Text>
+          <Text style={homescreenText}>
+            From here on out, <strong>always launch ZenSolar from the green $ZSOLAR icon</strong> on your Home Screen — not from Safari or this email. That's the real app experience: full-screen, instant load, no browser bar, works even on spotty signal. Tap the icon any time you want to mint, check your wallet, or send me feedback. <strong>This is how you'll use ZenSolar going forward.</strong>
+          </Text>
+        </Section>
+
         <Hr style={sectionDivider} />
 
         <Text style={sectionLabel}>WHAT YOU'RE LOOKING AT — THE IP</Text>
