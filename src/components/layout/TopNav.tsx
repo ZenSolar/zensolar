@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface TopNavProps {
   isDemo?: boolean;
@@ -97,6 +98,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           <div className="max-w-[100px] sm:max-w-none overflow-hidden">
             <WeatherWidget />
           </div>
+          {!isDemo && <ThemeToggle />}
           {!isDemo && <NotificationBell />}
         </div>
       </div>
