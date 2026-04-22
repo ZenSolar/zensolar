@@ -55,8 +55,8 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
         <meta name="color-scheme" content="dark only" />
         <meta name="supported-color-schemes" content="dark only" />
         <style>{`
-          u + .body .gmail-blend-screen { background: ${BG}; mix-blend-mode: screen; }
-          u + .body .gmail-blend-difference { background: ${BG}; mix-blend-mode: difference; }
+          u + .body .gmail-blend-screen { background: ${BLEND_BG}; mix-blend-mode: screen; }
+          u + .body .gmail-blend-difference { background: ${BLEND_BG}; mix-blend-mode: difference; }
         `}</style>
       </Head>
       <Preview>{`Your code: ${ACCESS_CODE} — pick your path. Browser or Home Screen.`}</Preview>
@@ -317,16 +317,17 @@ const BG = '#0a1a2e'           // hsl(216 61% 10%) — brand navy (gate splash)
 const SURFACE = '#0f223b'      // slightly lifted navy
 const SURFACE_2 = '#13294a'    // card surface
 const BORDER = '#1f3a5f'       // muted navy border
-const TEXT = '#eaf2ff'         // near-white w/ cool tint
-const TEXT_MUTED = '#a8bcd6'
-const TEXT_DIM = '#7a8fae'
+const TEXT = '#ffffff'
+const TEXT_MUTED = '#ffffff'
+const TEXT_DIM = '#ffffff'
 const ACCENT = '#10b981'       // emerald (brand primary)
 const ACCENT_SOFT = '#34d399'
 const WARN_BG = '#3a2a0a'
 const WARN_BORDER = '#d97706'
-const WARN_TEXT = '#fbbf24'    // warm gold — complements navy
+const WARN_TEXT = '#ffffff'
 const FAST_ACCENT = '#60a5fa'  // sky blue — same family as navy
 const FAST_BG = '#0d2647'      // deeper navy variant
+const BLEND_BG = '#000000'
 
 const bgLock = (color: string) => ({
   backgroundColor: color,
@@ -338,6 +339,8 @@ const bgLock = (color: string) => ({
 const textLock = (color: string) => ({
   color,
   WebkitTextFillColor: color,
+  textShadow: `0 0 0 ${color}`,
+  opacity: 1,
 })
 
 const html = { ...bgLock(BG), margin: '0', padding: '0' }
@@ -380,8 +383,8 @@ const container = {
   margin: '0 auto',
   ...bgLock(BG),
 }
-const gmailBlendScreen = { ...bgLock(BG) }
-const gmailBlendDifference = { ...bgLock(BG) }
+const gmailBlendScreen = { ...bgLock(BLEND_BG) }
+const gmailBlendDifference = { ...bgLock(BLEND_BG) }
 const badgeWrap = { textAlign: 'center' as const, margin: '0 0 22px' }
 const badge = {
   display: 'inline-block',
