@@ -1666,7 +1666,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={handleKeyDown}
-              onFocus={() => setInputFocused(true)}
+              onFocus={() => {
+                setInputFocused(true);
+                // Keyboard overlap fix: on mobile (especially iOS), the virtual
+                // keyboard covers the input because the container is fixed.
+                // Scroll the input into view once the keyboard has animated in.
+                setTimeout(() => {
+                  inputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }, 350);
+              }}
               onBlur={() => setInputFocused(false)}
               placeholder="Access code"
               disabled={isVerifying || isBursting}
