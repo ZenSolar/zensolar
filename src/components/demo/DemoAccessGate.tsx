@@ -13,6 +13,7 @@ import {
 } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
+import { DemoGateDiagnosticsOverlay } from '@/components/demo/DemoGateDiagnosticsOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
 import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics';
@@ -240,6 +241,12 @@ const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
   updatedAt: null,
 };
 
+interface GateDiagnosticEvent {
+  t: number;
+  tag: string;
+  data: string;
+}
+
 // Routes that bypass the demo access gate entirely (founder/preview-only pages
 // that live under /demo/* but should not require an access code).
 const GATE_BYPASS_PATHS = ['/engineering', '/demo/engineering'];
@@ -308,6 +315,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [iosQaEvents, setIosQaEvents] = useState<Array<{ t: number; tag: string; data: string }>>([]);
   const iosQaStartRef = useRef<number>(0);
   const [keyboardInset, setKeyboardInset] = useState(0);
+  const [gestureQaEvents, setGestureQaEvents] = useState<GateDiagnosticEvent[]>([]);
+  const gestureQaStartRef = useRef<number>(0);
+  const showGateDiagnostics = iosQaEnabled;
   const logIosQa = useCallback((tag: string, data: Record<string, unknown> = {}) => {
     if (!iosQaEnabled) return;
     const now = performance.now();
@@ -322,8 +332,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const isIOSKeyboardMode = isIOS && inputFocused;
   const shouldPinGateForKeyboard = isIOS && inputFocused;
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
-  const showAudioDebug = false;
-  const showReleaseAudioDiagnostics = false;
+  const showAudioDebug = showGateDiagnostics;
+  const showReleaseAudioDiagnostics = showGateDiagnostics;
 
   // Backfill NDA signer name if access was already granted but name isn't cached
   useEffect(() => {
