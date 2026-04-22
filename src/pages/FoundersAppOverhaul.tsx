@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Check, Circle, Minus } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Circle, Minus, Zap, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,6 +91,77 @@ const fre3Act: { act: string; headline: string; body: string; status: Status }[]
   },
 ];
 
+const elonPrinciples: { title: string; promise: string; status: Status }[] = [
+  {
+    title: "Question every requirement.",
+    promise: "Every screen, button, and label gets cross-examined. If no one defends it, it's deleted.",
+    status: "in_progress",
+  },
+  {
+    title: "Delete the part or process.",
+    promise: "Welcome banners, manual refresh buttons, decorative dividers — gone before they're optimized.",
+    status: "in_progress",
+  },
+  {
+    title: "Simplify and optimize — last.",
+    promise: "We only polish what survives the delete pass. No gold-plating dead weight.",
+    status: "todo",
+  },
+  {
+    title: "Accelerate cycle time.",
+    promise: "Tap-to-Mint must feel instantaneous. Sub-second feedback before the chain even confirms.",
+    status: "in_progress",
+  },
+  {
+    title: "Automate — last.",
+    promise: "Automation comes after the flow is proven by hand. No premature abstraction.",
+    status: "todo",
+  },
+];
+
+const lyndonWowFactors: { title: string; promise: string; status: Status }[] = [
+  {
+    title: "\"Since last visit\" ticker.",
+    promise: "No 'Welcome, Joseph!' — instead: +4.2 kWh solar · +18 mi charged · +12 $ZSOLAR pending. Live deltas the moment the app opens.",
+    status: "todo",
+  },
+  {
+    title: "One-glance telemetry bar.",
+    promise: "Monospace top strip: ☀ 4.2 kW · 🔋 87% · 🚗 charging · ⛓ synced 2m ago. Every state visible without scrolling.",
+    status: "todo",
+  },
+  {
+    title: "Live energy flow above the fold.",
+    promise: "The Sankey diagram — your home in motion — is the first thing he sees. Not buried beneath cards.",
+    status: "in_progress",
+  },
+  {
+    title: "Frictionless Tap-to-Mint.",
+    promise: "He can feel the mint reward before connecting a wallet. The magic happens, then we ask permission.",
+    status: "in_progress",
+  },
+  {
+    title: "On-chain proof, one tap away.",
+    promise: "Every KPI links to BaseScan. Real txs. Real burns. Real LP. No 'trust us' — just receipts.",
+    status: "in_progress",
+  },
+  {
+    title: "OEM flywheel narrative.",
+    promise: "Show how every Tesla, Enphase, SolarEdge install becomes worth more on resale because of ZenSolar history.",
+    status: "todo",
+  },
+  {
+    title: "Economic discipline on screen.",
+    promise: "1T hard cap, $0.10 LP-tranche launch, 75/20/3/2 mint split — visible, defensible, sober.",
+    status: "done",
+  },
+  {
+    title: "Multi-chain optionality.",
+    promise: "Base today, Solana-ready tomorrow. Show him we're aligned with where SolarCity-grade scale actually lives.",
+    status: "done",
+  },
+];
+
 const dashboardAudit: { item: string; status: Status }[] = [
   { item: "Replace the welcome line with a 'since last visit' moment", status: "todo" },
   { item: "Add the one-glance status line at the top", status: "todo" },
@@ -103,7 +174,7 @@ const dashboardAudit: { item: string; status: Status }[] = [
 
 function OverhaulContent() {
   const readinessScore = useMemo(() => {
-    const all = [...muskPrinciples, ...fre3Act, ...dashboardAudit];
+    const all = [...muskPrinciples, ...elonPrinciples, ...lyndonWowFactors, ...fre3Act, ...dashboardAudit];
     const weight = (s: Status) => (s === "done" ? 1 : s === "in_progress" ? 0.5 : 0);
     const total = all.reduce((sum, x) => sum + weight(x.status), 0);
     return Math.round((total / all.length) * 100);
@@ -154,6 +225,46 @@ function OverhaulContent() {
         >
           <div className="space-y-3">
             {muskPrinciples.map((p, i) => (
+              <PromiseCard
+                key={p.title}
+                index={i}
+                title={p.title}
+                body={p.promise}
+                status={p.status}
+              />
+            ))}
+          </div>
+        </Section>
+
+        {/* Section: Elon's Engineering Algorithm */}
+        <Section
+          eyebrow="Elon's Engineering Algorithm"
+          title="The 5-step gauntlet, applied to the app."
+          intro="Musk's algorithm — question, delete, simplify, accelerate, automate — run against every pixel of ZenSolar."
+          icon={<Zap className="h-3.5 w-3.5" />}
+        >
+          <div className="space-y-3">
+            {elonPrinciples.map((p, i) => (
+              <PromiseCard
+                key={p.title}
+                index={i}
+                title={p.title}
+                body={p.promise}
+                status={p.status}
+              />
+            ))}
+          </div>
+        </Section>
+
+        {/* Section: Lyndon's Wow Factors */}
+        <Section
+          eyebrow="Lyndon's Wow Factors"
+          title="What makes him text Elon in 90 seconds."
+          intro="The specific moments engineered to leave Lyndon Rive thinking: 'Elon has to see this.'"
+          icon={<Sparkles className="h-3.5 w-3.5" />}
+        >
+          <div className="space-y-3">
+            {lyndonWowFactors.map((p, i) => (
               <PromiseCard
                 key={p.title}
                 index={i}
@@ -227,11 +338,13 @@ function Section({
   title,
   intro,
   children,
+  icon,
 }: {
   eyebrow: string;
   title: string;
   intro: string;
   children: React.ReactNode;
+  icon?: React.ReactNode;
 }) {
   return (
     <motion.section
@@ -242,7 +355,8 @@ function Section({
       className="mt-20"
     >
       <div className="mb-7">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-primary/80 mb-2 font-medium">
+        <p className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-primary/80 mb-2 font-medium">
+          {icon}
           {eyebrow}
         </p>
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">
