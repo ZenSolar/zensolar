@@ -176,7 +176,7 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
 
 export const template = {
   component: TobyIphoneInviteEmail,
-  subject: "29 months of work — built for your iPhone, one tap away",
+  subject: "Built for your iPhone — one tap, then it lives on your Home Screen",
   displayName: 'Toby iPhone invite',
   previewData: {
     firstName: 'Toby',
