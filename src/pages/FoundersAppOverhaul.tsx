@@ -182,7 +182,7 @@ function OverhaulContent() {
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground">
-      <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-safe pb-safe pt-6 sm:pt-10 pb-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <Link

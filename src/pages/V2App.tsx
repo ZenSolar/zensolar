@@ -56,7 +56,7 @@ function V2AppHub() {
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground">
-      <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8 pb-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <Link
@@ -167,7 +167,7 @@ function PreviewFrame({
   return (
     <div className="min-h-[100svh] bg-background">
       {/* Floating sandbox chrome */}
-      <div className="fixed top-3 left-3 right-3 z-50 flex items-center justify-between rounded-full border border-border/50 bg-background/80 backdrop-blur-md px-4 py-2 shadow-lg">
+      <div className="fixed left-3 right-3 z-50 flex items-center justify-between rounded-full border border-border/50 bg-background/80 backdrop-blur-md px-4 py-2 shadow-lg" style={{ top: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
         <button
           onClick={onBack}
           className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
