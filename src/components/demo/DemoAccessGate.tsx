@@ -1739,6 +1739,17 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 setInputFocused(true);
+                // Start iOS QA timeline at focus moment
+                if (iosQaEnabled) {
+                  iosQaStartRef.current = performance.now();
+                  setIosQaEvents([]);
+                  const r0 = inputRef.current?.getBoundingClientRect();
+                  logIosQa('focus', {
+                    inputTop: r0?.top ?? -1,
+                    inputBot: r0?.bottom ?? -1,
+                    vh: window.visualViewport?.height ?? window.innerHeight,
+                  });
+                }
                 // Android: Gboard animates in faster than iOS but visualViewport
                 // resize fires later/inconsistently. Use a longer settle window
                 // and a more aggressive scroll. iOS path is unchanged.
@@ -1750,19 +1761,47 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                       if (!el) return;
                       const rect = el.getBoundingClientRect();
                       const vh = window.visualViewport?.height ?? window.innerHeight;
+                      const offscreen = rect.bottom > vh - 8 || rect.top < 8;
+                      if (iosQaEnabled) {
+                        logIosQa('settle-check', {
+                          inputTop: rect.top,
+                          inputBot: rect.bottom,
+                          vh,
+                          offscreen,
+                          willScroll: isAndroid || offscreen,
+                        });
+                      }
                       if (isAndroid) {
                         // Always center on Android — the keyboard often resizes
                         // the layout viewport, leaving the input flush against
                         // the keyboard edge with no breathing room.
                         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                      } else if (rect.bottom > vh - 8 || rect.top < 8) {
+                      } else if (offscreen) {
                         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                      }
+                      // iOS QA: re-check after the smooth scroll settles
+                      if (iosQaEnabled) {
+                        window.setTimeout(() => {
+                          const r2 = inputRef.current?.getBoundingClientRect();
+                          const vh2 = window.visualViewport?.height ?? window.innerHeight;
+                          if (r2) {
+                            logIosQa('post-scroll', {
+                              inputTop: r2.top,
+                              inputBot: r2.bottom,
+                              vh: vh2,
+                              offscreen: r2.bottom > vh2 - 8 || r2.top < 8,
+                            });
+                          }
+                        }, 500);
                       }
                     });
                   });
                 }, settleMs);
               }}
-              onBlur={() => setInputFocused(false)}
+              onBlur={() => {
+                setInputFocused(false);
+                if (iosQaEnabled) logIosQa('blur', {});
+              }}
               placeholder="ACCESS CODE"
               disabled={isVerifying || isBursting}
               className={cn(
