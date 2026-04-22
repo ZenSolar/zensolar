@@ -16,6 +16,7 @@ import {
   FileText,
   Cpu,
   Wrench,
+  Sparkles,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
 import { useTheme } from "next-themes";
@@ -45,6 +46,7 @@ const mainNavItems = [
   { title: "My Energy Logs", url: "/demo/energy-log", icon: BarChart3 },
   { title: "NFT Collection", url: "/demo/nft-collection", icon: Award },
   { title: "Learn", url: "/demo/learn", icon: BookOpen },
+  { title: "Proof-of-Genesis™", url: "/demo/proof-of-genesis", icon: Sparkles },
   { title: "White Paper", url: "/demo/white-paper", icon: FileText },
   { title: "Patent Technology", url: "/demo/technology", icon: Cpu },
   { title: "Referrals", url: "/demo/referrals", icon: Users },

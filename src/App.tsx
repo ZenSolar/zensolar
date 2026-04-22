@@ -71,6 +71,7 @@ const Referrals = lazy(() => import("./pages/Referrals"));
 const Store = lazy(() => import("./pages/Store"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Technology = lazy(() => import("./pages/Technology"));
+const ProofOfGenesis = lazy(() => import("./pages/ProofOfGenesis"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 // Combined pages
@@ -208,6 +209,7 @@ const App = () => {
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="mint-history" element={<MintHistory />} />
                       <Route path="learn" element={<Learn />} />
+                      <Route path="proof-of-genesis" element={<ProofOfGenesis />} />
                       <Route path="white-paper" element={<WhitePaper />} />
                       <Route path="engineering" element={<Engineering />} />
                       <Route path="technology" element={<Technology />} />
