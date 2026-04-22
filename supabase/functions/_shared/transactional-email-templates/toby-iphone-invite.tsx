@@ -328,36 +328,48 @@ const WARN_TEXT = '#fbbf24'    // warm gold — complements navy
 const FAST_ACCENT = '#60a5fa'  // sky blue — same family as navy
 const FAST_BG = '#0d2647'      // deeper navy variant
 
-const html = { backgroundColor: BG, margin: '0', padding: '0' }
+const bgLock = (color: string) => ({
+  backgroundColor: color,
+  background: color,
+  backgroundImage: `linear-gradient(${color}, ${color})`,
+  colorScheme: 'dark' as const,
+})
+
+const textLock = (color: string) => ({
+  color,
+  WebkitTextFillColor: color,
+})
+
+const html = { ...bgLock(BG), margin: '0', padding: '0' }
 const outerTable = {
   width: '100%',
-  backgroundColor: BG,
+  ...bgLock(BG),
   margin: '0',
   padding: '0',
 }
 const outerCell = {
-  backgroundColor: BG,
+  ...bgLock(BG),
   margin: '0',
   padding: '0',
 }
 const hardWrap = {
-  backgroundColor: BG,
-  color: TEXT,
+  ...bgLock(BG),
+  ...textLock(TEXT),
   margin: '0',
   padding: '0',
   width: '100%',
 }
 const main = {
-  backgroundColor: BG,
+  ...bgLock(BG),
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
   WebkitFontSmoothing: 'antialiased' as const,
-  color: TEXT,
+  ...textLock(TEXT),
   margin: '0',
   padding: '0',
   width: '100%',
 }
 const viewportBg = {
-  backgroundColor: BG,
+  ...bgLock(BG),
   width: '100%',
   margin: '0',
   padding: '0 0 24px',
@@ -366,15 +378,17 @@ const container = {
   padding: '36px 24px 28px',
   maxWidth: '600px',
   margin: '0 auto',
-  backgroundColor: BG,
+  ...bgLock(BG),
 }
+const gmailBlendScreen = { ...bgLock(BG) }
+const gmailBlendDifference = { ...bgLock(BG) }
 const badgeWrap = { textAlign: 'center' as const, margin: '0 0 22px' }
 const badge = {
   display: 'inline-block',
   fontSize: '11px',
   fontWeight: 700 as const,
   letterSpacing: '1.6px',
-  color: ACCENT_SOFT,
+   ...textLock(ACCENT_SOFT),
   backgroundColor: 'rgba(16, 185, 129, 0.10)',
   border: '1px solid rgba(16, 185, 129, 0.35)',
   padding: '6px 14px',
@@ -385,15 +399,15 @@ const hero = {
   fontSize: '32px',
   lineHeight: '1.15',
   fontWeight: 800 as const,
-  color: TEXT,
+   ...textLock(TEXT),
   letterSpacing: '-0.02em',
   textAlign: 'center' as const,
   margin: '0 0 28px',
 }
-const heroAccent = { color: ACCENT_SOFT }
-const greeting = { fontSize: '16px', color: TEXT, margin: '0 0 18px', fontWeight: 600 as const }
-const paragraph = { fontSize: '15px', color: TEXT, lineHeight: '1.65', margin: '0 0 16px' }
-const emphasis = { color: TEXT, fontWeight: 700 as const }
+const heroAccent = { ...textLock(ACCENT_SOFT) }
+const greeting = { fontSize: '16px', margin: '0 0 18px', fontWeight: 600 as const, ...textLock(TEXT) }
+const paragraph = { fontSize: '15px', lineHeight: '1.65', margin: '0 0 16px', ...textLock(TEXT) }
+const emphasis = { fontWeight: 700 as const, ...textLock(TEXT) }
 
 // "One small ask" warning box
 const readFirstBox = {
