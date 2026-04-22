@@ -18,7 +18,7 @@ interface TobyIphoneInviteProps {
 const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Read it all the way down — then one tap puts it on your Home Screen.</Preview>
+    <Preview>Inner circle access. Tap-to-Mint™ on your iPhone.</Preview>
     <Body style={main}>
       <Container style={container}>
 
