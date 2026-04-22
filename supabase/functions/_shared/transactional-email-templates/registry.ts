@@ -16,6 +16,7 @@ import { template as demoFollowup } from './demo-followup.tsx'
 import { template as vipAccessAlert } from './vip-access-alert.tsx'
 import { template as demoAttendeesReport } from './demo-attendees-report.tsx'
 import { template as mintAccessRequest } from './mint-access-request.tsx'
+import { template as julianPixelInvite } from './julian-pixel-invite.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'nda-signed-copy': ndaSignedCopy,
@@ -25,4 +26,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'vip-access-alert': vipAccessAlert,
   'demo-attendees-report': demoAttendeesReport,
   'mint-access-request': mintAccessRequest,
+  'julian-pixel-invite': julianPixelInvite,
 }
