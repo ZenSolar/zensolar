@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { BillReport } from "@/components/deason/BillSavingsReport";
 
 export interface DeasonContentPart {
   type: "text" | "image_url";
@@ -10,9 +11,12 @@ export interface DeasonContentPart {
 export interface DeasonMessage {
   role: "user" | "assistant";
   content: string | DeasonContentPart[];
+  /** When the assistant attaches a structured bill savings report. */
+  billReport?: BillReport;
 }
 
-const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`;
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`;
+const ANALYZE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-bill`;
 
 /**
  * Streaming chat hook for Deason. Ephemeral — nothing persisted.
