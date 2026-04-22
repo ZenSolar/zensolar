@@ -23,14 +23,11 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
   return (
     <Html lang="en" dir="ltr">
       <Head>
-        {/* Force dark color scheme — supported by Apple Mail, Outlook.com, modern Gmail */}
         <meta name="color-scheme" content="dark only" />
         <meta name="supported-color-schemes" content="dark only" />
         <style>{`
-          /* Lock dark mode — prevent Gmail / Outlook auto-inversion to light */
           :root { color-scheme: dark only; supported-color-schemes: dark only; }
           html, body { background-color: #0a0f0d !important; }
-          /* Gmail dark-mode overrides — force our colors */
           u + .body .dark-bg { background-color: #0a0f0d !important; }
           [data-ogsc] .dark-bg { background-color: #0a0f0d !important; }
           [data-ogsc] .dark-text { color: #e8f0ec !important; }
@@ -48,7 +45,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
         <Container style={container} className="dark-bg">
 
           <Section style={badgeWrap}>
-            <Text style={badge} className="dark-accent">● INNER CIRCLE · iPHONE</Text>
+            <Text style={badge} className="dark-accent">● iPHONE · iOS · INNER CIRCLE</Text>
           </Section>
 
           <Heading style={hero} className="dark-text">
@@ -58,21 +55,31 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           <Text style={greeting} className="dark-text">Hi {name},</Text>
 
-          {/* ⚠️ READ FIRST warning box — high-contrast, impossible to miss */}
+          <Text style={paragraph} className="dark-text">
+            On <strong style={emphasis}>November 3, 2024</strong>, I started researching what would
+            become ZenSolar's patented technology. Twenty days later —{' '}
+            <strong style={emphasis}>November 23, 2024</strong> — I worked up the balls to start
+            copying and pasting code Grok was feeding me into a separate terminal, line by line,
+            not really understanding half of it.
+          </Text>
+
+          <Text style={paragraph} className="dark-text">
+            That was <strong style={emphasis}>17 months ago</strong>. Heads down. Almost every
+            single day. Today it's a real product with patent-pending technology, and I want you
+            to be one of the first people in my <strong style={emphasis}>inner circle</strong> to
+            actually feel it — tuned specifically for your iPhone.
+          </Text>
+
+          {/* "One small ask" warning box — verbatim from the joemaushart.com version */}
           <Section style={readFirstBox}>
-            <Text style={readFirstLabel}>⚠️  READ THE WHOLE EMAIL FIRST</Text>
             <Text style={readFirstText} className="dark-text">
-              The demo button is at the <strong style={emphasis}>bottom</strong>. The story above it is
-              why this matters. <strong style={emphasis}>Take 2 minutes</strong> — then tap.
+              <strong style={readFirstStrong}>One small ask before you tap anything:</strong>{' '}
+              read this whole email down to my signature first. The order matters. The big green
+              button is waiting for you at the bottom.
             </Text>
           </Section>
 
-          <Text style={paragraph} className="dark-muted">
-            17 months heads-down. Patent-pending tech, real product, tuned for your iPhone.
-            You're in my <strong style={emphasis}>inner circle</strong> — one of the first to feel it.
-          </Text>
-
-          {/* Access code — front and center */}
+          {/* Access code */}
           <Section style={codeBlock}>
             <Text style={codeLabel} className="dark-accent">YOUR PERSONAL ACCESS CODE</Text>
             <Text style={codeValue} className="dark-text">{ACCESS_CODE}</Text>
@@ -81,20 +88,21 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           <Hr style={sectionDivider} />
 
-          {/* Behind the scenes — restored powerful context */}
+          {/* Behind the scenes */}
           <Text style={sectionLabel} className="dark-muted">WHAT'S HAPPENING BEHIND THE SCENES</Text>
 
-          <Text style={paragraph} className="dark-muted">
-            Right now I'm heads-down with <strong style={emphasis}>Michael Tschida</strong> — my best friend,
-            co-founder, and CFO/CRO — finishing the investor presentation and the Founders Pack.
-            We're opening a <strong style={emphasis}>$5M seed round for Founding Investors</strong>: a small,
+          <Text style={paragraph} className="dark-text">
+            Right now I'm heads-down with <strong style={emphasis}>Michael Tschida</strong> — my
+            best friend, co-founder, and CFO/CRO — finishing the investor presentation and the
+            Founders Pack. We're opening a{' '}
+            <strong style={emphasis}>$5M seed round for Founding Investors</strong>: a small,
             hand-picked group getting in at the earliest, friendliest terms before we go wider.
           </Text>
 
-          <Text style={paragraph} className="dark-muted">
-            That's why getting your eyes on this <em>now</em> matters. You're seeing it before the
-            rooms that decide what comes next — trademarked language, patent-pending tech, and a
-            user experience that feels less like crypto and more like Apple.
+          <Text style={paragraph} className="dark-text">
+            That's why getting your eyes on this <em>now</em> matters. You're seeing it before
+            the rooms that decide what comes next — trademarked language, patent-pending tech,
+            and a user experience that feels less like crypto and more like Apple.
           </Text>
 
           <Section style={pullQuote}>
@@ -108,7 +116,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           {/* IP + protection */}
           <Text style={sectionLabel} className="dark-muted">PROTECTED & PATENT-PENDING</Text>
 
-          <Text style={paragraph} className="dark-muted">
+          <Text style={paragraph} className="dark-text">
             Core tech is <strong style={emphasis}>U.S. Patent Pending — App. No. 19/634,402</strong>{' '}
             (Tap-to-Mint™ verification engine). Trademarked: ZenSolar™, Tap-to-Mint™,
             Creating Currency From Energy™.
@@ -116,7 +124,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           <Hr style={sectionDivider} />
 
-          {/* Install instructions — condensed but clear */}
+          {/* Install instructions */}
           <Text style={sectionLabel} className="dark-muted">INSTALL TO HOME SCREEN · 30 SEC</Text>
 
           <Section style={stepRow}>
@@ -136,22 +144,22 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Section style={stepRow}>
             <Text style={stepText} className="dark-text">
               <span style={stepNum} className="dark-accent">3</span>{' '}
-              Enter code <strong style={codeInline}>{ACCESS_CODE}</strong>, then tap the glowing tiles
-              to mint $ZSOLAR.
+              Enter code <strong style={codeInline}>{ACCESS_CODE}</strong>, then tap the glowing
+              tiles to mint $ZSOLAR.
             </Text>
           </Section>
 
           <Section style={homescreenCard}>
             <Text style={homescreenLabel}>📱 AFTER YOU INSTALL</Text>
             <Text style={homescreenText} className="dark-text">
-              Always launch from the green <strong style={emphasis}>$ZSOLAR icon</strong> on your Home
-              Screen — full-screen, no browser bar, real app feel. That's{' '}
-              <strong style={emphasis}>Tap-to-Mint™</strong>. Tap the floating feedback bubble and
-              tell me what you think — good, bad, confusing.
+              Always launch from the green <strong style={emphasis}>$ZSOLAR icon</strong> on your
+              Home Screen — full-screen, no browser bar, real app feel. That's{' '}
+              <strong style={emphasis}>Tap-to-Mint™</strong>. Tap the floating feedback bubble
+              and tell me what you think — good, bad, confusing.
             </Text>
           </Section>
 
-          {/* Signoff BEFORE the CTA — so the email reads as a letter, then the action */}
+          {/* Signature BEFORE the button — "down to my signature first" */}
           <Text style={signoff} className="dark-muted">Muchas gracias,</Text>
 
           <Section style={sigSection}>
@@ -180,10 +188,10 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           <Hr style={sectionDivider} />
 
-          {/* THE CTA — at the bottom, as the user requested. Read first, THEN tap. */}
+          {/* THE BIG GREEN BUTTON — at the bottom, as promised */}
           <Section style={ctaSection}>
             <Text style={ctaPreface} className="dark-muted">
-              Read it all? Good. Now —
+              You read it all? Good. Now —
             </Text>
             <Link href={t('cta_primary', DEMO_URL)} style={ctaButton}>
               Open on your iPhone  →
@@ -273,27 +281,21 @@ const hero = {
 }
 const heroAccent = { color: ACCENT_SOFT }
 const greeting = { fontSize: '16px', color: TEXT, margin: '0 0 18px', fontWeight: 600 as const }
-const paragraph = { fontSize: '15px', color: TEXT_MUTED, lineHeight: '1.65', margin: '0 0 16px' }
+const paragraph = { fontSize: '15px', color: TEXT, lineHeight: '1.65', margin: '0 0 16px' }
 const emphasis = { color: TEXT, fontWeight: 700 as const }
 
-// ⚠️ Read-first warning box
+// "One small ask" warning box
 const readFirstBox = {
-  margin: '0 0 22px',
+  margin: '20px 0 22px',
   padding: '16px 18px',
   backgroundColor: WARN_BG,
   border: '2px solid ' + WARN_BORDER,
   borderRadius: '12px',
 }
-const readFirstLabel = {
-  fontSize: '12px',
-  fontWeight: 800 as const,
-  letterSpacing: '1.5px',
-  color: WARN_TEXT,
-  margin: '0 0 6px',
-}
+const readFirstStrong = { color: WARN_TEXT, fontWeight: 800 as const }
 const readFirstText = {
   fontSize: '14px',
-  color: TEXT,
+  color: WARN_TEXT,
   lineHeight: '1.55',
   margin: '0',
 }
