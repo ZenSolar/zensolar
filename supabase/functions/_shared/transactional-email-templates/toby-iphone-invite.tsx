@@ -18,7 +18,7 @@ interface TobyIphoneInviteProps {
 const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Built for your iPhone — one tap, then it lives on your Home Screen.</Preview>
+    <Preview>Read it all the way down — then one tap puts it on your Home Screen.</Preview>
     <Body style={main}>
       <Container style={container}>
 
@@ -41,13 +41,9 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
           That was <strong>17 months ago</strong>. Heads down. Almost every single day. Today it's a real product with patent-pending technology, and I want you to be one of the first people in my <strong>inner circle</strong> to actually feel it — tuned specifically for your iPhone.
         </Text>
 
-        <Section style={ctaSection}>
-          <Link href={DEMO_URL} style={ctaButton}>
-            Open the demo on your iPhone  →
-          </Link>
-          <Text style={ctaCaption}>Tap from your iPhone · ~90 seconds to feel it</Text>
-          <Text style={safariFallback}>
-            If it opens inside Mail or another app, <Link href={SAFARI_DEEP_LINK} style={inlineLink}>tap here to force-open in Safari</Link>.
+        <Section style={readFirstBox}>
+          <Text style={readFirstText}>
+            <strong>One small ask before you tap anything:</strong> read this whole email down to my signature first. The order matters. The big green button is waiting for you at the bottom.
           </Text>
         </Section>
 
@@ -71,9 +67,15 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
         <Section style={stepRow}>
           <Text style={stepNum}>2.</Text>
           <Text style={stepText}>
-            Tap to open in Safari: <Link href={DEMO_URL} style={inlineLink}>beta.zen.solar/demo</Link>
+            Open it in Safari and <strong>install it to your Home Screen</strong> in one flow:
             <br />
-            <span style={subStep}>Trouble? <Link href={SAFARI_DEEP_LINK} style={inlineLink}>Force-open in Safari →</Link></span>
+            <span style={subStep}>
+              <strong>a)</strong> Tap the big green button at the bottom of this email — it opens in Safari. If it pops up inside Mail or another app instead, use the small "force-open in Safari" link right under it.
+              <br />
+              <strong>b)</strong> Once you're in Safari, tap the <strong>Share</strong> icon at the bottom → scroll down → tap <strong>"Add to Home Screen"</strong> → tap <strong>Add</strong>.
+              <br />
+              <strong>c)</strong> ZenSolar now lives as a real app icon on your iPhone — full-screen, no Safari bar, no App Store, no download. <strong>This is how I want you experiencing ZenSolar from here on out.</strong> Open it from the Home Screen for everything below.
+            </span>
           </Text>
         </Section>
 
@@ -87,21 +89,12 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
         <Section style={stepRow}>
           <Text style={stepNum}>4.</Text>
           <Text style={stepText}>
-            <strong>Add ZenSolar to your Home Screen</strong> — this is the move. In Safari tap the <strong>Share</strong> icon at the bottom → scroll down → tap <strong>"Add to Home Screen"</strong> → tap <strong>Add</strong>.
-            <br />
-            <span style={subStep}>Now it lives as a real app icon on your iPhone — full-screen, no Safari bar, no App Store, no download. This is how I want you experiencing ZenSolar from here on out. Open it from the Home Screen for everything below.</span>
-          </Text>
-        </Section>
-
-        <Section style={stepRow}>
-          <Text style={stepNum}>5.</Text>
-          <Text style={stepText}>
             Open ZenSolar from your <strong>Home Screen</strong> and <strong>tap the glowing energy tiles</strong>. Solar, battery, EV miles, Supercharging, home charging — each tap mints real $ZSOLAR into your demo wallet. That's <strong>Tap-to-Mint™</strong>.
           </Text>
         </Section>
 
         <Section style={stepRow}>
-          <Text style={stepNum}>6.</Text>
+          <Text style={stepNum}>5.</Text>
           <Text style={stepText}>
             Tap the floating <strong>feedback bubble</strong> and tell me what you think — the good, the bad, the confusing. Your honest take matters more than you know.
           </Text>
@@ -163,6 +156,20 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
           />
         </Section>
 
+        <Hr style={sectionDivider} />
+
+        <Text style={readyLabel}>NOW THAT YOU'VE READ IT ALL — TAP IN</Text>
+
+        <Section style={ctaSection}>
+          <Link href={DEMO_URL} style={ctaButton}>
+            Open the demo on your iPhone  →
+          </Link>
+          <Text style={ctaCaption}>Tap from your iPhone · ~90 seconds to feel it</Text>
+          <Text style={safariFallback}>
+            If it opens inside Mail or another app, <Link href={SAFARI_DEEP_LINK} style={inlineLink}>tap here to force-open in Safari</Link>.
+          </Text>
+        </Section>
+
         <Hr style={footerDivider} />
         <Text style={footer}>
           © {new Date().getFullYear()} ZenSolar, LLC<br />
@@ -176,7 +183,7 @@ const TobyIphoneInviteEmail = ({ firstName }: TobyIphoneInviteProps) => (
 
 export const template = {
   component: TobyIphoneInviteEmail,
-  subject: "Built for your iPhone — one tap, then it lives on your Home Screen",
+  subject: "Built for your iPhone — read it all the way down, then one tap",
   displayName: 'Toby iPhone invite',
   previewData: {
     firstName: 'Toby',
@@ -210,7 +217,13 @@ const heroAccent = {
 }
 const greeting = { fontSize: '16px', color: '#0a0a0a', margin: '0 0 16px', fontWeight: 600 as const }
 const paragraph = { fontSize: '16px', color: '#374151', lineHeight: '1.65', margin: '0 0 18px' }
-const ctaSection = { textAlign: 'center' as const, margin: '32px 0 24px' }
+const readFirstBox = {
+  margin: '12px 0 24px', padding: '14px 16px',
+  backgroundColor: '#fffbeb', border: '1px solid #fde68a',
+  borderRadius: '10px',
+}
+const readFirstText = { fontSize: '14px', color: '#713f12', lineHeight: '1.55', margin: '0' }
+const ctaSection = { textAlign: 'center' as const, margin: '20px 0 24px' }
 const ctaButton = {
   display: 'inline-block',
   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -248,6 +261,10 @@ const sectionDivider = { borderColor: '#f3f4f6', borderWidth: '1px 0 0', margin:
 const sectionLabel = {
   fontSize: '11px', fontWeight: 700 as const, letterSpacing: '2px',
   color: '#9ca3af', margin: '0 0 16px', textAlign: 'center' as const,
+}
+const readyLabel = {
+  fontSize: '11px', fontWeight: 700 as const, letterSpacing: '2px',
+  color: '#059669', margin: '0 0 12px', textAlign: 'center' as const,
 }
 const stepRow = {
   margin: '0 0 14px', padding: '14px 16px',
