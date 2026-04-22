@@ -321,6 +321,17 @@ const FAST_ACCENT = '#60a5fa'  // sky blue — same family as navy
 const FAST_BG = '#0d2647'      // deeper navy variant
 
 const html = { backgroundColor: BG, margin: '0', padding: '0' }
+const outerTable = {
+  width: '100%',
+  backgroundColor: BG,
+  margin: '0',
+  padding: '0',
+}
+const outerCell = {
+  backgroundColor: BG,
+  margin: '0',
+  padding: '0',
+}
 const hardWrap = {
   backgroundColor: BG,
   color: TEXT,
