@@ -457,6 +457,7 @@ const feedbackText = {
 
 const signoff = {
   margin: '0 0 10px',
+  textAlign: 'center' as const,
   fontSize: '16px',
   lineHeight: '24px',
   color: COLORS.text,
@@ -464,6 +465,7 @@ const signoff = {
 
 const signatureName = {
   margin: '0 0 4px',
+  textAlign: 'center' as const,
   fontSize: '18px',
   lineHeight: '26px',
   fontWeight: 700,
@@ -472,9 +474,28 @@ const signatureName = {
 
 const signatureMeta = {
   margin: '0 0 6px',
+  textAlign: 'center' as const,
   fontSize: '14px',
   lineHeight: '22px',
   color: COLORS.muted,
+}
+
+const signatureWrap = {
+  margin: '0 0 16px',
+  textAlign: 'center' as const,
+}
+
+const signatureLogo = {
+  display: 'block' as const,
+  margin: '16px auto 0',
+  border: '0',
+  outline: 'none',
+  textDecoration: 'none',
+  backgroundColor: 'transparent',
+}
+
+const footerWrap = {
+  textAlign: 'center' as const,
 }
 
 const inlineLink = {
