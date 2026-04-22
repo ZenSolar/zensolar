@@ -20,7 +20,7 @@ export function V2VariantB({ onComplete }: { onComplete?: () => void }) {
         <span>ZENSOLAR</span>
         <span className="flex items-center gap-1.5">
           <span className="h-1 w-1 rounded-full bg-primary" />
-          {act <= 3 ? `0${act} / 03` : "COMPLETE"}
+          {`0${act} / 03`}
         </span>
       </motion.div>
 
@@ -29,8 +29,7 @@ export function V2VariantB({ onComplete }: { onComplete?: () => void }) {
       <AnimatePresence mode="wait">
         {act === 1 && <ActB1 key="b1" onNext={() => setAct(2)} />}
         {act === 2 && <ActB2 key="b2" onNext={() => setAct(3)} />}
-        {act === 3 && <ActB3 key="b3" onNext={() => setAct(4)} />}
-        {act === 4 && <ActBDone key="b4" onRestart={() => setAct(1)} />}
+        {act === 3 && <ActB3 key="b3" onNext={() => onComplete?.()} />}
       </AnimatePresence>
     </div>
   );
