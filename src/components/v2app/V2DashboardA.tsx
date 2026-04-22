@@ -8,7 +8,7 @@ import { ZenSolarDashboard } from "@/components/ZenSolarDashboard";
  */
 export function V2DashboardA({ onExit }: { onExit: () => void }) {
   return (
-    <div className="relative min-h-[100svh] bg-background">
+    <div className="v2-skin-a relative min-h-[100svh] bg-background">
       {/* Soft emerald ambient glow — Variant A signature */}
       <div
         aria-hidden
