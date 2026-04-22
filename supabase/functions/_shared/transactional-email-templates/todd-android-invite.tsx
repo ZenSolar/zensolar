@@ -61,6 +61,21 @@ const ToddAndroidInviteEmail = ({ firstName, trackUrl }: ToddAndroidInviteProps)
             </Text>
           </Section>
 
+          <Section style={codeCard}>
+            <Text style={codeBadge}>Your private access code</Text>
+            <Text style={codeValue}>{ACCESS_CODE}</Text>
+            <Text style={codeHelp}>
+              You&apos;ll be asked for this on the <strong>Tap-to-Mint™ access screen</strong>.
+              Tap the button below and it auto-fills for you — or type it in by hand.
+            </Text>
+            <Link href={t('cta_demo_magic', DEMO_MAGIC_URL)} style={buttonPrimary}>
+              Open the access screen
+            </Link>
+            <Text style={secondaryNote}>
+              You can also do this <strong>after</strong> creating your account in Step 1 — both paths work.
+            </Text>
+          </Section>
+
           <Hr style={divider} />
 
           <Text style={sectionTitle}>Step 1 · Create your account</Text>
