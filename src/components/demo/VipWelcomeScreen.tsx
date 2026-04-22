@@ -43,6 +43,14 @@ const VIP_WELCOMES: Record<
     signoff: '— Joe',
     cta: 'Enter the Clean Energy Center',
   },
+  'MTNYOTAS-4L': {
+    firstName: 'Dwight',
+    title: 'Welcome, Dwight.',
+    body:
+      "Brother — you've been one of the realest voices in my corner through all of this. This is the live thing. Patent-pending, on-chain, mintable. Tap anything, break anything, then tell me what a Toyota guy who actually gets energy thinks. Means a lot that you're seeing it before almost anyone else.",
+    signoff: '— Joe',
+    cta: 'Enter the Clean Energy Center',
+  },
 };
 
 export function getVipWelcomeForCode(code: string | null | undefined) {
