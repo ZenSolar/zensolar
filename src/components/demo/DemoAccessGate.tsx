@@ -1228,16 +1228,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       <div
         className="absolute inset-x-0 pointer-events-none"
         style={{
-          top: 'var(--gate-visible-offset-top, 0px)',
-          height: 'var(--gate-visible-height, 100dvh)',
+          top: shouldPinGateForKeyboard ? '0px' : 'var(--gate-visible-offset-top, 0px)',
+          height: shouldPinGateForKeyboard
+            ? `max(calc(100dvh - ${Math.round(keyboardInset)}px), 260px)`
+            : 'var(--gate-visible-height, 100dvh)',
         }}
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding,transform] duration-[180ms] ease-out",
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding,transform] ease-out",
             hexAwake
               ? (isIOSKeyboardMode ? 'gap-2' : inputFocused ? 'gap-3' : 'gap-8')
-              : 'gap-4'
+              : 'gap-4',
+            shouldPinGateForKeyboard ? 'duration-75' : 'duration-[180ms]'
           )}
           style={{
             justifyContent: shouldPinGateForKeyboard ? 'flex-start' : 'start',
@@ -1797,7 +1800,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     vh: window.visualViewport?.height ?? window.innerHeight,
                   });
                 }
-                const settleMs = isAndroid ? 450 : 180;
+                const settleMs = isAndroid ? 450 : isIOS ? 220 : 180;
                 window.setTimeout(() => {
                   requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
@@ -1818,8 +1821,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                           willScroll: offscreen,
                         });
                       }
-                      if (offscreen) {
-                        el.scrollIntoView({ block: isIOS ? 'start' : 'center', behavior: 'smooth' });
+                      if (!isIOS && offscreen) {
+                        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
                       }
                       if (iosQaEnabled) {
                         window.setTimeout(() => {
