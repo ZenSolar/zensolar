@@ -431,8 +431,14 @@ export function ActivityMetrics({
                   {headerSubtitleParts.length > 1 ? (
                     headerSubtitleParts.map((part, i) => (
                       <span key={i} className="inline-flex items-baseline whitespace-nowrap">
+                        {part.icon === 'sun' && (
+                          <span className="mr-0.5 no-underline" aria-hidden="true">☀️</span>
+                        )}
+                        {part.icon === 'battery' && (
+                          <span className="mr-0.5 no-underline" aria-hidden="true">🔋</span>
+                        )}
                         <span className="underline decoration-primary/40 decoration-[0.5px] underline-offset-[3px]">
-                          {part}
+                          {part.label}
                         </span>
                         {i < headerSubtitleParts.length - 1 && (
                           <span className="ml-1 no-underline opacity-70" aria-hidden="true">·</span>
