@@ -196,6 +196,27 @@ export type Database = {
         }
         Relationships: []
       }
+      deason_usage: {
+        Row: {
+          message_count: number
+          updated_at: string
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          message_count?: number
+          updated_at?: string
+          usage_date?: string
+          user_id: string
+        }
+        Update: {
+          message_count?: number
+          updated_at?: string
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       demo_access_codes: {
         Row: {
           code: string
@@ -1646,6 +1667,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_deason_usage: { Args: { _user_id: string }; Returns: number }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_admin_or_editor: { Args: { _user_id: string }; Returns: boolean }
       is_device_claimed: {
