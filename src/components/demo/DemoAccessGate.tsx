@@ -13,6 +13,7 @@ import {
 } from '@/lib/demoEntryFallbackAudio';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
+import { DemoGateDiagnosticsOverlay } from '@/components/demo/DemoGateDiagnosticsOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
 import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics';
@@ -240,6 +241,12 @@ const INITIAL_RELEASE_AUDIO_DIAGNOSTICS: ReleaseAudioDiagnosticsState = {
   updatedAt: null,
 };
 
+interface GateDiagnosticEvent {
+  t: number;
+  tag: string;
+  data: string;
+}
+
 // Routes that bypass the demo access gate entirely (founder/preview-only pages
 // that live under /demo/* but should not require an access code).
 const GATE_BYPASS_PATHS = ['/engineering', '/demo/engineering'];
@@ -308,6 +315,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const [iosQaEvents, setIosQaEvents] = useState<Array<{ t: number; tag: string; data: string }>>([]);
   const iosQaStartRef = useRef<number>(0);
   const [keyboardInset, setKeyboardInset] = useState(0);
+  const [gestureQaEvents, setGestureQaEvents] = useState<GateDiagnosticEvent[]>([]);
+  const gestureQaStartRef = useRef<number>(0);
+  const showGateDiagnostics = iosQaEnabled;
   const logIosQa = useCallback((tag: string, data: Record<string, unknown> = {}) => {
     if (!iosQaEnabled) return;
     const now = performance.now();
@@ -319,6 +329,19 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     console.log(`[iosQA +${elapsed}ms] ${tag}`, data);
     setIosQaEvents((prev) => [...prev.slice(-19), { t: elapsed, tag, data: dataStr }]);
   }, [iosQaEnabled]);
+  const logGestureQa = useCallback((tag: string, data: Record<string, unknown> = {}) => {
+    if (!showGateDiagnostics) return;
+    const now = performance.now();
+    if (!gestureQaStartRef.current) {
+      gestureQaStartRef.current = now;
+    }
+    const elapsed = Math.round(now - gestureQaStartRef.current);
+    const dataStr = Object.entries(data)
+      .filter(([, value]) => value !== undefined && value !== null && value !== '')
+      .map(([k, v]) => `${k}=${typeof v === 'number' ? Math.round(v as number) : v}`)
+      .join(' ');
+    setGestureQaEvents((prev) => [...prev.slice(-23), { t: elapsed, tag, data: dataStr }]);
+  }, [showGateDiagnostics]);
   const isIOSKeyboardMode = isIOS && inputFocused;
   const shouldPinGateForKeyboard = isIOS && inputFocused;
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
@@ -462,11 +485,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   const logGestureDebug = useCallback((eventName: string, details?: Record<string, unknown>) => {
     const ctx = getSharedAudioContext();
+    logGestureQa(eventName, {
+      phase: stateRef.current.phase,
+      hexAwake: stateRef.current.hexAwake,
+      holding: stateRef.current.holding,
+      holdReady: stateRef.current.holdReady,
+      inputFocused,
+      ctx: ctx?.state ?? 'null',
+      ...details,
+    });
     logAudioDebug(eventName, {
       ctx: ctx?.state ?? 'null',
       ...details,
     });
-  }, []);
+  }, [inputFocused, logGestureQa]);
 
   const markHoldReady = useCallback((source: string, reason: 'threshold' | 'audio-ready') => {
     if (!stateRef.current.holding || stateRef.current.holdReady) return;
@@ -847,6 +879,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     };
 
     if (!heldLongEnough) {
+      if (!s.hexAwake && (wasHoldReady || held >= HOLD_THRESHOLD_MS * 0.55)) {
+        logGestureQa('false-start-suspect', {
+          held,
+          wasHoldReady,
+          audioReady,
+          fallbackArmed: releaseAudioDiagnostics.fallbackArmed,
+          lastAudioEvent: releaseAudioDiagnostics.lastEvent,
+        });
+      }
       if (!s.hexAwake) {
         stopDemoEntryFallbackHum();
       }
@@ -1151,38 +1192,37 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     >
       {showAudioDebug && <AudioDebugOverlay />}
       {showAudioDebug && <HumLoopDiagnosticsOverlay />}
-      {iosQaEnabled && (
-        <div
-          className="fixed top-2 left-2 right-2 z-[9999] pointer-events-none rounded-lg border border-primary/40 bg-black/80 backdrop-blur-sm p-2 text-[10px] font-mono text-primary/90 max-h-[40vh] overflow-hidden"
-          aria-hidden
-        >
-          <div className="flex items-center justify-between mb-1 text-primary">
-            <span className="font-bold">iOS QA · access-gate</span>
-            <span className="opacity-70">vh:{Math.round(window.visualViewport?.height ?? window.innerHeight)}</span>
-          </div>
-          <div className="space-y-0.5 leading-tight">
-            {iosQaEvents.length === 0 ? (
-              <div className="opacity-60">Tap the input to start logging…</div>
-            ) : (
-              iosQaEvents.slice(-12).map((e, i) => {
-                const isJank = e.tag.includes('post-scroll') && e.data.includes('offscreen=true');
-                const isOff = e.data.includes('offscreen=true');
-                return (
-                  <div
-                    key={`${e.t}-${i}`}
-                    className={cn(
-                      'truncate',
-                      isJank && 'text-destructive font-bold',
-                      !isJank && isOff && 'text-yellow-400',
-                    )}
-                  >
-                    +{e.t}ms {e.tag} {e.data}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
+      {showGateDiagnostics && (
+        <DemoGateDiagnosticsOverlay
+          platformLabel={isIOS ? 'iPhone / iOS Chrome QA' : isAndroid ? 'Android QA' : 'Gate QA'}
+          route={window.location.pathname}
+          phase={phase}
+          hexAwake={hexAwake}
+          revealed={revealed}
+          holding={holding}
+          holdReady={holdReady}
+          holdHint={holdHint}
+          firstTapBurst={firstTapBurst}
+          lockedFlash={lockedFlash}
+          inputFocused={inputFocused}
+          codeLength={code.trim().length}
+          keyboardInset={keyboardInset}
+          keyboardMode={isIOSKeyboardMode}
+          pinned={shouldPinGateForKeyboard}
+          viewportHeight={Math.round(window.visualViewport?.height ?? window.innerHeight)}
+          viewportOffsetTop={Math.round(window.visualViewport?.offsetTop ?? 0)}
+          innerHeight={window.innerHeight}
+          inputTop={inputRef.current?.getBoundingClientRect().top ?? null}
+          inputBottom={inputRef.current?.getBoundingClientRect().bottom ?? null}
+          inputHeight={inputRef.current?.getBoundingClientRect().height ?? null}
+          audioContextState={releaseAudioDiagnostics.audioContextState}
+          fallbackArmed={releaseAudioDiagnostics.fallbackArmed}
+          fallbackFired={releaseAudioDiagnostics.fallbackFired}
+          synthHandoff={releaseAudioDiagnostics.synthHandoff}
+          lastAudioEvent={releaseAudioDiagnostics.lastEvent}
+          iosQaEvents={iosQaEvents}
+          gestureEvents={gestureQaEvents}
+        />
       )}
       {showReleaseAudioDiagnostics && (
         <ReleaseAudioDiagnostics
