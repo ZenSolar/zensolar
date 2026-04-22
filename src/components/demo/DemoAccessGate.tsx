@@ -307,6 +307,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   }, [isIOS]);
   const [iosQaEvents, setIosQaEvents] = useState<Array<{ t: number; tag: string; data: string }>>([]);
   const iosQaStartRef = useRef<number>(0);
+  const [keyboardInset, setKeyboardInset] = useState(0);
   const logIosQa = useCallback((tag: string, data: Record<string, unknown> = {}) => {
     if (!iosQaEnabled) return;
     const now = performance.now();
@@ -319,6 +320,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     setIosQaEvents((prev) => [...prev.slice(-19), { t: elapsed, tag, data: dataStr }]);
   }, [iosQaEnabled]);
   const isIOSKeyboardMode = isIOS && inputFocused;
+  const shouldPinGateForKeyboard = isIOS && inputFocused;
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
@@ -496,6 +498,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (!containerRef.current) return;
       const visibleHeight = Math.ceil(viewport?.height ?? window.innerHeight);
       const visibleOffsetTop = Math.max(Math.ceil(viewport?.offsetTop ?? 0), 0);
+      const nextKeyboardInset = Math.max(window.innerHeight - visibleHeight - visibleOffsetTop, 0);
       const coverageHeight = Math.max(
         visibleHeight,
         window.innerHeight,
@@ -507,14 +510,16 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       containerRef.current.style.setProperty('--gate-visible-offset-top', `${visibleOffsetTop}px`);
       containerRef.current.style.height = `${coverageHeight}px`;
       containerRef.current.style.minHeight = `${coverageHeight}px`;
+      setKeyboardInset((prev) => (Math.abs(prev - nextKeyboardInset) > 2 ? nextKeyboardInset : prev));
 
       // iOS QA: report viewport changes + whether the input is currently visible
       if (iosQaEnabled && inputRef.current) {
         const rect = inputRef.current.getBoundingClientRect();
-        const offscreen = rect.bottom > visibleHeight - 4 || rect.top < 4;
+        const offscreen = rect.bottom > visibleHeight - 4 || rect.top < visibleOffsetTop + 4;
         logIosQa(`viewport:${source}`, {
           vh: visibleHeight,
           vOff: visibleOffsetTop,
+          keyboardInset: nextKeyboardInset,
           inputTop: rect.top,
           inputBot: rect.bottom,
           offscreen,
@@ -1229,18 +1234,21 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding] duration-[180ms] ease-out",
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center px-6 pointer-events-none transition-[gap,padding,transform] duration-[180ms] ease-out",
             hexAwake
               ? (isIOSKeyboardMode ? 'gap-2' : inputFocused ? 'gap-3' : 'gap-8')
               : 'gap-4'
           )}
           style={{
-            justifyContent: 'start',
-            paddingTop: isIOSKeyboardMode
-              ? 'max(env(safe-area-inset-top, 0px) + 0.25rem, 0.5rem)'
-              : inputFocused
-                ? 'max(env(safe-area-inset-top, 0px) + 0.5rem, 1rem)'
-                : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
+            justifyContent: shouldPinGateForKeyboard ? 'flex-start' : 'start',
+            paddingTop: shouldPinGateForKeyboard
+              ? 'max(env(safe-area-inset-top, 0px) + 0.4rem, 0.75rem)'
+              : isIOSKeyboardMode
+                ? 'max(env(safe-area-inset-top, 0px) + 0.25rem, 0.5rem)'
+                : inputFocused
+                  ? 'max(env(safe-area-inset-top, 0px) + 0.5rem, 1rem)'
+                  : 'max(env(safe-area-inset-top, 0px) + 2rem, 12vh)',
+            transform: shouldPinGateForKeyboard ? 'translateY(0)' : undefined,
           }}
         >
           {/* Logo — hidden while typing so the input stays above the keyboard */}
