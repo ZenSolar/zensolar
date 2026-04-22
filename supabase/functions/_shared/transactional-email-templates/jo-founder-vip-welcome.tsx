@@ -16,8 +16,10 @@ import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'ZenSolar'
 const LOGO_URL = 'https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png'
+const ACCESS_CODE = 'JO-2026'
 const LOGIN_URL = 'https://beta.zen.solar/auth'
 const APP_URL = 'https://beta.zen.solar'
+const DEMO_MAGIC_URL = `https://beta.zen.solar/demo?code=${ACCESS_CODE}&from=install`
 
 interface JoFounderVipProps {
   firstName?: string
