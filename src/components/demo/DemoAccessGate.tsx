@@ -318,6 +318,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     console.log(`[iosQA +${elapsed}ms] ${tag}`, data);
     setIosQaEvents((prev) => [...prev.slice(-19), { t: elapsed, tag, data: dataStr }]);
   }, [iosQaEnabled]);
+  const isIOSKeyboardMode = isIOS && inputFocused;
   const [releaseAudioDiagnostics, setReleaseAudioDiagnostics] = useState<ReleaseAudioDiagnosticsState>(INITIAL_RELEASE_AUDIO_DIAGNOSTICS);
   const showAudioDebug = false;
   const showReleaseAudioDiagnostics = false;
