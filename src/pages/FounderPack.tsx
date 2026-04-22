@@ -12,6 +12,8 @@ import {
   ScrollText,
   Loader2,
   Lock,
+  Megaphone,
+  Bitcoin,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +25,7 @@ import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 const SECTIONS = [
   { id: "evolution", label: "Evolution", icon: Compass },
   { id: "strategy", label: "Strategy", icon: Rocket },
+  { id: "press", label: "Press Cascade", icon: Megaphone },
   { id: "tokenomics", label: "Tokenomics", icon: Coins },
   { id: "halving", label: "Halving", icon: Coins },
   { id: "moat", label: "Patent Moat", icon: Shield },
@@ -30,6 +33,7 @@ const SECTIONS = [
   { id: "salary", label: "Salary", icon: Coins },
   { id: "flywheel", label: "Flywheel", icon: Coins },
   { id: "networth", label: "Net Worth", icon: Gem },
+  { id: "eclipse", label: "Eclipsing BTC", icon: Bitcoin },
   { id: "pact", label: "The Pact", icon: Shield },
 ] as const;
 
@@ -273,8 +277,52 @@ function PackContent() {
         </P>
       </Section>
 
+      {/* ─── PRESS CASCADE (NEW) ─── */}
+      <Section id="press" eyebrow="Chapter Three" title="The Lyndon Press Cascade">
+        <Lead>
+          The day Lyndon Rive's check clears, the press release goes out. Not
+          a teaser — the full thesis, on the record, with numbers the public
+          has never seen attached to a clean-energy protocol.
+        </Lead>
+        <P>
+          Below is what the world learns the morning the article drops. Every
+          line is already true today. The PR moment makes it public,
+          permanent, and quotable — the inflection that converts ZenSolar
+          from a quiet patent filing into a household name.
+        </P>
+        <Stat>
+          <StatRow label="Headline" value="Lyndon Rive backs ZenSolar" sub="SolarCity co-founder returns — Chapter Two of the clean-energy revolution" />
+          <StatRow label="Hard cap" value="1,000,000,000,000" sub="1 trillion $ZSOLAR — first energy protocol with century-scale runway" />
+          <StatRow label="Operating horizon" value="100+ years" sub="Designed to outlive every founder, on-chain forever" />
+          <StatRow label="Patent surface" value="8 categories" sub="Solar · Battery · EV charging · Miles · FSD · Robotaxi · Optimus · Starlink" />
+          <StatRow label="Scarcity vectors" value="5 stacked" sub="Bitcoin has 1. We stack hard cap + halving + 20% mint burn + 7% transfer tax + 5% redemption burn" />
+          <StatRow label="Trillionaire crossover" value="$6.67 / $20" sub="Joseph at $6.67 · Michael at $20 · neither ever sells" />
+        </Stat>
+        <Pull>
+          One article.
+          <br />
+          <span className="text-primary">A century of inbound</span>.
+        </Pull>
+        <P>
+          Channel cascade in the 72 hours after publication: SolarCity alumni
+          network (~30K warm intros), Tesla owner forums, crypto-native press
+          (Bankless, The Block, Decrypt), mainstream business desks
+          (Bloomberg, WSJ energy desk), and the long tail of clean-energy
+          newsletters. Internal projection: <strong>~5,000 wallet signups
+          inside week one</strong>, with the LP seeded to absorb the first
+          wave without slippage.
+        </P>
+        <Pull>
+          Bitcoin's white paper had no founder.
+          <br />
+          Ours has{" "}
+          <span className="text-primary">two — and the man who already
+          built one $26B clean-energy company</span> writing the first check.
+        </Pull>
+      </Section>
+
       {/* ─── TOKENOMICS ─── */}
-      <Section id="tokenomics" eyebrow="Chapter Three" title="Why 1 Trillion">
+      <Section id="tokenomics" eyebrow="Chapter Four" title="Why 1 Trillion">
         <Lead>
           The old model capped supply at 10 billion. Beautiful for a rooftop
           loyalty token. Catastrophically too small for an interplanetary
@@ -315,11 +363,12 @@ function PackContent() {
       </Section>
 
       {/* ─── HALVING (v5.6 §3.4) ─── */}
-      <Section id="halving" eyebrow="Chapter Four" title="The Halving">
+      <Section id="halving" eyebrow="Chapter Five" title="The Halving">
         <Lead>
           Bitcoin's 21M cap is structurally smaller than its headline — roughly
           3–4M coins are permanently lost. We import that mechanic, on
-          purpose, and stack four more scarcity vectors on top.
+          purpose, and stack four more scarcity vectors on top. (Hold this
+          thought — by Chapter Eleven the math will leave Bitcoin behind.)
         </Lead>
         <P>
           $ZSOLAR adopts a Bitcoin-identical 4-year halving schedule on the
@@ -348,7 +397,7 @@ function PackContent() {
       </Section>
 
       {/* ─── PATENT MOAT (v5.6 §5) ─── */}
-      <Section id="moat" eyebrow="Chapter Five" title="The Eight-Category Patent Moat">
+      <Section id="moat" eyebrow="Chapter Six" title="The Eight-Category Patent Moat">
         <Lead>
           Our patent application covers tokenizing verified clean-energy work
           across every category Tesla will ever monetize. That is the
@@ -376,7 +425,7 @@ function PackContent() {
       </Section>
 
       {/* ─── GROWTH / ARR (v5.6 §6) ─── */}
-      <Section id="growth" eyebrow="Chapter Six" title="Growth — ARR Milestones">
+      <Section id="growth" eyebrow="Chapter Seven" title="Growth — ARR Milestones">
         <Lead>
           ~$250 ARPU at the Tier-1 $19.99/mo subscription. The ladder maps
           users → ARR → salary triggers in one continuous line.
@@ -404,12 +453,40 @@ function PackContent() {
       </Section>
 
       {/* ─── SALARY (v5.6 §7) ─── */}
-      <Section id="salary" eyebrow="Chapter Seven" title="Salary Discipline">
+      <Section id="salary" eyebrow="Chapter Eight" title="Salary Discipline">
         <Lead>
           $500K Day-One CEO base. Michael at 75% of CEO total comp at every
           tier. Bonuses are <em>cash, not token</em> — Pact untouched
           regardless of performance.
         </Lead>
+        <P>
+          The number that raises eyebrows in a seed round is the $500K base.
+          It is intentional, defensible, and — for a project of this
+          magnitude — actually conservative. Three reasons, stacked.
+        </P>
+        <Stat>
+          <StatRow
+            label="1. Patent-author premium"
+            value="Sole inventor"
+            sub="Joseph wrote every claim of the 8-category patent that gates a $10T+ surface (solar, battery, EV, miles, FSD, Robotaxi, Optimus, Starlink). Comp reflects IP authorship, not headcount."
+          />
+          <StatRow
+            label="2. CEO of a trillion-cap protocol"
+            value="Benchmarked"
+            sub="Pre-launch comp for founder-CEOs of comparable-TAM L1 protocols (Solana, Avalanche, Sui) ran $400K–$750K base. $500K sits at the conservative end of that band, with a 1T cap and a real patent moat behind it."
+          />
+          <StatRow
+            label="3. The no-sell pact tradeoff"
+            value="Locked for life"
+            sub="150B founder tokens are pact-locked — Joseph never sells, ever, across his lifetime and his lineal descendants'. Salary is the only liquidity. $500K is the price of permanent illiquidity on a 9-figure book position."
+          />
+        </Stat>
+        <Pull>
+          $500K isn't a CEO salary.
+          <br />
+          It is the <span className="text-primary">cost of never selling
+          a single token</span>, ever, for life.
+        </Pull>
         <DataTable
           headers={["ARR Trigger", "Joseph Base", "Bonus", "Michael Base", "Bonus"]}
           rows={[
@@ -425,12 +502,14 @@ function PackContent() {
         <P>
           Bonuses scale with ARR, not token price — protects against
           speculative comp. No founder token sales regardless of bonus
-          structure (see Pact, below).
+          structure (see Pact, below). Compared to the $200B+ enterprise
+          value the patent surface unlocks, the entire 20-year cash comp
+          ladder rounds to a rounding error.
         </P>
       </Section>
 
       {/* ─── FLYWHEEL (v5.6 §9) ─── */}
-      <Section id="flywheel" eyebrow="Chapter Eight" title="The Compounding Flywheel">
+      <Section id="flywheel" eyebrow="Chapter Nine" title="The Compounding Flywheel">
         <Lead>
           Six revenue lines, all auto-routed on-chain, all reinforcing the
           same token. We earn on every subscriber, every kWh, every trade,
@@ -464,7 +543,7 @@ function PackContent() {
       </Section>
 
       {/* ─── NET WORTH (v5.6 §11) ─── */}
-      <Section id="networth" eyebrow="Chapter Nine" title="The 20-Year Trajectory">
+      <Section id="networth" eyebrow="Chapter Ten" title="The 20-Year Trajectory">
         <Lead>
           Joseph 150B · Michael 50B. Neither founder ever sells. Wealth grows
           on book value, liquidity comes from the salary ladder.
@@ -492,6 +571,67 @@ function PackContent() {
           <br />
           We are <span className="text-primary">refusing to cap it</span>.
         </Pull>
+      </Section>
+
+      {/* ─── ECLIPSING BITCOIN (NEW) ─── */}
+      <Section id="eclipse" eyebrow="Chapter Eleven" title="Why $ZSOLAR Eclipses Bitcoin">
+        <Lead>
+          Bitcoin proved digital scarcity. We borrowed every lesson it
+          taught — and then we did what Bitcoin structurally cannot. We
+          attached the scarcity to <em>real, verifiable, physical work</em>{" "}
+          that humanity will be doing for the next thousand years.
+        </Lead>
+        <DataTable
+          headers={["Property", "Bitcoin", "$ZSOLAR"]}
+          rows={[
+            ["Scarcity vectors", "1 (hard cap)", "5 (cap + halving + 3 burns)"],
+            ["Backing", "Math + electricity spent", "Verified clean energy delivered"],
+            ["Utility per token", "Store of value", "Store of value + protocol fuel + redemption"],
+            ["Energy footprint", "Consumes ~150 TWh/yr", "Mints from energy produced"],
+            ["Patent moat", "None", "8 categories, $10T+ TAM"],
+            ["Founder accountability", "Anonymous, gone", "Two named founders, pact-locked for life"],
+            ["Revenue to protocol", "$0", "Subscriptions + 7% transfer tax + redemption fees"],
+            ["Real-world settlement", "Speculative", "On-chain receipts for Tesla, SpaceX, Starlink"],
+          ]}
+        />
+        <Pull>
+          Bitcoin is digital gold.
+          <br />
+          $ZSOLAR is{" "}
+          <span className="text-primary">digital photosynthesis</span> —
+          the unit account of every joule humanity verifies, forever.
+        </Pull>
+        <P>
+          Bitcoin's market cap topped $2T on a network that{" "}
+          <em>consumes</em> energy. $ZSOLAR sits at the front door of the
+          $10T+ clean-energy economy and{" "}
+          <strong>mints from energy that gets produced</strong>. The pool we
+          tokenize is an order of magnitude larger than Bitcoin's narrative,
+          and it grows every time a Powerwall, a Megapack, a Supercharger,
+          a Tesla, an Optimus, or a Starlink node delivers another verified
+          unit of work.
+        </P>
+        <Stat>
+          <StatRow label="BTC at $100K" value="~$2T market cap" sub="One scarcity vector. Zero protocol revenue. Anonymous." />
+          <StatRow label="$ZSOLAR at $10" value="~$10T fully diluted" sub="Five scarcity vectors. Six revenue lines. Patent-gated. Founders accountable for life." />
+          <StatRow label="$ZSOLAR at $100" value="~$100T fully diluted" sub="Trillionaire crossover; Tesla/SpaceX/Starlink mint surface fully active." />
+        </Stat>
+        <Pull>
+          They built a religion around scarcity.
+          <br />
+          We built{" "}
+          <span className="text-primary">a protocol around proof</span>.
+          <br />
+          One of those scales to the solar system.
+        </Pull>
+        <P>
+          The PR cascade in Chapter Three is engineered to plant exactly this
+          seed — that there is, for the first time since 2009, a credible
+          challenger to Bitcoin's narrative. Not a memecoin. Not a fork. A
+          patent-gated, founder-locked, energy-backed protocol with a 100+
+          year operating horizon. By the time the public catches on, the
+          float is already tightening.
+        </P>
       </Section>
 
       {/* ─── PACT ─── */}
