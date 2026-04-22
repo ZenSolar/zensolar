@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useTheme } from 'next-themes';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
@@ -10,12 +9,28 @@ import { FeedbackFab } from '@/components/FeedbackFab';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
-  const { setTheme } = useTheme();
 
-  // Force dark mode on /demo regardless of any prior user theme preference.
+  // Force dark on /demo WITHOUT persisting to localStorage, so the user's
+  // chosen light/dark preference for the rest of the app is preserved.
+  // The pre-paint script in index.html already applied .dark for first paint
+  // when the URL is /demo*; this effect guards against runtime changes.
   useEffect(() => {
-    setTheme('dark');
-  }, [setTheme]);
+    const root = document.documentElement;
+    root.classList.remove('light');
+    root.classList.add('dark');
+    root.style.colorScheme = 'dark';
+    return () => {
+      try {
+        const stored = localStorage.getItem('theme');
+        const restore = stored === 'light' ? 'light' : 'dark';
+        root.classList.remove('light', 'dark');
+        root.classList.add(restore);
+        root.style.colorScheme = restore;
+      } catch {
+        /* keep dark */
+      }
+    };
+  }, []);
 
   return (
     <DemoProvider>
