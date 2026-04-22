@@ -9,14 +9,26 @@ import { useLocation, useNavigate } from "react-router-dom";
 interface Props {
   userId: string;
   children: React.ReactNode;
+  allowPreviewBypass?: boolean;
 }
 
-export function VaultBiometricGate({ userId, children }: Props) {
+function isHostedPreviewEnvironment() {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return host.endsWith(".lovableproject.com") || host.startsWith("id-preview--");
+}
+
+export function VaultBiometricGate({ userId, children, allowPreviewBypass = false }: Props) {
   const { gate, enroll, unlock, reset } = useVaultBiometric(userId);
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const previewSessionKey = `zen.preview-access:${location.pathname}`;
+  const previewBypassAvailable = allowPreviewBypass && isHostedPreviewEnvironment();
+  const [previewUnlocked, setPreviewUnlocked] = useState(() =>
+    typeof window !== "undefined" && sessionStorage.getItem(previewSessionKey) === "1",
+  );
 
   const goHome = () => {
     navigate("/", { replace: true });
@@ -64,9 +76,19 @@ export function VaultBiometricGate({ userId, children }: Props) {
     else toast.success("Biometric reset. Please re-enroll.");
   };
 
-  if (gate.status === "unlocked") {
+  const handlePreviewAccess = () => {
+    sessionStorage.setItem(previewSessionKey, "1");
+    setPreviewUnlocked(true);
+    toast.success("Preview access enabled for this beta sandbox.");
+  };
+
+  if (gate.status === "unlocked" || previewUnlocked) {
     return <>{children}</>;
   }
+
+  const showPreviewBypass =
+    previewBypassAvailable &&
+    ["needs_enrollment", "needs_unlock", "unsupported", "error"].includes(gate.status);
 
   const handleEnroll = async () => {
     setBusy(true);
@@ -120,16 +142,33 @@ export function VaultBiometricGate({ userId, children }: Props) {
           <h1 className="text-2xl font-semibold tracking-tight">Founders Vault</h1>
           <p className="text-sm text-muted-foreground">
             {gate.status === "checking" && "Verifying biometric…"}
-            {gate.status === "needs_enrollment" &&
+            {showPreviewBypass &&
+              "Biometrics are blocked in this hosted preview. Use preview access to review the beta sandbox. Live founder access still requires Face ID / Touch ID."}
+            {!showPreviewBypass && gate.status === "needs_enrollment" &&
               "Register Face ID / Touch ID to unlock the vault. One-time setup."}
-            {gate.status === "needs_unlock" &&
+            {!showPreviewBypass && gate.status === "needs_unlock" &&
               "Verify with Face ID / Touch ID to continue."}
-            {gate.status === "unsupported" && gate.reason}
-            {gate.status === "error" && gate.message}
+            {!showPreviewBypass && gate.status === "unsupported" && gate.reason}
+            {!showPreviewBypass && gate.status === "error" && gate.message}
           </p>
         </div>
 
-        {gate.status === "needs_enrollment" && (
+        {showPreviewBypass && (
+          <div className="space-y-3">
+            <Button
+              onClick={handlePreviewAccess}
+              className="w-full"
+              size="lg"
+            >
+              Continue in Preview
+            </Button>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              This bypass is limited to the hosted preview for this route only and does not change the real app.
+            </p>
+          </div>
+        )}
+
+        {!showPreviewBypass && gate.status === "needs_enrollment" && (
           <div className="space-y-3">
             <Input
               placeholder="Device label (e.g. Joseph's iPhone)"
@@ -153,7 +192,7 @@ export function VaultBiometricGate({ userId, children }: Props) {
           </div>
         )}
 
-        {gate.status === "needs_unlock" && (
+        {!showPreviewBypass && gate.status === "needs_unlock" && (
           <div className="space-y-3">
             <Button
               onClick={handleUnlock}
