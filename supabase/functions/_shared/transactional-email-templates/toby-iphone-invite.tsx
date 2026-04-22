@@ -140,12 +140,12 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           </Section>
 
           <Section style={mintCard}>
-            <Text style={mintBadge}>★ DO THIS FIRST ★</Text>
-            <Text style={mintTitle}>Tap-to-Mint, then check your Wallet</Text>
+            <Text style={mintBadge}>The 2-step magic moment</Text>
+            <Text style={mintTitle}>Tap-to-Mint, then peek at your Wallet</Text>
             <Text style={mintText}>
-              Once you&apos;re in, <strong>tap the glowing tile to mint your $ZSOLAR tokens</strong>.
-              Then <strong>open the Wallet</strong> to see your freshly minted balance land in
-              real time. That single tap is the whole magic of ZenSolar — don&apos;t skip it.
+              Once you&apos;re in the app, <strong>tap the glowing tile to mint your $ZSOLAR tokens</strong>.
+              Then <strong>open the Wallet</strong> and watch your freshly minted balance land in
+              real time. That little moment is the heart of ZenSolar — make sure you experience it.
             </Text>
           </Section>
 
