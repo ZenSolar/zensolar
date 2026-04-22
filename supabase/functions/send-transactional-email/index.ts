@@ -282,12 +282,28 @@ Deno.serve(async (req) => {
     )
   }
 
-  // 4. Render React Email template to HTML and plain text
+  // 4. Render React Email template to HTML and plain text.
+  // Inject a per-render `trackUrl(key, dest)` helper so templates can
+  // wrap their own links through the track-email-link redirect endpoint.
+  // Templates that don't use it fall back to the raw destination.
+  const trackBase = `${supabaseUrl}/functions/v1/track-email-link`
+  const trackUrl = (key: string, destination: string) => {
+    const params = new URLSearchParams({
+      mid: messageId,
+      k: key,
+      u: destination,
+      t: templateName,
+      r: effectiveRecipient,
+    })
+    return `${trackBase}?${params.toString()}`
+  }
+  const renderProps = { ...templateData, trackUrl }
+
   const renderedHtml = await renderAsync(
-    React.createElement(template.component, templateData)
+    React.createElement(template.component, renderProps)
   )
   const plainText = await renderAsync(
-    React.createElement(template.component, templateData),
+    React.createElement(template.component, renderProps),
     { plainText: true }
   )
 
