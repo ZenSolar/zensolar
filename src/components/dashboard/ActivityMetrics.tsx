@@ -235,12 +235,13 @@ export function ActivityMetrics({
   const filteredProviders = effectiveConnectedProviders.filter(p => p === 'tesla' || p === 'enphase');
 
   // Device-specific labels — pull live names from connected_devices when available.
-  // Falls back to generic descriptions so demo / new users still get a meaningful label.
+  // Priority: explicit data.deviceLabels (demo / mirror) > live hook > generic fallback.
   const liveLabels = useDeviceLabels();
-  const solarName = liveLabels.solar?.trim();
-  const batteryName = liveLabels.powerwall?.trim();
-  const vehicleName = liveLabels.vehicle?.trim();
-  const homeChargerName = liveLabels.homeCharger?.trim();
+  const passedLabels = effectiveData.deviceLabels;
+  const solarName = (passedLabels?.solar ?? liveLabels.solar)?.trim();
+  const batteryName = (passedLabels?.powerwall ?? liveLabels.powerwall)?.trim();
+  const vehicleName = (passedLabels?.vehicle ?? liveLabels.vehicle)?.trim();
+  const homeChargerName = (passedLabels?.homeCharger ?? liveLabels.homeCharger)?.trim();
 
   const solarLabel = solarName ? `${solarName} Solar Production` : 'Solar Production';
   const batteryLabel = batteryName ? `${batteryName} Exported kWh` : 'Battery Exported kWh';
