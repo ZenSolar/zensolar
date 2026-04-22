@@ -573,14 +573,14 @@ function PackContent() {
         </Pull>
       </Section>
 
-      {/* ─── ECLIPSING BITCOIN — POWERED BY PROOF OF GENESIS ─── */}
+      {/* ─── ECLIPSING BITCOIN — POWERED BY PROOF OF GENESIS™ ─── */}
       <Section id="eclipse" eyebrow="Chapter Eleven" title="Why $ZSOLAR Eclipses Bitcoin">
         <Lead>
           Bitcoin proved digital scarcity by burning energy to prove waste.
           We built the inverse and the upgrade: a primitive that mints
           scarcity <em>because</em> clean energy was produced or consumed
           productively. We call it{" "}
-          <strong className="text-foreground">Proof of Genesis</strong> — the
+          <strong className="text-foreground">Proof of Genesis™</strong> — the
           cryptographic union of <em>Proof of Delta</em> (a verified change
           in energy state) and <em>Proof of Origin</em> (a verified physical
           device and clean source). It is to ZenSolar what Proof of Work was
@@ -605,7 +605,7 @@ function PackContent() {
           energy humanity will ever verify.
         </P>
         <DataTable
-          headers={["Property", "Bitcoin (PoW)", "$ZSOLAR (Proof of Genesis)"]}
+          headers={["Property", "Bitcoin (PoW)", "$ZSOLAR (Proof of Genesis™)"]}
           rows={[
             ["Primitive", "Burn electricity to prove waste", "Mint receipts from verified clean energy"],
             ["Hard cap", "21,000,000 BTC", "1,000,000,000,000 $ZSOLAR (1T)"],
@@ -656,7 +656,7 @@ function PackContent() {
 
         {/* The 5–10x in 5–10 years thesis */}
         <P>
-          Take Bitcoin&apos;s ~$2T market cap. Apply Proof of Genesis to the
+          Take Bitcoin&apos;s ~$2T market cap. Apply Proof of Genesis™ to the
           $10T+ clean-energy economy. Stack five scarcity vectors on top
           of one. Add patent gating, founder accountability, ESG access,
           and protocol revenue. The math for{" "}
@@ -703,7 +703,7 @@ function PackContent() {
           this seed in the public consciousness — that there is, for the
           first time since 2009, a credible challenger to Bitcoin&apos;s
           narrative. Not a memecoin. Not a fork. A patent-gated,
-          founder-locked, energy-backed protocol with Proof of Genesis as
+          founder-locked, energy-backed protocol with Proof of Genesis™ as
           its primitive and a 100+ year operating horizon. By the time the
           public catches on, the float is already tightening and the
           OEM handshake is already underway.
