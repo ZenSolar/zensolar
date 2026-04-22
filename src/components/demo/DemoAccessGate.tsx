@@ -1726,20 +1726,20 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 isBursting && 'border-primary bg-primary/5',
                 isDenied && 'border-destructive bg-destructive/5 animate-shake'
               )}
-              autoComplete="off"
+              // Android-only: `one-time-code` tells Gboard to treat this as a
+              // verification code — it suppresses the suggestion strip, skips
+              // personalized learning, and surfaces an inline numeric/alpha
+              // chip that matches a code being SMS'd. iOS path keeps "off"
+              // so it doesn't trigger Apple's Messages OTP autofill banner.
+              autoComplete={isAndroid ? 'one-time-code' : 'off'}
               autoCorrect="off"
               autoCapitalize="characters"
               spellCheck={false}
-              // Android Gboard shows a suggestion strip for inputMode="text"
-              // that visually "jumps" as the user types codes like TODD-2026.
-              // `none` suppresses suggestions on Android while iOS already
-              // ignores it for short uppercased tokens.
-              inputMode={isAndroid ? 'none' : 'text'}
+              inputMode="text"
               enterKeyHint="go"
               maxLength={32}
-              // Android-only: hint Gboard to skip personalized learning + suggestions
-              // for this field (it's a one-shot code, not a name or message).
-              {...(isAndroid ? { 'data-form-type': 'other' as const } : {})}
+              // Android-only: hint Gboard/password managers to skip this field.
+              {...(isAndroid ? { 'data-form-type': 'other' as const, 'data-lpignore': 'true' as const } : {})}
               name="zen-access-code"
               aria-label="Access code"
             />
