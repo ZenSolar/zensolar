@@ -247,17 +247,23 @@ export function ActivityMetrics({
   const batteryLabel = batteryName ? `${batteryName} Exported kWh` : 'Battery Exported kWh';
   const evLabel = vehicleName ? `${vehicleName} EV Miles` : 'EV Miles';
   const superchargerLabel = vehicleName ? `${vehicleName} Supercharging` : 'Tesla Supercharging';
-  const homeChargerLabel = homeChargerName ? `${homeChargerName} Home Charging` : 'Home Charging';
+  // Home Charging label: prefer dedicated home charger name, otherwise tag the vehicle's home charging
+  const homeChargerLabel = homeChargerName
+    ? `${homeChargerName} Home Charging`
+    : vehicleName
+      ? `${vehicleName} Home Charging`
+      : 'Home Charging';
 
-  // Header subtitle — "Your <Vehicle> · <Solar> · <Battery> · EV Charging kWh"
-  const headerSubtitleParts = [
-    vehicleName ? `Your ${vehicleName}` : null,
-    solarName,
-    batteryName,
-    'EV Charging kWh',
-  ].filter(Boolean) as string[];
+  // Header subtitle — "Your <Vehicle> · ☀️ <Solar> · 🔋 <Battery> · EV Charging kWh"
+  // Icons disambiguate when the same device name powers both solar and battery (e.g. ZenCasa).
+  const headerSubtitleParts: { label: string; icon?: 'sun' | 'battery' }[] = [
+    vehicleName ? { label: `Your ${vehicleName}` } : null,
+    solarName ? { label: solarName, icon: 'sun' as const } : null,
+    batteryName ? { label: batteryName, icon: 'battery' as const } : null,
+    { label: 'EV Charging kWh' },
+  ].filter(Boolean) as { label: string; icon?: 'sun' | 'battery' }[];
   const headerSubtitle = headerSubtitleParts.length > 1
-    ? headerSubtitleParts.join(' · ')
+    ? headerSubtitleParts.map(p => p.label).join(' · ')
     : 'Your Connected Energy';
 
   // Separate charging values
