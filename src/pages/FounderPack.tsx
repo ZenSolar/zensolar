@@ -363,11 +363,12 @@ function PackContent() {
       </Section>
 
       {/* ─── HALVING (v5.6 §3.4) ─── */}
-      <Section id="halving" eyebrow="Chapter Four" title="The Halving">
+      <Section id="halving" eyebrow="Chapter Five" title="The Halving">
         <Lead>
           Bitcoin's 21M cap is structurally smaller than its headline — roughly
           3–4M coins are permanently lost. We import that mechanic, on
-          purpose, and stack four more scarcity vectors on top.
+          purpose, and stack four more scarcity vectors on top. (Hold this
+          thought — by Chapter Eleven the math will leave Bitcoin behind.)
         </Lead>
         <P>
           $ZSOLAR adopts a Bitcoin-identical 4-year halving schedule on the
@@ -396,7 +397,7 @@ function PackContent() {
       </Section>
 
       {/* ─── PATENT MOAT (v5.6 §5) ─── */}
-      <Section id="moat" eyebrow="Chapter Five" title="The Eight-Category Patent Moat">
+      <Section id="moat" eyebrow="Chapter Six" title="The Eight-Category Patent Moat">
         <Lead>
           Our patent application covers tokenizing verified clean-energy work
           across every category Tesla will ever monetize. That is the
@@ -424,7 +425,7 @@ function PackContent() {
       </Section>
 
       {/* ─── GROWTH / ARR (v5.6 §6) ─── */}
-      <Section id="growth" eyebrow="Chapter Six" title="Growth — ARR Milestones">
+      <Section id="growth" eyebrow="Chapter Seven" title="Growth — ARR Milestones">
         <Lead>
           ~$250 ARPU at the Tier-1 $19.99/mo subscription. The ladder maps
           users → ARR → salary triggers in one continuous line.
@@ -452,12 +453,40 @@ function PackContent() {
       </Section>
 
       {/* ─── SALARY (v5.6 §7) ─── */}
-      <Section id="salary" eyebrow="Chapter Seven" title="Salary Discipline">
+      <Section id="salary" eyebrow="Chapter Eight" title="Salary Discipline">
         <Lead>
           $500K Day-One CEO base. Michael at 75% of CEO total comp at every
           tier. Bonuses are <em>cash, not token</em> — Pact untouched
           regardless of performance.
         </Lead>
+        <P>
+          The number that raises eyebrows in a seed round is the $500K base.
+          It is intentional, defensible, and — for a project of this
+          magnitude — actually conservative. Three reasons, stacked.
+        </P>
+        <Stat>
+          <StatRow
+            label="1. Patent-author premium"
+            value="Sole inventor"
+            sub="Joseph wrote every claim of the 8-category patent that gates a $10T+ surface (solar, battery, EV, miles, FSD, Robotaxi, Optimus, Starlink). Comp reflects IP authorship, not headcount."
+          />
+          <StatRow
+            label="2. CEO of a trillion-cap protocol"
+            value="Benchmarked"
+            sub="Pre-launch comp for founder-CEOs of comparable-TAM L1 protocols (Solana, Avalanche, Sui) ran $400K–$750K base. $500K sits at the conservative end of that band, with a 1T cap and a real patent moat behind it."
+          />
+          <StatRow
+            label="3. The no-sell pact tradeoff"
+            value="Locked for life"
+            sub="150B founder tokens are pact-locked — Joseph never sells, ever, across his lifetime and his lineal descendants'. Salary is the only liquidity. $500K is the price of permanent illiquidity on a 9-figure book position."
+          />
+        </Stat>
+        <Pull>
+          $500K isn't a CEO salary.
+          <br />
+          It is the <span className="text-primary">cost of never selling
+          a single token</span>, ever, for life.
+        </Pull>
         <DataTable
           headers={["ARR Trigger", "Joseph Base", "Bonus", "Michael Base", "Bonus"]}
           rows={[
@@ -473,12 +502,14 @@ function PackContent() {
         <P>
           Bonuses scale with ARR, not token price — protects against
           speculative comp. No founder token sales regardless of bonus
-          structure (see Pact, below).
+          structure (see Pact, below). Compared to the $200B+ enterprise
+          value the patent surface unlocks, the entire 20-year cash comp
+          ladder rounds to a rounding error.
         </P>
       </Section>
 
       {/* ─── FLYWHEEL (v5.6 §9) ─── */}
-      <Section id="flywheel" eyebrow="Chapter Eight" title="The Compounding Flywheel">
+      <Section id="flywheel" eyebrow="Chapter Nine" title="The Compounding Flywheel">
         <Lead>
           Six revenue lines, all auto-routed on-chain, all reinforcing the
           same token. We earn on every subscriber, every kWh, every trade,
@@ -512,7 +543,7 @@ function PackContent() {
       </Section>
 
       {/* ─── NET WORTH (v5.6 §11) ─── */}
-      <Section id="networth" eyebrow="Chapter Nine" title="The 20-Year Trajectory">
+      <Section id="networth" eyebrow="Chapter Ten" title="The 20-Year Trajectory">
         <Lead>
           Joseph 150B · Michael 50B. Neither founder ever sells. Wealth grows
           on book value, liquidity comes from the salary ladder.
