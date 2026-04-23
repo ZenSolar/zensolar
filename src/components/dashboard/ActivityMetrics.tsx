@@ -1218,7 +1218,40 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         )} />
       )}
 
-      {/* 🔵 Touch-point ripple — expands from where finger lands */}
+      {/* ⏱️ Double-tap countdown ring — expands around the card after the first
+          tap, visually counting down the window in which a second tap will mint.
+          Keyed on ringStartedAt so it cleanly restarts on every fresh first-tap. */}
+      {showTapAgain && ringStartedAt && (
+        <svg
+          key={`ring-countdown-${ringStartedAt}`}
+          className="absolute inset-0 pointer-events-none z-[6]"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden
+          style={{ overflow: 'visible' }}
+        >
+          <rect
+            x="1.5"
+            y="1.5"
+            width="97"
+            height="97"
+            rx="8"
+            ry="8"
+            fill="none"
+            stroke={`hsl(${styles.rgba} / 0.85)`}
+            strokeWidth="2"
+            vectorEffect="non-scaling-stroke"
+            pathLength={100}
+            style={{
+              filter: `drop-shadow(0 0 6px hsl(${styles.rgba} / 0.55))`,
+              strokeDasharray: 100,
+              strokeDashoffset: 0,
+              animation: `zenTapWindowCountdown ${DOUBLE_TAP_WINDOW}ms linear forwards`,
+            }}
+          />
+        </svg>
+      )}
+
       {(isPressing || isBursting) && touchPoint && (
         <div
           className="absolute pointer-events-none rounded-full"
