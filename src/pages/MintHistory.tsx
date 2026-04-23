@@ -191,7 +191,9 @@ export default function MintHistory() {
             </CardHeader>
             <CardContent>
               {isPendingLoading ? (
-                <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[0,1,2,3].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+                </div>
               ) : pendingActivity.totalTokens === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
