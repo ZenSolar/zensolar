@@ -101,9 +101,19 @@ export function VaultPinGate({ userId, children }: Props) {
     navigate(fallback, { replace: true });
   };
 
-  const markUnlocked = () => {
+  const markUnlocked = async () => {
     sessionStorage.setItem(sessionKey, "1");
+    void hapticSuccess();
+    setJustUnlocked(true);
+    // Brief celebratory pause so the user sees the success burst
+    await new Promise((r) => setTimeout(r, 700));
     setStatus({ kind: "unlocked" });
+  };
+
+  const triggerShake = () => {
+    void hapticError();
+    setShake(true);
+    window.setTimeout(() => setShake(false), 480);
   };
 
   const handleVerify = async (entered: string) => {
@@ -119,12 +129,15 @@ export function VaultPinGate({ userId, children }: Props) {
         if (code === "locked") {
           setStatus({ kind: "locked", minutesRemaining: mins ?? 15 });
           toast.error(`Too many wrong attempts. Locked for ${mins ?? 15} min.`);
+          void hapticError();
         } else if (code === "no_pin_access") {
           setStatus({ kind: "denied", message: (data as any)?.message ?? "No PIN access." });
+          void hapticError();
         } else if (code === "no_pin_set") {
           setStatus({ kind: "needs_setup" });
         } else {
           setStatus({ kind: "needs_unlock", attemptsRemaining: remaining });
+          triggerShake();
           toast.error(
             remaining != null
               ? `Wrong PIN. ${remaining} attempt${remaining === 1 ? "" : "s"} left.`
@@ -134,7 +147,7 @@ export function VaultPinGate({ userId, children }: Props) {
         setPin("");
         return;
       }
-      markUnlocked();
+      await markUnlocked();
     } finally {
       setBusy(false);
     }
@@ -148,13 +161,14 @@ export function VaultPinGate({ userId, children }: Props) {
       });
       if (error || !data?.ok) {
         toast.error("Could not set PIN. Try again.");
+        triggerShake();
         setPin("");
         setConfirmPin("");
         setSetupStage("create");
         return;
       }
       toast.success("PIN set. Vault unlocked.");
-      markUnlocked();
+      await markUnlocked();
     } finally {
       setBusy(false);
     }
@@ -167,12 +181,14 @@ export function VaultPinGate({ userId, children }: Props) {
       void handleVerify(pin);
     } else if (status.kind === "needs_setup") {
       if (setupStage === "create" && pin.length === 4) {
+        void mediumTap();
         setSetupStage("confirm");
       } else if (setupStage === "confirm" && confirmPin.length === 4) {
         if (confirmPin === pin) {
           void handleSetup(pin);
         } else {
           toast.error("PINs don't match. Try again.");
+          triggerShake();
           setPin("");
           setConfirmPin("");
           setSetupStage("create");
@@ -192,10 +208,13 @@ export function VaultPinGate({ userId, children }: Props) {
   const pressDigit = (d: string) => {
     if (busy) return;
     if (activeValue.length >= 4) return;
+    void lightTap();
     setActiveValue(activeValue + d);
   };
   const pressDelete = () => {
     if (busy) return;
+    if (activeValue.length === 0) return;
+    void lightTap();
     setActiveValue(activeValue.slice(0, -1));
   };
 
