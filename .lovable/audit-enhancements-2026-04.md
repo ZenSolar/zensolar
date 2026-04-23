@@ -144,3 +144,30 @@ Surveyed 21 files using `from-purple-500 / from-pink / from-blue-500 to-indigo /
 2. Admin pages all share the same full-page `Loader2` pattern — extract `<AdminPageLoader />` for one-shot swap of remaining 25+ files.
 3. `BrandedSpinner` could grow a `withLabel` prop ("Loading dashboard…") for screen readers + low-bandwidth UX.
 4. Consider replacing the spinning ring with the ZenSolar sun-mark SVG rotating — ~200 bytes more, infinite brand value on first paint.
+
+## Round 7 — Typography + semantic accent tokens (Commit 6)
+
+**Shipped:**
+- 3 new semantic tokens in `src/index.css` (light + dark variants): `--accent-warm` (amber), `--accent-cool` (indigo), `--accent-rare` (purple). Each ships with `*-foreground`. Wired into `tailwind.config.ts` so `bg-accent-warm`, `text-accent-cool`, `border-accent-rare` all work as first-class utilities.
+- MintHistory typography pass: `tracking-tight tabular-nums` on all numeric displays (summary cards, pending tiles), `min-w-0` on header text wrapper to prevent overflow on narrow viewports, container padding now responsive (`py-6 sm:py-8`).
+- Spacing rhythm: section gap normalized to `space-y-6 sm:space-y-8` matching dashboard convention.
+
+**Audit completion summary (7 rounds, ~22 findings shipped):**
+| Round | Focus | Files touched |
+|-------|-------|---------------|
+| 1 | P0 routing/focus/profile/referrals/founders/demo-gate | 7 |
+| 2 | Sidebar identity + active accent | 2 |
+| 3 | Header mobile + FounderRoute guard | 3 |
+| 4 | Dashboard CO₂ + EnergyLog resilience + streak + analytics | 8 |
+| 5 | MintHistory skeletons + accent | 2 |
+| 6 | BrandedSpinner + rainbow audit | 6 |
+| 7 | Accent tokens + typography | 3 |
+
+**Highest-leverage follow-ups (post-audit):**
+1. **Migrate rainbow gradients → semantic tokens.** MintHistory `ACTION_LABELS` and Profile tile hues are obvious first targets — replace `from-amber-500 to-orange-600` with `from-accent-warm to-accent-warm/80`. Single-file PRs, big consistency win.
+2. **Route registry refactor.** `App.tsx` is 1015 lines, ~80% boilerplate. Extract a typed `routes.config.ts` → derive sidebar, breadcrumbs, sitemap, protected/founder route wrapping. Saves ~400 LOC and eliminates entire 404-misregistration class of bugs.
+3. **Unify role hooks.** `useIsFounder` + `useAdminCheck` + `useIsViewer` each query `user_roles` independently. One `useUserRoles()` with React Query → 3x fewer requests on every protected page mount.
+4. **`<ButtonSpinner />` + `<AdminPageLoader />`.** Finish the BrandedSpinner story by covering the inline button case and the 25+ admin full-page loaders.
+5. **`v_pending_rewards` Postgres view.** Same baseline-delta math lives in MintHistory + Dashboard + RewardActions. One view, three less drift sources.
+6. **Live profile tiles.** Replace static "Active / Sepolia" with lifetime $ZSOLAR, NFTs owned, day-streak, referral count — turns Profile from status page into engagement loop.
+7. **Streak v2.** `login_count` shows total — for true "Day N ⚡" needs a `login_history` table or a `last_streak_date + current_streak` pair on profile.

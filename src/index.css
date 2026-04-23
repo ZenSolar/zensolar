@@ -56,6 +56,14 @@
     --sidebar-accent-foreground: 220 20% 14%;
     --sidebar-border: 214 16% 82%;
     --sidebar-ring: 207 90% 54%;
+
+    /* Semantic accent tokens — replace ad-hoc rainbow gradients across MintHistory/RewardActions/Profile */
+    --accent-warm: 32 95% 50%;        /* amber/orange — energy, milestones */
+    --accent-cool: 217 91% 60%;       /* indigo/blue — info, transactions */
+    --accent-rare: 280 68% 60%;       /* purple — rarity, combos */
+    --accent-warm-foreground: 0 0% 100%;
+    --accent-cool-foreground: 0 0% 100%;
+    --accent-rare-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -97,6 +105,14 @@
     --sidebar-accent-foreground: 210 20% 94%;
     --sidebar-border: 220 20% 16%;
     --sidebar-ring: 207 90% 54%;
+
+    /* Semantic accent tokens (dark — slightly brighter for contrast) */
+    --accent-warm: 35 95% 58%;
+    --accent-cool: 217 91% 65%;
+    --accent-rare: 280 70% 68%;
+    --accent-warm-foreground: 220 20% 10%;
+    --accent-cool-foreground: 0 0% 100%;
+    --accent-rare-foreground: 0 0% 100%;
   }
 }
 

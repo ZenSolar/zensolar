@@ -140,15 +140,15 @@ export default function MintHistory() {
 
   return (
     <PullToRefreshWrapper onRefresh={handleRefresh}>
-      <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <div className="container max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
               <Clock className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Mint History</h1>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Mint History</h1>
               <p className="text-muted-foreground text-sm">Complete breakdown of all minted tokens and NFTs</p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function MintHistory() {
               <Card className="bg-gradient-to-br from-card to-muted/30 border-0 border-l-2 border-l-primary/60 shadow-lg overflow-hidden">
                 <CardHeader className="pb-2 px-4">
                   <CardDescription className="text-xs">{stat.label}</CardDescription>
-                  <CardTitle className="text-xl flex items-center gap-2">
+                  <CardTitle className="text-xl flex items-center gap-2 tracking-tight tabular-nums">
                     <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stat.gradient}`}>
                       <stat.icon className="h-4 w-4 text-white" />
                     </div>
@@ -213,7 +213,7 @@ export default function MintHistory() {
                         <item.icon className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <span className="text-xl font-bold block">{Math.floor(item.value).toLocaleString()}</span>
+                        <span className="text-xl font-bold tracking-tight tabular-nums block">{Math.floor(item.value).toLocaleString()}</span>
                         <span className="text-xs text-muted-foreground">{item.label}</span>
                       </div>
                     </div>
