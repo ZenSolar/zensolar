@@ -58,7 +58,7 @@ export function VaultPinGate({ userId, children }: Props) {
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(false);
   const [justUnlocked, setJustUnlocked] = useState(false);
-  const [showChooser, setShowChooser] = useState(false);
+  const [chooserMode, setChooserMode] = useState<ChooserMode | null>(null);
   const { lightTap, success: hapticSuccess, error: hapticError, mediumTap } = useHaptics();
   const navigate = useNavigate();
   const location = useLocation();
