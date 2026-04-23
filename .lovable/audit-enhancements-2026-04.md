@@ -111,3 +111,17 @@ All 9 founder routes registered correctly at App.tsx lines 984-994: `/founders`,
 3. EnergyLog: surface `last_updated` per data type, not just per provider, so users can see solar vs battery vs EV freshness independently.
 4. CO2 card: add "vs last month" delta chip to make impact feel alive.
 5. Provider retry should debounce + exponential-backoff toast cooldown to prevent rapid re-clicks hammering edge functions.
+
+## Round 5 — MintHistory polish (Commit 4)
+
+**Shipped:**
+- Replaced all `Loader2` spinners with `Skeleton` shimmer rows for summary cards, pending activity grid, and transaction list — perceived performance now matches Dashboard.
+- Added `border-l-2 border-l-primary/60` accent on summary cards to mirror sidebar/CO2 card identity system.
+- Skeletons sized to actual content height (h-16 transactions, h-20 pending tiles, h-6 numbers) — no layout shift on load.
+
+**Noticed nearby:**
+1. Lint warns lines 184/187 reference amber-500/emerald-500 directly. *Quick win:* introduce `--accent-warm` and `--accent-cool` tokens in `index.css`, swap globally.
+2. `formatDistanceToNow` runs on every render — stable values. *Quick win:* memoize per tx.id.
+3. Block explorer URL is hardcoded sepolia. *Strategic:* read from `import.meta.env.VITE_BASE_NETWORK` so mainnet flip is one env var.
+4. Pending activity recomputes baseline math client-side — same formula lives in 3+ places. *Strategic:* move to a Postgres view `v_pending_rewards` for single source of truth.
+5. Transaction `Collapsible` doesn't preserve open state across pull-to-refresh. *Quick win:* lift `expandedTx` to URL hash for shareable deep links.
