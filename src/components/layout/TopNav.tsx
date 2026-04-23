@@ -88,14 +88,15 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         </Link>
         
         <div className="flex items-center gap-1 sm:gap-1.5">
-          {/* Live Beta indicator for admins */}
+          {/* Live Beta indicator for admins (hidden on very narrow screens) */}
           {!isDemo && isAdmin && isLiveBeta && (
-            <Badge variant="outline" className="gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
+            <Badge variant="outline" className="hidden xs:inline-flex gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
               <Flame className="h-3 w-3 animate-pulse" />
               Beta 10x
             </Badge>
           )}
-          <div className="max-w-[100px] sm:max-w-none overflow-hidden">
+          {/* Weather hidden under 360px to prevent header crowding */}
+          <div className="hidden min-[360px]:block max-w-[100px] sm:max-w-none overflow-hidden">
             <WeatherWidget />
           </div>
           {!isDemo && <ThemeToggle />}
