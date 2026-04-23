@@ -23,6 +23,7 @@ import Home from "./pages/Home";
 
 // Lazy load layout and auth components to reduce main bundle size
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
+const FounderRoute = lazy(() => import("@/components/FounderRoute").then(m => ({ default: m.FounderRoute })));
 const AppLayout = lazy(() => import("@/components/layout/AppLayout").then(m => ({ default: m.AppLayout })));
 const Auth = lazy(() => import("./pages/Auth"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
@@ -980,20 +981,20 @@ const App = () => {
                         </ArchivedPageWrapper>
                       </AppLayout></ProtectedRoute>
                     } />
-                    {/* Founders Vault - direct URL only, no nav link */}
+                    {/* Founders Vault - direct URL only, no nav link. All gated by FounderRoute. */}
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
-                    <Route path="/founders" element={<FoundersVault />} />
-                    <Route path="/founder-pack" element={<FounderPack />} />
-                    <Route path="/whitepaper-phase-1" element={<WhitepaperPhase1 />} />
-                    <Route path="/whitepaper-phase-2" element={<WhitepaperPhase2 />} />
-                    <Route path="/founders/spacex" element={<FoundersSpaceX />} />
-                    <Route path="/founders/app-overhaul-plan" element={<FoundersAppOverhaul />} />
-                    <Route path="/founders/proof-of-genesis" element={<FoundersProofOfGenesis />} />
-                    <Route path="/founders/v2app" element={<V2App />} />
-                    <Route path="/founders/deason-v3" element={<FoundersDeasonV3 />} />
-                    <Route path="/founders/seed-ask" element={<FounderSeedAsk />} />
+                    <Route path="/founders" element={<FounderRoute><FoundersVault /></FounderRoute>} />
+                    <Route path="/founder-pack" element={<FounderRoute><FounderPack /></FounderRoute>} />
+                    <Route path="/whitepaper-phase-1" element={<FounderRoute><WhitepaperPhase1 /></FounderRoute>} />
+                    <Route path="/whitepaper-phase-2" element={<FounderRoute><WhitepaperPhase2 /></FounderRoute>} />
+                    <Route path="/founders/spacex" element={<FounderRoute><FoundersSpaceX /></FounderRoute>} />
+                    <Route path="/founders/app-overhaul-plan" element={<FounderRoute><FoundersAppOverhaul /></FounderRoute>} />
+                    <Route path="/founders/proof-of-genesis" element={<FounderRoute><FoundersProofOfGenesis /></FounderRoute>} />
+                    <Route path="/founders/v2app" element={<FounderRoute><V2App /></FounderRoute>} />
+                    <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
+                    <Route path="/founders/seed-ask" element={<FounderRoute><FounderSeedAsk /></FounderRoute>} />
                     {/* Deason — founders-only AI agent */}
-                    <Route path="/deason" element={<Deason />} />
+                    <Route path="/deason" element={<FounderRoute><Deason /></FounderRoute>} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
