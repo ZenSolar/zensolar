@@ -9,6 +9,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface MintTransaction {
   id: string;
