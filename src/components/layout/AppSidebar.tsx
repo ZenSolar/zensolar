@@ -400,11 +400,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url}
                       onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
+                      className={navClass}
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -430,11 +426,7 @@ export function AppSidebar() {
                         to={item.url}
                         end={item.url === "/admin"}
                         onClick={handleNavClick}
-                        className={({ isActive }) => 
-                          isActive 
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                            : "hover:bg-sidebar-accent/50"
-                        }
+                        className={navClass}
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
