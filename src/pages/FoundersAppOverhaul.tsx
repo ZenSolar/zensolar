@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, Check, Circle, Minus, Zap, Sparkles } from "lucide-
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { VaultPinGate } from "@/components/founders/VaultPinGate";
 
 export default function FoundersAppOverhaul() {
   const { user, isLoading: authLoading } = useAuth();
@@ -34,9 +34,9 @@ export default function FoundersAppOverhaul() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id}>
+    <VaultPinGate userId={user.id}>
       <OverhaulContent />
-    </VaultBiometricGate>
+    </VaultPinGate>
   );
 }
 

@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -63,9 +63,9 @@ export default function FoundersDeasonV3() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id}>
+    <VaultPinGate userId={user.id}>
       <DeasonV3Content />
-    </VaultBiometricGate>
+    </VaultPinGate>
   );
 }
 

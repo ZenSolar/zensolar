@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import { NdaSignatureStep } from "@/components/demo/NdaSignatureStep";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -58,11 +58,11 @@ export default function FoundersProofOfGenesis() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id}>
+    <VaultPinGate userId={user.id}>
       <NdaGate userEmail={user.email ?? ""}>
         <Content />
       </NdaGate>
-    </VaultBiometricGate>
+    </VaultPinGate>
   );
 }
 

@@ -3,7 +3,7 @@ import { Navigate, Link } from "react-router-dom";
 import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { VaultPinGate } from "@/components/founders/VaultPinGate";
 
 export default function WhitepaperPhase1() {
   const { user, isLoading: authLoading } = useAuth();
@@ -33,9 +33,9 @@ export default function WhitepaperPhase1() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id}>
+    <VaultPinGate userId={user.id}>
       <Phase1Content />
-    </VaultBiometricGate>
+    </VaultPinGate>
   );
 }
 

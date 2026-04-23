@@ -17,7 +17,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useVaultSnapshot } from "@/hooks/useVaultSnapshot";
-import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import { FounderCard } from "@/components/founders/FounderCard";
 import { PriceScenarioToggle } from "@/components/founders/PriceScenarioToggle";
 import { PriceAdminPanel } from "@/components/founders/PriceAdminPanel";
@@ -25,7 +25,7 @@ import { LpRoundTracker } from "@/components/founders/LpRoundTracker";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
-import { useVaultBiometric } from "@/hooks/useVaultBiometric";
+
 
 export default function FoundersVault() {
   const { user, isLoading: authLoading } = useAuth();
@@ -65,16 +65,19 @@ export default function FoundersVault() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id}>
+    <VaultPinGate userId={user.id}>
       <VaultDashboard isAdmin={isAdmin} />
-    </VaultBiometricGate>
+    </VaultPinGate>
   );
 }
 
 function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useAuth();
   const { snapshot, loading, error, refresh } = useVaultSnapshot(true);
-  const { lock } = useVaultBiometric(user?.id);
+  const lock = () => {
+    if (user?.id) sessionStorage.removeItem(`zen.vault-pin-unlocked:${user.id}`);
+    window.location.reload();
+  };
   const [scenarioPrice, setScenarioPrice] = useState<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
