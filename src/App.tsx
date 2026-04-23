@@ -435,6 +435,13 @@ const App = () => {
                     <Route path="/help" element={<Navigate to="/help-center?tab=help" replace />} />
                     <Route path="/feedback" element={<Navigate to="/help-center?tab=feedback" replace />} />
                     <Route path="/about" element={<Navigate to="/profile" replace />} />
+                    {/* P0 audit fixes — kill 404s for common deep links */}
+                    <Route path="/mint" element={<Navigate to="/mint-history" replace />} />
+                    <Route path="/energy-logs" element={<Navigate to="/energy-log" replace />} />
+                    <Route path="/my-energy-logs" element={<Navigate to="/energy-log" replace />} />
+                    <Route path="/nfts" element={<Navigate to="/nft-collection" replace />} />
+                    <Route path="/referral" element={<Navigate to="/referrals" replace />} />
+                    <Route path="/founders" element={<ProtectedRoute><AppLayout><FoundersVault /></AppLayout></ProtectedRoute>} />
                     <Route 
                       path="/profile" 
                       element={
