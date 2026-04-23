@@ -1,0 +1,319 @@
+import { useEffect, useState } from "react";
+import { ShieldAlert, Loader2, ArrowLeft, Home, KeyRound, Delete } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { useLocation, useNavigate } from "react-router-dom";
+
+interface Props {
+  userId: string;
+  children: React.ReactNode;
+  /** Kept for API compatibility with the previous biometric gate. No longer used. */
+  allowPreviewBypass?: boolean;
+}
+
+type Status =
+  | { kind: "checking" }
+  | { kind: "denied"; message: string }
+  | { kind: "needs_setup" }
+  | { kind: "needs_unlock"; attemptsRemaining?: number }
+  | { kind: "locked"; minutesRemaining: number }
+  | { kind: "unlocked" };
+
+const SESSION_KEY_PREFIX = "zen.vault-pin-unlocked:";
+
+export function VaultPinGate({ userId, children }: Props) {
+  const { user } = useAuth();
+  const sessionKey = `${SESSION_KEY_PREFIX}${userId}`;
+  const [status, setStatus] = useState<Status>(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem(sessionKey) === "1") {
+      return { kind: "unlocked" };
+    }
+    return { kind: "checking" };
+  });
+  const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [setupStage, setSetupStage] = useState<"create" | "confirm">("create");
+  const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const email = (user?.email ?? "").toLowerCase();
+  const isDenied = email === "jo@zen.solar" || email === "todd@zen.solar";
+
+  useEffect(() => {
+    if (status.kind === "unlocked") return;
+    let cancelled = false;
+    (async () => {
+      if (isDenied) {
+        if (!cancelled)
+          setStatus({
+            kind: "denied",
+            message: "This account does not have PIN access to the Founders area.",
+          });
+        return;
+      }
+      const { data } = await supabase
+        .from("founder_pins")
+        .select("locked_until")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (cancelled) return;
+      if (!data) {
+        setStatus({ kind: "needs_setup" });
+        return;
+      }
+      if (data.locked_until && new Date(data.locked_until) > new Date()) {
+        const mins = Math.ceil(
+          (new Date(data.locked_until).getTime() - Date.now()) / 60000,
+        );
+        setStatus({ kind: "locked", minutesRemaining: mins });
+        return;
+      }
+      setStatus({ kind: "needs_unlock" });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, isDenied, status.kind]);
+
+  const goHome = () => {
+    navigate("/", { replace: true });
+    window.setTimeout(() => {
+      if (window.location.pathname !== "/") window.location.assign("/");
+    }, 120);
+  };
+
+  const goBack = () => {
+    const fallback = location.pathname === "/founder-pack" ? "/founders" : "/";
+    if (window.history.length > 1) {
+      navigate(-1);
+      window.setTimeout(() => {
+        if (window.location.pathname === location.pathname) navigate(fallback, { replace: true });
+      }, 160);
+      return;
+    }
+    navigate(fallback, { replace: true });
+  };
+
+  const markUnlocked = () => {
+    sessionStorage.setItem(sessionKey, "1");
+    setStatus({ kind: "unlocked" });
+  };
+
+  const handleVerify = async (entered: string) => {
+    setBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("vault-pin-verify", {
+        body: { pin: entered },
+      });
+      if (error || !data?.ok) {
+        const code = (data as any)?.error;
+        const mins = (data as any)?.minutes_remaining;
+        const remaining = (data as any)?.attempts_remaining;
+        if (code === "locked") {
+          setStatus({ kind: "locked", minutesRemaining: mins ?? 15 });
+          toast.error(`Too many wrong attempts. Locked for ${mins ?? 15} min.`);
+        } else if (code === "no_pin_access") {
+          setStatus({ kind: "denied", message: (data as any)?.message ?? "No PIN access." });
+        } else if (code === "no_pin_set") {
+          setStatus({ kind: "needs_setup" });
+        } else {
+          setStatus({ kind: "needs_unlock", attemptsRemaining: remaining });
+          toast.error(
+            remaining != null
+              ? `Wrong PIN. ${remaining} attempt${remaining === 1 ? "" : "s"} left.`
+              : "Wrong PIN.",
+          );
+        }
+        setPin("");
+        return;
+      }
+      markUnlocked();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSetup = async (entered: string) => {
+    setBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("vault-pin-set", {
+        body: { pin: entered },
+      });
+      if (error || !data?.ok) {
+        toast.error("Could not set PIN. Try again.");
+        setPin("");
+        setConfirmPin("");
+        setSetupStage("create");
+        return;
+      }
+      toast.success("PIN set. Vault unlocked.");
+      markUnlocked();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Auto-submit when 4 digits entered
+  useEffect(() => {
+    if (busy) return;
+    if (status.kind === "needs_unlock" && pin.length === 4) {
+      void handleVerify(pin);
+    } else if (status.kind === "needs_setup") {
+      if (setupStage === "create" && pin.length === 4) {
+        setSetupStage("confirm");
+      } else if (setupStage === "confirm" && confirmPin.length === 4) {
+        if (confirmPin === pin) {
+          void handleSetup(pin);
+        } else {
+          toast.error("PINs don't match. Try again.");
+          setPin("");
+          setConfirmPin("");
+          setSetupStage("create");
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pin, confirmPin, status.kind, setupStage, busy]);
+
+  if (status.kind === "unlocked") return <>{children}</>;
+
+  const activeValue = status.kind === "needs_setup" && setupStage === "confirm" ? confirmPin : pin;
+  const setActiveValue = (v: string) => {
+    if (status.kind === "needs_setup" && setupStage === "confirm") setConfirmPin(v);
+    else setPin(v);
+  };
+  const pressDigit = (d: string) => {
+    if (busy) return;
+    if (activeValue.length >= 4) return;
+    setActiveValue(activeValue + d);
+  };
+  const pressDelete = () => {
+    if (busy) return;
+    setActiveValue(activeValue.slice(0, -1));
+  };
+
+  const heading =
+    status.kind === "denied"
+      ? "Access Denied"
+      : status.kind === "needs_setup"
+      ? setupStage === "create"
+        ? "Create your PIN"
+        : "Confirm your PIN"
+      : status.kind === "locked"
+      ? "Temporarily Locked"
+      : "Enter your PIN";
+
+  const subtitle =
+    status.kind === "checking"
+      ? "Checking access…"
+      : status.kind === "denied"
+      ? status.message
+      : status.kind === "needs_setup"
+      ? setupStage === "create"
+        ? "Choose a 4-digit PIN to unlock the Founders area on this account."
+        : "Re-enter the same PIN to confirm."
+      : status.kind === "locked"
+      ? `Too many wrong attempts. Try again in ~${status.minutesRemaining} min.`
+      : status.kind === "needs_unlock" && status.attemptsRemaining != null
+      ? `${status.attemptsRemaining} attempt${status.attemptsRemaining === 1 ? "" : "s"} remaining.`
+      : "Founders Only";
+
+  return (
+    <div className="min-h-[100svh] flex items-center justify-center p-6 bg-background relative">
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={goBack} className="text-muted-foreground">
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+        <Button variant="ghost" size="sm" onClick={goHome} className="text-muted-foreground">
+          <Home className="h-4 w-4 mr-1" /> Home
+        </Button>
+      </div>
+
+      <div className="w-full max-w-xs space-y-6 text-center">
+        <div className="flex justify-center">
+          <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+            {status.kind === "checking" || busy ? (
+              <Loader2 className="h-7 w-7 text-primary animate-spin" />
+            ) : status.kind === "denied" || status.kind === "locked" ? (
+              <ShieldAlert className="h-7 w-7 text-destructive" />
+            ) : (
+              <KeyRound className="h-7 w-7 text-primary" />
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <h1 className="text-xl font-semibold tracking-tight">{heading}</h1>
+          <p className="text-sm text-muted-foreground leading-relaxed">{subtitle}</p>
+        </div>
+
+        {(status.kind === "needs_unlock" || status.kind === "needs_setup") && (
+          <>
+            {/* Dots */}
+            <div className="flex items-center justify-center gap-3 py-2">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`h-3 w-3 rounded-full border transition-colors ${
+                    i < activeValue.length
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground/40"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Numeric keypad */}
+            <div className="grid grid-cols-3 gap-2 select-none">
+              {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => pressDigit(d)}
+                  disabled={busy}
+                  className="h-14 rounded-xl bg-card/50 border border-border/50 text-xl font-medium hover:bg-card active:scale-95 transition-all disabled:opacity-40"
+                >
+                  {d}
+                </button>
+              ))}
+              <div />
+              <button
+                onClick={() => pressDigit("0")}
+                disabled={busy}
+                className="h-14 rounded-xl bg-card/50 border border-border/50 text-xl font-medium hover:bg-card active:scale-95 transition-all disabled:opacity-40"
+              >
+                0
+              </button>
+              <button
+                onClick={pressDelete}
+                disabled={busy || activeValue.length === 0}
+                className="h-14 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all disabled:opacity-30"
+                aria-label="Delete"
+              >
+                <Delete className="h-5 w-5" />
+              </button>
+            </div>
+          </>
+        )}
+
+        {status.kind === "locked" && (
+          <Button onClick={goHome} variant="outline" className="w-full">
+            Return Home
+          </Button>
+        )}
+
+        {status.kind === "denied" && (
+          <Button onClick={goHome} variant="outline" className="w-full">
+            Return Home
+          </Button>
+        )}
+
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground pt-2">
+          Confidential · Founders Only
+        </p>
+      </div>
+    </div>
+  );
+}
