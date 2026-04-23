@@ -242,7 +242,9 @@ export default function MintHistory() {
             </CardHeader>
             <CardContent className="space-y-3">
               {isLoading ? (
-                <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+                <div className="space-y-2">
+                  {[0,1,2].map(i => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
+                </div>
               ) : transactions.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Hash className="h-12 w-12 mx-auto mb-4 opacity-50" />
