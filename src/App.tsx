@@ -441,7 +441,7 @@ const App = () => {
                     <Route path="/my-energy-logs" element={<Navigate to="/energy-log" replace />} />
                     <Route path="/nfts" element={<Navigate to="/nft-collection" replace />} />
                     <Route path="/referral" element={<Navigate to="/referrals" replace />} />
-                    <Route path="/founders" element={<ProtectedRoute><AppLayout><FoundersVault /></AppLayout></ProtectedRoute>} />
+                    {/* /founders is registered below at line 985 — no duplicate needed */}
                     <Route 
                       path="/profile" 
                       element={
