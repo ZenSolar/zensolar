@@ -104,13 +104,33 @@ function PackContent() {
   }, []);
 
   const headerRef = useRef<HTMLElement | null>(null);
+
+  // Keep a CSS variable in sync with live header height so each section's
+  // `scroll-margin-top` reflects the actual sticky bar across iOS/Android,
+  // any viewport height, and dynamic browser chrome (URL bar collapse).
+  useEffect(() => {
+    const sync = () => {
+      const h = headerRef.current?.getBoundingClientRect().height ?? 96;
+      document.documentElement.style.setProperty("--pack-header-h", `${Math.round(h + 8)}px`);
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    if (headerRef.current) ro.observe(headerRef.current);
+    window.addEventListener("resize", sync);
+    window.addEventListener("orientationchange", sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", sync);
+      window.removeEventListener("orientationchange", sync);
+    };
+  }, []);
+
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    // Measure live header height so the chapter title isn't hidden under the sticky bar.
-    const headerH = headerRef.current?.getBoundingClientRect().height ?? 96;
-    const top = el.getBoundingClientRect().top + window.scrollY - headerH - 8;
-    window.scrollTo({ top, behavior: "smooth" });
+    // Native scrollIntoView honors `scroll-margin-top` (set via CSS var below)
+    // and behaves consistently on iOS Safari + Chrome Android.
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
     // Update active immediately for snappy feedback (don't wait for IO).
     setActive(id);
   };
