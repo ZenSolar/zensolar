@@ -9,6 +9,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface MintTransaction {
   id: string;
@@ -162,14 +163,14 @@ export default function MintHistory() {
             { label: 'Pending Tokens', value: pendingActivity.totalTokens, icon: TrendingUp, gradient: 'from-emerald-500 to-teal-600', sub: "You'll receive", loading: isPendingLoading },
           ].map((stat, i) => (
             <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Card className="bg-gradient-to-br from-card to-muted/30 border-0 shadow-lg overflow-hidden">
+              <Card className="bg-gradient-to-br from-card to-muted/30 border-0 border-l-2 border-l-primary/60 shadow-lg overflow-hidden">
                 <CardHeader className="pb-2 px-4">
                   <CardDescription className="text-xs">{stat.label}</CardDescription>
                   <CardTitle className="text-xl flex items-center gap-2">
                     <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stat.gradient}`}>
                       <stat.icon className="h-4 w-4 text-white" />
                     </div>
-                    {stat.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : stat.value.toLocaleString()}
+                    {stat.loading ? <Skeleton className="h-6 w-12" /> : stat.value.toLocaleString()}
                   </CardTitle>
                   <p className="text-xs text-muted-foreground">{stat.sub}</p>
                 </CardHeader>
@@ -190,7 +191,9 @@ export default function MintHistory() {
             </CardHeader>
             <CardContent>
               {isPendingLoading ? (
-                <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[0,1,2,3].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+                </div>
               ) : pendingActivity.totalTokens === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -239,7 +242,9 @@ export default function MintHistory() {
             </CardHeader>
             <CardContent className="space-y-3">
               {isLoading ? (
-                <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+                <div className="space-y-2">
+                  {[0,1,2].map(i => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
+                </div>
               ) : transactions.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Hash className="h-12 w-12 mx-auto mb-4 opacity-50" />
