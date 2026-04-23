@@ -382,7 +382,7 @@ export function MintEffectButton({ onClick, disabled, className, children }: Min
           animation: showTapAgain ? 'zenTapAgainPulse 1.2s ease-in-out infinite' : undefined,
         }}
       >
-        tap again to mint
+        ➕ double-tap to mint
       </span>
 
       <span

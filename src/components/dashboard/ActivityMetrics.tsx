@@ -1670,9 +1670,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 className="inline-block"
                 style={showTapAgain ? { animation: 'zenDoubleTapBounce 0.5s ease-in-out infinite' } : undefined}
               >
-                👆
+                ➕
               </span>
-              tap again to mint
+              double-tap to mint
             </span>
           </div>
           <ChevronRight className={cn(
