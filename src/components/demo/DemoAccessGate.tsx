@@ -15,6 +15,7 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { AudioDebugOverlay } from '@/components/demo/AudioDebugOverlay';
 import { DemoGateDiagnosticsOverlay } from '@/components/demo/DemoGateDiagnosticsOverlay';
 import { GateHexBackground } from '@/components/demo/GateHexBackground';
+import { PreviewBypassBar } from '@/components/demo/PreviewBypassBar';
 import { ReleaseAudioDiagnostics } from '@/components/demo/ReleaseAudioDiagnostics';
 import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
@@ -1183,6 +1184,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
   }, [verifiedCode]);
 
+  const handlePreviewBypass = () => {
+    grantAccess();
+    setGranted(true);
+  };
+
   if (showVipWelcome) {
     return (
       <VipWelcomeScreen
@@ -1195,7 +1201,14 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     );
   }
 
-  if (granted) return <>{children}</>;
+  if (granted) {
+    return (
+      <>
+        <PreviewBypassBar granted onBypass={handlePreviewBypass} />
+        {children}
+      </>
+    );
+  }
 
   const { phase, firstTapBurst, showTapAgain, burstKey, revealed, hexAwake, lockedFlash, holding, holdReady, holdHint } = stateRef.current;
   const isBursting = phase === 'burst';
@@ -2029,6 +2042,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           />
         </div>
       )}
+
+      <PreviewBypassBar granted={false} onBypass={handlePreviewBypass} />
     </div>
   );
 }
