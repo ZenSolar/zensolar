@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useProfile } from '@/hooks/useProfile';
 import { Copy, Share2, Check, Users, Gift } from 'lucide-react';
 import { toast } from 'sonner';
+import { trackEvent } from '@/hooks/useGoogleAnalytics';
 
 export function ReferralCard() {
   const { profile, isLoading } = useProfile();
@@ -18,22 +19,36 @@ export function ReferralCard() {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       toast.success(`Referral ${type} copied!`);
+      // Analytics: measure how often users copy their code vs the full link
+      trackEvent('referral_copy', {
+        copy_type: type,
+        has_referral_code: !!referralCode,
+        event_category: 'referral',
+      });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error('Failed to copy');
+      trackEvent('referral_copy_failed', { copy_type: type, event_category: 'referral' });
     }
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    // Analytics: track every share attempt so we can measure virality
+    trackEvent('referral_share_click', {
+      method: typeof navigator !== 'undefined' && (navigator as Navigator).share ? 'native_share' : 'copy_fallback',
+      has_referral_code: !!referralCode,
+      event_category: 'referral',
+    });
+    if (typeof navigator !== 'undefined' && (navigator as Navigator).share) {
       try {
         await navigator.share({
           title: 'Join ZenSolar',
           text: `Join ZenSolar and start earning $ZSOLAR tokens for your solar energy! Use my referral code: ${referralCode}`,
           url: referralLink,
         });
-      } catch (err) {
-        // User cancelled share
+        trackEvent('referral_share_success', { event_category: 'referral' });
+      } catch {
+        trackEvent('referral_share_cancelled', { event_category: 'referral' });
       }
     } else {
       handleCopy(referralLink, 'link');
