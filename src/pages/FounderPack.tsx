@@ -103,11 +103,16 @@ function PackContent() {
     return () => observer.disconnect();
   }, []);
 
+  const headerRef = useRef<HTMLElement | null>(null);
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    // Measure live header height so the chapter title isn't hidden under the sticky bar.
+    const headerH = headerRef.current?.getBoundingClientRect().height ?? 96;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerH - 8;
     window.scrollTo({ top, behavior: "smooth" });
+    // Update active immediately for snappy feedback (don't wait for IO).
+    setActive(id);
   };
 
   return (
