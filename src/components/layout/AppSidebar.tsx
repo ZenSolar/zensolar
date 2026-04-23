@@ -286,11 +286,7 @@ export function AppSidebar() {
                       to={item.url} 
                       end={item.url === "/"}
                       onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        `${isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"} ${item.url === "/store" ? "text-secondary font-semibold rounded-lg animate-sidebar-glow" : ""}`
-                      }
+                      className={item.url === "/store" ? navClassWithExtra("text-secondary font-semibold rounded-lg animate-sidebar-glow") : navClass}
                     >
                       <item.icon className={`h-4 w-4 ${item.url === "/store" ? "animate-icon-glow text-secondary" : ""}`} />
                       <span className={item.url === "/store" ? "animate-text-glow" : ""}>{item.title}</span>
