@@ -169,17 +169,29 @@ export function VaultPinGate({ userId, children }: Props) {
       sessionStorage.getItem(chooserSeenKey) === "1";
     if (!alreadySeen) {
       setShowChooser(true);
-    } else {
-      setStatus({ kind: "unlocked" });
+      return;
     }
+    // Subsequent unlocks within the same session: jump straight to the last
+    // founder chapter they were reading, if any — and only if they aren't
+    // already on it.
+    const last = getLastFounderRoute(userId);
+    if (last && last !== location.pathname) {
+      navigate(last);
+    }
+    setStatus({ kind: "unlocked" });
   };
 
   const dismissChooser = (target?: string) => {
     sessionStorage.setItem(chooserSeenKey, "1");
     setShowChooser(false);
     if (target && target !== location.pathname) {
+      rememberFounderRoute(userId, target);
       navigate(target);
     } else {
+      // Continuing on current page — remember it as the latest visit.
+      if (isFounderRoute(location.pathname)) {
+        rememberFounderRoute(userId, location.pathname);
+      }
       setStatus({ kind: "unlocked" });
     }
   };
