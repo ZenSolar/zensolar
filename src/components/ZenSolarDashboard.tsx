@@ -17,6 +17,7 @@ import { WalletSetupModal } from './dashboard/WalletSetupModal';
 import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
 import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
+import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { AnimatedEnergyFlow } from './dashboard/AnimatedEnergyFlow';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 
@@ -241,6 +242,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             isNewUserView={isNewUserView}
             teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
             isLoading={dataLoading || isAutoSyncing}
+          />
+        </AnimatedItem>
+
+        {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
+        <AnimatedItem>
+          <CO2OffsetCard
+            co2Pounds={isNewUserView ? 0 : activityData.co2OffsetPounds}
+            isLoading={dataLoading && !isNewUserView}
           />
         </AnimatedItem>
 

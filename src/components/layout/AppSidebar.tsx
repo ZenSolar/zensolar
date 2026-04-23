@@ -202,6 +202,7 @@ export function AppSidebar() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [isFounder, setIsFounder] = useState(false);
+  const [loginCount, setLoginCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -211,13 +212,14 @@ export function AppSidebar() {
 
         // Fetch profile + roles in parallel
         const [{ data: profile }, { data: roles }] = await Promise.all([
-          supabase.from('profiles').select('avatar_url, display_name').eq('user_id', user.id).single(),
+          supabase.from('profiles').select('avatar_url, display_name, login_count').eq('user_id', user.id).single(),
           supabase.from('user_roles').select('role').eq('user_id', user.id),
         ]);
 
         if (profile) {
           setAvatarUrl(profile.avatar_url);
           setDisplayName(profile.display_name);
+          setLoginCount(profile.login_count ?? 0);
         }
         const roleSet = new Set((roles ?? []).map((r: { role: string }) => r.role));
         setIsFounder(roleSet.has('founder') || roleSet.has('admin'));
@@ -617,7 +619,17 @@ export function AppSidebar() {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-sidebar-foreground/60 truncate">{userEmail ?? 'Loading…'}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <p className="text-xs text-sidebar-foreground/60 truncate flex-1">{userEmail ?? 'Loading…'}</p>
+                {loginCount > 0 && (
+                  <span
+                    title={`Day ${loginCount} streak — ${loginCount} total logins`}
+                    className="inline-flex items-center gap-0.5 rounded-full border border-solar/40 bg-solar/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-solar leading-none flex-shrink-0"
+                  >
+                    Day {loginCount} ⚡
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>
