@@ -357,7 +357,7 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        {/* Stats Row — compact */}
+        {/* Stats Row — compact, with labels (P0 audit fix) */}
         <motion.div 
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -367,20 +367,24 @@ export default function Profile() {
           <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/15 text-center">
             <Calendar className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
             <p className="text-[10px] font-medium truncate">
-              {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : 'N/A'}
+              {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : '—'}
             </p>
+            <p className="text-[9px] text-muted-foreground mt-0.5 uppercase tracking-wider">Joined</p>
           </div>
           <div className="p-2.5 rounded-xl bg-secondary/5 border border-secondary/15 text-center">
             <Zap className="h-3.5 w-3.5 text-secondary mx-auto mb-1" />
             <p className="text-[10px] font-medium">Active</p>
+            <p className="text-[9px] text-muted-foreground mt-0.5 uppercase tracking-wider">Status</p>
           </div>
           <div className="p-2.5 rounded-xl bg-accent/5 border border-accent/15 text-center">
             <Sparkles className="h-3.5 w-3.5 text-accent-foreground mx-auto mb-1" />
             <p className="text-[10px] font-medium font-mono truncate">{profile?.referral_code || '—'}</p>
+            <p className="text-[9px] text-muted-foreground mt-0.5 uppercase tracking-wider">Code</p>
           </div>
           <div className="p-2.5 rounded-xl bg-purple-500/5 border border-purple-500/15 text-center">
             <Users className="h-3.5 w-3.5 text-purple-500 mx-auto mb-1" />
             <p className="text-[10px] font-medium">Sepolia</p>
+            <p className="text-[9px] text-muted-foreground mt-0.5 uppercase tracking-wider">Network</p>
           </div>
         </motion.div>
 
