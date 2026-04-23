@@ -675,9 +675,19 @@ export function AppSidebar() {
           </Avatar>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                {displayName && (
-                  <p className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {displayName ? (
+                  <p className="text-sm font-medium text-sidebar-foreground truncate max-w-[140px]">{displayName}</p>
+                ) : (
+                  <p className="text-sm font-medium text-sidebar-foreground/70 truncate max-w-[140px]">ZenSolar User</p>
+                )}
+                {isAdmin && (
+                  <span
+                    title="Admin access"
+                    className="inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary leading-none flex-shrink-0"
+                  >
+                    Admin
+                  </span>
                 )}
                 {isFounder && !isAdmin && (
                   <span
@@ -687,8 +697,16 @@ export function AppSidebar() {
                     ★ VIP
                   </span>
                 )}
+                {!isAdmin && !isFounder && (
+                  <span
+                    title="Beta tester"
+                    className="inline-flex items-center rounded-full border border-secondary/40 bg-secondary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-secondary leading-none flex-shrink-0"
+                  >
+                    Beta
+                  </span>
+                )}
               </div>
-              <p className="text-xs text-sidebar-foreground/60 truncate">{userEmail}</p>
+              <p className="text-xs text-sidebar-foreground/60 truncate">{userEmail ?? 'Loading…'}</p>
             </div>
           )}
         </div>
