@@ -801,23 +801,34 @@ const hapticPattern: Record<string, number[]> = {
   greenGold: [20, 10, 20],  // Home charger: steady pulse
 };
 
-// Semantic-token color styles — maps category → design system tokens
-// gold→accent-warm (solar), teal→primary (battery, brand emerald),
-// green→accent-cool (EV miles), cyan→accent-rare (supercharger),
-// greenGold→accent-warm (home charger, warm energy)
+// Semantic-token color styles — restores original Clean Energy Center palette.
+// Matches CleanEnergyCenterShowcase: gold→solar (warm orange/yellow),
+// teal→secondary (deep green), green→primary (emerald),
+// cyan→energy (electric blue), greenGold→energy + solar blend.
 const colorStyles = {
   gold: {
-    gradient: 'from-accent-warm to-accent-warm/70',
-    textGradient: 'from-accent-warm to-accent-warm/80',
-    text: 'text-accent-warm',
-    glow: 'shadow-accent-warm/30',
-    bg: 'bg-accent-warm/10',
-    border: 'border-accent-warm/30',
-    leftBorder: 'border-l-accent-warm',
-    textGlow: '0 0 8px hsl(var(--accent-warm) / 0.5), 0 0 16px hsl(var(--accent-warm) / 0.25)',
-    rgba: 'var(--accent-warm)',
+    gradient: 'from-solar to-solar/70',
+    textGradient: 'from-solar to-solar/80',
+    text: 'text-solar',
+    glow: 'shadow-solar/30',
+    bg: 'bg-solar/10',
+    border: 'border-solar/30',
+    leftBorder: 'border-l-solar',
+    textGlow: '0 0 8px hsl(var(--solar) / 0.5), 0 0 16px hsl(var(--solar) / 0.25)',
+    rgba: 'var(--solar)',
   },
   teal: {
+    gradient: 'from-secondary to-secondary/70',
+    textGradient: 'from-secondary to-secondary/80',
+    text: 'text-secondary',
+    glow: 'shadow-secondary/30',
+    bg: 'bg-secondary/10',
+    border: 'border-secondary/30',
+    leftBorder: 'border-l-secondary',
+    textGlow: '0 0 8px hsl(var(--secondary) / 0.5), 0 0 16px hsl(var(--secondary) / 0.25)',
+    rgba: 'var(--secondary)',
+  },
+  green: {
     gradient: 'from-primary to-primary/70',
     textGradient: 'from-primary to-primary/80',
     text: 'text-primary',
@@ -828,38 +839,27 @@ const colorStyles = {
     textGlow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)',
     rgba: 'var(--primary)',
   },
-  green: {
-    gradient: 'from-accent-cool to-accent-cool/70',
-    textGradient: 'from-accent-cool to-accent-cool/80',
-    text: 'text-accent-cool',
-    glow: 'shadow-accent-cool/30',
-    bg: 'bg-accent-cool/10',
-    border: 'border-accent-cool/30',
-    leftBorder: 'border-l-accent-cool',
-    textGlow: '0 0 8px hsl(var(--accent-cool) / 0.5), 0 0 16px hsl(var(--accent-cool) / 0.25)',
-    rgba: 'var(--accent-cool)',
-  },
   cyan: {
-    gradient: 'from-accent-rare to-accent-rare/70',
-    textGradient: 'from-accent-rare to-accent-rare/80',
-    text: 'text-accent-rare',
-    glow: 'shadow-accent-rare/30',
-    bg: 'bg-accent-rare/10',
-    border: 'border-accent-rare/30',
-    leftBorder: 'border-l-accent-rare',
-    textGlow: '0 0 8px hsl(var(--accent-rare) / 0.5), 0 0 16px hsl(var(--accent-rare) / 0.25)',
-    rgba: 'var(--accent-rare)',
+    gradient: 'from-energy to-energy/70',
+    textGradient: 'from-energy to-energy/80',
+    text: 'text-energy',
+    glow: 'shadow-energy/30',
+    bg: 'bg-energy/10',
+    border: 'border-energy/30',
+    leftBorder: 'border-l-energy',
+    textGlow: '0 0 8px hsl(var(--energy) / 0.5), 0 0 16px hsl(var(--energy) / 0.25)',
+    rgba: 'var(--energy)',
   },
   greenGold: {
-    gradient: 'from-accent-warm to-primary',
-    textGradient: 'from-accent-warm to-primary',
-    text: 'text-accent-warm',
-    glow: 'shadow-accent-warm/30',
-    bg: 'bg-accent-warm/10',
-    border: 'border-accent-warm/30',
-    leftBorder: 'border-l-accent-warm',
-    textGlow: '0 0 8px hsl(var(--accent-warm) / 0.5), 0 0 16px hsl(var(--primary) / 0.25)',
-    rgba: 'var(--accent-warm)',
+    gradient: 'from-solar to-energy',
+    textGradient: 'from-solar to-energy',
+    text: 'text-solar',
+    glow: 'shadow-solar/30',
+    bg: 'bg-solar/10',
+    border: 'border-solar/30',
+    leftBorder: 'border-l-solar',
+    textGlow: '0 0 8px hsl(var(--solar) / 0.5), 0 0 16px hsl(var(--energy) / 0.25)',
+    rgba: 'var(--solar)',
   },
 };
 
@@ -912,9 +912,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const doubleTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const burstTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignoreClickUntilRef = React.useRef<number>(0);
+  const tapCooldownUntilRef = React.useRef<number>(0);
   const DOUBLE_TAP_WINDOW = 500;
   const BURST_DURATION = 1200;
   const GHOST_CLICK_SUPPRESSION = 700;
+  // Minimum gap between two tap registrations — filters jittery iOS/Android
+  // double-fires (e.g. touchend + synthetic click) so each tap reliably maps
+  // to one burst/glow. Tuned below typical human double-tap cadence (~140ms).
+  const TAP_DEBOUNCE_MS = 80;
 
   // Pre-compute particles — stable across renders, only regenerate on new burst
   const particles = React.useMemo(() => {
@@ -996,6 +1001,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const processTap = useCallback((posX: number, posY: number) => {
     primeAudio();
     const now = Date.now();
+    // Debounce gate — drop spurious second registrations within TAP_DEBOUNCE_MS.
+    // This stops the touchend → ghost-click pair (and finger jitter) from
+    // collapsing two intended taps into one or skipping the burst entirely.
+    if (now < tapCooldownUntilRef.current) return;
+    tapCooldownUntilRef.current = now + TAP_DEBOUNCE_MS;
+
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
     if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
