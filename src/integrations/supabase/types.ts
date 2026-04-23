@@ -684,6 +684,36 @@ export type Database = {
         }
         Relationships: []
       }
+      kpi_tap_events: {
+        Row: {
+          category: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          occurred_at: string
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       lp_rounds: {
         Row: {
           created_at: string
