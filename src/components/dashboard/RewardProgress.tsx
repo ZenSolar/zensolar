@@ -35,31 +35,31 @@ interface RewardProgressProps {
   featuredNftId?: string;
 }
 
-// Color styles matching landing page gradients
+// Color styles using semantic accent tokens (warm = solar, primary = battery, cool = EV miles, rare = charging)
 const categoryStyles = {
   solar: {
-    gradient: 'from-amber-500 to-orange-500',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-500',
-    glow: 'shadow-amber-500/30',
+    gradient: 'from-accent-warm to-accent-warm/70',
+    bg: 'bg-accent-warm/10',
+    text: 'text-accent-warm',
+    glow: 'shadow-accent-warm/30',
   },
   battery: {
-    gradient: 'from-emerald-500 to-green-500',
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-500',
-    glow: 'shadow-emerald-500/30',
+    gradient: 'from-primary to-primary/70',
+    bg: 'bg-primary/10',
+    text: 'text-primary',
+    glow: 'shadow-primary/30',
   },
   ev_miles: {
-    gradient: 'from-blue-500 to-cyan-500',
-    bg: 'bg-blue-500/10',
-    text: 'text-blue-500',
-    glow: 'shadow-blue-500/30',
+    gradient: 'from-accent-cool to-accent-cool/70',
+    bg: 'bg-accent-cool/10',
+    text: 'text-accent-cool',
+    glow: 'shadow-accent-cool/30',
   },
   charging: {
-    gradient: 'from-purple-500 to-pink-500',
-    bg: 'bg-purple-500/10',
-    text: 'text-purple-500',
-    glow: 'shadow-purple-500/30',
+    gradient: 'from-accent-rare to-accent-rare/70',
+    bg: 'bg-accent-rare/10',
+    text: 'text-accent-rare',
+    glow: 'shadow-accent-rare/30',
   },
 };
 
@@ -356,8 +356,8 @@ export function RewardProgress({
             animate={{ opacity: 1, scale: 1 }}
             className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 flex flex-col items-center justify-center gap-3"
           >
-            <div className="p-4 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 shadow-lg shadow-amber-500/30">
-              <Sparkles className="h-8 w-8 text-white" />
+            <div className="p-4 rounded-full bg-gradient-to-br from-accent-warm to-accent-warm/70 shadow-lg shadow-accent-warm/30">
+              <Sparkles className="h-8 w-8 text-accent-warm-foreground" />
             </div>
             <div className="text-center">
               <p className="text-lg font-bold text-foreground">Collection Complete!</p>
