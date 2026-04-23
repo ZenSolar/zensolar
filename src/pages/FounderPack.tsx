@@ -103,17 +103,22 @@ function PackContent() {
     return () => observer.disconnect();
   }, []);
 
+  const headerRef = useRef<HTMLElement | null>(null);
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    // Measure live header height so the chapter title isn't hidden under the sticky bar.
+    const headerH = headerRef.current?.getBoundingClientRect().height ?? 96;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerH - 8;
     window.scrollTo({ top, behavior: "smooth" });
+    // Update active immediately for snappy feedback (don't wait for IO).
+    setActive(id);
   };
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       {/* Sticky header + progress */}
-      <header className="sticky top-0 z-30 border-b border-border/40 bg-background/92 pt-safe backdrop-blur-xl">
+      <header ref={headerRef} className="sticky top-0 z-30 border-b border-border/40 bg-background/92 pt-safe backdrop-blur-xl">
         <div className="px-safe">
           <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
@@ -149,11 +154,12 @@ function PackContent() {
             return (
               <button
                 key={s.id}
+                type="button"
                 onClick={() => scrollTo(s.id)}
-                className={`shrink-0 snap-start inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-widest transition-all ${
+                className={`shrink-0 snap-start inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-widest transition-all touch-manipulation ${
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : "bg-secondary/40 text-muted-foreground hover:bg-secondary/70"
+                    : "bg-secondary/40 text-muted-foreground hover:bg-secondary/70 active:bg-secondary"
                 }`}
               >
                 <Icon className="h-3 w-3" />

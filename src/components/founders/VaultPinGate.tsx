@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
-import { ShieldAlert, Loader2, ArrowLeft, Home, KeyRound, Delete, Check } from "lucide-react";
+import {
+  ShieldAlert,
+  Loader2,
+  ArrowLeft,
+  Home,
+  KeyRound,
+  Delete,
+  Check,
+  BookOpen,
+  Vault,
+  Atom,
+  Rocket,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,10 +36,46 @@ type Status =
   | { kind: "unlocked" };
 
 const SESSION_KEY_PREFIX = "zen.vault-pin-unlocked:";
+const CHOOSER_SEEN_PREFIX = "zen.vault-chooser-seen:";
+
+type Destination = {
+  to: string;
+  label: string;
+  blurb: string;
+  Icon: typeof BookOpen;
+};
+
+const FOUNDER_DESTINATIONS: Destination[] = [
+  {
+    to: "/founders",
+    label: "Founders Hub",
+    blurb: "Vault overview, founder cards, LP rounds.",
+    Icon: Vault,
+  },
+  {
+    to: "/founder-pack",
+    label: "The Founder Pack",
+    blurb: "All twelve chapters — Evolution → The Pact.",
+    Icon: BookOpen,
+  },
+  {
+    to: "/founders/proof-of-genesis",
+    label: "Proof of Genesis™",
+    blurb: "The cryptographic primitive thesis.",
+    Icon: Atom,
+  },
+  {
+    to: "/founders/app-overhaul-plan",
+    label: "App Overhaul Plan",
+    blurb: "Roadmap for the next surface.",
+    Icon: Rocket,
+  },
+];
 
 export function VaultPinGate({ userId, children }: Props) {
   const { user } = useAuth();
   const sessionKey = `${SESSION_KEY_PREFIX}${userId}`;
+  const chooserSeenKey = `${CHOOSER_SEEN_PREFIX}${userId}`;
   const [status, setStatus] = useState<Status>(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem(sessionKey) === "1") {
       return { kind: "unlocked" };
@@ -39,6 +88,7 @@ export function VaultPinGate({ userId, children }: Props) {
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(false);
   const [justUnlocked, setJustUnlocked] = useState(false);
+  const [showChooser, setShowChooser] = useState(false);
   const { lightTap, success: hapticSuccess, error: hapticError, mediumTap } = useHaptics();
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,7 +157,26 @@ export function VaultPinGate({ userId, children }: Props) {
     setJustUnlocked(true);
     // Brief celebratory pause so the user sees the success burst
     await new Promise((r) => setTimeout(r, 700));
-    setStatus({ kind: "unlocked" });
+    // Show chapter chooser the first time per session — saves a tap when they
+    // wanted to land somewhere other than the page they originally clicked.
+    const alreadySeen =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem(chooserSeenKey) === "1";
+    if (!alreadySeen) {
+      setShowChooser(true);
+    } else {
+      setStatus({ kind: "unlocked" });
+    }
+  };
+
+  const dismissChooser = (target?: string) => {
+    sessionStorage.setItem(chooserSeenKey, "1");
+    setShowChooser(false);
+    if (target && target !== location.pathname) {
+      navigate(target);
+    } else {
+      setStatus({ kind: "unlocked" });
+    }
   };
 
   const triggerShake = () => {
@@ -198,7 +267,88 @@ export function VaultPinGate({ userId, children }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin, confirmPin, status.kind, setupStage, busy]);
 
-  if (status.kind === "unlocked") return <>{children}</>;
+  if (status.kind === "unlocked" && !showChooser) return <>{children}</>;
+
+  if (showChooser) {
+    return (
+      <div
+        className="min-h-[100svh] flex flex-col bg-background relative overflow-hidden"
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
+          paddingLeft: "calc(env(safe-area-inset-left) + 1rem)",
+          paddingRight: "calc(env(safe-area-inset-right) + 1rem)",
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[140%] aspect-square rounded-full bg-primary/5 blur-3xl" />
+        </div>
+
+        <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+          <div className="text-center mb-6 animate-fade-in">
+            <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center shadow-[0_0_24px_hsl(var(--primary)/0.35)]">
+              <Check className="h-6 w-6 text-primary" strokeWidth={2.5} />
+            </div>
+            <h2 className="text-xl font-semibold tracking-tight">Vault unlocked</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Jump straight to a chapter, or continue here.
+            </p>
+          </div>
+
+          <div className="space-y-2.5">
+            {FOUNDER_DESTINATIONS.map(({ to, label, blurb, Icon }, i) => {
+              const isCurrent = to === location.pathname;
+              return (
+                <button
+                  key={to}
+                  type="button"
+                  onClick={() => {
+                    void lightTap();
+                    dismissChooser(to);
+                  }}
+                  className="group w-full text-left rounded-2xl border border-border/60 bg-card/60 hover:bg-card hover:border-primary/40 active:scale-[0.99] transition-all p-4 flex items-center gap-3 animate-fade-in"
+                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
+                >
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium flex items-center gap-2">
+                      {label}
+                      {isCurrent && (
+                        <span className="text-[9px] uppercase tracking-widest text-primary/80 border border-primary/30 rounded-full px-1.5 py-0.5">
+                          You're here
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground leading-snug truncate">
+                      {blurb}
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                </button>
+              );
+            })}
+          </div>
+
+          <Button
+            variant="ghost"
+            className="mt-5 text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              void lightTap();
+              dismissChooser();
+            }}
+          >
+            Continue on this page
+          </Button>
+
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground text-center pt-4">
+            You won't see this again until you sign back in.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const activeValue = status.kind === "needs_setup" && setupStage === "confirm" ? confirmPin : pin;
   const setActiveValue = (v: string) => {
