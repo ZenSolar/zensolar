@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import { V2VariantA } from "@/components/v2app/V2VariantA";
 import { V2VariantB } from "@/components/v2app/V2VariantB";
 import { V2DashboardA } from "@/components/v2app/V2DashboardA";
@@ -38,9 +38,9 @@ export default function V2App() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id} allowPreviewBypass>
+    <VaultPinGate userId={user.id} allowPreviewBypass>
       <V2AppHub />
-    </VaultBiometricGate>
+    </VaultPinGate>
   );
 }
 

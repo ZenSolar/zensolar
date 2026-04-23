@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { VaultBiometricGate } from "@/components/founders/VaultBiometricGate";
+import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 
 // ─── Section meta ────────────────────────────────────────────────
@@ -72,9 +72,9 @@ export default function FounderPack() {
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
-    <VaultBiometricGate userId={user.id}>
+    <VaultPinGate userId={user.id}>
       <PackContent />
-    </VaultBiometricGate>
+    </VaultPinGate>
   );
 }
 
