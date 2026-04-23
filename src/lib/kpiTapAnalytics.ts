@@ -62,7 +62,10 @@ async function flush() {
   if (queue.length === 0) return;
   const batch = queue.splice(0, MAX_BATCH);
   try {
-    await supabase.from('kpi_tap_events').insert(batch);
+    // Cast metadata to the loose Json shape Supabase expects.
+    await supabase.from('kpi_tap_events').insert(
+      batch.map(b => ({ ...b, metadata: (b.metadata ?? {}) as never }))
+    );
   } catch {
     // Silently drop — analytics must never break the dashboard.
   }

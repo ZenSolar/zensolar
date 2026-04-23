@@ -1,5 +1,16 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useTapGesture, TAP_GESTURE_TIMINGS } from '@/hooks/useTapGesture';
+import { recordKpiTapEvent } from '@/lib/kpiTapAnalytics';
+
+// Map internal color tokens used by KPI cards → analytics category names so
+// the admin Users page sees stable, human-readable labels.
+const analyticsCategoryByColor: Record<string, string> = {
+  gold: 'solar',
+  teal: 'battery',
+  green: 'ev',
+  cyan: 'supercharger',
+  greenGold: 'home_charger',
+};
 import { ShimmerOverlay } from './ShimmerOverlay';
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
@@ -891,9 +902,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     showTapAgain: boolean;
     isSecondTap: boolean;
     burstKey: number;
+    /** Timestamp of the first tap that started the current double-tap window — drives the countdown ring. */
+    ringStartedAt: number | null;
   }
   const stateRef = React.useRef<FieldState>({
-    phase: 'idle', touchPoint: null, showTapAgain: false, isSecondTap: false, burstKey: 0,
+    phase: 'idle', touchPoint: null, showTapAgain: false, isSecondTap: false, burstKey: 0, ringStartedAt: null,
   });
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
