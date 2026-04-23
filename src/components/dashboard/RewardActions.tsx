@@ -1597,13 +1597,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             <div className="space-y-5 py-2">
               {/* Success header */}
               <div className="relative w-20 h-20 mx-auto">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
-                  <CheckCircle2 className="h-10 w-10 text-green-500" />
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center ring-2 ring-primary/30 shadow-xl shadow-primary/10">
+                  <CheckCircle2 className="h-10 w-10 text-primary" />
                 </div>
               </div>
               
               <div className="text-center">
-                <h4 className="font-bold text-lg text-green-600 dark:text-green-400">
+                <h4 className="font-bold text-lg text-primary">
                   {nftMintResult.nftName} minted!
                 </h4>
               </div>
