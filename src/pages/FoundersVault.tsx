@@ -12,6 +12,7 @@ import {
   BookOpen,
   ArrowRight,
   Home,
+  Compass,
   Sparkles as SparklesIcon,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useVaultSnapshot } from "@/hooks/useVaultSnapshot";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import { JumpToChapter } from "@/components/founders/JumpToChapter";
+import { openFounderChooser } from "@/lib/founderChooser";
 import { FounderCard } from "@/components/founders/FounderCard";
 import { PriceScenarioToggle } from "@/components/founders/PriceScenarioToggle";
 import { PriceAdminPanel } from "@/components/founders/PriceAdminPanel";
@@ -192,6 +194,15 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
               </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={openFounderChooser}
+                title="Navigate (⌘K)"
+                className="h-8 w-8"
+              >
+                <Compass className="h-4 w-4" />
+              </Button>
               <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="Home">
                 <Link to="/">
                   <Home className="h-4 w-4" />
