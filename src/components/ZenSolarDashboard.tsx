@@ -253,6 +253,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
+        {!isViewer && (
+          <AnimatedItem>
+            <RewardActions 
               ref={rewardActionsRef}
               onRefresh={refreshDashboard} 
               isLoading={dataLoading}
