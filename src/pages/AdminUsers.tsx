@@ -825,6 +825,19 @@ export default function AdminUsers() {
       });
     }
 
+    // Aggregate KPI tap analytics per user.
+    if (!tapEventsResult.error && tapEventsResult.data) {
+      tapEventsResult.data.forEach(ev => {
+        const k = kpiMap.get(ev.user_id);
+        if (!k) return;
+        if (!k.tap_stats) k.tap_stats = { single: 0, double: 0, mintInWindow: 0, mintOutsideWindow: 0 };
+        if (ev.event_type === 'single_tap') k.tap_stats.single++;
+        else if (ev.event_type === 'double_tap') k.tap_stats.double++;
+        else if (ev.event_type === 'mint_in_window') k.tap_stats.mintInWindow++;
+        else if (ev.event_type === 'mint_outside_window') k.tap_stats.mintOutsideWindow++;
+      });
+    }
+
     kpiMap.forEach((kpi) => {
       kpi.nfts_earned = calculateEarnedNFTs({
         productionKwh: kpi.total_production_kwh, evMiles: kpi.total_ev_miles,
