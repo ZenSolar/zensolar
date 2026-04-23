@@ -451,11 +451,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -482,11 +478,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -513,11 +505,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -544,11 +532,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -575,11 +559,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
