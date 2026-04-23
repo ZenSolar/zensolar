@@ -260,7 +260,7 @@ export default function MintHistory() {
                         <CollapsibleTrigger className="w-full">
                           <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
                             <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg bg-gradient-to-br ${actionInfo.gradient} text-white`}>{actionInfo.icon}</div>
+                              <div className={`p-2 rounded-lg bg-gradient-to-br ${actionInfo.gradient} text-primary-foreground`}>{actionInfo.icon}</div>
                               <div className="text-left">
                                 <p className="font-medium text-sm">{actionInfo.label}</p>
                                 <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</p>
