@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { ShieldAlert, Loader2, ArrowLeft, Home, KeyRound, Delete } from "lucide-react";
+import { ShieldAlert, Loader2, ArrowLeft, Home, KeyRound, Delete, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useHaptics } from "@/hooks/useHaptics";
 import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -36,6 +37,9 @@ export function VaultPinGate({ userId, children }: Props) {
   const [confirmPin, setConfirmPin] = useState("");
   const [setupStage, setSetupStage] = useState<"create" | "confirm">("create");
   const [busy, setBusy] = useState(false);
+  const [shake, setShake] = useState(false);
+  const [justUnlocked, setJustUnlocked] = useState(false);
+  const { lightTap, success: hapticSuccess, error: hapticError, mediumTap } = useHaptics();
   const navigate = useNavigate();
   const location = useLocation();
 
