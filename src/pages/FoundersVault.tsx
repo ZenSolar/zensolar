@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useVaultSnapshot } from "@/hooks/useVaultSnapshot";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { JumpToChapter } from "@/components/founders/JumpToChapter";
 import { FounderCard } from "@/components/founders/FounderCard";
 import { PriceScenarioToggle } from "@/components/founders/PriceScenarioToggle";
 import { PriceAdminPanel } from "@/components/founders/PriceAdminPanel";
@@ -251,6 +252,9 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
             <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
           </div>
         </Link>
+
+        {/* Jump to Chapter — skip the chooser, drop straight into a chapter */}
+        <JumpToChapter />
 
         {/* Proof of Genesis™ CTA */}
         <Link

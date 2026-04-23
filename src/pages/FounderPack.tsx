@@ -104,16 +104,53 @@ function PackContent() {
   }, []);
 
   const headerRef = useRef<HTMLElement | null>(null);
+
+  // Keep a CSS variable in sync with live header height so each section's
+  // `scroll-margin-top` reflects the actual sticky bar across iOS/Android,
+  // any viewport height, and dynamic browser chrome (URL bar collapse).
+  useEffect(() => {
+    const sync = () => {
+      const h = headerRef.current?.getBoundingClientRect().height ?? 96;
+      document.documentElement.style.setProperty("--pack-header-h", `${Math.round(h + 8)}px`);
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    if (headerRef.current) ro.observe(headerRef.current);
+    window.addEventListener("resize", sync);
+    window.addEventListener("orientationchange", sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", sync);
+      window.removeEventListener("orientationchange", sync);
+    };
+  }, []);
+
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    // Measure live header height so the chapter title isn't hidden under the sticky bar.
-    const headerH = headerRef.current?.getBoundingClientRect().height ?? 96;
-    const top = el.getBoundingClientRect().top + window.scrollY - headerH - 8;
-    window.scrollTo({ top, behavior: "smooth" });
+    // Native scrollIntoView honors `scroll-margin-top` (set via CSS var below)
+    // and behaves consistently on iOS Safari + Chrome Android.
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
     // Update active immediately for snappy feedback (don't wait for IO).
     setActive(id);
   };
+
+  // Honor `#chapter-id` in the URL so the Vault's "Jump to Chapter" affordance
+  // (and any deep link) lands you directly on that chapter, not at the top.
+  useEffect(() => {
+    const jump = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (!hash) return;
+      // Defer until layout settles + header height var is set.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scrollTo(hash));
+      });
+    };
+    jump();
+    window.addEventListener("hashchange", jump);
+    return () => window.removeEventListener("hashchange", jump);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
@@ -790,7 +827,8 @@ function Section({
   return (
     <section
       id={id}
-      className="max-w-3xl mx-auto px-5 md:px-6 py-14 md:py-24 scroll-mt-36"
+      className="max-w-3xl mx-auto px-5 md:px-6 py-14 md:py-24"
+      style={{ scrollMarginTop: "var(--pack-header-h, 9rem)" }}
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}

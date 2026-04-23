@@ -19,6 +19,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useHaptics } from "@/hooks/useHaptics";
 import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  getLastFounderRoute,
+  isFounderRoute,
+  rememberFounderRoute,
+} from "@/lib/founderLastVisit";
 
 interface Props {
   userId: string;
@@ -164,17 +169,29 @@ export function VaultPinGate({ userId, children }: Props) {
       sessionStorage.getItem(chooserSeenKey) === "1";
     if (!alreadySeen) {
       setShowChooser(true);
-    } else {
-      setStatus({ kind: "unlocked" });
+      return;
     }
+    // Subsequent unlocks within the same session: jump straight to the last
+    // founder chapter they were reading, if any — and only if they aren't
+    // already on it.
+    const last = getLastFounderRoute(userId);
+    if (last && last !== location.pathname) {
+      navigate(last);
+    }
+    setStatus({ kind: "unlocked" });
   };
 
   const dismissChooser = (target?: string) => {
     sessionStorage.setItem(chooserSeenKey, "1");
     setShowChooser(false);
     if (target && target !== location.pathname) {
+      rememberFounderRoute(userId, target);
       navigate(target);
     } else {
+      // Continuing on current page — remember it as the latest visit.
+      if (isFounderRoute(location.pathname)) {
+        rememberFounderRoute(userId, location.pathname);
+      }
       setStatus({ kind: "unlocked" });
     }
   };
@@ -266,6 +283,13 @@ export function VaultPinGate({ userId, children }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin, confirmPin, status.kind, setupStage, busy]);
+
+  // While unlocked, persist the current founder route so a later unlock
+  // (same session) can default the user back to where they left off.
+  useEffect(() => {
+    if (status.kind !== "unlocked" || showChooser) return;
+    rememberFounderRoute(userId, location.pathname);
+  }, [status.kind, showChooser, userId, location.pathname]);
 
   if (status.kind === "unlocked" && !showChooser) return <>{children}</>;
 
