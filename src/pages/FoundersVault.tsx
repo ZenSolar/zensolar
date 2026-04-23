@@ -252,6 +252,9 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           </div>
         </Link>
 
+        {/* Jump to Chapter — skip the chooser, drop straight into a chapter */}
+        <JumpToChapter />
+
         {/* Proof of Genesis™ CTA */}
         <Link
           to="/founders/proof-of-genesis"
