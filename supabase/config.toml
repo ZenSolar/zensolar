@@ -75,6 +75,10 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.track-email-open]
     verify_jwt = false
+  [functions.vault-pin-set]
+    verify_jwt = false
+  [functions.vault-pin-verify]
+    verify_jwt = false
   [functions.verify-turnstile]
     verify_jwt = false
   [functions.wallbox-auth]
