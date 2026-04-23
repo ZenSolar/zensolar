@@ -95,3 +95,19 @@ All 9 founder routes registered correctly at App.tsx lines 984-994: `/founders`,
 ### FounderRoute guard (security upgrade)
 **Fixed:** All 11 founder/deason routes now require founder role at the route level — defense-in-depth on top of page-level checks.
 **Noticed:** `useIsFounder` and `useAdminCheck` both query `user_roles` independently — N+1 queries per page load. *Quick win:* unify into a single `useUserRoles()` hook with React Query caching.
+
+## Round 4 — Dashboard polish + EnergyLog resilience (this commit)
+
+**Shipped:**
+- `CO2OffsetCard` — prominent emerald-accent card on dashboard, headline in **tons**, lbs + tree-years as context, skeleton loader, matches sidebar `border-l-2` styling.
+- `EnergyLogFallback` — per-provider freshness panel with retry buttons. Reads `connected_devices.updated_at`, flags >36h as stale, calls correct edge function per provider (`tesla-data` / `enphase-data` / `solaredge-data` / `wallbox-data`).
+- Referral analytics — `trackEvent` on share + copy (code vs link), success/cancel/failure variants. Surface key: `referral_share_click`, `referral_copy`, `referral_share_success`.
+- Sidebar footer — "Day N ⚡" streak badge using `profiles.login_count`, solar-tinted to differentiate from role badges.
+- TopNav — added `min-w-0 flex-shrink` to right cluster and `whitespace-nowrap` on Beta 10x to prevent overflow on 320–360px.
+
+**Future enhancements to consider:**
+1. Track *referral conversions* (signups attributed to a code) — needs `profiles.referred_by` GA pipeline.
+2. Streak should compute *consecutive days* (requires `last_login_at` history table), not just total `login_count`.
+3. EnergyLog: surface `last_updated` per data type, not just per provider, so users can see solar vs battery vs EV freshness independently.
+4. CO2 card: add "vs last month" delta chip to make impact feel alive.
+5. Provider retry should debounce + exponential-backoff toast cooldown to prevent rapid re-clicks hammering edge functions.
