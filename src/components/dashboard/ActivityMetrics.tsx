@@ -921,6 +921,39 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   // to one burst/glow. Tuned below typical human double-tap cadence (~140ms).
   const TAP_DEBOUNCE_MS = 80;
 
+  // Resync tap visuals when the app/tab becomes visible again (PWA resume,
+  // tab switch, lock-screen wake). Clears any stale phase/timers left over
+  // from a backgrounded burst and forces a fresh render so the KPI base
+  // colors + tap-driven effects always reflect the latest state.
+  useEffect(() => {
+    const resync = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (chargeTimerRef.current) { clearTimeout(chargeTimerRef.current); chargeTimerRef.current = null; }
+      if (doubleTapTimerRef.current) { clearTimeout(doubleTapTimerRef.current); doubleTapTimerRef.current = null; }
+      if (burstTimerRef.current) { clearTimeout(burstTimerRef.current); burstTimerRef.current = null; }
+      tapCooldownUntilRef.current = 0;
+      ignoreClickUntilRef.current = 0;
+      touchStartRef.current = null;
+      // Reset transient interaction state so visuals re-mount cleanly.
+      Object.assign(stateRef.current, {
+        phase: 'idle' as const,
+        touchPoint: null,
+        showTapAgain: false,
+        isSecondTap: false,
+        burstKey: stateRef.current.burstKey + 1,
+      });
+      forceRender();
+    };
+    document.addEventListener('visibilitychange', resync);
+    window.addEventListener('pageshow', resync);
+    window.addEventListener('focus', resync);
+    return () => {
+      document.removeEventListener('visibilitychange', resync);
+      window.removeEventListener('pageshow', resync);
+      window.removeEventListener('focus', resync);
+    };
+  }, [forceRender]);
+
   // Pre-compute particles — stable across renders, only regenerate on new burst
   const particles = React.useMemo(() => {
     return Array.from({ length: 16 }, (_, i) => {
