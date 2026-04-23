@@ -1432,8 +1432,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             
             {/* Success message */}
             {mintingProgress.step === 'complete' && (
-              <div className="bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl p-4 border border-green-500/20 max-w-xs mx-auto shadow-[0_0_20px_rgba(34,197,94,0.1)]">
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30 max-w-xs mx-auto shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
+                <p className="text-sm text-primary font-medium">
                   ✨ Your tokens have been minted successfully!
                 </p>
               </div>
