@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useTapGesture, TAP_GESTURE_TIMINGS } from '@/hooks/useTapGesture';
 import { ShimmerOverlay } from './ShimmerOverlay';
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
