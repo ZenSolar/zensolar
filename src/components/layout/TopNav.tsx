@@ -90,7 +90,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         <div className="flex items-center gap-1 sm:gap-1.5">
           {/* Live Beta indicator for admins (hidden on very narrow screens) */}
           {!isDemo && isAdmin && isLiveBeta && (
-            <Badge variant="outline" className="hidden xs:inline-flex gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
+            <Badge variant="outline" className="hidden min-[480px]:inline-flex gap-1.5 text-xs bg-solar/10 text-solar border-solar/30">
               <Flame className="h-3 w-3 animate-pulse" />
               Beta 10x
             </Badge>
