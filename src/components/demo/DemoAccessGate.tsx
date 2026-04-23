@@ -2042,6 +2042,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           />
         </div>
       )}
+
+      <PreviewBypassBar granted={false} onBypass={handlePreviewBypass} />
     </div>
   );
 }
