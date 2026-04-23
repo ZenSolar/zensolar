@@ -40,39 +40,7 @@ type Status =
 const SESSION_KEY_PREFIX = "zen.vault-pin-unlocked:";
 const CHOOSER_SEEN_PREFIX = "zen.vault-chooser-seen:";
 
-type Destination = {
-  to: string;
-  label: string;
-  blurb: string;
-  Icon: typeof BookOpen;
-};
-
-const FOUNDER_DESTINATIONS: Destination[] = [
-  {
-    to: "/founders",
-    label: "Founders Hub",
-    blurb: "Vault overview, founder cards, LP rounds.",
-    Icon: Vault,
-  },
-  {
-    to: "/founder-pack",
-    label: "The Founder Pack",
-    blurb: "All twelve chapters — Evolution → The Pact.",
-    Icon: BookOpen,
-  },
-  {
-    to: "/founders/proof-of-genesis",
-    label: "Proof of Genesis™",
-    blurb: "The cryptographic primitive thesis.",
-    Icon: Atom,
-  },
-  {
-    to: "/founders/app-overhaul-plan",
-    label: "App Overhaul Plan",
-    blurb: "Roadmap for the next surface.",
-    Icon: Rocket,
-  },
-];
+type ChooserMode = "unlock" | "reopen";
 
 export function VaultPinGate({ userId, children }: Props) {
   const { user } = useAuth();
