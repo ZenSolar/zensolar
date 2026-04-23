@@ -38,7 +38,7 @@ export function PreviewBypassBar({ granted, onBypass }: Props) {
 
   return (
     <div
-      className="fixed left-1/2 -translate-x-1/2 z-[100] pointer-events-auto"
+      className="fixed left-1/2 -translate-x-1/2 z-[120] pointer-events-auto"
       style={{ top: "calc(env(safe-area-inset-top) + 0.5rem)" }}
     >
       <div className="flex items-center gap-2 rounded-full border border-amber-400/40 bg-background/85 backdrop-blur-md pl-3 pr-1 py-1 shadow-lg">
