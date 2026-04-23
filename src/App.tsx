@@ -158,7 +158,7 @@ const BlogVPP = lazy(() => import("./pages/blog/VirtualPowerPlantVPP"));
 function PageLoader() {
   return (
     <div className="flex items-center justify-center min-h-[50vh]">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <BrandedSpinner size="lg" />
     </div>
   );
 }

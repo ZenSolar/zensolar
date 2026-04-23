@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { BrandedSpinner } from '@/components/ui/BrandedSpinner';
 import { isPreviewMode } from '@/lib/previewMode';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
@@ -16,7 +16,7 @@ import('@/pages/Index').catch(() => {});
 function RouteLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <BrandedSpinner size="lg" />
     </div>
   );
 }

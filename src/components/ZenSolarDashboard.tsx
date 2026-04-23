@@ -160,7 +160,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   if (profileLoading) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <BrandedSpinner size="lg" />
       </div>
     );
   }
