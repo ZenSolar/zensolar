@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { openFounderChooser } from "@/lib/founderChooser";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 
 // ─── Section meta ────────────────────────────────────────────────
