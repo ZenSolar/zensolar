@@ -164,6 +164,29 @@ const adminMenuGroups = {
   ],
 };
 
+// Shared NavLink className builders — adds a left accent bar on the active route.
+// Primary (emerald) for main/account/admin nav; Amber for Founders nav.
+const navClass = ({ isActive }: { isActive: boolean }) =>
+  `relative pl-3 border-l-2 transition-colors ${
+    isActive
+      ? "border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+      : "border-transparent hover:bg-sidebar-accent/50 hover:border-primary/40"
+  }`;
+
+const navClassWithExtra = (extra: string) => ({ isActive }: { isActive: boolean }) =>
+  `relative pl-3 border-l-2 transition-colors ${
+    isActive
+      ? `border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium ${extra}`
+      : `border-transparent hover:bg-sidebar-accent/50 hover:border-primary/40 ${extra}`
+  }`;
+
+const founderNavClass = ({ isActive }: { isActive: boolean }) =>
+  `relative pl-3 border-l-2 transition-colors text-amber-400 font-semibold rounded-lg ${
+    isActive
+      ? "border-amber-400 bg-amber-400/10 text-amber-300"
+      : "border-transparent hover:bg-sidebar-accent/50 hover:border-amber-400/40"
+  }`;
+
 export function AppSidebar() {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
