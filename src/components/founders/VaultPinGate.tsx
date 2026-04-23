@@ -157,7 +157,27 @@ export function VaultPinGate({ userId, children }: Props) {
     setJustUnlocked(true);
     // Brief celebratory pause so the user sees the success burst
     await new Promise((r) => setTimeout(r, 700));
-    setStatus({ kind: "unlocked" });
+    // Show chapter chooser the first time per session — saves a tap when they
+    // wanted to land somewhere other than the page they originally clicked.
+    const alreadySeen =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem(chooserSeenKey) === "1";
+    if (!alreadySeen) {
+      setShowChooser(true);
+    } else {
+      setStatus({ kind: "unlocked" });
+    }
+  };
+
+  const dismissChooser = (target?: string) => {
+    sessionStorage.setItem(chooserSeenKey, "1");
+    setShowChooser(false);
+    if (target && target !== location.pathname) {
+      navigate(target);
+    } else {
+      setStatus({ kind: "unlocked" });
+    }
+  };
   };
 
   const triggerShake = () => {
