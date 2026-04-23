@@ -944,10 +944,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           
           <div className="space-y-3 py-4">
             {totalPendingTokens === 0 ? (
-              <div className="bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 rounded-xl p-4">
+              <div className="bg-gradient-to-br from-accent-warm/15 via-accent-warm/10 to-accent-warm/5 border border-accent-warm/30 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                    <AlertCircle className="h-5 w-5 text-amber-500" />
+                  <div className="h-9 w-9 rounded-lg bg-accent-warm/20 flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-accent-warm" />
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">No tokens available to mint</p>
@@ -1041,10 +1041,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
                   {/* Tesla Supercharging */}
                   {(pendingRewards.superchargerKwh ?? 0) > 0 && (
-                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-red-500/30 transition-colors">
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-destructive/30 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-red-500/20 to-red-500/10 shadow-sm">
-                          <Zap className="h-4 w-4 text-red-500" />
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 shadow-sm">
+                          <Zap className="h-4 w-4 text-destructive" />
                         </div>
                         <div>
                           <p className="font-medium text-sm">Tesla Supercharging</p>
@@ -1056,7 +1056,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         variant="outline"
                         onClick={() => handleRequestMint('supercharging')}
                         disabled={(pendingRewards.superchargerKwh ?? 0) === 0 || isMinting}
-                        className="rounded-lg h-9 px-4 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-colors"
+                        className="rounded-lg h-9 px-4 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-colors"
                       >
                         {mintingState.category === 'supercharging' ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1244,7 +1244,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             )}
             {mintingProgress.step === 'complete' && (
               <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-green-500/8 animate-pulse blur-3xl" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-primary/10 animate-pulse blur-3xl" />
               </div>
             )}
 
@@ -1278,94 +1278,94 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               ) : mintingProgress.step === 'complete' ? (
                 <div className="relative">
                   {/* Success burst rings */}
-                  <div className="absolute inset-[-8px] rounded-full border-2 border-green-500/20 animate-[ping_1.5s_ease-out_1]" />
-                  <div className="absolute inset-[-16px] rounded-full border border-green-500/10 animate-[ping_2s_ease-out_1]" />
-                  <div className="w-28 h-28 rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                    <CheckCircle2 className="h-14 w-14 text-green-500" />
+                  <div className="absolute inset-[-8px] rounded-full border-2 border-primary/30 animate-[ping_1.5s_ease-out_1]" />
+                  <div className="absolute inset-[-16px] rounded-full border border-primary/15 animate-[ping_2s_ease-out_1]" />
+                  <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center ring-2 ring-primary/40 shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+                    <CheckCircle2 className="h-14 w-14 text-primary" />
                   </div>
                 </div>
               ) : mintingProgress.step === 'transmitting' ? (
                 <div className="relative w-full h-full">
-                  {/* Expanding emerald pulse rings */}
-                  <div className="absolute inset-[-12px] rounded-full border border-emerald-500/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-                  <div className="absolute inset-[-6px] rounded-full border border-emerald-400/20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
-                  <div className="absolute inset-[-20px] rounded-full border border-emerald-500/15 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
-                  
-                  {/* Emerald ambient glow */}
-                  <div className="absolute inset-[-24px] rounded-full bg-emerald-500/5 animate-pulse" />
-                  
-                  {/* Network graph connecting lines — emerald green */}
+                  {/* Expanding pulse rings — primary */}
+                  <div className="absolute inset-[-12px] rounded-full border border-primary/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+                  <div className="absolute inset-[-6px] rounded-full border border-primary/20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
+                  <div className="absolute inset-[-20px] rounded-full border border-primary/15 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
+
+                  {/* Ambient glow */}
+                  <div className="absolute inset-[-24px] rounded-full bg-primary/8 animate-pulse" />
+
+                  {/* Network graph connecting lines */}
                   <svg className="absolute inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)]" viewBox="0 0 120 120">
-                    <line x1="60" y1="4" x2="60" y2="60" stroke="rgba(16,185,129,0.3)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="60" y1="4" x2="60" y2="60" stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1s" repeatCount="indefinite" />
                     </line>
-                    <line x1="60" y1="116" x2="60" y2="60" stroke="rgba(16,185,129,0.25)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="60" y1="116" x2="60" y2="60" stroke="hsl(var(--primary) / 0.3)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="4" y1="60" x2="60" y2="60" stroke="rgba(16,185,129,0.25)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="4" y1="60" x2="60" y2="60" stroke="hsl(var(--primary) / 0.3)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.4s" repeatCount="indefinite" />
                     </line>
-                    <line x1="116" y1="60" x2="60" y2="60" stroke="rgba(16,185,129,0.2)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="116" y1="60" x2="60" y2="60" stroke="hsl(var(--primary) / 0.25)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.1s" repeatCount="indefinite" />
                     </line>
-                    {/* Diagonal cross connections */}
-                    <line x1="20" y1="20" x2="60" y2="60" stroke="rgba(52,211,153,0.15)" strokeWidth="0.4" strokeDasharray="2 4">
+                    {/* Diagonal cross connections — accent-cool for depth */}
+                    <line x1="20" y1="20" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.2)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="100" y1="20" x2="60" y2="60" stroke="rgba(52,211,153,0.15)" strokeWidth="0.4" strokeDasharray="2 4">
+                    <line x1="100" y1="20" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.2)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.8s" repeatCount="indefinite" />
                     </line>
-                    <line x1="20" y1="100" x2="60" y2="60" stroke="rgba(52,211,153,0.12)" strokeWidth="0.4" strokeDasharray="2 4">
+                    <line x1="20" y1="100" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.18)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="2.2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="100" y1="100" x2="60" y2="60" stroke="rgba(52,211,153,0.12)" strokeWidth="0.4" strokeDasharray="2 4">
+                    <line x1="100" y1="100" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.18)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.6s" repeatCount="indefinite" />
                     </line>
                     {/* Data packet dots flowing along lines */}
-                    <circle r="1.5" fill="rgba(16,185,129,0.6)">
+                    <circle r="1.5" fill="hsl(var(--primary) / 0.7)">
                       <animateMotion dur="2s" repeatCount="indefinite" path="M60,4 L60,60" />
                     </circle>
-                    <circle r="1.2" fill="rgba(52,211,153,0.5)">
+                    <circle r="1.2" fill="hsl(var(--accent-cool) / 0.6)">
                       <animateMotion dur="2.5s" repeatCount="indefinite" path="M4,60 L60,60" />
                     </circle>
-                    <circle r="1" fill="rgba(16,185,129,0.4)">
+                    <circle r="1" fill="hsl(var(--primary) / 0.5)">
                       <animateMotion dur="1.8s" repeatCount="indefinite" path="M116,60 L60,60" />
                     </circle>
-                    <circle r="1.3" fill="rgba(52,211,153,0.5)">
+                    <circle r="1.3" fill="hsl(var(--accent-cool) / 0.6)">
                       <animateMotion dur="2.2s" repeatCount="indefinite" path="M60,116 L60,60" />
                     </circle>
                   </svg>
-                  
-                  {/* Orbiting nodes with sparkle trails — emerald green */}
+
+                  {/* Orbiting nodes with sparkle trails */}
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite]">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.7)]" />
-                      <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-emerald-400/40 animate-[ping_1s_ease-out_infinite]" />
-                      <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-emerald-300/25 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.8)]" />
+                      <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-primary/50 animate-[ping_1s_ease-out_infinite]" />
+                      <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-primary/30 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite_reverse]">
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400/70 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-                      <div className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-emerald-300/30 animate-[ping_1.3s_ease-out_infinite_0.2s]" />
+                      <div className="w-2 h-2 rounded-full bg-accent-cool/80 shadow-[0_0_8px_hsl(var(--accent-cool)/0.6)]" />
+                      <div className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-accent-cool/40 animate-[ping_1.3s_ease-out_infinite_0.2s]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_6s_linear_infinite]">
                     <div className="absolute top-1/2 left-0 -translate-y-1/2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50 shadow-[0_0_6px_rgba(16,185,129,0.3)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary/60 shadow-[0_0_6px_hsl(var(--primary)/0.4)]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_5s_linear_infinite]">
                     <div className="absolute top-1/2 right-0 -translate-y-1/2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400/60 shadow-[0_0_8px_rgba(52,211,153,0.4)]" />
-                      <div className="absolute top-1 left-2 w-1 h-1 rounded-full bg-emerald-300/20 animate-[ping_1.2s_ease-out_infinite_0.5s]" />
+                      <div className="w-2 h-2 rounded-full bg-accent-cool/70 shadow-[0_0_8px_hsl(var(--accent-cool)/0.5)]" />
+                      <div className="absolute top-1 left-2 w-1 h-1 rounded-full bg-accent-cool/30 animate-[ping_1.2s_ease-out_infinite_0.5s]" />
                     </div>
                   </div>
-                  
-                  {/* Core glow — rich emerald */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-500/25 via-emerald-400/15 to-emerald-600/5 animate-pulse shadow-[0_0_40px_rgba(16,185,129,0.3)]" />
-                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 flex items-center justify-center ring-2 ring-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                    <Loader2 className="h-10 w-10 text-emerald-400 animate-spin" />
+
+                  {/* Core glow */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 animate-pulse shadow-[0_0_40px_hsl(var(--primary)/0.4)]" />
+                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center ring-2 ring-primary/40 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
+                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
                   </div>
                 </div>
               ) : mintingProgress.step === 'confirming' ? (
@@ -1432,8 +1432,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             
             {/* Success message */}
             {mintingProgress.step === 'complete' && (
-              <div className="bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl p-4 border border-green-500/20 max-w-xs mx-auto shadow-[0_0_20px_rgba(34,197,94,0.1)]">
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30 max-w-xs mx-auto shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
+                <p className="text-sm text-primary font-medium">
                   ✨ Your tokens have been minted successfully!
                 </p>
               </div>
@@ -1573,12 +1573,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               {nftMintDialog.type === 'milestone' ? (
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-emerald-500/5 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/20">
-                  <Trophy className="h-5 w-5 text-emerald-500" />
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 via-primary/15 to-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/30">
+                  <Trophy className="h-5 w-5 text-primary" />
                 </span>
               ) : (
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-purple-500/5 shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/20">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-accent-rare/25 via-accent-rare/15 to-accent-rare/5 shadow-lg shadow-accent-rare/10 ring-1 ring-accent-rare/30">
+                  <Sparkles className="h-5 w-5 text-accent-rare" />
                 </span>
               )}
               <span className="text-xl">
@@ -1597,13 +1597,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             <div className="space-y-5 py-2">
               {/* Success header */}
               <div className="relative w-20 h-20 mx-auto">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/20 shadow-xl">
-                  <CheckCircle2 className="h-10 w-10 text-green-500" />
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center ring-2 ring-primary/30 shadow-xl shadow-primary/10">
+                  <CheckCircle2 className="h-10 w-10 text-primary" />
                 </div>
               </div>
               
               <div className="text-center">
-                <h4 className="font-bold text-lg text-green-600 dark:text-green-400">
+                <h4 className="font-bold text-lg text-primary">
                   {nftMintResult.nftName} minted!
                 </h4>
               </div>
@@ -1755,7 +1755,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       key={combo.tokenId}
                       className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                     >
-                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/5 flex-shrink-0">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-accent-rare/20 to-accent-rare/5 flex-shrink-0">
                         {artwork ? (
                           <img 
                             src={artwork} 
@@ -1777,7 +1777,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         size="sm"
                         onClick={() => handleMintSingleCombo(combo)}
                         disabled={isMinting}
-                        className="flex-shrink-0 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        className="flex-shrink-0 bg-gradient-to-r from-accent-rare to-accent-rare/80 hover:from-accent-rare/90 hover:to-accent-rare/70 text-accent-rare-foreground"
                       >
                         {isCurrentlyMinting ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
