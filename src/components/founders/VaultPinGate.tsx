@@ -178,7 +178,6 @@ export function VaultPinGate({ userId, children }: Props) {
       setStatus({ kind: "unlocked" });
     }
   };
-  };
 
   const triggerShake = () => {
     void hapticError();
