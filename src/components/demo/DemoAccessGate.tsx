@@ -317,8 +317,15 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
   }, []);
   // Gate QA mode — always on in preview /demo, or opt-in via query params elsewhere.
+  // P0 audit fix: respect localStorage.zen_hide_qa=1 to silence the diagnostics overlay
+  // for clean investor demos in preview environments.
   const iosQaEnabled = useMemo(() => {
     if (typeof window === 'undefined') return false;
+    try {
+      if (localStorage.getItem('zen_hide_qa') === '1') return false;
+    } catch {
+      // ignore storage failures
+    }
     const p = new URLSearchParams(window.location.search);
     return isPreviewDemoQaRoute() || p.has('iosqa') || p.has('gateqa') || p.get('debug') === 'ios' || p.get('debug') === 'gate';
   }, []);
