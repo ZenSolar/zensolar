@@ -1059,10 +1059,15 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       triggerBurst(posX, posY);
       updateState({ showTapAgain: true });
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      doubleTapTimerRef.current = setTimeout(() => {
-        lastTapTimeRef.current = 0;
-        updateState({ showTapAgain: false });
+      // Keep the hint visible long enough that brand-new users can read it,
+      // but reset the double-tap window after DOUBLE_TAP_WINDOW so a delayed
+      // second tap counts as a fresh single-tap (intentional UX).
+      setTimeout(() => {
+        if (lastTapTimeRef.current === now) lastTapTimeRef.current = 0;
       }, DOUBLE_TAP_WINDOW);
+      doubleTapTimerRef.current = setTimeout(() => {
+        updateState({ showTapAgain: false });
+      }, HINT_DURATION_MS);
     }
   }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState, onTap]);
 
