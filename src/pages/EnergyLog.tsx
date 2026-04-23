@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useEnergyLog } from '@/hooks/useEnergyLog';
 import { useChargingSessions } from '@/hooks/useChargingSessions';
 import { useDeviceLabels, getEnergyLogTitle } from '@/hooks/useDeviceLabels';
@@ -15,9 +15,11 @@ import { ComingSoon } from '@/components/energy-log/ComingSoon';
 import { TodayHero } from '@/components/energy-log/TodayHero';
 import { DailyList } from '@/components/energy-log/DailyList';
 import { ChargingSessionList } from '@/components/energy-log/ChargingSessionList';
+import { EnergyLogFallback, type ProviderStatus } from '@/components/energy-log/EnergyLogFallback';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function EnergyLog() {
   const {
