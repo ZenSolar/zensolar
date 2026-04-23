@@ -40,8 +40,54 @@ export function ReferralCard() {
     }
   };
 
-  if (isLoading || !referralCode) {
-    return null;
+  // P0 audit fix: never render nothing — show loading skeleton instead so the
+  // primary CTA on /referrals doesn't silently vanish while the profile fetches.
+  if (isLoading) {
+    return (
+      <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-primary/20">
+              <Gift className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Refer Friends & Earn</CardTitle>
+              <CardDescription>Get 1,000 $ZSOLAR for each friend who joins</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="h-10 rounded-md bg-muted/40 animate-pulse" />
+          <div className="flex gap-2">
+            <div className="h-10 flex-1 rounded-md bg-muted/40 animate-pulse" />
+            <div className="h-10 flex-1 rounded-md bg-muted/30 animate-pulse" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!referralCode) {
+    return (
+      <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-primary/20">
+              <Gift className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Refer Friends & Earn</CardTitle>
+              <CardDescription>Your referral code is being generated…</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Refresh in a moment to grab your code and start earning 1,000 $ZSOLAR per signup.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
