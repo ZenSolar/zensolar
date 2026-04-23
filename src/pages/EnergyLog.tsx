@@ -39,7 +39,78 @@ export default function EnergyLog() {
   const backfillTriggered = useRef(false);
   const [showMonthStats, setShowMonthStats] = useState(true);
   const [showSessions, setShowSessions] = useState(true);
+  const [providerStatuses, setProviderStatuses] = useState<ProviderStatus[]>([]);
   const deviceLabels = useDeviceLabels();
+
+  // Fetch per-provider freshness so we can render the fallback panel.
+  // Reads connected_devices.updated_at — written every successful sync.
+  const loadProviderStatuses = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: devices } = await supabase
+      .from('connected_devices')
+      .select('provider, updated_at')
+      .eq('user_id', user.id);
+    if (!devices) return;
+
+    const PROVIDER_LABELS: Record<string, string> = {
+      tesla: 'Tesla (solar / EV / battery)',
+      enphase: 'Enphase Solar',
+      solaredge: 'SolarEdge',
+      wallbox: 'Wallbox EV Charger',
+    };
+    const byProvider = new Map<string, string>();
+    for (const d of devices as Array<{ provider: string; updated_at: string }>) {
+      const existing = byProvider.get(d.provider);
+      if (!existing || new Date(d.updated_at) > new Date(existing)) {
+        byProvider.set(d.provider, d.updated_at);
+      }
+    }
+    const STALE_HOURS = 36; // we sync daily — anything older than 36h is stale
+    const statuses: ProviderStatus[] = Array.from(byProvider.entries())
+      .filter(([p]) => p in PROVIDER_LABELS)
+      .map(([provider, updated_at]) => {
+        const ageHours = (Date.now() - new Date(updated_at).getTime()) / (1000 * 60 * 60);
+        return {
+          provider: provider as ProviderStatus['provider'],
+          label: PROVIDER_LABELS[provider],
+          lastUpdatedAt: updated_at,
+          hasError: ageHours > STALE_HOURS,
+          errorMessage: ageHours > STALE_HOURS ? `No fresh data in ${Math.round(ageHours)}h` : undefined,
+        };
+      });
+    setProviderStatuses(statuses);
+  }, []);
+
+  useEffect(() => {
+    loadProviderStatuses();
+  }, [loadProviderStatuses]);
+
+  const handleProviderRetry = useCallback(async (provider: ProviderStatus['provider']) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error('Please sign in to sync');
+      return;
+    }
+    const fnMap: Record<ProviderStatus['provider'], string> = {
+      tesla: 'tesla-data',
+      enphase: 'enphase-data',
+      solaredge: 'solaredge-data',
+      wallbox: 'wallbox-data',
+    };
+    try {
+      const res = await supabase.functions.invoke(fnMap[provider], {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (res.error) throw res.error;
+      toast.success(`${provider} synced`);
+      queryClient.invalidateQueries({ queryKey: ['energy-log-records'] });
+      await loadProviderStatuses();
+    } catch (err) {
+      console.error(`[EnergyLog] Retry ${provider} failed:`, err);
+      toast.error(`Could not sync ${provider}. Try again in a moment.`);
+    }
+  }, [queryClient, loadProviderStatuses]);
 
   // One-time historical backfill for existing Enphase users
   useEffect(() => {
