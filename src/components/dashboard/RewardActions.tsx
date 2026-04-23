@@ -1041,10 +1041,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
                   {/* Tesla Supercharging */}
                   {(pendingRewards.superchargerKwh ?? 0) > 0 && (
-                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-red-500/30 transition-colors">
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-destructive/30 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-red-500/20 to-red-500/10 shadow-sm">
-                          <Zap className="h-4 w-4 text-red-500" />
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 shadow-sm">
+                          <Zap className="h-4 w-4 text-destructive" />
                         </div>
                         <div>
                           <p className="font-medium text-sm">Tesla Supercharging</p>
@@ -1056,7 +1056,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         variant="outline"
                         onClick={() => handleRequestMint('supercharging')}
                         disabled={(pendingRewards.superchargerKwh ?? 0) === 0 || isMinting}
-                        className="rounded-lg h-9 px-4 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-colors"
+                        className="rounded-lg h-9 px-4 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-colors"
                       >
                         {mintingState.category === 'supercharging' ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
