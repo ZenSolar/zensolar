@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 import { DemoAccessGate } from "@/components/demo/DemoAccessGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
-import { Loader2 } from "lucide-react";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
@@ -158,7 +158,7 @@ const BlogVPP = lazy(() => import("./pages/blog/VirtualPowerPlantVPP"));
 function PageLoader() {
   return (
     <div className="flex items-center justify-center min-h-[50vh]">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <BrandedSpinner size="lg" />
     </div>
   );
 }

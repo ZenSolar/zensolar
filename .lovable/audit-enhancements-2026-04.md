@@ -125,3 +125,22 @@ All 9 founder routes registered correctly at App.tsx lines 984-994: `/founders`,
 3. Block explorer URL is hardcoded sepolia. *Strategic:* read from `import.meta.env.VITE_BASE_NETWORK` so mainnet flip is one env var.
 4. Pending activity recomputes baseline math client-side — same formula lives in 3+ places. *Strategic:* move to a Postgres view `v_pending_rewards` for single source of truth.
 5. Transaction `Collapsible` doesn't preserve open state across pull-to-refresh. *Quick win:* lift `expandedTx` to URL hash for shareable deep links.
+
+## Round 6 — BrandedSpinner introduction (Commit 5)
+
+**Shipped:**
+- New `src/components/ui/BrandedSpinner.tsx` — emerald primary ring, transparent top, 3 sizes (sm/md/lg), a11y `role="status" aria-label`. Replaces lucide `Loader2` for full-page loaders.
+- Swapped the **5 highest-traffic full-page loaders**: `App.PageLoader` (lazy chunks), `RootRoute`, `ProtectedRoute`, `FounderRoute`, `ZenSolarDashboard.profileLoading`. These are the spinners every user sees during navigation.
+- Inline button spinners (`Loader2 mr-2 h-4 w-4`) intentionally **left alone** — they're tightly coupled to button text spacing and a global swap risks visual regressions. Future commit can introduce a `<ButtonSpinner />` variant.
+
+**Rainbow gradient audit:**
+Surveyed 21 files using `from-purple-500 / from-pink / from-blue-500 to-indigo / from-amber-500 to-orange`. Categorized:
+- **Intentional artwork** (keep): `SEGIArchitectureDiagram`, `MintOnProofInfographic`, `SEGIProofOfDeltaDiagram`, `MintOnProofFlowDiagram`, all `whitepaper/*`, all `Admin*` pages — these are diagrams/decks.
+- **Decorative legitimate** (keep): NFT rarity tiers (`NFTGallery`, `NFTDetailModal`) — gradients encode rarity, removing them destroys signal.
+- **Worth refactoring next pass**: `MintHistory` action gradients (4 colors for 4 action types), `RewardActions`, `Profile` tile hues. *Strategic:* introduce `--accent-warm` (amber), `--accent-cool` (indigo), `--accent-rare` (purple) as named semantic tokens so the palette is intentional, not arbitrary. Defer to Commit 6.
+
+**Future enhancements:**
+1. `<ButtonSpinner inline label="Saving..." />` — drop-in for the ~50 inline `Loader2 mr-2 h-4 w-4` patterns.
+2. Admin pages all share the same full-page `Loader2` pattern — extract `<AdminPageLoader />` for one-shot swap of remaining 25+ files.
+3. `BrandedSpinner` could grow a `withLabel` prop ("Loading dashboard…") for screen readers + low-bandwidth UX.
+4. Consider replacing the spinning ring with the ZenSolar sun-mark SVG rotating — ~200 bytes more, infinite brand value on first paint.
