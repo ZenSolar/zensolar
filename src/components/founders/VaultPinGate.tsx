@@ -7,11 +7,6 @@ import {
   KeyRound,
   Delete,
   Check,
-  BookOpen,
-  Vault,
-  Atom,
-  Rocket,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +19,8 @@ import {
   isFounderRoute,
   rememberFounderRoute,
 } from "@/lib/founderLastVisit";
+import { FounderDestinationChooser } from "@/components/founders/FounderDestinationChooser";
+import { onFounderChooserOpen } from "@/lib/founderChooser";
 
 interface Props {
   userId: string;
