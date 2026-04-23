@@ -284,6 +284,13 @@ export function VaultPinGate({ userId, children }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin, confirmPin, status.kind, setupStage, busy]);
 
+  // While unlocked, persist the current founder route so a later unlock
+  // (same session) can default the user back to where they left off.
+  useEffect(() => {
+    if (status.kind !== "unlocked" || showChooser) return;
+    rememberFounderRoute(userId, location.pathname);
+  }, [status.kind, showChooser, userId, location.pathname]);
+
   if (status.kind === "unlocked" && !showChooser) return <>{children}</>;
 
   if (showChooser) {
