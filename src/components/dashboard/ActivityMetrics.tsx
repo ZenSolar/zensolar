@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useTapGesture, TAP_GESTURE_TIMINGS } from '@/hooks/useTapGesture';
 import { ShimmerOverlay } from './ShimmerOverlay';
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
@@ -913,13 +914,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const burstTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignoreClickUntilRef = React.useRef<number>(0);
   const tapCooldownUntilRef = React.useRef<number>(0);
-  const DOUBLE_TAP_WINDOW = 500;
+  // Use shared timing constants so every KPI card behaves identically.
+  const DOUBLE_TAP_WINDOW = TAP_GESTURE_TIMINGS.DOUBLE_TAP_WINDOW;
   const BURST_DURATION = 1200;
-  const GHOST_CLICK_SUPPRESSION = 700;
-  // Minimum gap between two tap registrations — filters jittery iOS/Android
-  // double-fires (e.g. touchend + synthetic click) so each tap reliably maps
-  // to one burst/glow. Tuned below typical human double-tap cadence (~140ms).
-  const TAP_DEBOUNCE_MS = 80;
+  const GHOST_CLICK_SUPPRESSION = TAP_GESTURE_TIMINGS.GHOST_CLICK_SUPPRESSION;
+  const TAP_DEBOUNCE_MS = TAP_GESTURE_TIMINGS.TAP_DEBOUNCE_MS;
+  const HINT_DURATION_MS = TAP_GESTURE_TIMINGS.HINT_DURATION_MS;
 
   // Resync tap visuals when the app/tab becomes visible again (PWA resume,
   // tab switch, lock-screen wake). Clears any stale phase/timers left over
@@ -1059,10 +1059,15 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       triggerBurst(posX, posY);
       updateState({ showTapAgain: true });
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      doubleTapTimerRef.current = setTimeout(() => {
-        lastTapTimeRef.current = 0;
-        updateState({ showTapAgain: false });
+      // Keep the hint visible long enough that brand-new users can read it,
+      // but reset the double-tap window after DOUBLE_TAP_WINDOW so a delayed
+      // second tap counts as a fresh single-tap (intentional UX).
+      setTimeout(() => {
+        if (lastTapTimeRef.current === now) lastTapTimeRef.current = 0;
       }, DOUBLE_TAP_WINDOW);
+      doubleTapTimerRef.current = setTimeout(() => {
+        updateState({ showTapAgain: false });
+      }, HINT_DURATION_MS);
     }
   }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState, onTap]);
 
@@ -1590,7 +1595,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             transition: 'all 0.2s ease-out',
           }}
         >
-          <div className="relative h-4 min-w-[52px] flex items-center justify-end">
+          <div className="relative h-4 min-w-[110px] flex items-center justify-end">
             {/* Default MINT text */}
             <span 
               className={cn(
@@ -1600,18 +1605,25 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             >
               Mint
             </span>
-            {/* "Tap again" hint — fades in with strong pulse */}
+            {/* "Tap again" hint — louder, longer, double-finger pulse */}
             <span 
               className={cn(
-                "text-[11px] font-bold tracking-wide absolute right-0 transition-all duration-300 ease-out text-primary",
-                showTapAgain ? "opacity-100 scale-105 blur-0" : "opacity-0 scale-95 blur-[2px]"
+                "flex items-center gap-1 text-[11px] font-extrabold tracking-wider uppercase absolute right-0 transition-all duration-300 ease-out text-primary",
+                showTapAgain ? "opacity-100 scale-110 blur-0" : "opacity-0 scale-95 blur-[2px]"
               )}
               style={showTapAgain ? {
-                animation: 'zenTapAgainPulse 0.8s ease-in-out infinite',
-                textShadow: '0 0 8px hsl(var(--primary) / 0.5)',
+                animation: 'zenTapAgainPulse 0.55s ease-in-out infinite',
+                textShadow: '0 0 10px hsl(var(--primary) / 0.7), 0 0 18px hsl(var(--primary) / 0.35)',
               } : undefined}
             >
-              ⚡ tap again
+              <span
+                aria-hidden
+                className="inline-block"
+                style={showTapAgain ? { animation: 'zenDoubleTapBounce 0.5s ease-in-out infinite' } : undefined}
+              >
+                👆
+              </span>
+              tap again to mint
             </span>
           </div>
           <ChevronRight className={cn(
