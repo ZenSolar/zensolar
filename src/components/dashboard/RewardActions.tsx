@@ -944,10 +944,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           
           <div className="space-y-3 py-4">
             {totalPendingTokens === 0 ? (
-              <div className="bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 rounded-xl p-4">
+              <div className="bg-gradient-to-br from-accent-warm/15 via-accent-warm/10 to-accent-warm/5 border border-accent-warm/30 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                    <AlertCircle className="h-5 w-5 text-amber-500" />
+                  <div className="h-9 w-9 rounded-lg bg-accent-warm/20 flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-accent-warm" />
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">No tokens available to mint</p>
