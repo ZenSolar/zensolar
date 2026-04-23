@@ -208,6 +208,17 @@ export default function EnergyLog() {
         <ActivityTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </AnimatedItem>
 
+      {/* Per-provider freshness + retry — fallback when Tesla / Enphase / SolarEdge data is stale or missing */}
+      {providerStatuses.length > 0 && (
+        <AnimatedItem>
+          <EnergyLogFallback
+            statuses={providerStatuses}
+            onRetry={handleProviderRetry}
+            isEmpty={providerStatuses.every((s) => !s.lastUpdatedAt)}
+          />
+        </AnimatedItem>
+      )}
+
       {/* Tab Content */}
       {false ? (
         <AnimatedItem>
