@@ -34,10 +34,10 @@ interface PendingActivity {
 }
 
 const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; gradient: string; description: string }> = {
-  'register': { label: 'Welcome NFT', icon: <Award className="h-4 w-4" />, gradient: 'from-amber-500 to-orange-600', description: 'Received welcome NFT for joining ZenSolar' },
-  'mint-rewards': { label: 'Token Mint', icon: <Coins className="h-4 w-4" />, gradient: 'from-primary to-accent', description: 'Minted $ZSOLAR tokens from energy activity' },
-  'mint-combos': { label: 'Combo NFTs', icon: <Sparkles className="h-4 w-4" />, gradient: 'from-purple-500 to-pink-600', description: 'Earned combo achievement NFTs' },
-  'claim-milestone-nfts': { label: 'Milestone NFTs', icon: <Award className="h-4 w-4" />, gradient: 'from-emerald-500 to-teal-600', description: 'Claimed milestone achievement NFTs' },
+  'register': { label: 'Welcome NFT', icon: <Award className="h-4 w-4" />, gradient: 'from-accent-warm to-accent-warm/70', description: 'Received welcome NFT for joining ZenSolar' },
+  'mint-rewards': { label: 'Token Mint', icon: <Coins className="h-4 w-4" />, gradient: 'from-primary to-primary/70', description: 'Minted $ZSOLAR tokens from energy activity' },
+  'mint-combos': { label: 'Combo NFTs', icon: <Sparkles className="h-4 w-4" />, gradient: 'from-accent-rare to-accent-rare/70', description: 'Earned combo achievement NFTs' },
+  'claim-milestone-nfts': { label: 'Milestone NFTs', icon: <Award className="h-4 w-4" />, gradient: 'from-primary to-primary/70', description: 'Claimed milestone achievement NFTs' },
 };
 
 export default function MintHistory() {
@@ -144,8 +144,8 @@ export default function MintHistory() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
-              <Clock className="h-6 w-6 text-white" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/60 shadow-lg">
+              <Clock className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Mint History</h1>
@@ -157,10 +157,10 @@ export default function MintHistory() {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-accent', sub: '$ZSOLAR (75%)' },
-            { label: 'NFTs Earned', value: totalNftsMinted, icon: Award, gradient: 'from-amber-500 to-orange-600', sub: 'Total NFTs' },
-            { label: 'Transactions', value: transactions.length, icon: Hash, gradient: 'from-blue-500 to-indigo-600', sub: 'On-chain' },
-            { label: 'Pending Tokens', value: pendingActivity.totalTokens, icon: TrendingUp, gradient: 'from-emerald-500 to-teal-600', sub: "You'll receive", loading: isPendingLoading },
+            { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: '$ZSOLAR (75%)' },
+            { label: 'NFTs Earned', value: totalNftsMinted, icon: Award, gradient: 'from-accent-warm to-accent-warm/60', iconFg: 'text-accent-warm-foreground', sub: 'Total NFTs' },
+            { label: 'Transactions', value: transactions.length, icon: Hash, gradient: 'from-accent-cool to-accent-cool/60', iconFg: 'text-accent-cool-foreground', sub: 'On-chain' },
+            { label: 'Pending Tokens', value: pendingActivity.totalTokens, icon: TrendingUp, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: "You'll receive", loading: isPendingLoading },
           ].map((stat, i) => (
             <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Card className="bg-gradient-to-br from-card to-muted/30 border-0 border-l-2 border-l-primary/60 shadow-lg overflow-hidden">
@@ -168,7 +168,7 @@ export default function MintHistory() {
                   <CardDescription className="text-xs">{stat.label}</CardDescription>
                   <CardTitle className="text-xl flex items-center gap-2 tracking-tight tabular-nums">
                     <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stat.gradient}`}>
-                      <stat.icon className="h-4 w-4 text-white" />
+                      <stat.icon className={`h-4 w-4 ${stat.iconFg}`} />
                     </div>
                     {stat.loading ? <Skeleton className="h-6 w-12" /> : stat.value.toLocaleString()}
                   </CardTitle>
@@ -181,10 +181,10 @@ export default function MintHistory() {
 
         {/* Pending Activity */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="bg-gradient-to-br from-amber-500/10 via-background to-emerald-500/5 border-amber-500/20 shadow-lg">
+          <Card className="bg-gradient-to-br from-accent-warm/10 via-background to-primary/5 border-accent-warm/20 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5 text-amber-600" />
+                <TrendingUp className="h-5 w-5 text-accent-warm" />
                 Pending Activity Breakdown
               </CardTitle>
               <CardDescription>Activity since last mint — you receive 75% as tokens (20% burn)</CardDescription>
@@ -203,14 +203,14 @@ export default function MintHistory() {
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { icon: Sun, label: 'Solar kWh', value: pendingActivity.solarKwh, gradient: 'from-amber-500 to-orange-600' },
-                    { icon: BatteryFull, label: 'Battery kWh', value: pendingActivity.batteryKwh, gradient: 'from-emerald-500 to-teal-600' },
-                    { icon: Car, label: 'EV Miles', value: pendingActivity.evMiles, gradient: 'from-blue-500 to-indigo-600' },
-                    { icon: Zap, label: 'EV Charging kWh', value: pendingActivity.evChargingKwh, gradient: 'from-purple-500 to-pink-600' },
+                    { icon: Sun, label: 'Solar kWh', value: pendingActivity.solarKwh, gradient: 'from-accent-warm to-accent-warm/60', iconFg: 'text-accent-warm-foreground' },
+                    { icon: BatteryFull, label: 'Battery kWh', value: pendingActivity.batteryKwh, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground' },
+                    { icon: Car, label: 'EV Miles', value: pendingActivity.evMiles, gradient: 'from-accent-cool to-accent-cool/60', iconFg: 'text-accent-cool-foreground' },
+                    { icon: Zap, label: 'EV Charging kWh', value: pendingActivity.evChargingKwh, gradient: 'from-accent-rare to-accent-rare/60', iconFg: 'text-accent-rare-foreground' },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-3 p-4 bg-card/50 rounded-xl border border-border/50">
                       <div className={`p-2.5 rounded-xl bg-gradient-to-br ${item.gradient}`}>
-                        <item.icon className="h-5 w-5 text-white" />
+                        <item.icon className={`h-5 w-5 ${item.iconFg}`} />
                       </div>
                       <div>
                         <span className="text-xl font-bold tracking-tight tabular-nums block">{Math.floor(item.value).toLocaleString()}</span>
