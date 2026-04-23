@@ -1244,7 +1244,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             )}
             {mintingProgress.step === 'complete' && (
               <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-green-500/8 animate-pulse blur-3xl" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-primary/10 animate-pulse blur-3xl" />
               </div>
             )}
 
@@ -1278,94 +1278,94 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               ) : mintingProgress.step === 'complete' ? (
                 <div className="relative">
                   {/* Success burst rings */}
-                  <div className="absolute inset-[-8px] rounded-full border-2 border-green-500/20 animate-[ping_1.5s_ease-out_1]" />
-                  <div className="absolute inset-[-16px] rounded-full border border-green-500/10 animate-[ping_2s_ease-out_1]" />
-                  <div className="w-28 h-28 rounded-full bg-gradient-to-br from-green-500/25 via-green-500/15 to-green-500/5 flex items-center justify-center ring-2 ring-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                    <CheckCircle2 className="h-14 w-14 text-green-500" />
+                  <div className="absolute inset-[-8px] rounded-full border-2 border-primary/30 animate-[ping_1.5s_ease-out_1]" />
+                  <div className="absolute inset-[-16px] rounded-full border border-primary/15 animate-[ping_2s_ease-out_1]" />
+                  <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center ring-2 ring-primary/40 shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+                    <CheckCircle2 className="h-14 w-14 text-primary" />
                   </div>
                 </div>
               ) : mintingProgress.step === 'transmitting' ? (
                 <div className="relative w-full h-full">
-                  {/* Expanding emerald pulse rings */}
-                  <div className="absolute inset-[-12px] rounded-full border border-emerald-500/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-                  <div className="absolute inset-[-6px] rounded-full border border-emerald-400/20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
-                  <div className="absolute inset-[-20px] rounded-full border border-emerald-500/15 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
-                  
-                  {/* Emerald ambient glow */}
-                  <div className="absolute inset-[-24px] rounded-full bg-emerald-500/5 animate-pulse" />
-                  
-                  {/* Network graph connecting lines — emerald green */}
+                  {/* Expanding pulse rings — primary */}
+                  <div className="absolute inset-[-12px] rounded-full border border-primary/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+                  <div className="absolute inset-[-6px] rounded-full border border-primary/20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite_0.4s]" />
+                  <div className="absolute inset-[-20px] rounded-full border border-primary/15 animate-[ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite_0.8s]" />
+
+                  {/* Ambient glow */}
+                  <div className="absolute inset-[-24px] rounded-full bg-primary/8 animate-pulse" />
+
+                  {/* Network graph connecting lines */}
                   <svg className="absolute inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)]" viewBox="0 0 120 120">
-                    <line x1="60" y1="4" x2="60" y2="60" stroke="rgba(16,185,129,0.3)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="60" y1="4" x2="60" y2="60" stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1s" repeatCount="indefinite" />
                     </line>
-                    <line x1="60" y1="116" x2="60" y2="60" stroke="rgba(16,185,129,0.25)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="60" y1="116" x2="60" y2="60" stroke="hsl(var(--primary) / 0.3)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="4" y1="60" x2="60" y2="60" stroke="rgba(16,185,129,0.25)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="4" y1="60" x2="60" y2="60" stroke="hsl(var(--primary) / 0.3)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.4s" repeatCount="indefinite" />
                     </line>
-                    <line x1="116" y1="60" x2="60" y2="60" stroke="rgba(16,185,129,0.2)" strokeWidth="0.8" strokeDasharray="3 3">
+                    <line x1="116" y1="60" x2="60" y2="60" stroke="hsl(var(--primary) / 0.25)" strokeWidth="0.8" strokeDasharray="3 3">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.1s" repeatCount="indefinite" />
                     </line>
-                    {/* Diagonal cross connections */}
-                    <line x1="20" y1="20" x2="60" y2="60" stroke="rgba(52,211,153,0.15)" strokeWidth="0.4" strokeDasharray="2 4">
+                    {/* Diagonal cross connections — accent-cool for depth */}
+                    <line x1="20" y1="20" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.2)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="100" y1="20" x2="60" y2="60" stroke="rgba(52,211,153,0.15)" strokeWidth="0.4" strokeDasharray="2 4">
+                    <line x1="100" y1="20" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.2)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.8s" repeatCount="indefinite" />
                     </line>
-                    <line x1="20" y1="100" x2="60" y2="60" stroke="rgba(52,211,153,0.12)" strokeWidth="0.4" strokeDasharray="2 4">
+                    <line x1="20" y1="100" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.18)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="2.2s" repeatCount="indefinite" />
                     </line>
-                    <line x1="100" y1="100" x2="60" y2="60" stroke="rgba(52,211,153,0.12)" strokeWidth="0.4" strokeDasharray="2 4">
+                    <line x1="100" y1="100" x2="60" y2="60" stroke="hsl(var(--accent-cool) / 0.18)" strokeWidth="0.4" strokeDasharray="2 4">
                       <animate attributeName="stroke-dashoffset" values="0;6" dur="1.6s" repeatCount="indefinite" />
                     </line>
                     {/* Data packet dots flowing along lines */}
-                    <circle r="1.5" fill="rgba(16,185,129,0.6)">
+                    <circle r="1.5" fill="hsl(var(--primary) / 0.7)">
                       <animateMotion dur="2s" repeatCount="indefinite" path="M60,4 L60,60" />
                     </circle>
-                    <circle r="1.2" fill="rgba(52,211,153,0.5)">
+                    <circle r="1.2" fill="hsl(var(--accent-cool) / 0.6)">
                       <animateMotion dur="2.5s" repeatCount="indefinite" path="M4,60 L60,60" />
                     </circle>
-                    <circle r="1" fill="rgba(16,185,129,0.4)">
+                    <circle r="1" fill="hsl(var(--primary) / 0.5)">
                       <animateMotion dur="1.8s" repeatCount="indefinite" path="M116,60 L60,60" />
                     </circle>
-                    <circle r="1.3" fill="rgba(52,211,153,0.5)">
+                    <circle r="1.3" fill="hsl(var(--accent-cool) / 0.6)">
                       <animateMotion dur="2.2s" repeatCount="indefinite" path="M60,116 L60,60" />
                     </circle>
                   </svg>
-                  
-                  {/* Orbiting nodes with sparkle trails — emerald green */}
+
+                  {/* Orbiting nodes with sparkle trails */}
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite]">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.7)]" />
-                      <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-emerald-400/40 animate-[ping_1s_ease-out_infinite]" />
-                      <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-emerald-300/25 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.8)]" />
+                      <div className="absolute top-1 -left-1 w-1.5 h-1.5 rounded-full bg-primary/50 animate-[ping_1s_ease-out_infinite]" />
+                      <div className="absolute top-2 -left-2 w-1 h-1 rounded-full bg-primary/30 animate-[ping_1.5s_ease-out_infinite_0.3s]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_4s_linear_infinite_reverse]">
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400/70 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-                      <div className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-emerald-300/30 animate-[ping_1.3s_ease-out_infinite_0.2s]" />
+                      <div className="w-2 h-2 rounded-full bg-accent-cool/80 shadow-[0_0_8px_hsl(var(--accent-cool)/0.6)]" />
+                      <div className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-accent-cool/40 animate-[ping_1.3s_ease-out_infinite_0.2s]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_6s_linear_infinite]">
                     <div className="absolute top-1/2 left-0 -translate-y-1/2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50 shadow-[0_0_6px_rgba(16,185,129,0.3)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary/60 shadow-[0_0_6px_hsl(var(--primary)/0.4)]" />
                     </div>
                   </div>
                   <div className="absolute inset-[-16px] animate-[spin_5s_linear_infinite]">
                     <div className="absolute top-1/2 right-0 -translate-y-1/2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400/60 shadow-[0_0_8px_rgba(52,211,153,0.4)]" />
-                      <div className="absolute top-1 left-2 w-1 h-1 rounded-full bg-emerald-300/20 animate-[ping_1.2s_ease-out_infinite_0.5s]" />
+                      <div className="w-2 h-2 rounded-full bg-accent-cool/70 shadow-[0_0_8px_hsl(var(--accent-cool)/0.5)]" />
+                      <div className="absolute top-1 left-2 w-1 h-1 rounded-full bg-accent-cool/30 animate-[ping_1.2s_ease-out_infinite_0.5s]" />
                     </div>
                   </div>
-                  
-                  {/* Core glow — rich emerald */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-500/25 via-emerald-400/15 to-emerald-600/5 animate-pulse shadow-[0_0_40px_rgba(16,185,129,0.3)]" />
-                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 flex items-center justify-center ring-2 ring-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                    <Loader2 className="h-10 w-10 text-emerald-400 animate-spin" />
+
+                  {/* Core glow */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 animate-pulse shadow-[0_0_40px_hsl(var(--primary)/0.4)]" />
+                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center ring-2 ring-primary/40 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
+                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
                   </div>
                 </div>
               ) : mintingProgress.step === 'confirming' ? (
