@@ -1,4 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
+import { triggerLightTap, triggerMediumTap } from './useHaptics';
 
 /**
  * Shared tap / double-tap timing constants used by every KPI card and
@@ -68,12 +69,16 @@ export function useTapGesture({ onSingleTap, onDoubleTap, onHintHide }: UseTapGe
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       lastTapTimeRef.current = now;
       onHintHide?.();
+      // Medium haptic on mint (double-tap) — confirms the heavier action
+      void triggerMediumTap();
       onDoubleTap(posX, posY);
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
       }, TAP_GESTURE_TIMINGS.DOUBLE_TAP_WINDOW);
     } else {
       lastTapTimeRef.current = now;
+      // Light haptic on first tap — subtle reinforcement of the burst/glow
+      void triggerLightTap();
       onSingleTap(posX, posY);
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       doubleTapTimerRef.current = setTimeout(() => {
