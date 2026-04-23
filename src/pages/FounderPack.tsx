@@ -135,6 +135,23 @@ function PackContent() {
     setActive(id);
   };
 
+  // Honor `#chapter-id` in the URL so the Vault's "Jump to Chapter" affordance
+  // (and any deep link) lands you directly on that chapter, not at the top.
+  useEffect(() => {
+    const jump = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (!hash) return;
+      // Defer until layout settles + header height var is set.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scrollTo(hash));
+      });
+    };
+    jump();
+    window.addEventListener("hashchange", jump);
+    return () => window.removeEventListener("hashchange", jump);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       {/* Sticky header + progress */}
