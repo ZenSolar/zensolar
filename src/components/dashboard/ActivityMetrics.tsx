@@ -1595,7 +1595,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             transition: 'all 0.2s ease-out',
           }}
         >
-          <div className="relative h-4 min-w-[52px] flex items-center justify-end">
+          <div className="relative h-4 min-w-[110px] flex items-center justify-end">
             {/* Default MINT text */}
             <span 
               className={cn(
@@ -1605,18 +1605,25 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             >
               Mint
             </span>
-            {/* "Tap again" hint — fades in with strong pulse */}
+            {/* "Tap again" hint — louder, longer, double-finger pulse */}
             <span 
               className={cn(
-                "text-[11px] font-bold tracking-wide absolute right-0 transition-all duration-300 ease-out text-primary",
-                showTapAgain ? "opacity-100 scale-105 blur-0" : "opacity-0 scale-95 blur-[2px]"
+                "flex items-center gap-1 text-[11px] font-extrabold tracking-wider uppercase absolute right-0 transition-all duration-300 ease-out text-primary",
+                showTapAgain ? "opacity-100 scale-110 blur-0" : "opacity-0 scale-95 blur-[2px]"
               )}
               style={showTapAgain ? {
-                animation: 'zenTapAgainPulse 0.8s ease-in-out infinite',
-                textShadow: '0 0 8px hsl(var(--primary) / 0.5)',
+                animation: 'zenTapAgainPulse 0.55s ease-in-out infinite',
+                textShadow: '0 0 10px hsl(var(--primary) / 0.7), 0 0 18px hsl(var(--primary) / 0.35)',
               } : undefined}
             >
-              ⚡ tap again
+              <span
+                aria-hidden
+                className="inline-block"
+                style={showTapAgain ? { animation: 'zenDoubleTapBounce 0.5s ease-in-out infinite' } : undefined}
+              >
+                👆
+              </span>
+              tap again to mint
             </span>
           </div>
           <ChevronRight className={cn(
