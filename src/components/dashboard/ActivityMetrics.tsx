@@ -1001,6 +1001,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const processTap = useCallback((posX: number, posY: number) => {
     primeAudio();
     const now = Date.now();
+    // Debounce gate — drop spurious second registrations within TAP_DEBOUNCE_MS.
+    // This stops the touchend → ghost-click pair (and finger jitter) from
+    // collapsing two intended taps into one or skipping the burst entirely.
+    if (now < tapCooldownUntilRef.current) return;
+    tapCooldownUntilRef.current = now + TAP_DEBOUNCE_MS;
+
     const timeSinceLastTap = now - lastTapTimeRef.current;
 
     if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
