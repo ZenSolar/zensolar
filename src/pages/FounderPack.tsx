@@ -810,7 +810,8 @@ function Section({
   return (
     <section
       id={id}
-      className="max-w-3xl mx-auto px-5 md:px-6 py-14 md:py-24 scroll-mt-36"
+      className="max-w-3xl mx-auto px-5 md:px-6 py-14 md:py-24"
+      style={{ scrollMarginTop: "var(--pack-header-h, 9rem)" }}
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
