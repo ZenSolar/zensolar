@@ -27,7 +27,8 @@ import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Loader2, Images, RefreshCw } from 'lucide-react';
+import { Images, RefreshCw } from 'lucide-react';
+import { BrandedSpinner } from '@/components/ui/BrandedSpinner';
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,

@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 import { DemoAccessGate } from "@/components/demo/DemoAccessGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
-import { Loader2 } from "lucide-react";
+import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
