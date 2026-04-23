@@ -245,97 +245,147 @@ export function VaultPinGate({ userId, children }: Props) {
       : "Founders Only";
 
   return (
-    <div className="min-h-[100svh] flex items-center justify-center p-6 bg-background relative">
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={goBack} className="text-muted-foreground">
+    <div
+      className="min-h-[100svh] flex flex-col bg-background relative overflow-hidden"
+      style={{
+        paddingTop: "calc(env(safe-area-inset-top) + 0.5rem)",
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
+        paddingLeft: "calc(env(safe-area-inset-left) + 1rem)",
+        paddingRight: "calc(env(safe-area-inset-right) + 1rem)",
+      }}
+    >
+      {/* Ambient gradient backdrop */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[140%] aspect-square rounded-full bg-primary/5 blur-3xl" />
+      </div>
+
+      {/* Header — safe-area aware, never under the notch */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={goBack}
+          className="text-muted-foreground -ml-2 h-10"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
         </Button>
-        <Button variant="ghost" size="sm" onClick={goHome} className="text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={goHome}
+          className="text-muted-foreground -mr-2 h-10"
+        >
           <Home className="h-4 w-4 mr-1" /> Home
         </Button>
       </div>
 
-      <div className="w-full max-w-xs space-y-6 text-center">
-        <div className="flex justify-center">
-          <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-            {status.kind === "checking" || busy ? (
-              <Loader2 className="h-7 w-7 text-primary animate-spin" />
-            ) : status.kind === "denied" || status.kind === "locked" ? (
-              <ShieldAlert className="h-7 w-7 text-destructive" />
-            ) : (
-              <KeyRound className="h-7 w-7 text-primary" />
-            )}
+      {/* Centered content */}
+      <div className="flex-1 flex items-center justify-center">
+        <div
+          className={`w-full max-w-xs space-y-6 text-center ${
+            shake ? "animate-[shake_0.45s_cubic-bezier(.36,.07,.19,.97)]" : ""
+          }`}
+        >
+          <div className="flex justify-center">
+            <div
+              className={`relative h-16 w-16 rounded-full border flex items-center justify-center transition-all duration-500 ${
+                justUnlocked
+                  ? "bg-primary/20 border-primary scale-110 shadow-[0_0_40px_hsl(var(--primary)/0.45)]"
+                  : "bg-primary/10 border-primary/30"
+              }`}
+            >
+              {justUnlocked && (
+                <>
+                  <span className="absolute inset-[-6px] rounded-full border-2 border-primary/40 animate-[ping_0.7s_ease-out_1]" />
+                  <span className="absolute inset-[-14px] rounded-full border border-primary/20 animate-[ping_0.9s_ease-out_1]" />
+                </>
+              )}
+              {justUnlocked ? (
+                <Check className="h-8 w-8 text-primary animate-scale-in" strokeWidth={2.5} />
+              ) : status.kind === "checking" || busy ? (
+                <Loader2 className="h-7 w-7 text-primary animate-spin" />
+              ) : status.kind === "denied" || status.kind === "locked" ? (
+                <ShieldAlert className="h-7 w-7 text-destructive" />
+              ) : (
+                <KeyRound className="h-7 w-7 text-primary" />
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-1.5">
-          <h1 className="text-xl font-semibold tracking-tight">{heading}</h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">{subtitle}</p>
-        </div>
+          <div className="space-y-1.5">
+            <h1 className="text-xl font-semibold tracking-tight">
+              {justUnlocked ? "Unlocked" : heading}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {justUnlocked ? "Welcome back." : subtitle}
+            </p>
+          </div>
 
-        {(status.kind === "needs_unlock" || status.kind === "needs_setup") && (
-          <>
-            {/* Dots */}
-            <div className="flex items-center justify-center gap-3 py-2">
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`h-3 w-3 rounded-full border transition-colors ${
-                    i < activeValue.length
-                      ? "bg-primary border-primary"
-                      : "border-muted-foreground/40"
-                  }`}
-                />
-              ))}
-            </div>
+          {!justUnlocked && (status.kind === "needs_unlock" || status.kind === "needs_setup") && (
+            <>
+              <div className="flex items-center justify-center gap-3 py-2">
+                {[0, 1, 2, 3].map((i) => {
+                  const filled = i < activeValue.length;
+                  return (
+                    <div
+                      key={i}
+                      className={`h-3 w-3 rounded-full border transition-all duration-200 ${
+                        filled
+                          ? "bg-primary border-primary scale-110 shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
+                          : "border-muted-foreground/40"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
 
-            {/* Numeric keypad */}
-            <div className="grid grid-cols-3 gap-2 select-none">
-              {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
+              <div className="grid grid-cols-3 gap-2.5 select-none">
+                {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => pressDigit(d)}
+                    disabled={busy}
+                    className="h-14 rounded-xl bg-card/60 border border-border/60 text-xl font-medium hover:bg-card hover:border-primary/40 active:scale-90 active:bg-primary/15 active:border-primary/60 transition-all duration-100 disabled:opacity-40"
+                  >
+                    {d}
+                  </button>
+                ))}
+                <div />
                 <button
-                  key={d}
-                  onClick={() => pressDigit(d)}
+                  onClick={() => pressDigit("0")}
                   disabled={busy}
-                  className="h-14 rounded-xl bg-card/50 border border-border/50 text-xl font-medium hover:bg-card active:scale-95 transition-all disabled:opacity-40"
+                  className="h-14 rounded-xl bg-card/60 border border-border/60 text-xl font-medium hover:bg-card hover:border-primary/40 active:scale-90 active:bg-primary/15 active:border-primary/60 transition-all duration-100 disabled:opacity-40"
                 >
-                  {d}
+                  0
                 </button>
-              ))}
-              <div />
-              <button
-                onClick={() => pressDigit("0")}
-                disabled={busy}
-                className="h-14 rounded-xl bg-card/50 border border-border/50 text-xl font-medium hover:bg-card active:scale-95 transition-all disabled:opacity-40"
-              >
-                0
-              </button>
-              <button
-                onClick={pressDelete}
-                disabled={busy || activeValue.length === 0}
-                className="h-14 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all disabled:opacity-30"
-                aria-label="Delete"
-              >
-                <Delete className="h-5 w-5" />
-              </button>
-            </div>
-          </>
-        )}
+                <button
+                  onClick={pressDelete}
+                  disabled={busy || activeValue.length === 0}
+                  className="h-14 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90 transition-all duration-100 disabled:opacity-30"
+                  aria-label="Delete"
+                >
+                  <Delete className="h-5 w-5" />
+                </button>
+              </div>
+            </>
+          )}
 
-        {status.kind === "locked" && (
-          <Button onClick={goHome} variant="outline" className="w-full">
-            Return Home
-          </Button>
-        )}
+          {status.kind === "locked" && (
+            <Button onClick={goHome} variant="outline" className="w-full">
+              Return Home
+            </Button>
+          )}
 
-        {status.kind === "denied" && (
-          <Button onClick={goHome} variant="outline" className="w-full">
-            Return Home
-          </Button>
-        )}
+          {status.kind === "denied" && (
+            <Button onClick={goHome} variant="outline" className="w-full">
+              Return Home
+            </Button>
+          )}
 
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground pt-2">
-          Confidential · Founders Only
-        </p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground pt-2">
+            Confidential · Founders Only
+          </p>
+        </div>
       </div>
     </div>
   );
