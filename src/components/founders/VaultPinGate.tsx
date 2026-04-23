@@ -7,11 +7,6 @@ import {
   KeyRound,
   Delete,
   Check,
-  BookOpen,
-  Vault,
-  Atom,
-  Rocket,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +19,8 @@ import {
   isFounderRoute,
   rememberFounderRoute,
 } from "@/lib/founderLastVisit";
+import { FounderDestinationChooser } from "@/components/founders/FounderDestinationChooser";
+import { onFounderChooserOpen } from "@/lib/founderChooser";
 
 interface Props {
   userId: string;
@@ -43,39 +40,7 @@ type Status =
 const SESSION_KEY_PREFIX = "zen.vault-pin-unlocked:";
 const CHOOSER_SEEN_PREFIX = "zen.vault-chooser-seen:";
 
-type Destination = {
-  to: string;
-  label: string;
-  blurb: string;
-  Icon: typeof BookOpen;
-};
-
-const FOUNDER_DESTINATIONS: Destination[] = [
-  {
-    to: "/founders",
-    label: "Founders Hub",
-    blurb: "Vault overview, founder cards, LP rounds.",
-    Icon: Vault,
-  },
-  {
-    to: "/founder-pack",
-    label: "The Founder Pack",
-    blurb: "All twelve chapters — Evolution → The Pact.",
-    Icon: BookOpen,
-  },
-  {
-    to: "/founders/proof-of-genesis",
-    label: "Proof of Genesis™",
-    blurb: "The cryptographic primitive thesis.",
-    Icon: Atom,
-  },
-  {
-    to: "/founders/app-overhaul-plan",
-    label: "App Overhaul Plan",
-    blurb: "Roadmap for the next surface.",
-    Icon: Rocket,
-  },
-];
+type ChooserMode = "unlock" | "reopen";
 
 export function VaultPinGate({ userId, children }: Props) {
   const { user } = useAuth();
@@ -93,7 +58,7 @@ export function VaultPinGate({ userId, children }: Props) {
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(false);
   const [justUnlocked, setJustUnlocked] = useState(false);
-  const [showChooser, setShowChooser] = useState(false);
+  const [chooserMode, setChooserMode] = useState<ChooserMode | null>(null);
   const { lightTap, success: hapticSuccess, error: hapticError, mediumTap } = useHaptics();
   const navigate = useNavigate();
   const location = useLocation();
@@ -168,7 +133,7 @@ export function VaultPinGate({ userId, children }: Props) {
       typeof window !== "undefined" &&
       sessionStorage.getItem(chooserSeenKey) === "1";
     if (!alreadySeen) {
-      setShowChooser(true);
+      setChooserMode("unlock");
       return;
     }
     // Subsequent unlocks within the same session: jump straight to the last
@@ -181,19 +146,10 @@ export function VaultPinGate({ userId, children }: Props) {
     setStatus({ kind: "unlocked" });
   };
 
-  const dismissChooser = (target?: string) => {
+  const closeChooser = () => {
     sessionStorage.setItem(chooserSeenKey, "1");
-    setShowChooser(false);
-    if (target && target !== location.pathname) {
-      rememberFounderRoute(userId, target);
-      navigate(target);
-    } else {
-      // Continuing on current page — remember it as the latest visit.
-      if (isFounderRoute(location.pathname)) {
-        rememberFounderRoute(userId, location.pathname);
-      }
-      setStatus({ kind: "unlocked" });
-    }
+    setChooserMode(null);
+    setStatus({ kind: "unlocked" });
   };
 
   const triggerShake = () => {
@@ -287,90 +243,52 @@ export function VaultPinGate({ userId, children }: Props) {
   // While unlocked, persist the current founder route so a later unlock
   // (same session) can default the user back to where they left off.
   useEffect(() => {
-    if (status.kind !== "unlocked" || showChooser) return;
+    if (status.kind !== "unlocked" || chooserMode) return;
     rememberFounderRoute(userId, location.pathname);
-  }, [status.kind, showChooser, userId, location.pathname]);
+  }, [status.kind, chooserMode, userId, location.pathname]);
 
-  if (status.kind === "unlocked" && !showChooser) return <>{children}</>;
+  // Listen for global "open chooser" requests (compass button, ⌘K shortcut).
+  // Only respond when the vault is already unlocked.
+  useEffect(() => {
+    if (status.kind !== "unlocked") return;
+    const off = onFounderChooserOpen(() => setChooserMode("reopen"));
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setChooserMode((m) => (m ? null : "reopen"));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      off();
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [status.kind]);
 
-  if (showChooser) {
+  // Render order: unlocked content underneath, optional chooser overlay on top.
+  if (status.kind === "unlocked") {
     return (
-      <div
-        className="min-h-[100svh] flex flex-col bg-background relative overflow-hidden"
-        style={{
-          paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
-          paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
-          paddingLeft: "calc(env(safe-area-inset-left) + 1rem)",
-          paddingRight: "calc(env(safe-area-inset-right) + 1rem)",
-        }}
-      >
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[140%] aspect-square rounded-full bg-primary/5 blur-3xl" />
-        </div>
+      <>
+        {children}
+        {chooserMode === "reopen" && (
+          <FounderDestinationChooser
+            userId={userId}
+            variant="overlay"
+            onClose={closeChooser}
+          />
+        )}
+      </>
+    );
+  }
 
-        <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
-          <div className="text-center mb-6 animate-fade-in">
-            <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center shadow-[0_0_24px_hsl(var(--primary)/0.35)]">
-              <Check className="h-6 w-6 text-primary" strokeWidth={2.5} />
-            </div>
-            <h2 className="text-xl font-semibold tracking-tight">Vault unlocked</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Jump straight to a chapter, or continue here.
-            </p>
-          </div>
-
-          <div className="space-y-2.5">
-            {FOUNDER_DESTINATIONS.map(({ to, label, blurb, Icon }, i) => {
-              const isCurrent = to === location.pathname;
-              return (
-                <button
-                  key={to}
-                  type="button"
-                  onClick={() => {
-                    void lightTap();
-                    dismissChooser(to);
-                  }}
-                  className="group w-full text-left rounded-2xl border border-border/60 bg-card/60 hover:bg-card hover:border-primary/40 active:scale-[0.99] transition-all p-4 flex items-center gap-3 animate-fade-in"
-                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
-                >
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                    <Icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium flex items-center gap-2">
-                      {label}
-                      {isCurrent && (
-                        <span className="text-[9px] uppercase tracking-widest text-primary/80 border border-primary/30 rounded-full px-1.5 py-0.5">
-                          You're here
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground leading-snug truncate">
-                      {blurb}
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                </button>
-              );
-            })}
-          </div>
-
-          <Button
-            variant="ghost"
-            className="mt-5 text-muted-foreground hover:text-foreground"
-            onClick={() => {
-              void lightTap();
-              dismissChooser();
-            }}
-          >
-            Continue on this page
-          </Button>
-
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground text-center pt-4">
-            You won't see this again until you sign back in.
-          </p>
-        </div>
-      </div>
+  if (chooserMode === "unlock") {
+    return (
+      <FounderDestinationChooser
+        userId={userId}
+        variant="unlock"
+        onClose={closeChooser}
+        footnote="Tip: Tap the compass anytime to reopen this menu."
+      />
     );
   }
 

@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { openFounderChooser } from "@/lib/founderChooser";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
 
 // ─── Section meta ────────────────────────────────────────────────
@@ -173,13 +174,24 @@ function PackContent() {
                 </span>
               </div>
             </div>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/40 px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground hover:border-border shrink-0"
-            >
-              <Home className="h-3 w-3" />
-              Home
-            </Link>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={openFounderChooser}
+                title="Navigate (⌘K)"
+                aria-label="Open founder navigation"
+                className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-border/60 bg-card/40 text-muted-foreground transition-colors hover:text-foreground hover:border-border"
+              >
+                <Compass className="h-3.5 w-3.5" />
+              </button>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/40 px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground hover:border-border"
+              >
+                <Home className="h-3 w-3" />
+                Home
+              </Link>
+            </div>
           </div>
         </div>
         {/* Section chip nav */}
