@@ -445,13 +445,13 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     return Coins; // Default for 'all'
   };
 
-  // Get color class for category icon
+  // Get color class for category icon (semantic tokens)
   const getCategoryColor = (category: MintCategory): string => {
-    if (category === 'solar') return 'from-amber-500/20 to-amber-500/10 text-amber-500';
-    if (category === 'ev_miles') return 'from-blue-500/20 to-blue-500/10 text-blue-500';
-    if (category === 'battery') return 'from-emerald-500/20 to-emerald-500/10 text-emerald-500';
-    if (category === 'charging' || category === 'home_charging') return 'from-purple-500/20 to-purple-500/10 text-purple-500';
-    if (category === 'supercharging') return 'from-red-500/20 to-red-500/10 text-red-500';
+    if (category === 'solar') return 'from-accent-warm/20 to-accent-warm/10 text-accent-warm';
+    if (category === 'ev_miles') return 'from-accent-cool/20 to-accent-cool/10 text-accent-cool';
+    if (category === 'battery') return 'from-primary/20 to-primary/10 text-primary';
+    if (category === 'charging' || category === 'home_charging') return 'from-accent-rare/20 to-accent-rare/10 text-accent-rare';
+    if (category === 'supercharging') return 'from-destructive/20 to-destructive/10 text-destructive';
     return 'from-primary/20 to-primary/10 text-primary'; // Default for 'all'
   };
 
