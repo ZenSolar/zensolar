@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
-import { ShieldAlert, Loader2, ArrowLeft, Home, KeyRound, Delete, Check } from "lucide-react";
+import {
+  ShieldAlert,
+  Loader2,
+  ArrowLeft,
+  Home,
+  KeyRound,
+  Delete,
+  Check,
+  BookOpen,
+  Vault,
+  Atom,
+  Rocket,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
