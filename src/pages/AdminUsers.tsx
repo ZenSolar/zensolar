@@ -552,6 +552,45 @@ function UserExpandedContent({
         </div>
       )}
 
+      {/* KPI Tap Analytics */}
+      {kpi?.tap_stats && (kpi.tap_stats.single + kpi.tap_stats.double) > 0 && (() => {
+        const s = kpi.tap_stats.single;
+        const d = kpi.tap_stats.double;
+        const total = s + d;
+        const doubleRate = total > 0 ? Math.round((d / total) * 100) : 0;
+        const mintConversion = d > 0 ? Math.round((kpi.tap_stats.mintInWindow / d) * 100) : 0;
+        return (
+          <div>
+            <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />KPI Tap Analytics
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-background rounded-lg p-3 border">
+                <div className="text-muted-foreground text-xs mb-1">Single Taps</div>
+                <div className="font-semibold">{formatNumber(s)}</div>
+              </div>
+              <div className="bg-background rounded-lg p-3 border">
+                <div className="text-muted-foreground text-xs mb-1">Double Taps</div>
+                <div className="font-semibold text-primary">{formatNumber(d)}</div>
+              </div>
+              <div className="bg-background rounded-lg p-3 border">
+                <div className="text-muted-foreground text-xs mb-1">Double-Tap Rate</div>
+                <div className="font-semibold">{doubleRate}%</div>
+              </div>
+              <div className="bg-background rounded-lg p-3 border">
+                <div className="text-muted-foreground text-xs mb-1">Mint-in-Window</div>
+                <div className="font-semibold text-amber-500">{mintConversion}%</div>
+              </div>
+            </div>
+            {kpi.tap_stats.mintOutsideWindow > 0 && (
+              <p className="text-xs text-muted-foreground mt-2">
+                {kpi.tap_stats.mintOutsideWindow} mint{kpi.tap_stats.mintOutsideWindow === 1 ? '' : 's'} outside double-tap window
+              </p>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Wallet & Tokens */}
       <div className="flex items-center justify-between text-sm pt-2 border-t">
         <div>
