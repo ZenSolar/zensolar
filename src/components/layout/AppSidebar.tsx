@@ -164,6 +164,29 @@ const adminMenuGroups = {
   ],
 };
 
+// Shared NavLink className builders — adds a left accent bar on the active route.
+// Primary (emerald) for main/account/admin nav; Amber for Founders nav.
+const navClass = ({ isActive }: { isActive: boolean }) =>
+  `relative pl-3 border-l-2 transition-colors ${
+    isActive
+      ? "border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+      : "border-transparent hover:bg-sidebar-accent/50 hover:border-primary/40"
+  }`;
+
+const navClassWithExtra = (extra: string) => ({ isActive }: { isActive: boolean }) =>
+  `relative pl-3 border-l-2 transition-colors ${
+    isActive
+      ? `border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium ${extra}`
+      : `border-transparent hover:bg-sidebar-accent/50 hover:border-primary/40 ${extra}`
+  }`;
+
+const founderNavClass = ({ isActive }: { isActive: boolean }) =>
+  `relative pl-3 border-l-2 transition-colors text-amber-400 font-semibold rounded-lg ${
+    isActive
+      ? "border-amber-400 bg-amber-400/10 text-amber-300"
+      : "border-transparent hover:bg-sidebar-accent/50 hover:border-amber-400/40"
+  }`;
+
 export function AppSidebar() {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
@@ -263,11 +286,7 @@ export function AppSidebar() {
                       to={item.url} 
                       end={item.url === "/"}
                       onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        `${isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"} ${item.url === "/store" ? "text-secondary font-semibold rounded-lg animate-sidebar-glow" : ""}`
-                      }
+                      className={item.url === "/store" ? navClassWithExtra("text-secondary font-semibold rounded-lg animate-sidebar-glow") : navClass}
                     >
                       <item.icon className={`h-4 w-4 ${item.url === "/store" ? "animate-icon-glow text-secondary" : ""}`} />
                       <span className={item.url === "/store" ? "animate-text-glow" : ""}>{item.title}</span>
@@ -287,15 +306,7 @@ export function AppSidebar() {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Founders Vault">
-                    <NavLink
-                      to="/founders"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/founders" onClick={handleNavClick} className={founderNavClass}>
                       <Lock className="h-4 w-4 text-amber-400" />
                       <span>Founders Vault</span>
                     </NavLink>
@@ -303,15 +314,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Founder Pack">
-                    <NavLink
-                      to="/founder-pack"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/founder-pack" onClick={handleNavClick} className={founderNavClass}>
                       <ScrollText className="h-4 w-4 text-amber-400" />
                       <span>Founder Pack</span>
                     </NavLink>
@@ -319,15 +322,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="White Paper · Phase 1">
-                    <NavLink
-                      to="/whitepaper-phase-1"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/whitepaper-phase-1" onClick={handleNavClick} className={founderNavClass}>
                       <FileText className="h-4 w-4 text-amber-400" />
                       <span>White Paper · Phase 1</span>
                     </NavLink>
@@ -335,15 +330,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="White Paper · Phase 2">
-                    <NavLink
-                      to="/whitepaper-phase-2"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/whitepaper-phase-2" onClick={handleNavClick} className={founderNavClass}>
                       <Rocket className="h-4 w-4 text-amber-400" />
                       <span>White Paper · Phase 2</span>
                     </NavLink>
@@ -351,15 +338,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Seed Ask · Lyndon">
-                    <NavLink
-                      to="/founders/seed-ask"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/founders/seed-ask" onClick={handleNavClick} className={founderNavClass}>
                       <Banknote className="h-4 w-4 text-amber-400" />
                       <span>Seed Ask · Lyndon</span>
                     </NavLink>
@@ -367,15 +346,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="SpaceX & Inter-System">
-                    <NavLink
-                      to="/founders/spacex"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/founders/spacex" onClick={handleNavClick} className={founderNavClass}>
                       <Rocket className="h-4 w-4 text-amber-400" />
                       <span>SpaceX & Inter-System</span>
                     </NavLink>
@@ -383,15 +354,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="App Overhaul Plan">
-                    <NavLink
-                      to="/founders/app-overhaul-plan"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/founders/app-overhaul-plan" onClick={handleNavClick} className={founderNavClass}>
                       <Sparkles className="h-4 w-4 text-amber-400" />
                       <span>App Overhaul Plan</span>
                     </NavLink>
@@ -399,15 +362,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="v2 App Sandbox">
-                    <NavLink
-                      to="/founders/v2app"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/founders/v2app" onClick={handleNavClick} className={founderNavClass}>
                       <Sparkles className="h-4 w-4 text-amber-400" />
                       <span>v2 App Sandbox</span>
                     </NavLink>
@@ -415,15 +370,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Deason V3 — Wow Stack">
-                    <NavLink
-                      to="/founders/deason-v3"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/founders/deason-v3" onClick={handleNavClick} className={founderNavClass}>
                       <Sparkles className="h-4 w-4 text-amber-400" />
                       <span>Deason V3 — Wow Stack</span>
                     </NavLink>
@@ -431,15 +378,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Deason (AI)">
-                    <NavLink
-                      to="/deason"
-                      onClick={handleNavClick}
-                      className={({ isActive }) =>
-                        `${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          : "hover:bg-sidebar-accent/50"} text-amber-400 font-semibold rounded-lg`
-                      }
-                    >
+                    <NavLink to="/deason" onClick={handleNavClick} className={founderNavClass}>
                       <Sparkles className="h-4 w-4 text-amber-400" />
                       <span>Deason</span>
                     </NavLink>
@@ -461,11 +400,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url}
                       onClick={handleNavClick}
-                      className={({ isActive }) => 
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                          : "hover:bg-sidebar-accent/50"
-                      }
+                      className={navClass}
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -491,11 +426,7 @@ export function AppSidebar() {
                         to={item.url}
                         end={item.url === "/admin"}
                         onClick={handleNavClick}
-                        className={({ isActive }) => 
-                          isActive 
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                            : "hover:bg-sidebar-accent/50"
-                        }
+                        className={navClass}
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
@@ -520,11 +451,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -551,11 +478,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -582,11 +505,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -613,11 +532,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>
@@ -644,11 +559,7 @@ export function AppSidebar() {
                           <NavLink 
                             to={item.url}
                             onClick={handleNavClick}
-                            className={({ isActive }) => 
-                              isActive 
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-                                : `hover:bg-sidebar-accent/50 ${item.highlight ? 'text-solar font-semibold' : ''}`
-                            }
+                            className={navClassWithExtra(item.highlight ? 'text-solar font-semibold' : '')}
                           >
                             <item.icon className={`h-4 w-4 ${item.highlight ? 'text-solar' : ''}`} />
                             <span>{item.title}</span>

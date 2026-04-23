@@ -81,3 +81,17 @@ All 9 founder routes registered correctly at App.tsx lines 984-994: `/founders`,
 7. **Login streak badge** — "Day 47 ⚡" sidebar footer (S, wow)
 8. **Referral analytics** — track shares/copies for viral coefficient measurement (S, wow)
 9. **Demo QA opt-in default** — flip default to clean preview, opt-IN to diagnostics (M)
+
+## Commit 2-3 Notes
+
+### Sidebar accent helpers (P1-7)
+**Fixed:** Added `navClass` / `navClassWithExtra` / `founderNavClass` helpers — left accent bar (emerald or amber) on active route, ~120 LOC reduction.
+**Noticed:** All 6 admin sub-menus repeat the same Collapsible+map pattern. *Quick win:* extract `<AdminSubMenu icon label items />` component → another ~150 LOC saved. *Strategic:* drive the entire sidebar from a single nav-config array (already half there with `adminMenuGroups`).
+
+### TopNav header (Commit 3)
+**Fixed:** Weather widget hidden under 360px; live-beta badge hidden under 480px (xs: breakpoint) to prevent crowding on iPhone SE class devices.
+**Noticed:** ThemeToggle + NotificationBell + WeatherWidget all render unconditionally even when user is on /auth /onboarding etc — slight wasted work. *Quick win:* memoize via route-aware HOC. *Strategic:* TopNav could host a global search (Ctrl-K) — tons of pages, no quick way to jump.
+
+### FounderRoute guard (security upgrade)
+**Fixed:** All 11 founder/deason routes now require founder role at the route level — defense-in-depth on top of page-level checks.
+**Noticed:** `useIsFounder` and `useAdminCheck` both query `user_roles` independently — N+1 queries per page load. *Quick win:* unify into a single `useUserRoles()` hook with React Query caching.
