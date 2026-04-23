@@ -242,7 +242,7 @@ export function FounderDestinationChooser({
       />
       {/* Sheet */}
       <div
-        className="relative mt-auto w-full bg-background border-t border-border/60 rounded-t-3xl shadow-[0_-12px_40px_-12px_hsl(var(--primary)/0.25)] animate-slide-in-up"
+        className="relative mt-auto w-full bg-background border-t border-border/60 rounded-t-3xl shadow-[0_-12px_40px_-12px_hsl(var(--primary)/0.25)] animate-fade-in"
         style={{
           paddingTop: "0.75rem",
           paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
