@@ -63,6 +63,18 @@ export default {
           DEFAULT: "hsl(var(--token))",
           foreground: "hsl(var(--token-foreground))",
         },
+        "accent-warm": {
+          DEFAULT: "hsl(var(--accent-warm))",
+          foreground: "hsl(var(--accent-warm-foreground))",
+        },
+        "accent-cool": {
+          DEFAULT: "hsl(var(--accent-cool))",
+          foreground: "hsl(var(--accent-cool-foreground))",
+        },
+        "accent-rare": {
+          DEFAULT: "hsl(var(--accent-rare))",
+          foreground: "hsl(var(--accent-rare-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
