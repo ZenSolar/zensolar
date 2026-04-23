@@ -1755,7 +1755,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       key={combo.tokenId}
                       className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                     >
-                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/5 flex-shrink-0">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-accent-rare/20 to-accent-rare/5 flex-shrink-0">
                         {artwork ? (
                           <img 
                             src={artwork} 
@@ -1777,7 +1777,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         size="sm"
                         onClick={() => handleMintSingleCombo(combo)}
                         disabled={isMinting}
-                        className="flex-shrink-0 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        className="flex-shrink-0 bg-gradient-to-r from-accent-rare to-accent-rare/80 hover:from-accent-rare/90 hover:to-accent-rare/70 text-accent-rare-foreground"
                       >
                         {isCurrentlyMinting ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
