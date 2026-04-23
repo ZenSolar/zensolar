@@ -19,6 +19,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useHaptics } from "@/hooks/useHaptics";
 import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  getLastFounderRoute,
+  isFounderRoute,
+  rememberFounderRoute,
+} from "@/lib/founderLastVisit";
 
 interface Props {
   userId: string;
