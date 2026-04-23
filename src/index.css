@@ -649,7 +649,15 @@
   75% { transform: translateY(-2px) scale(1.1); }
 }
 
-/* Energy grid lines — circuit pattern that flashes on KPI tap */
+/* Double-tap window countdown ring — drains its stroke around the KPI card,
+   visually counting down the time the user has to tap again to mint. The
+   stroke starts fully drawn (offset 0) and unwinds to fully erased (offset 100). */
+@keyframes zenTapWindowCountdown {
+  from { stroke-dashoffset: 0; opacity: 1; }
+  to   { stroke-dashoffset: 100; opacity: 0.4; }
+}
+
+
 @keyframes zenGridFlash {
   0% {
     opacity: 0;

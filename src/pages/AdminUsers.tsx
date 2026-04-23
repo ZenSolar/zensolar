@@ -93,6 +93,13 @@ interface MintRecord {
   created_at: string;
 }
 
+interface TapStats {
+  single: number;
+  double: number;
+  mintInWindow: number;
+  mintOutsideWindow: number;
+}
+
 interface UserKPIs {
   user_id: string;
   device_count: number;
@@ -107,6 +114,7 @@ interface UserKPIs {
   total_tokens_pending: number;
   mint_records: MintRecord[];
   nfts_earned: string[];
+  tap_stats?: TapStats;
 }
 
 // ─── NFT Thresholds ─────────────────────────────────────────────────────────
@@ -734,12 +742,13 @@ export default function AdminUsers() {
 
     setProfiles(profilesWithEmails);
 
-    // Fetch KPI data in parallel
-    const [pushResult, devicesResult, productionResult, rewardsResult] = await Promise.all([
+    // Fetch KPI data in parallel (incl. KPI tap analytics)
+    const [pushResult, devicesResult, productionResult, rewardsResult, tapEventsResult] = await Promise.all([
       supabase.from('push_subscriptions').select('user_id'),
       supabase.from('connected_devices').select('id, user_id, provider, device_type, device_name, baseline_data, lifetime_totals'),
       supabase.from('energy_production').select('user_id, production_wh, consumption_wh'),
       supabase.from('user_rewards').select('id, user_id, reward_type, tokens_earned, energy_wh_basis, claimed, claimed_at, created_at').order('created_at', { ascending: false }),
+      supabase.from('kpi_tap_events').select('user_id, event_type'),
     ]);
 
     if (!pushResult.error && pushResult.data) {
@@ -813,6 +822,19 @@ export default function AdminUsers() {
           energy_wh_basis: Number(reward.energy_wh_basis) || 0, claimed: reward.claimed,
           claimed_at: reward.claimed_at, created_at: reward.created_at,
         });
+      });
+    }
+
+    // Aggregate KPI tap analytics per user.
+    if (!tapEventsResult.error && tapEventsResult.data) {
+      tapEventsResult.data.forEach(ev => {
+        const k = kpiMap.get(ev.user_id);
+        if (!k) return;
+        if (!k.tap_stats) k.tap_stats = { single: 0, double: 0, mintInWindow: 0, mintOutsideWindow: 0 };
+        if (ev.event_type === 'single_tap') k.tap_stats.single++;
+        else if (ev.event_type === 'double_tap') k.tap_stats.double++;
+        else if (ev.event_type === 'mint_in_window') k.tap_stats.mintInWindow++;
+        else if (ev.event_type === 'mint_outside_window') k.tap_stats.mintOutsideWindow++;
       });
     }
 

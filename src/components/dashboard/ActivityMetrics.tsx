@@ -1,5 +1,16 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useTapGesture, TAP_GESTURE_TIMINGS } from '@/hooks/useTapGesture';
+import { recordKpiTapEvent } from '@/lib/kpiTapAnalytics';
+
+// Map internal color tokens used by KPI cards → analytics category names so
+// the admin Users page sees stable, human-readable labels.
+const analyticsCategoryByColor: Record<string, string> = {
+  gold: 'solar',
+  teal: 'battery',
+  green: 'ev',
+  cyan: 'supercharger',
+  greenGold: 'home_charger',
+};
 import { ShimmerOverlay } from './ShimmerOverlay';
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
@@ -891,9 +902,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     showTapAgain: boolean;
     isSecondTap: boolean;
     burstKey: number;
+    /** Timestamp of the first tap that started the current double-tap window — drives the countdown ring. */
+    ringStartedAt: number | null;
   }
   const stateRef = React.useRef<FieldState>({
-    phase: 'idle', touchPoint: null, showTapAgain: false, isSecondTap: false, burstKey: 0,
+    phase: 'idle', touchPoint: null, showTapAgain: false, isSecondTap: false, burstKey: 0, ringStartedAt: null,
   });
   const [, setRenderTick] = useState(0);
   const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
@@ -1035,12 +1048,11 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     primeAudio();
     const now = Date.now();
     // Debounce gate — drop spurious second registrations within TAP_DEBOUNCE_MS.
-    // This stops the touchend → ghost-click pair (and finger jitter) from
-    // collapsing two intended taps into one or skipping the burst entirely.
     if (now < tapCooldownUntilRef.current) return;
     tapCooldownUntilRef.current = now + TAP_DEBOUNCE_MS;
 
     const timeSinceLastTap = now - lastTapTimeRef.current;
+    const analyticsCategory = analyticsCategoryByColor[color] ?? color;
 
     if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
       // ── DOUBLE TAP ── fire the mint confirmation
@@ -1048,28 +1060,32 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       lastTapTimeRef.current = now;
       updateState({ showTapAgain: false });
       triggerDoubleBurst(posX, posY);
+      // Analytics: a mint confirmed inside the double-tap window.
+      void recordKpiTapEvent(analyticsCategory, 'double_tap', { ms_between_taps: timeSinceLastTap });
+      void recordKpiTapEvent(analyticsCategory, 'mint_in_window', { ms_between_taps: timeSinceLastTap });
       // Open the mint confirmation dialog
       onTap?.();
       doubleTapTimerRef.current = setTimeout(() => {
         lastTapTimeRef.current = 0;
       }, DOUBLE_TAP_WINDOW);
     } else {
-      // ── FIRST TAP ── visual burst + "tap twice" hint
+      // ── FIRST TAP ── visual burst + "tap twice" hint + countdown ring
       lastTapTimeRef.current = now;
       triggerBurst(posX, posY);
-      updateState({ showTapAgain: true });
+      updateState({ showTapAgain: true, ringStartedAt: now });
+      // Analytics: a single tap (may or may not become a double-tap later).
+      void recordKpiTapEvent(analyticsCategory, 'single_tap');
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-      // Keep the hint visible long enough that brand-new users can read it,
-      // but reset the double-tap window after DOUBLE_TAP_WINDOW so a delayed
+      // Reset double-tap window after DOUBLE_TAP_WINDOW so a delayed
       // second tap counts as a fresh single-tap (intentional UX).
       setTimeout(() => {
         if (lastTapTimeRef.current === now) lastTapTimeRef.current = 0;
       }, DOUBLE_TAP_WINDOW);
       doubleTapTimerRef.current = setTimeout(() => {
-        updateState({ showTapAgain: false });
+        updateState({ showTapAgain: false, ringStartedAt: null });
       }, HINT_DURATION_MS);
     }
-  }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState, onTap]);
+  }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState, onTap, color, DOUBLE_TAP_WINDOW, TAP_DEBOUNCE_MS, HINT_DURATION_MS]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (!isTappable || !onTap) return;
@@ -1135,7 +1151,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   };
 
   // Destructure current state for render
-  const { phase, touchPoint, showTapAgain, isSecondTap, burstKey } = stateRef.current;
+  const { phase, touchPoint, showTapAgain, isSecondTap, burstKey, ringStartedAt } = stateRef.current;
   const isBursting = phase === 'burst';
   const isPressing = phase === 'pressing';
   const isChargingUp = phase === 'charging';
@@ -1202,7 +1218,40 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         )} />
       )}
 
-      {/* 🔵 Touch-point ripple — expands from where finger lands */}
+      {/* ⏱️ Double-tap countdown ring — expands around the card after the first
+          tap, visually counting down the window in which a second tap will mint.
+          Keyed on ringStartedAt so it cleanly restarts on every fresh first-tap. */}
+      {showTapAgain && ringStartedAt && (
+        <svg
+          key={`ring-countdown-${ringStartedAt}`}
+          className="absolute inset-0 pointer-events-none z-[6]"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden
+          style={{ overflow: 'visible' }}
+        >
+          <rect
+            x="1.5"
+            y="1.5"
+            width="97"
+            height="97"
+            rx="8"
+            ry="8"
+            fill="none"
+            stroke={`hsl(${styles.rgba} / 0.85)`}
+            strokeWidth="2"
+            vectorEffect="non-scaling-stroke"
+            pathLength={100}
+            style={{
+              filter: `drop-shadow(0 0 6px hsl(${styles.rgba} / 0.55))`,
+              strokeDasharray: 100,
+              strokeDashoffset: 0,
+              animation: `zenTapWindowCountdown ${DOUBLE_TAP_WINDOW}ms linear forwards`,
+            }}
+          />
+        </svg>
+      )}
+
       {(isPressing || isBursting) && touchPoint && (
         <div
           className="absolute pointer-events-none rounded-full"
