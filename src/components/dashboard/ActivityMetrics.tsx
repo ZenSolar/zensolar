@@ -1151,7 +1151,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   };
 
   // Destructure current state for render
-  const { phase, touchPoint, showTapAgain, isSecondTap, burstKey } = stateRef.current;
+  const { phase, touchPoint, showTapAgain, isSecondTap, burstKey, ringStartedAt } = stateRef.current;
   const isBursting = phase === 'burst';
   const isPressing = phase === 'pressing';
   const isChargingUp = phase === 'charging';
