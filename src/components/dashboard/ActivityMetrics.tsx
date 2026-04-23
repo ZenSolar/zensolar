@@ -1094,7 +1094,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
 
   // CSS custom properties for dynamic shadow based on color
   const shadowRest = `0 1px 3px rgba(0,0,0,0.1)`;
-  const shadowGlow = `0 0 20px hsl(\${styles.rgba} / 0.4), 0 0 40px hsl(\${styles.rgba} / 0.15)`;
+  const shadowGlow = `0 0 20px hsl(${styles.rgba} / 0.4), 0 0 40px hsl(${styles.rgba} / 0.15)`;
 
   return (
     <motion.div
@@ -1126,19 +1126,19 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         '--zen-shadow-rest': shadowRest,
         '--zen-shadow-glow': shadowGlow,
         boxShadow: isBursting 
-          ? `0 0 30px hsl(\${styles.rgba} / 0.5), 0 0 60px hsl(\${styles.rgba} / 0.25), 0 0 90px hsl(\${styles.rgba} / 0.1)` 
+          ? `0 0 30px hsl(${styles.rgba} / 0.5), 0 0 60px hsl(${styles.rgba} / 0.25), 0 0 90px hsl(${styles.rgba} / 0.1)` 
           : isChargingUp
-            ? `0 0 20px hsl(\${styles.rgba} / 0.4), 0 0 40px hsl(\${styles.rgba} / 0.2)`
+            ? `0 0 20px hsl(${styles.rgba} / 0.4), 0 0 40px hsl(${styles.rgba} / 0.2)`
           : isPressing 
-            ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px hsl(\${styles.rgba} / 0.3)` 
+            ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px hsl(${styles.rgba} / 0.3)` 
             : isTappable
-              ? `0 0 12px hsl(\${styles.rgba} / 0.18), 0 0 5px hsl(\${styles.rgba} / 0.12), 0 0 24px hsl(\${styles.rgba} / 0.06), inset 0 0 6px hsl(\${styles.rgba} / 0.06)`
+              ? `0 0 12px hsl(${styles.rgba} / 0.18), 0 0 5px hsl(${styles.rgba} / 0.12), 0 0 24px hsl(${styles.rgba} / 0.06), inset 0 0 6px hsl(${styles.rgba} / 0.06)`
               : shadowRest,
         transition: 'box-shadow 0.4s ease-out',
       } as React.CSSProperties}
        className={cn(
         "p-3.5 rounded-xl border-l-[3px] flex items-center gap-3.5 relative overflow-hidden touch-manipulation select-none",
-        isTappable ? `border border-[hsl(\${styles.rgba} / 0.2)]` : "border border-border/50",
+        isTappable ? `border border-[hsl(${styles.rgba} / 0.2)]` : "border border-border/50",
         styles.leftBorder,
         isTappable
           ? cn("cursor-pointer bg-card/5 hover:bg-card/12 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
@@ -1162,7 +1162,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             top: `${touchPoint.y * 100}%`,
             width: '200%',
             height: '200%',
-            background: `radial-gradient(circle, hsl(\${styles.rgba} / 0.35) 0%, transparent 70%)`,
+            background: `radial-gradient(circle, hsl(${styles.rgba} / 0.35) 0%, transparent 70%)`,
             animation: isBursting 
               ? 'zenTouchRipple 900ms ease-out forwards' 
               : undefined,
@@ -1185,7 +1185,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             top: `${touchPoint.y * 100}%`,
             width: '300%',
             height: '300%',
-            border: `3px solid hsl(\${styles.rgba} / 1)`,
+            border: `3px solid hsl(${styles.rgba} / 1)`,
             animation: 'zenPressureWave 800ms ease-out forwards',
             willChange: 'transform, opacity',
           }}
@@ -1208,7 +1208,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 marginLeft: touchPoint ? -10 : 0,
                 marginTop: -10,
                 borderRadius: '50%',
-                border: `3px solid hsl(\${styles.rgba} / ${1 - i * 0.12})`,
+                border: `3px solid hsl(${styles.rgba} / ${1 - i * 0.12})`,
                 animation: `zenFlareRing 900ms ${i * 120}ms ease-out forwards`,
                 willChange: 'transform, opacity',
               }}
@@ -1224,8 +1224,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
                 width: p.size,
                 height: p.size,
-                background: `hsl(\${styles.rgba} / 1)`,
-                boxShadow: `0 0 16px hsl(\${styles.rgba} / 1), 0 0 32px hsl(\${styles.rgba} / 0.5)`,
+                background: `hsl(${styles.rgba} / 1)`,
+                boxShadow: `0 0 16px hsl(${styles.rgba} / 1), 0 0 32px hsl(${styles.rgba} / 0.5)`,
                 clipPath: shape,
                 transform: `rotate(${p.rotation}deg)`,
                 animation: `zenFlareParticle 900ms ${p.delay}ms ease-out forwards`,
@@ -1245,7 +1245,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               height: 100,
               marginLeft: touchPoint ? -50 : -22,
               marginTop: -50,
-              background: `radial-gradient(circle, hsl(\${styles.rgba} / 0.9) 0%, hsl(\${styles.rgba} / 0.4) 40%, transparent 70%)`,
+              background: `radial-gradient(circle, hsl(${styles.rgba} / 0.9) 0%, hsl(${styles.rgba} / 0.4) 40%, transparent 70%)`,
               animation: 'zenEnergyRelease 800ms ease-out forwards',
               willChange: 'transform, opacity',
             }}
@@ -1261,7 +1261,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `repeating-conic-gradient(from 0deg, hsl(\${styles.rgba} / 0.35) 0deg, transparent 8deg, transparent 22.5deg)`,
+                backgroundImage: `repeating-conic-gradient(from 0deg, hsl(${styles.rgba} / 0.35) 0deg, transparent 8deg, transparent 22.5deg)`,
                 backgroundPosition: touchPoint ? `${touchPoint.x * 100}% ${touchPoint.y * 100}%` : 'center',
                 animation: 'zenGridFlash 1200ms ease-out forwards',
                 willChange: 'opacity',
@@ -1273,7 +1273,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 6px, hsl(\${styles.rgba} / 0.3) 6px, hsl(\${styles.rgba} / 0.3) 8px)`,
+                backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 6px, hsl(${styles.rgba} / 0.3) 6px, hsl(${styles.rgba} / 0.3) 8px)`,
                 animation: 'zenGridFlash 1200ms ease-out forwards',
                 willChange: 'opacity',
               }}
@@ -1284,7 +1284,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `repeating-linear-gradient(-30deg, transparent, transparent 10px, hsl(\${styles.rgba} / 0.3) 10px, hsl(\${styles.rgba} / 0.3) 12px)`,
+                backgroundImage: `repeating-linear-gradient(-30deg, transparent, transparent 10px, hsl(${styles.rgba} / 0.3) 10px, hsl(${styles.rgba} / 0.3) 12px)`,
                 animation: 'zenGridSweep 800ms ease-out forwards',
                 backgroundSize: '300% 300%',
                 willChange: 'opacity, background-position',
@@ -1303,8 +1303,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                     top: 0,
                     width: 3,
                     height: '100%',
-                    background: `linear-gradient(180deg, hsl(\${styles.rgba} / 0.8), hsl(\${styles.rgba} / 0) 80%)`,
-                    boxShadow: `0 0 8px hsl(\${styles.rgba} / 0.6)`,
+                    background: `linear-gradient(180deg, hsl(${styles.rgba} / 0.8), hsl(${styles.rgba} / 0) 80%)`,
+                    boxShadow: `0 0 8px hsl(${styles.rgba} / 0.6)`,
                     animation: `zenGridFlash 700ms ${i * 100}ms ease-out forwards`,
                     willChange: 'opacity',
                   }}
@@ -1326,8 +1326,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                     height: ring * 50,
                     marginLeft: -(ring * 25),
                     marginTop: -(ring * 25),
-                    border: `1.5px dashed hsl(\${styles.rgba} / ${0.7 - ring * 0.15})`,
-                    boxShadow: `0 0 6px hsl(\${styles.rgba} / 0.3)`,
+                    border: `1.5px dashed hsl(${styles.rgba} / ${0.7 - ring * 0.15})`,
+                    boxShadow: `0 0 6px hsl(${styles.rgba} / 0.3)`,
                     animation: `zenGridFlash 1000ms ${ring * 100}ms ease-out forwards`,
                     willChange: 'opacity',
                   }}
@@ -1339,7 +1339,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           <div
             className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
             style={{
-              backgroundImage: `linear-gradient(135deg, transparent 25%, hsl(\${styles.rgba} / 0.3) 42%, hsl(\${styles.rgba} / 0.5) 50%, hsl(\${styles.rgba} / 0.3) 58%, transparent 75%)`,
+              backgroundImage: `linear-gradient(135deg, transparent 25%, hsl(${styles.rgba} / 0.3) 42%, hsl(${styles.rgba} / 0.5) 50%, hsl(${styles.rgba} / 0.3) 58%, transparent 75%)`,
               backgroundSize: '300% 300%',
               animation: 'zenGridSweep 800ms ease-out forwards',
               willChange: 'opacity, background-position',
@@ -1365,8 +1365,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                     height: ring * 40,
                     marginLeft: -(ring * 20),
                     marginTop: -(ring * 20),
-                    border: `2px solid hsl(\${styles.rgba} / ${0.8 - ring * 0.15})`,
-                    boxShadow: `0 0 10px hsl(\${styles.rgba} / 0.4)`,
+                    border: `2px solid hsl(${styles.rgba} / ${0.8 - ring * 0.15})`,
+                    boxShadow: `0 0 10px hsl(${styles.rgba} / 0.4)`,
                     animation: `zenFlareRing 900ms ${ring * 80}ms ease-out forwards`,
                     willChange: 'transform, opacity',
                   }}
@@ -1379,7 +1379,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 6px, hsl(\${styles.rgba} / 0.3) 6px, hsl(\${styles.rgba} / 0.3) 8px)`,
+                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 6px, hsl(${styles.rgba} / 0.3) 6px, hsl(${styles.rgba} / 0.3) 8px)`,
                 animation: 'zenGridFlash 1200ms ease-out forwards',
                 willChange: 'opacity',
               }}
@@ -1390,7 +1390,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `repeating-linear-gradient(30deg, transparent, transparent 10px, hsl(\${styles.rgba} / 0.3) 10px, hsl(\${styles.rgba} / 0.3) 12px)`,
+                backgroundImage: `repeating-linear-gradient(30deg, transparent, transparent 10px, hsl(${styles.rgba} / 0.3) 10px, hsl(${styles.rgba} / 0.3) 12px)`,
                 animation: 'zenGridSweep 800ms ease-out forwards',
                 backgroundSize: '300% 300%',
                 willChange: 'opacity, background-position',
@@ -1409,8 +1409,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                     left: 0,
                     height: 3,
                     width: '100%',
-                    background: `linear-gradient(90deg, hsl(\${styles.rgba} / 0.8), hsl(\${styles.rgba} / 0) 80%)`,
-                    boxShadow: `0 0 8px hsl(\${styles.rgba} / 0.6)`,
+                    background: `linear-gradient(90deg, hsl(${styles.rgba} / 0.8), hsl(${styles.rgba} / 0) 80%)`,
+                    boxShadow: `0 0 8px hsl(${styles.rgba} / 0.6)`,
                     animation: `zenGridFlash 700ms ${i * 100}ms ease-out forwards`,
                     willChange: 'opacity',
                   }}
@@ -1423,7 +1423,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             <div
               className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
               style={{
-                backgroundImage: `repeating-conic-gradient(from 0deg at ${touchPoint ? `${touchPoint.x * 100}% ${touchPoint.y * 100}%` : '50% 50%'}, hsl(\${styles.rgba} / 0.3) 0deg, transparent 12deg, transparent 30deg)`,
+                backgroundImage: `repeating-conic-gradient(from 0deg at ${touchPoint ? `${touchPoint.x * 100}% ${touchPoint.y * 100}%` : '50% 50%'}, hsl(${styles.rgba} / 0.3) 0deg, transparent 12deg, transparent 30deg)`,
                 animation: 'zenGridFlash 1000ms ease-out forwards',
                 willChange: 'opacity',
               }}
@@ -1433,7 +1433,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           <div
             className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
             style={{
-              backgroundImage: `linear-gradient(-135deg, transparent 25%, hsl(\${styles.rgba} / 0.3) 42%, hsl(\${styles.rgba} / 0.5) 50%, hsl(\${styles.rgba} / 0.3) 58%, transparent 75%)`,
+              backgroundImage: `linear-gradient(-135deg, transparent 25%, hsl(${styles.rgba} / 0.3) 42%, hsl(${styles.rgba} / 0.5) 50%, hsl(${styles.rgba} / 0.3) 58%, transparent 75%)`,
               backgroundSize: '300% 300%',
               animation: 'zenGridSweep 800ms ease-out forwards',
               willChange: 'opacity, background-position',
@@ -1447,20 +1447,20 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         <div
           className="absolute inset-0 pointer-events-none rounded-xl"
           style={{
-            border: `2px solid hsl(\${styles.rgba} / 0.5)`,
+            border: `2px solid hsl(${styles.rgba} / 0.5)`,
             animation: 'zenChargeUpPulse 600ms ease-in-out infinite alternate',
             willChange: 'opacity, box-shadow',
-            boxShadow: `inset 0 0 20px hsl(\${styles.rgba} / 0.1), 0 0 25px hsl(\${styles.rgba} / 0.3)`,
+            boxShadow: `inset 0 0 20px hsl(${styles.rgba} / 0.1), 0 0 25px hsl(${styles.rgba} / 0.3)`,
           }}
         />
       )}
       
       {/* Icon with gradient background */}
       <div className="relative p-3 rounded-xl" style={(isBursting || isChargingUp) ? { 
-        filter: `drop-shadow(0 0 ${isBursting ? 8 : 5}px hsl(\${styles.rgba} / ${isBursting ? 0.8 : 0.5}))`,
+        filter: `drop-shadow(0 0 ${isBursting ? 8 : 5}px hsl(${styles.rgba} / ${isBursting ? 0.8 : 0.5}))`,
         transition: 'all 200ms ease-out',
       } : isPressing ? {
-        filter: `drop-shadow(0 0 4px hsl(\${styles.rgba} / 0.4))`,
+        filter: `drop-shadow(0 0 4px hsl(${styles.rgba} / 0.4))`,
         transition: 'all 100ms ease-out',
       } : { transition: 'all 200ms ease-out' }}>
         <Icon className={cn(
