@@ -1573,12 +1573,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               {nftMintDialog.type === 'milestone' ? (
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-emerald-500/5 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/20">
-                  <Trophy className="h-5 w-5 text-emerald-500" />
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 via-primary/15 to-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/30">
+                  <Trophy className="h-5 w-5 text-primary" />
                 </span>
               ) : (
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-purple-500/5 shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/20">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-accent-rare/25 via-accent-rare/15 to-accent-rare/5 shadow-lg shadow-accent-rare/10 ring-1 ring-accent-rare/30">
+                  <Sparkles className="h-5 w-5 text-accent-rare" />
                 </span>
               )}
               <span className="text-xl">
