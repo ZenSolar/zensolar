@@ -914,13 +914,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
   const burstTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignoreClickUntilRef = React.useRef<number>(0);
   const tapCooldownUntilRef = React.useRef<number>(0);
-  const DOUBLE_TAP_WINDOW = 500;
+  // Use shared timing constants so every KPI card behaves identically.
+  const DOUBLE_TAP_WINDOW = TAP_GESTURE_TIMINGS.DOUBLE_TAP_WINDOW;
   const BURST_DURATION = 1200;
-  const GHOST_CLICK_SUPPRESSION = 700;
-  // Minimum gap between two tap registrations — filters jittery iOS/Android
-  // double-fires (e.g. touchend + synthetic click) so each tap reliably maps
-  // to one burst/glow. Tuned below typical human double-tap cadence (~140ms).
-  const TAP_DEBOUNCE_MS = 80;
+  const GHOST_CLICK_SUPPRESSION = TAP_GESTURE_TIMINGS.GHOST_CLICK_SUPPRESSION;
+  const TAP_DEBOUNCE_MS = TAP_GESTURE_TIMINGS.TAP_DEBOUNCE_MS;
+  const HINT_DURATION_MS = TAP_GESTURE_TIMINGS.HINT_DURATION_MS;
 
   // Resync tap visuals when the app/tab becomes visible again (PWA resume,
   // tab switch, lock-screen wake). Clears any stale phase/timers left over
