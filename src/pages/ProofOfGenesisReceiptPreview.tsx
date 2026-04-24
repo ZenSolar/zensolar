@@ -426,23 +426,40 @@ export default function ProofOfGenesisReceiptPreview() {
             </div>
           </motion.header>
 
-          {/* Receipt selector */}
-          <div className="flex flex-wrap gap-2">
-            {RECEIPTS.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => setActiveId(r.id)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                  r.id === activeId
-                    ? 'border-primary/50 bg-primary/10 text-primary'
-                    : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
-                }`}
-              >
-                {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {r.primary_source === 'ev_charging' && r.miles_driven ? `${r.miles_driven} mi` : `${formatKwh(r.total_kwh)} kWh`}
-              </button>
-            ))}
+          {/* Receipt selector — live mint (if any) is first and labelled */}
+          <div className="flex flex-wrap gap-2 items-center">
+            {liveState.status === 'loading' && (
+              <span className="text-[11px] text-muted-foreground">Loading your latest mint…</span>
+            )}
+            {allReceipts.map((r) => {
+              const live = r.id.startsWith('live-');
+              const active = r.id === effectiveActiveId;
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => setActiveId(r.id)}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors flex items-center gap-1.5 ${
+                    active
+                      ? 'border-primary/50 bg-primary/10 text-primary'
+                      : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                  }`}
+                >
+                  {live && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Live
+                    </span>
+                  )}
+                  {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {r.primary_source === 'ev_charging' && r.miles_driven ? `${r.miles_driven.toLocaleString()} mi` : `${formatKwh(r.total_kwh)} kWh`}
+                </button>
+              );
+            })}
           </div>
+          {isLive && (
+            <p className="text-[11px] text-muted-foreground -mt-3">
+              Showing your most recent on-chain mint. Tokens shown are your wallet share (75% after the 20% burn / 3% LP / 2% treasury split).
+            </p>
+          )}
 
           {/* Hero stats */}
           <motion.section
