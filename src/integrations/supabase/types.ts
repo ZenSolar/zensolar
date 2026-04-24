@@ -103,6 +103,72 @@ export type Database = {
         }
         Relationships: []
       }
+      bidirectional_mint_events: {
+        Row: {
+          created_at: string
+          device_id: string
+          direction: string
+          ended_at: string | null
+          energy_kwh: number
+          flow_type: string
+          id: string
+          mint_status: string
+          mint_tx_hash: string | null
+          patent_claim_ref: string | null
+          proof_hash: string | null
+          proof_metadata: Json | null
+          provider: string
+          recorded_at: string
+          session_id: string
+          started_at: string | null
+          tokens_minted: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          direction: string
+          ended_at?: string | null
+          energy_kwh?: number
+          flow_type: string
+          id?: string
+          mint_status?: string
+          mint_tx_hash?: string | null
+          patent_claim_ref?: string | null
+          proof_hash?: string | null
+          proof_metadata?: Json | null
+          provider: string
+          recorded_at?: string
+          session_id: string
+          started_at?: string | null
+          tokens_minted?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          direction?: string
+          ended_at?: string | null
+          energy_kwh?: number
+          flow_type?: string
+          id?: string
+          mint_status?: string
+          mint_tx_hash?: string | null
+          patent_claim_ref?: string | null
+          proof_hash?: string | null
+          proof_metadata?: Json | null
+          provider?: string
+          recorded_at?: string
+          session_id?: string
+          started_at?: string | null
+          tokens_minted?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       charging_sessions: {
         Row: {
           charging_type: string
