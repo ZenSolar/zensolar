@@ -46,6 +46,49 @@ interface ChangelogEntry {
 
 const ENTRIES: ChangelogEntry[] = [
   {
+    date: "April 24, 2026 (LATE)",
+    iso: "2026-04-24T23:30",
+    title: "Bi-Directional EV Patent Expansion",
+    summary:
+      "Logged the bi-directional EV charging (V2G/V2H/V2L) + FSD miles patent claim additions. Anchored with a real DB table to reduce the claim to practice. App feature deliberately deferred to Phase 3.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "New /founders/patent-expansion page — full claim hierarchy (3 dependent claims + the killer separation-method claim + FSD adjacent claim) for patent counsel.",
+          "Vault tile (primary green) added with ShieldCheck icon for one-tap access.",
+          "New DB table `bidirectional_mint_events` — schema-only, RLS-locked. Records import vs export as separate mint events within a single session. patent_claim_ref defaults to ZSOLAR-BIDIR-V1.",
+        ],
+        links: [
+          {
+            label: "Patent Expansion (V2G/V2H/V2L + FSD)",
+            url: "https://beta.zen.solar/founders/patent-expansion",
+            preview: true,
+          },
+        ],
+      },
+      {
+        heading: "Strategic Decisions Locked",
+        icon: "strategy",
+        bullets: [
+          "File now, ship later — priority date is the asset, not feature parity.",
+          "Killer claim = the separation method (two mint events per bi-directional session). Owns the IP for distinguishing import vs export kWh.",
+          "Total mintable surface goes from 5 (Phase 1) → 9 (with Phase 3): adds V2G, V2H, V2L, FSD miles.",
+          "Bi-directional minting will be Elite-tier with 1.5x multiplier when it ships (V2G has higher grid value).",
+          "Do NOT publish claim language publicly until counsel confirms filing.",
+        ],
+      },
+      {
+        heading: "Memory Updates",
+        icon: "memory",
+        bullets: [
+          "Saved mem://features/bidirectional-ev-minting — full Phase 3 roadmap, patent strategy, implementation anchor, tier pairing rules.",
+        ],
+      },
+    ],
+  },
+  {
     date: "April 24, 2026 (EVE)",
     iso: "2026-04-24T22:00",
     title: "VPP Program Logged as Phase 2",
