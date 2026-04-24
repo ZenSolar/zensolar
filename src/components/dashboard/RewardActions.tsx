@@ -1430,12 +1430,21 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               </div>
             )}
             
-            {/* Success message */}
+            {/* Success message + Proof-of-Genesis seal */}
             {mintingProgress.step === 'complete' && (
-              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30 max-w-xs mx-auto shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
-                <p className="text-sm text-primary font-medium">
-                  ✨ Your tokens have been minted successfully!
-                </p>
+              <div className="space-y-2 max-w-xs mx-auto">
+                <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
+                  <p className="text-sm text-primary font-medium">
+                    ✨ Your tokens have been minted successfully!
+                  </p>
+                </div>
+                {/* Proof-of-Genesis confirmation — included in EVERY mint now that PoG exists */}
+                <div className="flex items-center justify-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 mx-auto w-fit shadow-[0_0_14px_hsl(var(--primary)/0.2)]">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden />
+                  <span className="text-xs font-semibold text-primary tracking-wide">
+                    Proof of Genesis ✓
+                  </span>
+                </div>
               </div>
             )}
 

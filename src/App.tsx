@@ -79,6 +79,7 @@ const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Technology = lazy(() => import("./pages/Technology"));
 const ProofOfGenesis = lazy(() => import("./pages/ProofOfGenesis"));
 const ProofOfGenesisReceiptPreview = lazy(() => import("./pages/ProofOfGenesisReceiptPreview"));
+const MintFlowMicroPreview = lazy(() => import("./pages/MintFlowMicroPreview"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 // Combined pages
@@ -214,6 +215,8 @@ const App = () => {
                     <Route path="/taylor-preview" element={<TaylorPreview />} />
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
+                    <Route path="/preview/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
+                    <Route path="/demo/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
                     {/* Resilient aliases — catch common typos / old paths so the link never 404s */}
                     <Route path="/proof-of-genesis-receipt" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
                     <Route path="/pog-receipt-preview" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
