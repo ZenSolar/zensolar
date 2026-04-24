@@ -10,6 +10,7 @@ import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
@@ -229,11 +230,64 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
+/**
+ * Convert a live mint row into the Receipt shape the UI already understands.
+ * EV-only mints are the dominant case today (Tesla + Wallbox); solar/battery
+ * mints will populate source_breakdown going forward and render as `mixed`.
+ */
+function liveToReceipt(live: LiveMintReceipt): Receipt {
+  const isEv = live.primary_source === 'ev_charging' && live.miles_delta != null;
+  const totalKwh = live.kwh_delta ?? 0;
+
+  const readings: Reading[] = isEv
+    ? [
+        {
+          source: 'ev_charging',
+          device_id: live.device_id ?? 'tesla-vehicle',
+          provider: live.device_provider === 'tesla' ? 'Tesla Vehicle API' : (live.device_provider ?? 'Vehicle API'),
+          start_kwh: 0,
+          end_kwh: Number(totalKwh.toFixed(2)),
+          recorded_at: live.minted_at,
+          signature: `0x${live.tx_hash.slice(2, 6)}…${live.tx_hash.slice(-4)}`,
+          miles_driven: Math.round(live.miles_delta ?? 0),
+        },
+      ]
+    : [];
+
+  return {
+    id: `live-${live.id}`,
+    mint_id: `mint_${live.id.slice(0, 8)}`,
+    tx_hash: live.tx_hash,
+    block_number: live.block_number ?? '—',
+    minted_at: live.minted_at,
+    tokens_minted: Number(live.tokens_minted.toFixed(2)),
+    total_kwh: Number(totalKwh.toFixed(2)),
+    miles_driven: live.miles_delta != null ? Math.round(live.miles_delta) : undefined,
+    primary_source: live.primary_source,
+    proof_root: live.tx_hash, // tx hash doubles as the merkle anchor pre-batching
+    readings,
+  };
+}
+
 export default function ProofOfGenesisReceiptPreview() {
-  const [activeId, setActiveId] = useState(RECEIPTS[0].id);
-  const receipt = useMemo(() => RECEIPTS.find((r) => r.id === activeId)!, [activeId]);
+  const liveState = useLatestMintReceipt();
+
+  // Live mint (if signed in & has at least one mint) is prepended and selected by default
+  const liveReceipt = liveState.status === 'ready' ? liveToReceipt(liveState.receipt) : null;
+  const allReceipts = useMemo(
+    () => (liveReceipt ? [liveReceipt, ...RECEIPTS] : RECEIPTS),
+    [liveReceipt],
+  );
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const effectiveActiveId = activeId ?? allReceipts[0].id;
+  const receipt = useMemo(
+    () => allReceipts.find((r) => r.id === effectiveActiveId) ?? allReceipts[0],
+    [allReceipts, effectiveActiveId],
+  );
 
   const co2Story = useMemo(() => buildCo2Story(receipt), [receipt]);
+  const isLive = receipt.id.startsWith('live-');
 
   // ===== Cinematic Protocol Sequence: hardened auto-play guards =====
   //
@@ -372,23 +426,40 @@ export default function ProofOfGenesisReceiptPreview() {
             </div>
           </motion.header>
 
-          {/* Receipt selector */}
-          <div className="flex flex-wrap gap-2">
-            {RECEIPTS.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => setActiveId(r.id)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                  r.id === activeId
-                    ? 'border-primary/50 bg-primary/10 text-primary'
-                    : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
-                }`}
-              >
-                {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {r.primary_source === 'ev_charging' && r.miles_driven ? `${r.miles_driven} mi` : `${formatKwh(r.total_kwh)} kWh`}
-              </button>
-            ))}
+          {/* Receipt selector — live mint (if any) is first and labelled */}
+          <div className="flex flex-wrap gap-2 items-center">
+            {liveState.status === 'loading' && (
+              <span className="text-[11px] text-muted-foreground">Loading your latest mint…</span>
+            )}
+            {allReceipts.map((r) => {
+              const live = r.id.startsWith('live-');
+              const active = r.id === effectiveActiveId;
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => setActiveId(r.id)}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors flex items-center gap-1.5 ${
+                    active
+                      ? 'border-primary/50 bg-primary/10 text-primary'
+                      : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                  }`}
+                >
+                  {live && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Live
+                    </span>
+                  )}
+                  {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {r.primary_source === 'ev_charging' && r.miles_driven ? `${r.miles_driven.toLocaleString()} mi` : `${formatKwh(r.total_kwh)} kWh`}
+                </button>
+              );
+            })}
           </div>
+          {isLive && (
+            <p className="text-[11px] text-muted-foreground -mt-3">
+              Showing your most recent on-chain mint. Tokens shown are your wallet share (75% after the 20% burn / 3% LP / 2% treasury split).
+            </p>
+          )}
 
           {/* Hero stats */}
           <motion.section
