@@ -26,6 +26,10 @@ import { useMintSound } from '@/hooks/useMintSound';
 const SCENE_MS = 1700;            // per-primitive exposure (was 620)
 const FINALE_MS = 2200;           // final tableau before auto-close (was 1100)
 const FADE_MS = 320;
+// When prefers-reduced-motion is enabled we keep the same flow but slow it
+// down so users with vestibular sensitivity have extra time to read each
+// primitive instead of being shown a sped-up or skipped sequence.
+const REDUCED_MOTION_MULTIPLIER = 1.6;
 const STEP_OFFSETS_MS = [0, 80, 180, 320, 480]; // protocol fires roughly in this cadence
 // Star particle clip-path mirroring MintEffectButton
 const STAR_CLIP = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
