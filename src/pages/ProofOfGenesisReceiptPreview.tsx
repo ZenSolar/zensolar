@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
+import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
