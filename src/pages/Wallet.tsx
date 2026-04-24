@@ -28,6 +28,8 @@ import { getNftArtwork } from '@/lib/nftArtwork';
 import { SEO } from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { ZppaStatusWidget } from '@/components/wallet/ZppaStatusWidget';
+import { RecentMintProofs } from '@/components/wallet/RecentMintProofs';
 
 // Live token price (testnet simulation)
 const LIVE_TOKEN_PRICE = 0.10;
@@ -319,6 +321,12 @@ export default function Wallet() {
           </div>
         </div>
       </motion.div>
+
+      {/* ── ZPPA Status ── */}
+      <ZppaStatusWidget />
+
+      {/* ── View Proof: recent mints ── */}
+      <RecentMintProofs />
 
       {/* ── NFT Gallery ── */}
       {nftTokenIds.length > 0 && (
