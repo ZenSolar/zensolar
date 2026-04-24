@@ -235,6 +235,24 @@ function PatentExpansionContent() {
                 distinct mintable event class for self-driven distance."
               </p>
             </div>
+            <div className="border-t border-border/60 pt-3">
+              <p className="text-[10px] uppercase tracking-widest text-eco mb-1">
+                VPP Dispatch Metering Claim
+              </p>
+              <p className="text-foreground/90 italic">
+                "A method for tokenizing verified kilowatt-hours discharged from
+                a connected energy storage device in response to a grid-operator
+                dispatch signal, wherein the dispatch event, the discharged kWh,
+                and the resulting token mint are cryptographically bound into a
+                single auditable settlement record minted to the device owner's
+                wallet within seconds of dispatch completion."
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Owns the link between an OpenADR-class grid signal, the verified
+                discharge event, and real-time on-chain settlement. Distinct
+                from passive energy production claims.
+              </p>
+            </div>
           </div>
         </section>
 

@@ -46,6 +46,55 @@ interface ChangelogEntry {
 
 const ENTRIES: ChangelogEntry[] = [
   {
+    date: "April 24, 2026 (LATEST)",
+    iso: "2026-04-25T00:30",
+    title: "VPP Roadmap — UX Flow + Token Timing Locked",
+    summary:
+      "Expanded the VPP Roadmap with the full app user-experience walkthrough (enrollment → standing by → live dispatch → event settlement → monthly payday) and locked the dual-cadence settlement rule. Added VPP dispatch metering as a new patent claim and saved the rule to project memory.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "VPP Roadmap now includes 5-step User Experience Flow (Enrollment, Standing By, Live Dispatch, Event Settlement, Monthly Payday).",
+          "New 'When Tokens Hit The Wallet' section locks the rule: $ZSOLAR auto-mints in 30–60s per dispatch, cash pays monthly on the 1st.",
+          "New 'What's Required To Launch' section: aggregator registration, OEM partner-tier APIs, dispatch infra (white-label Leap recommended), $550K–$2.9M capital.",
+          "VPP Dispatch Metering claim added to /founders/patent-expansion — owns the OpenADR signal → verified discharge → real-time on-chain settlement link.",
+        ],
+        links: [
+          {
+            label: "VPP Roadmap (updated)",
+            url: "https://beta.zen.solar/founders/vpp-roadmap",
+            preview: true,
+          },
+          {
+            label: "Patent Expansion (+ VPP claim)",
+            url: "https://beta.zen.solar/founders/patent-expansion",
+            preview: true,
+          },
+        ],
+      },
+      {
+        heading: "Strategic Decisions Locked",
+        icon: "strategy",
+        bullets: [
+          "Per-dollar VPP split: 50% LP · 30% user cash · 15% operating · 5% user tokens. 50% → LP rule preserved.",
+          "Tokens mint REAL-TIME per dispatch (not batched daily) — maximizes dopamine, reuses Tap-to-Mint™ engine.",
+          "Cash settles MONTHLY on the 1st — matches utility cycle, lowers ACH fees, creates 'payday' feel.",
+          "Launch shortcut: white-label as 'Powered by Leap' in CA first. Move infrastructure in-house once leverage exists.",
+          "VPP dispatch metering is patentable as a distinct claim — separate from passive energy production.",
+        ],
+      },
+      {
+        heading: "Memory Updated",
+        icon: "memory",
+        bullets: [
+          "New file: mem://features/vpp-settlement — VPP token-timing + per-dollar split + launch mechanics. Indexed in mem://index.md.",
+        ],
+      },
+    ],
+  },
+  {
     date: "April 24, 2026 (LATE)",
     iso: "2026-04-24T23:30",
     title: "Bi-Directional EV Patent Expansion",

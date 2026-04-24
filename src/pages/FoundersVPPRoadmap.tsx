@@ -11,6 +11,11 @@ import {
   CheckCircle2,
   Coins,
   Calendar,
+  Smartphone,
+  Bell,
+  Wallet,
+  Banknote,
+  Timer,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -292,6 +297,134 @@ function RoadmapContent() {
           </ol>
         </section>
 
+        {/* User Experience Flow */}
+        <section className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-7 w-7 rounded-lg bg-primary/15 flex items-center justify-center">
+              <Smartphone className="h-4 w-4 text-primary" />
+            </div>
+            <h2 className="text-xl font-semibold tracking-tight">
+              User Experience Flow
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+            What it actually feels like in the app — from enrollment to payday.
+          </p>
+
+          <div className="space-y-3">
+            <FlowStep
+              num="1"
+              title="Enrollment"
+              body="Eligibility check (connected battery + supported state). Estimated earnings shown ($45–$120/mo cash + 1,200–3,000 $ZSOLAR). Sets reserve floor (e.g. 30% SOC), quiet hours, vacation mode. E-signs VPP agreement. Confirmation in 24–72h."
+            />
+            <FlowStep
+              num="2"
+              title="Standing By (Daily)"
+              body="Dashboard tile shows VPP Status: Standing By · Available capacity · MTD earnings ticker (cash + tokens)."
+            />
+            <FlowStep
+              num="3"
+              title="Dispatch Event (Live)"
+              body="Push: '⚡ Grid event in progress — ETA 90 min · ~$8.40 + 240 $ZSOLAR.' Live counters: kWh exported, $ earned, $ZSOLAR accumulating, SOC bar with reserve floor highlighted. User can hit Pause anytime."
+            />
+            <FlowStep
+              num="4"
+              title="Event Settlement"
+              body="Push: 'Event complete. Delivered 6.2 kWh, earned $8.92 + 248 $ZSOLAR.' Tokens auto-mint to wallet within 30–60 seconds."
+            />
+            <FlowStep
+              num="5"
+              title="Monthly Cash Payday"
+              body="1st of each month: 'Your VPP earnings for [Month]: $94.20 cash + 2,840 $ZSOLAR.' Cash via ACH or applied as subscription credit."
+            />
+          </div>
+        </section>
+
+        {/* Token Timing Rule */}
+        <section className="mb-10 rounded-xl border border-eco/30 bg-eco/[0.05] p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Wallet className="h-4 w-4 text-eco" />
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-eco">
+              When Tokens Hit The Wallet (Locked Rule)
+            </h2>
+          </div>
+          <p className="text-sm text-foreground/90 leading-relaxed mb-4">
+            Two distinct earning streams, two different cadences. This is the
+            architecture that maximizes both dopamine and brand alignment with
+            Tap-to-Mint™.
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="rounded-lg border border-eco/40 bg-background/60 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Timer className="h-4 w-4 text-eco" />
+                <p className="text-sm font-semibold text-eco">$ZSOLAR Tokens</p>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                <strong className="text-foreground">Real-time, per event.</strong>{" "}
+                Auto-mint within 30–60 seconds of dispatch end.
+              </p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                Why · instant gratification · on-chain proof · same engine as DCA
+              </p>
+            </div>
+            <div className="rounded-lg border border-primary/40 bg-background/60 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Banknote className="h-4 w-4 text-primary" />
+                <p className="text-sm font-semibold text-primary">Cash Earnings</p>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                <strong className="text-foreground">Monthly, 1st of month.</strong>{" "}
+                ACH deposit or subscription credit.
+              </p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                Why · standard utility settlement · lower processing fees · payday feel
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-border/40">
+            <p className="text-xs text-foreground/80 leading-relaxed">
+              <strong className="text-eco">Per-dollar split (after aggregator cut):</strong>{" "}
+              50% → LP injection · 30% → user cash · 15% → operating revenue · 5% → tokens minted to user.
+            </p>
+          </div>
+        </section>
+
+        {/* What's needed to launch */}
+        <section className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-7 w-7 rounded-lg bg-amber-400/15 flex items-center justify-center">
+              <Bell className="h-4 w-4 text-amber-400" />
+            </div>
+            <h2 className="text-xl font-semibold tracking-tight">
+              What's Required To Launch (Reality)
+            </h2>
+          </div>
+          <ul className="space-y-2 text-sm text-foreground/90 leading-relaxed">
+            <li className="flex gap-2">
+              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 mt-1 text-amber-400 opacity-70" />
+              <span><strong>Aggregator registration</strong> with each ISO/RTO (CAISO, ERCOT, etc.) — 3–9 months per market.</span>
+            </li>
+            <li className="flex gap-2">
+              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 mt-1 text-amber-400 opacity-70" />
+              <span><strong>OEM partner-tier API access</strong> — Tesla Energy Partner, Enphase Grid Services, SolarEdge VPP. Required for dispatch write-authority.</span>
+            </li>
+            <li className="flex gap-2">
+              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 mt-1 text-amber-400 opacity-70" />
+              <span><strong>Dispatch infrastructure</strong> — OpenADR 2.0b receiver + settlement engine. Build in-house OR white-label via Leap Energy / AutoGrid / Voltus / CPower.</span>
+            </li>
+            <li className="flex gap-2">
+              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 mt-1 text-amber-400 opacity-70" />
+              <span><strong>Recommended shortcut:</strong> launch as "Powered by Leap" in CA first. ~30% rev share, but compresses time-to-market by 12–18 months.</span>
+            </li>
+            <li className="flex gap-2">
+              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 mt-1 text-amber-400 opacity-70" />
+              <span><strong>Capital required:</strong> $550K–$2.9M to launch first market. Why VPP is gated to seed close.</span>
+            </li>
+          </ul>
+        </section>
+
         {/* Sequencing */}
         <section className="mb-10 rounded-xl border border-border bg-card/40 p-5">
           <div className="flex items-center gap-2 mb-3">
@@ -326,6 +459,20 @@ function RoadmapContent() {
             Everything Phase 1 ships day one.
           </p>
         </footer>
+      </div>
+    </div>
+  );
+}
+
+function FlowStep({ num, title, body }: { num: string; title: string; body: string }) {
+  return (
+    <div className="flex gap-3 rounded-xl border border-border bg-card/40 p-4">
+      <div className="h-7 w-7 shrink-0 rounded-lg bg-primary/15 text-primary flex items-center justify-center text-xs font-bold">
+        {num}
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-foreground mb-1">{title}</p>
+        <p className="text-xs text-muted-foreground leading-relaxed">{body}</p>
       </div>
     </div>
   );
