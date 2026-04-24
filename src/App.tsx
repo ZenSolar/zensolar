@@ -139,6 +139,8 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
 const BlogHowToEarn = lazy(() => import("./pages/blog/HowToEarnCryptoFromSolar"));
 const BlogProofOfDelta = lazy(() => import("./pages/blog/ProofOfDeltaExplained"));
+const VerifyPoA = lazy(() => import("./pages/VerifyPoA"));
+const DeviceProofOfOrigin = lazy(() => import("./pages/DeviceProofOfOrigin"));
 
 // Archive (frozen 10B-era pages — read-only time capsule)
 import { ArchivedPageWrapper } from "./components/admin/ArchivedPageWrapper";
@@ -210,6 +212,10 @@ const App = () => {
                     <Route path="/taylor-preview" element={<TaylorPreview />} />
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
+                    {/* Public Proof-of-Authenticity™ verification — no auth required */}
+                    <Route path="/verify/:poa" element={<VerifyPoA />} />
+                    {/* Per-device Proof-of-Origin™ — founder + PIN gated (Phase 1) */}
+                    <Route path="/devices/:deviceId/origin" element={<DeviceProofOfOrigin />} />
                     
                     {/* Demo routes with full sidebar — gated by access code + NDA */}
                     <Route path="/demo" element={<DemoAccessGate><DemoLayout /></DemoAccessGate>}>
