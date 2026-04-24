@@ -185,25 +185,84 @@ export default function ProofOfGenesisReceiptPreview() {
     [receipt.co2_offset_tons],
   );
 
-  // Cinematic Protocol Sequence — auto-plays once per session on first load
-  // so investors see the 5-primitive flow without hunting. Replayable any time.
+  // ===== Cinematic Protocol Sequence: hardened auto-play guards =====
+  //
+  // The cinematic must NEVER interrupt a user unexpectedly. It auto-plays
+  // exactly once, only when ALL of the following are true:
+  //   (1) First visit this session (sessionStorage key not set)
+  //   (2) Receipt is in a valid "success" state (has tokens minted, tx hash,
+  //       proof root, and at least one reading) — never on partial/error data
+  //   (3) User has not signaled `prefers-reduced-motion`
+  //   (4) The current URL does NOT have `?nocinematic=1` (escape hatch for
+  //       embedded views, screenshot tools, and reviewer playback)
+  //   (5) The page is actually visible (not a prerender / background tab)
+  //
+  // Otherwise the user must explicitly click "Replay protocol" to see it.
   const [cinematicOpen, setCinematicOpen] = useState(false);
   const autoPlayedRef = useRef(false);
+
+  const isReceiptSuccess = useMemo(() => {
+    return (
+      receipt.tokens_minted > 0 &&
+      typeof receipt.tx_hash === 'string' &&
+      receipt.tx_hash.startsWith('0x') &&
+      receipt.tx_hash.length >= 10 &&
+      typeof receipt.proof_root === 'string' &&
+      receipt.proof_root.startsWith('0x') &&
+      Array.isArray(receipt.readings) &&
+      receipt.readings.length > 0
+    );
+  }, [receipt]);
+
   useEffect(() => {
     if (autoPlayedRef.current) return;
-    autoPlayedRef.current = true;
+
+    // Guard 2: only on success receipts
+    if (!isReceiptSuccess) return;
+
+    // Guard 4: explicit opt-out via query param
+    try {
+      if (typeof window !== 'undefined') {
+        const sp = new URLSearchParams(window.location.search);
+        if (sp.get('nocinematic') === '1') return;
+      }
+    } catch { /* noop */ }
+
+    // Guard 3: respect prefers-reduced-motion (the cinematic itself also
+    // collapses, but skipping auto-play entirely is the kindest default)
+    try {
+      if (
+        typeof window !== 'undefined' &&
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      ) {
+        return;
+      }
+    } catch { /* noop */ }
+
+    // Guard 5: only when the tab is visible
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+
+    // Guard 1: first visit this session only
+    let shouldPlay = false;
     try {
       const key = 'pog-cinematic-seen';
       if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem(key)) {
         sessionStorage.setItem(key, '1');
-        // tiny delay so the page paints first
-        const t = setTimeout(() => setCinematicOpen(true), 350);
-        return () => clearTimeout(t);
+        shouldPlay = true;
       }
     } catch {
-      /* sessionStorage unavailable — skip auto-play */
+      // sessionStorage unavailable (private mode, etc.) — do NOT auto-play.
+      // Better to under-trigger than surprise the user.
+      shouldPlay = false;
     }
-  }, []);
+
+    if (!shouldPlay) return;
+
+    autoPlayedRef.current = true;
+    // Small delay so the page paints first and the cinematic feels intentional
+    const t = setTimeout(() => setCinematicOpen(true), 400);
+    return () => clearTimeout(t);
+  }, [isReceiptSuccess]);
 
   return (
     <>
