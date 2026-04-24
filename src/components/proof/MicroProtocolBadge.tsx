@@ -186,6 +186,29 @@ export function MicroProtocolBadge({
         </div>
       </div>
 
+      {/* Per-step caption — fades through each primitive's mark + tagline */}
+      <div className="h-12 flex items-center justify-center w-full">
+        <AnimatePresence mode="wait">
+          {active && !sealed && litCount > 0 && (
+            <motion.div
+              key={PRIMITIVES[litCount - 1].key}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="text-center"
+            >
+              <div className="text-sm font-bold text-primary tracking-tight leading-tight">
+                {PRIMITIVES[litCount - 1].mark}
+              </div>
+              <div className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                {PRIMITIVES[litCount - 1].tagline}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Seal */}
       <AnimatePresence>
         {sealed && (
@@ -194,11 +217,11 @@ export function MicroProtocolBadge({
             initial={{ opacity: 0, y: 4, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.92 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 shadow-[0_0_18px_hsl(var(--primary)/0.25)]"
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 shadow-[0_0_22px_hsl(var(--primary)/0.35)]"
           >
-            <CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden />
-            <span className="text-xs font-semibold text-primary tracking-wide">
+            <CheckCircle2 className="h-4 w-4 text-primary" aria-hidden />
+            <span className="text-sm font-semibold text-primary tracking-wide">
               Proof of Genesis ✓
             </span>
           </motion.div>
