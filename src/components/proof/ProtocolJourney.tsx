@@ -345,10 +345,10 @@ function ClearedBadge({ cleared }: { cleared: boolean }) {
   }
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-500 dark:text-amber-400"
+      className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
       role="status"
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-400" aria-hidden />
+      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/60" aria-hidden />
       Pending
     </span>
   );
