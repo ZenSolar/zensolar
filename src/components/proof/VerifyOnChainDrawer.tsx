@@ -99,6 +99,9 @@ function TmRow({
   value,
   description,
   accent = 'text-primary',
+  focusKey,
+  isFocused,
+  registerRef,
 }: {
   icon: typeof Hash;
   tm: string;
@@ -106,13 +109,24 @@ function TmRow({
   value: string;
   description: string;
   accent?: string;
+  focusKey: VerifyFocusKey;
+  isFocused: boolean;
+  registerRef: (key: VerifyFocusKey, el: HTMLDivElement | null) => void;
 }) {
   return (
-    <div className="rounded-lg border border-border/60 bg-card/60 p-3 space-y-2">
+    <div
+      ref={(el) => registerRef(focusKey, el)}
+      data-focus-key={focusKey}
+      className={`rounded-lg border bg-card/60 p-3 space-y-2 transition-all duration-300 ${
+        isFocused
+          ? 'border-primary/70 ring-2 ring-primary/30 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.35)]'
+          : 'border-border/60'
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2 min-w-0">
-          <div className={`mt-0.5 h-7 w-7 rounded-md bg-muted/50 flex items-center justify-center shrink-0`}>
-            <Icon className={`h-3.5 w-3.5 ${accent}`} />
+          <div className="mt-0.5 h-7 w-7 rounded-md bg-muted/50 flex items-center justify-center shrink-0">
+            <Icon className={`h-3.5 w-3.5 ${accent}`} aria-hidden />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -121,7 +135,7 @@ function TmRow({
                 {tm}
               </Badge>
             </div>
-            <p className="text-[11px] text-muted-foreground/80 leading-snug mt-1">{description}</p>
+            <p className="text-[11.5px] text-foreground/70 leading-snug mt-1">{description}</p>
           </div>
         </div>
       </div>
