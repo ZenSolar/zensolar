@@ -26,6 +26,10 @@ import { useMintSound } from '@/hooks/useMintSound';
 const SCENE_MS = 1700;            // per-primitive exposure (was 620)
 const FINALE_MS = 2200;           // final tableau before auto-close (was 1100)
 const FADE_MS = 320;
+// When prefers-reduced-motion is enabled we keep the same flow but slow it
+// down so users with vestibular sensitivity have extra time to read each
+// primitive instead of being shown a sped-up or skipped sequence.
+const REDUCED_MOTION_MULTIPLIER = 1.6;
 const STEP_OFFSETS_MS = [0, 80, 180, 320, 480]; // protocol fires roughly in this cadence
 // Star particle clip-path mirroring MintEffectButton
 const STAR_CLIP = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
@@ -234,17 +238,14 @@ export function ProtocolCinematicSequence({
     // Prime audio on open so the first blip is reliable on iOS
     primeAudio();
 
-    if (prefersReducedMotion) {
-      const t = setTimeout(() => {
-        setPhase('finale');
-        const t2 = setTimeout(() => {
-          setPhase('done');
-          onComplete?.();
-        }, 600);
-        return () => clearTimeout(t2);
-      }, 300);
-      return () => clearTimeout(t);
-    }
+    // Apply a slower cadence when reduced motion is preferred — same
+    // narrative, more dwell time, no rapid flashes.
+    const sceneMs = prefersReducedMotion
+      ? Math.round(SCENE_MS * REDUCED_MOTION_MULTIPLIER)
+      : SCENE_MS;
+    const finaleMs = prefersReducedMotion
+      ? Math.round(FINALE_MS * REDUCED_MOTION_MULTIPLIER)
+      : FINALE_MS;
 
     const timeouts: ReturnType<typeof setTimeout>[] = [];
     SCENES.forEach((_, i) => {
@@ -252,7 +253,7 @@ export function ProtocolCinematicSequence({
         setTimeout(() => {
           setSceneIdx(i);
           playStepBlip(i);
-        }, i * SCENE_MS),
+        }, i * sceneMs),
       );
     });
     timeouts.push(
@@ -264,13 +265,13 @@ export function ProtocolCinematicSequence({
         } catch {
           // silent
         }
-      }, SCENES.length * SCENE_MS),
+      }, SCENES.length * sceneMs),
     );
     timeouts.push(
       setTimeout(() => {
         setPhase('done');
         onComplete?.();
-      }, SCENES.length * SCENE_MS + FINALE_MS),
+      }, SCENES.length * sceneMs + finaleMs),
     );
 
     return () => timeouts.forEach(clearTimeout);
@@ -377,6 +378,16 @@ export function ProtocolCinematicSequence({
 
         {/* Top step rail with timestamps */}
         <div className="absolute top-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 px-3 w-full max-w-md">
+          {prefersReducedMotion && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[9px] sm:text-[10px] uppercase tracking-[0.16em] font-bold"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              Motion reduced
+            </div>
+          )}
           <div className="flex items-center gap-1.5 sm:gap-2">
             {SCENES.map((s, i) => {
               const reached = i <= sceneIdx || showFinale;
