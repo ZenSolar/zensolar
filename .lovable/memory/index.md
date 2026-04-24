@@ -1,5 +1,5 @@
 # Memory: index.md
-Updated: today
+Updated: just now
 
 # Project Memory
 
@@ -11,11 +11,12 @@ Embedded Coinbase Wallet. Reown AppKit. Hard redirects for OAuth.
 1T hard cap. Mint split: 75% user, 20% burn, 3% LP, 2% treasury.
 Launch price $0.10 USDC via LP-seeded tranches (e.g. $200K USDC + 2M $ZSOLAR per round) — NEVER "launch at $1".
 Founders pact-locked: Joseph 150B, Michael 50B. $1T crossovers: $6.67 / $20.
-Unifying thesis: "Proof of Genesis" (Delta + Origin) — $ZSOLAR's PoW equivalent. Frame as digital photosynthesis, patent-protected, execution-only variable to 5–10x Bitcoin.
+ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.app or lovable.dev domains.
+Brand is "ZenSolar" (one word, capital S). Legal entity is "ZenCorp Inc" — legal/footer only, never product UI.
 
 ## Memories
-- [Proof of Genesis](mem://features/proof-of-genesis) — Unifying thesis combining Delta + Origin; Bitcoin eclipse framing
-- [Liquidity Pools Narrative](mem://features/liquidity-pools-narrative) — Public language for Founder Operating (30B), Team (50B), Advisor (10B) pools; Pact stays hero. 4yr/1yr cliff standard.
+- [Brand & Corporate Naming](mem://brand/naming) — ZenSolar (product, one word) vs ZenCorp Inc (legal entity, footer only)
+- [Liquidity Pools Narrative](mem://features/liquidity-pools-narrative) — Three Circles: Pact (200B never sold) + Founder Operating (30B) + Team (50B) + Advisors (10B), all 4yr/1yr cliff
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding, circulating vs pact-locked
 - [Auth & Web3 Integration](mem://features/auth) — Wallet connection, auth guards, PWA constraints, and role-based access
 - [Tokenomics & Mechanics](mem://features/tokenomics) — Protocol limits, mint allocations, burn logic, and LP automation
