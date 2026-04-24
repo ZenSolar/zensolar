@@ -146,13 +146,44 @@ function TmRow({
   );
 }
 
-export function VerifyOnChainDrawer({ data, trigger }: Props) {
+export function VerifyOnChainDrawer({
+  data,
+  trigger,
+  focus,
+  open: openProp,
+  onOpenChange,
+}: Props) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (!isControlled) setInternalOpen(v);
+    onOpenChange?.(v);
+  };
+
+  const refs = useRef<Partial<Record<VerifyFocusKey, HTMLDivElement | null>>>({});
+  const registerRef = (key: VerifyFocusKey, el: HTMLDivElement | null) => {
+    refs.current[key] = el;
+  };
+
+  // When opened with a focus key, scroll the matching row into view
+  useEffect(() => {
+    if (!open || !focus) return;
+    const t = setTimeout(() => {
+      const target = refs.current[focus] ?? refs.current.poa ?? null;
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 180);
+    return () => clearTimeout(t);
+  }, [open, focus]);
+
+  const focusedKey: VerifyFocusKey | undefined = focus;
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="sm" className="gap-1.5">
-            <Shield className="h-3.5 w-3.5" />
+            <Shield className="h-3.5 w-3.5" aria-hidden />
             Verify on-chain
           </Button>
         )}
@@ -160,10 +191,11 @@ export function VerifyOnChainDrawer({ data, trigger }: Props) {
       <SheetContent
         side="bottom"
         className="h-[88vh] sm:h-[80vh] overflow-y-auto rounded-t-2xl bg-background border-border/60"
+        aria-label="Verify mint on-chain"
       >
         <SheetHeader className="text-left space-y-2 mb-4">
           <SheetTitle className="text-xl flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
+            <Shield className="h-5 w-5 text-primary" aria-hidden />
             Verify on-chain
           </SheetTitle>
           <SheetDescription className="text-sm">
@@ -172,7 +204,15 @@ export function VerifyOnChainDrawer({ data, trigger }: Props) {
         </SheetHeader>
 
         {/* PoA face hash */}
-        <div className="rounded-lg border border-primary/40 bg-primary/[0.06] p-3 mb-4">
+        <div
+          ref={(el) => registerRef('poa', el)}
+          data-focus-key="poa"
+          className={`rounded-lg border bg-primary/[0.06] p-3 mb-4 transition-all duration-300 ${
+            focusedKey === 'poa'
+              ? 'border-primary/70 ring-2 ring-primary/30'
+              : 'border-primary/40'
+          }`}
+        >
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-primary font-semibold">
@@ -187,12 +227,23 @@ export function VerifyOnChainDrawer({ data, trigger }: Props) {
               className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
             >
               Public verify page
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3" aria-hidden />
             </Link>
           </div>
         </div>
 
         <div className="space-y-2.5">
+          <TmRow
+            icon={Hand}
+            tm="Tap-to-Mint™"
+            label="User intent"
+            value={data.tapToMint ? 'Tap confirmed' : 'Auto-verified mint'}
+            description="The signature interaction. One tap reads device data, runs the proofs, and mints $ZSOLAR."
+            accent="text-primary"
+            focusKey="tap-to-mint"
+            isFocused={focusedKey === 'tap-to-mint'}
+            registerRef={registerRef}
+          />
           <TmRow
             icon={Hash}
             tm="Proof-of-Delta™"
@@ -200,6 +251,9 @@ export function VerifyOnChainDrawer({ data, trigger }: Props) {
             value={data.deltaProof}
             description="SHA-256 hash chain proving this mint represents only new, never-before-tokenized activity."
             accent="text-primary"
+            focusKey="proof-of-delta"
+            isFocused={focusedKey === 'proof-of-delta'}
+            registerRef={registerRef}
           />
           <TmRow
             icon={Fingerprint}
@@ -208,6 +262,9 @@ export function VerifyOnChainDrawer({ data, trigger }: Props) {
             value={data.originDeviceHash}
             description="keccak256(manufacturer_id + device_id) — bound to physical hardware, not your account."
             accent="text-secondary"
+            focusKey="proof-of-origin"
+            isFocused={focusedKey === 'proof-of-origin'}
+            registerRef={registerRef}
           />
           <TmRow
             icon={Sparkles}
@@ -216,6 +273,9 @@ export function VerifyOnChainDrawer({ data, trigger }: Props) {
             value={data.mintTxHash}
             description={`Atomically minted on Base L2 only after cryptographic proof was validated. Block ${data.blockNumber}.`}
             accent="text-eco"
+            focusKey="mint-on-proof"
+            isFocused={focusedKey === 'mint-on-proof'}
+            registerRef={registerRef}
           />
           <TmRow
             icon={Anchor}
@@ -226,32 +286,24 @@ export function VerifyOnChainDrawer({ data, trigger }: Props) {
               data.permanenceAnchoredAt,
             ).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}. The Eternal Ledger.`}
             accent="text-amber-400"
+            focusKey="proof-of-permanence"
+            isFocused={focusedKey === 'proof-of-permanence'}
+            registerRef={registerRef}
           />
 
-          {/* SEGI + Tap-to-Mint provenance */}
+          {/* SEGI provenance */}
           <div className="rounded-lg border border-border/60 bg-card/60 p-3 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Provenance</span>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">SEGI™ Source</span>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">SEGI™ Source</div>
-                <div className="text-foreground/90 font-medium mt-0.5">{data.segiProvider}</div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Trigger</div>
-                <div className="text-foreground/90 font-medium mt-0.5">
-                  {data.tapToMint ? 'Tap-to-Mint™' : 'Auto-verified'}
-                </div>
-              </div>
-            </div>
+            <div className="text-foreground/90 font-medium text-sm">{data.segiProvider}</div>
           </div>
 
           {data.explorerUrl && (
             <div className="pt-2">
               <Button asChild variant="outline" size="sm" className="w-full gap-1.5">
                 <a href={data.explorerUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                   View on Basescan
                 </a>
               </Button>
