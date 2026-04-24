@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText } from 'lucide-react';
+import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText, Play } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { SEO } from '@/components/SEO';
 import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
+import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
