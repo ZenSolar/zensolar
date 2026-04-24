@@ -406,24 +406,59 @@ export default function ProofOfGenesisReceiptPreview() {
               value={`${formatKwh(receipt.tokens_minted)}`}
               suffix="$ZSOLAR"
             />
-            <StatCard
-              icon={Sun}
-              accent="text-energy"
-              bg="bg-energy/10"
-              label="Verified Energy"
-              value={`${formatKwh(receipt.total_kwh)}`}
-              suffix="kWh"
-            />
+            {receipt.primary_source === 'ev_charging' && receipt.miles_driven ? (
+              <StatCard
+                icon={Car}
+                accent="text-primary"
+                bg="bg-primary/10"
+                label="Miles Driven"
+                value={`${receipt.miles_driven}`}
+                suffix="mi"
+                footnote={`on ${formatKwh(receipt.total_kwh)} kWh of verified clean energy`}
+              />
+            ) : (
+              <StatCard
+                icon={Sun}
+                accent="text-energy"
+                bg="bg-energy/10"
+                label="Verified Energy"
+                value={`${formatKwh(receipt.total_kwh)}`}
+                suffix="kWh"
+              />
+            )}
             <StatCard
               icon={Leaf}
               accent="text-secondary"
               bg="bg-secondary/10"
-              label="CO₂ Offset"
-              value={`${formatTons(receipt.co2_offset_tons)}`}
-              suffix="metric tons"
-              footnote={`≈ ${totalTrees} trees absorbing CO₂ for one year`}
+              label={co2Story.primary_label}
+              value={co2Story.primary_value}
+              suffix={co2Story.primary_suffix}
+              footnote={co2Story.primary_footnote}
             />
           </motion.section>
+
+          {/* PoW comparison chip — Proof-of-Genesis as the regenerative inverse of Proof-of-Work */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="rounded-lg border border-secondary/30 bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5 p-3 sm:p-4 flex items-start gap-3"
+          >
+            <div className="h-8 w-8 rounded-md bg-secondary/15 flex items-center justify-center shrink-0">
+              <Leaf className="h-4 w-4 text-secondary" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                vs. Bitcoin Proof-of-Work
+              </div>
+              <div className="text-sm sm:text-base text-foreground/90 leading-snug">
+                One equivalent BTC transaction would have emitted{' '}
+                <span className="font-bold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
+                just to settle. Your Proof-of-Genesis™ mint emitted essentially{' '}
+                <span className="font-bold text-primary">zero</span> — and proved real clean energy in the same step.
+              </div>
+            </div>
+          </motion.div>
 
           {/* ===== Protocol Journey — the 5 trademarked primitives behind this mint ===== */}
           <div className="space-y-3">
