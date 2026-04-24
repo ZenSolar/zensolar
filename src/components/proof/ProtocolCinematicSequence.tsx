@@ -378,6 +378,16 @@ export function ProtocolCinematicSequence({
 
         {/* Top step rail with timestamps */}
         <div className="absolute top-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 px-3 w-full max-w-md">
+          {prefersReducedMotion && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[9px] sm:text-[10px] uppercase tracking-[0.16em] font-bold"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              Motion reduced
+            </div>
+          )}
           <div className="flex items-center gap-1.5 sm:gap-2">
             {SCENES.map((s, i) => {
               const reached = i <= sceneIdx || showFinale;
