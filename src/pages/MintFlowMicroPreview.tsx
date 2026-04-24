@@ -173,8 +173,8 @@ export default function MintFlowMicroPreview() {
           </h2>
           <ul className="text-xs text-muted-foreground space-y-1.5 list-disc list-inside">
             <li>
-              <span className="text-foreground">Default flow (every mint):</span> Variant B is now live —
-              fast confirmation + static "Proof of Genesis ✓" seal.
+              <span className="text-foreground">Default flow (every mint):</span> Variant C is now live —
+              fast confirmation + ~5.6s micro-cinematic with per-step trademarks and gold seal.
             </li>
             <li>
               <span className="text-foreground">First-ever mint only:</span> Variant D auto-plays once,
