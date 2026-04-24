@@ -68,68 +68,67 @@ const EV_MI_PER_KWH = 3.0;
 const BTC_TX_CO2_KG = 707;
 
 const RECEIPTS: Receipt[] = [
+  // Apr 23 — EV-only mint (the one the founder just minted)
+  // Math: 52 mi @ 3.0 mi/kWh ≈ 17.33 kWh equivalent → 1 token/mile × 0.75 user share = 39.00 $ZSOLAR
   {
     id: 'pog-receipt-001',
     mint_id: 'mint_8a4f...c12d',
     tx_hash: '0xa3f5b2e9c8d471a6b9e0d3f5a8c2b1e4d7f0a3c6b9e2d5f8a1c4b7e0d3f6a9c2',
     block_number: '24,891,302',
     minted_at: '2026-04-23T18:42:11Z',
-    tokens_minted: 47.32,
-    total_kwh: 14.2,
-    co2_offset_tons: 14.2 * CO2_TONS_PER_KWH,
+    tokens_minted: 39.0,
+    total_kwh: 17.33,
+    miles_driven: 52,
+    primary_source: 'ev_charging',
     proof_root: '0x7d3e9c1f4a8b2e6d5c9f0a3b7e1d4c8f2a5b9e0d3c6f1a4b7e0d3c6f9a2b5e8',
-    readings: [
-      {
-        source: 'solar',
-        device_id: 'enphase-envoy-7821',
-        provider: 'Enphase Enlighten',
-        start_kwh: 18342.41,
-        end_kwh: 18353.18,
-        recorded_at: '2026-04-23T18:00:00Z',
-        signature: '0x4a7c...e9f1',
-      },
-      {
-        source: 'battery',
-        device_id: 'tesla-powerwall-3-A91',
-        provider: 'Tesla Energy',
-        start_kwh: 9821.06,
-        end_kwh: 9824.49,
-        recorded_at: '2026-04-23T18:30:00Z',
-        signature: '0x9b2e...c4a8',
-      },
-    ],
-  },
-  {
-    id: 'pog-receipt-002',
-    mint_id: 'mint_3b1e...9f47',
-    tx_hash: '0xc7e2f9a4b1d6e3c0f7a4b1d8e5c2f9a6b3d0e7f4a1b8d5e2c9f6a3b0d7e4c1f8',
-    block_number: '24,890,118',
-    minted_at: '2026-04-22T14:11:03Z',
-    tokens_minted: 29.85,
-    total_kwh: 8.95,
-    co2_offset_tons: 8.95 * CO2_TONS_PER_KWH,
-    proof_root: '0x2f8b1e9d4c7a0f3b6e9d2c5f8a1b4e7d0c3f6a9b2e5d8c1f4a7b0e3d6c9f2a5',
     readings: [
       {
         source: 'ev_charging',
         device_id: 'tesla-model-y-VIN9XJ',
         provider: 'Tesla Vehicle API',
         start_kwh: 0,
-        end_kwh: 8.95,
-        recorded_at: '2026-04-22T13:42:00Z',
-        signature: '0x6d1f...8a3c',
+        end_kwh: 17.33,
+        recorded_at: '2026-04-23T18:30:00Z',
+        signature: '0x4a7c...e9f1',
+        miles_driven: 52,
       },
     ],
   },
+  // Apr 22 — Wallbox home-charge EV mint (Tschida flow). 28 mi → 21.00 $ZSOLAR
+  {
+    id: 'pog-receipt-002',
+    mint_id: 'mint_3b1e...9f47',
+    tx_hash: '0xc7e2f9a4b1d6e3c0f7a4b1d8e5c2f9a6b3d0e7f4a1b8d5e2c9f6a3b0d7e4c1f8',
+    block_number: '24,890,118',
+    minted_at: '2026-04-22T14:11:03Z',
+    tokens_minted: 21.0,
+    total_kwh: 9.33,
+    miles_driven: 28,
+    primary_source: 'ev_charging',
+    proof_root: '0x2f8b1e9d4c7a0f3b6e9d2c5f8a1b4e7d0c3f6a9b2e5d8c1f4a7b0e3d6c9f2a5',
+    readings: [
+      {
+        source: 'ev_charging',
+        device_id: 'wallbox-pulsar-plus-A41',
+        provider: 'Wallbox myWallbox API',
+        start_kwh: 0,
+        end_kwh: 9.33,
+        recorded_at: '2026-04-22T13:42:00Z',
+        signature: '0x6d1f...8a3c',
+        miles_driven: 28,
+      },
+    ],
+  },
+  // Apr 21 — Solar + battery mint (mixed)
   {
     id: 'pog-receipt-003',
     mint_id: 'mint_e9c2...44a1',
     tx_hash: '0x5b8d2e7c4f1a9b6d3e0c7f4a1b8d5e2c9f6a3b0d7e4c1f8a5b2d9e6c3f0a7b4',
     block_number: '24,886,407',
     minted_at: '2026-04-21T09:28:55Z',
-    tokens_minted: 102.7,
+    tokens_minted: 23.11,
     total_kwh: 30.81,
-    co2_offset_tons: 30.81 * CO2_TONS_PER_KWH,
+    primary_source: 'mixed',
     proof_root: '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
     readings: [
       {
@@ -163,9 +162,48 @@ const SOURCE_META = {
 function formatKwh(n: number) {
   return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
-function formatTons(n: number) {
-  return n.toLocaleString(undefined, { maximumFractionDigits: 4 });
+function formatNumber(n: number, decimals = 2) {
+  return n.toLocaleString(undefined, { maximumFractionDigits: decimals });
 }
+
+// ---------- derived CO₂ helpers (context-aware per primary source) ----------
+type CO2Story = {
+  primary_label: string;
+  primary_value: string;
+  primary_suffix: string;
+  primary_footnote: string;
+  pow_delta_kg: number; // emissions an equivalent BTC PoW tx would have caused
+  detail: string;
+};
+
+function buildCo2Story(receipt: Receipt): CO2Story {
+  const pow_delta_kg = BTC_TX_CO2_KG; // 1 mint = 1 tx
+
+  if (receipt.primary_source === 'ev_charging' && receipt.miles_driven) {
+    const gallons = receipt.miles_driven * GAL_GASOLINE_PER_EV_MILE;
+    const co2_kg = receipt.miles_driven * CO2_KG_PER_EV_MILE_AVOIDED;
+    return {
+      primary_label: 'Gasoline Avoided',
+      primary_value: formatNumber(gallons, 2),
+      primary_suffix: 'gallons',
+      primary_footnote: `≈ ${co2_kg.toFixed(2)} kg CO₂ a comparable ICE would have emitted`,
+      pow_delta_kg,
+      detail: `You drove ${receipt.miles_driven} miles on sunshine — the same trip in an average gas car (24.4 mpg) would have burned ${gallons.toFixed(2)} gallons of gasoline and put ${co2_kg.toFixed(2)} kg of CO₂ into the atmosphere. Instead you minted clean and earned $ZSOLAR.`,
+    };
+  }
+
+  // solar / battery / mixed → grid displacement framing
+  const co2_kg = receipt.total_kwh * CO2_KG_PER_KWH_GRID;
+  return {
+    primary_label: 'Grid CO₂ Displaced',
+    primary_value: formatNumber(co2_kg, 2),
+    primary_suffix: 'kg CO₂',
+    primary_footnote: `${formatKwh(receipt.total_kwh)} kWh that the grid did not have to burn fuel to produce`,
+    pow_delta_kg,
+    detail: `You verifiably displaced ${co2_kg.toFixed(2)} kg of grid CO₂ in this single mint — energy your panels and battery produced instead of a fossil-fuel power plant.`,
+  };
+}
+
 function shortHash(h: string, head = 10, tail = 6) {
   if (h.length <= head + tail + 3) return h;
   return `${h.slice(0, head)}…${h.slice(-tail)}`;
