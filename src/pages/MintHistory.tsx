@@ -3,13 +3,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { Coins, Award, Loader2, TrendingUp, Zap, Car, BatteryFull, ExternalLink, Hash, Sparkles, ChevronDown, ChevronUp, Sun, Clock, ArrowUpRight } from 'lucide-react';
+import { Coins, Award, Loader2, TrendingUp, Zap, Car, BatteryFull, ExternalLink, Hash, Sparkles, ChevronDown, ChevronUp, Sun, Clock, ArrowUpRight, ShieldCheck, FileText, Image as ImageIcon } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useProfile } from '@/hooks/useProfile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Link } from 'react-router-dom';
+import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS } from '@/lib/wagmi';
+import { isPreviewMode } from '@/lib/previewMode';
 
 interface MintTransaction {
   id: string;
@@ -135,6 +138,11 @@ export default function MintHistory() {
   }, [fetchTransactions, fetchPendingActivity]);
 
   const getExplorerUrl = (txHash: string) => `https://sepolia.basescan.org/tx/${txHash}`;
+  const getTokenContractUrl = () => `https://sepolia.basescan.org/token/${ZSOLAR_TOKEN_ADDRESS}`;
+  const getNftContractUrl = () => `https://sepolia.basescan.org/token/${ZSOLAR_NFT_ADDRESS}`;
+  const getNftTokenUrl = (tokenId: number) => `https://sepolia.basescan.org/token/${ZSOLAR_NFT_ADDRESS}?a=${tokenId}`;
+  const getTokenTransferUrl = (txHash: string) => `https://sepolia.basescan.org/tx/${txHash}#tokentxns`;
+  const previewMode = isPreviewMode();
   const totalTokensMinted = transactions.reduce((sum, t) => sum + Number(t.tokens_minted), 0);
   const totalNftsMinted = transactions.reduce((sum, t) => sum + (t.nfts_minted?.length || 0), 0);
 
@@ -276,23 +284,140 @@ export default function MintHistory() {
                           </div>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                          <div className="px-4 pb-4 pt-0 border-t bg-muted/20 space-y-3">
+                          <div className="px-4 pb-4 pt-0 border-t bg-muted/20 space-y-4">
                             <p className="text-xs text-muted-foreground pt-3">{actionInfo.description}</p>
+
                             {tx.nft_names?.length > 0 && (
                               <div>
                                 <p className="text-xs font-medium text-muted-foreground mb-2">NFTs Minted:</p>
                                 <div className="flex flex-wrap gap-1.5">{tx.nft_names.map((name, i) => <Badge key={i} variant="secondary" className="text-xs">{name}</Badge>)}</div>
                               </div>
                             )}
+
                             <div className="grid grid-cols-2 gap-2 text-xs">
                               <div className="p-2 bg-card rounded-lg"><span className="text-muted-foreground">Block:</span> <span className="font-mono">{tx.block_number || 'Pending'}</span></div>
                               <div className="p-2 bg-card rounded-lg"><span className="text-muted-foreground">Date:</span> {format(new Date(tx.created_at), 'MMM d, yyyy')}</div>
                             </div>
-                            <a href={getExplorerUrl(tx.tx_hash)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
-                              View on BaseScan <ArrowUpRight className="h-3 w-3" />
-                            </a>
+
+                            {/* On-chain proof links */}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-1.5">
+                                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                                <p className="text-xs font-medium text-foreground">On-Chain Proof</p>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <a
+                                  href={getExplorerUrl(tx.tx_hash)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-between gap-2 p-2.5 bg-card rounded-lg border border-border/50 hover:border-primary/40 transition-colors group"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <Hash className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                    <div className="min-w-0">
+                                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Transaction</p>
+                                      <p className="text-xs font-mono truncate">{tx.tx_hash.slice(0, 10)}…{tx.tx_hash.slice(-6)}</p>
+                                    </div>
+                                  </div>
+                                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary flex-shrink-0" />
+                                </a>
+
+                                {tx.tokens_minted > 0 && (
+                                  <a
+                                    href={getTokenTransferUrl(tx.tx_hash)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-between gap-2 p-2.5 bg-card rounded-lg border border-border/50 hover:border-primary/40 transition-colors group"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <Coins className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                      <div className="min-w-0">
+                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">ERC-20 Transfer</p>
+                                        <p className="text-xs truncate">{tx.tokens_minted.toLocaleString()} $ZSOLAR</p>
+                                      </div>
+                                    </div>
+                                    <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary flex-shrink-0" />
+                                  </a>
+                                )}
+
+                                <a
+                                  href={getTokenContractUrl()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-between gap-2 p-2.5 bg-card rounded-lg border border-border/50 hover:border-primary/40 transition-colors group"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <FileText className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                    <div className="min-w-0">
+                                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">$ZSOLAR Contract</p>
+                                      <p className="text-xs font-mono truncate">{ZSOLAR_TOKEN_ADDRESS.slice(0, 8)}…{ZSOLAR_TOKEN_ADDRESS.slice(-4)}</p>
+                                    </div>
+                                  </div>
+                                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary flex-shrink-0" />
+                                </a>
+
+                                {tx.nfts_minted?.length > 0 && (
+                                  <a
+                                    href={getNftContractUrl()}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-between gap-2 p-2.5 bg-card rounded-lg border border-border/50 hover:border-primary/40 transition-colors group"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <ImageIcon className="h-3.5 w-3.5 text-accent-rare flex-shrink-0" />
+                                      <div className="min-w-0">
+                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">NFT Contract</p>
+                                        <p className="text-xs font-mono truncate">{ZSOLAR_NFT_ADDRESS.slice(0, 8)}…{ZSOLAR_NFT_ADDRESS.slice(-4)}</p>
+                                      </div>
+                                    </div>
+                                    <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary flex-shrink-0" />
+                                  </a>
+                                )}
+                              </div>
+
+                              {/* Per-NFT token-id links */}
+                              {tx.nfts_minted?.length > 0 && (
+                                <div className="pt-1">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">NFT Token IDs & Metadata</p>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {tx.nfts_minted.map((tokenId, i) => (
+                                      <a
+                                        key={`${tokenId}-${i}`}
+                                        href={getNftTokenUrl(tokenId)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-card border border-border/50 hover:border-accent-rare/40 text-xs font-mono transition-colors"
+                                        title={tx.nft_names?.[i] || `NFT #${tokenId}`}
+                                      >
+                                        #{tokenId}
+                                        <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Proof of Genesis link — preview only */}
+                              {previewMode && (
+                                <Link
+                                  to="/proof-of-genesis-receipt-preview"
+                                  className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-gradient-to-r from-primary/10 to-accent-warm/10 border border-primary/30 hover:border-primary/60 transition-colors group"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                                    <div>
+                                      <p className="text-xs font-medium">Proof of Genesis Receipt</p>
+                                      <p className="text-[10px] text-muted-foreground">Verified kWh → tokens → CO₂ offset</p>
+                                    </div>
+                                  </div>
+                                  <ArrowUpRight className="h-3.5 w-3.5 text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                                </Link>
+                              )}
+                            </div>
                           </div>
                         </CollapsibleContent>
+
                       </div>
                     </Collapsible>
                   );
