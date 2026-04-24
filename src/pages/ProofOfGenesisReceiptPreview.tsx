@@ -185,6 +185,26 @@ export default function ProofOfGenesisReceiptPreview() {
     [receipt.co2_offset_tons],
   );
 
+  // Cinematic Protocol Sequence — auto-plays once per session on first load
+  // so investors see the 5-primitive flow without hunting. Replayable any time.
+  const [cinematicOpen, setCinematicOpen] = useState(false);
+  const autoPlayedRef = useRef(false);
+  useEffect(() => {
+    if (autoPlayedRef.current) return;
+    autoPlayedRef.current = true;
+    try {
+      const key = 'pog-cinematic-seen';
+      if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1');
+        // tiny delay so the page paints first
+        const t = setTimeout(() => setCinematicOpen(true), 350);
+        return () => clearTimeout(t);
+      }
+    } catch {
+      /* sessionStorage unavailable — skip auto-play */
+    }
+  }, []);
+
   return (
     <>
       <SEO
