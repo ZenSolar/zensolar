@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Hand, Cpu, Layers, ShieldCheck, Anchor, CheckCircle2, X, Zap } from 'lucide-react';
+import { Hand, Cpu, Layers, ShieldCheck, Anchor, CheckCircle2, X, Zap, Bug } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useMintSound } from '@/hooks/useMintSound';
 
@@ -16,20 +16,19 @@ import { useMintSound } from '@/hooks/useMintSound';
  *   5. Proof-of-Permanence™ (anchored eternally)
  *
  * Visual language MIRRORS the dashboard's MintEffectButton:
- *  - Emerald energy orb that pulses and flares per primitive
- *  - Particle burst + ring expansion on each "Cleared"
+ *  - Emerald energy orb that pulses and flares per primitive (star particles)
+ *  - Charging-up border + pressure-wave on each "Cleared"
  *  - Gold-burst finale identical to a successful mint
  *  - Singing-bowl mint sound on finale, soft tap pulse per step
- *
- * Explicit, frame-locked timestamps display for every primitive — each
- * one capturing the protocol's literal HH:MM:SS.mmm fire moment, derived
- * from the receipt's mint timestamp + the protocol's known step offsets.
  */
 
-const SCENE_MS = 620;            // per-primitive exposure (longer = more dramatic)
-const FINALE_MS = 1100;          // final tableau before auto-close
-const FADE_MS = 260;
+// PACING — slowed substantially so each primitive is read, not glimpsed.
+const SCENE_MS = 1700;            // per-primitive exposure (was 620)
+const FINALE_MS = 2200;           // final tableau before auto-close (was 1100)
+const FADE_MS = 320;
 const STEP_OFFSETS_MS = [0, 80, 180, 320, 480]; // protocol fires roughly in this cadence
+// Star particle clip-path mirroring MintEffectButton
+const STAR_CLIP = 'polygon(50% 0%, 60% 35%, 100% 50%, 60% 65%, 50% 100%, 40% 65%, 0% 50%, 40% 35%)';
 
 export type ProtocolCinematicStepKey =
   | 'tap'
@@ -84,6 +83,8 @@ const SCENES: Scene[] = [
   },
 ];
 
+export type BackendTimestamps = Partial<Record<ProtocolCinematicStepKey, string | null | undefined>>;
+
 interface ProtocolCinematicSequenceProps {
   open: boolean;
   onComplete?: () => void;
@@ -98,6 +99,13 @@ interface ProtocolCinematicSequenceProps {
    * so the receipt and the cinematic stay in lock-step.
    */
   tapAtIso?: string;
+  /**
+   * Optional backend-reported event timestamps per primitive. When provided,
+   * the debug overlay (toggle via Shift+D or ?debug=ts) compares the displayed
+   * cinematic timestamp against the real backend value and surfaces the delta
+   * in milliseconds — invaluable for verifying the receipt is in lock-step.
+   */
+  backendTimestamps?: BackendTimestamps;
   /** When true, allows clicking backdrop / pressing Esc to skip. Default true. */
   dismissible?: boolean;
 }
@@ -108,6 +116,12 @@ function formatStamp(d: Date) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
 }
 
+function tryParseIso(iso?: string | null) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 export function ProtocolCinematicSequence({
   open,
   onComplete,
@@ -115,11 +129,13 @@ export function ProtocolCinematicSequence({
   finaleSubtitle,
   finaleTokenCount,
   tapAtIso,
+  backendTimestamps,
   dismissible = true,
 }: ProtocolCinematicSequenceProps) {
   const [sceneIdx, setSceneIdx] = useState(0);
   const [phase, setPhase] = useState<'playing' | 'finale' | 'done'>('playing');
   const [tokenTick, setTokenTick] = useState(0);
+  const [debugOpen, setDebugOpen] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const { primeAudio, playMintSound } = useMintSound();
 
@@ -137,6 +153,29 @@ export function ProtocolCinematicSequence({
     }
     return STEP_OFFSETS_MS.map((ms) => formatStamp(new Date(t0.getTime() + ms)));
   }, [tapAtIso]);
+
+  // Numeric ms versions for delta math in the debug overlay
+  const stepTimestampsMs = useMemo(() => {
+    const t0 = tapAtIso ? new Date(tapAtIso) : new Date();
+    const base = Number.isNaN(t0.getTime()) ? Date.now() : t0.getTime();
+    return STEP_OFFSETS_MS.map((ms) => base + ms);
+  }, [tapAtIso]);
+
+  // Open debug overlay via ?debug=ts or Shift+D
+  useEffect(() => {
+    if (!open) return;
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('debug') === 'ts') setDebugOpen(true);
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+        setDebugOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   // Soft "tap blip" per primitive — uses the shared mint AudioContext so
   // it stays in the same audio bus as the dashboard.
@@ -243,7 +282,7 @@ export function ProtocolCinematicSequence({
     if (phase !== 'finale' || !finaleTokenCount || finaleTokenCount <= 0) return;
     let raf: number;
     const start = performance.now();
-    const dur = 750;
+    const dur = 1100;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / dur);
       const eased = 1 - Math.pow(1 - p, 3);
@@ -302,14 +341,24 @@ export function ProtocolCinematicSequence({
           }}
         />
 
-        {/* Hex grid undertone — same family as dashboard */}
+        {/* Hex grid undertone — denser + brighter, matches dashboard */}
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.10] pointer-events-none"
+          style={{
+            backgroundImage:
+              'linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+        {/* Secondary fine grid layer for parallax depth */}
         <div
           aria-hidden
           className="absolute inset-0 opacity-[0.05] pointer-events-none"
           style={{
             backgroundImage:
               'linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)',
-            backgroundSize: '56px 56px',
+            backgroundSize: '8px 8px',
           }}
         />
 
@@ -318,11 +367,11 @@ export function ProtocolCinematicSequence({
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.55 }}
+          animate={{ opacity: 0.7 }}
           transition={{ duration: 1.2 }}
           style={{
             background:
-              'radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.18) 0%, transparent 55%)',
+              'radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.22) 0%, transparent 55%)',
           }}
         />
 
@@ -389,6 +438,25 @@ export function ProtocolCinematicSequence({
           </button>
         )}
 
+        {/* Debug toggle — shows backend vs displayed timestamp comparison */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setDebugOpen((v) => !v);
+          }}
+          className={`absolute top-5 ${dismissible ? 'right-16' : 'right-5'} z-20 h-9 px-2.5 rounded-full flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold transition-colors ${
+            debugOpen
+              ? 'bg-primary/20 text-primary border border-primary/40'
+              : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5 border border-transparent'
+          }`}
+          aria-label="Toggle timestamp debug overlay"
+          aria-pressed={debugOpen}
+        >
+          <Bug className="h-3 w-3" />
+          <span className="hidden sm:inline">Debug</span>
+        </button>
+
         {/* Stage content */}
         <div
           className="relative z-10 w-full max-w-xl px-6 text-center"
@@ -401,7 +469,7 @@ export function ProtocolCinematicSequence({
                 initial={{ opacity: 0, y: 18, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -14, scale: 0.98 }}
-                transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="space-y-5"
               >
                 <EnergyOrb icon={currentScene.icon} sceneIdx={sceneIdx} />
@@ -436,7 +504,7 @@ export function ProtocolCinematicSequence({
                 key="finale"
                 initial={{ opacity: 0, scale: 0.92 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 className="space-y-5"
               >
                 <FinaleSeal />
@@ -494,6 +562,88 @@ export function ProtocolCinematicSequence({
             </span>
           ))}
         </motion.div>
+
+        {/* Debug overlay — backend vs displayed timestamp comparison */}
+        {debugOpen && (
+          <div
+            className="absolute top-20 right-3 sm:right-5 z-30 w-[300px] max-w-[calc(100vw-1.5rem)] rounded-lg border border-primary/30 bg-background/95 backdrop-blur-md p-3 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <Bug className="h-3 w-3 text-primary" />
+                <span className="text-[10px] uppercase tracking-wider font-bold text-primary">
+                  Timestamp Debug
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDebugOpen(false)}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Close debug overlay"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+            <div className="text-[9px] text-muted-foreground mb-2 leading-tight">
+              Displayed (cinematic) vs backend-reported event time. Toggle with Shift+D.
+            </div>
+            <div className="space-y-1.5">
+              {SCENES.map((s, i) => {
+                const displayed = stepTimestamps[i];
+                const displayedMs = stepTimestampsMs[i];
+                const backendIso = backendTimestamps?.[s.key];
+                const backendDate = tryParseIso(backendIso);
+                const backendStr = backendDate ? formatStamp(backendDate) : '—';
+                const deltaMs = backendDate ? displayedMs - backendDate.getTime() : null;
+                const inSync = deltaMs !== null && Math.abs(deltaMs) <= 5;
+                const close = deltaMs !== null && Math.abs(deltaMs) <= 1000;
+                const deltaColor =
+                  deltaMs === null
+                    ? 'text-muted-foreground'
+                    : inSync
+                      ? 'text-primary'
+                      : close
+                        ? 'text-amber-400'
+                        : 'text-destructive';
+                return (
+                  <div
+                    key={s.key}
+                    className="rounded border border-border/50 p-1.5 text-[9.5px] leading-tight"
+                  >
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="font-bold uppercase tracking-wider text-foreground/90">
+                        {s.mark.replace('™', '')}
+                      </span>
+                      <span className={`font-mono tabular-nums font-bold ${deltaColor}`}>
+                        {deltaMs === null
+                          ? 'no backend'
+                          : `${deltaMs >= 0 ? '+' : ''}${deltaMs} ms`}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 font-mono tabular-nums">
+                      <div>
+                        <div className="text-muted-foreground/70">UI</div>
+                        <div className="text-foreground/85">{displayed}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground/70">Backend</div>
+                        <div className={backendDate ? 'text-foreground/85' : 'text-muted-foreground/50'}>
+                          {backendStr}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-2 text-[9px] text-muted-foreground/80 leading-tight">
+              <span className="text-primary font-bold">●</span> ≤5ms in-sync ·{' '}
+              <span className="text-amber-400 font-bold">●</span> ≤1s drift ·{' '}
+              <span className="text-destructive font-bold">●</span> &gt;1s drift
+            </div>
+          </div>
+        )}
       </motion.div>
     </AnimatePresence>,
     document.body,
@@ -501,77 +651,116 @@ export function ProtocolCinematicSequence({
 }
 
 function EnergyOrb({ icon: Icon, sceneIdx }: { icon: typeof Hand; sceneIdx: number }) {
-  // Particle ring keyed to each scene so it re-bursts per step
+  // Star particle burst keyed to each scene — mirrors MintEffectButton
   const particles = useMemo(
     () =>
-      Array.from({ length: 12 }).map((_, i) => {
-        const angle = (i / 12) * 360 + (Math.random() * 18 - 9);
+      Array.from({ length: 18 }).map((_, i) => {
+        const angle = (i / 18) * 360 + (Math.random() * 18 - 9);
         const rad = (angle * Math.PI) / 180;
-        const dist = 70 + Math.random() * 30;
+        const dist = 80 + Math.random() * 50;
         return {
           tx: Math.cos(rad) * dist,
           ty: Math.sin(rad) * dist,
-          size: 4 + Math.random() * 4,
-          delay: i * 0.012,
+          size: 5 + Math.random() * 5,
+          rotation: Math.random() * 360,
+          delay: i * 0.018,
         };
       }),
     [sceneIdx],
   );
 
   return (
-    <div className="relative mx-auto w-28 h-28 sm:w-36 sm:h-36">
-      {/* Outer expanding ring (per-scene burst) */}
+    <div className="relative mx-auto w-32 h-32 sm:w-40 sm:h-40">
+      {/* Pressure-wave ring (per-scene burst) — matches MintEffectButton */}
       <motion.div
         key={`ring-out-${sceneIdx}`}
         aria-hidden
-        initial={{ scale: 0.5, opacity: 0.7 }}
-        animate={{ scale: 2.2, opacity: 0 }}
-        transition={{ duration: 1.0, ease: 'easeOut' }}
-        className="absolute inset-0 rounded-full border-2 border-primary/55"
+        initial={{ scale: 0.5, opacity: 0.85 }}
+        animate={{ scale: 2.6, opacity: 0 }}
+        transition={{ duration: 1.3, ease: 'easeOut' }}
+        className="absolute inset-0 rounded-full"
+        style={{ border: '2px solid hsl(var(--primary) / 0.7)' }}
+      />
+      {/* Secondary flare ring */}
+      <motion.div
+        key={`ring-flare-${sceneIdx}`}
+        aria-hidden
+        initial={{ scale: 0.6, opacity: 0.6 }}
+        animate={{ scale: 1.9, opacity: 0 }}
+        transition={{ duration: 0.95, delay: 0.08, ease: 'easeOut' }}
+        className="absolute inset-0 rounded-full"
+        style={{ border: '2px solid hsl(var(--primary) / 0.5)' }}
       />
       {/* Mid pulse ring (continuous) */}
       <motion.div
         aria-hidden
         initial={{ scale: 0.8, opacity: 0.5 }}
-        animate={{ scale: 1.5, opacity: 0 }}
-        transition={{ duration: 1.4, ease: 'easeOut', repeat: Infinity }}
-        className="absolute inset-0 rounded-full border border-primary/35"
+        animate={{ scale: 1.55, opacity: 0 }}
+        transition={{ duration: 1.6, ease: 'easeOut', repeat: Infinity }}
+        className="absolute inset-0 rounded-full border border-primary/40"
       />
-      {/* Particles burst per scene */}
+      {/* Charging-up border halo (continuous breathing) */}
+      <motion.div
+        aria-hidden
+        initial={{ opacity: 0.4 }}
+        animate={{ opacity: [0.4, 0.85, 0.4] }}
+        transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute -inset-1 rounded-full"
+        style={{
+          border: '2px solid hsl(var(--primary) / 0.55)',
+          boxShadow:
+            '0 0 30px hsl(var(--primary) / 0.45), inset 0 0 20px hsl(var(--primary) / 0.18)',
+        }}
+      />
+      {/* Star particles burst per scene */}
       {particles.map((p, i) => (
         <motion.span
           key={`p-${sceneIdx}-${i}`}
           aria-hidden
-          initial={{ x: 0, y: 0, opacity: 0.95, scale: 0.5 }}
-          animate={{ x: p.tx, y: p.ty, opacity: 0, scale: 1 }}
-          transition={{ duration: 0.85, delay: p.delay, ease: 'easeOut' }}
-          className="absolute left-1/2 top-1/2 rounded-full"
+          initial={{ x: 0, y: 0, opacity: 0.95, scale: 0.4, rotate: p.rotation }}
+          animate={{ x: p.tx, y: p.ty, opacity: 0, scale: 1.1, rotate: p.rotation + 90 }}
+          transition={{ duration: 1.0, delay: p.delay, ease: 'easeOut' }}
+          className="absolute left-1/2 top-1/2"
           style={{
             width: p.size,
             height: p.size,
             marginLeft: -p.size / 2,
             marginTop: -p.size / 2,
             background: 'hsl(var(--primary))',
-            boxShadow: '0 0 10px hsl(var(--primary) / 0.8)',
+            boxShadow: '0 0 12px hsl(var(--primary) / 0.85)',
+            clipPath: STAR_CLIP,
           }}
         />
       ))}
+      {/* Energy-release glow flash per scene */}
+      <motion.div
+        key={`glow-${sceneIdx}`}
+        aria-hidden
+        initial={{ scale: 0.6, opacity: 0.9 }}
+        animate={{ scale: 1.8, opacity: 0 }}
+        transition={{ duration: 0.85, ease: 'easeOut' }}
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(circle, hsl(var(--primary) / 0.55) 0%, hsl(var(--primary) / 0.18) 40%, transparent 70%)',
+        }}
+      />
       {/* Inner orb disc */}
       <motion.div
         key={`disc-${sceneIdx}`}
         initial={{ scale: 0.85, opacity: 0.8 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        animate={{ scale: [0.85, 1.05, 1], opacity: 1 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         className="absolute inset-0 rounded-full flex items-center justify-center"
         style={{
           background:
-            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.45), hsl(var(--primary) / 0.08) 70%)',
+            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.55), hsl(var(--primary) / 0.10) 70%)',
           boxShadow:
-            '0 0 60px hsl(var(--primary) / 0.5), inset 0 0 30px hsl(var(--primary) / 0.2)',
-          border: '1px solid hsl(var(--primary) / 0.45)',
+            '0 0 80px hsl(var(--primary) / 0.6), inset 0 0 40px hsl(var(--primary) / 0.28)',
+          border: '1px solid hsl(var(--primary) / 0.55)',
         }}
       >
-        <Icon className="h-12 w-12 sm:h-14 sm:w-14 text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.6)]" aria-hidden />
+        <Icon className="h-12 w-12 sm:h-14 sm:w-14 text-primary drop-shadow-[0_0_12px_hsl(var(--primary)/0.7)]" aria-hidden />
       </motion.div>
     </div>
   );
@@ -586,37 +775,41 @@ function FinaleSeal() {
         <motion.div
           key={`finale-ring-${i}`}
           aria-hidden
-          initial={{ scale: 0.6, opacity: 0.7 }}
-          animate={{ scale: 2.6, opacity: 0 }}
-          transition={{ duration: 1.4, delay: i * 0.18, ease: 'easeOut' }}
-          className="absolute inset-0 rounded-full border-2 border-primary/55"
+          initial={{ scale: 0.6, opacity: 0.75 }}
+          animate={{ scale: 3.0, opacity: 0 }}
+          transition={{ duration: 1.8, delay: i * 0.22, ease: 'easeOut' }}
+          className="absolute inset-0 rounded-full border-2 border-primary/60"
         />
       ))}
-      {/* Particle confetti */}
-      {Array.from({ length: 18 }).map((_, i) => {
-        const angle = (i / 18) * 360;
+      {/* Star-particle confetti — matches MintEffectButton */}
+      {Array.from({ length: 24 }).map((_, i) => {
+        const angle = (i / 24) * 360;
         const rad = (angle * Math.PI) / 180;
-        const dist = 110 + Math.random() * 40;
+        const dist = 130 + Math.random() * 50;
+        const size = 5 + Math.random() * 4;
+        const rotation = Math.random() * 360;
         return (
           <motion.span
             key={`finale-p-${i}`}
             aria-hidden
-            initial={{ x: 0, y: 0, opacity: 1, scale: 0.5 }}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 0.5, rotate: rotation }}
             animate={{
               x: Math.cos(rad) * dist,
               y: Math.sin(rad) * dist,
               opacity: 0,
-              scale: 1.1,
+              scale: 1.2,
+              rotate: rotation + 120,
             }}
-            transition={{ duration: 1.1, delay: i * 0.012, ease: 'easeOut' }}
-            className="absolute left-1/2 top-1/2 rounded-full"
+            transition={{ duration: 1.4, delay: i * 0.014, ease: 'easeOut' }}
+            className="absolute left-1/2 top-1/2"
             style={{
-              width: 5,
-              height: 5,
-              marginLeft: -2.5,
-              marginTop: -2.5,
+              width: size,
+              height: size,
+              marginLeft: -size / 2,
+              marginTop: -size / 2,
               background: 'hsl(var(--primary))',
-              boxShadow: '0 0 14px hsl(var(--primary) / 0.9)',
+              boxShadow: '0 0 16px hsl(var(--primary) / 0.95)',
+              clipPath: STAR_CLIP,
             }}
           />
         );
@@ -624,17 +817,17 @@ function FinaleSeal() {
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="absolute inset-0 rounded-full flex items-center justify-center"
         style={{
           background:
-            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.55), hsl(var(--primary) / 0.1) 70%)',
+            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.6), hsl(var(--primary) / 0.12) 70%)',
           boxShadow:
-            '0 0 90px hsl(var(--primary) / 0.65), inset 0 0 40px hsl(var(--primary) / 0.3)',
-          border: '1px solid hsl(var(--primary) / 0.6)',
+            '0 0 100px hsl(var(--primary) / 0.7), inset 0 0 50px hsl(var(--primary) / 0.35)',
+          border: '1px solid hsl(var(--primary) / 0.65)',
         }}
       >
-        <CheckCircle2 className="h-16 w-16 sm:h-20 sm:w-20 text-primary drop-shadow-[0_0_14px_hsl(var(--primary)/0.7)]" aria-hidden />
+        <CheckCircle2 className="h-16 w-16 sm:h-20 sm:w-20 text-primary drop-shadow-[0_0_16px_hsl(var(--primary)/0.8)]" aria-hidden />
       </motion.div>
     </div>
   );
