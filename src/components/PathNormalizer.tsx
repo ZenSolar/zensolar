@@ -17,12 +17,6 @@ export function PathNormalizer() {
   useEffect(() => {
     let next = pathname;
 
-    // Handle specific legacy path redirect
-    if (next === "/proof-of-genesis-receipt-preview") {
-      navigate("/proof-of-genesis-receipt" + search + hash, { replace: true });
-      return;
-    }
-
     // Collapse repeated slashes (but keep root "/")
     if (next.length > 1) next = next.replace(/\/{2,}/g, "/");
 
@@ -33,6 +27,9 @@ export function PathNormalizer() {
     // Trim trailing slash (except root)
     if (next.length > 1 && next.endsWith("/")) next = next.slice(0, -1);
 
+    // Only navigate if the path actually changed AND the new path is different
+    // from the current pathname (prevents redirect loops with route-level
+    // <Navigate> elements that also normalize paths).
     if (next !== pathname) {
       navigate(next + search + hash, { replace: true });
     }
