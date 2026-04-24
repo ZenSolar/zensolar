@@ -559,6 +559,16 @@ export default function ProofOfGenesisReceiptPreview() {
         tapAtIso={receipt.minted_at}
         finaleTokenCount={receipt.tokens_minted}
         finaleSubtitle={`${formatKwh(receipt.tokens_minted)} $ZSOLAR minted · ${formatKwh(receipt.total_kwh)} kWh verified`}
+        backendTimestamps={{
+          tap: receipt.minted_at,
+          // Origin = first device reading recorded_at (clean source verified at this moment)
+          origin: receipt.readings[0]?.recorded_at,
+          // Delta = latest device reading recorded_at (Δ kWh frame closes here)
+          delta: receipt.readings[receipt.readings.length - 1]?.recorded_at,
+          // Mint and Permanence both anchor to the receipt's mint timestamp
+          mint: receipt.minted_at,
+          permanence: receipt.minted_at,
+        }}
       />
     </>
   );
