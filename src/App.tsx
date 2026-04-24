@@ -19,6 +19,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
 import { useServiceWorkerMessages } from "@/hooks/useServiceWorkerMessages";
 import { RootRoute } from "./components/RootRoute";
+import { PathNormalizer } from "./components/PathNormalizer";
 import Home from "./pages/Home";
 
 // Lazy load layout and auth components to reduce main bundle size
