@@ -138,6 +138,11 @@ export default function MintHistory() {
   }, [fetchTransactions, fetchPendingActivity]);
 
   const getExplorerUrl = (txHash: string) => `https://sepolia.basescan.org/tx/${txHash}`;
+  const getTokenContractUrl = () => `https://sepolia.basescan.org/token/${ZSOLAR_TOKEN_ADDRESS}`;
+  const getNftContractUrl = () => `https://sepolia.basescan.org/token/${ZSOLAR_NFT_ADDRESS}`;
+  const getNftTokenUrl = (tokenId: number) => `https://sepolia.basescan.org/token/${ZSOLAR_NFT_ADDRESS}?a=${tokenId}`;
+  const getTokenTransferUrl = (txHash: string) => `https://sepolia.basescan.org/tx/${txHash}#tokentxns`;
+  const previewMode = isPreviewMode();
   const totalTokensMinted = transactions.reduce((sum, t) => sum + Number(t.tokens_minted), 0);
   const totalNftsMinted = transactions.reduce((sum, t) => sum + (t.nfts_minted?.length || 0), 0);
 
