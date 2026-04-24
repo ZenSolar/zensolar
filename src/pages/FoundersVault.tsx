@@ -15,6 +15,7 @@ import {
   Compass,
   Sparkles as SparklesIcon,
   Battery,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -313,6 +314,30 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-eco group-hover:translate-x-0.5 transition-transform shrink-0" />
+          </div>
+        </Link>
+
+        {/* Patent Expansion — bi-directional EV + FSD claim additions */}
+        <Link
+          to="/founders/patent-expansion"
+          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <ShieldCheck className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest text-primary">
+                  Patent · Phase 3 Claims
+                </p>
+                <p className="text-sm font-semibold">Bi-Directional EV + FSD</p>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  V2G / V2H / V2L + FSD autonomous miles. File now, ship later.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
           </div>
         </Link>
 
