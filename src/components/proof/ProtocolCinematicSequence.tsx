@@ -1,37 +1,40 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Hand, Layers, Cpu, ShieldCheck, Anchor, CheckCircle2, X } from 'lucide-react';
+import { Hand, Cpu, Layers, ShieldCheck, Anchor, CheckCircle2, X, Zap } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { useMintSound } from '@/hooks/useMintSound';
 
 /**
- * ProtocolCinematicSequence
+ * ProtocolCinematicSequence — premium full-screen cinematic that visually
+ * narrates the 5 trademarked primitives during a $ZSOLAR mint.
  *
- * Full-screen, premium, ~2.6s cinematic that plays the 5 trademarked
- * primitives of the Zen Solar protocol as the actual runtime sequence:
- *
+ * Order matches the actual runtime sequence:
  *   1. Tap-to-Mint™         (intent)
- *   2. Proof-of-Delta™      (Δ kWh verified)
- *   3. Proof-of-Origin™     (clean source verified)
- *   4. Mint-on-Proof™       (token issued only on proofs)
+ *   2. Proof-of-Origin™     (clean source verified — must precede Δ)
+ *   3. Proof-of-Delta™      (Δ kWh verified)
+ *   4. Mint-on-Proof™       (token issued only because both proofs cleared)
  *   5. Proof-of-Permanence™ (anchored eternally)
  *
- * Designed for "Lyndon Rive / Elon Musk" first-impression: dark stage,
- * single accent, kinetic typography, no jargon, no clutter. Each scene
- * gets a focused micro-moment with its mark, ~480ms exposure, then
- * dissolves into a final "Cleared" tableau before closing.
+ * Visual language MIRRORS the dashboard's MintEffectButton:
+ *  - Emerald energy orb that pulses and flares per primitive
+ *  - Particle burst + ring expansion on each "Cleared"
+ *  - Gold-burst finale identical to a successful mint
+ *  - Singing-bowl mint sound on finale, soft tap pulse per step
  *
- * Self-contained — uses a portal, traps focus, respects reduced motion,
- * and exposes onComplete + onClose for callers.
+ * Explicit, frame-locked timestamps display for every primitive — each
+ * one capturing the protocol's literal HH:MM:SS.mmm fire moment, derived
+ * from the receipt's mint timestamp + the protocol's known step offsets.
  */
 
-const SCENE_MS = 480;           // per-primitive exposure
-const FINALE_MS = 700;          // final tableau before auto-close
-const FADE_MS = 220;
+const SCENE_MS = 620;            // per-primitive exposure (longer = more dramatic)
+const FINALE_MS = 1100;          // final tableau before auto-close
+const FADE_MS = 260;
+const STEP_OFFSETS_MS = [0, 80, 180, 320, 480]; // protocol fires roughly in this cadence
 
 export type ProtocolCinematicStepKey =
   | 'tap'
-  | 'delta'
   | 'origin'
+  | 'delta'
   | 'mint'
   | 'permanence';
 
@@ -52,18 +55,18 @@ const SCENES: Scene[] = [
     icon: Hand,
   },
   {
-    key: 'delta',
-    mark: 'Proof-of-Delta™',
-    tagline: 'Energy change verified',
-    detail: 'Δ kWh is real, signed, time-bound.',
-    icon: Layers,
-  },
-  {
     key: 'origin',
     mark: 'Proof-of-Origin™',
     tagline: 'Clean source verified',
     detail: 'Your device. Your generation.',
     icon: Cpu,
+  },
+  {
+    key: 'delta',
+    mark: 'Proof-of-Delta™',
+    tagline: 'Energy change verified',
+    detail: 'Δ kWh is real, signed, time-bound.',
+    icon: Layers,
   },
   {
     key: 'mint',
@@ -87,8 +90,22 @@ interface ProtocolCinematicSequenceProps {
   onClose?: () => void;
   /** Optional label displayed under finale (e.g. "47.32 $ZSOLAR minted") */
   finaleSubtitle?: string;
+  /** Optional running token count to count up inside the finale seal */
+  finaleTokenCount?: number;
+  /**
+   * The mint's anchor timestamp (ISO). Used as the "Tap fired" t0 — every
+   * primitive's displayed timestamp is derived from this + a known offset
+   * so the receipt and the cinematic stay in lock-step.
+   */
+  tapAtIso?: string;
   /** When true, allows clicking backdrop / pressing Esc to skip. Default true. */
   dismissible?: boolean;
+}
+
+function formatStamp(d: Date) {
+  // HH:MM:SS.mmm — protocol-grade precision
+  const pad = (n: number, w = 2) => n.toString().padStart(w, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
 }
 
 export function ProtocolCinematicSequence({
@@ -96,58 +113,147 @@ export function ProtocolCinematicSequence({
   onComplete,
   onClose,
   finaleSubtitle,
+  finaleTokenCount,
+  tapAtIso,
   dismissible = true,
 }: ProtocolCinematicSequenceProps) {
   const [sceneIdx, setSceneIdx] = useState(0);
   const [phase, setPhase] = useState<'playing' | 'finale' | 'done'>('playing');
+  const [tokenTick, setTokenTick] = useState(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const { primeAudio, playMintSound } = useMintSound();
 
-  // Respect reduced motion: collapse the sequence to a quick fade
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   }, []);
 
+  // Compute per-step timestamps locked to the receipt's tap moment
+  const stepTimestamps = useMemo(() => {
+    const t0 = tapAtIso ? new Date(tapAtIso) : new Date();
+    if (Number.isNaN(t0.getTime())) {
+      const fallback = new Date();
+      return STEP_OFFSETS_MS.map((ms) => formatStamp(new Date(fallback.getTime() + ms)));
+    }
+    return STEP_OFFSETS_MS.map((ms) => formatStamp(new Date(t0.getTime() + ms)));
+  }, [tapAtIso]);
+
+  // Soft "tap blip" per primitive — uses the shared mint AudioContext so
+  // it stays in the same audio bus as the dashboard.
+  const playStepBlip = (idx: number) => {
+    try {
+      const ctx = primeAudio();
+      if (!ctx || ctx.state !== 'running') return;
+      audioCtxRef.current = ctx;
+
+      const now = ctx.currentTime + 0.01;
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0, now);
+      master.gain.linearRampToValueAtTime(0.18, now + 0.012);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+      master.connect(ctx.destination);
+
+      // Rising pitch per step — feels like the protocol "climbing"
+      const baseFreqs = [392, 466, 523, 587, 698]; // G4, A#4, C5, D5, F5
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreqs[idx] ?? 523, now);
+      osc.frequency.exponentialRampToValueAtTime(
+        (baseFreqs[idx] ?? 523) * 1.02,
+        now + 0.35,
+      );
+
+      // Subtle harmonic shimmer
+      const harm = ctx.createOscillator();
+      harm.type = 'triangle';
+      harm.frequency.setValueAtTime((baseFreqs[idx] ?? 523) * 2, now);
+      const harmGain = ctx.createGain();
+      harmGain.gain.setValueAtTime(0.08, now);
+      harmGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+
+      osc.connect(master);
+      harm.connect(harmGain);
+      harmGain.connect(master);
+
+      osc.start(now);
+      harm.start(now);
+      osc.stop(now + 0.5);
+      harm.stop(now + 0.32);
+    } catch {
+      // silent — audio is enhancement only
+    }
+  };
+
   useEffect(() => {
     if (!open) {
       setSceneIdx(0);
       setPhase('playing');
+      setTokenTick(0);
       return;
     }
 
+    // Prime audio on open so the first blip is reliable on iOS
+    primeAudio();
+
     if (prefersReducedMotion) {
-      // Fast-forward: show finale almost immediately
       const t = setTimeout(() => {
         setPhase('finale');
         const t2 = setTimeout(() => {
           setPhase('done');
           onComplete?.();
-        }, 500);
+        }, 600);
         return () => clearTimeout(t2);
-      }, 250);
+      }, 300);
       return () => clearTimeout(t);
     }
 
-    // Normal playback timeline
     const timeouts: ReturnType<typeof setTimeout>[] = [];
     SCENES.forEach((_, i) => {
       timeouts.push(
-        setTimeout(() => setSceneIdx(i), i * SCENE_MS)
+        setTimeout(() => {
+          setSceneIdx(i);
+          playStepBlip(i);
+        }, i * SCENE_MS),
       );
     });
     timeouts.push(
-      setTimeout(() => setPhase('finale'), SCENES.length * SCENE_MS)
+      setTimeout(() => {
+        setPhase('finale');
+        // Singing-bowl mint sound — same as the dashboard's tap-to-mint success
+        try {
+          playMintSound('gold');
+        } catch {
+          // silent
+        }
+      }, SCENES.length * SCENE_MS),
     );
     timeouts.push(
       setTimeout(() => {
         setPhase('done');
         onComplete?.();
-      }, SCENES.length * SCENE_MS + FINALE_MS)
+      }, SCENES.length * SCENE_MS + FINALE_MS),
     );
 
     return () => timeouts.forEach(clearTimeout);
-  }, [open, prefersReducedMotion, onComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, prefersReducedMotion]);
 
-  // Esc key dismiss
+  // Animate the running token count during the finale
+  useEffect(() => {
+    if (phase !== 'finale' || !finaleTokenCount || finaleTokenCount <= 0) return;
+    let raf: number;
+    const start = performance.now();
+    const dur = 750;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setTokenTick(finaleTokenCount * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [phase, finaleTokenCount]);
+
   useEffect(() => {
     if (!open || !dismissible) return;
     const onKey = (e: KeyboardEvent) => {
@@ -157,7 +263,6 @@ export function ProtocolCinematicSequence({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, dismissible, onClose]);
 
-  // Lock body scroll while open
   useEffect(() => {
     if (!open) return;
     const original = document.body.style.overflow;
@@ -187,49 +292,89 @@ export function ProtocolCinematicSequence({
         className="fixed inset-0 z-[100] flex items-center justify-center"
         onClick={() => dismissible && onClose?.()}
       >
-        {/* Stage backdrop — deep, slightly warm black with radial vignette */}
+        {/* Stage backdrop — emerald-warmed black with deep radial vignette */}
         <div
           aria-hidden
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse at center, hsl(var(--background)) 0%, hsl(var(--background) / 0.98) 50%, hsl(220 30% 3%) 100%)',
+              'radial-gradient(ellipse at center, hsl(var(--background)) 0%, hsl(220 30% 4%) 55%, hsl(220 35% 2%) 100%)',
           }}
         />
 
-        {/* Subtle scanline / grid for "system" feel */}
+        {/* Hex grid undertone — same family as dashboard */}
         <div
           aria-hidden
-          className="absolute inset-0 opacity-[0.06] pointer-events-none"
+          className="absolute inset-0 opacity-[0.05] pointer-events-none"
           style={{
             backgroundImage:
               'linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
+            backgroundSize: '56px 56px',
           }}
         />
 
-        {/* Step rail — top */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 z-10">
-          {SCENES.map((s, i) => {
-            const reached = i <= sceneIdx || showFinale;
-            return (
-              <div key={s.key} className="flex items-center gap-2 sm:gap-3">
+        {/* Sweeping aurora — slow, premium, never distracting */}
+        <motion.div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.55 }}
+          transition={{ duration: 1.2 }}
+          style={{
+            background:
+              'radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.18) 0%, transparent 55%)',
+          }}
+        />
+
+        {/* Top step rail with timestamps */}
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 px-3 w-full max-w-md">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {SCENES.map((s, i) => {
+              const reached = i <= sceneIdx || showFinale;
+              return (
                 <motion.div
-                  className="h-1.5 w-6 sm:w-10 rounded-full"
-                  initial={{ backgroundColor: 'hsl(var(--muted-foreground) / 0.25)' }}
+                  key={s.key}
+                  className="h-1.5 w-7 sm:w-10 rounded-full"
+                  initial={{ backgroundColor: 'hsl(var(--muted-foreground) / 0.2)' }}
                   animate={{
                     backgroundColor: reached
                       ? 'hsl(var(--primary))'
-                      : 'hsl(var(--muted-foreground) / 0.25)',
+                      : 'hsl(var(--muted-foreground) / 0.2)',
+                    boxShadow: reached
+                      ? '0 0 12px hsl(var(--primary) / 0.6)'
+                      : '0 0 0 hsl(var(--primary) / 0)',
                   }}
                   transition={{ duration: 0.25 }}
                 />
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+          {/* Live timestamp ledger */}
+          <div className="grid grid-cols-5 gap-1 sm:gap-1.5 w-full">
+            {SCENES.map((s, i) => {
+              const reached = i <= sceneIdx || showFinale;
+              return (
+                <div key={s.key} className="text-center">
+                  <div
+                    className={`text-[8px] sm:text-[9px] uppercase tracking-[0.12em] font-bold leading-tight transition-colors ${
+                      reached ? 'text-primary/90' : 'text-muted-foreground/40'
+                    }`}
+                  >
+                    {s.mark.replace('™', '').split('-')[0]}
+                  </div>
+                  <div
+                    className={`text-[8.5px] sm:text-[10px] font-mono tabular-nums leading-tight transition-colors ${
+                      reached ? 'text-foreground/85' : 'text-muted-foreground/30'
+                    }`}
+                  >
+                    {reached ? stepTimestamps[i] : '—:—:—'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Close (only if dismissible) */}
         {dismissible && (
           <button
             type="button"
@@ -253,26 +398,35 @@ export function ProtocolCinematicSequence({
             {!showFinale && (
               <motion.div
                 key={`scene-${currentScene.key}`}
-                initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                initial={{ opacity: 0, y: 18, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -16, scale: 0.98 }}
-                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                exit={{ opacity: 0, y: -14, scale: 0.98 }}
+                transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
                 className="space-y-5"
               >
-                <SceneIcon icon={currentScene.icon} />
+                <EnergyOrb icon={currentScene.icon} sceneIdx={sceneIdx} />
                 <div className="space-y-1.5">
-                  <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-primary/80">
+                  <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-primary/85 font-bold">
                     {`Step ${sceneIdx + 1} of ${SCENES.length}`}
                   </div>
-                  <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground leading-tight">
+                  <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">
                     {currentScene.mark}
                   </h2>
-                  <p className="text-sm sm:text-base text-primary/90 font-medium">
+                  <p className="text-sm sm:text-base text-primary font-semibold">
                     {currentScene.tagline}
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground/90 max-w-md mx-auto leading-snug">
                     {currentScene.detail}
                   </p>
+                  <div className="pt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/[0.08]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" aria-hidden />
+                    <span className="text-[10px] sm:text-[11px] font-mono tabular-nums text-foreground/85">
+                      {stepTimestamps[sceneIdx]}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                      Cleared
+                    </span>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -280,23 +434,36 @@ export function ProtocolCinematicSequence({
             {showFinale && (
               <motion.div
                 key="finale"
-                initial={{ opacity: 0, scale: 0.94 }}
+                initial={{ opacity: 0, scale: 0.92 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="space-y-5"
               >
                 <FinaleSeal />
-                <div className="space-y-1.5">
-                  <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-primary">
-                    All proofs cleared
+                <div className="space-y-2">
+                  <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-primary font-bold">
+                    All five proofs cleared
                   </div>
-                  <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+                  <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">
                     Genesis confirmed.
                   </h2>
-                  {finaleSubtitle && (
-                    <p className="text-sm sm:text-base text-primary font-semibold">
-                      {finaleSubtitle}
-                    </p>
+                  {finaleTokenCount && finaleTokenCount > 0 ? (
+                    <div className="flex items-baseline justify-center gap-2 pt-1">
+                      <Zap className="h-5 w-5 text-primary" aria-hidden />
+                      <span className="text-2xl sm:text-3xl font-bold text-primary tabular-nums">
+                        {tokenTick.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                      <span className="text-sm sm:text-base text-primary font-semibold">$ZSOLAR</span>
+                    </div>
+                  ) : (
+                    finaleSubtitle && (
+                      <p className="text-sm sm:text-base text-primary font-semibold">
+                        {finaleSubtitle}
+                      </p>
+                    )
                   )}
                   <p className="text-xs sm:text-sm text-muted-foreground/90 max-w-md mx-auto leading-snug">
                     Five primitives. One verifiable mint. Anchored forever.
@@ -307,20 +474,23 @@ export function ProtocolCinematicSequence({
           </AnimatePresence>
         </div>
 
-        {/* Footer mark stack — fades in with finale */}
+        {/* Footer mark stack with timestamps — fades in with finale */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: showFinale ? 1 : 0, y: showFinale ? 0 : 8 }}
           transition={{ duration: 0.4, delay: showFinale ? 0.15 : 0 }}
-          className="absolute bottom-8 left-0 right-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 z-10"
+          className="absolute bottom-6 left-0 right-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 px-4 z-10"
         >
-          {SCENES.map((s) => (
+          {SCENES.map((s, i) => (
             <span
               key={s.key}
-              className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground"
+              className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] text-muted-foreground"
             >
               <CheckCircle2 className="h-3 w-3 text-primary" aria-hidden />
-              {s.mark}
+              <span className="text-foreground/85 font-medium">{s.mark}</span>
+              <span className="font-mono tabular-nums text-muted-foreground/70">
+                {stepTimestamps[i]}
+              </span>
             </span>
           ))}
         </motion.div>
@@ -330,54 +500,142 @@ export function ProtocolCinematicSequence({
   );
 }
 
-function SceneIcon({ icon: Icon }: { icon: typeof Hand }) {
+function EnergyOrb({ icon: Icon, sceneIdx }: { icon: typeof Hand; sceneIdx: number }) {
+  // Particle ring keyed to each scene so it re-bursts per step
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 12 }).map((_, i) => {
+        const angle = (i / 12) * 360 + (Math.random() * 18 - 9);
+        const rad = (angle * Math.PI) / 180;
+        const dist = 70 + Math.random() * 30;
+        return {
+          tx: Math.cos(rad) * dist,
+          ty: Math.sin(rad) * dist,
+          size: 4 + Math.random() * 4,
+          delay: i * 0.012,
+        };
+      }),
+    [sceneIdx],
+  );
+
   return (
-    <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24">
-      {/* Pulse ring */}
+    <div className="relative mx-auto w-28 h-28 sm:w-36 sm:h-36">
+      {/* Outer expanding ring (per-scene burst) */}
+      <motion.div
+        key={`ring-out-${sceneIdx}`}
+        aria-hidden
+        initial={{ scale: 0.5, opacity: 0.7 }}
+        animate={{ scale: 2.2, opacity: 0 }}
+        transition={{ duration: 1.0, ease: 'easeOut' }}
+        className="absolute inset-0 rounded-full border-2 border-primary/55"
+      />
+      {/* Mid pulse ring (continuous) */}
       <motion.div
         aria-hidden
-        initial={{ scale: 0.6, opacity: 0.6 }}
-        animate={{ scale: 1.6, opacity: 0 }}
-        transition={{ duration: 0.9, ease: 'easeOut', repeat: Infinity }}
-        className="absolute inset-0 rounded-full border-2 border-primary/40"
+        initial={{ scale: 0.8, opacity: 0.5 }}
+        animate={{ scale: 1.5, opacity: 0 }}
+        transition={{ duration: 1.4, ease: 'easeOut', repeat: Infinity }}
+        className="absolute inset-0 rounded-full border border-primary/35"
       />
-      {/* Inner disc */}
-      <div
+      {/* Particles burst per scene */}
+      {particles.map((p, i) => (
+        <motion.span
+          key={`p-${sceneIdx}-${i}`}
+          aria-hidden
+          initial={{ x: 0, y: 0, opacity: 0.95, scale: 0.5 }}
+          animate={{ x: p.tx, y: p.ty, opacity: 0, scale: 1 }}
+          transition={{ duration: 0.85, delay: p.delay, ease: 'easeOut' }}
+          className="absolute left-1/2 top-1/2 rounded-full"
+          style={{
+            width: p.size,
+            height: p.size,
+            marginLeft: -p.size / 2,
+            marginTop: -p.size / 2,
+            background: 'hsl(var(--primary))',
+            boxShadow: '0 0 10px hsl(var(--primary) / 0.8)',
+          }}
+        />
+      ))}
+      {/* Inner orb disc */}
+      <motion.div
+        key={`disc-${sceneIdx}`}
+        initial={{ scale: 0.85, opacity: 0.8 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="absolute inset-0 rounded-full flex items-center justify-center"
         style={{
           background:
-            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.05) 70%)',
-          boxShadow: '0 0 40px hsl(var(--primary) / 0.35), inset 0 0 24px hsl(var(--primary) / 0.15)',
-          border: '1px solid hsl(var(--primary) / 0.3)',
+            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.45), hsl(var(--primary) / 0.08) 70%)',
+          boxShadow:
+            '0 0 60px hsl(var(--primary) / 0.5), inset 0 0 30px hsl(var(--primary) / 0.2)',
+          border: '1px solid hsl(var(--primary) / 0.45)',
         }}
       >
-        <Icon className="h-9 w-9 sm:h-11 sm:w-11 text-primary" aria-hidden />
-      </div>
+        <Icon className="h-12 w-12 sm:h-14 sm:w-14 text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.6)]" aria-hidden />
+      </motion.div>
     </div>
   );
 }
 
 function FinaleSeal() {
+  // Bigger, gold-tinged seal mirroring the dashboard's mint success burst
   return (
-    <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
+    <div className="relative mx-auto w-32 h-32 sm:w-40 sm:h-40">
+      {/* Triple expanding ring */}
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={`finale-ring-${i}`}
+          aria-hidden
+          initial={{ scale: 0.6, opacity: 0.7 }}
+          animate={{ scale: 2.6, opacity: 0 }}
+          transition={{ duration: 1.4, delay: i * 0.18, ease: 'easeOut' }}
+          className="absolute inset-0 rounded-full border-2 border-primary/55"
+        />
+      ))}
+      {/* Particle confetti */}
+      {Array.from({ length: 18 }).map((_, i) => {
+        const angle = (i / 18) * 360;
+        const rad = (angle * Math.PI) / 180;
+        const dist = 110 + Math.random() * 40;
+        return (
+          <motion.span
+            key={`finale-p-${i}`}
+            aria-hidden
+            initial={{ x: 0, y: 0, opacity: 1, scale: 0.5 }}
+            animate={{
+              x: Math.cos(rad) * dist,
+              y: Math.sin(rad) * dist,
+              opacity: 0,
+              scale: 1.1,
+            }}
+            transition={{ duration: 1.1, delay: i * 0.012, ease: 'easeOut' }}
+            className="absolute left-1/2 top-1/2 rounded-full"
+            style={{
+              width: 5,
+              height: 5,
+              marginLeft: -2.5,
+              marginTop: -2.5,
+              background: 'hsl(var(--primary))',
+              boxShadow: '0 0 14px hsl(var(--primary) / 0.9)',
+            }}
+          />
+        );
+      })}
       <motion.div
-        aria-hidden
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1.5, opacity: 0 }}
-        transition={{ duration: 1.1, ease: 'easeOut', repeat: Infinity }}
-        className="absolute inset-0 rounded-full border-2 border-primary/50"
-      />
-      <div
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="absolute inset-0 rounded-full flex items-center justify-center"
         style={{
           background:
-            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.4), hsl(var(--primary) / 0.08) 70%)',
-          boxShadow: '0 0 60px hsl(var(--primary) / 0.55), inset 0 0 30px hsl(var(--primary) / 0.25)',
-          border: '1px solid hsl(var(--primary) / 0.5)',
+            'radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.55), hsl(var(--primary) / 0.1) 70%)',
+          boxShadow:
+            '0 0 90px hsl(var(--primary) / 0.65), inset 0 0 40px hsl(var(--primary) / 0.3)',
+          border: '1px solid hsl(var(--primary) / 0.6)',
         }}
       >
-        <CheckCircle2 className="h-12 w-12 sm:h-14 sm:w-14 text-primary" aria-hidden />
-      </div>
+        <CheckCircle2 className="h-16 w-16 sm:h-20 sm:w-20 text-primary drop-shadow-[0_0_14px_hsl(var(--primary)/0.7)]" aria-hidden />
+      </motion.div>
     </div>
   );
 }

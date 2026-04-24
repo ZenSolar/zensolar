@@ -556,6 +556,8 @@ export default function ProofOfGenesisReceiptPreview() {
         open={cinematicOpen}
         onClose={() => setCinematicOpen(false)}
         onComplete={() => setCinematicOpen(false)}
+        tapAtIso={receipt.minted_at}
+        finaleTokenCount={receipt.tokens_minted}
         finaleSubtitle={`${formatKwh(receipt.tokens_minted)} $ZSOLAR minted · ${formatKwh(receipt.total_kwh)} kWh verified`}
       />
     </>
