@@ -15,6 +15,7 @@ Unifying thesis: "Proof of Genesis" (Delta + Origin) — $ZSOLAR's PoW equivalen
 
 ## Memories
 - [Proof of Genesis](mem://features/proof-of-genesis) — Unifying thesis combining Delta + Origin; Bitcoin eclipse framing
+- [Liquidity Pools Narrative](mem://features/liquidity-pools-narrative) — Public language for Founder Operating (30B), Team (50B), Advisor (10B) pools; Pact stays hero. 4yr/1yr cliff standard.
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding, circulating vs pact-locked
 - [Auth & Web3 Integration](mem://features/auth) — Wallet connection, auth guards, PWA constraints, and role-based access
 - [Tokenomics & Mechanics](mem://features/tokenomics) — Protocol limits, mint allocations, burn logic, and LP automation
