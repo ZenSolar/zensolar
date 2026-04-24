@@ -6,36 +6,33 @@ import { useMintSound } from '@/hooks/useMintSound';
 /**
  * MicroProtocolBadge — the "middle option" cinematic.
  *
- * A compact (~2.8s) inline animation designed to live INSIDE the existing
+ * A premium ~5.5s inline animation designed to live INSIDE the existing
  * fast mint-confirmation dialog. It celebrates Proof-of-Genesis without
- * hijacking the screen the way the full ProtocolCinematicSequence does.
+ * hijacking the screen the way the full ProtocolCinematicSequence does —
+ * but is rich enough to feel exciting on EVERY mint, not just the first.
  *
  * Visual language stays in lock-step with MintEffectButton + the full
- * cinematic — same emerald orb, same 5 primitives, same gold seal —
- * just smaller, faster, and embeddable.
+ * cinematic — same emerald orb, same 5 primitives, same gold seal.
  *
- * Sequence:
- *   t=0     -> Tap dot ignites
- *   t=320   -> Origin dot
- *   t=640   -> Delta dot
- *   t=960   -> Mint dot
- *   t=1280  -> Permanence dot
- *   t=1600  -> Orb flares + "Proof of Genesis ✅" seal scales in
- *   t=2800  -> onComplete()
+ * Sequence (~5.65s):
+ *   Each primitive holds for 850ms with full mark + tagline fading
+ *   in/out, then the gold "Proof of Genesis ✓" seal scales in for
+ *   a 1.4s victory hold.
  */
 
 const PRIMITIVES = [
-  { key: 'tap',         label: 'Tap',         icon: Hand },
-  { key: 'origin',      label: 'Origin',      icon: Cpu },
-  { key: 'delta',       label: 'Delta',       icon: Layers },
-  { key: 'mint',        label: 'Mint',        icon: ShieldCheck },
-  { key: 'permanence',  label: 'Permanence',  icon: Anchor },
+  { key: 'tap',        label: 'Tap',        mark: 'Tap-to-Mint™',          tagline: 'Intent received',          icon: Hand },
+  { key: 'origin',     label: 'Origin',     mark: 'Proof-of-Origin™',      tagline: 'Clean source verified',    icon: Cpu },
+  { key: 'delta',      label: 'Delta',      mark: 'Proof-of-Delta™',       tagline: 'Δ kWh signed & time-bound', icon: Layers },
+  { key: 'mint',       label: 'Mint',       mark: 'Mint-on-Proof™',        tagline: 'Token issued',             icon: ShieldCheck },
+  { key: 'permanence', label: 'Permanence', mark: 'Proof-of-Permanence™',  tagline: 'Anchored to the ledger',   icon: Anchor },
 ] as const;
 
-const STEP_INTERVAL_MS = 320;
-const SEAL_DELAY_MS = STEP_INTERVAL_MS * PRIMITIVES.length; // 1600
-const SEAL_HOLD_MS = 1200;
-const TOTAL_MS = SEAL_DELAY_MS + SEAL_HOLD_MS; // ~2.8s
+const STEP_INTERVAL_MS = 850;
+const SEAL_DELAY_MS = STEP_INTERVAL_MS * PRIMITIVES.length; // 4250
+const SEAL_HOLD_MS = 1400;
+const TOTAL_MS = SEAL_DELAY_MS + SEAL_HOLD_MS; // ~5.65s
+
 
 interface MicroProtocolBadgeProps {
   /** Start the animation. Setting to false resets it. */
