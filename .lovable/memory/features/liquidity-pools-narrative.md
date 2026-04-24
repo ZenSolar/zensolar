@@ -29,7 +29,7 @@ Public narrative framing. Use this language verbatim (or close to it) on the sit
 
 ## Circle 3 — Team & Contributor Pool (50B, 5%)
 
-> "Five percent of $ZSOLAR is reserved for the people who build it with us. Engineers, scientists, energy operators, and contributors earn $ZSOLAR on the same four-year vest with a one-year cliff that the founders use. **At Zen Solar, your equity is liquid the moment it vests — you don't wait for an IPO that may never come.**"
+> "Five percent of $ZSOLAR is reserved for the people who build it with us. Engineers, scientists, energy operators, and contributors earn $ZSOLAR on the same four-year vest with a one-year cliff that the founders use. **At ZenSolar, your equity is liquid the moment it vests — you don't wait for an IPO that may never come.**"
 
 - **Size:** 50B (5% of supply)
 - **Vesting:** 4-year linear, 1-year cliff
@@ -47,7 +47,7 @@ Public narrative framing. Use this language verbatim (or close to it) on the sit
 
 ## Why this structure beats a traditional IPO path (use in investor demo)
 
-> "A traditional private company gives founders and employees paper that only becomes real if they IPO or get acquired. Most never do. **Zen Solar inverts that.** The Pact guarantees the founders never dump. The Operating, Team, and Advisor pools — together less than 10% of supply — give the people building the network real, liquid, transparent ownership from day one. We don't need an IPO. The token *is* the IPO, and it started the day we minted the genesis block."
+> "A traditional private company gives founders and employees paper that only becomes real if they IPO or get acquired. Most never do. **ZenSolar inverts that.** The Pact guarantees the founders never dump. The Operating, Team, and Advisor pools — together less than 10% of supply — give the people building the network real, liquid, transparent ownership from day one. We don't need an IPO. The token *is* the IPO, and it started the day we minted the genesis block."
 
 ## Hero hierarchy (always render in this order)
 
