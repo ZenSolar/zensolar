@@ -203,6 +203,7 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <GoogleAnalytics />
+                  <PathNormalizer />
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
