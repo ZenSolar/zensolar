@@ -10,6 +10,7 @@ import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
