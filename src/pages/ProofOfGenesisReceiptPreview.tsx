@@ -34,6 +34,8 @@ type Reading = {
   end_kwh: number;
   recorded_at: string;
   signature: string;
+  // EV-only: how many miles this charging session powered
+  miles_driven?: number;
 };
 
 type Receipt = {
@@ -44,13 +46,26 @@ type Receipt = {
   minted_at: string;
   tokens_minted: number;
   total_kwh: number;
-  co2_offset_tons: number;
+  // EV-only: total miles driven on the verified energy
+  miles_driven?: number;
+  // Primary mint source — drives context-aware CO₂ framing
+  primary_source: 'solar' | 'battery' | 'ev_charging' | 'mixed';
   readings: Reading[];
   proof_root: string;
 };
 
-// 1 kWh of grid electricity ≈ 0.000709 metric tons CO2 displaced (US avg)
-const CO2_TONS_PER_KWH = 0.000709;
+// ---------- CO₂ constants (source-aware) ----------
+// Grid electricity displaced (solar/battery): U.S. EIA avg ≈ 0.709 kg CO₂/kWh
+const CO2_KG_PER_KWH_GRID = 0.709;
+// EV vs ICE: avg US ICE fuel economy 24.4 mpg (EPA 2022); 8.887 kg CO₂ / gal gasoline (EPA)
+// → ~0.364 kg CO₂ avoided per EV mile (vs equivalent ICE trip)
+const CO2_KG_PER_EV_MILE_AVOIDED = 0.364;
+const GAL_GASOLINE_PER_EV_MILE = 1 / 24.4; // gallons of gas a comparable ICE would burn
+// Tesla efficiency baseline (Model Y/3 mixed): ~3.0 mi/kWh
+const EV_MI_PER_KWH = 3.0;
+// Bitcoin Proof-of-Work emissions per single tx (Cambridge CCAF + Digiconomist range)
+// Conservative anchor: ~707 kg CO₂ per BTC tx. We compare per $ZSOLAR mint (1 mint = 1 tx).
+const BTC_TX_CO2_KG = 707;
 
 const RECEIPTS: Receipt[] = [
   {
