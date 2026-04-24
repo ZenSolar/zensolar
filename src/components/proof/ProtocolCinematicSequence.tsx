@@ -238,17 +238,14 @@ export function ProtocolCinematicSequence({
     // Prime audio on open so the first blip is reliable on iOS
     primeAudio();
 
-    if (prefersReducedMotion) {
-      const t = setTimeout(() => {
-        setPhase('finale');
-        const t2 = setTimeout(() => {
-          setPhase('done');
-          onComplete?.();
-        }, 600);
-        return () => clearTimeout(t2);
-      }, 300);
-      return () => clearTimeout(t);
-    }
+    // Apply a slower cadence when reduced motion is preferred — same
+    // narrative, more dwell time, no rapid flashes.
+    const sceneMs = prefersReducedMotion
+      ? Math.round(SCENE_MS * REDUCED_MOTION_MULTIPLIER)
+      : SCENE_MS;
+    const finaleMs = prefersReducedMotion
+      ? Math.round(FINALE_MS * REDUCED_MOTION_MULTIPLIER)
+      : FINALE_MS;
 
     const timeouts: ReturnType<typeof setTimeout>[] = [];
     SCENES.forEach((_, i) => {
@@ -256,7 +253,7 @@ export function ProtocolCinematicSequence({
         setTimeout(() => {
           setSceneIdx(i);
           playStepBlip(i);
-        }, i * SCENE_MS),
+        }, i * sceneMs),
       );
     });
     timeouts.push(
@@ -268,13 +265,13 @@ export function ProtocolCinematicSequence({
         } catch {
           // silent
         }
-      }, SCENES.length * SCENE_MS),
+      }, SCENES.length * sceneMs),
     );
     timeouts.push(
       setTimeout(() => {
         setPhase('done');
         onComplete?.();
-      }, SCENES.length * SCENE_MS + FINALE_MS),
+      }, SCENES.length * sceneMs + finaleMs),
     );
 
     return () => timeouts.forEach(clearTimeout);
