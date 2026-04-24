@@ -618,14 +618,14 @@ export default function ProofOfGenesisReceiptPreview() {
                 <span className="text-sm font-semibold">Why this matters</span>
               </div>
               <p className="text-sm text-foreground/85 leading-relaxed">
-                You verifiably displaced <span className="font-semibold text-secondary">{formatTons(receipt.co2_offset_tons)} metric tons</span>{' '}
-                of grid CO₂ in this single mint. That's roughly the same as{' '}
-                <span className="font-semibold">{totalTrees} trees</span> doing a full year of work — except yours
-                happened in seconds, was cryptographically proven, and earned you <span className="font-semibold text-primary">{formatKwh(receipt.tokens_minted)} $ZSOLAR</span>.
+                {co2Story.detail} On top of that, this single on-chain settlement avoided{' '}
+                <span className="font-semibold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
+                that an equivalent Bitcoin Proof-of-Work transaction would have emitted — and earned you{' '}
+                <span className="font-semibold text-primary">{formatKwh(receipt.tokens_minted)} $ZSOLAR</span>.
               </p>
               <p className="text-[11px] text-muted-foreground italic">
-                CO₂ figure uses the U.S. EIA grid average of 0.000709 metric tons per kWh displaced. Tree
-                equivalency uses 0.06 metric tons of CO₂ absorbed per mature tree per year.
+                Sources: EPA (8.887 kg CO₂/gal gasoline · avg 24.4 mpg), U.S. EIA grid average (0.709 kg CO₂/kWh),
+                Cambridge CCAF / Digiconomist BTC tx footprint (~707 kg CO₂/tx).
               </p>
             </CardContent>
           </Card>
