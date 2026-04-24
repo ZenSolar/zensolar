@@ -58,6 +58,11 @@ export interface VerifyOnChainData {
 interface Props {
   data: VerifyOnChainData;
   trigger?: React.ReactNode;
+  /** When provided, drawer opens scrolled to this primitive and highlights it */
+  focus?: VerifyFocusKey;
+  /** Controlled open state (optional). When omitted, drawer is uncontrolled. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 function CopyChip({ value, label }: { value: string; label: string }) {
