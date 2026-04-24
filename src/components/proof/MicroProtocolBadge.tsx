@@ -6,36 +6,33 @@ import { useMintSound } from '@/hooks/useMintSound';
 /**
  * MicroProtocolBadge — the "middle option" cinematic.
  *
- * A compact (~2.8s) inline animation designed to live INSIDE the existing
+ * A premium ~5.5s inline animation designed to live INSIDE the existing
  * fast mint-confirmation dialog. It celebrates Proof-of-Genesis without
- * hijacking the screen the way the full ProtocolCinematicSequence does.
+ * hijacking the screen the way the full ProtocolCinematicSequence does —
+ * but is rich enough to feel exciting on EVERY mint, not just the first.
  *
  * Visual language stays in lock-step with MintEffectButton + the full
- * cinematic — same emerald orb, same 5 primitives, same gold seal —
- * just smaller, faster, and embeddable.
+ * cinematic — same emerald orb, same 5 primitives, same gold seal.
  *
- * Sequence:
- *   t=0     -> Tap dot ignites
- *   t=320   -> Origin dot
- *   t=640   -> Delta dot
- *   t=960   -> Mint dot
- *   t=1280  -> Permanence dot
- *   t=1600  -> Orb flares + "Proof of Genesis ✅" seal scales in
- *   t=2800  -> onComplete()
+ * Sequence (~5.65s):
+ *   Each primitive holds for 850ms with full mark + tagline fading
+ *   in/out, then the gold "Proof of Genesis ✓" seal scales in for
+ *   a 1.4s victory hold.
  */
 
 const PRIMITIVES = [
-  { key: 'tap',         label: 'Tap',         icon: Hand },
-  { key: 'origin',      label: 'Origin',      icon: Cpu },
-  { key: 'delta',       label: 'Delta',       icon: Layers },
-  { key: 'mint',        label: 'Mint',        icon: ShieldCheck },
-  { key: 'permanence',  label: 'Permanence',  icon: Anchor },
+  { key: 'tap',        label: 'Tap',        mark: 'Tap-to-Mint™',          tagline: 'Intent received',          icon: Hand },
+  { key: 'origin',     label: 'Origin',     mark: 'Proof-of-Origin™',      tagline: 'Clean source verified',    icon: Cpu },
+  { key: 'delta',      label: 'Delta',      mark: 'Proof-of-Delta™',       tagline: 'Δ kWh signed & time-bound', icon: Layers },
+  { key: 'mint',       label: 'Mint',       mark: 'Mint-on-Proof™',        tagline: 'Token issued',             icon: ShieldCheck },
+  { key: 'permanence', label: 'Permanence', mark: 'Proof-of-Permanence™',  tagline: 'Anchored to the ledger',   icon: Anchor },
 ] as const;
 
-const STEP_INTERVAL_MS = 320;
-const SEAL_DELAY_MS = STEP_INTERVAL_MS * PRIMITIVES.length; // 1600
-const SEAL_HOLD_MS = 1200;
-const TOTAL_MS = SEAL_DELAY_MS + SEAL_HOLD_MS; // ~2.8s
+const STEP_INTERVAL_MS = 850;
+const SEAL_DELAY_MS = STEP_INTERVAL_MS * PRIMITIVES.length; // 4250
+const SEAL_HOLD_MS = 1400;
+const TOTAL_MS = SEAL_DELAY_MS + SEAL_HOLD_MS; // ~5.65s
+
 
 interface MicroProtocolBadgeProps {
   /** Start the animation. Setting to false resets it. */
@@ -189,6 +186,29 @@ export function MicroProtocolBadge({
         </div>
       </div>
 
+      {/* Per-step caption — fades through each primitive's mark + tagline */}
+      <div className="h-12 flex items-center justify-center w-full">
+        <AnimatePresence mode="wait">
+          {active && !sealed && litCount > 0 && (
+            <motion.div
+              key={PRIMITIVES[litCount - 1].key}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="text-center"
+            >
+              <div className="text-sm font-bold text-primary tracking-tight leading-tight">
+                {PRIMITIVES[litCount - 1].mark}
+              </div>
+              <div className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                {PRIMITIVES[litCount - 1].tagline}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Seal */}
       <AnimatePresence>
         {sealed && (
@@ -197,11 +217,11 @@ export function MicroProtocolBadge({
             initial={{ opacity: 0, y: 4, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.92 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 shadow-[0_0_18px_hsl(var(--primary)/0.25)]"
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 shadow-[0_0_22px_hsl(var(--primary)/0.35)]"
           >
-            <CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden />
-            <span className="text-xs font-semibold text-primary tracking-wide">
+            <CheckCircle2 className="h-4 w-4 text-primary" aria-hidden />
+            <span className="text-sm font-semibold text-primary tracking-wide">
               Proof of Genesis ✓
             </span>
           </motion.div>
