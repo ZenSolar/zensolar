@@ -230,11 +230,64 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
+/**
+ * Convert a live mint row into the Receipt shape the UI already understands.
+ * EV-only mints are the dominant case today (Tesla + Wallbox); solar/battery
+ * mints will populate source_breakdown going forward and render as `mixed`.
+ */
+function liveToReceipt(live: LiveMintReceipt): Receipt {
+  const isEv = live.primary_source === 'ev_charging' && live.miles_delta != null;
+  const totalKwh = live.kwh_delta ?? 0;
+
+  const readings: Reading[] = isEv
+    ? [
+        {
+          source: 'ev_charging',
+          device_id: live.device_id ?? 'tesla-vehicle',
+          provider: live.device_provider === 'tesla' ? 'Tesla Vehicle API' : (live.device_provider ?? 'Vehicle API'),
+          start_kwh: 0,
+          end_kwh: Number(totalKwh.toFixed(2)),
+          recorded_at: live.minted_at,
+          signature: `0x${live.tx_hash.slice(2, 6)}…${live.tx_hash.slice(-4)}`,
+          miles_driven: Math.round(live.miles_delta ?? 0),
+        },
+      ]
+    : [];
+
+  return {
+    id: `live-${live.id}`,
+    mint_id: `mint_${live.id.slice(0, 8)}`,
+    tx_hash: live.tx_hash,
+    block_number: live.block_number ?? '—',
+    minted_at: live.minted_at,
+    tokens_minted: Number(live.tokens_minted.toFixed(2)),
+    total_kwh: Number(totalKwh.toFixed(2)),
+    miles_driven: live.miles_delta != null ? Math.round(live.miles_delta) : undefined,
+    primary_source: live.primary_source,
+    proof_root: live.tx_hash, // tx hash doubles as the merkle anchor pre-batching
+    readings,
+  };
+}
+
 export default function ProofOfGenesisReceiptPreview() {
-  const [activeId, setActiveId] = useState(RECEIPTS[0].id);
-  const receipt = useMemo(() => RECEIPTS.find((r) => r.id === activeId)!, [activeId]);
+  const liveState = useLatestMintReceipt();
+
+  // Live mint (if signed in & has at least one mint) is prepended and selected by default
+  const liveReceipt = liveState.status === 'ready' ? liveToReceipt(liveState.receipt) : null;
+  const allReceipts = useMemo(
+    () => (liveReceipt ? [liveReceipt, ...RECEIPTS] : RECEIPTS),
+    [liveReceipt],
+  );
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const effectiveActiveId = activeId ?? allReceipts[0].id;
+  const receipt = useMemo(
+    () => allReceipts.find((r) => r.id === effectiveActiveId) ?? allReceipts[0],
+    [allReceipts, effectiveActiveId],
+  );
 
   const co2Story = useMemo(() => buildCo2Story(receipt), [receipt]);
+  const isLive = receipt.id.startsWith('live-');
 
   // ===== Cinematic Protocol Sequence: hardened auto-play guards =====
   //
