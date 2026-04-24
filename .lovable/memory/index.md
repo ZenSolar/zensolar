@@ -15,6 +15,8 @@ ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.ap
 VPP earnings: tokens auto-mint REAL-TIME per dispatch (30–60s); cash pays MONTHLY on the 1st. Split: 50% LP / 30% user cash / 15% ops / 5% user tokens.
 
 ## Memories
+- [OEM Verified-Live Status](mem://features/oem-live-status) — Tesla/Enphase/Wallbox confirmed live; SolarEdge pending
+- [Receipt CO₂ + EV Math](mem://features/receipt-co2-framing) — Context-aware CO₂ per source, 1 token/mile EV formula, PoW comparison rule
 - [VPP Settlement & Token Timing](mem://features/vpp-settlement) — Real-time tokens per dispatch, monthly cash, 50/30/15/5 split, launch mechanics
 - [Bi-Directional EV Minting](mem://features/bidirectional-ev-minting) — V2G/V2H/V2L + FSD as Phase 3 mintable surfaces, patent-anchored
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding, circulating vs pact-locked
