@@ -216,31 +216,30 @@ export default function ProofOfGenesisReceiptPreview() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="space-y-3"
+            className="flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-5 sm:gap-6"
           >
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="space-y-3 min-w-0 flex-1">
               <Badge className="bg-primary/15 text-primary border-primary/30 hover:bg-primary/15">
                 <Sparkle /> Proof-of-Genesis™ Receipt
               </Badge>
-              <Link
-                to={`/verify/${receipt.tx_hash.slice(2, 66)}`}
-                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.1] transition-colors"
-                title="Public Proof-of-Authenticity™ verification"
-              >
-                <Shield className="h-3 w-3 text-primary" />
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">PoA</span>
-                <span className="font-mono text-[11px] font-semibold text-primary">
-                  {receipt.tx_hash.slice(2, 9)}
-                </span>
-              </Link>
+              <h1 className="text-2xl sm:text-4xl font-bold tracking-tight leading-[1.1]">
+                The exact readings behind your mint.
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground leading-snug max-w-2xl">
+                Every $ZSOLAR mint is backed by signed, time-stamped readings from your physical devices. This is the
+                audit trail — the kWh, the device, the signature, the on-chain proof, and the CO₂ you offset.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight leading-[1.1]">
-              The exact readings behind your mint.
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-snug max-w-2xl">
-              Every $ZSOLAR mint is backed by signed, time-stamped readings from your physical devices. This is the
-              audit trail — the kWh, the device, the signature, the on-chain proof, and the CO₂ you offset.
-            </p>
+
+            {/* Proof-of-Authenticity™ embossed watermark stamp */}
+            <div className="shrink-0 self-center sm:self-start">
+              <ProofOfAuthenticityStamp
+                poaHashShort={receipt.tx_hash.slice(2, 9)}
+                poaHashFull={receipt.tx_hash.slice(2, 66)}
+                issuedAt={receipt.minted_at}
+                variant="stamp"
+              />
+            </div>
           </motion.header>
 
           {/* Receipt selector */}
