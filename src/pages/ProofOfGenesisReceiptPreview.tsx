@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText } from 'lucide-react';
+import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText, Play } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { SEO } from '@/components/SEO';
 import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
+import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
@@ -184,6 +185,26 @@ export default function ProofOfGenesisReceiptPreview() {
     [receipt.co2_offset_tons],
   );
 
+  // Cinematic Protocol Sequence — auto-plays once per session on first load
+  // so investors see the 5-primitive flow without hunting. Replayable any time.
+  const [cinematicOpen, setCinematicOpen] = useState(false);
+  const autoPlayedRef = useRef(false);
+  useEffect(() => {
+    if (autoPlayedRef.current) return;
+    autoPlayedRef.current = true;
+    try {
+      const key = 'pog-cinematic-seen';
+      if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1');
+        // tiny delay so the page paints first
+        const t = setTimeout(() => setCinematicOpen(true), 350);
+        return () => clearTimeout(t);
+      }
+    } catch {
+      /* sessionStorage unavailable — skip auto-play */
+    }
+  }, []);
+
   return (
     <>
       <SEO
@@ -296,24 +317,46 @@ export default function ProofOfGenesisReceiptPreview() {
           </motion.section>
 
           {/* ===== Protocol Journey — the 5 trademarked primitives behind this mint ===== */}
-          <ProtocolJourney
-            data={{
-              tapAt: receipt.minted_at,
-              totalKwh: receipt.total_kwh,
-              primaryProvider: receipt.readings[0]?.provider ?? 'Unknown',
-              primaryDeviceId: receipt.readings[0]?.device_id ?? 'unknown',
-              deltaProof: receipt.proof_root,
-              originDeviceHash: receipt.readings[0]
-                ? `0x${receipt.readings[0].device_id.padEnd(60, '0').slice(0, 60)}`
-                : '0x0000',
-              tokensMinted: receipt.tokens_minted,
-              mintTxHash: receipt.tx_hash,
-              blockNumber: receipt.block_number,
-              permanenceRoot:
-                '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
-              permanenceAnchoredAt: receipt.minted_at,
-            } satisfies ProtocolJourneyData}
-          />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-sm sm:text-base font-semibold text-foreground">
+                  Protocol Journey
+                </h2>
+                <p className="text-[11px] sm:text-xs text-muted-foreground">
+                  The five trademarked primitives that produced this mint.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setCinematicOpen(true)}
+                className="shrink-0 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
+              >
+                <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
+                Replay protocol
+              </Button>
+            </div>
+            <ProtocolJourney
+              data={{
+                tapAt: receipt.minted_at,
+                totalKwh: receipt.total_kwh,
+                primaryProvider: receipt.readings[0]?.provider ?? 'Unknown',
+                primaryDeviceId: receipt.readings[0]?.device_id ?? 'unknown',
+                deltaProof: receipt.proof_root,
+                originDeviceHash: receipt.readings[0]
+                  ? `0x${receipt.readings[0].device_id.padEnd(60, '0').slice(0, 60)}`
+                  : '0x0000',
+                tokensMinted: receipt.tokens_minted,
+                mintTxHash: receipt.tx_hash,
+                blockNumber: receipt.block_number,
+                permanenceRoot:
+                  '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
+                permanenceAnchoredAt: receipt.minted_at,
+              } satisfies ProtocolJourneyData}
+            />
+          </div>
 
           {/* Readings */}
           <Card className="border-border/60">
@@ -448,6 +491,14 @@ export default function ProofOfGenesisReceiptPreview() {
           </p>
         </div>
       </div>
+
+      {/* Cinematic protocol sequence — auto-plays once per session, replayable via header button */}
+      <ProtocolCinematicSequence
+        open={cinematicOpen}
+        onClose={() => setCinematicOpen(false)}
+        onComplete={() => setCinematicOpen(false)}
+        finaleSubtitle={`${formatKwh(receipt.tokens_minted)} $ZSOLAR minted · ${formatKwh(receipt.total_kwh)} kWh verified`}
+      />
     </>
   );
 }
