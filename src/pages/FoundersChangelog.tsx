@@ -47,6 +47,44 @@ interface ChangelogEntry {
 const ENTRIES: ChangelogEntry[] = [
   {
     date: "April 24, 2026 (LATEST)",
+    iso: "2026-04-25T02:00",
+    title: "Wallbox Verified Live · Proof-of-Genesis Receipt — EV Math + PoW Comparison",
+    summary:
+      "Confirmed Wallbox as the third OEM with verified live data flow (via Tschida) — joins Tesla and Enphase. SolarEdge remains the only OEM without a live user. Fixed the Proof-of-Genesis receipt: EV mints now use the correct 1-token-per-mile formula, the hero stat shows Miles Driven, and CO₂ is reframed context-aware (gasoline avoided for EV, grid CO₂ displaced for solar/battery) with a new 'vs. Bitcoin Proof-of-Work' chip showing emissions our regenerative mint avoids per transaction.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "Wallbox confirmed as a verified live OEM via Tschida — real charging data flowing through the API.",
+          "Provider status now: ✅ Tesla · ✅ Enphase · ✅ Wallbox · ⏳ SolarEdge (no live user yet).",
+          "Proof-of-Genesis receipt EV mint fixed: 52 mi → 39.00 $ZSOLAR (1 token/mile × 0.75 user share), with 17.33 kWh equivalent shown.",
+          "Hero stats are now context-aware: EV mints show 'Miles Driven', solar/battery mints show 'Verified Energy'.",
+          "CO₂ panel reframed source-by-source: EV → gasoline gallons + kg CO₂ avoided vs ICE; solar/battery → grid CO₂ displaced.",
+          "New 'vs. Bitcoin Proof-of-Work' comparison chip on every receipt — anchors Proof-of-Genesis™ as the regenerative inverse of PoW (~707 kg CO₂/BTC tx avoided).",
+          "Wallbox sample receipt added (Apr 22 · 28 mi via Wallbox Pulsar Plus).",
+        ],
+        links: [
+          {
+            label: "Proof-of-Genesis Receipt (updated)",
+            url: "https://beta.zen.solar/proof-of-genesis-receipt-preview",
+            preview: true,
+          },
+        ],
+      },
+      {
+        heading: "Saved to memory",
+        icon: "memory",
+        bullets: [
+          "Verified-live OEM list: Tesla, Enphase, Wallbox. SolarEdge pending first user.",
+          "Receipt CO₂ framing rule: context-aware per primary source + always include PoW comparison chip.",
+          "EV mint math: 1 $ZSOLAR per mile × 0.75 user share; show kWh-equivalent at 3.0 mi/kWh.",
+        ],
+      },
+    ],
+  },
+  {
+    date: "April 24, 2026 (LATEST)",
     iso: "2026-04-25T00:30",
     title: "VPP Roadmap — UX Flow + Token Timing Locked",
     summary:

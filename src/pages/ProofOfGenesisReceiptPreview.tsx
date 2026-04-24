@@ -34,6 +34,8 @@ type Reading = {
   end_kwh: number;
   recorded_at: string;
   signature: string;
+  // EV-only: how many miles this charging session powered
+  miles_driven?: number;
 };
 
 type Receipt = {
@@ -44,77 +46,89 @@ type Receipt = {
   minted_at: string;
   tokens_minted: number;
   total_kwh: number;
-  co2_offset_tons: number;
+  // EV-only: total miles driven on the verified energy
+  miles_driven?: number;
+  // Primary mint source — drives context-aware CO₂ framing
+  primary_source: 'solar' | 'battery' | 'ev_charging' | 'mixed';
   readings: Reading[];
   proof_root: string;
 };
 
-// 1 kWh of grid electricity ≈ 0.000709 metric tons CO2 displaced (US avg)
-const CO2_TONS_PER_KWH = 0.000709;
+// ---------- CO₂ constants (source-aware) ----------
+// Grid electricity displaced (solar/battery): U.S. EIA avg ≈ 0.709 kg CO₂/kWh
+const CO2_KG_PER_KWH_GRID = 0.709;
+// EV vs ICE: avg US ICE fuel economy 24.4 mpg (EPA 2022); 8.887 kg CO₂ / gal gasoline (EPA)
+// → ~0.364 kg CO₂ avoided per EV mile (vs equivalent ICE trip)
+const CO2_KG_PER_EV_MILE_AVOIDED = 0.364;
+const GAL_GASOLINE_PER_EV_MILE = 1 / 24.4; // gallons of gas a comparable ICE would burn
+// Tesla efficiency baseline (Model Y/3 mixed): ~3.0 mi/kWh
+const EV_MI_PER_KWH = 3.0;
+// Bitcoin Proof-of-Work emissions per single tx (Cambridge CCAF + Digiconomist range)
+// Conservative anchor: ~707 kg CO₂ per BTC tx. We compare per $ZSOLAR mint (1 mint = 1 tx).
+const BTC_TX_CO2_KG = 707;
 
 const RECEIPTS: Receipt[] = [
+  // Apr 23 — EV-only mint (the one the founder just minted)
+  // Math: 52 mi @ 3.0 mi/kWh ≈ 17.33 kWh equivalent → 1 token/mile × 0.75 user share = 39.00 $ZSOLAR
   {
     id: 'pog-receipt-001',
     mint_id: 'mint_8a4f...c12d',
     tx_hash: '0xa3f5b2e9c8d471a6b9e0d3f5a8c2b1e4d7f0a3c6b9e2d5f8a1c4b7e0d3f6a9c2',
     block_number: '24,891,302',
     minted_at: '2026-04-23T18:42:11Z',
-    tokens_minted: 47.32,
-    total_kwh: 14.2,
-    co2_offset_tons: 14.2 * CO2_TONS_PER_KWH,
+    tokens_minted: 39.0,
+    total_kwh: 17.33,
+    miles_driven: 52,
+    primary_source: 'ev_charging',
     proof_root: '0x7d3e9c1f4a8b2e6d5c9f0a3b7e1d4c8f2a5b9e0d3c6f1a4b7e0d3c6f9a2b5e8',
-    readings: [
-      {
-        source: 'solar',
-        device_id: 'enphase-envoy-7821',
-        provider: 'Enphase Enlighten',
-        start_kwh: 18342.41,
-        end_kwh: 18353.18,
-        recorded_at: '2026-04-23T18:00:00Z',
-        signature: '0x4a7c...e9f1',
-      },
-      {
-        source: 'battery',
-        device_id: 'tesla-powerwall-3-A91',
-        provider: 'Tesla Energy',
-        start_kwh: 9821.06,
-        end_kwh: 9824.49,
-        recorded_at: '2026-04-23T18:30:00Z',
-        signature: '0x9b2e...c4a8',
-      },
-    ],
-  },
-  {
-    id: 'pog-receipt-002',
-    mint_id: 'mint_3b1e...9f47',
-    tx_hash: '0xc7e2f9a4b1d6e3c0f7a4b1d8e5c2f9a6b3d0e7f4a1b8d5e2c9f6a3b0d7e4c1f8',
-    block_number: '24,890,118',
-    minted_at: '2026-04-22T14:11:03Z',
-    tokens_minted: 29.85,
-    total_kwh: 8.95,
-    co2_offset_tons: 8.95 * CO2_TONS_PER_KWH,
-    proof_root: '0x2f8b1e9d4c7a0f3b6e9d2c5f8a1b4e7d0c3f6a9b2e5d8c1f4a7b0e3d6c9f2a5',
     readings: [
       {
         source: 'ev_charging',
         device_id: 'tesla-model-y-VIN9XJ',
         provider: 'Tesla Vehicle API',
         start_kwh: 0,
-        end_kwh: 8.95,
-        recorded_at: '2026-04-22T13:42:00Z',
-        signature: '0x6d1f...8a3c',
+        end_kwh: 17.33,
+        recorded_at: '2026-04-23T18:30:00Z',
+        signature: '0x4a7c...e9f1',
+        miles_driven: 52,
       },
     ],
   },
+  // Apr 22 — Wallbox home-charge EV mint (Tschida flow). 28 mi → 21.00 $ZSOLAR
+  {
+    id: 'pog-receipt-002',
+    mint_id: 'mint_3b1e...9f47',
+    tx_hash: '0xc7e2f9a4b1d6e3c0f7a4b1d8e5c2f9a6b3d0e7f4a1b8d5e2c9f6a3b0d7e4c1f8',
+    block_number: '24,890,118',
+    minted_at: '2026-04-22T14:11:03Z',
+    tokens_minted: 21.0,
+    total_kwh: 9.33,
+    miles_driven: 28,
+    primary_source: 'ev_charging',
+    proof_root: '0x2f8b1e9d4c7a0f3b6e9d2c5f8a1b4e7d0c3f6a9b2e5d8c1f4a7b0e3d6c9f2a5',
+    readings: [
+      {
+        source: 'ev_charging',
+        device_id: 'wallbox-pulsar-plus-A41',
+        provider: 'Wallbox myWallbox API',
+        start_kwh: 0,
+        end_kwh: 9.33,
+        recorded_at: '2026-04-22T13:42:00Z',
+        signature: '0x6d1f...8a3c',
+        miles_driven: 28,
+      },
+    ],
+  },
+  // Apr 21 — Solar + battery mint (mixed)
   {
     id: 'pog-receipt-003',
     mint_id: 'mint_e9c2...44a1',
     tx_hash: '0x5b8d2e7c4f1a9b6d3e0c7f4a1b8d5e2c9f6a3b0d7e4c1f8a5b2d9e6c3f0a7b4',
     block_number: '24,886,407',
     minted_at: '2026-04-21T09:28:55Z',
-    tokens_minted: 102.7,
+    tokens_minted: 23.11,
     total_kwh: 30.81,
-    co2_offset_tons: 30.81 * CO2_TONS_PER_KWH,
+    primary_source: 'mixed',
     proof_root: '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
     readings: [
       {
@@ -148,9 +162,48 @@ const SOURCE_META = {
 function formatKwh(n: number) {
   return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
-function formatTons(n: number) {
-  return n.toLocaleString(undefined, { maximumFractionDigits: 4 });
+function formatNumber(n: number, decimals = 2) {
+  return n.toLocaleString(undefined, { maximumFractionDigits: decimals });
 }
+
+// ---------- derived CO₂ helpers (context-aware per primary source) ----------
+type CO2Story = {
+  primary_label: string;
+  primary_value: string;
+  primary_suffix: string;
+  primary_footnote: string;
+  pow_delta_kg: number; // emissions an equivalent BTC PoW tx would have caused
+  detail: string;
+};
+
+function buildCo2Story(receipt: Receipt): CO2Story {
+  const pow_delta_kg = BTC_TX_CO2_KG; // 1 mint = 1 tx
+
+  if (receipt.primary_source === 'ev_charging' && receipt.miles_driven) {
+    const gallons = receipt.miles_driven * GAL_GASOLINE_PER_EV_MILE;
+    const co2_kg = receipt.miles_driven * CO2_KG_PER_EV_MILE_AVOIDED;
+    return {
+      primary_label: 'Gasoline Avoided',
+      primary_value: formatNumber(gallons, 2),
+      primary_suffix: 'gallons',
+      primary_footnote: `≈ ${co2_kg.toFixed(2)} kg CO₂ a comparable ICE would have emitted`,
+      pow_delta_kg,
+      detail: `You drove ${receipt.miles_driven} miles on sunshine — the same trip in an average gas car (24.4 mpg) would have burned ${gallons.toFixed(2)} gallons of gasoline and put ${co2_kg.toFixed(2)} kg of CO₂ into the atmosphere. Instead you minted clean and earned $ZSOLAR.`,
+    };
+  }
+
+  // solar / battery / mixed → grid displacement framing
+  const co2_kg = receipt.total_kwh * CO2_KG_PER_KWH_GRID;
+  return {
+    primary_label: 'Grid CO₂ Displaced',
+    primary_value: formatNumber(co2_kg, 2),
+    primary_suffix: 'kg CO₂',
+    primary_footnote: `${formatKwh(receipt.total_kwh)} kWh that the grid did not have to burn fuel to produce`,
+    pow_delta_kg,
+    detail: `You verifiably displaced ${co2_kg.toFixed(2)} kg of grid CO₂ in this single mint — energy your panels and battery produced instead of a fossil-fuel power plant.`,
+  };
+}
+
 function shortHash(h: string, head = 10, tail = 6) {
   if (h.length <= head + tail + 3) return h;
   return `${h.slice(0, head)}…${h.slice(-tail)}`;
@@ -180,10 +233,7 @@ export default function ProofOfGenesisReceiptPreview() {
   const [activeId, setActiveId] = useState(RECEIPTS[0].id);
   const receipt = useMemo(() => RECEIPTS.find((r) => r.id === activeId)!, [activeId]);
 
-  const totalTrees = useMemo(
-    () => Math.round(receipt.co2_offset_tons * 16.5), // ~0.06 t CO2 absorbed/tree/year → 1t ≈ 16.5 trees
-    [receipt.co2_offset_tons],
-  );
+  const co2Story = useMemo(() => buildCo2Story(receipt), [receipt]);
 
   // ===== Cinematic Protocol Sequence: hardened auto-play guards =====
   //
@@ -335,7 +385,7 @@ export default function ProofOfGenesisReceiptPreview() {
                     : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
                 }`}
               >
-                {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {formatKwh(r.total_kwh)} kWh
+                {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {r.primary_source === 'ev_charging' && r.miles_driven ? `${r.miles_driven} mi` : `${formatKwh(r.total_kwh)} kWh`}
               </button>
             ))}
           </div>
@@ -356,24 +406,59 @@ export default function ProofOfGenesisReceiptPreview() {
               value={`${formatKwh(receipt.tokens_minted)}`}
               suffix="$ZSOLAR"
             />
-            <StatCard
-              icon={Sun}
-              accent="text-energy"
-              bg="bg-energy/10"
-              label="Verified Energy"
-              value={`${formatKwh(receipt.total_kwh)}`}
-              suffix="kWh"
-            />
+            {receipt.primary_source === 'ev_charging' && receipt.miles_driven ? (
+              <StatCard
+                icon={Car}
+                accent="text-primary"
+                bg="bg-primary/10"
+                label="Miles Driven"
+                value={`${receipt.miles_driven}`}
+                suffix="mi"
+                footnote={`on ${formatKwh(receipt.total_kwh)} kWh of verified clean energy`}
+              />
+            ) : (
+              <StatCard
+                icon={Sun}
+                accent="text-energy"
+                bg="bg-energy/10"
+                label="Verified Energy"
+                value={`${formatKwh(receipt.total_kwh)}`}
+                suffix="kWh"
+              />
+            )}
             <StatCard
               icon={Leaf}
               accent="text-secondary"
               bg="bg-secondary/10"
-              label="CO₂ Offset"
-              value={`${formatTons(receipt.co2_offset_tons)}`}
-              suffix="metric tons"
-              footnote={`≈ ${totalTrees} trees absorbing CO₂ for one year`}
+              label={co2Story.primary_label}
+              value={co2Story.primary_value}
+              suffix={co2Story.primary_suffix}
+              footnote={co2Story.primary_footnote}
             />
           </motion.section>
+
+          {/* PoW comparison chip — Proof-of-Genesis as the regenerative inverse of Proof-of-Work */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="rounded-lg border border-secondary/30 bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5 p-3 sm:p-4 flex items-start gap-3"
+          >
+            <div className="h-8 w-8 rounded-md bg-secondary/15 flex items-center justify-center shrink-0">
+              <Leaf className="h-4 w-4 text-secondary" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                vs. Bitcoin Proof-of-Work
+              </div>
+              <div className="text-sm sm:text-base text-foreground/90 leading-snug">
+                One equivalent BTC transaction would have emitted{' '}
+                <span className="font-bold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
+                just to settle. Your Proof-of-Genesis™ mint emitted essentially{' '}
+                <span className="font-bold text-primary">zero</span> — and proved real clean energy in the same step.
+              </div>
+            </div>
+          </motion.div>
 
           {/* ===== Protocol Journey — the 5 trademarked primitives behind this mint ===== */}
           <div className="space-y-3">
@@ -533,14 +618,14 @@ export default function ProofOfGenesisReceiptPreview() {
                 <span className="text-sm font-semibold">Why this matters</span>
               </div>
               <p className="text-sm text-foreground/85 leading-relaxed">
-                You verifiably displaced <span className="font-semibold text-secondary">{formatTons(receipt.co2_offset_tons)} metric tons</span>{' '}
-                of grid CO₂ in this single mint. That's roughly the same as{' '}
-                <span className="font-semibold">{totalTrees} trees</span> doing a full year of work — except yours
-                happened in seconds, was cryptographically proven, and earned you <span className="font-semibold text-primary">{formatKwh(receipt.tokens_minted)} $ZSOLAR</span>.
+                {co2Story.detail} On top of that, this single on-chain settlement avoided{' '}
+                <span className="font-semibold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
+                that an equivalent Bitcoin Proof-of-Work transaction would have emitted — and earned you{' '}
+                <span className="font-semibold text-primary">{formatKwh(receipt.tokens_minted)} $ZSOLAR</span>.
               </p>
               <p className="text-[11px] text-muted-foreground italic">
-                CO₂ figure uses the U.S. EIA grid average of 0.000709 metric tons per kWh displaced. Tree
-                equivalency uses 0.06 metric tons of CO₂ absorbed per mature tree per year.
+                Sources: EPA (8.887 kg CO₂/gal gasoline · avg 24.4 mpg), U.S. EIA grid average (0.709 kg CO₂/kWh),
+                Cambridge CCAF / Digiconomist BTC tx footprint (~707 kg CO₂/tx).
               </p>
             </CardContent>
           </Card>
