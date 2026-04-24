@@ -3,13 +3,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { Coins, Award, Loader2, TrendingUp, Zap, Car, BatteryFull, ExternalLink, Hash, Sparkles, ChevronDown, ChevronUp, Sun, Clock, ArrowUpRight } from 'lucide-react';
+import { Coins, Award, Loader2, TrendingUp, Zap, Car, BatteryFull, ExternalLink, Hash, Sparkles, ChevronDown, ChevronUp, Sun, Clock, ArrowUpRight, ShieldCheck, FileText, Image as ImageIcon } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useProfile } from '@/hooks/useProfile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Link } from 'react-router-dom';
+import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS } from '@/lib/wagmi';
+import { isPreviewMode } from '@/lib/previewMode';
 
 interface MintTransaction {
   id: string;
