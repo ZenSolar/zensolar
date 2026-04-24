@@ -212,6 +212,15 @@ const App = () => {
                     <Route path="/taylor-preview" element={<TaylorPreview />} />
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
+                    {/* Resilient aliases — catch common typos / old paths so the link never 404s */}
+                    <Route path="/proof-of-genesis-receipt" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
+                    <Route path="/pog-receipt-preview" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
+                    <Route path="/pog-receipt" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
+                    <Route path="/proof-of-genesis-preview" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
+                    <Route path="/receipt-preview" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
+                    <Route path="/demo/proof-of-genesis-receipt" element={<Navigate to="/demo/proof-of-genesis-receipt-preview" replace />} />
+                    <Route path="/demo/pog-receipt-preview" element={<Navigate to="/demo/proof-of-genesis-receipt-preview" replace />} />
+                    <Route path="/demo/pog-receipt" element={<Navigate to="/demo/proof-of-genesis-receipt-preview" replace />} />
                     {/* Public Proof-of-Authenticity™ verification — no auth required */}
                     <Route path="/verify/:poa" element={<VerifyPoA />} />
                     {/* Per-device Proof-of-Origin™ — founder + PIN gated (Phase 1) */}
