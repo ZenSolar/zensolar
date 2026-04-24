@@ -491,6 +491,14 @@ export default function ProofOfGenesisReceiptPreview() {
           </p>
         </div>
       </div>
+
+      {/* Cinematic protocol sequence — auto-plays once per session, replayable via header button */}
+      <ProtocolCinematicSequence
+        open={cinematicOpen}
+        onClose={() => setCinematicOpen(false)}
+        onComplete={() => setCinematicOpen(false)}
+        finaleSubtitle={`${formatKwh(receipt.tokens_minted)} $ZSOLAR minted · ${formatKwh(receipt.total_kwh)} kWh verified`}
+      />
     </>
   );
 }
