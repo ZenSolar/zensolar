@@ -102,6 +102,8 @@ const ENTRIES: ChangelogEntry[] = [
       },
     ],
   },
+  {
+    date: "April 24, 2026",
     iso: "2026-04-24",
     title: "ZPPA + Wallet Proof Shortcut",
     summary:
