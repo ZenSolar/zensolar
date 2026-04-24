@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
+import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
