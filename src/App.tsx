@@ -75,6 +75,7 @@ const Store = lazy(() => import("./pages/Store"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Technology = lazy(() => import("./pages/Technology"));
 const ProofOfGenesis = lazy(() => import("./pages/ProofOfGenesis"));
+const ProofOfGenesisReceiptPreview = lazy(() => import("./pages/ProofOfGenesisReceiptPreview"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 // Combined pages
@@ -205,6 +206,8 @@ const App = () => {
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     <Route path="/dwight-preview" element={<DwightPreview />} />
                     <Route path="/taylor-preview" element={<TaylorPreview />} />
+                    <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
+                    <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     
                     {/* Demo routes with full sidebar — gated by access code + NDA */}
                     <Route path="/demo" element={<DemoAccessGate><DemoLayout /></DemoAccessGate>}>
