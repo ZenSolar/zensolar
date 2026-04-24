@@ -216,9 +216,22 @@ export default function ProofOfGenesisReceiptPreview() {
             transition={{ duration: 0.4 }}
             className="space-y-3"
           >
-            <Badge className="bg-primary/15 text-primary border-primary/30 hover:bg-primary/15">
-              <Sparkle /> Proof-of-Genesis™ Receipt
-            </Badge>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge className="bg-primary/15 text-primary border-primary/30 hover:bg-primary/15">
+                <Sparkle /> Proof-of-Genesis™ Receipt
+              </Badge>
+              <Link
+                to={`/verify/${receipt.tx_hash.slice(2, 66)}`}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.1] transition-colors"
+                title="Public Proof-of-Authenticity™ verification"
+              >
+                <Shield className="h-3 w-3 text-primary" />
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">PoA</span>
+                <span className="font-mono text-[11px] font-semibold text-primary">
+                  {receipt.tx_hash.slice(2, 9)}
+                </span>
+              </Link>
+            </div>
             <h1 className="text-2xl sm:text-4xl font-bold tracking-tight leading-[1.1]">
               The exact readings behind your mint.
             </h1>
