@@ -46,7 +46,62 @@ interface ChangelogEntry {
 
 const ENTRIES: ChangelogEntry[] = [
   {
-    date: "April 24, 2026",
+    date: "April 24, 2026 (PM)",
+    iso: "2026-04-24T18:00",
+    title: "Proof-of-Permanence™ + Patent Strategy Locked",
+    summary:
+      "Continuity primitive renamed. Three-track patent strategy. Phase 1 TM stack surfaces shipped.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "VerifyOnChainDrawer — slide-up drawer on every PoG Receipt surfacing Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof-of-Permanence™, SEGI™ source, and Tap-to-Mint™ provenance.",
+          "PoA chip on receipt face — 7-char Proof-of-Authenticity™ hash linking to public verify page.",
+          "Public /verify/:poa route — no auth required, shareable, surfaces all primitives behind a mint.",
+          "Per-device Proof-of-Origin™ page at /devices/:deviceId/origin — keccak256 device hash, cumulative watermark, Genesis Anchor™ commemorative, latest Permanence root. Founder + PIN gated (Phase 1).",
+        ],
+        links: [
+          {
+            label: "PoG Receipt (with new drawer)",
+            url: "https://beta.zen.solar/proof-of-genesis-receipt-preview",
+            preview: true,
+          },
+          {
+            label: "Public verify page (sample)",
+            url: "https://beta.zen.solar/verify/a3f5b2e9c8d471a6b9e0d3f5a8c2b1e4d7f0a3c6b9e2d5f8a1c4b7e0d3f6a9c2",
+          },
+          {
+            label: "Device PoO page (sample)",
+            url: "https://beta.zen.solar/devices/enphase-envoy-7821/origin",
+          },
+        ],
+      },
+      {
+        heading: "Strategic Decisions Locked",
+        icon: "strategy",
+        bullets: [
+          "Continuity primitive renamed: Proof-of-Permanence™ — tagline 'The Eternal Ledger'. Never use 'Proof-of-Continuity'.",
+          "Three-track patent strategy locked. Track 1 = Preliminary Amendment to App. 19/634,402 by July 2, 2026 (Robotaxi/Cybercab, FSD dual-mode formal drawings, Permanence™ naming, Tap-to-Mint™ embodiment). Track 2 = NEW Provisional for Optimist humanoid robots + Starlink/SpaceX orbital telemetry (no existing disclosure hook). Track 3 = CIP candidates (ZPPA gating) for attorney call.",
+          "Confirmed filing facts: Provisional 63/782,397 (Apr 2 2025), Non-Provisional App. 19/634,402 (Confirmation #4783, Docket ZEN-001).",
+          "Tier 1 trademark filings queued: Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™.",
+          "New rule: every Layer 2–5 trademark MUST ship with a first-class consumer surface. No primitive lives only in marketing copy.",
+        ],
+      },
+      {
+        heading: "Saved to Project Memory",
+        icon: "memory",
+        bullets: [
+          "mem://legal/patent-update-checklist — Three-track strategy grounded in actual .docx claims (¶[0042], ¶[0048], Claims 5/9/10).",
+          "mem://features/tm-stack-visualization — Layer 0–5 architecture vs Bitcoin parallel. Permanence™ in infrastructure column.",
+          "mem://features/tm-stack-gaps — 9-item roadmap with Phase 1 / 1.5 / 2 / 3 horizons.",
+          "mem://features/trademark-roadmap — Tier 1/2/3 USPTO filing priorities.",
+          "mem://technical/data-integrity-hardening — 5-step roadmap (device sig → DB triggers → atomic delta → Merkle scheduler → public verify endpoint).",
+          "Core memory updated: Permanence™ rename, TM-surface rule, patent filing facts.",
+        ],
+      },
+    ],
+  },
     iso: "2026-04-24",
     title: "ZPPA + Wallet Proof Shortcut",
     summary:
