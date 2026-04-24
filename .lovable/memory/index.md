@@ -14,8 +14,10 @@ Founders pact-locked: Joseph 150B, Michael 50B. $1T crossovers: $6.67 / $20.
 ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.app or lovable.dev domains.
 Brand is "ZenSolar" (one word, capital S). Legal entity is "ZenCorp Inc" — legal/footer only, never product UI.
 Producer-gated LP access = **ZPPA (Zen Power Purchase Agreement)** — never lowercase, never "Zen-PPA".
+End every meaningful work session by appending an entry to `/founders/changelog` (founder + PIN gated).
 
 ## Memories
+- [Founders Changelog convention](mem://preferences/founders-changelog) — Append every session; structure, when to add, when not to
 - [ZPPA — Zen Power Purchase Agreement](mem://features/zppa) — Naming/placement of producer-priority access; lives in wallet badge + tokenomics page
 - [Brand & Corporate Naming](mem://brand/naming) — ZenSolar (product, one word) vs ZenCorp Inc (legal entity, footer only)
 - [Producer-Gated LP Rounds](mem://features/producer-gated-lp-rounds) — Whales/day-traders can't dominate LP rounds; producers earn purchase rights via verified kWh
