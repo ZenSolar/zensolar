@@ -88,7 +88,7 @@ const ENTRIES: ChangelogEntry[] = [
       },
     ],
   },
-
+  {
     date: "April 24, 2026 (PM)",
     iso: "2026-04-24T18:00",
     title: "Proof-of-Permanence™ + Patent Strategy Locked",
