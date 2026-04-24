@@ -25,8 +25,8 @@ type Variant = 'fast' | 'fastSeal' | 'micro' | 'cinematic';
 
 const VARIANTS: { key: Variant; label: string; subtitle: string; recommended?: string }[] = [
   { key: 'fast', label: 'A — Current fast flow', subtitle: 'Control. No PoG branding.' },
-  { key: 'fastSeal', label: 'B — Fast + static PoG seal', subtitle: 'Now live in default flow.', recommended: 'LIVE' },
-  { key: 'micro', label: 'C — Fast + micro-cinematic (2.8s)', subtitle: 'Middle option. Embedded.' },
+  { key: 'fastSeal', label: 'B — Fast + static PoG seal', subtitle: 'Minimal PoG branding only.' },
+  { key: 'micro', label: 'C — Fast + micro-cinematic (~5.6s)', subtitle: 'Middle option. Embedded.', recommended: 'LIVE' },
   { key: 'cinematic', label: 'D — Full cinematic (~10s)', subtitle: 'First-mint-only experience.' },
 ];
 
