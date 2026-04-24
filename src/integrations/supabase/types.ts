@@ -869,8 +869,11 @@ export type Database = {
           gas_used: string | null
           id: string
           is_beta_mint: boolean
+          kwh_delta: number | null
+          miles_delta: number | null
           nft_names: string[] | null
           nfts_minted: number[] | null
+          source_breakdown: Json | null
           status: string
           tokens_minted: number | null
           tx_hash: string
@@ -884,8 +887,11 @@ export type Database = {
           gas_used?: string | null
           id?: string
           is_beta_mint?: boolean
+          kwh_delta?: number | null
+          miles_delta?: number | null
           nft_names?: string[] | null
           nfts_minted?: number[] | null
+          source_breakdown?: Json | null
           status?: string
           tokens_minted?: number | null
           tx_hash: string
@@ -899,8 +905,11 @@ export type Database = {
           gas_used?: string | null
           id?: string
           is_beta_mint?: boolean
+          kwh_delta?: number | null
+          miles_delta?: number | null
           nft_names?: string[] | null
           nfts_minted?: number[] | null
+          source_breakdown?: Json | null
           status?: string
           tokens_minted?: number | null
           tx_hash?: string
