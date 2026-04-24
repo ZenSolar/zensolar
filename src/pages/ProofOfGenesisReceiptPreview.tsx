@@ -385,7 +385,7 @@ export default function ProofOfGenesisReceiptPreview() {
                     : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
                 }`}
               >
-                {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {formatKwh(r.total_kwh)} kWh
+                {new Date(r.minted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {r.primary_source === 'ev_charging' && r.miles_driven ? `${r.miles_driven} mi` : `${formatKwh(r.total_kwh)} kWh`}
               </button>
             ))}
           </div>
