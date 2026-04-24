@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -9,8 +9,16 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check, Copy, ExternalLink, Hash, Shield, Sparkles, Fingerprint, Anchor } from 'lucide-react';
+import { Check, Copy, ExternalLink, Hash, Shield, Sparkles, Fingerprint, Anchor, Hand } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+export type VerifyFocusKey =
+  | 'poa'
+  | 'tap-to-mint'
+  | 'proof-of-delta'
+  | 'proof-of-origin'
+  | 'mint-on-proof'
+  | 'proof-of-permanence';
 
 /**
  * VerifyOnChainDrawer
