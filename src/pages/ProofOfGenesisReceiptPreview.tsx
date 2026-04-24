@@ -295,6 +295,26 @@ export default function ProofOfGenesisReceiptPreview() {
             />
           </motion.section>
 
+          {/* ===== Protocol Journey — the 5 trademarked primitives behind this mint ===== */}
+          <ProtocolJourney
+            data={{
+              tapAt: receipt.minted_at,
+              totalKwh: receipt.total_kwh,
+              primaryProvider: receipt.readings[0]?.provider ?? 'Unknown',
+              primaryDeviceId: receipt.readings[0]?.device_id ?? 'unknown',
+              deltaProof: receipt.proof_root,
+              originDeviceHash: receipt.readings[0]
+                ? `0x${receipt.readings[0].device_id.padEnd(60, '0').slice(0, 60)}`
+                : '0x0000',
+              tokensMinted: receipt.tokens_minted,
+              mintTxHash: receipt.tx_hash,
+              blockNumber: receipt.block_number,
+              permanenceRoot:
+                '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
+              permanenceAnchoredAt: receipt.minted_at,
+            } satisfies ProtocolJourneyData}
+          />
+
           {/* Readings */}
           <Card className="border-border/60">
             <CardHeader className="pb-3">
