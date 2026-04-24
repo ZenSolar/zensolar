@@ -357,13 +357,33 @@ export default function ProofOfGenesisReceiptPreview() {
                 })}
               />
               <div className="pt-3 flex flex-wrap gap-2">
+                <VerifyOnChainDrawer
+                  data={{
+                    poaHashShort: receipt.tx_hash.slice(2, 9),
+                    poaHashFull: receipt.tx_hash.slice(2, 66),
+                    deltaProof: receipt.proof_root,
+                    originDeviceHash: receipt.readings[0]
+                      ? `0x${receipt.readings[0].device_id.padEnd(60, '0').slice(0, 60)}`
+                      : '0x0000',
+                    mintTxHash: receipt.tx_hash,
+                    blockNumber: receipt.block_number,
+                    permanenceRoot:
+                      '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
+                    permanenceAnchoredAt: '2026-04-24T00:00:00Z',
+                    segiProvider: receipt.readings[0]?.provider ?? 'Unknown',
+                    tapToMint: true,
+                    explorerUrl: `https://basescan.org/tx/${receipt.tx_hash}`,
+                  } satisfies VerifyOnChainData}
+                  trigger={
+                    <Button variant="outline" size="sm">
+                      <Shield className="h-3.5 w-3.5 mr-1.5" />
+                      Verify on-chain
+                    </Button>
+                  }
+                />
                 <Button variant="outline" size="sm" disabled className="opacity-60">
                   <FileText className="h-3.5 w-3.5 mr-1.5" />
                   View on Basescan (preview)
-                </Button>
-                <Button variant="outline" size="sm" disabled className="opacity-60">
-                  <Shield className="h-3.5 w-3.5 mr-1.5" />
-                  Download proof bundle (preview)
                 </Button>
               </div>
             </CardContent>
