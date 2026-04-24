@@ -233,10 +233,7 @@ export default function ProofOfGenesisReceiptPreview() {
   const [activeId, setActiveId] = useState(RECEIPTS[0].id);
   const receipt = useMemo(() => RECEIPTS.find((r) => r.id === activeId)!, [activeId]);
 
-  const totalTrees = useMemo(
-    () => Math.round(receipt.co2_offset_tons * 16.5), // ~0.06 t CO2 absorbed/tree/year → 1t ≈ 16.5 trees
-    [receipt.co2_offset_tons],
-  );
+  const co2Story = useMemo(() => buildCo2Story(receipt), [receipt]);
 
   // ===== Cinematic Protocol Sequence: hardened auto-play guards =====
   //
