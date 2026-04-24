@@ -16,6 +16,7 @@ Brand is "ZenSolar" (one word, capital S). Legal entity is "ZenCorp Inc" — leg
 
 ## Memories
 - [Brand & Corporate Naming](mem://brand/naming) — ZenSolar (product, one word) vs ZenCorp Inc (legal entity, footer only)
+- [Producer-Gated LP Rounds](mem://features/producer-gated-lp-rounds) — Whales/day-traders can't dominate LP rounds; producers earn purchase rights via verified kWh
 - [Liquidity Pools Narrative](mem://features/liquidity-pools-narrative) — Three Circles: Pact (200B never sold) + Founder Operating (30B) + Team (50B) + Advisors (10B), all 4yr/1yr cliff
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding, circulating vs pact-locked
 - [Auth & Web3 Integration](mem://features/auth) — Wallet connection, auth guards, PWA constraints, and role-based access
