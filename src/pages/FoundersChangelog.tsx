@@ -46,6 +46,49 @@ interface ChangelogEntry {
 
 const ENTRIES: ChangelogEntry[] = [
   {
+    date: "April 24, 2026 (EVE)",
+    iso: "2026-04-24T22:00",
+    title: "VPP Program Logged as Phase 2",
+    summary:
+      "VPP formally moved out of launch scope into a Phase 2 roadmap page. Phase 1 stays clean: mint + auto-mint only.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "New /founders/vpp-roadmap page — Phase 1 vs Phase 2 split, Base Power anchor ($700 install + $19.99/$49.99), 50% → LP rule on every revenue line, 5 talking points for Lyndon, T+0 → T+12mo sequencing.",
+          "Vault tile (eco-green) added to Founders Vault for one-tap access during investor calls.",
+          "Honest-status callout up top: seed not closed, mainnet not launched, VPP deliberately held back so Phase 1 ships clean.",
+        ],
+        links: [
+          {
+            label: "VPP Roadmap (Phase 2)",
+            url: "https://beta.zen.solar/founders/vpp-roadmap",
+            preview: true,
+          },
+          {
+            label: "Founders Vault",
+            url: "https://beta.zen.solar/founders",
+            preview: true,
+          },
+        ],
+      },
+      {
+        heading: "Strategic Decisions Locked",
+        icon: "strategy",
+        bullets: [
+          "Phase 1 launch scope = Mint Basic ($9.99 manual) + Mint Pro ($19.99 manual + Daily Auto-Mint DCA). No VPP.",
+          "Phase 2 (post-seed) adds VPP Only ($19.99), Complete ($29.99 mint+VPP, no auto-mint), and Elite ($49.99 full stack with auto-mint).",
+          "Auto-mint (DCA) is the defining premium feature of Elite — removed from Complete to make the $20 price ladder defensible.",
+          "VPP and minting are independent product lines so battery-only owners and crypto-only minters self-select instead of being force-bundled.",
+          "50% of every subscription dollar AND 50% of VPP utility revenue share inject directly into the $ZSOLAR LP — universal rule, no exceptions.",
+          "Base Power ($19.99 / $49.99 in TX) is the public price anchor — ZenSolar matches dollar-for-dollar but customer keeps their battery + REP.",
+          "Investor narrative: Phase 1 wins on its own; Phase 2 is a capital-gated revenue lever, not a tech-risk lever.",
+        ],
+      },
+    ],
+  },
+
     date: "April 24, 2026 (PM)",
     iso: "2026-04-24T18:00",
     title: "Proof-of-Permanence™ + Patent Strategy Locked",
