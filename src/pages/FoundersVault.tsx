@@ -14,6 +14,7 @@ import {
   Home,
   Compass,
   Sparkles as SparklesIcon,
+  Battery,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -288,6 +289,30 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
+          </div>
+        </Link>
+
+        {/* VPP Roadmap — Phase 2 revenue stream */}
+        <Link
+          to="/founders/vpp-roadmap"
+          className="block rounded-2xl border border-eco/40 bg-gradient-to-br from-eco/10 via-eco/5 to-transparent p-4 hover:border-eco/70 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-eco/15 flex items-center justify-center">
+                <Battery className="h-5 w-5 text-eco" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest text-eco">
+                  Phase 2 · Post-Seed Revenue
+                </p>
+                <p className="text-sm font-semibold">VPP Program Roadmap</p>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  Phase 1 mints today. Phase 2 layers VPP. 50% → LP on every dollar.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-eco group-hover:translate-x-0.5 transition-transform shrink-0" />
           </div>
         </Link>
 
