@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
+import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
@@ -215,9 +216,22 @@ export default function ProofOfGenesisReceiptPreview() {
             transition={{ duration: 0.4 }}
             className="space-y-3"
           >
-            <Badge className="bg-primary/15 text-primary border-primary/30 hover:bg-primary/15">
-              <Sparkle /> Proof-of-Genesis™ Receipt
-            </Badge>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge className="bg-primary/15 text-primary border-primary/30 hover:bg-primary/15">
+                <Sparkle /> Proof-of-Genesis™ Receipt
+              </Badge>
+              <Link
+                to={`/verify/${receipt.tx_hash.slice(2, 66)}`}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.1] transition-colors"
+                title="Public Proof-of-Authenticity™ verification"
+              >
+                <Shield className="h-3 w-3 text-primary" />
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">PoA</span>
+                <span className="font-mono text-[11px] font-semibold text-primary">
+                  {receipt.tx_hash.slice(2, 9)}
+                </span>
+              </Link>
+            </div>
             <h1 className="text-2xl sm:text-4xl font-bold tracking-tight leading-[1.1]">
               The exact readings behind your mint.
             </h1>
@@ -356,13 +370,33 @@ export default function ProofOfGenesisReceiptPreview() {
                 })}
               />
               <div className="pt-3 flex flex-wrap gap-2">
+                <VerifyOnChainDrawer
+                  data={{
+                    poaHashShort: receipt.tx_hash.slice(2, 9),
+                    poaHashFull: receipt.tx_hash.slice(2, 66),
+                    deltaProof: receipt.proof_root,
+                    originDeviceHash: receipt.readings[0]
+                      ? `0x${receipt.readings[0].device_id.padEnd(60, '0').slice(0, 60)}`
+                      : '0x0000',
+                    mintTxHash: receipt.tx_hash,
+                    blockNumber: receipt.block_number,
+                    permanenceRoot:
+                      '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
+                    permanenceAnchoredAt: '2026-04-24T00:00:00Z',
+                    segiProvider: receipt.readings[0]?.provider ?? 'Unknown',
+                    tapToMint: true,
+                    explorerUrl: `https://basescan.org/tx/${receipt.tx_hash}`,
+                  } satisfies VerifyOnChainData}
+                  trigger={
+                    <Button variant="outline" size="sm">
+                      <Shield className="h-3.5 w-3.5 mr-1.5" />
+                      Verify on-chain
+                    </Button>
+                  }
+                />
                 <Button variant="outline" size="sm" disabled className="opacity-60">
                   <FileText className="h-3.5 w-3.5 mr-1.5" />
                   View on Basescan (preview)
-                </Button>
-                <Button variant="outline" size="sm" disabled className="opacity-60">
-                  <Shield className="h-3.5 w-3.5 mr-1.5" />
-                  Download proof bundle (preview)
                 </Button>
               </div>
             </CardContent>
