@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS } from '@/lib/wagmi';
 import { isPreviewMode } from '@/lib/previewMode';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface MintTransaction {
   id: string;
