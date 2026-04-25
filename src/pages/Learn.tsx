@@ -222,7 +222,6 @@ function PatentTechSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="patent"
         eyebrow="04 — The Engine"
         title="Patent-pending tech"
         description="SEGI — the four-layer engine that turns real-world clean energy into on-chain currency."
