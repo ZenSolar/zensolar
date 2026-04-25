@@ -908,7 +908,7 @@
 
 .cv-auto {
   content-visibility: visible;
-  contain-intrinsic-size: auto;
+  contain-intrinsic-size: none;
 }
 
 /* Sticky pill nav is ~64–80px tall; this lets native anchor jumps + smooth
