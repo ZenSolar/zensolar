@@ -1027,28 +1027,22 @@ export default function NftCollection() {
         ]} 
       />
 
-      {/* Category Tabs */}
-      <Tabs defaultValue="solar" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-auto p-1.5 bg-muted/50 rounded-xl">
-          {[
-            { value: 'solar', icon: Sun, label: 'Solar' },
-            { value: 'ev_miles', icon: Car, label: 'EV Miles' },
-            { value: 'charging', icon: Zap, label: 'Charging' },
-            { value: 'battery', icon: BatteryFull, label: 'Battery' },
-            { value: 'combos', icon: Trophy, label: 'Combos' },
-          ].map((tab) => (
-            <TabsTrigger 
-              key={tab.value}
-              value={tab.value} 
-              className="flex-col sm:flex-row gap-1.5 py-2.5 px-2 data-[state=active]:bg-background data-[state=active]:shadow-lg rounded-lg transition-all"
-            >
-              <tab.icon className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">{tab.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      {/* Category Switcher — shared PillNav (matches Learn / Help / Energy Log) */}
+      <PillNav
+        items={[
+          { id: 'solar', label: 'Solar', icon: Sun },
+          { id: 'ev_miles', label: 'EV Miles', icon: Car },
+          { id: 'charging', label: 'Charging', icon: Zap },
+          { id: 'battery', label: 'Battery', icon: BatteryFull },
+          { id: 'combos', label: 'Combos', icon: Trophy },
+        ] as const}
+        active={nftTab}
+        onSelect={(id) => setNftTab(id)}
+        ariaLabel="NFT category"
+      />
 
-        <TabsContent value="solar" className="mt-8">
+      <div className="mt-6">
+        {nftTab === 'solar' && (
           <CategorySection
             title="Solar Production"
             icon={<Sun className="h-5 w-5 text-white" />}
@@ -1063,9 +1057,9 @@ export default function NftCollection() {
             ownedTokenIds={ownedTokenIds}
             walletAddress={walletAddress}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="ev_miles" className="mt-8">
+        {nftTab === 'ev_miles' && (
           <CategorySection
             title="EV Miles Driven"
             icon={<Car className="h-5 w-5 text-white" />}
@@ -1080,9 +1074,9 @@ export default function NftCollection() {
             ownedTokenIds={ownedTokenIds}
             walletAddress={walletAddress}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="charging" className="mt-8">
+        {nftTab === 'charging' && (
           <CategorySection
             title="EV Charging"
             icon={<Zap className="h-5 w-5 text-white" />}
@@ -1097,9 +1091,9 @@ export default function NftCollection() {
             ownedTokenIds={ownedTokenIds}
             walletAddress={walletAddress}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="battery" className="mt-8">
+        {nftTab === 'battery' && (
           <CategorySection
             title="Battery Storage Exported"
             icon={<BatteryFull className="h-5 w-5 text-white" />}
@@ -1114,9 +1108,9 @@ export default function NftCollection() {
             ownedTokenIds={ownedTokenIds}
             walletAddress={walletAddress}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="combos" className="mt-8">
+        {nftTab === 'combos' && (
           <div className="space-y-6">
             {/* Combo Header */}
             <div className="flex items-center gap-4 pb-4 border-b border-border/50">
@@ -1159,8 +1153,8 @@ export default function NftCollection() {
               })}
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
 
       {/* Footer */}
       <motion.div
