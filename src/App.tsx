@@ -90,6 +90,7 @@ const Wallet = lazy(() => import("./pages/Wallet"));
 // Combined pages
 const NFTs = lazy(() => import("./pages/NFTs"));
 const Learn = lazy(() => import("./pages/Learn"));
+const LearnThemes = lazy(() => import("./pages/LearnThemes"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
 const GridPayCompetition = lazy(() => import("./pages/GridPayCompetition"));
@@ -400,6 +401,17 @@ const App = () => {
                           </AppLayout>
                         </ProtectedRoute>
                       } 
+                    />
+                    {/* Admin-only theme gallery for the Learn section */}
+                    <Route
+                      path="/learn/themes"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnThemes />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
                     />
                     <Route
                       path="/proof-of-genesis"
