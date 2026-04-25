@@ -15,9 +15,10 @@ ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.ap
 VPP earnings: tokens auto-mint REAL-TIME per dispatch (30–60s); cash pays MONTHLY on the 1st. Split: 50% LP / 30% user cash / 15% ops / 5% user tokens.
 **Product = "ZenSolar" (one word, capital S). Legal entity = "ZenCorp Inc" (footer/legal/cap-table only — never product UI).** The "Corp Inc" name is a deliberate sarcastic wink: only incorporated entities can IPO, and ZenSolar will never IPO — the $ZSOLAR token IS the liquidity event.
 Strategic Introductions allocation: 100M $ZSOLAR (0.01% of supply) carved from team pool — pre-launch tokens (NOT equity) for warm intros to whales/strategic partners. Default vesting: 1yr linear, 3mo cliff. Default reward: 1M $ZSOLAR per qualifying intro (Lyndon-tier).
-End-of-session: append entry to /founders/changelog when shipping features, locking decisions, or updating memory.
+End-of-session: append entry to /founders/changelog when shipping features, locking decisions, or updating memory. ALSO update /founders/master-outline (mirror twin of memory) when strategic surface area changes.
 
 ## Memories
+- [Master Project Outline (cornerstone doc)](mem://features/master-project-outline) — /founders/master-outline · 12 sections · mirror twin of memory · update both together
 - [Brand & Naming (ZenSolar vs ZenCorp Inc)](mem://brand/naming) — Product name vs legal entity, the "never IPO" joke, when to use which
 - [Patent Update Checklist](mem://legal/patent-update-checklist) — 3-track strategy for App 19/634,402: Preliminary Amendment by July 2 2026, new provisionals for Optimist/Starlink, CIP candidates
 - [Trademark Roadmap (Tier 1/2/3)](mem://features/trademark-roadmap) — Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™ file immediately
