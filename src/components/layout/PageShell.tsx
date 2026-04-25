@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ interface PageShellProps {
   /** Sticky element rendered directly under the header — anchor nav, tab bar, etc. */
   sticky?: ReactNode;
   /** Max width of the inner container. Defaults to `4xl` for reading comfort. */
-  width?: "lg" | "2xl" | "4xl" | "5xl" | "6xl";
+  width?: "lg" | "2xl" | "4xl" | "5xl" | "6xl" | "7xl";
   /** Tighten vertical padding (used inside other shells). */
   dense?: boolean;
   className?: string;
@@ -24,6 +24,7 @@ const widthMap: Record<NonNullable<PageShellProps["width"]>, string> = {
   "4xl": "max-w-4xl",
   "5xl": "max-w-5xl",
   "6xl": "max-w-6xl",
+  "7xl": "max-w-7xl",
 };
 
 /**
@@ -91,7 +92,7 @@ export function SectionHeader({
   icon?: LucideIcon;
 }) {
   return (
-    <header id={id} className="scroll-mt-24 mb-6">
+    <header id={id} className="scroll-mt-28 mb-6">
       {eyebrow && (
         <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary/80 mb-2">
           {eyebrow}
@@ -106,4 +107,71 @@ export function SectionHeader({
       )}
     </header>
   );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Shared anchor / scrollspy behaviour                                       */
+/*  Single source of truth so Learn + any future hub stay identical.          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Track which section is currently in view. Returns the active id.
+ *
+ * - Single IntersectionObserver, single threshold → cheap on mobile.
+ * - rootMargin biased so the active pill flips at ~40% from the top, which
+ *   feels natural while scrolling and avoids flicker between adjacent
+ *   sections during fast flicks on iOS Safari.
+ */
+export function useSectionScrollSpy<T extends string>(
+  ids: ReadonlyArray<T>,
+  initial: T,
+): T {
+  const [active, setActive] = useState<T>(initial);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.find((e) => e.isIntersecting);
+        if (visible?.target.id) setActive(visible.target.id as T);
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [ids]);
+
+  return active;
+}
+
+/** Smooth-scroll to a section, accounting for the sticky pill nav (~80px). */
+export function jumpToSection(id: string, offset = 80) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top, behavior: "smooth" });
+}
+
+/**
+ * On mount: if the URL contains `#section-id` or `?section=id`, jump there.
+ * Used by Learn so deep-links from the sidebar / footer always land correctly
+ * even when content is lazy-rendered behind `content-visibility: auto`.
+ */
+export function useDeepLinkSection(validIds: ReadonlyArray<string>, onMatch: (id: string) => void) {
+  useEffect(() => {
+    const fromHash = window.location.hash.replace(/^#/, "");
+    const fromQuery = new URLSearchParams(window.location.search).get("section") ?? "";
+    const target = [fromHash, fromQuery].find((v) => v && validIds.includes(v));
+    if (!target) return;
+    // Wait one frame so cv-auto sections have a chance to allocate their
+    // intrinsic size before we measure the scroll target.
+    const raf = requestAnimationFrame(() => {
+      onMatch(target);
+      jumpToSection(target);
+    });
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
