@@ -916,9 +916,10 @@
     content-visibility: auto;
     /* Reserve a generous box so scrollspy + scroll anchoring still work
        and the page height doesn't jump as sections render.
-       Override per-section via inline `style={{ containIntrinsicSize }}` when
-       a section is known to be much taller / shorter. */
-    contain-intrinsic-size: 1px 800px;
+       NOTE: anchor `id`s MUST live on the wrapper that has this class,
+       not on a child inside the collapsed subtree, otherwise jumpToSection
+       lands on a stale offset. */
+    contain-intrinsic-size: 1px 1400px;
   }
 }
 

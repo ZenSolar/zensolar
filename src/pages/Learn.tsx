@@ -61,10 +61,13 @@ export default function Learn() {
         }
       >
         <div className="space-y-16">
-          <div className="cv-auto"><HowItWorksSection /></div>
-          <div className="cv-auto"><TokenomicsSection /></div>
-          <div className="cv-auto"><ProofOfGenesisSection /></div>
-          <div className="cv-auto"><PatentTechSection /></div>
+          {/* IMPORTANT: anchor `id` lives on the OUTER wrapper (not inside
+              cv-auto's collapsed subtree) so jumpToSection() always lands on
+              the correct scroll position, even before the section paints. */}
+          <div id="how-it-works" className="cv-auto scroll-mt-28"><HowItWorksSection /></div>
+          <div id="tokenomics" className="cv-auto scroll-mt-28"><TokenomicsSection /></div>
+          <div id="proof-of-genesis" className="cv-auto scroll-mt-28"><ProofOfGenesisSection /></div>
+          <div id="patent" className="cv-auto scroll-mt-28"><PatentTechSection /></div>
         </div>
       </PageShell>
     </>
@@ -84,7 +87,6 @@ function HowItWorksSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="how-it-works"
         eyebrow="01 — The Game"
         title="How ZenSolar works"
         description="Your clean energy is already worth real money. We just made it claimable in one tap."
@@ -130,7 +132,6 @@ function TokenomicsSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="tokenomics"
         eyebrow="02 — The Economy"
         title="$ZSOLAR tokenomics"
         description="1 trillion hard cap. Aggressive deflation. Every mint burns supply and seeds liquidity."
@@ -185,7 +186,6 @@ function ProofOfGenesisSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="proof-of-genesis"
         eyebrow="03 — The Thesis"
         title="Proof-of-Genesis™"
         description="Bitcoin proves work. We prove genesis — the verified moment clean energy enters the world."
@@ -222,7 +222,6 @@ function PatentTechSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="patent"
         eyebrow="04 — The Engine"
         title="Patent-pending tech"
         description="SEGI — the four-layer engine that turns real-world clean energy into on-chain currency."
