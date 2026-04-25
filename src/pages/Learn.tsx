@@ -98,6 +98,16 @@ export default function Learn() {
           description="Everything about ZenSolar — how it works, the token economics, and the patent-pending tech behind it."
           icon={BookOpen}
           width="4xl"
+          actions={
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary whitespace-nowrap"
+              title={`Current Learn theme: ${currentThemeName}`}
+            >
+              <Sparkles className="h-3 w-3" aria-hidden />
+              <span className="hidden sm:inline">Theme:</span>
+              <span>{currentThemeName}</span>
+            </span>
+          }
           sticky={
             <PageSectionNav
               items={sections}
@@ -108,9 +118,6 @@ export default function Learn() {
             />
           }
         >
-          <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-            Current theme: {currentThemeName}
-          </div>
           <div className="space-y-12 sm:space-y-16">
             <section id="index" className="scroll-mt-32"><LearnIndexSection /></section>
             <section id="how-it-works" className="scroll-mt-32 min-h-[220px]"><HowItWorksSection /></section>
