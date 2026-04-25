@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { SoundToggle } from "@/components/layout/SoundToggle";
 import { useAppBack } from "@/hooks/useAppHistory";
 import { Button } from "@/components/ui/button";
 
@@ -115,6 +116,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           <div className="hidden min-[360px]:block max-w-[88px] sm:max-w-[140px] md:max-w-none overflow-hidden truncate">
             <WeatherWidget />
           </div>
+          {!isDemo && <SoundToggle />}
           {!isDemo && <ThemeToggle />}
           {!isDemo && <NotificationBell />}
         </div>
