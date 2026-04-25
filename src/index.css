@@ -893,7 +893,7 @@
 /* -------------------------------------------------------------------------- */
 /*  PageShell utilities                                                       */
 /*  - .fade-up: GPU-cheap fade-in that respects prefers-reduced-motion        */
-/*  - .cv-auto: content-visibility lazy section, iOS-Safari safe              */
+/*  - .cv-auto: intentionally inert on demo pages until route QA is stable    */
 /* -------------------------------------------------------------------------- */
 
 @keyframes pageShellFadeUp {
@@ -903,30 +903,18 @@
 
 .fade-up {
   opacity: 0;
-  animation: pageShellFadeUp 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
-  /* will-change is auto-cleared after animation by the browser */
-  will-change: opacity, transform;
+  animation: pageShellFadeUp 0.22s ease-out both;
 }
 
-/* iOS Safari ignores `content-visibility` (Safari 18+ only) — using a guarded
-   class lets us scope the optimisation to browsers that support it without
-   risking layout clipping in older iOS Safari. */
-@supports (content-visibility: auto) {
-  .cv-auto {
-    content-visibility: auto;
-    /* Reserve a generous box so scrollspy + scroll anchoring still work
-       and the page height doesn't jump as sections render.
-       NOTE: anchor `id`s MUST live on the wrapper that has this class,
-       not on a child inside the collapsed subtree, otherwise jumpToSection
-       lands on a stale offset. */
-    contain-intrinsic-size: 1px 1400px;
-  }
+.cv-auto {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
 }
 
 /* Sticky pill nav is ~64–80px tall; this lets native anchor jumps + smooth
    scrollIntoView land below the sticky bar instead of behind it. */
 html {
-  scroll-padding-top: 96px;
+  scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 8rem);
 }
 
 /* Honour reduced-motion across all PageShell animations. */

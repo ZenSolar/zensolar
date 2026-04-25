@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -61,7 +61,7 @@ export function PageShell({
       </div>
 
       {sticky && (
-        <div className="sticky top-0 z-30 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
+        <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-40 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
           <div className={cn("container mx-auto px-4", widthMap[width])}>
             {sticky}
           </div>
@@ -110,6 +110,85 @@ export function SectionHeader({
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Shared section navigation                                                  */
+/* -------------------------------------------------------------------------- */
+
+export interface PageSectionNavItem<T extends string = string> {
+  id: T;
+  label: string;
+  icon?: LucideIcon;
+}
+
+export function PageSectionNav<T extends string>({
+  items,
+  active,
+  onSelect,
+  asAnchors = false,
+  ariaLabel = "Section navigation",
+  className,
+}: {
+  items: ReadonlyArray<PageSectionNavItem<T>>;
+  active: T;
+  onSelect: (id: T) => void;
+  asAnchors?: boolean;
+  ariaLabel?: string;
+  className?: string;
+}) {
+  return (
+    <nav
+      aria-label={ariaLabel}
+      className={cn("flex gap-1 overflow-x-auto py-2 -mx-1 px-1 scrollbar-hide", className)}
+    >
+      {items.map((item) => {
+        const isActive = active === item.id;
+        const sharedClass = cn(
+          "inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors duration-150",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          isActive
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        );
+        const inner = (
+          <>
+            {item.icon && <item.icon className="h-3.5 w-3.5" aria-hidden />}
+            {item.label}
+          </>
+        );
+
+        if (asAnchors) {
+          return (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              aria-current={isActive ? "true" : undefined}
+              onClick={(e) => {
+                e.preventDefault();
+                onSelect(item.id);
+              }}
+              className={sharedClass}
+            >
+              {inner}
+            </a>
+          );
+        }
+
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSelect(item.id)}
+            aria-pressed={isActive}
+            className={sharedClass}
+          >
+            {inner}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Shared anchor / scrollspy behaviour                                       */
 /*  Single source of truth so Learn + any future hub stay identical.          */
 /* -------------------------------------------------------------------------- */
@@ -129,29 +208,61 @@ export function useSectionScrollSpy<T extends string>(
   const [active, setActive] = useState<T>(initial);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.find((e) => e.isIntersecting);
-        if (visible?.target.id) setActive(visible.target.id as T);
-      },
-      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
-    );
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const probeLine = 128;
+      const current = ids.reduce<T>((best, id) => {
+        const el = document.getElementById(id);
+        if (!el) return best;
+        return el.getBoundingClientRect().top <= probeLine ? id : best;
+      }, initial);
+      setActive(current);
+    };
+    const requestUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("hashchange", requestUpdate);
+    return () => {
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("hashchange", requestUpdate);
+    };
   }, [ids]);
 
   return active;
 }
 
-/** Smooth-scroll to a section, accounting for the sticky pill nav (~80px). */
-export function jumpToSection(id: string, offset = 80) {
+/** Smooth-scroll to a section, accounting for the fixed top bar + sticky pill nav. */
+export function jumpToSection(id: string, offset = 128) {
   const el = document.getElementById(id);
   if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - offset;
-  window.scrollTo({ top, behavior: "smooth" });
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${id}`);
+  el.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+  window.setTimeout(() => {
+    const top = el.getBoundingClientRect().top;
+    if (Math.abs(top - offset) > 12) {
+      window.scrollBy({ top: top - offset, behavior: "auto" });
+    }
+  }, reducedMotion ? 0 : 260);
+}
+
+export function useSectionNavigation<T extends string>(
+  items: ReadonlyArray<PageSectionNavItem<T>>,
+  initial: T,
+  offset = 128,
+) {
+  const ids = useMemo(() => items.map((item) => item.id) as T[], [items]);
+  const active = useSectionScrollSpy<T>(ids, initial);
+  const select = useCallback((id: T) => jumpToSection(id, offset), [offset]);
+  useDeepLinkSection(ids, select);
+  return { active, select };
 }
 
 /**
@@ -163,15 +274,17 @@ export function useDeepLinkSection(validIds: ReadonlyArray<string>, onMatch: (id
   useEffect(() => {
     const fromHash = window.location.hash.replace(/^#/, "");
     const fromQuery = new URLSearchParams(window.location.search).get("section") ?? "";
-    const target = [fromHash, fromQuery].find((v) => v && validIds.includes(v));
+    const fromLegacyTab = new URLSearchParams(window.location.search).get("tab") ?? "";
+    const target = [fromHash, fromQuery, fromLegacyTab].find((v) => v && validIds.includes(v));
     if (!target) return;
-    // Wait one frame so cv-auto sections have a chance to allocate their
-    // intrinsic size before we measure the scroll target.
-    const raf = requestAnimationFrame(() => {
-      onMatch(target);
-      jumpToSection(target);
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => onMatch(target));
     });
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }

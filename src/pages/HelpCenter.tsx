@@ -2,8 +2,7 @@ import { lazy, Suspense } from 'react';
 import { HelpCircle, MessageSquarePlus, LifeBuoy } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
-import { PageShell } from '@/components/layout/PageShell';
-import { PillNav } from '@/components/layout/PillNav';
+import { PageSectionNav, PageShell } from '@/components/layout/PageShell';
 import { PageLoader } from '@/components/ui/empty-state';
 
 const Help = lazy(() => import('./Help'));
@@ -28,7 +27,7 @@ export default function HelpCenter() {
         icon={LifeBuoy}
         width="4xl"
         sticky={
-          <PillNav
+          <PageSectionNav
             items={tabs}
             active={tab}
             onSelect={(id) => setSearchParams({ tab: id })}

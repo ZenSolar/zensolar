@@ -21,11 +21,9 @@ import { SEO } from '@/components/SEO';
 import {
   PageShell,
   SectionHeader,
-  useSectionScrollSpy,
-  useDeepLinkSection,
-  jumpToSection,
+  PageSectionNav,
+  useSectionNavigation,
 } from '@/components/layout/PageShell';
-import { PillNav } from '@/components/layout/PillNav';
 
 const sections = [
   { id: 'how-it-works', label: 'How It Works', icon: BookOpen },
@@ -35,12 +33,9 @@ const sections = [
 ] as const;
 
 type SectionId = typeof sections[number]['id'];
-const sectionIds = sections.map((s) => s.id) as readonly SectionId[];
 
 export default function Learn() {
-  const active = useSectionScrollSpy<SectionId>(sectionIds, 'how-it-works');
-  // Deep-link support: /learn#tokenomics or /learn?section=tokenomics
-  useDeepLinkSection(sectionIds, () => {});
+  const { active, select } = useSectionNavigation<SectionId>(sections, 'how-it-works');
 
   return (
     <>
@@ -51,20 +46,20 @@ export default function Learn() {
         icon={BookOpen}
         width="4xl"
         sticky={
-          <PillNav
+          <PageSectionNav
             items={sections}
             active={active}
-            onSelect={(id) => jumpToSection(id)}
+            onSelect={select}
             asAnchors
             ariaLabel="Learn sections"
           />
         }
       >
-        <div className="space-y-16">
-          <section id="how-it-works" className="scroll-mt-28"><HowItWorksSection /></section>
-          <section id="tokenomics" className="scroll-mt-28"><TokenomicsSection /></section>
-          <section id="proof-of-genesis" className="scroll-mt-28"><ProofOfGenesisSection /></section>
-          <section id="patent" className="scroll-mt-28"><PatentTechSection /></section>
+        <div className="space-y-12 sm:space-y-16">
+          <section id="how-it-works" className="scroll-mt-32 min-h-[220px]"><HowItWorksSection /></section>
+          <section id="tokenomics" className="scroll-mt-32 min-h-[360px]"><TokenomicsSection /></section>
+          <section id="proof-of-genesis" className="scroll-mt-32 min-h-[320px]"><ProofOfGenesisSection /></section>
+          <section id="patent" className="scroll-mt-32 min-h-[300px]"><PatentTechSection /></section>
         </div>
       </PageShell>
     </>

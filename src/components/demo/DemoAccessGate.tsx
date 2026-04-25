@@ -252,6 +252,12 @@ interface GateDiagnosticEvent {
 // that live under /demo/* but should not require an access code).
 const GATE_BYPASS_PATHS = ['/engineering', '/demo/engineering'];
 
+function isEditorPreviewHost() {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return import.meta.env.DEV || host.includes('id-preview--') || host.includes('lovableproject.com');
+}
+
 function isPreviewDemoQaRoute() {
   if (typeof window === 'undefined') return false;
 
@@ -276,6 +282,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     if (isPreviewDemoQaRoute()) return false;
+    if (isEditorPreviewHost()) return true;
     return isAccessGranted();
   });
   // Capture deep-link params for prefill / install-path routing
