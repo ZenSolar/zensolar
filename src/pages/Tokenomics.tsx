@@ -61,7 +61,7 @@ export default function Tokenomics() {
               </div>
               <div className="rounded-xl border bg-gradient-to-br from-accent/5 to-transparent p-5">
                 <p className="text-sm text-muted-foreground mb-1">Max Supply</p>
-                <p className="text-2xl font-bold">10 Billion</p>
+                <p className="text-2xl font-bold">1 Trillion</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
