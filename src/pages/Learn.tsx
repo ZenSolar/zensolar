@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen,
@@ -19,7 +18,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
-import { PageShell, SectionHeader } from '@/components/layout/PageShell';
+import {
+  PageShell,
+  SectionHeader,
+  useSectionScrollSpy,
+  useDeepLinkSection,
+  jumpToSection,
+} from '@/components/layout/PageShell';
 import { PillNav } from '@/components/layout/PillNav';
 
 const sections = [
@@ -30,33 +35,12 @@ const sections = [
 ] as const;
 
 type SectionId = typeof sections[number]['id'];
-
+const sectionIds = sections.map((s) => s.id) as readonly SectionId[];
 
 export default function Learn() {
-  const [active, setActive] = useState<SectionId>('how-it-works');
-
-  // Scrollspy — lightweight observer (single threshold) for mobile perf
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.find((e) => e.isIntersecting);
-        if (visible?.target.id) setActive(visible.target.id as SectionId);
-      },
-      { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
-    );
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  const handleJump = (id: SectionId) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 80;
-    window.scrollTo({ top, behavior: 'smooth' });
-  };
+  const active = useSectionScrollSpy<SectionId>(sectionIds, 'how-it-works');
+  // Deep-link support: /learn#tokenomics or /learn?section=tokenomics
+  useDeepLinkSection(sectionIds, () => {});
 
   return (
     <>
@@ -70,10 +54,7 @@ export default function Learn() {
           <PillNav
             items={sections}
             active={active}
-            onSelect={(id) => {
-              setActive(id);
-              handleJump(id);
-            }}
+            onSelect={(id) => jumpToSection(id)}
             asAnchors
             ariaLabel="Learn sections"
           />
@@ -89,7 +70,6 @@ export default function Learn() {
     </>
   );
 }
-
 /* -------------------------------------------------------------------------- */
 /*                                 SECTIONS                                   */
 /* -------------------------------------------------------------------------- */
