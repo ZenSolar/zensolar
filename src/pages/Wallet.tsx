@@ -30,6 +30,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { ZppaStatusWidget } from '@/components/wallet/ZppaStatusWidget';
 import { RecentMintProofs } from '@/components/wallet/RecentMintProofs';
+import { JargonTip } from '@/components/ui/jargon-tip';
 
 // Live token price (testnet simulation)
 const LIVE_TOKEN_PRICE = 0.10;
@@ -117,7 +118,9 @@ export default function Wallet() {
           </div>
           <h2 className="text-2xl font-bold mb-3">Set Up Your Wallet</h2>
           <p className="text-muted-foreground text-sm mb-8 max-w-xs mx-auto leading-relaxed">
-            Connect a wallet to view your on-chain $ZSOLAR tokens and NFT collection.
+            Connect a <JargonTip term="wallet">wallet</JargonTip> to view your{" "}
+            <JargonTip term="zsolar">$ZSOLAR</JargonTip> tokens and{" "}
+            <JargonTip term="nft">NFT</JargonTip> collection.
           </p>
           <Button size="lg" asChild className="h-12 px-8 gap-2">
             <Link to="/onboarding?step=wallet">
