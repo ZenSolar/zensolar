@@ -914,7 +914,7 @@
 /* Sticky pill nav is ~64–80px tall; this lets native anchor jumps + smooth
    scrollIntoView land below the sticky bar instead of behind it. */
 html {
-  scroll-padding-top: 96px;
+  scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 8rem);
 }
 
 /* Honour reduced-motion across all PageShell animations. */
