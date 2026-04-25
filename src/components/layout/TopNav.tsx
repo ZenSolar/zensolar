@@ -66,9 +66,9 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
               size="sm"
               onClick={goBack}
               aria-label="Go back"
-              className="h-9 px-2 -ml-1 text-foreground/80 hover:text-foreground"
+              className="h-9 px-2 -ml-1 text-foreground/80 hover:text-foreground transition-transform duration-150 active:scale-95 active:bg-muted/60 motion-reduce:active:scale-100"
             >
-              <ChevronLeft className="h-5 w-5" aria-hidden />
+              <ChevronLeft className="h-5 w-5 transition-transform duration-150 group-active:-translate-x-0.5" aria-hidden />
               <span className="sr-only sm:not-sr-only sm:ml-1 text-xs font-medium">Back</span>
             </Button>
           )}
