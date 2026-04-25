@@ -116,6 +116,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
           <div className="hidden min-[360px]:block max-w-[88px] sm:max-w-[140px] md:max-w-none overflow-hidden truncate">
             <WeatherWidget />
           </div>
+          {!isDemo && <SoundToggle />}
           {!isDemo && <ThemeToggle />}
           {!isDemo && <NotificationBell />}
         </div>
