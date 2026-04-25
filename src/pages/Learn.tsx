@@ -87,7 +87,6 @@ function HowItWorksSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="how-it-works"
         eyebrow="01 — The Game"
         title="How ZenSolar works"
         description="Your clean energy is already worth real money. We just made it claimable in one tap."
