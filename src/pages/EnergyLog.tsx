@@ -20,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { PageLoader } from '@/components/ui/empty-state';
 
 export default function EnergyLog() {
   const {
