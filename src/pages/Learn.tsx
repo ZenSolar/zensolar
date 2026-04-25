@@ -112,7 +112,7 @@ function HowItWorksSection() {
       />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {steps.map((s, i) => (
-          <Card key={s.title} className="h-full border-border/60 hover:border-primary/40 transition-colors animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
+          <Card key={s.title} className="h-full border-border/60 hover:border-primary/40 transition-colors fade-up" style={{ animationDelay: `${i * 50}ms` }}>
             <CardContent className="p-4">
               <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
                 <s.icon className="h-4 w-4 text-primary" />
