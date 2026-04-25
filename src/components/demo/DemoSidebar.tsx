@@ -41,14 +41,12 @@ import {
 
 const mainNavItems = [
   { title: "Dashboard", url: "/demo", icon: LayoutDashboard },
-  { title: "Mint History", url: "/demo/mint-history", icon: History },
   { title: "$ZSOLAR Store", url: "/demo/store", icon: ShoppingBag },
-  { title: "My Energy Logs", url: "/demo/energy-log", icon: BarChart3 },
   { title: "NFT Collection", url: "/demo/nft-collection", icon: Award },
+  { title: "Mint History", url: "/demo/mint-history", icon: History },
+  { title: "My Energy Logs", url: "/demo/energy-log", icon: BarChart3 },
   { title: "Learn", url: "/demo/learn", icon: BookOpen },
-  { title: "Proof-of-Genesis™", url: "/demo/proof-of-genesis", icon: Sparkles },
   { title: "White Paper", url: "/demo/white-paper", icon: FileText },
-  { title: "Patent Technology", url: "/demo/technology", icon: Cpu },
   { title: "Referrals", url: "/demo/referrals", icon: Users },
 ];
 
@@ -57,9 +55,8 @@ const previewOnlyNavItems = [
 ];
 
 const secondaryNavItems = [
-  { title: "Profile", url: "/demo/profile", icon: User },
   { title: "Wallet", url: "/demo/wallet", icon: Wallet },
-  { title: "Settings", url: "/demo/settings", icon: Settings },
+  { title: "Profile & Settings", url: "/demo/profile", icon: User },
   { title: "Help & Feedback", url: "/demo/help-center", icon: MessageSquarePlus },
 ];
 
