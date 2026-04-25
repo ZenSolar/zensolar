@@ -915,9 +915,17 @@
   .cv-auto {
     content-visibility: auto;
     /* Reserve a generous box so scrollspy + scroll anchoring still work
-       and the page height doesn't jump as sections render. */
+       and the page height doesn't jump as sections render.
+       Override per-section via inline `style={{ containIntrinsicSize }}` when
+       a section is known to be much taller / shorter. */
     contain-intrinsic-size: 1px 800px;
   }
+}
+
+/* Sticky pill nav is ~64–80px tall; this lets native anchor jumps + smooth
+   scrollIntoView land below the sticky bar instead of behind it. */
+html {
+  scroll-padding-top: 96px;
 }
 
 /* Honour reduced-motion across all PageShell animations. */
