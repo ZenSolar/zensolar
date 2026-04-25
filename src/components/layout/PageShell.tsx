@@ -61,7 +61,7 @@ export function PageShell({
       </div>
 
       {sticky && (
-        <div className="sticky top-0 z-30 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
+        <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-40 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
           <div className={cn("container mx-auto px-4", widthMap[width])}>
             {sticky}
           </div>
@@ -238,8 +238,8 @@ export function useSectionScrollSpy<T extends string>(
   return active;
 }
 
-/** Smooth-scroll to a section, accounting for the sticky pill nav (~80px). */
-export function jumpToSection(id: string, offset = 80) {
+/** Smooth-scroll to a section, accounting for the fixed top bar + sticky pill nav. */
+export function jumpToSection(id: string, offset = 128) {
   const el = document.getElementById(id);
   if (!el) return;
   const top = el.getBoundingClientRect().top + window.scrollY - offset;
@@ -251,7 +251,7 @@ export function jumpToSection(id: string, offset = 80) {
 export function useSectionNavigation<T extends string>(
   items: ReadonlyArray<PageSectionNavItem<T>>,
   initial: T,
-  offset = 92,
+  offset = 128,
 ) {
   const ids = useMemo(() => items.map((item) => item.id) as T[], [items]);
   const active = useSectionScrollSpy<T>(ids, initial);
