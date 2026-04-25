@@ -1,30 +1,30 @@
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sun, BatteryFull, Zap, Car } from 'lucide-react';
 import type { ActivityType } from '@/hooks/useEnergyLog';
+import { PillNav } from '@/components/layout/PillNav';
 
 interface ActivityTabsProps {
   activeTab: ActivityType;
   onTabChange: (tab: ActivityType) => void;
 }
 
-const tabs: { value: ActivityType; label: string; icon: React.ElementType }[] = [
-  { value: 'solar', label: 'Solar', icon: Sun },
-  { value: 'battery', label: 'Battery', icon: BatteryFull },
-  { value: 'ev-charging', label: 'Charging', icon: Zap },
-  { value: 'ev-miles', label: 'EV Miles', icon: Car },
+const tabs = [
+  { id: 'solar' as const, label: 'Solar', icon: Sun },
+  { id: 'battery' as const, label: 'Battery', icon: BatteryFull },
+  { id: 'ev-charging' as const, label: 'Charging', icon: Zap },
+  { id: 'ev-miles' as const, label: 'EV Miles', icon: Car },
 ];
 
+/**
+ * Energy Log activity switcher. Uses the shared PillNav so it visually
+ * matches Learn / Help / NFTs and reduces "tab style" sprawl across the app.
+ */
 export function ActivityTabs({ activeTab, onTabChange }: ActivityTabsProps) {
   return (
-    <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as ActivityType)}>
-      <TabsList className="w-full grid grid-cols-4">
-        {tabs.map(({ value, label, icon: Icon }) => (
-          <TabsTrigger key={value} value={value} className="flex items-center gap-1 text-xs">
-            <Icon className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{label}</span>
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+    <PillNav
+      items={tabs}
+      active={activeTab}
+      onSelect={(id) => onTabChange(id as ActivityType)}
+      ariaLabel="Activity type"
+    />
   );
 }
