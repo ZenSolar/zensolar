@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 import { PageShell, SectionHeader } from '@/components/layout/PageShell';
-import { cn } from '@/lib/utils';
+import { PillNav } from '@/components/layout/PillNav';
 
 const sections = [
   { id: 'how-it-works', label: 'How It Works', icon: BookOpen },
@@ -30,13 +30,6 @@ const sections = [
 ] as const;
 
 type SectionId = typeof sections[number]['id'];
-
-/**
- * Offscreen-lazy section wrapper.
- * `content-visibility: auto` lets the browser skip layout/paint for sections
- * that aren't on screen — huge win for mobile scroll perf on long pages.
- */
-const lazyStyle = { contentVisibility: 'auto', containIntrinsicSize: '600px' } as React.CSSProperties;
 
 
 export default function Learn() {
@@ -74,33 +67,23 @@ export default function Learn() {
         icon={BookOpen}
         width="4xl"
         sticky={
-          <nav className="flex gap-1 overflow-x-auto py-2 -mx-1 px-1 scrollbar-none" aria-label="Learn sections">
-            {sections.map((s) => {
-              const isActive = active === s.id;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => handleJump(s.id)}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-all',
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  )}
-                >
-                  <s.icon className="h-3.5 w-3.5" />
-                  {s.label}
-                </button>
-              );
-            })}
-          </nav>
+          <PillNav
+            items={sections}
+            active={active}
+            onSelect={(id) => {
+              setActive(id);
+              handleJump(id);
+            }}
+            asAnchors
+            ariaLabel="Learn sections"
+          />
         }
       >
         <div className="space-y-16">
-          <div style={lazyStyle}><HowItWorksSection /></div>
-          <div style={lazyStyle}><TokenomicsSection /></div>
-          <div style={lazyStyle}><ProofOfGenesisSection /></div>
-          <div style={lazyStyle}><PatentTechSection /></div>
+          <div className="cv-auto"><HowItWorksSection /></div>
+          <div className="cv-auto"><TokenomicsSection /></div>
+          <div className="cv-auto"><ProofOfGenesisSection /></div>
+          <div className="cv-auto"><PatentTechSection /></div>
         </div>
       </PageShell>
     </>
