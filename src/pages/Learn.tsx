@@ -39,15 +39,6 @@ type SectionId = typeof sections[number]['id'];
 const lazyStyle = { contentVisibility: 'auto', containIntrinsicSize: '600px' } as React.CSSProperties;
 
 
-const sections = [
-  { id: 'how-it-works', label: 'How It Works', icon: BookOpen },
-  { id: 'tokenomics', label: 'Tokenomics', icon: Coins },
-  { id: 'proof-of-genesis', label: 'Proof-of-Genesis™', icon: Sparkles },
-  { id: 'patent', label: 'Patent Tech', icon: Cpu },
-] as const;
-
-type SectionId = typeof sections[number]['id'];
-
 export default function Learn() {
   const [active, setActive] = useState<SectionId>('how-it-works');
 
