@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   BookOpen,
   Coins,
@@ -14,9 +13,6 @@ import {
   Target,
   Layers,
   Award,
-  Users,
-  Battery,
-  Car,
   Sun,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,6 +21,23 @@ import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 import { PageShell, SectionHeader } from '@/components/layout/PageShell';
 import { cn } from '@/lib/utils';
+
+const sections = [
+  { id: 'how-it-works', label: 'How It Works', icon: BookOpen },
+  { id: 'tokenomics', label: 'Tokenomics', icon: Coins },
+  { id: 'proof-of-genesis', label: 'Proof-of-Genesis™', icon: Sparkles },
+  { id: 'patent', label: 'Patent Tech', icon: Cpu },
+] as const;
+
+type SectionId = typeof sections[number]['id'];
+
+/**
+ * Offscreen-lazy section wrapper.
+ * `content-visibility: auto` lets the browser skip layout/paint for sections
+ * that aren't on screen — huge win for mobile scroll perf on long pages.
+ */
+const lazyStyle = { contentVisibility: 'auto', containIntrinsicSize: '600px' } as React.CSSProperties;
+
 
 const sections = [
   { id: 'how-it-works', label: 'How It Works', icon: BookOpen },
@@ -93,10 +106,10 @@ export default function Learn() {
         }
       >
         <div className="space-y-16">
-          <HowItWorksSection />
-          <TokenomicsSection />
-          <ProofOfGenesisSection />
-          <PatentTechSection />
+          <div style={lazyStyle}><HowItWorksSection /></div>
+          <div style={lazyStyle}><TokenomicsSection /></div>
+          <div style={lazyStyle}><ProofOfGenesisSection /></div>
+          <div style={lazyStyle}><PatentTechSection /></div>
         </div>
       </PageShell>
     </>
@@ -125,24 +138,16 @@ function HowItWorksSection() {
       />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {steps.map((s, i) => (
-          <motion.div
-            key={s.title}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ delay: i * 0.05 }}
-          >
-            <Card className="h-full border-border/60 hover:border-primary/40 transition-colors">
-              <CardContent className="p-4">
-                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                  <s.icon className="h-4 w-4 text-primary" />
-                </div>
-                <p className="text-xs font-semibold text-primary mb-1">Step {i + 1}</p>
-                <h3 className="font-semibold text-sm mb-1">{s.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card key={s.title} className="h-full border-border/60 hover:border-primary/40 transition-colors animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
+            <CardContent className="p-4">
+              <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                <s.icon className="h-4 w-4 text-primary" />
+              </div>
+              <p className="text-xs font-semibold text-primary mb-1">Step {i + 1}</p>
+              <h3 className="font-semibold text-sm mb-1">{s.title}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
       <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
