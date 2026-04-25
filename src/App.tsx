@@ -71,6 +71,7 @@ const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
 const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
+const FoundersMasterOutline = lazy(() => import("./pages/FoundersMasterOutline"));
 const Deason = lazy(() => import("./pages/Deason"));
 import { DeasonFloatingBubble } from "./components/deason/DeasonFloatingBubble";
 const Onboarding = lazy(() => import("./pages/Onboarding"));

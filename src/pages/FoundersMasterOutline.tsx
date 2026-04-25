@@ -534,7 +534,7 @@ const SECTIONS: OutlineSection[] = [
 ];
 
 export default function FoundersMasterOutline() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [isFounder, setIsFounder] = useState<boolean | null>(null);
 
   useEffect(() => {
