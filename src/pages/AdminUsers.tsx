@@ -27,6 +27,7 @@ import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenIconOnly from '@/assets/zen-icon-only.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { OnboardingFunnelCard } from '@/components/admin/OnboardingFunnelCard';
+import { DeasonAccessToggle } from '@/components/admin/DeasonAccessToggle';
 import { formatDistanceToNow } from 'date-fns';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
