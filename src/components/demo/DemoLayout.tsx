@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
@@ -6,6 +6,7 @@ import { TopNav } from '@/components/layout/TopNav';
 import { DemoProvider } from '@/contexts/DemoContext';
 import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
 import { FeedbackFab } from '@/components/FeedbackFab';
+import { Badge } from '@/components/ui/badge';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
