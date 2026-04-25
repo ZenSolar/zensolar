@@ -51,7 +51,7 @@ export default function Tokenomics() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Coins className="h-5 w-5 text-primary" />Token Overview</CardTitle>
-            <CardDescription>10 billion max supply with aggressive deflationary mechanics</CardDescription>
+            <CardDescription>1 trillion max supply with aggressive deflationary mechanics</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
@@ -61,7 +61,7 @@ export default function Tokenomics() {
               </div>
               <div className="rounded-xl border bg-gradient-to-br from-accent/5 to-transparent p-5">
                 <p className="text-sm text-muted-foreground mb-1">Max Supply</p>
-                <p className="text-2xl font-bold">10 Billion</p>
+                <p className="text-2xl font-bold">1 Trillion</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
