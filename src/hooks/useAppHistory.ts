@@ -61,6 +61,18 @@ export function useAppHistoryTracker() {
     last.current = here;
 
     const stack = readStack();
+
+    // Deep-link protection: if this is the first entry the user is landing
+    // on (no prior in-app history) AND it's a sub-route, seed the stack
+    // with the proper parent so the back button always returns somewhere
+    // sensible instead of falling out of the app.
+    if (stack.length === 0) {
+      const parent = fallbackParent(location.pathname);
+      if (parent !== here && !isHomeRoute(here)) {
+        stack.push(parent);
+      }
+    }
+
     // Avoid duplicate consecutive entries
     if (stack[stack.length - 1] !== here) {
       stack.push(here);
