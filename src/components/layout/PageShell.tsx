@@ -208,18 +208,31 @@ export function useSectionScrollSpy<T extends string>(
   const [active, setActive] = useState<T>(initial);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.find((e) => e.isIntersecting);
-        if (visible?.target.id) setActive(visible.target.id as T);
-      },
-      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
-    );
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const probeLine = 128;
+      const current = ids.reduce<T>((best, id) => {
+        const el = document.getElementById(id);
+        if (!el) return best;
+        return el.getBoundingClientRect().top <= probeLine ? id : best;
+      }, initial);
+      setActive(current);
+    };
+    const requestUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("hashchange", requestUpdate);
+    return () => {
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("hashchange", requestUpdate);
+    };
   }, [ids]);
 
   return active;
@@ -230,7 +243,21 @@ export function jumpToSection(id: string, offset = 80) {
   const el = document.getElementById(id);
   if (!el) return;
   const top = el.getBoundingClientRect().top + window.scrollY - offset;
-  window.scrollTo({ top, behavior: "smooth" });
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${id}`);
+  window.scrollTo({ top: Math.max(0, top), behavior: reducedMotion ? "auto" : "smooth" });
+}
+
+export function useSectionNavigation<T extends string>(
+  items: ReadonlyArray<PageSectionNavItem<T>>,
+  initial: T,
+  offset = 92,
+) {
+  const ids = items.map((item) => item.id) as T[];
+  const active = useSectionScrollSpy<T>(ids, initial);
+  const select = useCallback((id: T) => jumpToSection(id, offset), [offset]);
+  useDeepLinkSection(ids, select);
+  return { active, select };
 }
 
 /**
@@ -242,15 +269,14 @@ export function useDeepLinkSection(validIds: ReadonlyArray<string>, onMatch: (id
   useEffect(() => {
     const fromHash = window.location.hash.replace(/^#/, "");
     const fromQuery = new URLSearchParams(window.location.search).get("section") ?? "";
-    const target = [fromHash, fromQuery].find((v) => v && validIds.includes(v));
+    const fromLegacyTab = new URLSearchParams(window.location.search).get("tab") ?? "";
+    const target = [fromHash, fromQuery, fromLegacyTab].find((v) => v && validIds.includes(v));
     if (!target) return;
-    // Wait one frame so cv-auto sections have a chance to allocate their
-    // intrinsic size before we measure the scroll target.
-    const raf = requestAnimationFrame(() => {
-      onMatch(target);
-      jumpToSection(target);
+    const first = requestAnimationFrame(() => {
+      const second = requestAnimationFrame(() => onMatch(target));
+      return () => cancelAnimationFrame(second);
     });
-    return () => cancelAnimationFrame(raf);
+    return () => cancelAnimationFrame(first);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
