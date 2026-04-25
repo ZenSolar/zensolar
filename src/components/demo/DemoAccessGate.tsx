@@ -257,8 +257,10 @@ function isPreviewDemoQaRoute() {
 
   const host = window.location.hostname;
   const isPreviewHost = host.includes('id-preview--') || host.includes('lovableproject.com');
+  const params = new URLSearchParams(window.location.search);
+  const qaRequested = params.has('iosqa') || params.has('gateqa') || params.get('debug') === 'ios' || params.get('debug') === 'gate';
 
-  return isPreviewHost && window.location.pathname.startsWith('/demo') && !GATE_BYPASS_PATHS.includes(window.location.pathname);
+  return isPreviewHost && qaRequested && window.location.pathname.startsWith('/demo') && !GATE_BYPASS_PATHS.includes(window.location.pathname);
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
