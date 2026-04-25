@@ -606,6 +606,9 @@ function UserExpandedContent({
         <p className="text-sm text-muted-foreground">No activity data available for this user.</p>
       )}
 
+      {/* Deason access toggle (admin-only mutation enforced by RLS) */}
+      <DeasonAccessToggle userId={profile.user_id} displayName={profile.display_name || profile.email} />
+
       {/* Actions */}
       <div className="pt-3 mt-3 border-t flex items-center justify-between gap-2">
         <Button variant="outline" size="sm" className="gap-2" onClick={() => onViewAs(profile.user_id)}>
