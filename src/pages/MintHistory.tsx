@@ -191,7 +191,9 @@ export default function MintHistory() {
                 <TrendingUp className="h-5 w-5 text-accent-warm" />
                 Pending Activity Breakdown
               </CardTitle>
-              <CardDescription>Activity since last mint — you receive 75% as tokens (20% burn)</CardDescription>
+              <CardDescription>
+                Activity since your last <JargonTip term="mint">mint</JargonTip> — you receive 75% as <JargonTip term="zsolar">$ZSOLAR</JargonTip> (20% burn).
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {isPendingLoading ? (
