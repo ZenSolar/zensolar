@@ -137,7 +137,7 @@ function HowItWorksSection() {
             <Card className="h-full border-border/60 hover:border-primary/40 transition-colors">
               <CardContent className="p-4">
                 <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                  <s.icon className="h-4.5 w-4.5 text-primary" />
+                  <s.icon className="h-4 w-4 text-primary" />
                 </div>
                 <p className="text-xs font-semibold text-primary mb-1">Step {i + 1}</p>
                 <h3 className="font-semibold text-sm mb-1">{s.title}</h3>
