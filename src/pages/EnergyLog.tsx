@@ -20,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { PageLoader } from '@/components/ui/empty-state';
 
 export default function EnergyLog() {
   const {
@@ -225,9 +226,7 @@ export default function EnergyLog() {
           <ComingSoon activityType={activeTab} />
         </AnimatedItem>
       ) : isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <PageLoader label="Loading your energy data…" />
       ) : (
         <>
           {/* Today Hero */}

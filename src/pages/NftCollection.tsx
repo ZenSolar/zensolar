@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { PageLoader } from '@/components/ui/empty-state';
 import { useProfile } from '@/hooks/useProfile';
 import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -884,16 +885,7 @@ export default function NftCollection() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        >
-          <Loader2 className="h-10 w-10 text-primary" />
-        </motion.div>
-      </div>
-    );
+    return <PageLoader label="Loading your collection…" />;
   }
 
   return (

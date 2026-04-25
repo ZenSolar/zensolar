@@ -889,3 +889,42 @@
   letter-spacing: 0.18em;
   font-size: 0.78em;
 }
+
+/* -------------------------------------------------------------------------- */
+/*  PageShell utilities                                                       */
+/*  - .fade-up: GPU-cheap fade-in that respects prefers-reduced-motion        */
+/*  - .cv-auto: content-visibility lazy section, iOS-Safari safe              */
+/* -------------------------------------------------------------------------- */
+
+@keyframes pageShellFadeUp {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.fade-up {
+  opacity: 0;
+  animation: pageShellFadeUp 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* will-change is auto-cleared after animation by the browser */
+  will-change: opacity, transform;
+}
+
+/* iOS Safari ignores `content-visibility` (Safari 18+ only) — using a guarded
+   class lets us scope the optimisation to browsers that support it without
+   risking layout clipping in older iOS Safari. */
+@supports (content-visibility: auto) {
+  .cv-auto {
+    content-visibility: auto;
+    /* Reserve a generous box so scrollspy + scroll anchoring still work
+       and the page height doesn't jump as sections render. */
+    contain-intrinsic-size: 1px 800px;
+  }
+}
+
+/* Honour reduced-motion across all PageShell animations. */
+@media (prefers-reduced-motion: reduce) {
+  .fade-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
