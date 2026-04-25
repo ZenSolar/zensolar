@@ -27,6 +27,7 @@ import { AdminSkeleton } from '@/components/ui/loading-skeleton';
 import zenIconOnly from '@/assets/zen-icon-only.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { OnboardingFunnelCard } from '@/components/admin/OnboardingFunnelCard';
+import { DeasonAccessToggle } from '@/components/admin/DeasonAccessToggle';
 import { formatDistanceToNow } from 'date-fns';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -605,6 +606,9 @@ function UserExpandedContent({
       {(!kpi || (kpi.devices.length === 0 && kpi.nfts_earned.length === 0 && kpi.mint_records.length === 0)) && (
         <p className="text-sm text-muted-foreground">No activity data available for this user.</p>
       )}
+
+      {/* Deason access toggle (admin-only mutation enforced by RLS) */}
+      <DeasonAccessToggle userId={profile.user_id} displayName={profile.display_name || profile.email} />
 
       {/* Actions */}
       <div className="pt-3 mt-3 border-t flex items-center justify-between gap-2">

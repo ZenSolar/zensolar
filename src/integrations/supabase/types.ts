@@ -262,6 +262,27 @@ export type Database = {
         }
         Relationships: []
       }
+      deason_inner_circle: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       deason_usage: {
         Row: {
           message_count: number
@@ -1805,6 +1826,7 @@ export type Database = {
       increment_deason_usage: { Args: { _user_id: string }; Returns: number }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_admin_or_editor: { Args: { _user_id: string }; Returns: boolean }
+      is_deason_inner_circle: { Args: { _user_id: string }; Returns: boolean }
       is_device_claimed: {
         Args: {
           _current_user_id?: string
