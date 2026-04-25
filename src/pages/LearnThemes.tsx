@@ -118,8 +118,19 @@ export default function LearnThemes() {
               </div>
             </div>
 
-            <div className="pb-3 pt-2 text-xs text-muted-foreground">
-              {LEARN_THEMES.find((t) => t.id === preview)?.description}
+            <div className="flex flex-wrap items-center gap-2 pb-3 pt-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                <Check className="h-3 w-3" />
+                Current: {LEARN_THEMES.find((t) => t.id === applied)?.name}
+              </span>
+              {isDirty && (
+                <span className="inline-flex items-center rounded-full border border-border bg-card px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Previewing: {LEARN_THEMES.find((t) => t.id === preview)?.name}
+                </span>
+              )}
+              <span className="basis-full text-xs">
+                {LEARN_THEMES.find((t) => t.id === preview)?.description}
+              </span>
             </div>
           </div>
         </div>
