@@ -884,16 +884,7 @@ export default function NftCollection() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        >
-          <Loader2 className="h-10 w-10 text-primary" />
-        </motion.div>
-      </div>
-    );
+    return <PageLoader label="Loading your collection…" />;
   }
 
   return (
