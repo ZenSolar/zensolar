@@ -61,13 +61,10 @@ export default function Learn() {
         }
       >
         <div className="space-y-16">
-          {/* IMPORTANT: anchor `id` lives on the OUTER wrapper (not inside
-              cv-auto's collapsed subtree) so jumpToSection() always lands on
-              the correct scroll position, even before the section paints. */}
-          <div id="how-it-works" className="cv-auto scroll-mt-28"><HowItWorksSection /></div>
-          <div id="tokenomics" className="cv-auto scroll-mt-28"><TokenomicsSection /></div>
-          <div id="proof-of-genesis" className="cv-auto scroll-mt-28"><ProofOfGenesisSection /></div>
-          <div id="patent" className="cv-auto scroll-mt-28"><PatentTechSection /></div>
+          <section id="how-it-works" className="scroll-mt-28"><HowItWorksSection /></section>
+          <section id="tokenomics" className="scroll-mt-28"><TokenomicsSection /></section>
+          <section id="proof-of-genesis" className="scroll-mt-28"><ProofOfGenesisSection /></section>
+          <section id="patent" className="scroll-mt-28"><PatentTechSection /></section>
         </div>
       </PageShell>
     </>

@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
@@ -6,9 +6,13 @@ import { TopNav } from '@/components/layout/TopNav';
 import { DemoProvider } from '@/contexts/DemoContext';
 import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
 import { FeedbackFab } from '@/components/FeedbackFab';
+import { Badge } from '@/components/ui/badge';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
+  const location = useLocation();
+  const host = typeof window === 'undefined' ? '' : window.location.hostname;
+  const showRouteBanner = import.meta.env.DEV || host.includes('lovableproject.com') || host.includes('id-preview--') || new URLSearchParams(location.search).has('routeqa');
 
   // Force dark on /demo WITHOUT persisting to localStorage, so the user's
   // chosen light/dark preference for the rest of the app is preserved.
@@ -40,6 +44,16 @@ export function DemoLayout() {
           <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh] min-w-0">
             <TopNav isDemo />
             <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 overflow-x-hidden">
+              {showRouteBanner && (
+                <div className="mx-auto mt-2 max-w-4xl px-4">
+                  <div className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/10 px-3 py-2 text-[11px] text-primary">
+                    <span className="font-semibold uppercase tracking-[0.14em]">Demo route QA</span>
+                    <Badge variant="outline" className="border-primary/30 text-primary font-mono text-[10px]">
+                      {location.pathname}
+                    </Badge>
+                  </div>
+                </div>
+              )}
               <Outlet />
             </main>
           </div>

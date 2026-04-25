@@ -257,8 +257,10 @@ function isPreviewDemoQaRoute() {
 
   const host = window.location.hostname;
   const isPreviewHost = host.includes('id-preview--') || host.includes('lovableproject.com');
+  const params = new URLSearchParams(window.location.search);
+  const qaRequested = params.has('iosqa') || params.has('gateqa') || params.get('debug') === 'ios' || params.get('debug') === 'gate';
 
-  return isPreviewHost && window.location.pathname.startsWith('/demo') && !GATE_BYPASS_PATHS.includes(window.location.pathname);
+  return isPreviewHost && qaRequested && window.location.pathname.startsWith('/demo') && !GATE_BYPASS_PATHS.includes(window.location.pathname);
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
@@ -317,9 +319,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const ua = navigator.userAgent;
     return /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
   }, []);
-  // Gate QA mode — always on in preview /demo, or opt-in via query params elsewhere.
-  // P0 audit fix: respect localStorage.zen_hide_qa=1 to silence the diagnostics overlay
-  // for clean investor demos in preview environments.
+  // Gate QA mode — opt-in via query params only. Never force this on all
+  // preview /demo routes because it hides the actual sidebar pages during QA.
   const iosQaEnabled = useMemo(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -328,7 +329,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       // ignore storage failures
     }
     const p = new URLSearchParams(window.location.search);
-    return isPreviewDemoQaRoute() || p.has('iosqa') || p.has('gateqa') || p.get('debug') === 'ios' || p.get('debug') === 'gate';
+    return p.has('iosqa') || p.has('gateqa') || p.get('debug') === 'ios' || p.get('debug') === 'gate';
   }, []);
   const [iosQaEvents, setIosQaEvents] = useState<Array<{ t: number; tag: string; data: string }>>([]);
   const iosQaStartRef = useRef<number>(0);
@@ -1331,7 +1332,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       >
         <div
           className={cn(
-            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-[180ms]",
+            "relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-200",
             hexAwake
               ? (inputFocused ? 'gap-4' : 'gap-6')
               : 'gap-4',
