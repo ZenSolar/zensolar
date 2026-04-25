@@ -60,7 +60,7 @@ export function PageShell({
       </div>
 
       {sticky && (
-        <div className="sticky top-0 z-30 mt-4 border-b border-border/60 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+        <div className="sticky top-0 z-30 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
           <div className={cn("container mx-auto px-4", widthMap[width])}>
             {sticky}
           </div>

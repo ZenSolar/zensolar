@@ -251,9 +251,9 @@ const App = () => {
                       <Route path="wallet" element={<DemoWallet />} />
                       <Route path="settings" element={<Settings />} />
                       <Route path="help-center" element={<HelpCenter />} />
-                      {/* Legacy demo redirects */}
-                      <Route path="how-it-works" element={<Navigate to="/demo/learn?tab=how-it-works" replace />} />
-                      <Route path="tokenomics" element={<Navigate to="/demo/learn?tab=tokenomics" replace />} />
+                      {/* Learn deep-dive pages (linked from Learn hub) */}
+                      <Route path="how-it-works" element={<HowItWorks />} />
+                      <Route path="tokenomics" element={<Tokenomics />} />
                       <Route path="help" element={<Navigate to="/demo/help-center?tab=help" replace />} />
                       <Route path="feedback" element={<Navigate to="/demo/help-center?tab=feedback" replace />} />
                       <Route path="about" element={<Navigate to="/demo/profile" replace />} />
