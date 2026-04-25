@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { isPreviewMode } from "@/lib/previewMode";
 
+// Only the founders themselves see the insider/strategy prompt set.
+// Everyone else (Jo, Todd, Judy, beta users, demo users) gets the
+// curiosity-driven public prompts — even if they have uncapped Deason
+// access via the deason_inner_circle table. "Inner-circle access" controls
+// quota + tone server-side; the *prompt suggestions* shown in the UI are
+// intentionally beginner-friendly for everyone except Joe & Michael.
 const INNER_CIRCLE = new Set([
   "joe@zen.solar",
-  "jo@zen.solar",
-  "todd@zen.solar",
   "mjcheets@gmail.com",
 ]);
 
