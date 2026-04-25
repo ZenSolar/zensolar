@@ -203,11 +203,12 @@ export default function MintHistory() {
                   {[0,1,2,3].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
                 </div>
               ) : pendingActivity.totalTokens === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No pending activity</p>
-                  <p className="text-sm">Connect your energy accounts to start earning!</p>
-                </div>
+                <EmptyState
+                  icon={Coins}
+                  title="No pending activity"
+                  description="Connect your energy accounts to start earning $ZSOLAR rewards on every kWh."
+                  className="py-8"
+                />
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   {[
@@ -254,10 +255,12 @@ export default function MintHistory() {
                   {[0,1,2].map(i => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
                 </div>
               ) : transactions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Hash className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No transactions yet</p>
-                </div>
+                <EmptyState
+                  icon={Hash}
+                  title="No transactions yet"
+                  description="Your mint history will appear here as soon as you tap to mint your first $ZSOLAR."
+                  className="py-8"
+                />
               ) : (
                 transactions.map((tx) => {
                   const actionInfo = ACTION_LABELS[tx.action] || { label: tx.action, icon: <Coins className="h-4 w-4" />, gradient: 'from-muted to-muted', description: 'Transaction' };
