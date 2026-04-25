@@ -149,19 +149,13 @@ export default function MintHistory() {
 
   return (
     <PullToRefreshWrapper onRefresh={handleRefresh}>
-      <div className="container max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/60 shadow-lg">
-              <Clock className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Mint History</h1>
-              <p className="text-muted-foreground text-sm">Complete breakdown of all minted tokens and NFTs</p>
-            </div>
-          </div>
-        </motion.div>
+      <PageShell
+        title="Mint History"
+        description="Every $ZSOLAR and NFT you've earned, with on-chain proof."
+        icon={Clock}
+        width="4xl"
+      >
+        <div className="space-y-6 sm:space-y-8">
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
