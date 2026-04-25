@@ -132,7 +132,6 @@ function TokenomicsSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="tokenomics"
         eyebrow="02 — The Economy"
         title="$ZSOLAR tokenomics"
         description="1 trillion hard cap. Aggressive deflation. Every mint burns supply and seeds liquidity."
