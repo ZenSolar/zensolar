@@ -19,11 +19,13 @@ const INNER_CIRCLE_PROMPTS = [
   "What's the pitch to Lyndon → Elon?",
 ];
 
+// Beginner-friendly prompts: intriguing enough to pull people in,
+// but answerable without any crypto / tokenomics background.
 const PUBLIC_PROMPTS = [
-  "Where does the value of $ZSOLAR come from?",
-  "Is it smarter to hold or sell my tokens?",
-  "What utility rate plan should I be on?",
-  "Help me find savings on my electric bill.",
+  "What is ZenSolar, in plain English?",
+  "How do I actually earn $ZSOLAR?",
+  "Why should I care about this?",
+  "How big could this get one day?",
 ];
 
 /**
