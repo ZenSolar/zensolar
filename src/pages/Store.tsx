@@ -712,28 +712,18 @@ export default function Store() {
           </motion.div>
         )}
 
-        {/* Category Tabs */}
+        {/* Category Switcher — shared PillNav */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
-              <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto p-1.5 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-sm gap-1">
-                {categories.map((cat) => (
-                  <TabsTrigger 
-                    key={cat.id} 
-                    value={cat.id} 
-                    className="flex-shrink-0 py-2.5 px-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all duration-200 gap-2 whitespace-nowrap"
-                  >
-                    <cat.icon className="h-4 w-4 hidden sm:block" />
-                    <span>{cat.label}</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-          </Tabs>
+          <PillNav
+            items={categories}
+            active={activeTab}
+            onSelect={(id) => setActiveTab(id)}
+            ariaLabel="Store categories"
+          />
         </motion.div>
 
         {/* Products Grid */}
