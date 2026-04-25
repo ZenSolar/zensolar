@@ -242,10 +242,15 @@ export function useSectionScrollSpy<T extends string>(
 export function jumpToSection(id: string, offset = 128) {
   const el = document.getElementById(id);
   if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - offset;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${id}`);
-  window.scrollTo({ top: Math.max(0, top), behavior: reducedMotion ? "auto" : "smooth" });
+  el.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+  window.setTimeout(() => {
+    const top = el.getBoundingClientRect().top;
+    if (Math.abs(top - offset) > 12) {
+      window.scrollBy({ top: top - offset, behavior: "auto" });
+    }
+  }, reducedMotion ? 0 : 260);
 }
 
 export function useSectionNavigation<T extends string>(
