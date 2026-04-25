@@ -11,7 +11,8 @@ import { Badge } from '@/components/ui/badge';
 export function DemoLayout() {
   useDemoScreenshotDetector();
   const location = useLocation();
-  const showRouteBanner = import.meta.env.DEV || new URLSearchParams(location.search).has('routeqa');
+  const host = typeof window === 'undefined' ? '' : window.location.hostname;
+  const showRouteBanner = import.meta.env.DEV || host.includes('lovableproject.com') || host.includes('id-preview--') || new URLSearchParams(location.search).has('routeqa');
 
   // Force dark on /demo WITHOUT persisting to localStorage, so the user's
   // chosen light/dark preference for the rest of the app is preserved.
