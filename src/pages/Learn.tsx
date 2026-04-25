@@ -186,7 +186,6 @@ function ProofOfGenesisSection() {
   return (
     <section className="space-y-6">
       <SectionHeader
-        id="proof-of-genesis"
         eyebrow="03 — The Thesis"
         title="Proof-of-Genesis™"
         description="Bitcoin proves work. We prove genesis — the verified moment clean energy enters the world."
