@@ -15,6 +15,7 @@ import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS } from '@/lib/wagmi';
 import { isPreviewMode } from '@/lib/previewMode';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageShell } from '@/components/layout/PageShell';
+import { JargonTip } from '@/components/ui/jargon-tip';
 
 interface MintTransaction {
   id: string;
